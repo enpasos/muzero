@@ -1,0 +1,49 @@
+/*
+ *  Copyright (c) 2021 enpasos GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
+package ai.enpasos.muzero.network.djl.blocks.dlowerlevel;
+
+import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.Activation;
+import ai.djl.nn.convolutional.Conv2d;
+import ai.djl.nn.norm.BatchNorm;
+import lombok.Builder;
+
+
+public class Conv3x3BatchNormRelu extends MySequentialBlock {
+
+
+    private Conv3x3BatchNormRelu() {
+    }
+
+    @Builder(builderMethodName = "builder")
+    public static Conv3x3BatchNormRelu newConvBatchNormRelu(int channels) {
+        Conv3x3BatchNormRelu instance = new Conv3x3BatchNormRelu();
+        instance.add(
+                Conv2d.builder()
+                        .setFilters(channels)
+                        .setKernelShape(new Shape(3, 3))
+                        .optBias(false)
+                        .optPadding(new Shape(1, 1))   // needed to keep in shape
+                        .build())
+                .add(BatchNorm.builder().build())
+                .add(Activation::relu);
+        return instance;
+    }
+
+
+}

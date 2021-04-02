@@ -1,0 +1,143 @@
+/*
+ *  Copyright (c) 2021 enpasos GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
+package ai.enpasos.muzero.environments.tictactoe;
+
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDArrays;
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.Shape;
+import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.environments.OneOfTwoPlayer;
+import ai.enpasos.muzero.gamebuffer.Game;
+import ai.enpasos.muzero.gamebuffer.GameDTO;
+import ai.enpasos.muzero.network.Observation;
+import ai.enpasos.muzero.play.Action;
+import ai.enpasos.muzero.play.Player;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class TicTacToeGame extends Game {
+
+    float[][] boardtransfer;
+
+
+    public TicTacToeGame(MuZeroConfig config, GameDTO gameDTO) {
+        super(config, gameDTO);
+        environment = new TicTacToeEnvironment(config);
+        boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
+    }
+
+    public TicTacToeGame(MuZeroConfig config) {
+        super(config);
+        environment = new TicTacToeEnvironment(config);
+        boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
+    }
+
+    public TicTacToeEnvironment getEnvironment() {
+        return (TicTacToeEnvironment) environment;
+    }
+
+    @Override
+    public boolean terminal() {
+        return this.getEnvironment().terminal();
+    }
+
+
+    @Override
+    public List<Action> legalActions() {
+        return this.getEnvironment().legalActions();
+    }
+
+    @Override
+    public List<Action> allActionsInActionSpace() {
+        return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> new Action(config, i)).collect(Collectors.toList());
+    }
+
+
+    public void replayToPosition(int stateIndex) {
+        environment = new TicTacToeEnvironment(config);
+        if (stateIndex == -1) return;
+        for (int i = 0; i < stateIndex; i++) {
+            Action action = new Action(config, this.getGameDTO().getActionHistory().get(i));
+            environment.step(action);
+        }
+    }
+
+    private float[][] getBoardPositions(int[][] board, int p) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                boardtransfer[i][j] = board[i][j] == p ? 1 : 0;
+            }
+        }
+        return boardtransfer;
+    }
+
+
+    public Observation getObservation(NDManager ndManager) {
+
+        OneOfTwoPlayer currentPlayer = this.getEnvironment().playerToMove;
+        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().playerToMove);
+
+
+        // values in the range [0, 1]
+        NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
+        NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
+
+        NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
+
+        NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
+
+
+        Observation observation = new Observation(stacked);
+        return observation;
+    }
+
+
+    @Override
+    public Player toPlay() {
+        return this.getEnvironment().playerToMove;
+    }
+
+    @Override
+    public String render() {
+
+        String r = this.getGameDTO().getActionHistory().size() + ": ";
+        OneOfTwoPlayer player = null;
+        if (this.getGameDTO().getActionHistory().size() > 0) {
+            Action action = new Action(config, this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
+            int colLastMove = action.getCol();
+
+            player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().playerToMove);
+            r += player.getSymbol() + " move (" + action.getRow() + ", " + colLastMove + ") index " + action.getIndex();
+        }
+        r += "\n";
+        r += getEnvironment().render();
+        if (terminal() && this.getGameDTO().getRewards().size() > 0) {
+            if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
+                r += "\ndraw";
+            } else {
+                r += "\nwinning: " + player.getSymbol();
+            }
+            System.out.println("\nG A M E  O V E R");
+        }
+        return r;
+    }
+}
