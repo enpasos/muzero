@@ -13,7 +13,7 @@ Starting from scratch it learns perfect play within 100.000 training steps and 4
     mvn clean install
 ```
 
-## Run GamePlay and Training
+## Run SelfPlay and Training
 
 ```
     mvn exec:java@train
