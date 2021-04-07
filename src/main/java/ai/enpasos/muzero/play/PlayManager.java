@@ -20,6 +20,7 @@ package ai.enpasos.muzero.play;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
+import ai.djl.pytorch.engine.PtNDManager;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
@@ -34,6 +35,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ai.enpasos.muzero.network.djl.Helper.logNDManagers;
+
 
 @Slf4j
 public class PlayManager {
@@ -46,6 +49,10 @@ public class PlayManager {
 
         for (int i = 0; i < numberOfPlays; i++) {
             try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+
+                logNDManagers(model.getNDManager());
+
+
                 List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
                 Network network = null;
                 if (!fastRuleLearning)
@@ -54,7 +61,13 @@ public class PlayManager {
                 List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
                 gameList.forEach(game -> replayBuffer.saveGame(game));
 
+
+                if (i == numberOfPlays - 1)
+                    logNDManagers(model.getNDManager());
+
+
             }
+
 
             log.info("Played {} games parallel, round {}", noGamesParallel, i);
         }

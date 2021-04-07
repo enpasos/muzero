@@ -21,12 +21,14 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.network.djl.blocks.atraining.MuZeroBlock;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static ai.enpasos.muzero.MuZero.getNetworksBasedir;
 
+@Slf4j
 public class ParameterNames {
     public static void main(String[] args) {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
