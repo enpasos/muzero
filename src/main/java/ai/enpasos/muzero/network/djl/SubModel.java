@@ -77,4 +77,10 @@ public class SubModel extends BaseModel {
     }
 
 
+    protected void finalize() throws Throwable {
+        // not doing something here
+        // resource handling is done in Model not in SubModel !
+    }
+
+
 }

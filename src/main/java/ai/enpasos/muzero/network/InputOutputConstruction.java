@@ -37,44 +37,44 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class InputOutputConstruction {
-    public static List<NDArray> constructInputForDynamics(MuZeroConfig config, NDArray hiddenState, Action action, Model model, boolean withEmptyState, boolean withSymmetryEnrichment) {
-        NDManager nd = NDManager.newBaseManager(config.getInferenceDevice());
-        List<NDArray> inputs = new ArrayList<>();
-
-        inputs.add(hiddenState);
-
-        Sample sample = Sample.builder()
-                .actionsList(List.of(action.getIndex()))
-                .build();
-        List<Sample> batch = new ArrayList<>();
-        batch.add(sample);
-
-        addActionInput(config, 1, batch, nd, inputs, withSymmetryEnrichment);
-
-        return inputs;
-
-    }
-
-
-    public static List<NDArray> constructInputForDynamics(MuZeroConfig config, NDArray hiddenState, List<Action> actionList, Model model, boolean withEmptyState, boolean withSymmetryEnrichment) {
+//    public static List<NDArray> constructInputForDynamics(MuZeroConfig config, NDArray hiddenState, Action action, Model model, boolean withEmptyState, boolean withSymmetryEnrichment) {
+//        NDManager nd = NDManager.newBaseManager(config.getInferenceDevice());
+//        List<NDArray> inputs = new ArrayList<>();
+//
+//        inputs.add(hiddenState);
+//
+//        Sample sample = Sample.builder()
+//                .actionsList(List.of(action.getIndex()))
+//                .build();
+//        List<Sample> batch = new ArrayList<>();
+//        batch.add(sample);
+//
+//        addActionInput(config, 1, batch, nd, inputs, withSymmetryEnrichment);
+//
+//        return inputs;
+//
+//    }
 
 
-        NDManager nd = NDManager.newBaseManager(config.getInferenceDevice());
-        List<NDArray> inputs = new ArrayList<>();
-
-        inputs.add(hiddenState);
-
-        Sample sample = Sample.builder()
-                .actionsList(List.of(actionList.get(0).getIndex()))
-                .build();
-        List<Sample> batch = new ArrayList<>();
-        batch.add(sample);
-
-        addActionInput(config, 1, batch, nd, inputs, withSymmetryEnrichment);
-
-        return inputs;
-
-    }
+//    public static List<NDArray> constructInputForDynamics(MuZeroConfig config, NDArray hiddenState, List<Action> actionList, Model model, boolean withEmptyState, boolean withSymmetryEnrichment) {
+//
+//
+//        NDManager nd = NDManager.newBaseManager(config.getInferenceDevice());
+//        List<NDArray> inputs = new ArrayList<>();
+//
+//        inputs.add(hiddenState);
+//
+//        Sample sample = Sample.builder()
+//                .actionsList(List.of(actionList.get(0).getIndex()))
+//                .build();
+//        List<Sample> batch = new ArrayList<>();
+//        batch.add(sample);
+//
+//        addActionInput(config, 1, batch, nd, inputs, withSymmetryEnrichment);
+//
+//        return inputs;
+//
+//    }
 
     public static List<NDArray> constructInput(MuZeroConfig config, NDManager nd, int numUnrollSteps, Observation observation, List<Integer> actionsList, boolean withEmptyState, boolean withSymmetryEnrichment) {
 

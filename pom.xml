@@ -72,7 +72,7 @@
       </dependency>
       <dependency>
           <groupId>ai.djl.pytorch</groupId>
-          <artifactId>pytorch-native-cu110</artifactId>
+          <artifactId>pytorch-native-auto</artifactId>
           <version>1.7.1</version>
       </dependency>
 
