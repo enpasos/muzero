@@ -24,6 +24,8 @@ import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.network.Network;
 import ai.enpasos.muzero.network.NetworkIO;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import umontreal.ssj.randvarmulti.DirichletGen;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
@@ -31,6 +33,7 @@ import umontreal.ssj.rng.RandomStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,10 +45,10 @@ public class SelfPlayParallel {
 
 
     private static final RandomStream randomStreamBase = new MRG32k3a("rnd");
-    private DirichletGen dg = null;
+    private final @Nullable DirichletGen dg = null;
 
 
-    public static List<Game> playGame(MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, int gameNo, List<NDArray> actionSpaceOnDevice) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, @NotNull Network network, boolean render, boolean fastRuleLearning, int gameNo, @NotNull List<NDArray> actionSpaceOnDevice) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
         List<Game> gameList = IntStream.rangeClosed(1, gameNo)
@@ -88,17 +91,17 @@ public class SelfPlayParallel {
             inferenceDuration.value += System.currentTimeMillis();
 
             if (render && indexOfJustOneOfTheGames != -1) {
-                renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput.get(indexOfJustOneOfTheGames), false);
+                renderNetworkGuess(config, justOneOfTheGames.toPlay(), Objects.requireNonNull(networkOutput).get(indexOfJustOneOfTheGames), false);
             }
 
             for (int g = 0; g < gameList.size(); g++) {
                 mcts.expandNode(rootList.get(g),
                         gameList.get(g).toPlay(),
                         gameList.get(g).legalActions(),
-                        networkOutput.get(g), fastRuleLearning);
+                        Objects.requireNonNull(networkOutput).get(g), false);
             }
 
-            double fraction = fastRuleLearning ? 0.001f : config.getRootEplorationFraction();
+            double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();
 
             rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
 
@@ -109,8 +112,8 @@ public class SelfPlayParallel {
 
             if (!fastRuleLearning) {
                 mcts.runParallel(rootList,
-                        gameList.stream().map(game -> game.actionHistory()).collect(Collectors.toList()),
-                        network, inferenceDuration, actionSpaceOnDevice, indexOfJustOneOfTheGames);
+                        gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
+                        network, inferenceDuration, actionSpaceOnDevice);
             }
 
 
@@ -127,7 +130,7 @@ public class SelfPlayParallel {
                 if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
                     List<float[]> childVisitsList = justOneOfTheGames.getGameDTO().getChildVisits();
                     float[] childVisits = childVisitsList.get(childVisitsList.size() - 1);
-                    renderMCTSSuggestion(config, justOneOfTheGames.toPlay(), childVisits);
+                    renderMCTSSuggestion(config, childVisits);
 
                     System.out.println("\n" + game.render());
                 }
@@ -140,7 +143,7 @@ public class SelfPlayParallel {
 
             if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
                 //System.out.println("reward: " + justOneOfTheGames.reward);
-                NetworkIO networkOutput2 = fastRuleLearning ? null : network.initialInference(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
+                NetworkIO networkOutput2 = network.initialInference(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
                 renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
             }
 
@@ -160,9 +163,9 @@ public class SelfPlayParallel {
         return gamesDoneList;
     }
 
-    private static void renderMCTSSuggestion(MuZeroConfig config, Player toPlay, float[] childVisits) {
+    private static void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println("");
+        System.out.println();
         System.out.println("mcts suggestion:");
         for (int i = 0; i < childVisits.length; i++) {
             values[Action.getRow(config, i)][Action.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
@@ -171,13 +174,13 @@ public class SelfPlayParallel {
 
     }
 
-    private static void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkOutput, boolean gameOver) {
+    private static void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         if (networkOutput != null) {
             double v = networkOutput.getValue();
             double p = (v + 1) / 2 * 100;
             int percent = (int) Math.round(p);
-            System.out.println("");
+            System.out.println();
             System.out.println("network guess:");
             if (!gameOver) {
                 for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
@@ -191,9 +194,9 @@ public class SelfPlayParallel {
         }
     }
 
-    private static void renderSuggestionFromPriors(MuZeroConfig config, Node node) {
+    private static void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println("");
+        System.out.println();
         System.out.println("with exploration noise suggestion:");
         for (int i = 0; i < config.getActionSpaceSize(); i++) {
             Action a = new Action(config, i);
@@ -209,17 +212,17 @@ public class SelfPlayParallel {
     }
 
 
-    public static void addExplorationNoise(double rootEplorationFraction, double rootDirichletAlpha, Node node) {
+    public static void addExplorationNoise(double rootExplorationFraction, double rootDirichletAlpha, @NotNull Node node) {
         Action[] actions = node.getChildren().keySet().toArray(new Action[0]);
         double[] noise = numpyRandomDirichlet(rootDirichletAlpha, actions.length);
         for (int i = 0; i < actions.length; i++) {
             Action action = actions[i];
             Node child = node.getChildren().get(action);
-            child.prior = (1 - rootEplorationFraction) * child.prior + rootEplorationFraction * noise[i];
+            child.prior = (1 - rootExplorationFraction) * child.prior + rootExplorationFraction * noise[i];
         }
     }
 
-    private static double[] numpyRandomDirichlet(double alpha, int dims) {
+    private static double @NotNull [] numpyRandomDirichlet(double alpha, int dims) {
 
         double[] alphas = new double[dims];
         Arrays.fill(alphas, alpha);

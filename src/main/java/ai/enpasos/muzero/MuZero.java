@@ -23,6 +23,7 @@ import ai.enpasos.muzero.network.djl.TrainingHelper;
 import ai.enpasos.muzero.play.PlayManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +41,12 @@ public class MuZero {
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
 
-        int trainingStep = 0;
+        int trainingStep;
 
         do {
 
-            PlayManager.playParallel(replayBuffer, config, 1, true, false, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 4, false, false, false, 1000);
+            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+            PlayManager.playParallel(replayBuffer, config, 8, false, false, 500);
             replayBuffer.saveState();
             trainingStep = TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
@@ -56,12 +57,12 @@ public class MuZero {
 
     }
 
-    private static void createNetworkModelIfNotExisting(MuZeroConfig config) {
+    private static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
         TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, null, 0);
     }
 
 
-    private static void makeObjectDir(MuZeroConfig config) {
+    private static void makeObjectDir(@NotNull MuZeroConfig config) {
         try {
             FileUtils.forceMkdir(new File(getNetworksBasedir(config) + "/" + (GameIO.getLatestObjectNo(config) + 1)));
         } catch (IOException e) {
@@ -69,7 +70,7 @@ public class MuZero {
         }
     }
 
-    public static void deleteNetworksAndGames(MuZeroConfig config) {
+    public static void deleteNetworksAndGames(@NotNull MuZeroConfig config) {
         try {
             FileUtils.forceDelete(new File(config.getOutputDir()));
         } catch (IOException e) {
@@ -84,12 +85,12 @@ public class MuZero {
     }
 
 
-    public static String getGamesBasedir(MuZeroConfig config) {
+    public static @NotNull String getGamesBasedir(@NotNull MuZeroConfig config) {
         return config.getOutputDir() + "games";
     }
 
 
-    public static String getNetworksBasedir(MuZeroConfig config) {
+    public static @NotNull String getNetworksBasedir(@NotNull MuZeroConfig config) {
         return config.getOutputDir() + "networks";
     }
 

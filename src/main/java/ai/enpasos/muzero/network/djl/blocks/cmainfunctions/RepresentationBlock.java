@@ -18,10 +18,11 @@
 package ai.enpasos.muzero.network.djl.blocks.cmainfunctions;
 
 import ai.enpasos.muzero.MuZeroConfig;
+import org.jetbrains.annotations.NotNull;
 
 public class RepresentationBlock extends RepresentationOrDynamicsBlock {
 
-    public RepresentationBlock(MuZeroConfig config) {
+    public RepresentationBlock(@NotNull MuZeroConfig config) {
         super(config);
     }
 

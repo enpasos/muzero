@@ -21,6 +21,7 @@ package ai.enpasos.muzero.gamebuffer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -38,12 +39,10 @@ public class ReplayBufferDTO implements Serializable {
         this.windowSize = windowSize;
     }
 
-    public void saveGame(GameDTO gameDTO) {
+    public void saveGame(@NotNull GameDTO gameDTO) {
 
         String key = gameDTO.getActionHistoryAsString();
-        if (data.containsKey(key)) {
-            data.remove(key);
-        }
+        data.remove(key);
         while (data.size() >= windowSize) {
             String firstKey = data.keySet().iterator().next();
             data.remove(firstKey);

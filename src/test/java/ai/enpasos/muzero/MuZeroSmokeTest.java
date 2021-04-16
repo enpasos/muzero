@@ -20,23 +20,23 @@ package ai.enpasos.muzero;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.network.djl.TrainingHelper;
 import ai.enpasos.muzero.play.PlayManager;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.MuZero.deleteNetworksAndGames;
-import static ai.enpasos.muzero.network.djl.TrainingHelper.trainAndReturnNumberOfLastTrainingStep;
 
 class MuZeroSmokeTest {
 
-    public static void createRandomGamesForOneBatch(MuZeroConfig config) {
+    public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
         deleteNetworksAndGames(config);
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        PlayManager.playParallel(replayBuffer, config, config.getBatchSize(), true, true, false, 1);
+        PlayManager.playParallel(replayBuffer, config, config.getBatchSize(), true, true, 1);
 
 
     }
 
     @Test
-    void smoketest() throws Exception {
+    void smoketest() {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         config.setOutputDir("target/smoketest/");
         config.setNumberOfTrainingStepsPerEpoch(1);
@@ -46,8 +46,8 @@ class MuZeroSmokeTest {
 
         TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
 
-        PlayManager.playParallel(replayBuffer, config, 1, true, false, false, 1);
-        PlayManager.playParallel(replayBuffer, config, 5, false, false, false, 100);
+        PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+        PlayManager.playParallel(replayBuffer, config, 5, false, false, 100);
         replayBuffer.saveState();
         TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
 

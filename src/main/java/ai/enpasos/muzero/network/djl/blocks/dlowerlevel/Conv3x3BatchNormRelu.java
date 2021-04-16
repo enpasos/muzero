@@ -22,6 +22,7 @@ import ai.djl.nn.Activation;
 import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.norm.BatchNorm;
 import lombok.Builder;
+import org.jetbrains.annotations.NotNull;
 
 
 public class Conv3x3BatchNormRelu extends MySequentialBlock {
@@ -30,8 +31,8 @@ public class Conv3x3BatchNormRelu extends MySequentialBlock {
     private Conv3x3BatchNormRelu() {
     }
 
-    @Builder(builderMethodName = "builder")
-    public static Conv3x3BatchNormRelu newConvBatchNormRelu(int channels) {
+    @Builder()
+    public static @NotNull Conv3x3BatchNormRelu newConvBatchNormRelu(int channels) {
         Conv3x3BatchNormRelu instance = new Conv3x3BatchNormRelu();
         instance.add(
                 Conv2d.builder()

@@ -18,13 +18,15 @@
 package ai.enpasos.muzero.play;
 
 
+import org.jetbrains.annotations.Nullable;
+
 public class MinMaxStats {
 
     private double maximum;
     private double minimum;
 
 
-    public MinMaxStats(KnownBounds knownBounds) {
+    public MinMaxStats(@Nullable KnownBounds knownBounds) {
         this();
         if (knownBounds != null) {
             this.minimum = knownBounds.min;

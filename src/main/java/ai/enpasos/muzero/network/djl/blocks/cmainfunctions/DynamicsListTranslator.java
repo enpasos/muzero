@@ -27,22 +27,22 @@ import ai.djl.translate.Pipeline;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.network.NetworkIO;
-
-import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DynamicsListTranslator implements Translator<NetworkIO, NetworkIO> {
     @Override
-    public Batchifier getBatchifier() {
+    public @Nullable Batchifier getBatchifier() {
         return null;
     }
 
     @Override
-    public void prepare(NDManager manager, Model model) throws IOException {
+    public void prepare(NDManager manager, Model model) {
 
     }
 
     @Override
-    public NetworkIO processOutput(TranslatorContext ctx, NDList list) throws Exception {
+    public NetworkIO processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
         NDArray s = list.get(0);
 
@@ -52,12 +52,12 @@ public class DynamicsListTranslator implements Translator<NetworkIO, NetworkIO> 
     }
 
     @Override
-    public Pipeline getPipeline() {
+    public @Nullable Pipeline getPipeline() {
         return null;
     }
 
     @Override
-    public NDList processInput(TranslatorContext ctx, NetworkIO input) throws Exception {
+    public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {
 
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));
         NDArray result = NDArrays.concat(new NDList(input.getHiddenState(), ndArrayActionStack), 1);

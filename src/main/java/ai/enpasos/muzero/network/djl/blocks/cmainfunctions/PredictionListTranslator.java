@@ -26,30 +26,29 @@ import ai.djl.translate.Pipeline;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.network.NetworkIO;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PredictionListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
     @Override
-    public Batchifier getBatchifier() {
+    public @Nullable Batchifier getBatchifier() {
         return null;
     }
 
     @Override
-    public void prepare(NDManager manager, Model model) throws IOException {
+    public void prepare(NDManager manager, Model model) {
 
     }
 
     @Override
-    public List<NetworkIO> processOutput(TranslatorContext ctx, NDList list) throws Exception {
+    public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
 
         // moves the data from gpu to cpu
-//        NDArray p = list.get(0).softmax(1).toDevice(Device.cpu(), false);
-//        NDArray v = list.get(1).toDevice(Device.cpu(), false);
 
 
         NDArray p = list.get(0).softmax(1);
@@ -62,30 +61,28 @@ public class PredictionListTranslator implements Translator<NetworkIO, List<Netw
 
         int n = (int) v.getShape().get(0);
 
-        List<NetworkIO> networkIOList = IntStream.range(0, n)
+        return IntStream.range(0, n)
                 .mapToObj(i ->
                 {
                     float[] ps = new float[actionSpaceSize];
                     System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
                     return NetworkIO.builder()
-                            .value((double) vArray[i])
+                            .value(vArray[i])
                             .policyValues(ps)
                             .build();
 
                 })
                 .collect(Collectors.toList());
 
-        return networkIOList;
-
     }
 
     @Override
-    public Pipeline getPipeline() {
+    public @Nullable Pipeline getPipeline() {
         return null;
     }
 
     @Override
-    public NDList processInput(TranslatorContext ctx, NetworkIO input) throws Exception {
+    public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {
         return new NDList(input.getHiddenState());
     }
 

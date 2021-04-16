@@ -17,10 +17,11 @@
 
 package ai.enpasos.muzero;
 
-import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
 import org.junit.jupiter.api.Test;
 import org.testng.Assert;
+
+import java.util.Objects;
 
 class EnvironmentTest {
 
@@ -28,11 +29,11 @@ class EnvironmentTest {
     void checkIfPlayerHasWon() {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         Game game = config.newGame();
-        game.apply(0, 3, 1, 4, 2);
-        Assert.assertTrue(1f == game.getLastReward());
+        Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
+        Assert.assertEquals(game.getLastReward(), 1f, 0.0);
 
         game = config.newGame();
-        game.apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
-        Assert.assertTrue(0f == game.getLastReward());
+        Objects.requireNonNull(game).apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
+        Assert.assertEquals(game.getLastReward(), 0f, 0.0);
     }
 }

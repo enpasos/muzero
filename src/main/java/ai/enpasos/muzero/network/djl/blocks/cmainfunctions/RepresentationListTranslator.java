@@ -28,24 +28,25 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.network.NetworkIO;
 import ai.enpasos.muzero.network.Observation;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RepresentationListTranslator implements Translator<List<Observation>, NetworkIO> {
     @Override
-    public Batchifier getBatchifier() {
+    public @Nullable Batchifier getBatchifier() {
         return null;
     }
 
     @Override
-    public void prepare(NDManager manager, Model model) throws IOException {
+    public void prepare(NDManager manager, Model model) {
 
     }
 
     @Override
-    public NetworkIO processOutput(TranslatorContext ctx, NDList list) throws Exception {
+    public NetworkIO processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
         NDArray s = list.get(0);
         NDManager manager = s.getManager().getParentManager().getParentManager();
@@ -59,45 +60,20 @@ public class RepresentationListTranslator implements Translator<List<Observation
     }
 
     @Override
-    public Pipeline getPipeline() {
+    public @Nullable Pipeline getPipeline() {
         return null;
     }
 
     @Override
-    public NDList processInput(TranslatorContext ctx, List<Observation> inputList) throws Exception {
-
-        NDList result = new NDList(NDArrays.stack(new NDList(
-                inputList.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
-        )));
+    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Observation> inputList) {
 
 
         // here we leave the hiddenState on the device for later processing within the full model
-//        ancestorManagerWithName("mxModel", result.get(0).getManager())
-//                .ifPresentOrElse(
-//                        manager -> {
-//                            result.detach();
-//                            result.attach(manager);
-//                        },
-//                        () -> {
-//                            throw new RuntimeException("NDManager not found");
-//                        }
-//                );
 
-        return result;
+        return new NDList(NDArrays.stack(new NDList(
+                inputList.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
+        )));
     }
 
-
-//    public static Optional<NDManager> ancestorManagerWithName(String name, NDManager ndManager) {
-//        if(name.equals(ndManager.getName())) {
-//            return Optional.of(ndManager);
-//        } else {
-//            NDManager parentManager = ndManager.getParentManager();
-//            if (parentManager == null) {
-//                return Optional.empty();
-//            } else {
-//                return ancestorManagerWithName(name, parentManager);
-//            }
-//        }
-//    }
 
 }

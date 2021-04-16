@@ -21,6 +21,7 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.play.Action;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,25 +32,14 @@ public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
 
     private final static Logger logger = LoggerFactory.getLogger(TicTacToeEnvironment.class);
 
-    // values
-    // 0: empty field,
-    // 1: PlayerB,
-    // -1: PlayerA
-    //   int[][] board;
-    //   int[][] boardTransfer;
 
-    //  OneOfTwoPlayer playerToMove;
-
-
-    public TicTacToeEnvironment(MuZeroConfig config) {
+    public TicTacToeEnvironment(@NotNull MuZeroConfig config) {
         super(config);
-//            board = new int[config.getBoardHeight()][config.getBoardWidth()];
-//            playerToMove = OneOfTwoPlayer.PlayerA;
     }
 
 
     @Override
-    public float step(Action action) {
+    public float step(@NotNull Action action) {
 
         // putting the stone for the player
         int col = action.getCol();
@@ -87,7 +77,7 @@ public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
     }
 
 
-    public List<Action> legalActions() {
+    public @NotNull List<Action> legalActions() {
         List<Action> legal = new ArrayList<>();
         for (int col = 0; col < config.getBoardWidth(); col++) {
             for (int row = 0; row < config.getBoardHeight(); row++) {
@@ -108,22 +98,22 @@ public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
         return hasPlayerWon(OneOfTwoPlayer.PlayerA) || hasPlayerWon(OneOfTwoPlayer.PlayerB);
     }
 
-    public boolean hasPlayerWon(OneOfTwoPlayer player) {
-        return checkIfPlayerHasWon(player, board, 3);
+    public boolean hasPlayerWon(@NotNull OneOfTwoPlayer player) {
+        return checkIfPlayerHasWon(player, board);
     }
 
-    public String render() {
+    public @NotNull String render() {
         return render(config, preRender());
     }
 
-    private boolean checkIfPlayerHasWon(OneOfTwoPlayer player, int[][] b, int numInARow) {
+    private boolean checkIfPlayerHasWon(@NotNull OneOfTwoPlayer player, int[][] b) {
         int p = player.getValue();
 
         // Horizontal check
-        for (int x = 0; x < config.getBoardWidth() + 1 - numInARow; x++) {
+        for (int x = 0; x < config.getBoardWidth() + 1 - 3; x++) {
             y:
             for (int y = 0; y < config.getBoardHeight(); y++) {
-                for (int r = 0; r < numInARow; r++) {
+                for (int r = 0; r < 3; r++) {
                     if (b[y][x + r] != p) continue y;
                 }
                 return true;
@@ -132,28 +122,28 @@ public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
         // Vertical check
         for (int x = 0; x < config.getBoardWidth(); x++) {
             y:
-            for (int y = 0; y < config.getBoardHeight() + 1 - numInARow; y++) {
-                for (int r = 0; r < numInARow; r++) {
+            for (int y = 0; y < config.getBoardHeight() + 1 - 3; y++) {
+                for (int r = 0; r < 3; r++) {
                     if (b[y + r][x] != p) continue y;
                 }
                 return true;
             }
         }
         // x diag check
-        for (int x = 0; x < config.getBoardWidth() + 1 - numInARow; x++) {
+        for (int x = 0; x < config.getBoardWidth() + 1 - 3; x++) {
             y:
-            for (int y = 0; y < config.getBoardHeight() + 1 - numInARow; y++) {
-                for (int r = 0; r < numInARow; r++) {
+            for (int y = 0; y < config.getBoardHeight() + 1 - 3; y++) {
+                for (int r = 0; r < 3; r++) {
                     if (b[y + r][x + r] != p) continue y;
                 }
                 return true;
             }
         }
         // -x diag check
-        for (int x = 0; x < config.getBoardWidth() + 1 - numInARow; x++) {
+        for (int x = 0; x < config.getBoardWidth() + 1 - 3; x++) {
             y:
-            for (int y = numInARow - 1; y < config.getBoardHeight(); y++) {
-                for (int r = 0; r < numInARow; r++) {
+            for (int y = 3 - 1; y < config.getBoardHeight(); y++) {
+                for (int r = 0; r < 3; r++) {
                     if (b[y - r][x + r] != p) continue y;
                 }
                 return true;

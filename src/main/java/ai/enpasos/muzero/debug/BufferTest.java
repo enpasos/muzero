@@ -22,13 +22,15 @@ import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.GameDTO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class BufferTest {
 
     public static void main(String[] args) {
@@ -37,10 +39,7 @@ public class BufferTest {
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
-        System.out.println("total games: " + replayBuffer.getBuffer().getData().size());
-        //  replayBuffer.saveState();
-        //  replayBuffer.loadLatestState();
-        //  System.out.println("total games after save and reload: " + replayBuffer.getBuffer().getData().size() );
+        log.info("total games: {}", replayBuffer.getBuffer().getData().size());
 
 
         Collection<GameDTO> collection = replayBuffer.getBuffer().getData().values();
@@ -48,25 +47,14 @@ public class BufferTest {
         gameDTO.setRewards(List.of(42.0f));
         replayBuffer.saveGame(new TicTacToeGame(config, gameDTO));
 
-
-        GameDTO[] a = collection.toArray(collection.toArray(new GameDTO[0]));
-        GameDTO first = a[0];
-        GameDTO last = a[a.length - 1];
-
-        Set<Game> set = new HashSet<>();
-
-        List<Game> gamesList = replayBuffer.getBuffer().getData().values().stream()
+        Set<Game> set = replayBuffer.getBuffer().getData().values().stream()
                 .map(dto -> {
                     Game game = config.newGame();
-                    game.setGameDTO(dto);
+                    Objects.requireNonNull(game).setGameDTO(dto);
                     return game;
-                })
-                .collect(Collectors.toList());
-
-
-        set.addAll(gamesList);
-        System.out.println("total games: " + replayBuffer.getBuffer().getData().size());
-        System.out.println("unique games: " + set.size());
+                }).collect(Collectors.toSet());
+        log.info("total games: {}", replayBuffer.getBuffer().getData().size());
+        log.info("unique games: {}", set.size());
 
     }
 

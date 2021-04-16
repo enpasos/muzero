@@ -22,6 +22,7 @@ import ai.enpasos.muzero.network.djl.blocks.dlowerlevel.Conv3x3BatchNormRelu;
 import ai.enpasos.muzero.network.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.network.djl.blocks.dlowerlevel.RescaleBlock;
 import ai.enpasos.muzero.network.djl.blocks.dlowerlevel.ResidualTower;
+import org.jetbrains.annotations.NotNull;
 
 public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
@@ -32,7 +33,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
      * 3 × 3 kernels and 256 hidden planes for each convolution."
      */
 
-    public RepresentationOrDynamicsBlock(MuZeroConfig config) {
+    public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
 
         this.add(Conv3x3BatchNormRelu.builder().channels(config.getNumChannels()).build())
 

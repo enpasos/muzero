@@ -32,6 +32,7 @@ import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.RepresentationBlock;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -39,14 +40,14 @@ import java.util.ArrayList;
 public class MuZeroBlock extends AbstractBlock {
 
     private static final byte VERSION = 2;
-    private final MuZeroConfig config;
+    private final @NotNull MuZeroConfig config;
 
-    private RepresentationBlock representationBlock;
-    private PredictionBlock predictionBlock;
-    private DynamicsBlock dynamicsBlock;
+    private final RepresentationBlock representationBlock;
+    private final PredictionBlock predictionBlock;
+    private final DynamicsBlock dynamicsBlock;
 
 
-    public MuZeroBlock(MuZeroConfig config) {
+    public MuZeroBlock(@NotNull MuZeroConfig config) {
         super(VERSION);
         this.config = config;
 
@@ -55,7 +56,7 @@ public class MuZeroBlock extends AbstractBlock {
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", new DynamicsBlock(config));
 
-        inputNames = new ArrayList();
+        inputNames = new ArrayList<>();
         inputNames.add("observation");
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
             inputNames.add("action_" + k);
@@ -64,7 +65,7 @@ public class MuZeroBlock extends AbstractBlock {
 
 
     @Override
-    protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+    protected @NotNull NDList forwardInternal(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList combinedResult = new NDList();
 
         // initial Inference
@@ -119,7 +120,7 @@ public class MuZeroBlock extends AbstractBlock {
 
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder sb = new StringBuilder(200);
         sb.append("MuZero(\n");
         for (Block block : children.values()) {

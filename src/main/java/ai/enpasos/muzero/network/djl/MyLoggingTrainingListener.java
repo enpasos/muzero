@@ -27,6 +27,7 @@ import ai.djl.training.listener.EvaluatorTrainingListener;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.training.util.ProgressBar;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
      * {@inheritDoc}
      */
     @Override
-    public void onEpoch(Trainer trainer) {
+    public void onEpoch(@NotNull Trainer trainer) {
         numEpochs++;
         if (frequency > 1 && numEpochs % frequency != 1) {
             return;
@@ -112,7 +113,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
      * {@inheritDoc}
      */
     @Override
-    public void onTrainingBatch(Trainer trainer, BatchData batchData) {
+    public void onTrainingBatch(@NotNull Trainer trainer, @NotNull BatchData batchData) {
         if (frequency > 1 && numEpochs % frequency != 1) {
             return;
         }
@@ -126,7 +127,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
                 getTrainingStatus(trainer, batchData.getBatch().getSize()));
     }
 
-    private String getTrainingStatus(Trainer trainer, int batchSize) {
+    private @NotNull String getTrainingStatus(@NotNull Trainer trainer, int batchSize) {
         Metrics metrics = trainer.getMetrics();
         if (metrics == null) {
             return "";
@@ -151,7 +152,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
      * {@inheritDoc}
      */
     @Override
-    public void onValidationBatch(Trainer trainer, BatchData batchData) {
+    public void onValidationBatch(Trainer trainer, @NotNull BatchData batchData) {
         if (frequency > 1 && numEpochs % frequency != 1) {
             return;
         }
@@ -167,7 +168,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
      * {@inheritDoc}
      */
     @Override
-    public void onTrainingBegin(Trainer trainer) {
+    public void onTrainingBegin(@NotNull Trainer trainer) {
         String devicesMsg;
         Device[] devices = trainer.getDevices();
         if (devices.length == 1 && Device.Type.CPU.equals(devices[0].getDeviceType())) {
@@ -191,7 +192,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
      * {@inheritDoc}
      */
     @Override
-    public void onTrainingEnd(Trainer trainer) {
+    public void onTrainingEnd(@NotNull Trainer trainer) {
         Metrics metrics = trainer.getMetrics();
         if (metrics == null) {
             return;
@@ -237,8 +238,8 @@ public class MyLoggingTrainingListener implements TrainingListener {
         }
     }
 
-    private String getEvaluatorsStatus(
-            Metrics metrics, List<Evaluator> toOutput, String stage, int limit) {
+    private @NotNull String getEvaluatorsStatus(
+            @NotNull Metrics metrics, @NotNull List<Evaluator> toOutput, @NotNull String stage, int limit) {
         List<String> metricOutputs = new ArrayList<>(limit + 1);
         int count = 0;
         for (Evaluator evaluator : toOutput) {

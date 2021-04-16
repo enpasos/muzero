@@ -20,6 +20,9 @@ package ai.enpasos.muzero.debug;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.play.Action;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class Visualizer {
     public static void main(String[] args) {
@@ -27,52 +30,28 @@ public class Visualizer {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
 
         Game game = config.newGame();
-        applyAction(config, game, 0);
-        applyAction(config, game, 5);
-        applyAction(config, game, 8);
-        applyAction(config, game, 7);
-        applyAction(config, game, 3);
-        applyAction(config, game, 1);
-        applyAction(config, game, 2);
-        applyAction(config, game, 6);
-        applyAction(config, game, 4);
-
-
-//        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-//        replayBuffer.loadLatestState();   // at least there is one config now
-//            Game game = config.newGame();
-//            game.setGameDTO(replayBuffer.getBuffer().getData().values().iterator().next());
-//        renderGame(config, game);
-//        NDManager ndManager = NDManager.newBaseManager();
-//
-//            int numUnrollSteps = 1;
-//        Sample sample = ReplayBuffer.sampleFromGame(numUnrollSteps, 42, game, 2, ndManager);
-//
-//
-//        NDArray observation =    sample.getObservation().getNDArray(ndManager);
-//        // ok
-//
-//
-//
-//
-//       //     List<Sample> batch = List.of( sample );
-//    //    List<NDArray> output = Trainer.constructOutput(ndManager, numUnrollSteps, batch);
-//
-//   //     NDList input = Trainer.constructInput(batch);
-//            int i = 42;
+        applyAction(Objects.requireNonNull(game), 0);
+        applyAction(game, 5);
+        applyAction(game, 8);
+        applyAction(game, 7);
+        applyAction(game, 3);
+        applyAction(game, 1);
+        applyAction(game, 2);
+        applyAction(game, 6);
+        applyAction(game, 4);
 
 
     }
 
-    private static void applyAction(MuZeroConfig config, Game game, int a) {
+    private static void applyAction(@NotNull Game game, int a) {
         game.apply(a);
         System.out.println("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions());
     }
 
-    public static void renderGame(MuZeroConfig config, Game game) {
+    public static void renderGame(@NotNull MuZeroConfig config, @NotNull Game game) {
         Game replayGame = config.newGame();
 
-        System.out.println("\n" + replayGame.render());
+        System.out.println("\n" + Objects.requireNonNull(replayGame).render());
         for (int i = 0; i < game.getGameDTO().getActionHistory().size(); i++) {
             Action action = new Action(config, game.getGameDTO().getActionHistory().get(i));
             replayGame.apply(action);

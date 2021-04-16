@@ -18,21 +18,20 @@
 package ai.enpasos.muzero.network.djl;
 
 import ai.djl.BaseModel;
-import ai.djl.MalformedModelException;
 import ai.djl.Model;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.nn.Block;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 
 
 @Slf4j
 public class SubModel extends BaseModel {
-    public SubModel(String modelName, Model model, Block block) {
+    public SubModel(String modelName, @NotNull Model model, Block block) {
         super(modelName);
         super.manager = model.getNDManager().newSubManager();
         super.setBlock(block);
@@ -40,19 +39,19 @@ public class SubModel extends BaseModel {
 
 
     @Override
-    public void load(Path modelPath) throws IOException, MalformedModelException {
+    public void load(Path modelPath) {
         log.error("load1 is not implemented #### not expected to be called");
         throw new NotImplementedException("load not implemented on SubModel (use Model)");
     }
 
     @Override
-    public void load(Path modelPath, String prefix) throws IOException, MalformedModelException {
+    public void load(Path modelPath, String prefix) {
         log.error("load2 is not implemented #### not expected to be called");
         throw new NotImplementedException("load not implemented on SubModel (use Model)");
     }
 
     @Override
-    public void load(Path modelPath, String prefix, Map<String, ?> options) throws IOException, MalformedModelException {
+    public void load(Path modelPath, String prefix, Map<String, ?> options) {
         log.error("load3 is not implemented #### not expected to be called");
         throw new NotImplementedException("load not implemented on SubModel (use Model)");
     }
@@ -77,7 +76,7 @@ public class SubModel extends BaseModel {
     }
 
 
-    protected void finalize() throws Throwable {
+    protected void finalize() {
         // not doing something here
         // resource handling is done in Model not in SubModel !
     }

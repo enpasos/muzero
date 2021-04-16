@@ -22,11 +22,14 @@ import ai.djl.Model;
 import ai.djl.training.Trainer;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -36,10 +39,10 @@ public class MyCheckpointsTrainingListener extends TrainingListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MyCheckpointsTrainingListener.class);
 
-    private String outputDir;
+    private final @Nullable String outputDir;
+    private final int step;
     private String overrideModelName;
     private Consumer<Trainer> onSaveModel;
-    private int step;
     private int epoch;
 
 
@@ -53,7 +56,7 @@ public class MyCheckpointsTrainingListener extends TrainingListenerAdapter {
     }
 
 
-    public MyCheckpointsTrainingListener(String outputDir, String overrideModelName, int step) {
+    public MyCheckpointsTrainingListener(@Nullable String outputDir, String overrideModelName, int step) {
         this.outputDir = outputDir;
         this.step = step;
         if (outputDir == null) {
@@ -67,7 +70,7 @@ public class MyCheckpointsTrainingListener extends TrainingListenerAdapter {
      * {@inheritDoc}
      */
     @Override
-    public void onEpoch(Trainer trainer) {
+    public void onEpoch(@NotNull Trainer trainer) {
         setEpoch(getEpoch() + 1);
         if (outputDir == null) {
             return;
@@ -83,7 +86,7 @@ public class MyCheckpointsTrainingListener extends TrainingListenerAdapter {
      * {@inheritDoc}
      */
     @Override
-    public void onTrainingEnd(Trainer trainer) {
+    public void onTrainingEnd(@NotNull Trainer trainer) {
         if (step == -1 || getEpoch() % step != 0) {
             saveModel(trainer);
         }
@@ -118,7 +121,7 @@ public class MyCheckpointsTrainingListener extends TrainingListenerAdapter {
         this.onSaveModel = onSaveModel;
     }
 
-    protected void saveModel(Trainer trainer) {
+    protected void saveModel(@NotNull Trainer trainer) {
         Model model = trainer.getModel();
         String modelName = model.getName();
         if (overrideModelName != null) {
@@ -129,7 +132,7 @@ public class MyCheckpointsTrainingListener extends TrainingListenerAdapter {
             if (onSaveModel != null) {
                 onSaveModel.accept(trainer);
             }
-            model.save(Paths.get(outputDir), modelName);
+            model.save(Paths.get(Objects.requireNonNull(outputDir)), modelName);
         } catch (IOException e) {
             logger.error("Failed to save checkpoint", e);
         }

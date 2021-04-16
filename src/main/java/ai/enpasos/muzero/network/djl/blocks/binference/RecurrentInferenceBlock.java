@@ -31,19 +31,18 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.PredictionBlock;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
 
 
 public class RecurrentInferenceBlock extends AbstractBlock {
 
     private static final byte VERSION = 2;
-    private final MuZeroConfig config;
-    private DynamicsBlock g;
-    private PredictionBlock f;
+    private final DynamicsBlock g;
+    private final PredictionBlock f;
 
 
-    public RecurrentInferenceBlock(MuZeroConfig config) {
+    public RecurrentInferenceBlock(@NotNull MuZeroConfig config) {
         super(VERSION);
-        this.config = config;
 
         g = this.addChildBlock("Dynamics", new DynamicsBlock(config));
         f = this.addChildBlock("Prediction", new PredictionBlock(config));
@@ -51,14 +50,10 @@ public class RecurrentInferenceBlock extends AbstractBlock {
 
 
     /**
-     * @param parameterStore
-     * @param inputs         First input for state, second for action
-     * @param training
-     * @param params
-     * @return
+     * @param inputs First input for state, second for action
      */
     @Override
-    protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+    protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDArray state = inputs.get(0);
         NDArray action = inputs.get(1);
         NDArray inputsAll = NDArrays.concat(new NDList(state, action), 1);
@@ -90,7 +85,7 @@ public class RecurrentInferenceBlock extends AbstractBlock {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder sb = new StringBuilder(200);
         sb.append("RecurrentInference(\n");
         for (Block block : children.values()) {

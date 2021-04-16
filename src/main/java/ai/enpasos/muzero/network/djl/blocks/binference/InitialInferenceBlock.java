@@ -29,19 +29,18 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.network.djl.blocks.cmainfunctions.RepresentationBlock;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
 
 
 public class InitialInferenceBlock extends AbstractBlock {
 
     private static final byte VERSION = 2;
-    private final MuZeroConfig config;
-    private RepresentationBlock h;
-    private PredictionBlock f;
+    private final RepresentationBlock h;
+    private final PredictionBlock f;
 
 
-    public InitialInferenceBlock(MuZeroConfig config) {
+    public InitialInferenceBlock(@NotNull MuZeroConfig config) {
         super(VERSION);
-        this.config = config;
 
         h = this.addChildBlock("Representation", new RepresentationBlock(config));
         f = this.addChildBlock("Prediction", new PredictionBlock(config));
@@ -49,7 +48,7 @@ public class InitialInferenceBlock extends AbstractBlock {
 
 
     @Override
-    protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+    protected NDList forwardInternal(@NotNull ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList hResult = h.forward(parameterStore, inputs, training, params);
         NDList fResult = f.forward(parameterStore, hResult, training, params);
         return hResult.addAll(fResult);
@@ -72,7 +71,7 @@ public class InitialInferenceBlock extends AbstractBlock {
 
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder sb = new StringBuilder(200);
         sb.append("\nInitialInference(\n");
         for (Block block : children.values()) {

@@ -26,6 +26,7 @@ import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.norm.BatchNorm;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -33,7 +34,7 @@ public class ResidualBlock extends AbstractBlock {
 
     private static final byte VERSION = 2;
 
-    public ParallelBlock block;
+    public final ParallelBlock block;
 
     public ResidualBlock(int numChannels) { //, Shape strideShape) {
         super(VERSION);
@@ -76,12 +77,12 @@ public class ResidualBlock extends AbstractBlock {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Residual()";
     }
 
     @Override
-    public NDList forward(ParameterStore parameterStore, NDList inputs, boolean training) {
+    public NDList forward(@NotNull ParameterStore parameterStore, NDList inputs, boolean training) {
         return forward(parameterStore, inputs, training, null);
     }
 

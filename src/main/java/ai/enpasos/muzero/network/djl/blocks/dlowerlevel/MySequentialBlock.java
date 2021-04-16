@@ -19,13 +19,14 @@ package ai.enpasos.muzero.network.djl.blocks.dlowerlevel;
 
 import ai.djl.nn.Block;
 import ai.djl.nn.SequentialBlock;
+import org.jetbrains.annotations.NotNull;
 
 public class MySequentialBlock extends SequentialBlock {
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringBuilder sb = new StringBuilder(200);
-        sb.append(this.getClass().getSimpleName() + "(\n");
+        sb.append(this.getClass().getSimpleName()).append("(\n");
         for (Block block : children.values()) {
             String blockString = block.toString().replaceAll("(?m)^", "\t");
             sb.append(blockString).append('\n');

@@ -26,6 +26,8 @@ import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,7 +39,7 @@ import static ai.enpasos.muzero.environments.EnvironmentBaseBoardGames.render;
 public class MCTS {
     private final MuZeroConfig config;
 
-    private final RandomGenerator rng;
+    private final @NotNull RandomGenerator rng;
 
     public MCTS(MuZeroConfig config) {
         this.config = config;
@@ -45,7 +47,7 @@ public class MCTS {
     }
 
 
-    public static void backpropagate(List<Node> searchPath, double value, Player toPlay, double discount, MinMaxStats minMaxStats) {
+    public static void backpropagate(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
             if (node.getToPlay() == toPlay) {
@@ -60,19 +62,18 @@ public class MCTS {
     }
 
 
-    private void printUCBScores(MuZeroConfig config, List<Node> searchPath, MinMaxStats minMaxStats, boolean ucbScoreExplained) {
-        for (int i = 0; i < searchPath.size(); i++) {
-            Node node = searchPath.get(i);
+    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull List<Node> searchPath, @NotNull MinMaxStats minMaxStats, boolean ucbScoreExplained) {
+        for (Node node : searchPath) {
             printUCBScores(config, node, minMaxStats, ucbScoreExplained);
         }
     }
 
-    private void printUCBScores(MuZeroConfig config, Node node, MinMaxStats minMaxStats, boolean ucbScoreExplained) {
+    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull Node node, @NotNull MinMaxStats minMaxStats, boolean ucbScoreExplained) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         for (int i = 0; i < config.getActionSpaceSize(); i++) {
             Action action = new Action(config, i);
             Node child = node.getChildren().get(action);
-            double score = 0d;
+            double score;
             if (child != null) {
                 score = ucbScore(node, child, minMaxStats, ucbScoreExplained);
 
@@ -84,34 +85,16 @@ public class MCTS {
         System.out.println(render(config, values));
     }
 
-//    private static void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkOutput, boolean gameOver) {
-//        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-//        if (networkOutput != null) {
-//            double v = networkOutput.getValue();
-//            double p = (v + 1) / 2 * 100;
-//            int percent = (int) Math.round(p);
-//            if (!gameOver) {
-//                for (int i = 0; i < networkOutput.getPlainPolicyLogits().length; i++) {
-//                    values[Action.getRow(config, i)][Action.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPlainPolicyLogits()[i])) + "%";  // because softmax
-//                }
-//                System.out.println(render(config, values));
-//
-//            }
-//            System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
-//
-//        }
-//    }
-
-    public void run(Node root, ActionHistory actionHistory, Network network,
-                    Duration inferenceDuration, List<NDArray> actionSpaceOnDevice) {
+    public void run(@NotNull Node root, @NotNull ActionHistory actionHistory, @NotNull Network network,
+                    Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
 
 
         runParallel(List.of(root), List.of(actionHistory), network,
-                inferenceDuration, actionSpaceOnDevice, 0);
+                inferenceDuration, actionSpaceOnDevice);
     }
 
-    public void runParallel(List<Node> rootList, List<ActionHistory> actionHistoryList, Network network,
-                            Duration inferenceDuration, List<NDArray> actionSpaceOnDevice, int indexOfJustOneOfTheGames) {
+    public void runParallel(@NotNull List<Node> rootList, @NotNull List<ActionHistory> actionHistoryList, @NotNull Network network,
+                            @Nullable Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
 
 
         // TODO better would be a simulation object that encapsulates the info that is spread over many Lists
@@ -122,10 +105,9 @@ public class MCTS {
 
         for (int i = 0; i < config.getNumSimulations(); i++) { // in range(config.num_simulations):
 
-            List<ActionHistory> historyList = actionHistoryList.stream().map(a -> a.clone()).collect(Collectors.toList());
+            List<ActionHistory> historyList = actionHistoryList.stream().map(ActionHistory::clone).collect(Collectors.toList());
 
-            List<Node> nodeList = new ArrayList<>();
-            nodeList.addAll(rootList);
+            List<Node> nodeList = new ArrayList<>(rootList);
 
 
             List<List<Node>> searchPathList = IntStream.range(0, rootList.size())
@@ -155,10 +137,9 @@ public class MCTS {
             }).collect(Collectors.toList());
 
 
-            List<Action> lastActions = historyList.stream().map(ah -> ah.lastAction()).collect(Collectors.toList());
+            List<Action> lastActions = historyList.stream().map(ActionHistory::lastAction).collect(Collectors.toList());
             List<NDArray> actionList = lastActions.stream().map(action -> {
-                NDArray a = actionSpaceOnDevice.get(action.getIndex());
-                return a;
+                return actionSpaceOnDevice.get(action.getIndex());
                 //   return a.duplicate();
             }).collect(Collectors.toList());
 
@@ -176,7 +157,7 @@ public class MCTS {
             for (int g = 0; g < nodeList.size(); g++) {
                 ActionHistory history = historyList.get(g);
                 Node node = nodeList.get(g);
-                NetworkIO networkOutput = networkOutputList.get(g);
+                NetworkIO networkOutput = Objects.requireNonNull(networkOutputList).get(g);
                 List<Node> searchPath = searchPathList.get(g);
                 MinMaxStats minMaxStats = minMaxStatsList.get(g);
 
@@ -184,9 +165,7 @@ public class MCTS {
 
                 backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats);
 
-                if (g == indexOfJustOneOfTheGames) {
-                    // System.out.println(i + ": " + searchPathToString(searchPath, false));
-                }
+                // System.out.println(i + ": " + searchPathToString(searchPath, false));
 
             }
 
@@ -197,18 +176,18 @@ public class MCTS {
         clean(rootList);
     }
 
-    private void clean(List<Node> rootList) {
-        rootList.stream().forEach(
-                root -> clean(root)
+    private void clean(@NotNull List<Node> rootList) {
+        rootList.forEach(
+                this::clean
         );
     }
 
-    private void clean(Node node) {
+    private void clean(@NotNull Node node) {
         if (node.getHiddenState() != null) {
             node.getHiddenState().close();
             node.setHiddenState(null);
         }
-        node.getChildren().entrySet().stream().forEach(
+        node.getChildren().entrySet().forEach(
                 e -> {
                     Node child = e.getValue();
                     clean(child);
@@ -216,9 +195,9 @@ public class MCTS {
         );
     }
 
-    private String searchPathToString(List<Node> searchPath, boolean withValue) {
+    private @NotNull String searchPathToString(@NotNull List<Node> searchPath, boolean withValue) {
         StringBuffer buf = new StringBuffer();
-        searchPath.stream().forEach(
+        searchPath.forEach(
                 n -> {
                     if (n.getAction() != null) {
                         buf.append(", ")
@@ -237,7 +216,7 @@ public class MCTS {
     }
 
 
-    public void expandNode(Node node, Player toPlay, List<Action> actions, NetworkIO networkOutput,
+    public void expandNode(@NotNull Node node, Player toPlay, @NotNull List<Action> actions, @NotNull NetworkIO networkOutput,
                            boolean fastRuleLearning) {
         node.toPlay = toPlay;
         if (!fastRuleLearning) {
@@ -302,25 +281,23 @@ public class MCTS {
 //    }
 
 
-    public Map.Entry<Action, Node> selectChild(Node node, MinMaxStats minMaxStats) {
+    public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, @NotNull MinMaxStats minMaxStats) {
 
-        List<Map.Entry<Action, Node>> list = new ArrayList<>();
-        list.addAll(node.children.entrySet());
+        List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
         Collections.shuffle(list);
-        Map.Entry<Action, Node> result = list.stream()
-                .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
-                .get();
 
 
         // for debugging only
         // ucbScore(node, result.getValue(), minMaxStats, true);
 
-        return result;
+        return list.stream()
+                .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
+                .get();
 
     }
 
 
-    public double ucbScore(Node parent, Node child, MinMaxStats minMaxStats, boolean specialLogging) {
+    public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats, boolean specialLogging) {
         double pbC = Math.log((parent.getVisitCount() + config.getPbCBase() + 1d) / config.getPbCBase()) + config.getPbCInit();
         pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
         double priorScore = pbC * child.prior;
@@ -337,7 +314,7 @@ public class MCTS {
     }
 
 
-    public Action selectActionByDrawingFromDistribution(int numMoves, Node node, Network network) {
+    public Action selectActionByDrawingFromDistribution(int numMoves, @NotNull Node node, Network network) {
 
         List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
 
@@ -345,30 +322,27 @@ public class MCTS {
         return distribution.sample();
     }
 
-    public Action selectActionByMaxFromDistribution(int numMoves, Node node, Network network) {
+    public Action selectActionByMaxFromDistribution(int numMoves, @NotNull Node node, Network network) {
 
         List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
         return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
 
     }
 
-    private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, Node node, Network network) {
+    private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, @NotNull Node node, @Nullable Network network) {
         int numTrainingSteps = network != null ? network.trainingSteps() : 1;
         double t = config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
         double td = 1.0 / t;
 
-        Double sum = node.getChildren().entrySet().stream()
-                .collect(Collectors.summingDouble(e -> Math.pow(e.getValue().getVisitCount(), td)));
+        double sum = node.getChildren().values().stream().mapToDouble(v -> Math.pow(v.getVisitCount(), td)).sum();
 
-        List<Pair<Action, Double>> distributionInput = node.getChildren().entrySet().stream()
+        return node.getChildren().entrySet().stream()
                 .map(e -> {
                     Action action = e.getKey();
                     double v = Math.pow(e.getValue().getVisitCount(), td) / sum;
-                    Pair<Action, Double> pair = new Pair<>(action, v);
-                    return pair;
+                    return new Pair<Action, Double>(action, v);
                 })
                 .collect(Collectors.toList());
-        return distributionInput;
     }
 
     private double visitSoftmaxTemperature(int numMoves, int numTrainingSteps) {

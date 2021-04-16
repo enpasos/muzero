@@ -23,6 +23,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import org.jetbrains.annotations.NotNull;
 
 public class RescaleBlock extends AbstractBlock {
 
@@ -34,7 +35,7 @@ public class RescaleBlock extends AbstractBlock {
 
 
     @Override
-    protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+    protected @NotNull NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDArray current = inputs.head();
         // Scale to the range [0, 1]  (same range as the action input)
 

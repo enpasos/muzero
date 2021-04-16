@@ -39,6 +39,7 @@ import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.network.Sample;
 import ai.enpasos.muzero.network.djl.blocks.atraining.MuZeroBlock;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Paths;
 import java.util.List;
@@ -53,33 +54,8 @@ import static ai.enpasos.muzero.network.djl.Helper.logNDManagers;
 public class TrainingHelper {
 
 
-//    public static void loadModelAndForward(MuZeroConfig config) throws Exception {
-//
-//        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-//        GameIO.readGames(config).forEach(replayBuffer::saveGame);
-//
-//        Game game = replayBuffer.sampleGames().get(0);
-//        game.replayToPosition(3);
-//
-//
-//        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-//            Network network = new Network(config, model);
-//            Observation observation = game.getObservation(model.getNDManager());
-//            NetworkIO networkOutputFromRepresentation = network.representation(observation);
-//
-//            NetworkIO networkOutputFromPrediction = network.prediction(networkOutputFromRepresentation);
-//
-//            Action action = new Action(config, game.getGameDTO().getActionHistory().get(1));
-//            networkOutputFromRepresentation.setAction(action);
-//            networkOutputFromRepresentation.setConfig(config);
-//
-//            NetworkIO networkOutputFromDynamics = network.dynamics(networkOutputFromRepresentation);
-//        }
-//
-//    }
-
-
-    public static int trainAndReturnNumberOfLastTrainingStep(MuZeroConfig config, ReplayBuffer replayBuffer, int numberOfEpochs) {
+    @SuppressWarnings("ConstantConditions")
+    public static int trainAndReturnNumberOfLastTrainingStep(@NotNull MuZeroConfig config, ReplayBuffer replayBuffer, int numberOfEpochs) {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
         boolean withSymmetryEnrichment = true;
@@ -125,19 +101,7 @@ public class TrainingHelper {
     }
 
 
-//    private static void stateFromOutputToBatch(MuZeroConfig config, NDList output, Batch batch) {
-//
-//        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-//            int fromIndex = 0 + 3 * (k - 1);
-//            int toIndex = 1 + 2 * (k - 1);
-//
-//            NDArray from = output.get(fromIndex);
-//            batch.getData().set(toIndex, from);
-//        }
-//
-//    }
-
-    public static void trainAndReturnNumberOfLastTrainingStep(int numberOfEpochs, MuZeroConfig config) {
+    public static void trainAndReturnNumberOfLastTrainingStep(int numberOfEpochs, @NotNull MuZeroConfig config) {
 
 
         ReplayBuffer replayBuffer =
@@ -147,24 +111,18 @@ public class TrainingHelper {
         trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, numberOfEpochs);
     }
 
-    private static Batch getBatch(MuZeroConfig config, Model model, boolean withSymmetryEnrichment) {
+    private static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull Model model, boolean withSymmetryEnrichment) {
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         return getBatch(config, model.getNDManager(), replayBuffer, withSymmetryEnrichment);
     }
 
-    private static Batch getBatch(MuZeroConfig config, NDManager ndManager, ReplayBuffer replayBuffer, boolean withSymmetryEnrichment) {
-        //    log.debug("ndManager.newSubManager()  ... starting");
+    private static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull NDManager ndManager, @NotNull ReplayBuffer replayBuffer, boolean withSymmetryEnrichment) {
         NDManager nd = ndManager.newSubManager();
-        //   log.debug("ndManager.newSubManager()  ... ended");
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), config.getTdSteps(), nd);
-        //     log.debug("replayBuffer.sampleBatch ... done");
         List<NDArray> inputs = constructInput(config, nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-        ///   log.debug("inputs from batch done");
         List<NDArray> outputs = constructOutput(nd, config.getNumUnrollSteps(), batch);
-        //     log.debug("outputs from batch done");
 
-
-        Batch batchDjl = new Batch(
+        return new Batch(
                 nd,
                 new NDList(inputs),
                 new NDList(outputs),
@@ -173,14 +131,13 @@ public class TrainingHelper {
                 null,
                 0,
                 0);
-        return batchDjl;
     }
 
-    private static Shape[] getInputShapes(MuZeroConfig conf) {
+    private static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf) {
         return getInputShapes(conf, conf.getBatchSize());
     }
 
-    private static Shape[] getInputShapes(MuZeroConfig conf, int batchSize) {
+    private static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf, int batchSize) {
         Shape[] shapes = new Shape[conf.getNumUnrollSteps() + 1];
         // for observation input
         shapes[0] = new Shape(batchSize, 3, conf.getBoardHeight(), conf.getBoardWidth());
@@ -191,7 +148,7 @@ public class TrainingHelper {
     }
 
 
-    private static DefaultTrainingConfig setupTrainingConfig(MuZeroConfig muZeroConfig, int epoch) {
+    private static DefaultTrainingConfig setupTrainingConfig(@NotNull MuZeroConfig muZeroConfig, int epoch) {
         String outputDir = getNetworksBasedir(muZeroConfig);
         MyCheckpointsTrainingListener listener = new MyCheckpointsTrainingListener(outputDir);
         listener.setEpoch(epoch);
@@ -222,25 +179,20 @@ public class TrainingHelper {
             k++;
         }
 
-        DefaultTrainingConfig config =
-                new DefaultTrainingConfig(loss)
-                        .optOptimizer(setupOptimizer(muZeroConfig))
-                        .addTrainingListeners(new TrainingListener[]{
-                                new EpochTrainingListener(),
-                                new MemoryTrainingListener(outputDir),
-                                new EvaluatorTrainingListener(),
-                                new DivergenceCheckTrainingListener(),
-                                new MyLoggingTrainingListener(epoch),
-                                //   new LoggingTrainingListener(),
-                                new TimeMeasureTrainingListener(outputDir)
-                        })
-                        .addTrainingListeners(listener);
 
-
-        return config;
+        return new DefaultTrainingConfig(loss)
+                .optOptimizer(setupOptimizer(muZeroConfig))
+                .addTrainingListeners(new EpochTrainingListener(),
+                        new MemoryTrainingListener(outputDir),
+                        new EvaluatorTrainingListener(),
+                        new DivergenceCheckTrainingListener(),
+                        new MyLoggingTrainingListener(epoch),
+                        //   new LoggingTrainingListener(),
+                        new TimeMeasureTrainingListener(outputDir))
+                .addTrainingListeners(listener);
     }
 
-    private static Optimizer setupOptimizer(MuZeroConfig muZeroConfig) {
+    private static @NotNull Optimizer setupOptimizer(@NotNull MuZeroConfig muZeroConfig) {
 
         Tracker learningRateTracker = Tracker.fixed(muZeroConfig.getLrInit());
 

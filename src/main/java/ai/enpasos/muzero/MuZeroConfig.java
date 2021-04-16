@@ -23,6 +23,8 @@ import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.play.KnownBounds;
 import lombok.Builder;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.function.BiFunction;
@@ -31,8 +33,8 @@ import java.util.function.BiFunction;
 @Builder
 public class MuZeroConfig {
 
-    private final String modelName;
-    private final Class<?> gameClass;
+    private final @NotNull String modelName;
+    private final @NotNull Class<?> gameClass;
 
     // game/environment
     private final int maxMoves;
@@ -57,14 +59,14 @@ public class MuZeroConfig {
     // play
     private final int numSimulations;
     private final double rootDirichletAlpha;
-    private final double rootEplorationFraction;
-    private final BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFn;
-    private final KnownBounds knownBounds;
+    private final double rootExplorationFraction;
+    private final @NotNull BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFn;
+    private final @NotNull KnownBounds knownBounds;
     // play - PUCB params from paper
     private final int pbCBase;
     private final double pbCInit;
     // inference device
-    private final Device inferenceDevice;
+    private final @NotNull Device inferenceDevice;
     // network training
     private int numberOfTrainingSteps;
     private int numberOfTrainingStepsPerEpoch;
@@ -110,7 +112,7 @@ public class MuZeroConfig {
                 // play
                 .numSimulations(50)     // 800 in the paper
                 .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
-                .rootEplorationFraction(0.25)   // as in paper
+                .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
                 .knownBounds(new KnownBounds(-1d, 1d))  // as in the paper
                 // play - PUCB params from paper
@@ -127,12 +129,11 @@ public class MuZeroConfig {
     }
 
 
-    public Game newGame() {
+    public @Nullable Game newGame() {
 
         try {
             Constructor<?> constructor = gameClass.getConstructor(MuZeroConfig.class);
-            Game game = (Game) constructor.newInstance(this);
-            return game;
+            return (Game) constructor.newInstance(this);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -20,16 +20,17 @@ package ai.enpasos.muzero.network;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 @Data
 public class Observation {
     private byte[] value;
 
-    public Observation(NDArray value) {
+    public Observation(@NotNull NDArray value) {
         this.value = value.encode();
     }
 
-    public NDArray getNDArray(NDManager ndManager) {
+    public NDArray getNDArray(@NotNull NDManager ndManager) {
         return ndManager.decode(value);
     }
 }

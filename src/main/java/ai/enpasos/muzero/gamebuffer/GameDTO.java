@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class GameDTO implements Serializable {
     List<float[]> childVisits;
     List<Float> rootValues;
 
-    public GameDTO(Game game) {
+    public GameDTO(@NotNull Game game) {
         this.gameClassName = game.getClass().getCanonicalName();
         this.actionHistory = new ArrayList<>();
         this.rewards = new ArrayList<>();
@@ -50,7 +51,7 @@ public class GameDTO implements Serializable {
     }
 
 
-    public String getActionHistoryAsString() {
+    public @NotNull String getActionHistoryAsString() {
         StringBuffer buf = new StringBuffer(this.actionHistory.size());
         this.actionHistory.forEach(a -> buf.append(a.intValue()).append("."));
         return buf.toString();

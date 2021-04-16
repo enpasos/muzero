@@ -27,6 +27,8 @@ import ai.enpasos.muzero.play.ActionHistory;
 import ai.enpasos.muzero.play.Node;
 import ai.enpasos.muzero.play.Player;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
@@ -41,47 +43,47 @@ public abstract class Game implements Serializable {
 
     protected GameDTO gameDTO;
 
-    protected MuZeroConfig config;
+    protected transient MuZeroConfig config;
 
     protected int actionSpaceSize;
     protected double discount;
     protected EnvironmentBaseBoardGames environment;
 
 
-    public Game(MuZeroConfig config) {
+    public Game(@NotNull MuZeroConfig config) {
         this.config = config;
         this.gameDTO = new GameDTO(this);
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
     }
 
-    public Game(MuZeroConfig config, GameDTO gameDTO) {
+    public Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
     }
 
-    public static Game decode(MuZeroConfig config, byte[] bytes) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-            GameDTO dto = (GameDTO) ois.readObject();
+    public static Game decode(@NotNull MuZeroConfig config, byte @NotNull [] bytes) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
+            GameDTO dto = (GameDTO) objectInputStream.readObject();
             Game game = config.newGame();
-            game.setGameDTO(dto);
+            Objects.requireNonNull(game).setGameDTO(dto);
             return game;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Game clone() {
+    public @NotNull Game clone() {
         Game clone = decode(this.config, this.encode());
         clone.replayToPosition(clone.getGameDTO().getActionHistory().size());
         return clone;
     }
 
 
-    public Float getLastReward() {
+    public @Nullable Float getLastReward() {
         if (getGameDTO().getRewards().size() == 0) return null;
         return getGameDTO().getRewards().get(getGameDTO().getRewards().size() - 1);
     }
@@ -93,13 +95,13 @@ public abstract class Game implements Serializable {
 
     abstract public List<Action> allActionsInActionSpace();
 
-    public void apply(int... actionIndex) {
+    public void apply(int @NotNull ... actionIndex) {
         Arrays.stream(actionIndex).forEach(
                 i -> apply(new Action(config, i))
         );
     }
 
-    public void apply(Action action) {
+    public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
 
         this.getGameDTO().getRewards().add(reward);
@@ -107,7 +109,7 @@ public abstract class Game implements Serializable {
     }
 
 
-    public void storeSearchStatistics(Node root, boolean fastRuleLearning) {
+    public void storeSearchStatistics(@NotNull Node root, boolean fastRuleLearning) {
 
         float[] childVisit = new float[this.actionSpaceSize];
         if (fastRuleLearning) {
@@ -118,7 +120,7 @@ public abstract class Game implements Serializable {
             }
         } else {
             int sumVisits = root.children.values().stream()
-                    .mapToInt(node -> node.getVisitCount())
+                    .mapToInt(Node::getVisitCount)
                     .sum();
 
             for (SortedMap.Entry<Action, Node> e : root.getChildren().entrySet()) {
@@ -134,7 +136,7 @@ public abstract class Game implements Serializable {
 
     // TODO at the moment we are only using the board game case.
     // the implementation also addresses the more general case, but might be not correct in detail
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay) {
+    public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay) {
 
         List<Target> targets = new ArrayList<>();
         int currentIndexPerspective = toPlay == OneOfTwoPlayer.PlayerA ? 1 : -1;
@@ -162,11 +164,11 @@ public abstract class Game implements Serializable {
             Target target = new Target();
             if (currentIndex < this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
-                target.reward = (float) lastReward;
+                target.reward = lastReward;
                 target.policy = this.getGameDTO().getChildVisits().get(currentIndex);
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
-                target.reward = (float) lastReward;
+                target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
@@ -187,28 +189,28 @@ public abstract class Game implements Serializable {
     abstract public Player toPlay();
 
 
-    public ActionHistory actionHistory() {
+    public @NotNull ActionHistory actionHistory() {
         return new ActionHistory(config, this.gameDTO.actionHistory, actionSpaceSize);
     }
 
 
     abstract public String render();
 
-    public byte[] encode() {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+    public byte @NotNull [] encode() {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
             oos.writeObject(this.gameDTO);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return baos.toByteArray();
+        return byteArrayOutputStream.toByteArray();
     }
 
     public abstract Observation getObservation(NDManager ndManager);
 
     public abstract void replayToPosition(int stateIndex);
 
-    public List<Integer> getRandomActionsIndices(int i) {
+    public @NotNull List<Integer> getRandomActionsIndices(int i) {
 
         Random r = new Random();
 

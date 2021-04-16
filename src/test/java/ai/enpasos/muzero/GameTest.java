@@ -17,10 +17,12 @@
 
 package ai.enpasos.muzero;
 
-import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.play.Action;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,12 +37,12 @@ class GameTest {
         check(new int[]{0, 5, 4, 3, 8});
     }
 
-    private void check(int[] actions) {
+    private void check(int @NotNull [] actions) {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         Game game = config.newGame();
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];
-            game.apply(new Action(config, a));
+            Objects.requireNonNull(game).apply(new Action(config, a));
             if (i == actions.length - 1) {
                 assertTrue(game.terminal());
             } else {

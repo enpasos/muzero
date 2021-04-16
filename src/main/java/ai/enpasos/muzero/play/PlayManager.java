@@ -20,7 +20,6 @@ package ai.enpasos.muzero.play;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.djl.pytorch.engine.PtNDManager;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
@@ -29,10 +28,12 @@ import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.network.Network;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.network.djl.Helper.logNDManagers;
@@ -41,11 +42,11 @@ import static ai.enpasos.muzero.network.djl.Helper.logNDManagers;
 @Slf4j
 public class PlayManager {
 
-    public static void play(ReplayBuffer replayBuffer, MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, boolean persistPerGame, int noGamesParallel) {
-        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, persistPerGame, 1);
+    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning) {
+        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, 1);
     }
 
-    public static void playParallel(ReplayBuffer replayBuffer, MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, boolean persistPerGame, int noGamesParallel) {
+    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel) {
 
         for (int i = 0; i < numberOfPlays; i++) {
             try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
@@ -58,8 +59,8 @@ public class PlayManager {
                 if (!fastRuleLearning)
                     network = new Network(config, model);
 
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
-                gameList.forEach(game -> replayBuffer.saveGame(game));
+                List<Game> gameList = SelfPlayParallel.playGame(config, Objects.requireNonNull(network), render, false, noGamesParallel, actionSpaceOnDevice);
+                gameList.forEach(replayBuffer::saveGame);
 
 
                 if (i == numberOfPlays - 1)
@@ -74,13 +75,13 @@ public class PlayManager {
 
     }
 
-    public static List<NDArray> getAllActionsOnDevice(MuZeroConfig config, NDManager ndManager) {
-        List<Action> actions = config.newGame().allActionsInActionSpace();
+    public static List<NDArray> getAllActionsOnDevice(@NotNull MuZeroConfig config, @NotNull NDManager ndManager) {
+        List<Action> actions = Objects.requireNonNull(config.newGame()).allActionsInActionSpace();
         return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
     }
 
 
-    private static void saveGame(ReplayBuffer replayBuffer, Game game, MuZeroConfig config, boolean persistPerGame) {
+    private static void saveGame(@NotNull ReplayBuffer replayBuffer, @NotNull Game game, @NotNull MuZeroConfig config, boolean persistPerGame) {
 
         replayBuffer.saveGame(game);
 

@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.environments;
 
 import ai.enpasos.muzero.play.Player;
+import org.jetbrains.annotations.NotNull;
 
 
 public enum OneOfTwoPlayer implements Player {
@@ -34,7 +35,7 @@ public enum OneOfTwoPlayer implements Player {
         this.setActionValue(actionValue);
     }
 
-    public static OneOfTwoPlayer otherPlayer(OneOfTwoPlayer player) {
+    public static @NotNull OneOfTwoPlayer otherPlayer(OneOfTwoPlayer player) {
         if (player == PlayerA) return PlayerB;
         else return PlayerA;
     }

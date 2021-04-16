@@ -20,56 +20,57 @@ package ai.enpasos.muzero.play;
 
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ActionHistory {
+public class ActionHistory implements Cloneable {
 
 
-    private final List<Integer> actions;
+    private final @NotNull List<Integer> actions;
     private final int actionSpaceSize;
-    private MuZeroConfig config;
+    private final MuZeroConfig config;
 
 
-    public ActionHistory(MuZeroConfig config, List<Integer> history, int actionSpaceSize) {
+    public ActionHistory(MuZeroConfig config, @NotNull List<Integer> history, int actionSpaceSize) {
         this.config = config;
         this.actions = new ArrayList<>();
         this.actions.addAll(history);
         this.actionSpaceSize = actionSpaceSize;
     }
 
-    public List<Integer> getActionIndexList() {
+    public @NotNull List<Integer> getActionIndexList() {
         return actions;
     }
 
 
-    public ActionHistory clone() {
+    public @NotNull ActionHistory clone() {
         return new ActionHistory(config, actions, actionSpaceSize);
     }
 
 
-    public void addAction(Action action) {
+    public void addAction(@NotNull Action action) {
         this.actions.add(action.getIndex());
     }
 
 
-    public Action lastAction() {
+    public @NotNull Action lastAction() {
         return new Action(config, actions.get(actions.size() - 1));
     }
 
 
-    public List<Action> actionSpace(MuZeroConfig config) {
+    public static @NotNull List<Action> actionSpace(MuZeroConfig config) {
         List<Action> actions = new ArrayList<>();
-        for (int i = 0; i < this.actionSpaceSize; i++) {
+        for (int i = 0; i < config.getActionSpaceSize(); i++) {
             actions.add(new Action(config, i));
         }
         return actions;
     }
 
 
-    public Player toPlay() {
+    public @NotNull Player toPlay() {
         int t = this.actions.size();
         if (t % 2 == 0) return OneOfTwoPlayer.PlayerA;
         else return OneOfTwoPlayer.PlayerB;

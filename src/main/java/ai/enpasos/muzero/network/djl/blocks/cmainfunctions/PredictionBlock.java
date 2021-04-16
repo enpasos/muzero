@@ -27,6 +27,7 @@ import ai.djl.nn.core.Linear;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.network.djl.blocks.dlowerlevel.Conv1x1BatchNormRelu;
 import ai.enpasos.muzero.network.djl.blocks.dlowerlevel.MySequentialBlock;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 public class PredictionBlock extends MySequentialBlock {
 
 
-    public PredictionBlock(MuZeroConfig config) {
+    public PredictionBlock(@NotNull MuZeroConfig config) {
 
 
         SequentialBlock valueHead = new SequentialBlock()

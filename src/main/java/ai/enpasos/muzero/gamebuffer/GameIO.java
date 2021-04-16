@@ -20,6 +20,7 @@ package ai.enpasos.muzero.gamebuffer;
 import ai.enpasos.muzero.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +38,7 @@ import static ai.enpasos.muzero.MuZero.getNetworksBasedir;
 public class GameIO {
     private static int latestGameNo = -1;
 
-    public static List<Game> readGames(MuZeroConfig config) {
+    public static List<Game> readGames(@NotNull MuZeroConfig config) {
         try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
             return walk.filter(path -> !path.toString().endsWith("games") && !path.toString().contains("buffer"))
                     // .limit(3000)
@@ -48,7 +49,7 @@ public class GameIO {
         }
     }
 
-    public static Game readGame(int i, MuZeroConfig config) {
+    public static @NotNull Game readGame(int i, @NotNull MuZeroConfig config) {
         try {
             return Game.decode(config, Files.readAllBytes(Paths.get(getGamesBasedir(config) + "/game" + i)));
         } catch (IOException e) {
@@ -56,7 +57,7 @@ public class GameIO {
         }
     }
 
-    private static byte[] loadPathAsByteArray(Path path) {
+    private static byte[] loadPathAsByteArray(@NotNull Path path) {
         try {
             log.debug("readGame " + path);
             return FileUtils.readFileToByteArray(path.toFile());
@@ -65,7 +66,7 @@ public class GameIO {
         }
     }
 
-    public static int getLatestObjectNo(MuZeroConfig config) {
+    public static int getLatestObjectNo(@NotNull MuZeroConfig config) {
 
         try (Stream<Path> walk = Files.walk(Paths.get(getNetworksBasedir(config)))) {
             OptionalInt no = walk.filter(Files::isDirectory).filter(path -> !path.toString().endsWith("networks"))
@@ -82,13 +83,13 @@ public class GameIO {
 
     }
 
-    public static int getNewLatestGameNo(MuZeroConfig config) {
+    public static int getNewLatestGameNo(@NotNull MuZeroConfig config) {
         getLatestGameNo(config);
         latestGameNo++;
         return latestGameNo;
     }
 
-    public static int getLatestGameNo(MuZeroConfig config) {
+    public static void getLatestGameNo(@NotNull MuZeroConfig config) {
         if (latestGameNo == -1) {
             try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
                 OptionalInt no = walk.filter(Files::isRegularFile)
@@ -103,10 +104,9 @@ public class GameIO {
                 throw new RuntimeException(e);
             }
         }
-        return latestGameNo;
     }
 
-    public static int getLatestBufferNo(MuZeroConfig config) {
+    public static int getLatestBufferNo(@NotNull MuZeroConfig config) {
         Path gamesPath = Paths.get(getGamesBasedir(config));
         if (Files.notExists(gamesPath)) {
             try {

@@ -28,9 +28,8 @@ import java.util.List;
  */
 public interface Environment {
     /**
-     * applys an action and gets immediate reward
+     * applies an action and gets immediate reward
      *
-     * @param action
      * @return immediate reward
      */
     float step(Action action);

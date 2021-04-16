@@ -24,6 +24,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.MuZeroConfig;
 import lombok.Data;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -34,36 +35,36 @@ public class Action implements Comparable<Action>, Serializable {
     @ToString.Include
     private int index;
 
-    private MuZeroConfig config;
+    private transient MuZeroConfig config;
 
     public Action(MuZeroConfig config, int index) {
         this.config = config;
         this.index = index;
     }
 
-    public Action(MuZeroConfig config, int row, int col) {
+    public Action(@NotNull MuZeroConfig config, int row, int col) {
         this(config, row * config.getBoardWidth() + col);
     }
 
-    public static NDArray encodeEmptyNDArray(MuZeroConfig config, NDManager nd) {
+    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
         return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
     }
 
 
-    public static int getCol(MuZeroConfig config, int index) {
+    public static int getCol(@NotNull MuZeroConfig config, int index) {
         return index % config.getBoardWidth();
     }
 
-    public static int getRow(MuZeroConfig config, int index) {
+    public static int getRow(@NotNull MuZeroConfig config, int index) {
         return (index - getCol(config, index)) / config.getBoardWidth();
     }
 
     @Override
-    public int compareTo(Action other) {
+    public int compareTo(@NotNull Action other) {
         return Integer.compare(this.index, other.index);
     }
 
-    public NDArray encode(NDManager nd) {
+    public NDArray encode(@NotNull NDManager nd) {
         NDArray array = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
         array.setScalar(new NDIndex(0, getRow(), getCol()), 1f);
         return array;

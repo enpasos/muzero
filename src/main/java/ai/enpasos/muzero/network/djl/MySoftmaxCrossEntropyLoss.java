@@ -22,6 +22,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.training.loss.Loss;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * {@code SoftmaxCrossEntropyLoss} is a type of {@link Loss} that calculates the softmax cross
@@ -34,10 +35,10 @@ import ai.djl.training.loss.Loss;
  */
 public class MySoftmaxCrossEntropyLoss extends Loss {
 
-    private float weight;
-    private int classAxis;
-    private boolean sparseLabel;
-    private boolean fromLogit;
+    private final float weight;
+    private final int classAxis;
+    private final boolean sparseLabel;
+    private final boolean fromLogit;
 
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
@@ -78,7 +79,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      * {@inheritDoc}
      */
     @Override
-    public NDArray evaluate(NDList label, NDList prediction) {
+    public NDArray evaluate(@NotNull NDList label, @NotNull NDList prediction) {
         NDArray pred = prediction.singletonOrThrow();
 
         // the fromLogit Sign will be fixed on the upcoming release

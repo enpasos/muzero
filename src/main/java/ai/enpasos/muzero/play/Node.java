@@ -19,17 +19,18 @@ package ai.enpasos.muzero.play;
 
 import ai.djl.ndarray.NDArray;
 import lombok.Data;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 @Data
 public class Node {
-    public Player toPlay;
+    public @Nullable Player toPlay;
     public double prior;
     public double valueSum;
     public SortedMap<Action, Node> children;
-    public NDArray hiddenState;
+    public @Nullable NDArray hiddenState;
     public Action action;
     public double reward;
     private int visitCount;
@@ -40,7 +41,7 @@ public class Node {
         this.toPlay = null;  // TODO
         this.prior = prior;
         this.valueSum = 0;
-        this.children = new TreeMap<Action, Node>();
+        this.children = new TreeMap<>();
         hiddenState = null;
         reward = 0.0;
     }

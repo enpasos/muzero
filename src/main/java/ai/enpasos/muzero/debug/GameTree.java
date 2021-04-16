@@ -20,6 +20,7 @@ package ai.enpasos.muzero.debug;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.gamebuffer.Game;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,12 +30,12 @@ import java.util.stream.Collectors;
 
 public class GameTree {
 
+    final MuZeroConfig config;
     List<DNode> forceableWinNodesPlayerA;
     List<DNode> forceableWinNodesPlayerB;
     List<DNode> terminatedGameNodes;
     List<DNode> unterminatedGameNodes;
     Set<Game> terminatedGameDTOs;
-    MuZeroConfig config;
     DNode rootNode;
 
     public GameTree(MuZeroConfig config) {
@@ -60,8 +61,7 @@ public class GameTree {
 
         int nBefore = 1;
         while (unterminatedGameNodes.size() > 0) {
-            List<DNode> loopGameNodes = new ArrayList<>();
-            loopGameNodes.addAll(unterminatedGameNodes);
+            List<DNode> loopGameNodes = new ArrayList<>(unterminatedGameNodes);
             for (DNode node : loopGameNodes) {
                 node.expand(unterminatedGameNodes, terminatedGameNodes);
             }
@@ -69,15 +69,7 @@ public class GameTree {
         }
 
 
-        terminatedGameDTOs = terminatedGameNodes.stream().map(n -> n.getGame()).collect(Collectors.toSet());
-        //     Set<Game> bufferGameDTOs = replayBuffer.getBuffer().getData().values().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
-//        Set<Game> terminatedGameNotInBufferDTOs = terminatedGameNodes.stream()
-//                .map(n -> n.getGame())
-//                .filter(d -> !bufferGameDTOs.contains(d))
-//                .collect(Collectors.toSet());
-
-
-        //    terminatedGameNotInBufferDTOs.stream().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
+        terminatedGameDTOs = terminatedGameNodes.stream().map(DNode::getGame).collect(Collectors.toSet());
 
 
         propagateBestForceableValueBottomUp(OneOfTwoPlayer.PlayerA);
@@ -97,10 +89,8 @@ public class GameTree {
 
     }
 
-    private void propagateBestForceableValueBottomUp(OneOfTwoPlayer player) {
-        terminatedGameNodes.stream().forEach(n -> {
-            n.setBestForceableValue(player, n.getValue(player));
-        });
+    private void propagateBestForceableValueBottomUp(@NotNull OneOfTwoPlayer player) {
+        terminatedGameNodes.forEach(n -> n.setBestForceableValue(player, n.getValue(player)));
         rootNode.propagateBestForceableValueUp(player);
     }
 

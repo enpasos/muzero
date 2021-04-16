@@ -29,29 +29,31 @@ import ai.enpasos.muzero.gamebuffer.GameDTO;
 import ai.enpasos.muzero.network.Observation;
 import ai.enpasos.muzero.play.Action;
 import ai.enpasos.muzero.play.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TicTacToeGame extends Game {
 
-    float[][] boardtransfer;
+    final float[] @NotNull [] boardtransfer;
 
 
-    public TicTacToeGame(MuZeroConfig config, GameDTO gameDTO) {
+    public TicTacToeGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
         environment = new TicTacToeEnvironment(config);
         boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
-    public TicTacToeGame(MuZeroConfig config) {
+    public TicTacToeGame(@NotNull MuZeroConfig config) {
         super(config);
         environment = new TicTacToeEnvironment(config);
         boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
-    public TicTacToeEnvironment getEnvironment() {
+    public @NotNull TicTacToeEnvironment getEnvironment() {
         return (TicTacToeEnvironment) environment;
     }
 
@@ -81,7 +83,7 @@ public class TicTacToeGame extends Game {
         }
     }
 
-    private float[][] getBoardPositions(int[][] board, int p) {
+    private float[] @NotNull [] getBoardPositions(int[] @NotNull [] board, int p) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 boardtransfer[i][j] = board[i][j] == p ? 1 : 0;
@@ -91,7 +93,7 @@ public class TicTacToeGame extends Game {
     }
 
 
-    public Observation getObservation(NDManager ndManager) {
+    public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().playerToMove;
         OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().playerToMove);
@@ -106,8 +108,7 @@ public class TicTacToeGame extends Game {
         NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
 
 
-        Observation observation = new Observation(stacked);
-        return observation;
+        return new Observation(stacked);
     }
 
 
@@ -134,7 +135,7 @@ public class TicTacToeGame extends Game {
             if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
                 r += "\ndraw";
             } else {
-                r += "\nwinning: " + player.getSymbol();
+                r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
             }
             System.out.println("\nG A M E  O V E R");
         }

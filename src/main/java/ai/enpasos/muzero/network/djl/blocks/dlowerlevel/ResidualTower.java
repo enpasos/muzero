@@ -18,14 +18,15 @@
 package ai.enpasos.muzero.network.djl.blocks.dlowerlevel;
 
 import lombok.Builder;
+import org.jetbrains.annotations.NotNull;
 
 public class ResidualTower extends MySequentialBlock {
 
     private ResidualTower() {
     }
 
-    @Builder(builderMethodName = "builder")
-    public static ResidualTower newResidualTower(int numResiduals, int numChannels) {
+    @Builder()
+    public static @NotNull ResidualTower newResidualTower(int numResiduals, int numChannels) {
         ResidualTower instance = new ResidualTower();
         for (int i = 0; i < numResiduals; i++) {
             instance.add(new ResidualBlock(numChannels));
