@@ -91,6 +91,7 @@ public class MuZero {
 
 
     public static @NotNull String getNetworksBasedir(@NotNull MuZeroConfig config) {
+        if (config.getNetworkBaseDir() != null) return config.getNetworkBaseDir();
         return config.getOutputDir() + "networks";
     }
 

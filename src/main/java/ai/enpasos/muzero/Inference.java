@@ -18,6 +18,7 @@
 package ai.enpasos.muzero;
 
 import ai.djl.Model;
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
@@ -43,10 +44,7 @@ public class Inference {
 
         boolean withMCTS = false;
 
-        // String nextAction = aiDecision(List.of("a1"), withMCTS);
-
-
-        String nextAction = aiDecision(new ArrayList<String>(), withMCTS);
+        String nextAction = aiDecision(new ArrayList<String>(), withMCTS, "trained_networks");
 
     }
 
@@ -59,15 +57,17 @@ public class Inference {
         return ArrayUtils.indexOf(actionNames, name.trim());
     }
 
-    public static String aiDecision(List<String> actions, boolean withMCTS) {
+    public static String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
+
         List<Integer> actionInts = actions.stream().map(n -> actionNameToIndex(n)).collect(Collectors.toList());
-        return actionIndexToName(aiDecisionInternal(actionInts, withMCTS));
+        return actionIndexToName(aiDecisionInternal(actionInts, withMCTS, networkDir));
     }
 
-    private static int aiDecisionInternal(List<Integer> actions, boolean withMCTS) {
+    private static int aiDecisionInternal(List<Integer> actions, boolean withMCTS, String networkDir) {
         int actionIndexSelectedByNetwork;
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-
+        config.setNetworkBaseDir(networkDir);
+        config.setInferenceDevice(Device.cpu());
         Game game = getGame(config, actions);
 
 

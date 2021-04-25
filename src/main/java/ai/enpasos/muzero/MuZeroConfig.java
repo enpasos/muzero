@@ -66,12 +66,13 @@ public class MuZeroConfig {
     private final int pbCBase;
     private final double pbCInit;
     // inference device
-    private final @NotNull Device inferenceDevice;
+    private @NotNull Device inferenceDevice;
     // network training
     private int numberOfTrainingSteps;
     private int numberOfTrainingStepsPerEpoch;
     // local file based storage
     private String outputDir;
+    private String networkBaseDir;
 
 
     public static MuZeroConfig getTicTacToeInstance() {
