@@ -19,7 +19,7 @@ package ai.enpasos.muzero;
 
 import ai.enpasos.muzero.gamebuffer.GameIO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.network.djl.TrainingHelper;
+import ai.enpasos.muzero.network.djl.NetworkHelper;
 import ai.enpasos.muzero.play.PlayManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -34,7 +34,8 @@ public class MuZero {
 
     public static void main(String[] args) {
 
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+     //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+       MuZeroConfig config = MuZeroConfig.getGoInstance(5);
 
         createNetworkModelIfNotExisting(config);
 
@@ -46,9 +47,9 @@ public class MuZero {
         do {
 
             PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 8, false, false, 500);
+            PlayManager.playParallel(replayBuffer, config, 8, false, false, 16);
             replayBuffer.saveState();
-            trainingStep = TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
 
@@ -58,7 +59,7 @@ public class MuZero {
     }
 
     private static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
-        TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, null, 0);
+        NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, null, 0);
     }
 
 

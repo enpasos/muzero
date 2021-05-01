@@ -69,7 +69,13 @@ public class InputOutputConstruction {
 
     }
 
-    public static NDArray symmetryEnhancer(@NotNull NDArray a) {
+    public static NDArray symmetryEnhancerReturnNDArray(@NotNull NDArray a) {
+        List<NDArray> list = symmetryEnhancer(a);
+        return NDArrays.concat(new NDList( list));
+    }
+
+    @NotNull
+    private static List<NDArray> symmetryEnhancer(@NotNull NDArray a) {
         NDArray a2 = a.rotate90(1, new int[]{2, 3});
         NDArray a3 = a.rotate90(2, new int[]{2, 3});
         NDArray a4 = a.rotate90(3, new int[]{2, 3});
@@ -78,8 +84,8 @@ public class InputOutputConstruction {
         NDArray a6 = a5.rotate90(1, new int[]{2, 3});
         NDArray a7 = a5.rotate90(2, new int[]{2, 3});
         NDArray a8 = a5.rotate90(3, new int[]{2, 3});
-
-        return NDArrays.concat(new NDList(a, a2, a3, a4, a5, a6, a7, a8));
+        List<NDArray> list = List.of(a, a2, a3, a4, a5, a6, a7, a8);
+        return list;
     }
 
     public static NDArray symmetryEnhancerValue(@NotNull NDArray a) {
@@ -93,13 +99,36 @@ public class InputOutputConstruction {
         return NDArrays.concat(new NDList(a, a2, a3, a4, a5, a6, a7, a8));
     }
 
-    public static NDArray symmetryEnhancerPolicy(@NotNull NDArray a) {
+    public static NDArray symmetryEnhancerPolicy(MuZeroConfig config, @NotNull NDArray a) {
         // TODO generalize
         Shape oldShape = a.getShape();
-        NDArray policyOutput3 = a.reshape(new Shape(oldShape.get(0), 1, 3, 3));
-        NDArray policyOutput4 = symmetryEnhancer(policyOutput3);
+
+        int boardsize = config.getBoardHeight() * config.getBoardWidth();
+        NDList splitted = a.split(new long[] {boardsize},1);
+        NDArray a_ = splitted.get(0);
+        Shape oldShape_ = a_.getShape();
+
+        NDArray policyOutput3 = a_.reshape(new Shape(oldShape_.get(0), 1, config.getBoardHeight(), config.getBoardWidth()));
+
+
+        List<NDArray> ndArrayList = symmetryEnhancer(policyOutput3);
+        List<NDArray> ndArrayList2 = ndArrayList.stream().map(
+                transformedA -> {
+                    NDArray a0 = transformedA.reshape(new Shape(transformedA.getShape().get(0), oldShape_.get(1)));
+                    if (splitted.size() > 0) {
+                        NDArray a1 = splitted.get(1);
+                        a0 = a0.concat(a1, 1);
+                    }
+                    return a0;
+                }
+        ).collect(Collectors.toList());
+
+
+        NDArray policyOutput4 = NDArrays.concat(new NDList( ndArrayList2));
+
 
         return policyOutput4.reshape(new Shape(policyOutput4.getShape().get(0), oldShape.get(1)));
+
     }
 
 
@@ -108,7 +137,7 @@ public class InputOutputConstruction {
                 .map(sample -> sample.getObservation().getNDArray(ndManager))
                 .collect(Collectors.toList());
 
-        inputs.add(symmetryEnhancer(NDArrays.stack(new NDList(o))));
+        inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
     }
 
     public static void addActionInput(@NotNull MuZeroConfig config, int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
@@ -131,7 +160,7 @@ public class InputOutputConstruction {
             }
             NDArray inputMiniBatch2 = NDArrays.stack(new NDList(list));
             if (withSymmetryEnrichment) {
-                inputs.add(symmetryEnhancer(inputMiniBatch2));
+                inputs.add(symmetryEnhancerReturnNDArray(inputMiniBatch2));
             } else {
                 inputs.add(inputMiniBatch2);
             }
@@ -139,7 +168,7 @@ public class InputOutputConstruction {
     }
 
 
-    public static @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
+    public static @NotNull List<NDArray> constructOutput(MuZeroConfig config, @NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
 
         //  log.debug("constructOutput Start");
         List<NDArray> outputs = new ArrayList<>();
@@ -174,7 +203,7 @@ public class InputOutputConstruction {
             NDArray valueOutput2 = NDArrays.stack(new NDList(valueList));
 
 
-            outputs.add(symmetryEnhancerPolicy(policyOutput2));
+            outputs.add(symmetryEnhancerPolicy(config, policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
 
         }

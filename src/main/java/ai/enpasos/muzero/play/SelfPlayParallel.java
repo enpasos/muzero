@@ -167,11 +167,14 @@ public class SelfPlayParallel {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         System.out.println();
         System.out.println("mcts suggestion:");
-        for (int i = 0; i < childVisits.length; i++) {
+        int boardSize = config.getBoardHeight() * config.getBoardWidth();
+        for (int i = 0; i < boardSize; i++) {
             values[Action.getRow(config, i)][Action.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
         }
         System.out.println(render(config, values));
-
+        if (childVisits.length > boardSize) {
+            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
+        }
     }
 
     private static void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
@@ -183,10 +186,14 @@ public class SelfPlayParallel {
             System.out.println();
             System.out.println("network guess:");
             if (!gameOver) {
-                for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
+                int boardSize = config.getBoardHeight() * config.getBoardWidth();
+                for (int i = 0; i < boardSize; i++) {
                     values[Action.getRow(config, i)][Action.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
                 }
                 System.out.println(render(config, values));
+                if (networkOutput.getPolicyValues().length > boardSize) {
+                    System.out.println("pass: " + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
+                }
 
             }
             System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
@@ -198,7 +205,8 @@ public class SelfPlayParallel {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         System.out.println();
         System.out.println("with exploration noise suggestion:");
-        for (int i = 0; i < config.getActionSpaceSize(); i++) {
+        int boardSize = config.getBoardHeight() * config.getBoardWidth();
+        for (int i = 0; i < boardSize; i++) {
             Action a = new Action(config, i);
             float value = 0f;
             if (node.getChildren().containsKey(a)) {
@@ -207,8 +215,16 @@ public class SelfPlayParallel {
             values[Action.getRow(config, i)][Action.getCol(config, i)]
                     = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
-        System.out.println(render(config, values));
 
+        System.out.println(render(config, values));
+        if (boardSize < config.getActionSpaceSize()) {
+            Action a = new Action(config, boardSize);
+            float value = 0f;
+            if (node.getChildren().containsKey(a)) {
+                value = (float) node.getChildren().get(a).getPrior();
+            }
+            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
+        }
     }
 
 

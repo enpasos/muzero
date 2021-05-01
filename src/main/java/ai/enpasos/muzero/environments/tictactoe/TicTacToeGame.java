@@ -95,8 +95,8 @@ public class TicTacToeGame extends Game {
 
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
 
-        OneOfTwoPlayer currentPlayer = this.getEnvironment().playerToMove;
-        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().playerToMove);
+        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
+        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
 
 
         // values in the range [0, 1]
@@ -114,7 +114,7 @@ public class TicTacToeGame extends Game {
 
     @Override
     public Player toPlay() {
-        return this.getEnvironment().playerToMove;
+        return this.getEnvironment().getPlayerToMove();
     }
 
     @Override
@@ -126,7 +126,7 @@ public class TicTacToeGame extends Game {
             Action action = new Action(config, this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
             int colLastMove = action.getCol();
 
-            player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().playerToMove);
+            player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
             r += player.getSymbol() + " move (" + action.getRow() + ", " + colLastMove + ") index " + action.getIndex();
         }
         r += "\n";

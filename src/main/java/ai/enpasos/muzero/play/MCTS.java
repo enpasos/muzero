@@ -229,6 +229,13 @@ public class MCTS {
                 node.children.put(action, new Node(p));  // p/policySum = probability that this action is chosen
             }
         } else {
+//            actions.stream().forEach(
+//                    a -> {
+//                        if (a.getIndex() == 82) {
+//                            int i = 42;
+//                        }
+//                    }
+//            );
             Map<Action, Float> policy = actions.stream()
                     .collect(Collectors.toMap(a -> a, a -> networkOutput.getPolicyValues()[a.getIndex()]));
 
@@ -318,7 +325,15 @@ public class MCTS {
 
         List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
 
-        EnumeratedDistribution<Action> distribution = new EnumeratedDistribution<>(rng, distributionInput);
+        EnumeratedDistribution<Action> distribution = null;
+        try {
+            distribution = new EnumeratedDistribution<>(rng, distributionInput);
+        } catch (Exception e) {
+            e.printStackTrace();
+            List<Pair<Action, Double>> distributionInput2 = getActionDistributionInput(numMoves, node, network);
+            int i = 42;
+
+        }
         return distribution.sample();
     }
 

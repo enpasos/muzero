@@ -18,13 +18,15 @@
 package ai.enpasos.muzero;
 
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.network.djl.TrainingHelper;
+import ai.enpasos.muzero.network.djl.NetworkHelper;
 import ai.enpasos.muzero.play.PlayManager;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.MuZero.deleteNetworksAndGames;
 
+@Slf4j
 class MuZeroSmokeTest {
 
     public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
@@ -37,20 +39,24 @@ class MuZeroSmokeTest {
 
     @Test
     void smoketest() {
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-        config.setOutputDir("target/smoketest/");
-        config.setNumberOfTrainingStepsPerEpoch(1);
+        try {
+            MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+            config.setOutputDir("target/smoketest/");
+            config.setNumberOfTrainingStepsPerEpoch(1);
 
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        replayBuffer.loadLatestState();
+            ReplayBuffer replayBuffer = new ReplayBuffer(config);
+            replayBuffer.loadLatestState();
 
-        TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
+            NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
 
-        PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-        PlayManager.playParallel(replayBuffer, config, 5, false, false, 100);
-        replayBuffer.saveState();
-        TrainingHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
-
+            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+            PlayManager.playParallel(replayBuffer, config, 5, false, false, 100);
+            replayBuffer.saveState();
+            NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
 
     }
 }

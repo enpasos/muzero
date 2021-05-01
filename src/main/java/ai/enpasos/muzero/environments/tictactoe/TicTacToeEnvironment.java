@@ -45,7 +45,7 @@ public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
         int col = action.getCol();
         int row = action.getRow();
         if (this.board[row][col] == 0) {
-            this.board[row][col] = playerToMove.getValue();
+            this.board[row][col] = getPlayerToMove().getValue();
         } else {
             throw new RuntimeException("illegal Move");
         }
@@ -59,16 +59,16 @@ public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
 
     private float reward() {
         float reward = 0f;
-        if (hasPlayerWon(this.playerToMove)) {
+        if (hasPlayerWon(this.getPlayerToMove())) {
             reward = 1f;
-        } else if (hasPlayerWon(OneOfTwoPlayer.otherPlayer(this.playerToMove))) {
+        } else if (hasPlayerWon(OneOfTwoPlayer.otherPlayer(this.getPlayerToMove()))) {
             reward = -1f;
         }
         return reward;
     }
 
     public void swapPlayer() {
-        this.playerToMove = OneOfTwoPlayer.otherPlayer(this.playerToMove);
+        this.setPlayerToMove(OneOfTwoPlayer.otherPlayer(this.getPlayerToMove()));
     }
 
 

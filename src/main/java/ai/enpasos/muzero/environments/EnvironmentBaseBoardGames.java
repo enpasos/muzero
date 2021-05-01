@@ -35,7 +35,7 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
     public int[][] board;
     public transient MuZeroConfig config;
 
-    public OneOfTwoPlayer playerToMove;
+   private OneOfTwoPlayer playerToMove;
 
 
     public EnvironmentBaseBoardGames(@NotNull MuZeroConfig config) {

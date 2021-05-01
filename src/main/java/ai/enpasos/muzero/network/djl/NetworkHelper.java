@@ -51,7 +51,7 @@ import static ai.enpasos.muzero.network.djl.Helper.logNDManagers;
 
 
 @Slf4j
-public class TrainingHelper {
+public class NetworkHelper {
 
 
     @SuppressWarnings("ConstantConditions")
@@ -120,7 +120,7 @@ public class TrainingHelper {
         NDManager nd = ndManager.newSubManager();
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), config.getTdSteps(), nd);
         List<NDArray> inputs = constructInput(config, nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-        List<NDArray> outputs = constructOutput(nd, config.getNumUnrollSteps(), batch);
+        List<NDArray> outputs = constructOutput(config, nd, config.getNumUnrollSteps(), batch);
 
         return new Batch(
                 nd,
@@ -140,7 +140,7 @@ public class TrainingHelper {
     private static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf, int batchSize) {
         Shape[] shapes = new Shape[conf.getNumUnrollSteps() + 1];
         // for observation input
-        shapes[0] = new Shape(batchSize, 3, conf.getBoardHeight(), conf.getBoardWidth());
+        shapes[0] = new Shape(batchSize, conf.getNumObservationLayers(), conf.getBoardHeight(), conf.getBoardWidth());
         for (int k = 1; k <= conf.getNumUnrollSteps(); k++) {
             shapes[k] = new Shape(batchSize, 1, conf.getBoardHeight(), conf.getBoardWidth());
         }
