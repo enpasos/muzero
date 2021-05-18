@@ -7,7 +7,7 @@ with [DJL](https://djl.ai/) following closely DeepMind's [paper](https://www.nat
 We have tested it on the trivial game TicTacToe on a single GPU (NVIDIA GeForce RTX 3090).
 Starting from scratch it learns perfect play within 100.000 training steps and 4.000.000 game plays in a little less than a day.
 
-We have just started on the game of go ... with small board sizes.
+We have just started playing the game of go ... with small board sizes.
 
 ## Build
 
