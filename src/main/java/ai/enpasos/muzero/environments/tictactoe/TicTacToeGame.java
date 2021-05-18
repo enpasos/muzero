@@ -127,7 +127,7 @@ public class TicTacToeGame extends Game {
             int colLastMove = action.getCol();
 
             player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-            r += player.getSymbol() + " move (" + action.getRow() + ", " + colLastMove + ") index " + action.getIndex();
+            r += player.getSymbol() + " move (" + (action.getRow()+1) + ", " + String.valueOf((char)(colLastMove + 65))  + ") index " + action.getIndex();
         }
         r += "\n";
         r += getEnvironment().render();

@@ -38,6 +38,7 @@ public class MuZeroConfig {
     private final @NotNull Class<?> gameClass;
 
     // game/environment
+    private final int size;
     private final int maxMoves;
     private final int boardHeight;
     private final int boardWidth;
@@ -83,15 +84,18 @@ public class MuZeroConfig {
             return (numMoves < 30) ? 1.0 : 0.0; // always returns 1.0 here as nomMoves always below 30
         };
 
+        int size = 3;
+
         return MuZeroConfig.builder()
                 .modelName("MuZero-TicTacToe")
                 .gameClass(TicTacToeGame.class)
 
                 // game/environment
-                .maxMoves(3 * 3) // in a game
-                .boardHeight(3)
-                .boardWidth(3)
-                .actionSpaceSize(3 * 3)
+                .maxMoves(size * size) // in a game
+                .size(size)
+                .boardHeight(size)
+                .boardWidth(size)
+                .actionSpaceSize(size * size)
 
                 // network sizing
                 .numObservationLayers(3)
@@ -104,7 +108,7 @@ public class MuZeroConfig {
                 .windowSize(100000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
-                .tdSteps(3 * 3)         // equals maxMoves equals actionSpaceSize
+                .tdSteps(size * size)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
                 // loss details
                 .weightDecay(0.0001f)
@@ -147,6 +151,7 @@ public class MuZeroConfig {
 
                 // game/environment
                 .maxMoves(27000) // as in pseudocode
+                .size(size)
                 .boardHeight(size)
                 .boardWidth(size)
                 .actionSpaceSize(size * size + 1) // place a stone on the board or pass

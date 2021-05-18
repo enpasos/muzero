@@ -48,28 +48,50 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
 
         String v = "\u2502";
 
+
+
+        boolean smallSpacing = true;
+        if (values[0][0].length() > 1) {
+            smallSpacing = false;
+        }
         StringBuilder sb = new StringBuilder();
-        for (int j = config.getBoardHeight() - 1; j >= 0; j--) {
-            sb.append(j);
+        if (smallSpacing) {
+            sb.append("-".repeat(config.getSize() * 2 + 3));
+        } else {
+            sb.append("-".repeat(config.getSize() * 4 + 3));
+        }
+        sb.append("\n");
+        for (int j = 0; j < config.getBoardHeight(); j++) {
+            sb.append(config.getBoardHeight() - j);
             sb.append(v);
             for (int i = 0; i < config.getBoardWidth(); i++) {
-                sb.append(values[j][i]);
+                String value = values[j][i];
+                if (" 0%".equals(value)) {
+                    value = "   ";
+                }
+                sb.append(value);
                 sb.append(v);
             }
             sb.append("\n");
         }
-        sb.append(" ");
-        for (int x = 0; x < config.getBoardWidth(); x++) {
-            sb.append(v);
-            if (values[0][0] == null || values[0][0].length() != 1) sb.append(" ");
-            sb.append(x);
-            if (values[0][0] == null || values[0][0].length() != 1) sb.append(" ");
+        if (smallSpacing) {
+            sb.append(" " + X_COORD_SMALL.substring(0, config.getSize() * 2) + "\n");
+            sb.append("-".repeat(config.getSize()*2 + 2));
+        } else {
+            sb.append("  " + X_COORD.substring(0, config.getSize() * 4) + "\n");
+            sb.append("-".repeat(config.getSize()*4 + 3));
         }
-        sb.append(v);
+
+
 
         return sb.toString();
 
     }
+
+
+    private static final String X_COORD = " A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y   Z ";
+    private static final String X_COORD_SMALL = " A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ";
+
 
     public float step(Action action) {
         throw new NotImplementedException("step() not implemented, yet.");
