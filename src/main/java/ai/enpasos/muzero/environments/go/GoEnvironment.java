@@ -39,6 +39,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
     private List<GameState> history; // TODO refactor
     private GameState state;
+    private GameResult result;
 
     public GoEnvironment(@NotNull MuZeroConfig config) {
         super(config);
@@ -62,29 +63,32 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     @Override
     public float step(@NotNull Action action) {
 
+        Player thisPlayer = state.getNextPlayer();
+
         state = state.applyMove(GoAdapter.translate(this.config, action));
         history.add(state);
 
-        if (!terminal()) return 0f;
+        float reward = 0f;
 
-        Player playerToMove = state.getNextPlayer();
-        var result = GameResult.apply(state.getBoard());
+        if (terminal()) {
+            result = GameResult.apply(state.getBoard());
+            log.debug(result.toString());
+            reward = (thisPlayer == result.winner()) ? 1f : -1f;
+        }
 
-        log.info(result.toString());
-
-        return result.winner() == playerToMove ? 1f : -1f;
+        return reward;
     }
 
 
     public void swapPlayer() {
-        throw new NotImplementedException("swapPlayer() is not implemented");
-//        this.playerToMove = OneOfTwoPlayer.otherPlayer(this.playerToMove);
+        throw new NotImplementedException("swapPlayer() is not implemented here");
     }
 
 
-    private boolean isLegalAction(Action action_) {
-        return legalActions().contains(action_);
-    }
+//    private boolean isLegalAction(Action action_) {
+//        return legalActions().contains(action_);
+//    }
+
     @Override
     public void setPlayerToMove(OneOfTwoPlayer player) {
         throw new NotImplementedException("setPlayerToMove is not implemented");
@@ -110,7 +114,17 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
 
     public @NotNull String render() {
-        return state.getBoard().toString();
+
+        String move =  (state.getNextPlayer().other()== Player.BlackPlayer?"x":"o") + " move (" + state.getLastMove() + ")";
+
+        String status = "GAME RUNNING";
+
+        if (result != null) {
+            status = "GAME OVER\n" + result.toString();
+        }
+
+         return move + "\n" + state.getBoard().toString() +  "\n" + status ;
+
     }
 
 

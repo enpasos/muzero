@@ -55,11 +55,11 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
             smallSpacing = false;
         }
         StringBuilder sb = new StringBuilder();
-        if (smallSpacing) {
-            sb.append("-".repeat(config.getSize() * 2 + 3));
-        } else {
-            sb.append("-".repeat(config.getSize() * 4 + 3));
-        }
+//        if (smallSpacing) {
+//            sb.append("-".repeat(config.getSize() * 2 + 3));
+//        } else {
+//            sb.append("-".repeat(config.getSize() * 4 + 3));
+//        }
         sb.append("\n");
         for (int j = 0; j < config.getBoardHeight(); j++) {
             sb.append(config.getBoardHeight() - j);
@@ -76,10 +76,10 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
         }
         if (smallSpacing) {
             sb.append(" " + X_COORD_SMALL.substring(0, config.getSize() * 2) + "\n");
-            sb.append("-".repeat(config.getSize()*2 + 2));
+          //  sb.append("-".repeat(config.getSize()*2 + 2));
         } else {
             sb.append("  " + X_COORD.substring(0, config.getSize() * 4) + "\n");
-            sb.append("-".repeat(config.getSize()*4 + 3));
+         //   sb.append("-".repeat(config.getSize()*4 + 3));
         }
 
 
