@@ -20,9 +20,7 @@ package ai.enpasos.muzero.environments.go;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
-import ai.enpasos.muzero.environments.go.environment.GameState;
-import ai.enpasos.muzero.environments.go.environment.Player;
-import ai.enpasos.muzero.environments.go.environment.Resign;
+import ai.enpasos.muzero.environments.go.environment.*;
 import ai.enpasos.muzero.environments.go.environment.scoring.GameResult;
 import ai.enpasos.muzero.play.Action;
 import lombok.extern.slf4j.Slf4j;
@@ -115,7 +113,21 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
     public @NotNull String render() {
 
-        String move =  (state.getNextPlayer().other()== Player.BlackPlayer?"x":"o") + " move (" + state.getLastMove() + ")";
+        String lastMove = "NONE YET";
+        if (state.getLastMove().isPresent()) {
+            if (state.getLastMove().get() instanceof Pass)  {
+                lastMove = "PASS";
+            } else if (state.getLastMove().get() instanceof Resign)  {
+                lastMove = "RESIGN";
+            } else if (state.getLastMove().get() instanceof Play)  {
+                Play play = (Play)state.getLastMove().get();
+                Point p = play.getPoint();
+                lastMove = "PLAY(" + String.valueOf((char)(64 + p.getCol()))  + ", " + (config.getBoardHeight()-p.getRow()+1) + ")";
+            }
+        }
+
+        String lastMoveStr =  (state.getNextPlayer().other()== Player.BlackPlayer?"x":"o")
+                + " move: " + lastMove;
 
         String status = "GAME RUNNING";
 
@@ -123,7 +135,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
             status = "GAME OVER\n" + result.toString();
         }
 
-         return move + "\n" + state.getBoard().toString() +  "\n" + status ;
+         return lastMoveStr + "\n" + state.getBoard().toString() +  "\n" + status ;
 
     }
 

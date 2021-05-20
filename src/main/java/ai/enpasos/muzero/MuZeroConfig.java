@@ -141,7 +141,7 @@ public class MuZeroConfig {
     public static MuZeroConfig getGoInstance(int size) {
 
         BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {
-            return (numMoves < 30000) ? 1.0 : 0.0; // TODO relevant here, was not relevant for TicTacToe
+            return (numMoves < 30) ? 1.0 : 0.1;   // TODO:  instead of 0.1 use max
         };
 
 
