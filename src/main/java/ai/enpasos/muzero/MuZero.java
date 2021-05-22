@@ -47,7 +47,7 @@ public class MuZero {
         do {
 
             PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 8, false, false, 16);
+            PlayManager.playParallel(replayBuffer, config, 20, false, false, 8);
             replayBuffer.saveState();
             trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);

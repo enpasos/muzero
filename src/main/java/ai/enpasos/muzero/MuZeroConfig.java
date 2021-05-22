@@ -162,7 +162,7 @@ public class MuZeroConfig {
                 .numResiduals(8)        // 16 in the paper
 
                 // network training
-                .numberOfTrainingSteps(100000)  // 1000000 in paper
+                .numberOfTrainingSteps(300000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(100000)     // 1000000 in the paper
                 .batchSize(64)         // in paper 2048   // here: symmetry operations give a multiplication by 8
@@ -177,7 +177,7 @@ public class MuZeroConfig {
                 .momentum(0.9f)
 
                 // play
-                .numSimulations(50)     // 800 in the paper
+                .numSimulations(100)     // 800 in the paper
                 .rootDirichletAlpha(0.03)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
