@@ -27,13 +27,16 @@ import ai.enpasos.muzero.play.Action;
 import ai.enpasos.muzero.play.MCTS;
 import ai.enpasos.muzero.play.Node;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.play.PlayManager.getAllActionsOnDevice;
 
@@ -64,7 +67,7 @@ public class GoInference {
     }
 
 
-    private static Game getGame(MuZeroConfig config,List<Integer> actions) {
+    public static Game getGame(MuZeroConfig config, List<Integer> actions) {
         Game game = config.newGame();
         actions.stream().forEach(a -> game.apply(new Action(config, a)));
         return game;
@@ -75,24 +78,30 @@ public class GoInference {
         NetworkIO networkOutput = network.initialInference(game.getObservation(network.getNDManager()));
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
+        MCTS mcts = new MCTS(game.getConfig());
         if (!withMCTS) {
-            float maxValue = 0f;
-            for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
-                float v = networkOutput.getPolicyValues()[i];
-                if (v > maxValue) {
-                    maxValue = v;
-                    actionIndexSelectedByNetwork = i;
-                }
-            }
+
+            float[] policyValues = networkOutput.getPolicyValues();
+            List<Pair<Action, Double>> distributionInput =
+                    IntStream.range(0, game.getConfig().getActionSpaceSize())
+                    .mapToObj(i -> {
+                        Action action = new Action(game.getConfig(), i);
+                        double v = policyValues[i];
+                        return new Pair<Action, Double>(action, v);
+                    }).collect(Collectors.toList());
+
+            Action action = mcts.selectActionByDrawingFromDistribution(distributionInput);
+            actionIndexSelectedByNetwork = action.getIndex();
+
         } else {
             Node root = new Node(0);
-            MCTS mcts = new MCTS(game.getConfig());
+
             List<Action> legalActions = game.legalActions();
             mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
             mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
 
-            Action action = mcts.selectActionByMaxFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+            Action action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
             actionIndexSelectedByNetwork = action.getIndex();
         }
         return actionIndexSelectedByNetwork;

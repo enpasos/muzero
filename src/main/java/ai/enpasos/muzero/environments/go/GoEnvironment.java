@@ -69,9 +69,9 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
         float reward = 0f;
 
         if (terminal()) {
-            result = GameResult.apply(state.getBoard());
-            log.debug(result.toString());
-            reward = (thisPlayer == result.winner()) ? 1f : -1f;
+            setResult(GameResult.apply(state.getBoard()));
+            log.debug(getResult().toString());
+            reward = (thisPlayer == getResult().winner()) ? 1f : -1f;
         }
 
         return reward;
@@ -131,8 +131,8 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
         String status = "GAME RUNNING";
 
-        if (result != null) {
-            status = "GAME OVER\n" + result.toString();
+        if (getResult() != null) {
+            status = "GAME OVER\n" + getResult().toString();
         }
 
          return lastMoveStr + "\n" + state.getBoard().toString() +  "\n" + status ;
@@ -140,5 +140,11 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     }
 
 
+    public GameResult getResult() {
+        return result;
+    }
 
+    public void setResult(GameResult result) {
+        this.result = result;
+    }
 }

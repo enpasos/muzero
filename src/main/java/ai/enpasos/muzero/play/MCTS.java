@@ -325,14 +325,16 @@ public class MCTS {
 
         List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
 
+        return selectActionByDrawingFromDistribution(distributionInput);
+    }
+
+    public Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
         EnumeratedDistribution<Action> distribution = null;
         try {
             distribution = new EnumeratedDistribution<>(rng, distributionInput);
         } catch (Exception e) {
-            e.printStackTrace();
-            List<Pair<Action, Double>> distributionInput2 = getActionDistributionInput(numMoves, node, network);
-            int i = 42;
-
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
         return distribution.sample();
     }

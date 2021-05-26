@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.ListUtils;
 
 import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
 import static ai.enpasos.muzero.environments.go.environment.scoring.VertexType.*;
@@ -42,8 +43,8 @@ public class TerritoryCalculator {
     }
 
     /**
-     * First add all the stones stones ont the board to the map with a proper categorization.
-     * i.e. either live stone or captured stone. A stone is considered captured if part of an a string in atari.
+     * First add all the stones on the board to the map with a proper categorization.
+     * i.e. either live stone or captured stone. A stone is considered captured if part of a string in atari.
      */
     private Map<Point, VertexType> categorizeStones() {
         var statusMap = new TreeMap<Point, VertexType>();
@@ -118,11 +119,12 @@ public class TerritoryCalculator {
             if (player.isEmpty() || statusMap.get(point).isTerritory()) {
                 var nextVisits = point.neighbors().stream().filter(board::inBounds).collect(Collectors.toList());
                 nextVisits.removeAll(visitedPoints);
-                nextPoints = nextVisits;
-                nextPoints.addAll(nextPoints);
+                nextPoints = ListUtils.union(nextVisits, nextPoints);
                 visitedPoints.add(point);
             }
         }
+
+
 
         return Pair.of(visitedPoints, visitedPlayers);
     }
