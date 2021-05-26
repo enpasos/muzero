@@ -89,31 +89,6 @@ public class TerritoryCalculator {
         return statusMap;
     }
 
-    /**
-     *   private def categorizeTerritory(pointToType: Map[Point, VertexType]): Map[Point, VertexType] = {
-     *     var statusMap = pointToType
-     *
-     *     for (row <- 1 to goBoard.size; col <- 1 to goBoard.size) {
-     *       val point = Point(row, col)
-     *       val playerOption = goBoard.getPlayer(point)
-     *       if (playerOption.isEmpty || statusMap(point).isTerritory) {
-     *         val (group, neighbors) = collectRegion(point, goBoard, statusMap)
-     *         val fillWith =
-     *           if (neighbors.size == 1) { // then all one color neighbors
-     *             val neighborColor: Player = neighbors.head
-     *             if (neighborColor == BlackPlayer) BlackTerritory else WhiteTerritory
-     *           } else Dame
-     *         group.filter(p => !statusMap.contains(p)).foreach(pos => statusMap += pos -> fillWith)
-     *       }
-     *     }
-     *     statusMap
-     *   }
-     */
-
-
-
-
-
 
 
     /**

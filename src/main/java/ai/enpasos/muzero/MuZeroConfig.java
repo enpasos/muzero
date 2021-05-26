@@ -141,7 +141,7 @@ public class MuZeroConfig {
     public static MuZeroConfig getGoInstance(int size) {
 
         BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {
-            return (numMoves < 30) ? 1.0 : 0.1;   // TODO:  instead of 0.1 use max
+            return (numMoves < 30) ? 1.0 : 0.1;   // TODO:  instead of 0.1 here use max rather than softmax
         };
 
 
@@ -159,7 +159,7 @@ public class MuZeroConfig {
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
                 .numChannels(64)        // 256 in the paper
-                .numResiduals(8)        // 16 in the paper
+                .numResiduals(16)        // 16 in the paper
 
                 // network training
                 .numberOfTrainingSteps(300000)  // 1000000 in paper

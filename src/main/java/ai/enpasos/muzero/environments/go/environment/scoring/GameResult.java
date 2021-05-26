@@ -46,6 +46,8 @@ public class GameResult {
         return numBlackTerritory + numBlackStones + numBlackCaptures;
     }
 
+
+
     /**
      * Points white scored
      */

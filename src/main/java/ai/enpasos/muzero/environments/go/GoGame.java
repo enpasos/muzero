@@ -120,7 +120,6 @@ public class GoGame extends Game {
 
         NDArray stacked = NDArrays.stack(new NDList(ndArrayList));
 
-
         return new Observation(stacked);
     }
 
@@ -130,12 +129,8 @@ public class GoGame extends Game {
         return this.getEnvironment().getPlayerToMove();
     }
 
-
-
-
     @Override
     public String render() {
         return ((GoEnvironment)environment).render();
-
     }
 }
