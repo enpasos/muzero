@@ -164,7 +164,7 @@ public class MuZeroConfig {
                 // network training
                 .numberOfTrainingSteps(300000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
-                .windowSize(100000)     // 1000000 in the paper
+                .windowSize(10000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
