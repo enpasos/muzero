@@ -43,7 +43,7 @@ public class GameResult {
      * Points black scored
      */
     public int blackPoints() {
-        return numBlackTerritory + numBlackStones + numBlackCaptures;
+        return numBlackTerritory + numBlackStones; // + numBlackCaptures;
     }
 
 
@@ -52,7 +52,7 @@ public class GameResult {
      * Points white scored
      */
     public int whitePoints() {
-        return numWhiteTerritory + numWhiteStones + numWhiteCaptures;
+        return numWhiteTerritory + numWhiteStones; // + numWhiteCaptures;
     }
 
 

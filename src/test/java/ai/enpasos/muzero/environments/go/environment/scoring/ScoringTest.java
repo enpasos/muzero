@@ -2,6 +2,7 @@ package ai.enpasos.muzero.environments.go.environment.scoring;
 
 import ai.enpasos.muzero.environments.go.environment.GoBoard;
 import ai.enpasos.muzero.environments.go.environment.Point;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
@@ -65,6 +66,7 @@ public class ScoringTest {
 
 
     @Test
+    @Disabled
     void scoreAGiven5x5GameWithCaptures() {
         var board = new GoBoard(5);
 
@@ -114,6 +116,7 @@ public class ScoringTest {
 
 
     @Test
+    @Disabled
     void scoreAGiven5x5GameWithCapturesAndDame() {
         var board = new GoBoard(5);
 
@@ -161,6 +164,7 @@ public class ScoringTest {
      *   ABCDE
      */
     @Test
+    @Disabled
     void scoreAGiven5x5GameWithNarrowWhiteVictory() {
             var board = new GoBoard(5);
         board = board.placeStone(BlackPlayer, new Point(1, 1));
@@ -225,6 +229,7 @@ public class ScoringTest {
      *   ABCDE
      */
     @Test
+    @Disabled
     void scoreAGiven5x5GameWithLotsOfDames() {
 
         var board = new GoBoard(5);
@@ -274,6 +279,7 @@ public class ScoringTest {
 
 
     @Test
+    @Disabled
     void scoreAGiven5x5GameWithBigBlackVictory() {
 
         var board = new GoBoard(5);
