@@ -65,10 +65,10 @@ public class GameResult {
     }
 
     public String toDebugString() {
-        return format("Black: territory({0,number,#}) + stones({1,number,#}) + captures({2,number,#}) = {3,number,#}\n",
-                numBlackTerritory, numBlackStones, numBlackCaptures, blackPoints())
-                + format("White: territory({0,number,#}) + stones({1,number,#}) + captures({2,number,#}) = {3,number,#}\n",
-                numWhiteTerritory, numWhiteStones, numWhiteCaptures, whitePoints())
+        return format("Black: territory({0,number,#}) + stones({1,number,#}) = {2,number,#}\n",
+                numBlackTerritory, numBlackStones, blackPoints())
+                + format("White: territory({0,number,#}) + stones({1,number,#}) = {2,number,#}\n",
+                numWhiteTerritory, numWhiteStones, whitePoints())
                 + format("num dame = {0,number,#},  komi = {1,number,#.#}\n", numDame, komi);
     }
 
@@ -88,7 +88,7 @@ public class GameResult {
     }
 
 
-  static final float DEFAULT_KOMI = 6.5f;
+  static final float DEFAULT_KOMI = 7.5f;
 
     public static GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {
         return apply(goBoard, DEFAULT_KOMI, wonByResignation);

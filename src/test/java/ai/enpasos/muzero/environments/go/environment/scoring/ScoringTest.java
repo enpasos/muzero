@@ -2,7 +2,7 @@ package ai.enpasos.muzero.environments.go.environment.scoring;
 
 import ai.enpasos.muzero.environments.go.environment.GoBoard;
 import ai.enpasos.muzero.environments.go.environment.Point;
-import org.junit.jupiter.api.Disabled;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
@@ -10,6 +10,7 @@ import static ai.enpasos.muzero.environments.go.environment.Player.WhitePlayer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 public class ScoringTest {
 
     // .w.ww
@@ -40,10 +41,11 @@ public class ScoringTest {
         board = board.placeStone(WhitePlayer, new Point(5, 2));
         board = board.placeStone(WhitePlayer, new Point(5, 4));
         board = board.placeStone(WhitePlayer, new Point(5, 5));
-        //println("final board configuration: \n" + board)
+        log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
-        //println("result = \n" + result.toDebugString)
+        log.debug("result = \n" + result.toString());
+        log.debug("result = \n" + result.toDebugString());
 
         // should have 9 black and white stones
         assertEquals(9, result.getNumBlackStones());
@@ -66,7 +68,6 @@ public class ScoringTest {
 
 
     @Test
-    @Disabled
     void scoreAGiven5x5GameWithCaptures() {
         var board = new GoBoard(5);
 
@@ -95,28 +96,29 @@ public class ScoringTest {
         board = board.placeStone(BlackPlayer, new Point(5, 2));
         board = board.placeStone(WhitePlayer, new Point(4, 4)); // plays in white result
         board = board.placeStone(BlackPlayer, new Point(1, 2)); // secures 5 points black result
-        //println("final board configuration: \n" + board)
+        log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
+        log.debug("result = \n" + result.toString());
+        log.debug("result = \n" + result.toDebugString());
 
         // Expected stones on the board
         assertEquals(10, result.getNumWhiteStones());
         assertEquals(5, result.getNumBlackStones());
 
-        // should have 4 points for black
+
             assertEquals(5, result.getNumBlackTerritory());
-        // should have 3 points for white
+
             assertEquals(5, result.getNumWhiteTerritory());
         // and no dame points
         assertEquals(0, result.getNumDame());
         // White wins by
-        assertEquals(11.5, -result.blackWinningMargin());
+        assertEquals(5.5, -result.blackWinningMargin());
 
     }
 
 
     @Test
-    @Disabled
     void scoreAGiven5x5GameWithCapturesAndDame() {
         var board = new GoBoard(5);
 
@@ -137,21 +139,23 @@ public class ScoringTest {
         board = board.placeStone(BlackPlayer, new Point(5, 2));
 
         board = board.placeStone(WhitePlayer, new Point(4, 5)); // capture 3 black stones and make life
-        //println("final board configuration: \n" + board)
+        log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
+        log.debug("result = \n" + result.toString());
+        log.debug("result = \n" + result.toDebugString());
 
         // Expected stones on the board
             assertEquals(6, result.getNumWhiteStones());
             assertEquals(5, result.getNumBlackStones());
-        // should have 4 points for black
+
             assertEquals(5, result.getNumBlackTerritory());
-        // should have 3 points for white
+
             assertEquals(4, result.getNumWhiteTerritory());
         // and several dame points
         assertEquals(5, result.getNumDame());
         // White wins by
-        assertEquals(3.5, -result.blackWinningMargin());
+        assertEquals(0.5, -result.blackWinningMargin());
 
     }
 
@@ -164,7 +168,6 @@ public class ScoringTest {
      *   ABCDE
      */
     @Test
-    @Disabled
     void scoreAGiven5x5GameWithNarrowWhiteVictory() {
             var board = new GoBoard(5);
         board = board.placeStone(BlackPlayer, new Point(1, 1));
@@ -189,10 +192,11 @@ public class ScoringTest {
         board = board.placeStone(WhitePlayer, new Point(4, 4));
         board = board.placeStone(WhitePlayer, new Point(4, 5));
         board = board.placeStone(WhitePlayer, new Point(3, 5));
-        //println("final board configuration: \n" + board)
+        log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board, 6.5f);
-        //println("result = \n" + result.toDebugString)
+        var result = GameResult.apply(board, 7.5f);
+        log.debug("result = \n" + result.toString());
+        log.debug("result = \n" + result.toDebugString());
 
         // should have expected black and white stones
             assertEquals(12, result.getNumBlackStones());
@@ -209,7 +213,7 @@ public class ScoringTest {
             assertEquals(14, result.blackPoints());
 
         // should have expected white points
-            assertEquals(12, result.whitePoints());
+            assertEquals(11, result.whitePoints());
 
 
         // and no dame points
@@ -229,7 +233,6 @@ public class ScoringTest {
      *   ABCDE
      */
     @Test
-    @Disabled
     void scoreAGiven5x5GameWithLotsOfDames() {
 
         var board = new GoBoard(5);
@@ -248,8 +251,11 @@ public class ScoringTest {
         board = board.placeStone(BlackPlayer, new Point(1, 2));
         board = board.placeStone(BlackPlayer, new Point(1, 4));
 
+        log.debug("final board configuration: \n" + board);
+
         var result = GameResult.apply(board, 0.5f);
-        //println("result = \n" + result.toDebugString)
+        log.debug("result = \n" + result.toString());
+        log.debug("result = \n" + result.toDebugString());
 
         // should have expected black and white stones
             assertEquals(6, result.getNumBlackStones());
@@ -266,20 +272,19 @@ public class ScoringTest {
             assertEquals(8,result.blackPoints());
 
         // should have expected white points
-            assertEquals(12, result.whitePoints());
+            assertEquals(10, result.whitePoints());
 
 
         // and no dame points
             assertEquals(7, result.getNumDame());
 
         // Black wins by
-            assertEquals(-4.5, result.blackWinningMargin());
+            assertEquals(-2.5, result.blackWinningMargin());
 
     }
 
 
     @Test
-    @Disabled
     void scoreAGiven5x5GameWithBigBlackVictory() {
 
         var board = new GoBoard(5);
@@ -300,10 +305,11 @@ public class ScoringTest {
         board = board.placeStone(WhitePlayer, new Point(4, 4));
         board = board.placeStone(WhitePlayer, new Point(5, 2));
         board = board.placeStone(WhitePlayer, new Point(5, 4));
-        //println("final board configuration: \n" + board)
+        log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
-        //println("result = \n" + result.toDebugString)
+        log.debug("result = \n" + result.toString());
+        log.debug("result = \n" + result.toDebugString());
 
         // Expected stones on the board
             assertEquals(6, result.getNumWhiteStones());
@@ -319,7 +325,7 @@ public class ScoringTest {
             assertEquals(2, result.getNumDame());
 
         // Black wins by
-            assertEquals(16.5, result.blackWinningMargin());
+            assertEquals(6.5, result.blackWinningMargin());
 
     }
 }
