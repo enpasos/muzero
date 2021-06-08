@@ -17,7 +17,9 @@
 
 package ai.enpasos.muzero.agent.slow.play;
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.gamebuffer.Game;
@@ -66,95 +68,102 @@ public class SelfPlayParallel {
 
         while (gameList.size() > 0) {
 
-            int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
+            try(NDManager cpuNDManager = NDManager.newBaseManager(Device.cpu())) {
 
-            // At the root of the search tree we use the representation function to
-            // obtain a hidden state given the current observation.
-            List<Node> rootList = IntStream.rangeClosed(1, gameList.size())
-                    .mapToObj(i -> new Node(0))
-                    .collect(Collectors.toList());
+                network.setCpuNDManager( cpuNDManager);
 
-            inferenceDuration.value -= System.currentTimeMillis();
+                int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
 
+                // At the root of the search tree we use the representation function to
+                // obtain a hidden state given the current observation.
+                List<Node> rootList = IntStream.rangeClosed(1, gameList.size())
+                        .mapToObj(i -> new Node(0))
+                        .collect(Collectors.toList());
 
-            List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(
-                    gameList.stream().map(g -> g.getObservation(network.getNDManager())).collect(Collectors.toList())
-            );
-
-            // on this networkOutput p and v are copied to the cpu,
-            // while the hiddenstates stay on the gpu
+                inferenceDuration.value -= System.currentTimeMillis();
 
 
-            inferenceDuration.value += System.currentTimeMillis();
+                List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(
+                        gameList.stream().map(g -> g.getObservation(network.getNDManager())).collect(Collectors.toList())
+                );
 
-            if (render && indexOfJustOneOfTheGames != -1) {
-                renderNetworkGuess(config, justOneOfTheGames.toPlay(), Objects.requireNonNull(networkOutput).get(indexOfJustOneOfTheGames), false);
-            }
-
-            for (int g = 0; g < gameList.size(); g++) {
-                NetworkIO networkIO = null;
-                if (networkOutput != null) {
-                    networkIO = networkOutput.get(g);
-                }
-                mcts.expandNode(rootList.get(g),
-                        gameList.get(g).toPlay(),
-                        gameList.get(g).legalActions(),
-                        networkIO, fastRuleLearning);
-            }
-
-            double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();
-
-            rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
+                // on this networkOutput p and v are copied to the cpu,
+                // while the hiddenstates stay on the gpu
 
 
-            if (render && indexOfJustOneOfTheGames != -1) {
-                renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
-            }
+                inferenceDuration.value += System.currentTimeMillis();
 
-            if (!fastRuleLearning) {
-                mcts.runParallel(rootList,
-                        gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
-                        network, inferenceDuration, actionSpaceOnDevice);
-            }
-
-
-            for (int g = 0; g < gameList.size(); g++) {
-                Game game = gameList.get(g);
-                Node root = rootList.get(g);
-                Action action = null;
-                if (fastRuleLearning) {
-                    action = getRandomAction(root, config);
-                } else {
-                    action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
-                }
-                game.apply(action);
-
-                game.storeSearchStatistics(root, fastRuleLearning);
-
-
-                if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
-                    List<float[]> childVisitsList = justOneOfTheGames.getGameDTO().getChildVisits();
-                    float[] childVisits = childVisitsList.get(childVisitsList.size() - 1);
-                    renderMCTSSuggestion(config, childVisits);
-
-                    System.out.println("\n" + game.render());
+                if (render && indexOfJustOneOfTheGames != -1) {
+                    renderNetworkGuess(config, justOneOfTheGames.toPlay(), Objects.requireNonNull(networkOutput).get(indexOfJustOneOfTheGames), false);
                 }
 
+                for (int g = 0; g < gameList.size(); g++) {
+                    NetworkIO networkIO = null;
+                    if (networkOutput != null) {
+                        networkIO = networkOutput.get(g);
+                    }
+                    mcts.expandNode(rootList.get(g),
+                            gameList.get(g).toPlay(),
+                            gameList.get(g).legalActions(),
+                            networkIO, fastRuleLearning);
+                }
+
+                double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();
+
+                rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
+
+
+                if (render && indexOfJustOneOfTheGames != -1) {
+                    renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
+                }
+
+                if (!fastRuleLearning) {
+                    mcts.runParallel(rootList,
+                            gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
+                            network, inferenceDuration, actionSpaceOnDevice);
+                }
+
+
+                for (int g = 0; g < gameList.size(); g++) {
+                    Game game = gameList.get(g);
+                    Node root = rootList.get(g);
+                    Action action = null;
+                    if (fastRuleLearning) {
+                        action = getRandomAction(root, config);
+                    } else {
+                        action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+                    }
+                    game.apply(action);
+
+                    game.storeSearchStatistics(root, fastRuleLearning);
+
+
+                    if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
+                        List<float[]> childVisitsList = justOneOfTheGames.getGameDTO().getChildVisits();
+                        float[] childVisits = childVisitsList.get(childVisitsList.size() - 1);
+                        renderMCTSSuggestion(config, childVisits);
+
+                        System.out.println("\n" + game.render());
+                    }
+
+                }
+
+                List<Game> newGameDoneList = gameList.stream()
+                        .filter(game -> game.terminal() || game.getGameDTO().getActionHistory().size() >= config.getMaxMoves())
+                        .collect(Collectors.toList());
+
+                if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
+                    //System.out.println("reward: " + justOneOfTheGames.reward);
+                    NetworkIO networkOutput2 = network.initialInference(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
+                    renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
+                }
+
+
+                gamesDoneList.addAll(newGameDoneList);
+                gameList.removeAll(newGameDoneList);
+
+                //   network.clearCPUMemory();
             }
-
-            List<Game> newGameDoneList = gameList.stream()
-                    .filter(game -> game.terminal() || game.getGameDTO().getActionHistory().size() >= config.getMaxMoves())
-                    .collect(Collectors.toList());
-
-            if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
-                //System.out.println("reward: " + justOneOfTheGames.reward);
-                NetworkIO networkOutput2 = network.initialInference(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
-                renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
-            }
-
-
-            gamesDoneList.addAll(newGameDoneList);
-            gameList.removeAll(newGameDoneList);
 
 
         }
