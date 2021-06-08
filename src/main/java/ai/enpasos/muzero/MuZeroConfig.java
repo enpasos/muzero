@@ -188,7 +188,7 @@ public class MuZeroConfig {
 
                 // play
 
-                .numParallelHiddenStates(400)   // numSimulations * numParallelPlays
+                .numParallelHiddenStates(4000)   // numSimulations * numParallelPlays
 
                 .numSimulations(100)     // 800 in the paper
 //                .numParallelPlay(3)

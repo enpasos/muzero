@@ -41,12 +41,18 @@ public class RecurrentInferenceBlock extends AbstractBlock {
     private final PredictionBlock f;
 
 
-    public RecurrentInferenceBlock(@NotNull MuZeroConfig config) {
+    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
         super(VERSION);
-
-        g = this.addChildBlock("Dynamics", new DynamicsBlock(config));
-        f = this.addChildBlock("Prediction", new PredictionBlock(config));
+         g = this.addChildBlock("Dynamics", dynamicsBlock);
+         f = this.addChildBlock("Prediction", predictionBlock);
     }
+
+//    public RecurrentInferenceBlock(@NotNull MuZeroConfig config) {
+//        super(VERSION);
+//
+//        g = this.addChildBlock("Dynamics", new DynamicsBlock(config));
+//        f = this.addChildBlock("Prediction", new PredictionBlock(config));
+//    }
 
 
     /**

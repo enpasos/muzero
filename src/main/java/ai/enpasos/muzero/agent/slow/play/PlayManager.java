@@ -48,9 +48,10 @@ public class PlayManager {
 
     public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel) {
 
-        for (int i = 0; i < numberOfPlays; i++) {
-            try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
+
+            for (int i = 0; i < numberOfPlays; i++) {
+                try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
                 logNDManagers(model.getNDManager());
 
 
@@ -67,10 +68,13 @@ public class PlayManager {
                     logNDManagers(model.getNDManager());
 
 
+
+                log.info("Played {} games parallel, round {}", noGamesParallel, i);
+
             }
 
 
-            log.info("Played {} games parallel, round {}", noGamesParallel, i);
+
         }
 
     }

@@ -24,31 +24,30 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReplayBufferDTO implements Serializable {
+public class ReplayBufferNoGameDoublingDTO implements Serializable {
 
-     final List<GameDTO> data = new ArrayList<>();
+    private final LinkedHashMap<String, GameDTO> data = new LinkedHashMap<>();
     private long counter;
     private int windowSize;
 
-    public ReplayBufferDTO(int windowSize) {
+    public ReplayBufferNoGameDoublingDTO(int windowSize) {
         this.windowSize = windowSize;
     }
 
     public void saveGame(@NotNull GameDTO gameDTO) {
-        while (data.size() >= windowSize) {
-            data.remove(0);
-        }
-        data.add(gameDTO);
-        counter++;
-    }
 
-    public void clear() {
-        data.clear();
+        String key = gameDTO.getActionHistoryAsString();
+        data.remove(key);
+        while (data.size() >= windowSize) {
+            String firstKey = data.keySet().iterator().next();
+            data.remove(firstKey);
+        }
+        data.put(gameDTO.getActionHistoryAsString(), gameDTO);
+        counter++;
     }
 }
