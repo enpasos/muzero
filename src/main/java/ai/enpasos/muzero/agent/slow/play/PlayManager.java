@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.agent.slow.play;
 
+import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
@@ -48,30 +49,30 @@ public class PlayManager {
 
     public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel) {
 
+        for (int i = 0; i < numberOfPlays; i++) {
 
 
-            for (int i = 0; i < numberOfPlays; i++) {
+
                 try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-                logNDManagers(model.getNDManager());
-
-
-                List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
-                Network network = null;
-                if (!fastRuleLearning)
-                    network = new Network(config, model);
-
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
-                gameList.forEach(replayBuffer::saveGame);
-
-
-                if (i == numberOfPlays - 1)
                     logNDManagers(model.getNDManager());
 
 
+                    List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
+                    Network network = null;
+                    if (!fastRuleLearning)
+                        network = new Network(config, model);
 
-                log.info("Played {} games parallel, round {}", noGamesParallel, i);
+                    List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
+                    gameList.forEach(replayBuffer::saveGame);
 
-            }
+
+                    if (i == numberOfPlays - 1)
+                        logNDManagers(model.getNDManager());
+
+
+                    log.info("Played {} games parallel, round {}", noGamesParallel, i);
+
+                }
 
 
 

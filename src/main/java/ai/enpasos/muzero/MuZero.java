@@ -56,7 +56,7 @@ public class MuZero {
                 initialFillingBuffer(config, replayBuffer);
             }
 
-         //   trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
@@ -67,8 +67,8 @@ public class MuZero {
                 config.setNumSimulations(100);
 
 
-                int numberOfPlays = 40; //4000/config.getNumParallelPlays();
-int numParallelPlays = 100;
+                int numberOfPlays = 1; //4000/config.getNumParallelPlays();
+int numParallelPlays = 4000;
                 log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);
 

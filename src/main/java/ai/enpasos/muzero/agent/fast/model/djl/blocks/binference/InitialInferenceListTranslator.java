@@ -29,6 +29,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.agent.fast.model.Observation;
+import ai.enpasos.muzero.agent.fast.model.djl.SubModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,11 +57,13 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
         NDArray s = list.get(0);
 
 
+
         NDArray hiddenStates = s.toDevice(Device.cpu(), false);
 
-        NDManager manager = hiddenStates.getManager().getParentManager().getParentManager();
+        //  NDManager manager = hiddenStates.getManager().getParentManager().getParentManager();
         hiddenStates.detach();
-    //    hiddenStates.attach(manager);
+        SubModel submodel = (SubModel)ctx.getModel();
+        hiddenStates.attach(submodel.cpuNDManager);
 
         NetworkIO outputA = NetworkIO.builder()
                 .hiddenState(hiddenStates)

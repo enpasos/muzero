@@ -88,7 +88,17 @@ public class Network {
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
         this(config, model, Paths.get(getNetworksBasedir(config)));
+    }
 
+//    public Network(@NotNull MuZeroConfig config, @NotNull Model model, NDManager cpuNDManager) {
+//        this(config, model, Paths.get(getNetworksBasedir(config)));
+//        initialInference.cpuNDManager = cpuNDManager;
+//        recurrentInference.cpuNDManager = cpuNDManager;
+//    }
+    public void setCpuNDManager(NDManager cpuNDManager) {
+
+        initialInference.cpuNDManager = cpuNDManager;
+        recurrentInference.cpuNDManager = cpuNDManager;
     }
 
     public static int getEpoch(@NotNull Model model) {
@@ -253,4 +263,6 @@ public class Network {
     public int trainingSteps() {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }
+
+
 }
