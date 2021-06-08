@@ -149,7 +149,7 @@ public class MCTS {
 //
 //
             if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
-            List<NetworkIO> networkOutputList = network.recurrentInferenceList(hiddenStateList,
+            List<NetworkIO> networkOutputList = network.recurrentInferenceListDirect(hiddenStateList,
                     actionList
             );
             if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();

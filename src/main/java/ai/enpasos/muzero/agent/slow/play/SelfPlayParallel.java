@@ -77,7 +77,7 @@ public class SelfPlayParallel {
             inferenceDuration.value -= System.currentTimeMillis();
 
 
-            List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceList(
+            List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(
                     gameList.stream().map(g -> g.getObservation(network.getNDManager())).collect(Collectors.toList())
             );
 
