@@ -20,18 +20,18 @@ package ai.enpasos.muzero.debug;
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.gamebuffer.Game;
-import ai.enpasos.muzero.network.Network;
-import ai.enpasos.muzero.network.NetworkIO;
-import ai.enpasos.muzero.play.Action;
-import ai.enpasos.muzero.play.MCTS;
-import ai.enpasos.muzero.play.Node;
+import ai.enpasos.muzero.agent.fast.model.Network;
+import ai.enpasos.muzero.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.MCTS;
+import ai.enpasos.muzero.agent.slow.play.Node;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static ai.enpasos.muzero.play.PlayManager.getAllActionsOnDevice;
+import static ai.enpasos.muzero.agent.slow.play.PlayManager.getAllActionsOnDevice;
 
 @Data
 public class DNode {

@@ -7,7 +7,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.go.environment.*;
-import ai.enpasos.muzero.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 
 import java.util.ArrayList;
 import java.util.List;

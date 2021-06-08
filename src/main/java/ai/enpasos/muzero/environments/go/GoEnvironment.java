@@ -22,7 +22,7 @@ import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.go.environment.*;
 import ai.enpasos.muzero.environments.go.environment.scoring.GameResult;
-import ai.enpasos.muzero.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;

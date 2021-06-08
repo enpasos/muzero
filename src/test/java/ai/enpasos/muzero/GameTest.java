@@ -18,7 +18,7 @@
 package ai.enpasos.muzero;
 
 import ai.enpasos.muzero.gamebuffer.Game;
-import ai.enpasos.muzero.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
