@@ -26,9 +26,9 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.GameDTO;
-import ai.enpasos.muzero.network.Observation;
-import ai.enpasos.muzero.play.Action;
-import ai.enpasos.muzero.play.Player;
+import ai.enpasos.muzero.agent.fast.model.Observation;
+import ai.enpasos.muzero.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

@@ -23,7 +23,7 @@ import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.network.Network;
+import ai.enpasos.muzero.agent.fast.model.Network;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -50,7 +50,7 @@ public class TicTacToeTest {
         GameTree gameTree = new GameTree(config);
 
 
-        Set<Game> bufferGameDTOs = replayBuffer.getBuffer().getData().values().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
+        Set<Game> bufferGameDTOs = replayBuffer.getBuffer().getData().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
         Set<Game> terminatedGameNotInBufferDTOs = gameTree.terminatedGameNodes.stream()
                 .map(DNode::getGame)
                 .filter(d -> !bufferGameDTOs.contains(d))

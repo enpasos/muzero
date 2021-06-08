@@ -21,7 +21,7 @@ package ai.enpasos.muzero.gamebuffer;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.network.Sample;
+import ai.enpasos.muzero.agent.fast.model.Sample;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -135,7 +135,7 @@ public class ReplayBuffer {
 
 //        long start = System.currentTimeMillis();
 
-        List<GameDTO> games = new ArrayList<>(this.buffer.getData().values());
+        List<GameDTO> games = new ArrayList<>(this.buffer.getData());
         Collections.shuffle(games);
 
 

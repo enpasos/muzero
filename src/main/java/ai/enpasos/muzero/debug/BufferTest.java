@@ -42,12 +42,12 @@ public class BufferTest {
         log.info("total games: {}", replayBuffer.getBuffer().getData().size());
 
 
-        Collection<GameDTO> collection = replayBuffer.getBuffer().getData().values();
+        Collection<GameDTO> collection = replayBuffer.getBuffer().getData();
         GameDTO gameDTO = collection.iterator().next();
         gameDTO.setRewards(List.of(42.0f));
         replayBuffer.saveGame(new TicTacToeGame(config, gameDTO));
 
-        Set<Game> set = replayBuffer.getBuffer().getData().values().stream()
+        Set<Game> set = replayBuffer.getBuffer().getData().stream()
                 .map(dto -> {
                     Game game = config.newGame();
                     Objects.requireNonNull(game).setGameDTO(dto);

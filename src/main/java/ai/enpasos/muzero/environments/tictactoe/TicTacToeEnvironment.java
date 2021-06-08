@@ -20,7 +20,7 @@ package ai.enpasos.muzero.environments.tictactoe;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
-import ai.enpasos.muzero.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -21,7 +21,7 @@ import ai.djl.Device;
 import ai.enpasos.muzero.environments.go.GoGame;
 import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
 import ai.enpasos.muzero.gamebuffer.Game;
-import ai.enpasos.muzero.play.KnownBounds;
+import ai.enpasos.muzero.agent.slow.play.KnownBounds;
 import lombok.Builder;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,11 @@ public class MuZeroConfig {
     private final float lrInit;
     private final double momentum;
     // play
-    private final int numSimulations;
+    private int numSimulations;
+    private int numParallelPlays;
+
+    private final int numParallelHiddenStates;
+
     private final double rootDirichletAlpha;
     private final double rootExplorationFraction;
     private final @NotNull BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFn;
@@ -76,6 +80,12 @@ public class MuZeroConfig {
     // local file based storage
     private String outputDir;
     private String networkBaseDir;
+
+
+    public int getNumParallelPlays() {
+        if (numSimulations == 0) return numParallelHiddenStates;
+        return numParallelHiddenStates / numSimulations;
+    }
 
 
     public static MuZeroConfig getTicTacToeInstance() {
@@ -130,7 +140,7 @@ public class MuZeroConfig {
                 .inferenceDevice(Device.gpu())
 
                 // local file based storage
-                .outputDir("./tictactoe/")
+                .outputDir("./memory/tictactoe/")
 
                 .build();
 
@@ -164,7 +174,7 @@ public class MuZeroConfig {
                 // network training
                 .numberOfTrainingSteps(300000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
-                .windowSize(10000)     // 1000000 in the paper
+                .windowSize(100000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
@@ -177,7 +187,13 @@ public class MuZeroConfig {
                 .momentum(0.9f)
 
                 // play
+
+                .numParallelHiddenStates(400)   // numSimulations * numParallelPlays
+
                 .numSimulations(100)     // 800 in the paper
+//                .numParallelPlay(3)
+
+
                 .rootDirichletAlpha(0.03)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
@@ -189,7 +205,7 @@ public class MuZeroConfig {
                 .inferenceDevice(Device.gpu())
 
                 // local file based storage
-                .outputDir("./go"+ size + "/")
+                .outputDir("./memory/go"+ size + "/")
 
                 .build();
 

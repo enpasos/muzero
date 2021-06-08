@@ -19,8 +19,8 @@ package ai.enpasos.muzero;
 
 import ai.enpasos.muzero.gamebuffer.GameIO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.network.djl.NetworkHelper;
-import ai.enpasos.muzero.play.PlayManager;
+import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
+import ai.enpasos.muzero.agent.slow.play.PlayManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -42,20 +42,52 @@ public class MuZero {
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
 
-        int trainingStep;
+        config.setNumSimulations(1);
+
+        initialFillingBuffer(config, replayBuffer);
+
+        int trainingStep = 0;
+
 
         do {
 
-            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 20, false, false, 4);
-            replayBuffer.saveState();
+            if (trainingStep == 3300) { // || trainingStep == 6600) {
+                replayBuffer.getBuffer().clear();
+                initialFillingBuffer(config, replayBuffer);
+            }
+
             trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
+            log.info("numSimulations: " + config.getNumSimulations());
+            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+
+
+            if (trainingStep > 5000) {
+                config.setNumSimulations(100);
+
+
+                int numberOfPlays = 4000/config.getNumParallelPlays();
+
+                log.info("numParallelPlays: " + config.getNumParallelPlays());
+                log.info("numberOfPlays: " + numberOfPlays);
+
+                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, config.getNumParallelPlays());
+                replayBuffer.saveState();
+
+            }
 
         } while (trainingStep < config.getNumberOfTrainingSteps());
 
 
+    }
+
+    private static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
+        while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
+            log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
+            PlayManager.playParallel(replayBuffer, config, 1, false, true, 10000);
+            replayBuffer.saveState();
+        }
     }
 
     private static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
