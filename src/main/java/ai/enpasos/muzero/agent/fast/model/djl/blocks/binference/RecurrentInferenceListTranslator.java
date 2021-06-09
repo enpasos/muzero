@@ -53,11 +53,19 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
     public  List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
         NDArray s = list.get(0);
-        NDArray hiddenStates = s.toDevice(Device.cpu(), false);
 
-        hiddenStates.detach();
-        SubModel submodel = (SubModel)ctx.getModel();
-        hiddenStates.attach(submodel.cpuNDManager);
+
+        NDArray hiddenStates = null;
+        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
+            hiddenStates = s.toDevice(Device.cpu(), false);
+            hiddenStates.detach();
+            SubModel submodel = (SubModel)ctx.getModel();
+            hiddenStates.attach(submodel.cpuNDManager);
+        } else {
+            hiddenStates = s;
+        }
+
+
 
         NetworkIO outputA = NetworkIO.builder()
                 .hiddenState(hiddenStates)
@@ -104,14 +112,19 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
     @Override
     public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {
 
-        ;
+
 
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
-        NDArray hiddenStateOnGPU = input.getHiddenState().toDevice(Device.gpu(), true);
-        hiddenStateOnGPU.attach(ctx.getNDManager());
-    //    NDArray result = NDArrays.concat(new NDList(hiddenStateOnGPU, ndArrayActionStack), 1);
 
-        return new NDList(hiddenStateOnGPU, ndArrayActionStack );
+        NDArray hiddenStateOnTargetDevice = null;
+        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
+            hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
+            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
+        } else {
+            hiddenStateOnTargetDevice = input.getHiddenState();
+        }
+
+        return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack );
 
     }
 
