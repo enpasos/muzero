@@ -57,13 +57,19 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
         NDArray s = list.get(0);
 
 
+        NDArray hiddenStates = null;
+        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
+            hiddenStates = s.toDevice(Device.cpu(), false);
+            hiddenStates.detach();
+            SubModel submodel = (SubModel)ctx.getModel();
+            hiddenStates.attach(submodel.cpuNDManager);
+        } else {
+            hiddenStates = s;
+        }
 
-        NDArray hiddenStates = s.toDevice(Device.cpu(), false);
 
-        //  NDManager manager = hiddenStates.getManager().getParentManager().getParentManager();
-        hiddenStates.detach();
-        SubModel submodel = (SubModel)ctx.getModel();
-        hiddenStates.attach(submodel.cpuNDManager);
+
+
 
         NetworkIO outputA = NetworkIO.builder()
                 .hiddenState(hiddenStates)
