@@ -30,4 +30,28 @@ class GoInferenceTest {
         int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
 
     }
+
+
+    @Test
+    void aiDecisionSlowLongerGame() {
+
+        boolean withMCTS = true;
+        int size = 5;
+        List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25);
+
+        int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
+
+    }
+
+
+    @Test
+    void aiDecisionSlowForAlreadyFinishedGame() {
+
+        boolean withMCTS = true;
+        int size = 5;
+        List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25, 25);
+
+        int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
+
+    }
 }

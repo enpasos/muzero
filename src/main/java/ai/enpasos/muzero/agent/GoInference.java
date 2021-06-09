@@ -77,6 +77,8 @@ public class GoInference {
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         MCTS mcts = new MCTS(game.getConfig());
+        List<Action> legalActions = game.legalActions();
+        if (legalActions.size() == 0) return -1;
         if (!withMCTS) {
 
             float[] policyValues = networkOutput.getPolicyValues();
@@ -94,7 +96,7 @@ public class GoInference {
         } else {
             Node root = new Node(0);
 
-            List<Action> legalActions = game.legalActions();
+
             mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
             mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
