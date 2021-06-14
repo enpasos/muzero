@@ -73,6 +73,7 @@ public class GoInference {
 
 
     private static int aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
+        // boolean selectByDrawing = false;
         NetworkIO networkOutput = network.initialInference(game.getObservation(network.getNDManager()));
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
@@ -101,7 +102,12 @@ public class GoInference {
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
             mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
 
-            Action action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+            Action action = null;
+//            if (selectByDrawing) {
+                mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+//            } else {
+//                mcts.selectActionByMaxFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+//            }
             actionIndexSelectedByNetwork = action.getIndex();
         }
         return actionIndexSelectedByNetwork;

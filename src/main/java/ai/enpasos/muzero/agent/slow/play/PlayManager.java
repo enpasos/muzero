@@ -43,11 +43,11 @@ import static ai.enpasos.muzero.agent.fast.model.djl.Helper.logNDManagers;
 @Slf4j
 public class PlayManager {
 
-    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning) {
-        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, 1);
+    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
+        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, 1, explorationNoise);
     }
 
-    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel) {
+    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel, boolean explorationNoise) {
 
         for (int i = 0; i < numberOfPlays; i++) {
 
@@ -62,7 +62,7 @@ public class PlayManager {
                     if (!fastRuleLearning)
                         network = new Network(config, model);
 
-                    List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
+                    List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice, explorationNoise);
                     gameList.forEach(replayBuffer::saveGame);
 
 
