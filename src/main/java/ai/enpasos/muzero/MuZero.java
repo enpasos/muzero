@@ -46,7 +46,7 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 7000;  // TODO 0
+        int trainingStep = 0;
 
 
         do {
@@ -60,11 +60,14 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+            if (trainingStep <= 5000) {
+                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, false);
+            }
 
 
             if (trainingStep > 5000) {
                 config.setNumSimulations(100);
+                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, false);
 
 
                 int numberOfPlays = 1; //4000/config.getNumParallelPlays();
@@ -72,7 +75,7 @@ int numParallelPlays = 4000;
                 log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);
 
-                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, numParallelPlays);
+                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, numParallelPlays, true);
                 replayBuffer.saveState();
 
             }
@@ -85,7 +88,7 @@ int numParallelPlays = 4000;
     private static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(replayBuffer, config, 1, false, true, 10000);
+            PlayManager.playParallel(replayBuffer, config, 1, false, true, 10000, false);
             replayBuffer.saveState();
         }
     }

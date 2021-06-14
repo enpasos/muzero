@@ -47,7 +47,7 @@ public class SelfPlayParallel {
     private final @Nullable DirichletGen dg = null;
 
 
-    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, int gameNo, @NotNull List<NDArray> actionSpaceOnDevice) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, int gameNo, @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
         List<Game> gameList = IntStream.rangeClosed(1, gameNo)
@@ -108,13 +108,15 @@ public class SelfPlayParallel {
                             networkIO, fastRuleLearning);
                 }
 
-                double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();
+              //  double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();   // TODO check
+                double fraction = config.getRootExplorationFraction();
+                if( explorationNoise ) {
+                    rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
 
-                rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
 
-
-                if (render && indexOfJustOneOfTheGames != -1) {
-                    renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
+                    if (render && indexOfJustOneOfTheGames != -1) {
+                        renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
+                    }
                 }
 
                 if (!fastRuleLearning) {

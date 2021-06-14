@@ -150,8 +150,13 @@ public class MuZeroConfig {
 
     public static MuZeroConfig getGoInstance(int size) {
 
+
+
+        // should depend on the size and the correpondingly the average number of moves in a game
+        // here 5 for size 5
+        // in the paper 30 for size 19
         BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {
-            return (numMoves < 30) ? 1.0 : 0.1;   // TODO:  instead of 0.1 here use max rather than softmax
+            return (numMoves < 5) ? 1.0 : 0.1;   // TODO:  instead of 0.1 here use max rather than softmax
         };
 
 
@@ -194,7 +199,7 @@ public class MuZeroConfig {
 //                .numParallelPlay(3)
 
 
-                .rootDirichletAlpha(0.03)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
+                .rootDirichletAlpha(1.0)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
                 .knownBounds(new KnownBounds(-1d, 1d))  // as in the paper

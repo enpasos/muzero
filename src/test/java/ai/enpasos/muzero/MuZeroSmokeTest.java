@@ -32,7 +32,7 @@ class MuZeroSmokeTest {
     public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
         deleteNetworksAndGames(config);
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        PlayManager.playParallel(replayBuffer, config, config.getBatchSize(), true, true, 1);
+        PlayManager.playParallel(replayBuffer, config, config.getBatchSize(), true, true, 1, true);
 
 
     }
@@ -49,8 +49,8 @@ class MuZeroSmokeTest {
 
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
 
-            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 5, false, false, 100);
+            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
+            PlayManager.playParallel(replayBuffer, config, 5, false, false, 100, true);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {
