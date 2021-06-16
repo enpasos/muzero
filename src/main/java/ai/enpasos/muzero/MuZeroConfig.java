@@ -151,12 +151,12 @@ public class MuZeroConfig {
     public static MuZeroConfig getGoInstance(int size) {
 
 
-
+        // TODO
         // should depend on the size and the correpondingly the average number of moves in a game
         // here 5 for size 5
         // in the paper 30 for size 19
         BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {
-            return (numMoves < 5) ? 1.0 : 0.1;   // TODO:  instead of 0.1 here use max rather than softmax
+            return (numMoves < 30) ? 1.0 : 0.1;   // TODO:  instead of 0.1 here use max rather than softmax
         };
 
 
@@ -195,7 +195,7 @@ public class MuZeroConfig {
 
                 .numParallelHiddenStates(4000)   // numSimulations * numParallelPlays
 
-                .numSimulations(100)     // 800 in the paper
+                .numSimulations(800)     // 800 in the paper
 //                .numParallelPlay(3)
 
 

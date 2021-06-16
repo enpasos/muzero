@@ -70,7 +70,9 @@ public class SelfPlayParallel {
 
             try(NDManager cpuNDManager = NDManager.newBaseManager(Device.cpu())) {
 
-                network.setCpuNDManager( cpuNDManager);
+                if (network != null) {
+                    network.setCpuNDManager(cpuNDManager);
+                }
 
                 int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
 

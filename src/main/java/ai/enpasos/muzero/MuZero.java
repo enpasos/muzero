@@ -66,8 +66,8 @@ public class MuZero {
 
 
             if (trainingStep > 5000) {
-                config.setNumSimulations(100);
-                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, false);
+                config.setNumSimulations(800);
+                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 
 
                 int numberOfPlays = 1; //4000/config.getNumParallelPlays();
