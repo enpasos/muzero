@@ -173,7 +173,7 @@ public class MuZeroConfig {
 
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
-                .numChannels(64)        // 256 in the paper  // 64 for 5x5
+                .numChannels(128)        // 256 in the paper  // 64 for 5x5
                 .numResiduals(16)        // 16 in the paper
 
                 // network training
