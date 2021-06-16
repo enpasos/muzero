@@ -100,7 +100,14 @@ public class Network {
         initialInference.cpuNDManager = cpuNDManager;
         recurrentInference.cpuNDManager = cpuNDManager;
     }
-
+    public static double getLoss(@NotNull Model model) {
+        double epoch = 0;
+        String prop = model.getProperty("MeanLoss");
+        if (prop != null) {
+            epoch = Double.parseDouble(prop);
+        }
+        return epoch;
+    }
     public static int getEpoch(@NotNull Model model) {
         int epoch = 0;
         String prop = model.getProperty("Epoch");
