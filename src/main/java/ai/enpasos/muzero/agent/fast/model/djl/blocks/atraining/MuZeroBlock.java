@@ -28,7 +28,6 @@ import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.binference.InitialInferenceBlock;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;
@@ -63,11 +62,6 @@ public class MuZeroBlock extends AbstractBlock {
             inputNames.add("action_" + k);
         }
     }
-
-    public InitialInferenceBlock getInitialInferenceBlock() {
-        return new InitialInferenceBlock(representationBlock, predictionBlock);
-    }
-
 
 
     @Override
