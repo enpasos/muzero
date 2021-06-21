@@ -19,7 +19,6 @@ package ai.enpasos.muzero.agent.fast.model.djl;
 
 import ai.djl.BaseModel;
 import ai.djl.Model;
-import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.nn.Block;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +34,8 @@ public class SubModel extends BaseModel {
     public SubModel(String modelName, @NotNull Model model, Block block) {
         super(modelName);
         super.manager = model.getNDManager().newSubManager();
-
         super.setBlock(block);
     }
-
-    public NDManager cpuNDManager;
 
 
     @Override

@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.agent.slow.play;
 
-import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
@@ -43,39 +42,35 @@ import static ai.enpasos.muzero.agent.fast.model.djl.Helper.logNDManagers;
 @Slf4j
 public class PlayManager {
 
-    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
-        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, 1, explorationNoise);
+    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning) {
+        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, 1);
     }
 
-    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel, boolean explorationNoise) {
+    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel) {
 
         for (int i = 0; i < numberOfPlays; i++) {
+            try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+
+                logNDManagers(model.getNDManager());
 
 
+                List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
+                Network network = null;
+                if (!fastRuleLearning)
+                    network = new Network(config, model);
 
-                try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
+                gameList.forEach(replayBuffer::saveGame);
+
+
+                if (i == numberOfPlays - 1)
                     logNDManagers(model.getNDManager());
 
 
-                    List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
-                    Network network = null;
-                    if (!fastRuleLearning)
-                        network = new Network(config, model);
-
-                    List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice, explorationNoise);
-                    gameList.forEach(replayBuffer::saveGame);
+            }
 
 
-                    if (i == numberOfPlays - 1)
-                        logNDManagers(model.getNDManager());
-
-
-                    log.info("Played {} games parallel, round {}", noGamesParallel, i);
-
-                }
-
-
-
+            log.info("Played {} games parallel, round {}", noGamesParallel, i);
         }
 
     }

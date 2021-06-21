@@ -47,7 +47,7 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 0;
+        int trainingStep = 25000;
 
 
         do {
@@ -57,23 +57,25 @@ public class MuZero {
                 initialFillingBuffer(config, replayBuffer);
             }
 
-            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+      //      trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-            if (trainingStep <= 20000) {
-                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, false);
-            } else {
-                config.setNumSimulations(800);
-                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
+        //    PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
 
 
-                int numberOfPlays = 4; //4000/config.getNumParallelPlays();
-int numParallelPlays = 1000;
-                log.info("numParallelPlays: " + numParallelPlays);
+            if (trainingStep > 20000) {
+                config.setNumSimulations(20);
+
+
+                int numberOfPlays = 4000/config.getNumParallelPlays();
+
+
+
+                log.info("numParallelPlays: " + config.getNumParallelPlays());
                 log.info("numberOfPlays: " + numberOfPlays);
 
-                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, numParallelPlays, true);
+                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, config.getNumParallelPlays());
                 replayBuffer.saveState();
 
             }
@@ -86,7 +88,7 @@ int numParallelPlays = 1000;
     private static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(replayBuffer, config, 1, false, true, 10000, false);
+            PlayManager.playParallel(replayBuffer, config, 1, false, true, 10000);
             replayBuffer.saveState();
         }
     }
