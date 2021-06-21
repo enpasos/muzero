@@ -185,7 +185,7 @@ public class MuZeroConfig {
                 .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
                 // loss details
-                .weightDecay(0.0001f)
+                .weightDecay(0.0001f)  // in katago 0.00003
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
                 // network training - sgd optimizer
                 .lrInit(0.01f)          // 0.01f in paper for go, 0.1f for chess
