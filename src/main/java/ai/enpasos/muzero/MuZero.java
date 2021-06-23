@@ -67,9 +67,9 @@ public class MuZero {
                 config.setNumSimulations(800);
             //    PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 
+                int numParallelPlays = 2000;
+                int numberOfPlays = 2; //4000/config.getNumParallelPlays();
 
-                int numberOfPlays = 2000; //4000/config.getNumParallelPlays();
-int numParallelPlays = 2;
                 log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);
 
