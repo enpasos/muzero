@@ -116,13 +116,13 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
 
-        NDArray hiddenStateOnTargetDevice = null;
-        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-            hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
-            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
-        } else {
-            hiddenStateOnTargetDevice = input.getHiddenState();
-        }
+        NDArray hiddenStateOnTargetDevice = input.getHiddenState();
+//        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
+//            hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
+//            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
+//        } else {
+//            hiddenStateOnTargetDevice = input.getHiddenState();
+//        }
 
         return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack );
 
