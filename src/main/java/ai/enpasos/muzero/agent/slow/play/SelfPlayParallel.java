@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.agent.slow.play;
 
-import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
@@ -68,10 +67,10 @@ public class SelfPlayParallel {
 
         while (gameList.size() > 0) {
 
-            try(NDManager cpuNDManager = NDManager.newBaseManager(Device.cpu())) {
+            try(NDManager nDManager = network.getNDManager().newSubManager()) {
 
                 if (network != null) {
-                    network.setCpuNDManager(cpuNDManager);
+                    network.setHiddenStateNDManager(nDManager);
                 }
 
                 int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
@@ -158,7 +157,7 @@ public class SelfPlayParallel {
 
                 if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
                     //System.out.println("reward: " + justOneOfTheGames.reward);
-                    NetworkIO networkOutput2 = network.initialInference(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
+                    NetworkIO networkOutput2 = network.initialInferenceDirect(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
                     renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
                 }
 

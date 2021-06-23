@@ -39,7 +39,7 @@ public class SubModel extends BaseModel {
         super.setBlock(block);
     }
 
-    public NDManager cpuNDManager;
+    public NDManager hiddenStateNDManager;
 
 
     @Override

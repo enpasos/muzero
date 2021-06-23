@@ -95,10 +95,10 @@ public class Network {
 //        initialInference.cpuNDManager = cpuNDManager;
 //        recurrentInference.cpuNDManager = cpuNDManager;
 //    }
-    public void setCpuNDManager(NDManager cpuNDManager) {
+    public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
 
-        initialInference.cpuNDManager = cpuNDManager;
-        recurrentInference.cpuNDManager = cpuNDManager;
+        initialInference.hiddenStateNDManager = hiddenStateNDManager;
+        recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
     }
     public static double getLoss(@NotNull Model model) {
         double epoch = 0;
@@ -121,59 +121,59 @@ public class Network {
         return model.getNDManager();
     }
 
-    public @Nullable NetworkIO representationList(List<Observation> observationList) {
-        NetworkIO networkOutputFromRepresentation = null;
+//    public @Nullable NetworkIO representationList(List<Observation> observationList) {
+//        NetworkIO networkOutputFromRepresentation = null;
+//
+//        RepresentationListTranslator translator = new RepresentationListTranslator();
+//        try (Predictor<List<Observation>, NetworkIO> predictorRepresentation = representation.newPredictor(translator)) {
+//            networkOutputFromRepresentation = predictorRepresentation.predict(observationList);
+//
+//        } catch (TranslateException e) {
+//            e.printStackTrace();
+//        }
+//        return networkOutputFromRepresentation;
+//    }
 
-        RepresentationListTranslator translator = new RepresentationListTranslator();
-        try (Predictor<List<Observation>, NetworkIO> predictorRepresentation = representation.newPredictor(translator)) {
-            networkOutputFromRepresentation = predictorRepresentation.predict(observationList);
+//    public @Nullable List<NetworkIO> predictionList(NetworkIO networkio) {
+//        List<NetworkIO> networkOutputFromPrediction = null;
+//
+//        PredictionListTranslator translator = new PredictionListTranslator();
+//        try (Predictor<NetworkIO, List<NetworkIO>> predictorRepresentation = prediction.newPredictor(translator)) {
+//            networkOutputFromPrediction = predictorRepresentation.predict(networkio);
+//        } catch (TranslateException e) {
+//            e.printStackTrace();
+//        }
+//        return networkOutputFromPrediction;
+//    }
+//
+//    public @Nullable NetworkIO dynamicsList(NetworkIO networkio) {
+//
+//        NetworkIO networkOutputFromDynamics = null;
+//
+//        DynamicsListTranslator translator = new DynamicsListTranslator();
+//        try (Predictor<NetworkIO, NetworkIO> predictorRepresentation = dynamics.newPredictor(translator)) {
+//            networkOutputFromDynamics = predictorRepresentation.predict(networkio);
+//        } catch (TranslateException e) {
+//            e.printStackTrace();
+//        }
+//        return networkOutputFromDynamics;
+//    }
 
-        } catch (TranslateException e) {
-            e.printStackTrace();
-        }
-        return networkOutputFromRepresentation;
+    public NetworkIO initialInferenceDirect(@NotNull Observation observation) {
+        return Objects.requireNonNull(initialInferenceListDirect(List.of(observation))).get(0);
     }
 
-    public @Nullable List<NetworkIO> predictionList(NetworkIO networkio) {
-        List<NetworkIO> networkOutputFromPrediction = null;
-
-        PredictionListTranslator translator = new PredictionListTranslator();
-        try (Predictor<NetworkIO, List<NetworkIO>> predictorRepresentation = prediction.newPredictor(translator)) {
-            networkOutputFromPrediction = predictorRepresentation.predict(networkio);
-        } catch (TranslateException e) {
-            e.printStackTrace();
-        }
-        return networkOutputFromPrediction;
-    }
-
-    public @Nullable NetworkIO dynamicsList(NetworkIO networkio) {
-
-        NetworkIO networkOutputFromDynamics = null;
-
-        DynamicsListTranslator translator = new DynamicsListTranslator();
-        try (Predictor<NetworkIO, NetworkIO> predictorRepresentation = dynamics.newPredictor(translator)) {
-            networkOutputFromDynamics = predictorRepresentation.predict(networkio);
-        } catch (TranslateException e) {
-            e.printStackTrace();
-        }
-        return networkOutputFromDynamics;
-    }
-
-    public NetworkIO initialInference(@NotNull Observation observation) {
-        return Objects.requireNonNull(initialInferenceList(List.of(observation))).get(0);
-    }
-
-    public @Nullable List<NetworkIO> initialInferenceList(List<Observation> observationList) {
-      //  checkObservations(observationList);
-        NetworkIO outputA = representationList(observationList);
-        List<NetworkIO> outputB = predictionList(outputA);
-
-        for (int i = 0; i < Objects.requireNonNull(outputB).size(); i++) {
-            outputB.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-        }
-
-        return outputB;
-    }
+//    public @Nullable List<NetworkIO> initialInferenceList(List<Observation> observationList) {
+//      //  checkObservations(observationList);
+//        NetworkIO outputA = representationList(observationList);
+//        List<NetworkIO> outputB = predictionList(outputA);
+//
+//        for (int i = 0; i < Objects.requireNonNull(outputB).size(); i++) {
+//            outputB.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
+//        }
+//
+//        return outputB;
+//    }
 
     public @Nullable List<NetworkIO> initialInferenceListDirect(List<Observation> observationList) {
 
@@ -224,26 +224,26 @@ public class Network {
 //        });
 //    }
 
-    public NetworkIO recurrentInference(@NotNull NDArray hiddenState, @NotNull NDArray actionList) {
-        return Objects.requireNonNull(recurrentInferenceList(List.of(hiddenState), List.of(actionList))).get(0);
-    }
-
-    public @Nullable List<NetworkIO> recurrentInferenceList(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
-        NetworkIO networkIO = new NetworkIO();
-
-        networkIO.setHiddenState(NDArrays.stack(new NDList(hiddenStateList)));
-        networkIO.setActionList(actionList);
-
-        networkIO.setConfig(config);
-        NetworkIO outputA = dynamicsList(networkIO);
-        List<NetworkIO> outputB = predictionList(outputA);
-
-        for (int i = 0; i < Objects.requireNonNull(outputB).size(); i++) {
-            outputB.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-        }
-
-        return outputB;
-    }
+//    public NetworkIO recurrentInference(@NotNull NDArray hiddenState, @NotNull NDArray actionList) {
+//        return Objects.requireNonNull(recurrentInferenceList(List.of(hiddenState), List.of(actionList))).get(0);
+//    }
+//
+//    public @Nullable List<NetworkIO> recurrentInferenceList(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
+//        NetworkIO networkIO = new NetworkIO();
+//
+//        networkIO.setHiddenState(NDArrays.stack(new NDList(hiddenStateList)));
+//        networkIO.setActionList(actionList);
+//
+//        networkIO.setConfig(config);
+//        NetworkIO outputA = dynamicsList(networkIO);
+//        List<NetworkIO> outputB = predictionList(outputA);
+//
+//        for (int i = 0; i < Objects.requireNonNull(outputB).size(); i++) {
+//            outputB.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
+//        }
+//
+//        return outputB;
+//    }
     public @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();
 
