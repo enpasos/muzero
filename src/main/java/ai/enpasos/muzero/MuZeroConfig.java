@@ -176,15 +176,19 @@ public class MuZeroConfig {
 
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
-                .numChannels(128)        // 256 in the paper  // 64 for 5x5
-                .numHiddenStateChannels(5)
-                .numResiduals(16)        // 16 in the paper
+                .numHiddenStateChannels(5)  // squeezing the hidden state from c to 5
+
+
+                .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .numChannels(96)        // 256 in the paper  // 64 for 5x5
+                .numResiduals(6)        // 16 in the paper
+
 
                 // network training
                 .numberOfTrainingSteps(300000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
-                .windowSize(100000)     // 1000000 in the paper
-                .batchSize(50)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .windowSize(10000)     // 1000000 in the paper
+
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)

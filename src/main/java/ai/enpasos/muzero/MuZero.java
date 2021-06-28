@@ -57,18 +57,18 @@ public class MuZero {
 //                initialFillingBuffer(config, replayBuffer);
 //            }
 
-        //    trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-            if (trainingStep <= 20000) {
+            if (trainingStep <= 1000) {
                 PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, false);
             } else {
                 config.setNumSimulations(800);
-            //    PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
+                //PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 
-                int numParallelPlays = 3;
-                int numberOfPlays = 1000; //4000/config.getNumParallelPlays();
+                int numParallelPlays = 10;
+                int numberOfPlays = 2; //4000/config.getNumParallelPlays();
 
                 log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);
