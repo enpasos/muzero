@@ -67,7 +67,7 @@ public class SelfPlayParallel {
 
         while (gameList.size() > 0) {
 
-            try(NDManager nDManager = network.getNDManager().newSubManager()) {
+            try(NDManager nDManager =  network != null ? network.getNDManager().newSubManager() : null) {
 
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
