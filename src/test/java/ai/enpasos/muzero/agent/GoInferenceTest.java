@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.agent;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GoInferenceTest {
 
     @Test
+    @Disabled
     void aiDecisionFast() {
 
         boolean withMCTS = false;
@@ -21,6 +23,7 @@ class GoInferenceTest {
     }
 
     @Test
+    @Disabled
     void aiDecisionSlow() {
 
         boolean withMCTS = true;
@@ -33,6 +36,7 @@ class GoInferenceTest {
 
 
     @Test
+    @Disabled
     void aiDecisionSlowLongerGame() {
 
         boolean withMCTS = true;
@@ -45,6 +49,7 @@ class GoInferenceTest {
 
 
     @Test
+    @Disabled
     void aiDecisionSlowForAlreadyFinishedGame() {
 
         boolean withMCTS = true;

@@ -216,7 +216,7 @@ public class MCTS {
     }
 
 
-    public void expandNode(@NotNull Node node, Player toPlay, @NotNull List<Action> actions, @NotNull NetworkIO networkOutput,
+    public void expandNode(@NotNull Node node, Player toPlay, @NotNull List<Action> actions, NetworkIO networkOutput,
                            boolean fastRuleLearning) {
         node.toPlay = toPlay;
         if (!fastRuleLearning) {

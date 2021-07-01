@@ -15,40 +15,37 @@
  *
  */
 
-package ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions;
+package ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel;
 
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Activation;
 import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.norm.BatchNorm;
 import ai.djl.nn.norm.LayerNorm;
-import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.*;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-public class RepresentationOrDynamicsBlock extends MySequentialBlock {
+
+public class Conv3x3LayerNormRelu extends MySequentialBlock {
 
 
-    /**
-     * "Both the representation and dynamics function use the same architecture
-     * as AlphaZero, but with 16 instead of 20 residual blocks35. We use
-     * 3 × 3 kernels and 256 hidden planes for each convolution."
-     */
-
-    public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-
-        this.add(Conv3x3.builder().channels(config.getNumChannels()).build())
-
-                .add(ResidualTower.builder()
-                        .numResiduals(config.getNumResiduals())
-                        .numChannels(config.getNumChannels())
-                        .build())
-
-                .add(LayerNorm.builder().build())
-                .add(Activation::relu)
-
-                .add(new RescaleBlock());
-
+    private Conv3x3LayerNormRelu() {
     }
+
+    @Builder()
+    public static @NotNull Conv3x3LayerNormRelu newConvBatchNormRelu(int channels) {
+        Conv3x3LayerNormRelu instance = new Conv3x3LayerNormRelu();
+        instance.add(
+                Conv2d.builder()
+                        .setFilters(channels)
+                        .setKernelShape(new Shape(3, 3))
+                        .optBias(false)
+                        .optPadding(new Shape(1, 1))   // needed to keep in shape
+                        .build())
+                .add(LayerNorm.builder().build())
+                .add(Activation::relu);
+        return instance;
+    }
+
 
 }

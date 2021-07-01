@@ -26,6 +26,7 @@ import ai.djl.nn.SequentialBlock;
 import ai.djl.nn.core.Linear;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1BatchNormRelu;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.MySequentialBlock;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +41,7 @@ public class PredictionBlock extends MySequentialBlock {
 
 
         SequentialBlock valueHead = new SequentialBlock()
-                .add(Conv1x1BatchNormRelu.builder().channels(1).build())
+                .add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(Blocks.batchFlattenBlock())
                 .add(Linear.builder()
                         .setUnits(config.getNumChannels()) // config.getNumChannels())  // originally 256
@@ -52,7 +53,7 @@ public class PredictionBlock extends MySequentialBlock {
                 .add(Activation::tanh);
 
         SequentialBlock policyHead = new SequentialBlock()
-                .add(Conv1x1BatchNormRelu.builder().channels(2).build())
+                .add(Conv1x1LayerNormRelu.builder().channels(2).build())
                 .add(Blocks.batchFlattenBlock())
                 .add(Linear.builder()
                         .setUnits(config.getActionSpaceSize())
