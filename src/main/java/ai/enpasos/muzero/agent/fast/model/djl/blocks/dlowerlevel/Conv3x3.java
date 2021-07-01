@@ -17,21 +17,33 @@
 
 package ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel;
 
+import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.Activation;
+import ai.djl.nn.convolutional.Conv2d;
+import ai.djl.nn.norm.LayerNorm;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-public class ResidualTower extends MySequentialBlock {
 
-    private ResidualTower() {
+public class Conv3x3 extends MySequentialBlock {
+
+
+    private Conv3x3() {
     }
 
     @Builder()
-    public static @NotNull ResidualTower newResidualTower(int numResiduals, int numChannels) {
-        ResidualTower instance = new ResidualTower();
-        for (int i = 0; i < numResiduals; i++) {
-            instance.add(new ResidualBlockV2(numChannels));
-        }
+    public static @NotNull Conv3x3 newConv(int channels) {
+        Conv3x3 instance = new Conv3x3();
+        instance.add(
+                Conv2d.builder()
+                        .setFilters(channels)
+                        .setKernelShape(new Shape(3, 3))
+                        .optBias(false)
+                        .optPadding(new Shape(1, 1))   // needed to keep in shape
+                        .build());
+
         return instance;
     }
+
 
 }

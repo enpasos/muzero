@@ -47,7 +47,7 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 25000;
+        int trainingStep = 0;
 
 
         do {
@@ -57,7 +57,7 @@ public class MuZero {
                 initialFillingBuffer(config, replayBuffer);
             }
 
-      //      trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
