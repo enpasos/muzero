@@ -202,15 +202,19 @@ public class NetworkHelper {
 
         Tracker learningRateTracker = Tracker.fixed(muZeroConfig.getLrInit());
 
-        return Optimizer.sgd()
-                .setLearningRateTracker(learningRateTracker)
-                .optMomentum((float) muZeroConfig.getMomentum())
+//        return Optimizer.sgd()
+//                .setLearningRateTracker(learningRateTracker)
+//                .optMomentum((float) muZeroConfig.getMomentum())
+//                .optWeightDecays(muZeroConfig.getWeightDecay())
+//                .optClipGrad(10f)
+//                .build();
+
+        return Optimizer.adam()
+                .optLearningRateTracker(learningRateTracker)
+                //.optMomentum((float) muZeroConfig.getMomentum())
                 .optWeightDecays(muZeroConfig.getWeightDecay())
                 .optClipGrad(10f)
-
                 .build();
-
-
     }
 
 

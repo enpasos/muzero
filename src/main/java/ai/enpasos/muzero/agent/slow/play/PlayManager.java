@@ -59,7 +59,7 @@ public class PlayManager {
                 if (!fastRuleLearning)
                     network = new Network(config, model);
 
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice);
+                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice, true);
                 gameList.forEach(replayBuffer::saveGame);
 
 

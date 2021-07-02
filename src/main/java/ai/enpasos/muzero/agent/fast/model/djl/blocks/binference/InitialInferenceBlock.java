@@ -39,11 +39,11 @@ public class InitialInferenceBlock extends AbstractBlock {
     private final PredictionBlock f;
 
 
-    public InitialInferenceBlock(@NotNull MuZeroConfig config) {
+    public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
         super(VERSION);
 
-        h = this.addChildBlock("Representation", new RepresentationBlock(config));
-        f = this.addChildBlock("Prediction", new PredictionBlock(config));
+        h = this.addChildBlock("Representation", representationBlock);
+        f = this.addChildBlock("Prediction", predictionBlock);
     }
 
 

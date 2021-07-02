@@ -33,7 +33,7 @@ public class Conv1x1LayerNormRelu extends MySequentialBlock {
     }
 
     @Builder()
-    public static @NotNull Conv1x1LayerNormRelu newConvBatchNormRelu(int channels) {
+    public static @NotNull Conv1x1LayerNormRelu newConvLayerNormRelu(int channels) {
         Conv1x1LayerNormRelu instance = new Conv1x1LayerNormRelu();
         instance.add(
                 Conv2d.builder()

@@ -91,7 +91,7 @@ public class TicTacToeInference {
 
 
     private static int aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
-        NetworkIO networkOutput = network.initialInference(game.getObservation(network.getNDManager()));
+        NetworkIO networkOutput = network.initialInferenceDirect(game.getObservation(network.getNDManager()));
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         if (!withMCTS) {

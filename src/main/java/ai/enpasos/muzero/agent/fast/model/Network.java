@@ -29,9 +29,11 @@ import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.djl.SubModel;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.DynamicsListTranslator;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.PredictionListTranslator;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.RepresentationListTranslator;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.binference.InitialInferenceBlock;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.binference.InitialInferenceListTranslator;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.binference.RecurrentInferenceBlock;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.binference.RecurrentInferenceListTranslator;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions.*;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +57,9 @@ public class Network {
     private SubModel prediction;
     private SubModel dynamics;
 
+    private SubModel initialInference;
+    private SubModel recurrentInference;
+
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
         this.model = model;
         this.config = config;
@@ -68,22 +73,29 @@ public class Network {
             e.printStackTrace();
         }
 
-        Block representationBlock = model.getBlock().getChildren().get("01Representation");
-        Block predictionBlock = model.getBlock().getChildren().get("02Prediction");
-        Block dynamicsBlock = model.getBlock().getChildren().get("03Dynamics");
+        RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
+        PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
+        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
 
 
         representation = new SubModel("representation", model, representationBlock);
         prediction = new SubModel("prediction", model, predictionBlock);
         dynamics = new SubModel("dynamics", model, dynamicsBlock);
 
+        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock));
+        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock));
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
         this(config, model, Paths.get(getNetworksBasedir(config)));
-
     }
 
+
+    public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
+
+        initialInference.hiddenStateNDManager = hiddenStateNDManager;
+        recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
+    }
     public static double getLoss(@NotNull Model model) {
         double epoch = 0;
         String prop = model.getProperty("MeanLoss");
@@ -105,103 +117,58 @@ public class Network {
         return model.getNDManager();
     }
 
-    public @Nullable NetworkIO representationList(List<Observation> observationList) {
-        NetworkIO networkOutputFromRepresentation = null;
 
-        RepresentationListTranslator translator = new RepresentationListTranslator();
-        try (Predictor<List<Observation>, NetworkIO> predictorRepresentation = representation.newPredictor(translator)) {
-            networkOutputFromRepresentation = predictorRepresentation.predict(observationList);
+
+
+    public NetworkIO initialInferenceDirect(@NotNull Observation observation) {
+        return Objects.requireNonNull(initialInferenceListDirect(List.of(observation))).get(0);
+    }
+
+
+
+    public @Nullable List<NetworkIO> initialInferenceListDirect(List<Observation> observationList) {
+
+        List<NetworkIO> networkOutputFromInitialInference = null;
+
+         InitialInferenceListTranslator translator = new InitialInferenceListTranslator();
+        try (Predictor<List<Observation>, List<NetworkIO>> predictor = initialInference.newPredictor(translator)) {
+            networkOutputFromInitialInference = predictor.predict(observationList);
 
         } catch (TranslateException e) {
             e.printStackTrace();
         }
-        return networkOutputFromRepresentation;
-    }
-
-    public @Nullable List<NetworkIO> predictionList(NetworkIO networkio) {
-        List<NetworkIO> networkOutputFromPrediction = null;
-
-        PredictionListTranslator translator = new PredictionListTranslator();
-        try (Predictor<NetworkIO, List<NetworkIO>> predictorRepresentation = prediction.newPredictor(translator)) {
-            networkOutputFromPrediction = predictorRepresentation.predict(networkio);
-        } catch (TranslateException e) {
-            e.printStackTrace();
-        }
-        return networkOutputFromPrediction;
-    }
-
-    public @Nullable NetworkIO dynamicsList(NetworkIO networkio) {
-
-        NetworkIO networkOutputFromDynamics = null;
-
-        DynamicsListTranslator translator = new DynamicsListTranslator();
-        try (Predictor<NetworkIO, NetworkIO> predictorRepresentation = dynamics.newPredictor(translator)) {
-            networkOutputFromDynamics = predictorRepresentation.predict(networkio);
-        } catch (TranslateException e) {
-            e.printStackTrace();
-        }
-        return networkOutputFromDynamics;
-    }
-
-    public NetworkIO initialInference(@NotNull Observation observation) {
-        return Objects.requireNonNull(initialInferenceList(List.of(observation))).get(0);
-    }
-
-    public @Nullable List<NetworkIO> initialInferenceList(List<Observation> observationList) {
-      //  checkObservations(observationList);
-        NetworkIO outputA = representationList(observationList);
-        List<NetworkIO> outputB = predictionList(outputA);
-
-        for (int i = 0; i < Objects.requireNonNull(outputB).size(); i++) {
-            outputB.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-        }
-
-        return outputB;
-    }
+        return networkOutputFromInitialInference;
 
 
-//    private long currentEpoch = -1;
-//    private Set<Observation> knownObservations = new HashSet<>();
-//    private int count;
-//    private void checkObservations(List<Observation> observationList) {
-//        int modelEpoch = getEpoch(this.model);
-//        if (currentEpoch != modelEpoch) {  // different model
-//            // clear memory
-//            knownObservations.clear();
-//            currentEpoch = modelEpoch;
-//            count = 0;
-//        }
-//        observationList.stream().forEach(o -> {
-//            if (knownObservations.contains(o)) {
-//                count++;
-//            } else {
-//                knownObservations.add(o);
-//            }
-//        });
-//    }
+   }
 
-    public NetworkIO recurrentInference(@NotNull NDArray hiddenState, @NotNull NDArray actionList) {
-        return Objects.requireNonNull(recurrentInferenceList(List.of(hiddenState), List.of(actionList))).get(0);
-    }
 
-    public @Nullable List<NetworkIO> recurrentInferenceList(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
+    public @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();
 
         networkIO.setHiddenState(NDArrays.stack(new NDList(hiddenStateList)));
         networkIO.setActionList(actionList);
 
         networkIO.setConfig(config);
-        NetworkIO outputA = dynamicsList(networkIO);
-        List<NetworkIO> outputB = predictionList(outputA);
 
-        for (int i = 0; i < Objects.requireNonNull(outputB).size(); i++) {
-            outputB.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
+
+
+        List<NetworkIO> networkOutput = null;
+
+        RecurrentInferenceListTranslator translator = new RecurrentInferenceListTranslator();
+        try (Predictor<NetworkIO, List<NetworkIO>> predictorRepresentation = recurrentInference.newPredictor(translator)) {
+            networkOutput = predictorRepresentation.predict(networkIO);
+        } catch (TranslateException e) {
+            e.printStackTrace();
         }
 
-        return outputB;
-    }
 
+
+        return networkOutput;
+    }
     public int trainingSteps() {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }
+
+
 }

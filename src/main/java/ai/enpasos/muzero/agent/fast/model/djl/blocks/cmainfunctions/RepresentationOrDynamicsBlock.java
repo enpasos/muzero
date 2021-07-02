@@ -17,11 +17,6 @@
 
 package ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions;
 
-import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.Activation;
-import ai.djl.nn.convolutional.Conv2d;
-import ai.djl.nn.norm.BatchNorm;
-import ai.djl.nn.norm.LayerNorm;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.*;
 import org.jetbrains.annotations.NotNull;
@@ -37,15 +32,15 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
 
-        this.add(Conv3x3.builder().channels(config.getNumChannels()).build())
+        this.add(Conv3x3LayerNormRelu.builder().channels(config.getNumChannels()).build())
 
                 .add(ResidualTower.builder()
                         .numResiduals(config.getNumResiduals())
                         .numChannels(config.getNumChannels())
                         .build())
 
-                .add(LayerNorm.builder().build())
-                .add(Activation::relu)
+                // compressing hidden state (not in muzero paper)
+                .add(Conv1x1LayerNormRelu.builder().channels(config.getNumHiddenStateChannels()).build())
 
                 .add(new RescaleBlock());
 

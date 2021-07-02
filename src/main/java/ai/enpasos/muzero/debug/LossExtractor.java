@@ -30,11 +30,13 @@ public class LossExtractor {
 
        try( CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "loss"))) {
 
+
+
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
 
            {
                model.setBlock(block);
-                IntStream.range(1, 100).forEach(
+                IntStream.range(1, 500).forEach(
                         i -> {
                             try {
                                 model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
