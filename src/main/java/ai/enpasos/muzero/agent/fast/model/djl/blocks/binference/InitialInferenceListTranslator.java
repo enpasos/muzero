@@ -15,10 +15,12 @@
  *
  */
 
-package ai.enpasos.muzero.agent.fast.model.djl.blocks.cmainfunctions;
+package ai.enpasos.muzero.agent.fast.model.djl.blocks.binference;
 
+import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.translate.Batchifier;
@@ -26,14 +28,17 @@ import ai.djl.translate.Pipeline;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.agent.fast.model.Observation;
+import ai.enpasos.muzero.agent.fast.model.djl.SubModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class PredictionListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
+public class InitialInferenceListTranslator implements Translator<List<Observation>, List<NetworkIO>> {
     @Override
     public @Nullable Batchifier getBatchifier() {
         return null;
@@ -48,12 +53,28 @@ public class PredictionListTranslator implements Translator<NetworkIO, List<Netw
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
 
-        // moves the data from gpu to cpu
+        // intermediate
+        NDArray s = list.get(0);
 
 
-        NDArray p = list.get(0).softmax(1);
+        NDArray hiddenStates = null;
+        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
+            hiddenStates = s; //s.toDevice(Device.cpu(), false);
+            hiddenStates.detach();
+            SubModel submodel = (SubModel)ctx.getModel();
+            hiddenStates.attach(submodel.hiddenStateNDManager);
+        } else {
+            hiddenStates = s;
+        }
+
+        NetworkIO outputA = NetworkIO.builder()
+                .hiddenState(hiddenStates)
+                .build();
+
+
+        NDArray p = list.get(1).softmax(1);
         int actionSpaceSize = (int) p.getShape().get(1);
-        NDArray v = list.get(1);
+        NDArray v = list.get(2);
 
         float[] pArray = p.toFloatArray();
         float[] vArray = v.toFloatArray();
@@ -61,7 +82,7 @@ public class PredictionListTranslator implements Translator<NetworkIO, List<Netw
 
         int n = (int) v.getShape().get(0);
 
-        return IntStream.range(0, n)
+        List<NetworkIO> networkIOs = IntStream.range(0, n)
                 .mapToObj(i ->
                 {
                     float[] ps = new float[actionSpaceSize];
@@ -74,6 +95,13 @@ public class PredictionListTranslator implements Translator<NetworkIO, List<Netw
                 })
                 .collect(Collectors.toList());
 
+
+
+        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
+            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
+        }
+        return networkIOs;
+
     }
 
     @Override
@@ -82,8 +110,11 @@ public class PredictionListTranslator implements Translator<NetworkIO, List<Netw
     }
 
     @Override
-    public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {
-        return new NDList(input.getHiddenState());
+    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Observation> inputList) {
+
+        return new NDList(NDArrays.stack(new NDList(
+                inputList.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
+        )));
     }
 
 

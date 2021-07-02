@@ -25,7 +25,6 @@ import ai.djl.nn.ParallelBlock;
 import ai.djl.nn.SequentialBlock;
 import ai.djl.nn.core.Linear;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1BatchNormRelu;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.agent.fast.model.djl.blocks.dlowerlevel.MySequentialBlock;
 import org.jetbrains.annotations.NotNull;

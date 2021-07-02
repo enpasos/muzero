@@ -47,35 +47,33 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 0;
+        int trainingStep = 25000;
 
 
         do {
 
-            if (trainingStep == 3300) { // || trainingStep == 6600) {
-                replayBuffer.getBuffer().clear();
-                initialFillingBuffer(config, replayBuffer);
-            }
+//            if (trainingStep == 3300) { // || trainingStep == 6600) {
+//                replayBuffer.getBuffer().clear();
+//                initialFillingBuffer(config, replayBuffer);
+//            }
 
             trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-        //    PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+            if (trainingStep <= 10000) {
+                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
+            } else {
+                config.setNumSimulations(800);
+                //PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 
+                int numParallelPlays = 10;
+                int numberOfPlays = 2; //4000/config.getNumParallelPlays();
 
-            if (trainingStep > 20000) {
-                config.setNumSimulations(20);
-
-
-                int numberOfPlays = 4000/config.getNumParallelPlays();
-
-
-
-                log.info("numParallelPlays: " + config.getNumParallelPlays());
+                log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);
 
-                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, config.getNumParallelPlays());
+                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, numParallelPlays);
                 replayBuffer.saveState();
 
             }

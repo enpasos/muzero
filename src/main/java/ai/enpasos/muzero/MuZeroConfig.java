@@ -47,6 +47,8 @@ public class MuZeroConfig {
     // network sizing
     private final int numObservationLayers;
     private final int numChannels;
+    private final int numHiddenStateChannels;
+
     private final int numResiduals;
     private final int windowSize;
     private final int batchSize;
@@ -110,6 +112,7 @@ public class MuZeroConfig {
                 // network sizing
                 .numObservationLayers(3)
                 .numChannels(32)        // 256 in the paper
+                .numHiddenStateChannels(32)
                 .numResiduals(4)        // 16 in the paper
 
                 // network training
@@ -173,19 +176,24 @@ public class MuZeroConfig {
 
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
-                .numChannels(128)        // 256 in the paper  // 64 for 5x5
-                .numResiduals(16)        // 16 in the paper
+                .numHiddenStateChannels(5)  // squeezing the hidden state from c to 5
+
+
+                .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .numChannels(96)        // 256 in the paper  // 64 for 5x5
+                .numResiduals(6)        // 16 in the paper
+
 
                 // network training
                 .numberOfTrainingSteps(300000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
-                .batchSize(50)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
                 // loss details
-                .weightDecay(0.0001f)  // in katago 0.00003
+                .weightDecay(0.0001f)  // in katago 0.00003  in paper 0.0001
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
                 // network training - sgd optimizer
                 .lrInit(0.01f)          // 0.01f in paper for go, 0.1f for chess
