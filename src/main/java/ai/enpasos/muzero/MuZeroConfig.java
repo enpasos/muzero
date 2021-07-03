@@ -179,9 +179,9 @@ public class MuZeroConfig {
                 .numHiddenStateChannels(5)  // squeezing the hidden state from c to 5
 
 
-                .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
-                .numChannels(96)        // 256 in the paper  // 64 for 5x5
-                .numResiduals(6)        // 16 in the paper
+                .batchSize(48)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .numChannels(128)        // 256 in the paper  // 64 for 5x5
+                .numResiduals(16)        // 16 in the paper
 
 
                 // network training
