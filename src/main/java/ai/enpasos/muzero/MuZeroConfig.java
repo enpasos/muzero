@@ -126,9 +126,10 @@ public class MuZeroConfig {
                 // loss details
                 .weightDecay(0.0001f)
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
-                // network training - sgd optimizer
-                .lrInit(0.02f)          // 0.01f in paper for go, 0.1f for chess
-                .momentum(0.9f)
+                // network training - adam optimizer
+                .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
+
+               // .momentum(0.9f)
 
                 // play
                 .numSimulations(50)     // 800 in the paper
@@ -201,9 +202,9 @@ public class MuZeroConfig {
 
                 // play
 
-                .numParallelHiddenStates(20)   // numSimulations * numParallelPlays
+                .numParallelHiddenStates(1600)   // numSimulations * numParallelPlays
 
-                .numSimulations(10)     // 800 in the paper
+                .numSimulations(800)     // 800 in the paper
 //                .numParallelPlay(3)
 
 
