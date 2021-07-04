@@ -61,13 +61,13 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-            if (trainingStep <= 30000) {
+            if (trainingStep <= 100000) {
                 PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
             } else {
                 config.setNumSimulations(800);
                 //PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 
-                int numParallelPlays = 3;
+                int numParallelPlays = 2;
                 int numberOfPlays = 10; //4000/config.getNumParallelPlays();
 
                 log.info("numParallelPlays: " + numParallelPlays);
