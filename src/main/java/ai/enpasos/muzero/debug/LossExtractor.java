@@ -22,7 +22,8 @@ import static ai.enpasos.muzero.agent.fast.model.Network.getLoss;
 public class LossExtractor {
 
     public static void main(String[] args) throws Exception {
-        MuZeroConfig config = MuZeroConfig.getGoInstance(9);
+     //   MuZeroConfig config = MuZeroConfig.getGoInstance(9);
+        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();

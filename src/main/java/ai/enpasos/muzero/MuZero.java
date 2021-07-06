@@ -34,9 +34,9 @@ public class MuZero {
 
     public static void main(String[] args) {
 
-     //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+       MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
    //     MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-        MuZeroConfig config = MuZeroConfig.getGoInstance(9);
+    //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
 
         createNetworkModelIfNotExisting(config);
 
@@ -47,7 +47,7 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep =  0;
+        int trainingStep = 0;
 
 
         do {
@@ -61,14 +61,14 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-            if (trainingStep <= 100000) {
+            if (trainingStep <= 3000) {
                 PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
             } else {
                 config.setNumSimulations(800);
                 //PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 
-                int numParallelPlays = 2;
-                int numberOfPlays = 10; //4000/config.getNumParallelPlays();
+                int numParallelPlays = 50;  // 3
+                int numberOfPlays = 10; //4000/config.getNumParallelPlays();  // 10
 
                 log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);

@@ -55,12 +55,13 @@ public class MuZeroConfig {
     private final int numUnrollSteps;
     private final int tdSteps;
     private final double discount;
+
     // loss details
     private final float weightDecay;
     private final float valueLossWeight;
-    // network training - sgd optimizer
+    // network training - adam optimizer
     private final float lrInit;
-    private final double momentum;
+
     // play
     private int numSimulations;
     private int numParallelPlays;
@@ -111,14 +112,14 @@ public class MuZeroConfig {
 
                 // network sizing
                 .numObservationLayers(3)
-                .numChannels(32)        // 256 in the paper
-                .numHiddenStateChannels(32)
-                .numResiduals(4)        // 16 in the paper
+                .numChannels(128)        // 256 in the paper
+                .numHiddenStateChannels(3)
+                .numResiduals(8)        // 16 in the paper
 
                 // network training
                 .numberOfTrainingSteps(100000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
-                .windowSize(100000)     // 1000000 in the paper
+                .windowSize(10000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size)         // equals maxMoves equals actionSpaceSize
@@ -128,8 +129,6 @@ public class MuZeroConfig {
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
                 // network training - adam optimizer
                 .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
-
-               // .momentum(0.9f)
 
                 // play
                 .numSimulations(50)     // 800 in the paper
