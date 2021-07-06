@@ -63,8 +63,9 @@ public class MuZeroConfig {
     private final float lrInit;
 
     // play
-    private int numSimulations;
-    private int numParallelPlays;
+    private final int numSimulations;
+    private final int numParallelPlays;
+    private final int numPlays;
 
     private final int numParallelHiddenStates;
 
@@ -85,10 +86,6 @@ public class MuZeroConfig {
     private String networkBaseDir;
 
 
-    public int getNumParallelPlays() {
-        if (numSimulations == 0) return numParallelHiddenStates;
-        return numParallelHiddenStates / numSimulations;
-    }
 
 
     public static MuZeroConfig getTicTacToeInstance() {
@@ -116,6 +113,10 @@ public class MuZeroConfig {
                 .numHiddenStateChannels(3)
                 .numResiduals(8)        // 16 in the paper
 
+
+
+
+
                 // network training
                 .numberOfTrainingSteps(100000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
@@ -131,7 +132,7 @@ public class MuZeroConfig {
                 .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
 
                 // play
-                .numSimulations(50)     // 800 in the paper
+                .numSimulations(800)     // 800 in the paper
                 .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
@@ -141,6 +142,9 @@ public class MuZeroConfig {
                 .pbCBase(19652)
                 // inference device
                 .inferenceDevice(Device.gpu())
+
+                .numParallelPlays(50)
+                .numPlays(10)
 
                 // local file based storage
                 .outputDir("./memory/tictactoe/")
@@ -204,7 +208,9 @@ public class MuZeroConfig {
                 .numParallelHiddenStates(1600)   // numSimulations * numParallelPlays
 
                 .numSimulations(800)     // 800 in the paper
-//                .numParallelPlay(3)
+
+                .numParallelPlays(3)
+                .numPlays(10)
 
 
                 .rootDirichletAlpha(0.2)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10

@@ -50,7 +50,7 @@ class MuZeroSmokeTest {
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
 
             PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 5, false, false, 100);
+            PlayManager.playParallel(replayBuffer, config, 2, false, false, 3);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {

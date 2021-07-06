@@ -20,6 +20,7 @@ package ai.enpasos.muzero.agent;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.agent.fast.model.Network;
@@ -57,8 +58,13 @@ public class GoInference {
             Path modelPath = Paths.get("./");
 
             Network network = new Network(config, model); //, modelPath);
+            try(NDManager nDManager =  network != null ? network.getNDManager().newSubManager() : null) {
 
-            actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game);
+                if (network != null) {
+                    network.setHiddenStateNDManager(nDManager);
+                }
+                actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game);
+            }
 
         }
         return actionIndexSelectedByNetwork;
@@ -97,12 +103,14 @@ public class GoInference {
             Node root = new Node(0);
 
 
-            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
-            List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
-            mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
+                mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
+                List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
+                mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
 
-            Action action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
-            actionIndexSelectedByNetwork = action.getIndex();
+                Action action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+                actionIndexSelectedByNetwork = action.getIndex();
+
+
         }
         return actionIndexSelectedByNetwork;
     }
