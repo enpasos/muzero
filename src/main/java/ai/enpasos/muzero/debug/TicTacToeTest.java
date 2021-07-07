@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.debug;
 
 import ai.djl.Model;
+import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
@@ -63,12 +64,19 @@ public class TicTacToeTest {
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
             Network network = new Network(config, model);
+            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+
+                if (network != null) {
+                    network.setHiddenStateNDManager(nDManager);
+                }
+
             gameStateSet.forEach(gs -> {
                 DNode n = new DNode(gs.getGame());
                 n.aiChosenChild = n.aiDecision(network, false);
                 float reward = n.getGame().getGameDTO().getRewards().get(n.getGame().getGameDTO().getRewards().size() - 1);
                 System.out.println("aiValue: " + n.aiValue + ", value:" + (-reward));
             });
+        }
         }
 
 
@@ -100,26 +108,30 @@ public class TicTacToeTest {
             Path modelPath = Paths.get("./");
 
             Network network = new Network(config, model); //, modelPath);
+            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+
+                if (network != null) {
+                    network.setHiddenStateNDManager(nDManager);
+                }
+
+                int i = 42;
+
+                List<DNode> gamesLostByPlayerA = new ArrayList<>();
+                List<DNode> gamesNotWonByPlayerA = new ArrayList<>();
+                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, false, gamesLostByPlayerA);
+
+                List<DNode> gamesLostByPlayerB = new ArrayList<>();
+                List<DNode> gamesNotWonByPlayerB = new ArrayList<>();
+                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, false, gamesLostByPlayerB);
 
 
-            int i = 42;
+                gamesLostByPlayerA = new ArrayList<>();
+                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, true, gamesLostByPlayerA);
 
-            List<DNode> gamesLostByPlayerA = new ArrayList<>();
-            List<DNode> gamesNotWonByPlayerA = new ArrayList<>();
-            notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, false, gamesLostByPlayerA);
+                gamesLostByPlayerB = new ArrayList<>();
+                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, true, gamesLostByPlayerB);
 
-            List<DNode> gamesLostByPlayerB = new ArrayList<>();
-            List<DNode> gamesNotWonByPlayerB = new ArrayList<>();
-            notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, false, gamesLostByPlayerB);
-
-
-            gamesLostByPlayerA = new ArrayList<>();
-            notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, true, gamesLostByPlayerA);
-
-            gamesLostByPlayerB = new ArrayList<>();
-            notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, true, gamesLostByPlayerB);
-
-
+            }
         }
 
 
