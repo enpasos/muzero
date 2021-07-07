@@ -1,46 +1,43 @@
 package ai.enpasos.muzero.agent;
 
-import org.junit.jupiter.api.Disabled;
+import ai.enpasos.muzero.MuZeroConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class GoInferenceTest {
 
     @Test
-    void aiDecisionFast() {
-
-        boolean withMCTS = false;
-        int size = 5;
+    void aiDecisionGoFast() {
         List<Integer> actions = new ArrayList<>();
-
-        int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
-
+        int nextMoveInt = Inference.aiDecision(actions, false, "./memory/go5/networks", MuZeroConfig.getGoInstance(5));
     }
 
     @Test
-    void aiDecisionSlow() {
-
-        boolean withMCTS = true;
-        int size = 5;
+    void aiDecisionTicTacToeFast() {
         List<Integer> actions = new ArrayList<>();
+        int nextMoveInt = Inference.aiDecision(actions, false, "./memory/tictactoe/networks", MuZeroConfig.getTicTacToeInstance());
+    }
+    @Test
+    void aiDecisionTicTacToeSlow() {
+        List<Integer> actions = new ArrayList<>();
+        int nextMoveInt = Inference.aiDecision(actions, true, "./memory/tictactoe/networks", MuZeroConfig.getTicTacToeInstance());
+    }
 
-        int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
-
+    @Test
+    void aiDecisionGoSlow() {
+        List<Integer> actions = new ArrayList<>();
+        int nextMoveInt = Inference.aiDecision(actions, true, "./memory/go5/networks", MuZeroConfig.getGoInstance(5));
     }
 
 
     @Test
     void aiDecisionSlowLongerGame() {
 
-        boolean withMCTS = true;
-        int size = 5;
         List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25);
 
-        int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
+        int nextMoveInt = Inference.aiDecision(actions, true, "./memory/go5/networks", MuZeroConfig.getGoInstance(5));
 
     }
 
@@ -48,11 +45,9 @@ class GoInferenceTest {
     @Test
     void aiDecisionSlowForAlreadyFinishedGame() {
 
-        boolean withMCTS = true;
-        int size = 5;
         List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25, 25);
 
-        int nextMoveInt = GoInference.aiDecision(actions, withMCTS, "./memory/go5/networks", size);
+        int nextMoveInt = Inference.aiDecision(actions, true, "./memory/go5/networks", MuZeroConfig.getGoInstance(5));
 
     }
 }

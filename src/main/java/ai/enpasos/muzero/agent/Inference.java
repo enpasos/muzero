@@ -39,16 +39,16 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.agent.slow.play.PlayManager.getAllActionsOnDevice;
 
-public class GoInference {
+public class Inference {
 
 
+//    public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, int size) {
+//        MuZeroConfig config = MuZeroConfig.getGoInstance(size);
+//        return aiDecision(actions, withMCTS, networkDir, config);
+//    }
 
-
-
-
-    public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, int size) {
+    public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, MuZeroConfig config) {
         int actionIndexSelectedByNetwork;
-        MuZeroConfig config = MuZeroConfig.getGoInstance(size);
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDevice(Device.cpu());
         Game game = getGame(config, actions);
