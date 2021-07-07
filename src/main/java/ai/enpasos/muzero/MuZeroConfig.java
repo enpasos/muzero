@@ -67,8 +67,6 @@ public class MuZeroConfig {
     private final int numParallelPlays;
     private final int numPlays;
 
-    private final int numParallelHiddenStates;
-
     private final double rootDirichletAlpha;
     private final double rootExplorationFraction;
     private final @NotNull BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFn;
@@ -85,7 +83,7 @@ public class MuZeroConfig {
     private String outputDir;
     private String networkBaseDir;
 
-
+private int numberTrainingStepsOnRandomPlay;
 
 
     public static MuZeroConfig getTicTacToeInstance() {
@@ -118,7 +116,7 @@ public class MuZeroConfig {
 
 
                 // network training
-                .numberOfTrainingSteps(10000)  // 1000000 in paper
+                .numberOfTrainingSteps(9000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
@@ -149,6 +147,9 @@ public class MuZeroConfig {
                 // local file based storage
                 .outputDir("./memory/tictactoe/")
 
+
+                .numberTrainingStepsOnRandomPlay(3000)
+
                 .build();
 
     }
@@ -167,7 +168,7 @@ public class MuZeroConfig {
         };
 
 
-        return MuZeroConfig.builder()
+        MuZeroConfigBuilder builder = MuZeroConfig.builder()
                 .modelName("MuZero-Go-" + size )
                 .gameClass(GoGame.class)
 
@@ -182,10 +183,7 @@ public class MuZeroConfig {
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
                 .numHiddenStateChannels(5)  // squeezing the hidden state from c to 5
 
-
-                .batchSize(48)         // in paper 2048   // here: symmetry operations give a multiplication by 8
-                .numChannels(128)        // 256 in the paper  // 64 for 5x5
-                .numResiduals(16)        // 16 in the paper
+                   .numResiduals(16)        // 16 in the paper
 
 
                 // network training
@@ -205,12 +203,9 @@ public class MuZeroConfig {
 
                 // play
 
-                .numParallelHiddenStates(1600)   // numSimulations * numParallelPlays
 
                 .numSimulations(800)     // 800 in the paper
 
-                .numParallelPlays(3)
-                .numPlays(10)
 
 
                 .rootDirichletAlpha(0.2)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
@@ -224,9 +219,35 @@ public class MuZeroConfig {
                 .inferenceDevice(Device.gpu())
 
                 // local file based storage
-                .outputDir("./memory/go"+ size + "/")
+                .outputDir("./memory/go"+ size + "/");
 
-                .build();
+
+
+                // non functional size dependence
+
+                switch(size) {
+                    case 5:
+                        builder
+                                .numberTrainingStepsOnRandomPlay(3000)
+                            .numParallelPlays(3)
+                            .numPlays(10)
+                            .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                            .numChannels(128);        // 256 in the paper  // 64 for 5x5
+                        break;
+                    case 9:
+                        builder
+                                .numberTrainingStepsOnRandomPlay(3000)
+                            .numParallelPlays(3)
+                            .numPlays(10)
+                            .batchSize(48)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                            .numChannels(128);        // 256 in the paper  // 64 for 5x5
+                        break;
+                }
+
+
+
+
+                return builder.build();
 
     }
 
