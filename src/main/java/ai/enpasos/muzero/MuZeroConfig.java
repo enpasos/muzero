@@ -225,12 +225,14 @@ private int numberTrainingStepsOnRandomPlay;
 
                 // non functional size dependence
 
+
+                // Quatro RTX 5000 - 16 GB - 3072 CudaCores
                 switch(size) {
                     case 5:
                         builder
                                 .numberTrainingStepsOnRandomPlay(3000)
-                            .numParallelPlays(3)
-                            .numPlays(10)
+                            .numParallelPlays(10)
+                            .numPlays(5)
                             .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                             .numChannels(128);        // 256 in the paper  // 64 for 5x5
                         break;
