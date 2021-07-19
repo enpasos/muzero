@@ -17,6 +17,9 @@
 
 package ai.enpasos.muzero;
 
+import ai.djl.engine.Engine;
+import ai.djl.engine.EngineException;
+import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.gamebuffer.GameIO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
@@ -27,12 +30,27 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class MuZero {
 
 
-    public static void main(String[] args) {
+    // to auto restart on exception, e.g. memory leak, start
+    // java -jar ./target/muzero-0.2.0-SNAPSHOT-jar-with-dependencies.jar
+    // be careful - you have to kill the process by hand
+    public static void main(String[] args) throws URISyntaxException, IOException {
+        try {
+            run();
+        } catch (Exception e) {
+            restartApplication();
+        }
+    }
+
+
+    public static void run() {
 
    //   MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
@@ -67,6 +85,7 @@ public class MuZero {
 
                 log.info("numParallelPlays: " + numParallelPlays);
                 log.info("numberOfPlays: " + numberOfPlays);
+
 
                 PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, numParallelPlays);
                 replayBuffer.saveState();
@@ -124,5 +143,27 @@ public class MuZero {
         return config.getOutputDir() + "networks";
     }
 
+
+    private static void restartApplication() throws URISyntaxException, IOException {
+//        File currentSourceFile = new File(MuZero.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+//        if(!currentSourceFile.getName().endsWith(".jar"))
+//            return;
+//        List<String> command = List.of("java -jar muzero.jar");
+
+
+                final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        final File currentJar = new File(MuZero.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+        if(!currentJar.getName().endsWith(".jar"))
+            return;
+
+        final ArrayList<String> command = new ArrayList<String>();
+        command.add(javaBin);
+        command.add("-jar");
+        command.add(currentJar.getPath());
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.start();
+        System.exit(0);
+    }
 
 }
