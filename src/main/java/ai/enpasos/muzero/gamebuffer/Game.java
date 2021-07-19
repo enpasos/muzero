@@ -165,7 +165,13 @@ public abstract class Game implements Serializable {
             if (currentIndex < this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
-                target.policy = this.getGameDTO().getChildVisits().get(currentIndex);
+                if (config.isPolicyTrainingOnGoodEpisodesOnly() && value == -1f) {
+                    target.policy = new float[this.actionSpaceSize];
+                    // the idea is not to put any policy force on the network if the episode was not "good" == lost
+                    Arrays.fill(target.policy, 0f);
+                } else {
+                    target.policy = this.getGameDTO().getChildVisits().get(currentIndex);
+                }
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
