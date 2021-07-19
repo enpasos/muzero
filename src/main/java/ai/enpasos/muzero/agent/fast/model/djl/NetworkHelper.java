@@ -204,14 +204,13 @@ public class NetworkHelper {
 
 //        return Optimizer.sgd()
 //                .setLearningRateTracker(learningRateTracker)
-//                .optMomentum((float) muZeroConfig.getMomentum())
+//                .optMomentum(0.9f)
 //                .optWeightDecays(muZeroConfig.getWeightDecay())
 //                .optClipGrad(10f)
 //                .build();
 
         return Optimizer.adam()
                 .optLearningRateTracker(learningRateTracker)
-                //.optMomentum((float) muZeroConfig.getMomentum())
                 .optWeightDecays(muZeroConfig.getWeightDecay())
                 .optClipGrad(10f)
                 .build();
