@@ -229,22 +229,44 @@ public class MuZeroConfig {
                 // non functional size dependence
 
 
-                // Quatro RTX 5000 - 16 GB - 3072 CudaCores
+        // Quatro RTX 5000 - 16 GB - 3072 CudaCores
+//        switch(size) {
+//            case 5:
+//                builder
+//                        .numberTrainingStepsOnRandomPlay(3000)
+//                        .numParallelPlays(10)
+//                        .numPlays(5)
+//                        .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+//                        .numChannels(128);        // 256 in the paper  // 64 for 5x5
+//                break;
+//            case 9:
+//                builder
+//                        .numberTrainingStepsOnRandomPlay(3000)
+//                        .numParallelPlays(3)
+//                        .numPlays(10)
+//                        .batchSize(48)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+//                        .numChannels(128);        // 256 in the paper  // 64 for 5x5
+//                break;
+//        }
+//
+
+
+                // RTX 3090 - 24 GB - 10496 CudaCores
                 switch(size) {
                     case 5:
                         builder
-                                .numberTrainingStepsOnRandomPlay(3000)
-                            .numParallelPlays(10)
+                             .numberTrainingStepsOnRandomPlay(3000)
+                            .numParallelPlays(16)
                             .numPlays(5)
-                            .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                            .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                             .numChannels(128);        // 256 in the paper  // 64 for 5x5
                         break;
                     case 9:
                         builder
                                 .numberTrainingStepsOnRandomPlay(3000)
-                            .numParallelPlays(3)
+                            .numParallelPlays(4)
                             .numPlays(10)
-                            .batchSize(48)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                            .batchSize(64)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                             .numChannels(128);        // 256 in the paper  // 64 for 5x5
                         break;
                 }
