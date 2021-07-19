@@ -83,7 +83,10 @@ public class MuZeroConfig {
     private String outputDir;
     private String networkBaseDir;
 
-private int numberTrainingStepsOnRandomPlay;
+    private int numberTrainingStepsOnRandomPlay;
+    @Builder.Default()
+    private boolean policyTrainingOnGoodEpisodesOnly = true;
+
 
 
     public static MuZeroConfig getTicTacToeInstance() {
