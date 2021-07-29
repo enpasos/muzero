@@ -34,7 +34,12 @@ public class Node {
     public Action action;
     public double reward;
     private int visitCount;
+    private boolean root = false;
 
+    public Node(double prior, boolean root) {
+        this(prior);
+        this.root = root;
+    }
 
     public Node(double prior) {
         this.visitCount = 0;

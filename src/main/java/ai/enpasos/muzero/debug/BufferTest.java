@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.debug;
 
 import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.environments.go.GoGame;
 import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.GameDTO;
@@ -35,7 +36,7 @@ public class BufferTest {
 
     public static void main(String[] args) {
 
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
@@ -45,7 +46,7 @@ public class BufferTest {
         Collection<GameDTO> collection = replayBuffer.getBuffer().getData();
         GameDTO gameDTO = collection.iterator().next();
         gameDTO.setRewards(List.of(42.0f));
-        replayBuffer.saveGame(new TicTacToeGame(config, gameDTO));
+        replayBuffer.saveGame(new GoGame(config, gameDTO));
 
         Set<Game> set = replayBuffer.getBuffer().getData().stream()
                 .map(dto -> {

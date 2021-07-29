@@ -78,7 +78,7 @@ public class SelfPlayParallel {
                 // At the root of the search tree we use the representation function to
                 // obtain a hidden state given the current observation.
                 List<Node> rootList = IntStream.rangeClosed(1, gameList.size())
-                        .mapToObj(i -> new Node(0))
+                        .mapToObj(i -> new Node(0, true))
                         .collect(Collectors.toList());
 
                 inferenceDuration.value -= System.currentTimeMillis();
@@ -113,7 +113,6 @@ public class SelfPlayParallel {
                 double fraction = config.getRootExplorationFraction();
                 if( explorationNoise ) {
                     rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
-
 
                     if (render && indexOfJustOneOfTheGames != -1) {
                         renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));

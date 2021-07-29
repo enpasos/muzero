@@ -52,8 +52,8 @@ public class MuZero {
 
     public static void run() {
 
-      MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-   //    MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+    //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+       MuZeroConfig config = MuZeroConfig.getGoInstance(5);
     //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
 
         createNetworkModelIfNotExisting(config);
@@ -64,13 +64,13 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 0;
+        int trainingStep = 20000;
 
 
         do {
 
 
-            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 2);
+            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());

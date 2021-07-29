@@ -37,7 +37,7 @@ public class LossExtractor {
 
            {
                model.setBlock(block);
-                IntStream.range(1, 500).forEach(
+                IntStream.range(1, 1000).forEach(
                         i -> {
                             try {
                                 model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));

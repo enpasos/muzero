@@ -291,15 +291,34 @@ public class MCTS {
     public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, @NotNull MinMaxStats minMaxStats) {
 
         List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
-        Collections.shuffle(list);
+
+       if (!node.isRoot() || node.getVisitCount() != 0) {
 
 
-        // for debugging only
-        // ucbScore(node, result.getValue(), minMaxStats, true);
+           Collections.shuffle(list);
 
-        return list.stream()
-                .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
-                .get();
+
+           // for debugging only
+           // ucbScore(node, result.getValue(), minMaxStats, true);
+
+           return list.stream()
+                   .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
+                   .get();
+       } else {
+
+           double sum = list.stream()
+                   .mapToDouble(e -> e.getValue().getPrior())
+                   .sum();
+           List<Pair<Action, Double>> distributionInput =
+           list.stream()
+                   .map(e -> Pair.create(e.getKey(), e.getValue().getPrior()/sum))
+                   .collect(Collectors.toList());
+
+
+           Action action = selectActionByDrawingFromDistribution(distributionInput);
+
+           return    Map.entry(action, node.children.get(action)) ;
+       }
 
     }
 
@@ -345,7 +364,21 @@ public class MCTS {
         return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
 
     }
-
+//    private List<Pair<Action, Double>> getActionDistributionInputFromUcbScore(int numMoves, @NotNull Node node, @Nullable Network network) {
+//        int numTrainingSteps = network != null ? network.trainingSteps() : 1;
+//        double t = config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
+//        double td = 1.0 / t;
+//
+//        double sum = node.getChildren().values().stream().mapToDouble(v -> Math.pow(v.getVisitCount(), td)).sum();
+//
+//        return node.getChildren().entrySet().stream()
+//                .map(e -> {
+//                    Action action = e.getKey();
+//                    double v = Math.pow(e.getValue().getVisitCount(), td) / sum;
+//                    return new Pair<Action, Double>(action, v);
+//                })
+//                .collect(Collectors.toList());
+//    }
     private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, @NotNull Node node, @Nullable Network network) {
         int numTrainingSteps = network != null ? network.trainingSteps() : 1;
         double t = config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
