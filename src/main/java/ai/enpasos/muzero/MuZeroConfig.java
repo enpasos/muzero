@@ -85,7 +85,7 @@ public class MuZeroConfig {
 
     private int numberTrainingStepsOnRandomPlay;
     @Builder.Default()
-    private boolean policyTrainingOnGoodEpisodesOnly = true;
+    private boolean policyTrainingOnGoodEpisodesOnly = false;
 
 
 
@@ -234,8 +234,18 @@ public class MuZeroConfig {
             case 5:
                 builder
                         .numberTrainingStepsOnRandomPlay(3000)
-                        .numParallelPlays(10)
-                        .numPlays(5)
+
+//                        .numSimulations(800)
+//                        .numParallelPlays(10)
+//                        .numPlays(5)
+
+                        .numSimulations(20)
+                        .numParallelPlays(300)
+                        .numPlays(1)
+
+
+
+
                         .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                         .numChannels(128);        // 256 in the paper  // 64 for 5x5
                 break;
