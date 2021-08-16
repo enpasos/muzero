@@ -6,8 +6,5 @@
 
 
 **/target/**
-tictactoe-2/**
-tictactoe-1/**
 **/logs/**
-/go
-/tictactoe
+/memory

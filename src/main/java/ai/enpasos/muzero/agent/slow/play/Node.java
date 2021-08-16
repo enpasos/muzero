@@ -28,6 +28,7 @@ import java.util.TreeMap;
 public class Node {
     public @Nullable Player toPlay;
     public double prior;
+    public double multiplierLambda;
     public double valueSum;
     public SortedMap<Action, Node> children;
     public @Nullable NDArray hiddenState;
@@ -43,7 +44,7 @@ public class Node {
 
     public Node(double prior) {
         this.visitCount = 0;
-        this.toPlay = null;  // TODO
+
         this.prior = prior;
         this.valueSum = 0;
         this.children = new TreeMap<>();

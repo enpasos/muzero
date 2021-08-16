@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,20 +63,20 @@ public class MCTS {
     }
 
 
-    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull List<Node> searchPath, @NotNull MinMaxStats minMaxStats, boolean ucbScoreExplained) {
+    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull List<Node> searchPath, @NotNull MinMaxStats minMaxStats) {
         for (Node node : searchPath) {
-            printUCBScores(config, node, minMaxStats, ucbScoreExplained);
+            printUCBScores(config, node, minMaxStats);
         }
     }
 
-    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull Node node, @NotNull MinMaxStats minMaxStats, boolean ucbScoreExplained) {
+    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull Node node, @NotNull MinMaxStats minMaxStats) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         for (int i = 0; i < config.getActionSpaceSize(); i++) {
             Action action = new Action(config, i);
             Node child = node.getChildren().get(action);
             double score;
             if (child != null) {
-                score = ucbScore(node, child, minMaxStats, ucbScoreExplained);
+                score = ucbScore(node, child, minMaxStats);
 
                 values[Action.getRow(config, i)][Action.getCol(config, i)] =
                         String.format("%3d", Math.round(100.0 * score));
@@ -247,6 +248,14 @@ public class MCTS {
                 Float p = e.getValue();
                 node.children.put(action, new Node(p / policySum));  // p/policySum = probability that this action is chosen
             }
+
+
+
+
+
+
+
+
         }
     }
 //    public void expandNodeParallel (List<Node> nodeList, List<Player> toPlayList, List<List<Action>> actionsList, NetworkIO networkOutput,
@@ -292,51 +301,128 @@ public class MCTS {
 
         List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
 
-       if (!node.isRoot() || node.getVisitCount() != 0) {
+        if (node.getVisitCount() != 0) {
+            double multiplierLambda = multiplierLambda(node);
 
 
-           Collections.shuffle(list);
+            double alphaMin = list.stream()
+                    .mapToDouble(an -> {
+                        Node child = an.getValue();
+                        return child.value() + multiplierLambda * child.getPrior();
+                    })
+                    .max().getAsDouble();
+            double alphaMax = list.stream()
+                    .mapToDouble(an -> {
+                        Node child = an.getValue();
+                        return child.value();
+                    })
+                    .max().getAsDouble() + multiplierLambda;
+
+            double alpha = calcAlpha(node, list, multiplierLambda, alphaMin, alphaMax);
 
 
-           // for debugging only
-           // ucbScore(node, result.getValue(), minMaxStats, true);
+            List<Pair<Action, Double>> distributionInput =
+                    list.stream()
+                            .map(e -> Pair.create(e.getKey(), optPolicy(multiplierLambda, alpha, e.getValue())))
+                            .collect(Collectors.toList());
 
-           return list.stream()
-                   .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
-                   .get();
-       } else {
+            Action action = selectActionByDrawingFromDistribution(distributionInput);
 
-           double sum = list.stream()
-                   .mapToDouble(e -> e.getValue().getPrior())
-                   .sum();
-           List<Pair<Action, Double>> distributionInput =
-           list.stream()
-                   .map(e -> Pair.create(e.getKey(), e.getValue().getPrior()/sum))
-                   .collect(Collectors.toList());
+            return Map.entry(action, node.children.get(action));
+
+//       if (!node.isRoot() || node.getVisitCount() != 0) {
+//
+//
+//           Collections.shuffle(list);
+//
+//
+//           // for debugging only
+//           // ucbScore(node, result.getValue(), minMaxStats, true);
+//
+//           return list.stream()
+//                   .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
+//                   .get();
+        } else {
+
+            double sum = list.stream()
+                    .mapToDouble(e -> e.getValue().getPrior())
+                    .sum();
+            List<Pair<Action, Double>> distributionInput =
+                    list.stream()
+                            .map(e -> Pair.create(e.getKey(), e.getValue().getPrior() / sum))
+                            .collect(Collectors.toList());
 
 
-           Action action = selectActionByDrawingFromDistribution(distributionInput);
+            Action action = selectActionByDrawingFromDistribution(distributionInput);
 
-           return    Map.entry(action, node.children.get(action)) ;
-       }
+            return Map.entry(action, node.children.get(action));
+        }
 
     }
 
+    private double calcAlpha(Node node, List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax) {
+        // dichotomic search
+        double optPolicySum = 0d;
+        double alpha = 0d;
+        double epsilon = 0.000000001d;
+        do {
+            alpha = (alphaMax + alphaMin) / 2d;
+            optPolicySum = optPolicySum(list, multiplierLambda, alpha);
 
-    public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats, boolean specialLogging) {
-        double pbC = Math.log((parent.getVisitCount() + config.getPbCBase() + 1d) / config.getPbCBase()) + config.getPbCInit();
-        pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
-        double priorScore = pbC * child.prior;
+            if (optPolicySum > 1d) {
+                alphaMin = alpha;
+            } else {
+                alphaMax = alpha;
+            }
+
+          //  System.out.println(optPolicySum);
+        } while ( FastMath.abs(optPolicySum - 1d) > epsilon);
+
+        return alpha;
+    }
+
+    private double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha) {
+        return list.stream()
+                   .mapToDouble(e -> {
+                       Node child = e.getValue();
+                       return optPolicy(multiplierLambda, alpha, child);
+                   })
+                   .sum();
+    }
+
+    private double optPolicy(double multiplierLambda, double alpha, Node child) {
+        double optPolicy;
+        optPolicy = multiplierLambda * child.prior / (alpha - child.value());
+        return optPolicy;
+    }
+
+
+    // from "MCTS as regularized policy optimization", equation 4
+    public double multiplierLambda(@NotNull Node parent) {
+        return c(parent) * Math.sqrt(parent.getVisitCount()) / (parent.getVisitCount() + this.config.getActionSpaceSize());
+    }
+
+
+    public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats) {
+        double pbC = c(parent);
+        // pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
+        double priorScore = pbC * Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1) * child.prior;
         double valueScore = 0d;
         if (child.getVisitCount() > 0) {
             valueScore = minMaxStats.normalize(child.getReward() + config.getDiscount() * child.value());
         }
         double score = priorScore + valueScore;
 
-        if (specialLogging) {
-            System.out.println("ucbScore = " + pbC + " * " + child.prior + " + " + valueScore + " = " + score);
-        }
+//        if (specialLogging) {
+//            System.out.println("ucbScore = " + pbC + " * " + child.prior + " + " + valueScore + " = " + score);
+//        }
         return score;
+    }
+
+    private double c(@NotNull Node parent) {
+        double pbC;
+        pbC = Math.log((parent.getVisitCount() + config.getPbCBase() + 1d) / config.getPbCBase()) + config.getPbCInit();
+        return pbC;
     }
 
 

@@ -42,18 +42,18 @@ public class MuZero {
     // java -jar ./target/muzero-0.2.0-SNAPSHOT-jar-with-dependencies.jar
     // be careful - you have to kill the process by hand
     public static void main(String[] args) throws URISyntaxException, IOException {
-        try {
+     //   try {
             run();
-        } catch (Exception e) {
-            restartApplication();
-        }
+//        } catch (Exception e) {
+//            restartApplication();
+//        }
     }
 
 
     public static void run() {
 
-    //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-       MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+     MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+    //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
     //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
 
         createNetworkModelIfNotExisting(config);
@@ -64,7 +64,7 @@ public class MuZero {
 
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 20000;
+        int trainingStep = 0;
 
 
         do {
@@ -74,7 +74,7 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
 
             log.info("numSimulations: " + config.getNumSimulations());
-            if (trainingStep <= config.getNumberTrainingStepsOnRandomPlay()) {
+            if (trainingStep < config.getNumberTrainingStepsOnRandomPlay()) {
                 PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
             } else {
 
