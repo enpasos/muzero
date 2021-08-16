@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
+import ai.enpasos.muzero.MuZeroConfig;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,10 +59,14 @@ public class Node {
     }
 
 
-    public double value() {
+    private double value() {
         if (visitCount == 0) return 0.0;
         return -this.valueSum / this.visitCount;
     }
 
+
+    public double valueScore(MinMaxStats minMaxStats, MuZeroConfig config) {
+        return minMaxStats.normalize(getReward() + config.getDiscount() * value());
+    }
 
 }

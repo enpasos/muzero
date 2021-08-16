@@ -137,7 +137,7 @@ public class SelfPlayParallel {
                     }
                     game.apply(action);
 
-                    game.storeSearchStatistics(root, fastRuleLearning);
+                    game.storeSearchStatistics(root, fastRuleLearning, new MinMaxStats(config.getKnownBounds()));
 
 
                     if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
