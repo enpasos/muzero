@@ -19,14 +19,12 @@ package ai.enpasos.muzero.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.agent.slow.play.*;
 import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.agent.fast.model.Observation;
-import ai.enpasos.muzero.agent.slow.play.Action;
-import ai.enpasos.muzero.agent.slow.play.ActionHistory;
-import ai.enpasos.muzero.agent.slow.play.Node;
-import ai.enpasos.muzero.agent.slow.play.Player;
 import lombok.Data;
+import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,14 +117,12 @@ public abstract class Game implements Serializable {
                 childVisit[action.getIndex()] = (float) node.prior;
             }
         } else {
-            int sumVisits = root.children.values().stream()
-                    .mapToInt(Node::getVisitCount)
-                    .sum();
 
-            for (SortedMap.Entry<Action, Node> e : root.getChildren().entrySet()) {
+            List<Pair<Action, Double>> distributionInput = MCTS.getDistributionInput(root, config);
+            for (Pair<Action, Double> e : distributionInput) {
                 Action action = e.getKey();
-                Node node = e.getValue();
-                childVisit[action.getIndex()] = ((float) node.getVisitCount()) / sumVisits;
+                double v = e.getValue();
+                childVisit[action.getIndex()] = (float)v;
             }
         }
         this.getGameDTO().getChildVisits().add(childVisit);
