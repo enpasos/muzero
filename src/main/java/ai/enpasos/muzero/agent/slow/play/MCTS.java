@@ -22,6 +22,7 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.Network;
 import ai.enpasos.muzero.agent.fast.model.NetworkIO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.analysis.function.Min;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
@@ -48,7 +49,7 @@ public class MCTS {
     }
 
 
-    public static void backpropagate(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
+    public static void backpropagate(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats, MuZeroConfig config) {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
             if (node.getToPlay() == toPlay) {
@@ -57,34 +58,34 @@ public class MCTS {
                 node.setValueSum(node.getValueSum() - value);
             }
             node.setVisitCount(node.getVisitCount() + 1);
-            minMaxStats.update(node.value());
+            minMaxStats.update(node.valueScore(minMaxStats, config));
             value = node.reward + discount * value;
         }
     }
 
 
-    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull List<Node> searchPath, @NotNull MinMaxStats minMaxStats) {
-        for (Node node : searchPath) {
-            printUCBScores(config, node, minMaxStats);
-        }
-    }
+//    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull List<Node> searchPath, @NotNull MinMaxStats minMaxStats) {
+//        for (Node node : searchPath) {
+//            printUCBScores(config, node, minMaxStats);
+//        }
+//    }
 
-    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull Node node, @NotNull MinMaxStats minMaxStats) {
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        for (int i = 0; i < config.getActionSpaceSize(); i++) {
-            Action action = new Action(config, i);
-            Node child = node.getChildren().get(action);
-            double score;
-            if (child != null) {
-                score = ucbScore(node, child, minMaxStats);
-
-                values[Action.getRow(config, i)][Action.getCol(config, i)] =
-                        String.format("%3d", Math.round(100.0 * score));
-            }
-        }
-
-        System.out.println(render(config, values));
-    }
+//    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull Node node, @NotNull MinMaxStats minMaxStats) {
+//        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
+//        for (int i = 0; i < config.getActionSpaceSize(); i++) {
+//            Action action = new Action(config, i);
+//            Node child = node.getChildren().get(action);
+//            double score;
+//            if (child != null) {
+//                score = ucbScore(node, child, minMaxStats);
+//
+//                values[Action.getRow(config, i)][Action.getCol(config, i)] =
+//                        String.format("%3d", Math.round(100.0 * score));
+//            }
+//        }
+//
+//        System.out.println(render(config, values));
+//    }
 
     public void run(@NotNull Node root, @NotNull ActionHistory actionHistory, @NotNull Network network,
                     Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
@@ -117,10 +118,11 @@ public class MCTS {
             for (int g = 0; g < nodeList.size(); g++) {
                 Node node = nodeList.get(g);
                 List<Node> searchPath = searchPathList.get(g);
+                MinMaxStats minMaxStats = minMaxStatsList.get(g);
                 ActionHistory history = historyList.get(g);
                 searchPath.add(node);
                 while (node.expanded()) {
-                    Map.Entry<Action, Node> actionNodeEntry = selectChild(node);
+                    Map.Entry<Action, Node> actionNodeEntry = selectChild(node, minMaxStats);
                     Action action = actionNodeEntry.getKey();
                     history.addAction(action);
                     node = actionNodeEntry.getValue();
@@ -163,7 +165,7 @@ public class MCTS {
 
                 expandNode(node, history.toPlay(), history.actionSpace(config), networkOutput, false);
 
-                backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats);
+                backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats, config);
 
                 // System.out.println(i + ": " + searchPathToString(searchPath, false));
 
@@ -195,7 +197,7 @@ public class MCTS {
         );
     }
 
-    private @NotNull String searchPathToString(@NotNull List<Node> searchPath, boolean withValue) {
+    private @NotNull String searchPathToString(@NotNull List<Node> searchPath, boolean withValue, MinMaxStats minMaxStats) {
         StringBuffer buf = new StringBuffer();
         searchPath.forEach(
                 n -> {
@@ -204,7 +206,7 @@ public class MCTS {
                                 .append(n.getAction().getIndex());
                         if (withValue) {
                             buf.append("(")
-                                    .append(n.value())
+                                    .append(n.valueScore(minMaxStats, config))
                                     .append(")");
                         }
                     } else {
@@ -296,9 +298,9 @@ public class MCTS {
 //    }
 
 
-    public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node) {
+    public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, MinMaxStats minMaxStats) {
 
-        List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config);
+        List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config, minMaxStats);
 
         Action action = selectActionByDrawingFromDistribution(distributionInput);
 
@@ -306,7 +308,7 @@ public class MCTS {
 
     }
 
-    public static List<Pair<Action, Double>> getDistributionInput(@NotNull Node node, MuZeroConfig config) {
+    public static List<Pair<Action, Double>> getDistributionInput(@NotNull Node node, MuZeroConfig config, MinMaxStats minMaxStats) {
 
         List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
         List<Pair<Action, Double>> distributionInput;
@@ -316,22 +318,22 @@ public class MCTS {
             double alphaMin = list.stream()
                     .mapToDouble(an -> {
                         Node child = an.getValue();
-                        return child.value() + multiplierLambda * child.getPrior();
+                        return child.valueScore(minMaxStats, config) + multiplierLambda * child.getPrior();
                     })
                     .max().getAsDouble();
             double alphaMax = list.stream()
                     .mapToDouble(an -> {
                         Node child = an.getValue();
-                        return child.value();
+                        return child.valueScore(minMaxStats, config);
                     })
                     .max().getAsDouble() + multiplierLambda;
 
-            double alpha = calcAlpha(node, list, multiplierLambda, alphaMin, alphaMax);
+            double alpha = calcAlpha(node, list, multiplierLambda, alphaMin, alphaMax, config, minMaxStats);
 
 
            distributionInput =
                     list.stream()
-                            .map(e -> Pair.create(e.getKey(), optPolicy(multiplierLambda, alpha, e.getValue())))
+                            .map(e -> Pair.create(e.getKey(), optPolicy(multiplierLambda, alpha, e.getValue(), minMaxStats, config)))
                             .collect(Collectors.toList());
 
         } else {
@@ -348,14 +350,14 @@ public class MCTS {
         return distributionInput;
     }
 
-    private static double calcAlpha(Node node, List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax) {
+    private static double calcAlpha(Node node, List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax, MuZeroConfig config, MinMaxStats minMaxStats) {
         // dichotomic search
         double optPolicySum = 0d;
         double alpha = 0d;
         double epsilon = 0.000000001d;
         do {
             alpha = (alphaMax + alphaMin) / 2d;
-            optPolicySum = optPolicySum(list, multiplierLambda, alpha);
+            optPolicySum = optPolicySum(list, multiplierLambda, alpha, minMaxStats, config);
 
             if (optPolicySum > 1d) {
                 alphaMin = alpha;
@@ -369,18 +371,18 @@ public class MCTS {
         return alpha;
     }
 
-    private static double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha) {
+    private static double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha, MinMaxStats minMaxStats, MuZeroConfig config) {
         return list.stream()
                    .mapToDouble(e -> {
                        Node child = e.getValue();
-                       return optPolicy(multiplierLambda, alpha, child);
+                       return optPolicy(multiplierLambda, alpha, child, minMaxStats, config);
                    })
                    .sum();
     }
 
-    private static double optPolicy(double multiplierLambda, double alpha, Node child) {
+    private static double optPolicy(double multiplierLambda, double alpha, Node child, MinMaxStats minMaxStats, MuZeroConfig config) {
         double optPolicy;
-        optPolicy = multiplierLambda * child.prior / (alpha - child.value());
+        optPolicy = multiplierLambda * child.prior / (alpha - child.valueScore(minMaxStats, config));
         return optPolicy;
     }
 
@@ -391,21 +393,21 @@ public class MCTS {
     }
 
 
-    public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats) {
-        double pbC = c(parent, config);
-        // pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
-        double priorScore = pbC * Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1) * child.prior;
-        double valueScore = 0d;
-        if (child.getVisitCount() > 0) {
-            valueScore = minMaxStats.normalize(child.getReward() + config.getDiscount() * child.value());   // TODO check if minMaxStats relevant
-        }
-        double score = priorScore + valueScore;
-
-//        if (specialLogging) {
-//            System.out.println("ucbScore = " + pbC + " * " + child.prior + " + " + valueScore + " = " + score);
+//    public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats) {
+//        double pbC = c(parent, config);
+//        // pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
+//        double priorScore = pbC * Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1) * child.prior;
+//        double valueScore = 0d;
+//        if (child.getVisitCount() > 0) {
+//            valueScore = minMaxStats.normalize(child.getReward() + config.getDiscount() * child.value());   // TODO check if minMaxStats relevant
 //        }
-        return score;
-    }
+//        double score = priorScore + valueScore;
+//
+////        if (specialLogging) {
+////            System.out.println("ucbScore = " + pbC + " * " + child.prior + " + " + valueScore + " = " + score);
+////        }
+//        return score;
+//    }
 
     private static double c(@NotNull Node parent, MuZeroConfig config) {
         double pbC;

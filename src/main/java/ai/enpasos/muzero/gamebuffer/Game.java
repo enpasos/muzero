@@ -107,7 +107,7 @@ public abstract class Game implements Serializable {
     }
 
 
-    public void storeSearchStatistics(@NotNull Node root, boolean fastRuleLearning) {
+    public void storeSearchStatistics(@NotNull Node root, boolean fastRuleLearning, MinMaxStats minMaxStats) {
 
         float[] childVisit = new float[this.actionSpaceSize];
         if (fastRuleLearning) {
@@ -118,7 +118,7 @@ public abstract class Game implements Serializable {
             }
         } else {
 
-            List<Pair<Action, Double>> distributionInput = MCTS.getDistributionInput(root, config);
+            List<Pair<Action, Double>> distributionInput = MCTS.getDistributionInput(root, config, minMaxStats);
             for (Pair<Action, Double> e : distributionInput) {
                 Action action = e.getKey();
                 double v = e.getValue();
@@ -126,7 +126,7 @@ public abstract class Game implements Serializable {
             }
         }
         this.getGameDTO().getChildVisits().add(childVisit);
-        this.getGameDTO().getRootValues().add((float) root.value());
+        this.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));
 
     }
 
