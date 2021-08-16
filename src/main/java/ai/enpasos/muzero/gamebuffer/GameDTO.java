@@ -39,7 +39,7 @@ public class GameDTO implements Serializable {
     List<Integer> actionHistory;
 
     List<Float> rewards;
-    List<float[]> childVisits;
+    List<float[]> childVisits; // TODO: proper naming needed
     List<Float> rootValues;
 
     public GameDTO(@NotNull Game game) {

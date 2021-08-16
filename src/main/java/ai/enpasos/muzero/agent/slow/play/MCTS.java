@@ -117,11 +117,10 @@ public class MCTS {
             for (int g = 0; g < nodeList.size(); g++) {
                 Node node = nodeList.get(g);
                 List<Node> searchPath = searchPathList.get(g);
-                MinMaxStats minMaxStats = minMaxStatsList.get(g);
                 ActionHistory history = historyList.get(g);
                 searchPath.add(node);
                 while (node.expanded()) {
-                    Map.Entry<Action, Node> actionNodeEntry = selectChild(node, minMaxStats);
+                    Map.Entry<Action, Node> actionNodeEntry = selectChild(node);
                     Action action = actionNodeEntry.getKey();
                     history.addAction(action);
                     node = actionNodeEntry.getValue();
@@ -297,13 +296,22 @@ public class MCTS {
 //    }
 
 
-    public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, @NotNull MinMaxStats minMaxStats) {
+    public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node) {
+
+        List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config);
+
+        Action action = selectActionByDrawingFromDistribution(distributionInput);
+
+        return Map.entry(action, node.children.get(action));
+
+    }
+
+    public static List<Pair<Action, Double>> getDistributionInput(@NotNull Node node, MuZeroConfig config) {
 
         List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
-
+        List<Pair<Action, Double>> distributionInput;
         if (node.getVisitCount() != 0) {
-            double multiplierLambda = multiplierLambda(node);
-
+            double multiplierLambda = multiplierLambda(node, config);
 
             double alphaMin = list.stream()
                     .mapToDouble(an -> {
@@ -321,46 +329,26 @@ public class MCTS {
             double alpha = calcAlpha(node, list, multiplierLambda, alphaMin, alphaMax);
 
 
-            List<Pair<Action, Double>> distributionInput =
+           distributionInput =
                     list.stream()
                             .map(e -> Pair.create(e.getKey(), optPolicy(multiplierLambda, alpha, e.getValue())))
                             .collect(Collectors.toList());
 
-            Action action = selectActionByDrawingFromDistribution(distributionInput);
-
-            return Map.entry(action, node.children.get(action));
-
-//       if (!node.isRoot() || node.getVisitCount() != 0) {
-//
-//
-//           Collections.shuffle(list);
-//
-//
-//           // for debugging only
-//           // ucbScore(node, result.getValue(), minMaxStats, true);
-//
-//           return list.stream()
-//                   .max(Comparator.comparing(e -> ucbScore(node, e.getValue(), minMaxStats, false)))
-//                   .get();
         } else {
 
             double sum = list.stream()
                     .mapToDouble(e -> e.getValue().getPrior())
                     .sum();
-            List<Pair<Action, Double>> distributionInput =
+            distributionInput =
                     list.stream()
                             .map(e -> Pair.create(e.getKey(), e.getValue().getPrior() / sum))
                             .collect(Collectors.toList());
 
-
-            Action action = selectActionByDrawingFromDistribution(distributionInput);
-
-            return Map.entry(action, node.children.get(action));
         }
-
+        return distributionInput;
     }
 
-    private double calcAlpha(Node node, List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax) {
+    private static double calcAlpha(Node node, List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax) {
         // dichotomic search
         double optPolicySum = 0d;
         double alpha = 0d;
@@ -381,7 +369,7 @@ public class MCTS {
         return alpha;
     }
 
-    private double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha) {
+    private static double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha) {
         return list.stream()
                    .mapToDouble(e -> {
                        Node child = e.getValue();
@@ -390,7 +378,7 @@ public class MCTS {
                    .sum();
     }
 
-    private double optPolicy(double multiplierLambda, double alpha, Node child) {
+    private static double optPolicy(double multiplierLambda, double alpha, Node child) {
         double optPolicy;
         optPolicy = multiplierLambda * child.prior / (alpha - child.value());
         return optPolicy;
@@ -398,18 +386,18 @@ public class MCTS {
 
 
     // from "MCTS as regularized policy optimization", equation 4
-    public double multiplierLambda(@NotNull Node parent) {
-        return c(parent) * Math.sqrt(parent.getVisitCount()) / (parent.getVisitCount() + this.config.getActionSpaceSize());
+    public static double multiplierLambda(@NotNull Node parent, MuZeroConfig config) {
+        return c(parent, config) * Math.sqrt(parent.getVisitCount()) / (parent.getVisitCount() + config.getActionSpaceSize());
     }
 
 
     public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats) {
-        double pbC = c(parent);
+        double pbC = c(parent, config);
         // pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
         double priorScore = pbC * Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1) * child.prior;
         double valueScore = 0d;
         if (child.getVisitCount() > 0) {
-            valueScore = minMaxStats.normalize(child.getReward() + config.getDiscount() * child.value());
+            valueScore = minMaxStats.normalize(child.getReward() + config.getDiscount() * child.value());   // TODO check if minMaxStats relevant
         }
         double score = priorScore + valueScore;
 
@@ -419,7 +407,7 @@ public class MCTS {
         return score;
     }
 
-    private double c(@NotNull Node parent) {
+    private static double c(@NotNull Node parent, MuZeroConfig config) {
         double pbC;
         pbC = Math.log((parent.getVisitCount() + config.getPbCBase() + 1d) / config.getPbCBase()) + config.getPbCInit();
         return pbC;
