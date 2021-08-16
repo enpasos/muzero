@@ -22,8 +22,8 @@ import static ai.enpasos.muzero.agent.fast.model.Network.getLoss;
 public class LossExtractor {
 
     public static void main(String[] args) throws Exception {
-        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-     //   MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+     //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
@@ -37,7 +37,7 @@ public class LossExtractor {
 
            {
                model.setBlock(block);
-                IntStream.range(1, 1000).forEach(
+                IntStream.range(1, 800).forEach(
                         i -> {
                             try {
                                 model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
@@ -53,8 +53,106 @@ public class LossExtractor {
 
            }
 
-       }
 
+//        try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
+//
+//        {
+//            model.setBlock(block);
+//            IntStream.range(801, 1156).forEach(
+//                    i -> {
+//                        try {
+//                            model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+//                            int epoch = getEpoch(model);
+//                            double loss = getLoss(model);
+//                            csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+//                        } catch (Exception e) {
+//                        }
+//                    }
+//            );
+//
+//
+//
+//        }
+
+//          try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
+//
+//           {
+//               model.setBlock(block);
+//               IntStream.range(1157, 1500).forEach(
+//                       i -> {
+//                           try {
+//                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+//                               int epoch = getEpoch(model);
+//                               double loss = getLoss(model);
+//                               csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+//                           } catch (Exception e) {
+//                           }
+//                       }
+//               );
+//
+//
+//
+//           }
+//           try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
+//
+//           {
+//               model.setBlock(block);
+//               IntStream.range(1501, 2000).forEach(
+//                       i -> {
+//                           try {
+//                               model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+//                               int epoch = getEpoch(model);
+//                               double loss = getLoss(model);
+//                               csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+//                           } catch (Exception e) {
+//                           }
+//                       }
+//               );
+//
+//
+//
+//           }
+//           try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
+//
+//           {
+//               model.setBlock(block);
+//               IntStream.range(2001, 2500).forEach(
+//                       i -> {
+//                           try {
+//                               model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+//                               int epoch = getEpoch(model);
+//                               double loss = getLoss(model);
+//                               csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+//                           } catch (Exception e) {
+//                           }
+//                       }
+//               );
+//
+//
+//
+//           }
+//
+//           try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
+//
+//           {
+//               model.setBlock(block);
+//               IntStream.range(2501, 3000).forEach(
+//                       i -> {
+//                           try {
+//                               model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+//                               int epoch = getEpoch(model);
+//                               double loss = getLoss(model);
+//                               csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+//                           } catch (Exception e) {
+//                           }
+//                       }
+//               );
+//
+//
+//
+//           }
+
+    }
         System.out.println(stringWriter.toString());
     }
 }
