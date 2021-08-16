@@ -151,7 +151,7 @@ public class MuZeroConfig {
                 .outputDir("./memory/tictactoe/")
 
 
-                .numberTrainingStepsOnRandomPlay(3000)
+                .numberTrainingStepsOnRandomPlay(2000)   // 3000
 
                 .build();
 
@@ -239,11 +239,13 @@ public class MuZeroConfig {
 //                        .numParallelPlays(10)
 //                        .numPlays(5)
 
-                        .numSimulations(20)
-                        .numParallelPlays(300)
-                        .numPlays(1)
+//                        .numSimulations(20)
+//                        .numParallelPlays(300)
+//                        .numPlays(1)
 
-
+                        .numSimulations(100)
+                        .numParallelPlays(80)
+                        .numPlays(4)
 
 
                         .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8

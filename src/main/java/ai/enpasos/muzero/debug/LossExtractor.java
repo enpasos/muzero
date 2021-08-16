@@ -33,26 +33,36 @@ public class LossExtractor {
 
 
 
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
-
+//        try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
+//           {
+//               model.setBlock(block);
+//                IntStream.range(1, 767).forEach(
+//                        i -> {
+//                            try {
+//                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+//                                int epoch = getEpoch(model);
+//                                double loss = getLoss(model);
+//                                csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+//                            } catch (Exception e) {
+//                            }
+//                        }
+//                );
+//           }
+           try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
            {
                model.setBlock(block);
-                IntStream.range(1, 1000).forEach(
-                        i -> {
-                            try {
-                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
-                                int epoch = getEpoch(model);
-                                double loss = getLoss(model);
-                                csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
-                            } catch (Exception e) {
-                            }
-                        }
-                );
-
-
-
+               IntStream.range(768, 1000).forEach(
+                       i -> {
+                           try {
+                               model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+                               int epoch = getEpoch(model);
+                               double loss = getLoss(model);
+                               csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+                           } catch (Exception e) {
+                           }
+                       }
+               );
            }
-
        }
 
         System.out.println(stringWriter.toString());
