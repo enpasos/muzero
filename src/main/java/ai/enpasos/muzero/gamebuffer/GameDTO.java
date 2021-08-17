@@ -39,14 +39,14 @@ public class GameDTO implements Serializable {
     List<Integer> actionHistory;
 
     List<Float> rewards;
-    List<float[]> childVisits; // TODO: proper naming needed
+    List<float[]> policyTarget;
     List<Float> rootValues;
 
     public GameDTO(@NotNull Game game) {
         this.gameClassName = game.getClass().getCanonicalName();
         this.actionHistory = new ArrayList<>();
         this.rewards = new ArrayList<>();
-        this.childVisits = new ArrayList<>();
+        this.policyTarget = new ArrayList<>();
         this.rootValues = new ArrayList<>();
     }
 

@@ -25,6 +25,7 @@ import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.agent.fast.model.Network;
 import ai.enpasos.muzero.agent.fast.model.NetworkIO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import umontreal.ssj.randvarmulti.DirichletGen;
@@ -133,7 +134,7 @@ public class SelfPlayParallel {
                     if (fastRuleLearning) {
                         action = getRandomAction(root, config);
                     } else {
-                        action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+                        action = mcts.selectAction(root, new MinMaxStats(config.getKnownBounds()));
                     }
                     game.apply(action);
 
@@ -141,7 +142,7 @@ public class SelfPlayParallel {
 
 
                     if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
-                        List<float[]> childVisitsList = justOneOfTheGames.getGameDTO().getChildVisits();
+                        List<float[]> childVisitsList = justOneOfTheGames.getGameDTO().getPolicyTarget();
                         float[] childVisits = childVisitsList.get(childVisitsList.size() - 1);
                         renderMCTSSuggestion(config, childVisits);
 
@@ -178,6 +179,8 @@ public class SelfPlayParallel {
 
         return gamesDoneList;
     }
+
+
 
     private static Action getRandomAction(Node root, MuZeroConfig config) {
         SortedMap<Action, Node> children = root.getChildren();

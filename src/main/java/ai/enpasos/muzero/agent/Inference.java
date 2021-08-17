@@ -22,6 +22,7 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.agent.fast.model.Network;
 import ai.enpasos.muzero.agent.fast.model.NetworkIO;
@@ -107,7 +108,7 @@ public class Inference {
                 List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
                 mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
 
-                Action action = mcts.selectActionByDrawingFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+                Action action = mcts.selectAction(root, new MinMaxStats(network.getConfig().getKnownBounds()));
                 actionIndexSelectedByNetwork = action.getIndex();
 
 

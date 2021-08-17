@@ -300,12 +300,17 @@ public class MCTS {
 
     public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, MinMaxStats minMaxStats) {
 
-        List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config, minMaxStats);
-
-        Action action = selectActionByDrawingFromDistribution(distributionInput);
+        Action action = selectAction(node, minMaxStats);
 
         return Map.entry(action, node.children.get(action));
 
+    }
+
+    public  Action selectAction(@NotNull Node node, MinMaxStats minMaxStats) {
+        List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config, minMaxStats);
+
+        Action action = selectActionByDrawingFromDistribution(distributionInput);
+        return action;
     }
 
     public static List<Pair<Action, Double>> getDistributionInput(@NotNull Node node, MuZeroConfig config, MinMaxStats minMaxStats) {
@@ -393,22 +398,6 @@ public class MCTS {
     }
 
 
-//    public double ucbScore(@NotNull Node parent, @NotNull Node child, @NotNull MinMaxStats minMaxStats) {
-//        double pbC = c(parent, config);
-//        // pbC *= Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1);
-//        double priorScore = pbC * Math.sqrt(parent.getVisitCount()) / (child.getVisitCount() + 1) * child.prior;
-//        double valueScore = 0d;
-//        if (child.getVisitCount() > 0) {
-//            valueScore = minMaxStats.normalize(child.getReward() + config.getDiscount() * child.value());   // TODO check if minMaxStats relevant
-//        }
-//        double score = priorScore + valueScore;
-//
-////        if (specialLogging) {
-////            System.out.println("ucbScore = " + pbC + " * " + child.prior + " + " + valueScore + " = " + score);
-////        }
-//        return score;
-//    }
-
     private static double c(@NotNull Node parent, MuZeroConfig config) {
         double pbC;
         pbC = Math.log((parent.getVisitCount() + config.getPbCBase() + 1d) / config.getPbCBase()) + config.getPbCInit();
@@ -416,12 +405,12 @@ public class MCTS {
     }
 
 
-    public Action selectActionByDrawingFromDistribution(int numMoves, @NotNull Node node, Network network) {
-
-        List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
-
-        return selectActionByDrawingFromDistribution(distributionInput);
-    }
+//    public Action selectActionByDrawingFromDistribution(int numMoves, @NotNull Node node, Network network) {
+//
+//        List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
+//
+//        return selectActionByDrawingFromDistribution(distributionInput);
+//    }
 
     public Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
         EnumeratedDistribution<Action> distribution = null;
@@ -434,13 +423,14 @@ public class MCTS {
         return distribution.sample();
     }
 
-    public Action selectActionByMaxFromDistribution(int numMoves, @NotNull Node node, Network network) {
+//    public Action selectActionByMaxFromDistribution(int numMoves, @NotNull Node node, Network network) {
+//
+//        List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
+//        return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
+//
+//    }
 
-        List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
-        return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
-
-    }
-//    private List<Pair<Action, Double>> getActionDistributionInputFromUcbScore(int numMoves, @NotNull Node node, @Nullable Network network) {
+//    private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, @NotNull Node node, @Nullable Network network) {
 //        int numTrainingSteps = network != null ? network.trainingSteps() : 1;
 //        double t = config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
 //        double td = 1.0 / t;
@@ -455,21 +445,6 @@ public class MCTS {
 //                })
 //                .collect(Collectors.toList());
 //    }
-    private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, @NotNull Node node, @Nullable Network network) {
-        int numTrainingSteps = network != null ? network.trainingSteps() : 1;
-        double t = config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
-        double td = 1.0 / t;
-
-        double sum = node.getChildren().values().stream().mapToDouble(v -> Math.pow(v.getVisitCount(), td)).sum();
-
-        return node.getChildren().entrySet().stream()
-                .map(e -> {
-                    Action action = e.getKey();
-                    double v = Math.pow(e.getValue().getVisitCount(), td) / sum;
-                    return new Pair<Action, Double>(action, v);
-                })
-                .collect(Collectors.toList());
-    }
 
     private double visitSoftmaxTemperature(int numMoves, int numTrainingSteps) {
         return config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
