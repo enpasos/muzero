@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.debug;
 
 import ai.djl.ndarray.NDArray;
+import ai.enpasos.muzero.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.agent.fast.model.Network;
@@ -189,7 +190,7 @@ public class DNode {
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
             mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
 
-            Action action = mcts.selectActionByMaxFromDistribution(game.getGameDTO().getActionHistory().size(), root, network);
+            Action action = mcts.selectAction(root, new MinMaxStats(network.getConfig().getKnownBounds()));   // TODO check minmaxstats - less naive
             actionIndexSelectedByNetwork = action.getIndex();
         }
         for (DNode n : children) {

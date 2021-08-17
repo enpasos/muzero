@@ -116,13 +116,11 @@ public class MuZeroConfig {
 
 
 
-
-
                 // network training
                 .numberOfTrainingSteps(10000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
-                .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
@@ -133,7 +131,10 @@ public class MuZeroConfig {
                 .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
 
                 // play
-                .numSimulations(800)     // 800 in the paper
+                .numSimulations(160)     // 800 in the paper
+                .numParallelPlays(250)
+                .numPlays(2)
+
                 .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
@@ -144,14 +145,13 @@ public class MuZeroConfig {
                 // inference device
                 .inferenceDevice(Device.gpu())
 
-                .numParallelPlays(50)
-                .numPlays(10)
+
 
                 // local file based storage
                 .outputDir("./memory/tictactoe/")
 
 
-                .numberTrainingStepsOnRandomPlay(2000)   // 3000
+                .numberTrainingStepsOnRandomPlay(0)   // 3000
 
                 .build();
 

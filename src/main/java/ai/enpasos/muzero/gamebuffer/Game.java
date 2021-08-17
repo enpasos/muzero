@@ -125,7 +125,7 @@ public abstract class Game implements Serializable {
                 childVisit[action.getIndex()] = (float)v;
             }
         }
-        this.getGameDTO().getChildVisits().add(childVisit);
+        this.getGameDTO().getPolicyTarget().add(childVisit);
         this.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));
 
     }
@@ -166,7 +166,7 @@ public abstract class Game implements Serializable {
                     // the idea is not to put any policy force on the network if the episode was not "good" == lost
                     Arrays.fill(target.policy, 0f);
                 } else {
-                    target.policy = this.getGameDTO().getChildVisits().get(currentIndex);
+                    target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
                 }
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
