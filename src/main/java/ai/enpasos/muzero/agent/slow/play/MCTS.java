@@ -64,38 +64,14 @@ public class MCTS {
     }
 
 
-//    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull List<Node> searchPath, @NotNull MinMaxStats minMaxStats) {
-//        for (Node node : searchPath) {
-//            printUCBScores(config, node, minMaxStats);
-//        }
-//    }
 
-//    private void printUCBScores(@NotNull MuZeroConfig config, @NotNull Node node, @NotNull MinMaxStats minMaxStats) {
-//        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-//        for (int i = 0; i < config.getActionSpaceSize(); i++) {
-//            Action action = new Action(config, i);
-//            Node child = node.getChildren().get(action);
-//            double score;
-//            if (child != null) {
-//                score = ucbScore(node, child, minMaxStats);
-//
-//                values[Action.getRow(config, i)][Action.getCol(config, i)] =
-//                        String.format("%3d", Math.round(100.0 * score));
-//            }
-//        }
-//
-//        System.out.println(render(config, values));
-//    }
-
-    public void run(@NotNull Node root, @NotNull ActionHistory actionHistory, @NotNull Network network,
+    public MinMaxStats run(@NotNull Node root, @NotNull ActionHistory actionHistory, @NotNull Network network,
                     Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
 
-
-        runParallel(List.of(root), List.of(actionHistory), network,
-                inferenceDuration, actionSpaceOnDevice);
+       return runParallel(List.of(root), List.of(actionHistory), network, inferenceDuration, actionSpaceOnDevice).get(0);
     }
 
-    public void runParallel(@NotNull List<Node> rootList, @NotNull List<ActionHistory> actionHistoryList, @NotNull Network network,
+    public List<MinMaxStats> runParallel(@NotNull List<Node> rootList, @NotNull List<ActionHistory> actionHistoryList, @NotNull Network network,
                             @Nullable Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
 
 
@@ -176,6 +152,7 @@ public class MCTS {
 
 
         clean(rootList);
+        return minMaxStatsList;
     }
 
     private void clean(@NotNull List<Node> rootList) {

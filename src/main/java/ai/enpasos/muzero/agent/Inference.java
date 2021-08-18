@@ -106,9 +106,8 @@ public class Inference {
 
                 mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
                 List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
-                mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
-
-                Action action = mcts.selectAction(root, new MinMaxStats(network.getConfig().getKnownBounds()));
+                MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
+                Action action = mcts.selectAction(root, minMaxStats);
                 actionIndexSelectedByNetwork = action.getIndex();
 
 
