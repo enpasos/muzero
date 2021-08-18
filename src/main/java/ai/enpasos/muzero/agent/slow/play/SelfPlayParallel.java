@@ -119,9 +119,9 @@ public class SelfPlayParallel {
                         renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
                     }
                 }
-
+                List<MinMaxStats> minMaxStatsList = null;
                 if (!fastRuleLearning) {
-                    mcts.runParallel(rootList,
+                    minMaxStatsList = mcts.runParallel(rootList,
                             gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
                             network, inferenceDuration, actionSpaceOnDevice);
                 }
@@ -131,14 +131,14 @@ public class SelfPlayParallel {
                     Game game = gameList.get(g);
                     Node root = rootList.get(g);
                     Action action = null;
+
                     if (fastRuleLearning) {
                         action = getRandomAction(root, config);
                     } else {
-                        action = mcts.selectAction(root, new MinMaxStats(config.getKnownBounds()));
+                        action = mcts.selectAction(root, minMaxStatsList.get(g));
                     }
                     game.apply(action);
-
-                    game.storeSearchStatistics(root, fastRuleLearning, new MinMaxStats(config.getKnownBounds()));
+                    game.storeSearchStatistics(root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));
 
 
                     if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
