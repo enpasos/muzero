@@ -3,8 +3,11 @@
 ## About
 
 We have implemented [MuZero](https://deepmind.com/blog/article/muzero-mastering-go-chess-shogi-and-atari-without-rules)
-with [DJL](https://djl.ai/) following closely DeepMind's [MuZero paper](https://www.nature.com/articles/s41586-020-03051-4) with 
-network improvements as suggested in DeepMind's [MuZero Unplugged paper](https://arxiv.org/abs/2104.06294) and Google/Deepmind/Columbia University's [paper on the exact solution to the policy optimization problem](http://proceedings.mlr.press/v119/grill20a.html).
+with [DJL](https://djl.ai/) (pure Java code running on top of PyTorch native) following closely DeepMind's [MuZero paper](https://www.nature.com/articles/s41586-020-03051-4) with 
+network improvements as suggested in DeepMind's [MuZero Unplugged paper](https://arxiv.org/abs/2104.06294) and 
+the replacement of the maximizing over an upper confidence bound by the exact solution to the policy optimization problem as given by
+Google/Deepmind/Columbia University's [paper](http://proceedings.mlr.press/v119/grill20a.html).
+
 
 Sanity check on the trivial game TicTacToe on a single GPU (NVIDIA GeForce RTX 3090):
 Starting from scratch it learns perfect play within 80.000 training steps and 40.000 game plays in about 2 1/2 hours.
