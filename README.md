@@ -10,7 +10,7 @@ Google/Deepmind/Columbia University's [paper](http://proceedings.mlr.press/v119/
 
 
 Sanity check on the trivial game TicTacToe on a single GPU (NVIDIA GeForce RTX 3090):
-Starting from scratch it learns perfect play within 80.000 training steps and 40.000 game plays in about 2 1/2 hours.
+Starting from scratch it learns perfect play within 70.000 training steps and 80.000 game plays in less than an hour.
 
 We have just started playing the game of go ... with small board sizes.
 

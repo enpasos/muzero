@@ -153,6 +153,20 @@ public class MuZeroConfig {
 
 
 
+                // with these settings so far it takes 2 1/2 hours
+                // let's try to get it faster ...
+                .batchSize(128)
+                // -> 1:48 hours
+                // ...
+                .numSimulations(80)
+                .numParallelPlays(500)
+                .numPlays(1)
+                // -> 1:16 hours
+                // ...
+                .numSimulations(40)
+                .numParallelPlays(1000)
+                .numPlays(1)
+                // -> 0:52
 
                 .build();
 

@@ -58,8 +58,8 @@ public class MCTS {
                 node.setValueSum(node.getValueSum() - value);
             }
             node.setVisitCount(node.getVisitCount() + 1);
-            minMaxStats.update(node.valueScore(minMaxStats, config));
             value = node.reward + discount * value;
+            minMaxStats.update(value);
         }
     }
 
@@ -290,6 +290,11 @@ public class MCTS {
         return action;
     }
 
+    public  Action selectActionByMax(@NotNull Node node, MinMaxStats minMaxStats) {
+        List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config, minMaxStats);
+
+        return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
+    }
     public static List<Pair<Action, Double>> getDistributionInput(@NotNull Node node, MuZeroConfig config, MinMaxStats minMaxStats) {
 
         List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
@@ -400,12 +405,7 @@ public class MCTS {
         return distribution.sample();
     }
 
-//    public Action selectActionByMaxFromDistribution(int numMoves, @NotNull Node node, Network network) {
-//
-//        List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
-//        return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
-//
-//    }
+
 
 //    private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, @NotNull Node node, @Nullable Network network) {
 //        int numTrainingSteps = network != null ? network.trainingSteps() : 1;
