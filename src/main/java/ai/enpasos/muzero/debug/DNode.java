@@ -188,10 +188,13 @@ public class DNode {
             List<Action> legalActions = game.legalActions();
             mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
-            mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
+            MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
 
-            Action action = mcts.selectAction(root, new MinMaxStats(network.getConfig().getKnownBounds()));   // TODO check minmaxstats - less naive
+            Action action = mcts.selectActionByMax(root, minMaxStats);
             actionIndexSelectedByNetwork = action.getIndex();
+
+
+
         }
         for (DNode n : children) {
             if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
