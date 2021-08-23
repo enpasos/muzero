@@ -166,7 +166,8 @@ public class MuZeroConfig {
                 .numSimulations(40)
                 .numParallelPlays(1000)
                 .numPlays(1)
-                // -> 0:52
+                .numberOfTrainingSteps(70000)
+                // -> 0:58
 
                 .build();
 
@@ -248,23 +249,41 @@ public class MuZeroConfig {
         switch(size) {
             case 5:
                 builder
-                        .numberTrainingStepsOnRandomPlay(3000)
+                        .numberTrainingStepsOnRandomPlay(0)
 
 //                        .numSimulations(800)
 //                        .numParallelPlays(10)
 //                        .numPlays(5)
-
+//
 //                        .numSimulations(20)
 //                        .numParallelPlays(300)
-//                        .numPlays(1)
+//                        .numPlays(2)
 
                         .numSimulations(100)
                         .numParallelPlays(80)
-                        .numPlays(4)
+                        .numPlays(6)
+                        .policyTrainingOnGoodEpisodesOnly(true)
+
+//                        .numSimulations(200)
+//                        .numParallelPlays(50)
+//                        .numPlays(8)
+
+//                        .numSimulations(200)
+//                        .numParallelPlays(40)
+//                        .numPlays(12)
+
+//                        .numSimulations(100)
+//                        .numParallelPlays(80)
+//                        .numPlays(4)
+
+//                        .numSimulations(100)
+//                        .numParallelPlays(80)
+//                        .numPlays(4)
+
 
 
                         .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
-                        .numChannels(128);        // 256 in the paper  // 64 for 5x5
+                        .numChannels(128);        // 256 in the paper
                 break;
             case 9:
                 builder
