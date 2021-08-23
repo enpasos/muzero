@@ -208,13 +208,6 @@ public class MCTS {
                 node.children.put(action, new Node(p));  // p/policySum = probability that this action is chosen
             }
         } else {
-//            actions.stream().forEach(
-//                    a -> {
-//                        if (a.getIndex() == 82) {
-//                            int i = 42;
-//                        }
-//                    }
-//            );
             Map<Action, Float> policy = actions.stream()
                     .collect(Collectors.toMap(a -> a, a -> networkOutput.getPolicyValues()[a.getIndex()]));
 
@@ -227,52 +220,8 @@ public class MCTS {
                 node.children.put(action, new Node(p / policySum));  // p/policySum = probability that this action is chosen
             }
 
-
-
-
-
-
-
-
         }
     }
-//    public void expandNodeParallel (List<Node> nodeList, List<Player> toPlayList, List<List<Action>> actionsList, NetworkIO networkOutput,
-//                            boolean fastRuleLearning){
-//
-//        for (int i = 0; i < nodeList.size(); i++) {
-//            nodeList.get(i).toPlay = toPlayList
-//        }
-//        node.toPlay = toPlay;
-//        if (!fastRuleLearning) {
-//            node.hiddenState = networkOutput.getHiddenState();
-//            node.reward = networkOutput.getReward();
-//        }
-//
-//
-//
-//        if (fastRuleLearning) {
-//            double p = 1d / actions.size();
-//            for (Action action : actions) {
-//                node.children.put(action, new Node(p));  // p/policySum = probability that this action is chosen
-//            }
-//        } else {
-//            Map<Action, Float> policy = actions.stream()
-//                    .collect(Collectors.toMap(a -> a, a -> networkOutput.getPolicyValues()[a.getIndex()]));
-//
-//
-//            //
-//            //
-//
-//            double policySum = policy.values().stream()
-//                    .mapToDouble(Double::valueOf)
-//                    .sum();
-//            for (Map.Entry<Action, Float> e : policy.entrySet()) {
-//                Action action = e.getKey();
-//                Float p = e.getValue();
-//                node.children.put(action, new Node(p / policySum));  // p/policySum = probability that this action is chosen
-//            }
-//        }
-//    }
 
 
     public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, MinMaxStats minMaxStats) {
@@ -342,6 +291,7 @@ public class MCTS {
         double optPolicySum = 0d;
         double alpha = 0d;
         double epsilon = 0.000000001d;
+        int c = 0;
         do {
             alpha = (alphaMax + alphaMin) / 2d;
             optPolicySum = optPolicySum(list, multiplierLambda, alpha, minMaxStats, config);
@@ -353,8 +303,8 @@ public class MCTS {
             }
 
           //  System.out.println(optPolicySum);
-        } while ( FastMath.abs(optPolicySum - 1d) > epsilon);
-
+        } while ( ++c<100 && FastMath.abs(optPolicySum - 1d) > epsilon);
+        //System.out.println("cExit="+c);
         return alpha;
     }
 

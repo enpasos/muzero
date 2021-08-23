@@ -135,7 +135,8 @@ public class SelfPlayParallel {
                     if (fastRuleLearning) {
                         action = getRandomAction(root, config);
                     } else {
-                        action = mcts.selectAction(root, minMaxStatsList.get(g));
+                    //    action = mcts.selectActionByMax(root, minMaxStatsList.get(g));    // TODO how greedy is good?
+                        action = mcts.selectAction(root, minMaxStatsList.get(g));    // TODO how greedy is good?
                     }
                     game.apply(action);
                     game.storeSearchStatistics(root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));
