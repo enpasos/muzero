@@ -202,12 +202,6 @@ public class NetworkHelper {
 
         Tracker learningRateTracker = Tracker.fixed(muZeroConfig.getLrInit());
 
-//        return Optimizer.sgd()
-//                .setLearningRateTracker(learningRateTracker)
-//                .optMomentum(0.9f)
-//                .optWeightDecays(muZeroConfig.getWeightDecay())
-//                .optClipGrad(10f)
-//                .build();
 
         return Optimizer.adam()
                 .optLearningRateTracker(learningRateTracker)

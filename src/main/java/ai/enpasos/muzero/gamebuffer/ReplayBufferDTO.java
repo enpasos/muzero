@@ -18,6 +18,8 @@
 package ai.enpasos.muzero.gamebuffer;
 
 
+import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.gamebuffer.modern.GameTree;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -36,19 +39,40 @@ public class ReplayBufferDTO implements Serializable {
     private long counter;
     private int windowSize;
 
+    transient GameTree gameTree;
+
     public ReplayBufferDTO(int windowSize) {
         this.windowSize = windowSize;
     }
 
-    public void saveGame(@NotNull GameDTO gameDTO) {
+    public void saveGame(@NotNull Game game, MuZeroConfig config) {
         while (data.size() >= windowSize) {
+            GameDTO toberemoved = data.get(0);
+            Game gameToberemoved = config.newGame();
+            gameToberemoved.setGameDTO(toberemoved);
+            getGameTree().removeGame(gameToberemoved);
             data.remove(0);
         }
-        data.add(gameDTO);
+        data.add(game.getGameDTO());
+        getGameTree().addGame(game);
         counter++;
+    }
+
+
+    public void rebuildGameTree( MuZeroConfig config) {
+        for (GameDTO gameDTO : data) {
+            Game game  = config.newGame();
+            game.setGameDTO(gameDTO);
+            getGameTree().addGame(game);
+        }
     }
 
     public void clear() {
         data.clear();
+    }
+
+    public GameTree getGameTree() {
+        if (gameTree == null) gameTree = new GameTree();
+        return gameTree;
     }
 }

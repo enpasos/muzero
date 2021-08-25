@@ -31,6 +31,11 @@ import java.util.List;
 @AllArgsConstructor
 public class Sample {
 
+    @Builder.Default
+    private boolean actionTrainingPlayerA=true;
+
+    @Builder.Default
+    private boolean actionTrainingPlayerB=true;
 
     private Observation observation;
     private List<Integer> actionsList;

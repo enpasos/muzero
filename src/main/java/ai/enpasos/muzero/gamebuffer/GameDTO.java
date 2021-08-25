@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.gamebuffer;
 
+import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,12 +43,15 @@ public class GameDTO implements Serializable {
     List<float[]> policyTarget;
     List<Float> rootValues;
 
+    //transient OneOfTwoPlayer winner;
+
     public GameDTO(@NotNull Game game) {
         this.gameClassName = game.getClass().getCanonicalName();
         this.actionHistory = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTarget = new ArrayList<>();
         this.rootValues = new ArrayList<>();
+        //winner = game.whoWonTheGame();
     }
 
 

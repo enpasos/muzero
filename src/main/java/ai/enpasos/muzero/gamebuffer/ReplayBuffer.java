@@ -22,15 +22,14 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.Sample;
+import ai.enpasos.muzero.environments.OneOfTwoPlayer;
+import ai.enpasos.muzero.gamebuffer.modern.StateNode;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -51,15 +50,18 @@ public class ReplayBuffer {
         this.buffer = new ReplayBufferDTO(config.getWindowSize());
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager);
+        return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager, replayBuffer);
     }
 
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, int gamePos, NDManager ndManager) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
         Sample sample = new Sample();
         game.replayToPosition(gamePos);
+
+
+
         sample.setObservation(game.getObservation(ndManager));
 
 
@@ -68,16 +70,37 @@ public class ReplayBuffer {
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActionHistory());
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
+//            OneOfTwoPlayer winner = game.whoWonTheGame();
+//            switch(winner) {
+//                case PlayerA:
+//                    sample.setActionTrainingPlayerA(true);
+//                    sample.setActionTrainingPlayerB(!replayBuffer.existsGameStateWithPositiveResult(game, gamePos, OneOfTwoPlayer.PlayerB));
+//                    break;
+//                case PlayerB:
+//                    sample.setActionTrainingPlayerB(true);
+//                    sample.setActionTrainingPlayerA(!replayBuffer.existsGameStateWithPositiveResult(game, gamePos,  OneOfTwoPlayer.PlayerA));
+//                    break;
+//            }
         }
 
 
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, game.toPlay()));
+
+
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, game.toPlay(), sample));
 
         return sample;
     }
+
+    private boolean existsGameStateWithPositiveResult(Game game, int pos, OneOfTwoPlayer player) {
+
+
+        StateNode base = this.buffer.gameTree.findNode(game.getGameDTO().getActionHistory(), pos);
+        return base.hasOrIsLeafNodeWithPositivResult(player);
+    }
+
 
 
     public static int samplePosition(@NotNull Game game) {
@@ -114,7 +137,7 @@ public class ReplayBuffer {
     public void saveGame(@NotNull Game game) {
 
 
-        buffer.saveGame(game.gameDTO);
+        buffer.saveGame(game, config);
 
     }
 
@@ -124,13 +147,26 @@ public class ReplayBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps, int tdSteps, NDManager ndManager) {
         //        long start = System.currentTimeMillis();
 
+//        List<GameDTO> games = new ArrayList<>(this.buffer.getData());
+//        Collections.shuffle(games);
+
+//
+//       GameDTO gameDTO = games.get(0);
+//        Game game = config.newGame();
+//        Objects.requireNonNull(game).setGameDTO(gameDTO);
+//
+//        Sample sample = sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this);
+//
+//        sample.
+
         return sampleGames().stream()
-                .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager))
+                .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
                 .collect(Collectors.toList());
 
     }
 
 
+    // for "fair" training do train the strengths of PlayerA and PlayerB equally
     public List<Game> sampleGames() {
 
 //        long start = System.currentTimeMillis();
@@ -139,14 +175,35 @@ public class ReplayBuffer {
         Collections.shuffle(games);
 
 
-        return games.stream()
-                .limit(this.batchSize)
+
+        List<Game> gamesToTrain = new ArrayList<>();
+        gamesToTrain.addAll(games.stream()
                 .map(dto -> {
                     Game game = config.newGame();
                     Objects.requireNonNull(game).setGameDTO(dto);
                     return game;
                 })
-                .collect(Collectors.toList());
+                .filter(g -> {
+                    Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
+                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
+                })
+                .limit(this.batchSize/2)
+
+                .collect(Collectors.toList()));
+        games.removeAll(gamesToTrain);  // otherwise draw games could be selected again
+        gamesToTrain.addAll(games.stream()
+                .map(dto -> {
+                    Game game = config.newGame();
+                    Objects.requireNonNull(game).setGameDTO(dto);
+                    return game;
+                })
+                .filter(g -> {
+                    Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
+                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
+                })
+                .limit(this.batchSize/2)
+                .collect(Collectors.toList()));
+        return gamesToTrain;
     }
 
     public void saveState() {
@@ -168,6 +225,7 @@ public class ReplayBuffer {
         try {
             byte[] raw = FileUtils.readFileToByteArray(new File(pathname));
             this.buffer = decodeDTO(raw);
+            this.buffer.rebuildGameTree(config);
             this.buffer.setWindowSize(config.getWindowSize());
         } catch (IOException e) {
             e.printStackTrace();

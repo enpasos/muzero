@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ai.enpasos.muzero.environments.go.GoAdapter.translate;
+
 
 @Slf4j
 public class GoEnvironment extends EnvironmentBaseBoardGames {
@@ -49,7 +51,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     public @NotNull List<Action> legalActions() {
         return state.getValidMoves().stream()
                 .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
-                .map(move -> GoAdapter.translate(this.config, move)).collect(Collectors.toList());
+                .map(move -> translate(this.config, move)).collect(Collectors.toList());
     }
 
 
@@ -63,7 +65,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
         Player thisPlayer = state.getNextPlayer();
 
-        state = state.applyMove(GoAdapter.translate(this.config, action));
+        state = state.applyMove(translate(this.config, action));
         history.add(state);
 
         float reward = 0f;
@@ -76,6 +78,8 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
         return reward;
     }
+
+
 
 
     public void swapPlayer() {
@@ -94,7 +98,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
     @Override
     public OneOfTwoPlayer getPlayerToMove() {
-        return GoAdapter.translate(this.state.getNextPlayer());
+        return translate(this.state.getNextPlayer());
     }
 
     @Override
@@ -109,6 +113,10 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
         return this.state.isOver();
     }
 
+    public boolean hasPlayerWon(OneOfTwoPlayer player) {
+        if (!terminal()) return false;
+        return player == translate(getResult().winner());
+    }
 
 
     public @NotNull String render() {
