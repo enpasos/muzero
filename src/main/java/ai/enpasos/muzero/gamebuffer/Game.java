@@ -19,6 +19,7 @@ package ai.enpasos.muzero.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.agent.fast.model.Sample;
 import ai.enpasos.muzero.agent.slow.play.*;
 import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
@@ -132,12 +133,12 @@ public abstract class Game implements Serializable {
 
     // TODO at the moment we are only using the board game case.
     // the implementation also addresses the more general case, but might be not correct in detail
-    public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay) {
+    public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample) {
 
         List<Target> targets = new ArrayList<>();
         int currentIndexPerspective = toPlay == OneOfTwoPlayer.PlayerA ? 1 : -1;
 
-
+        // TODO naming
         int winnerPerspective = this.getGameDTO().getRewards().size() % 2 == 1 ? 1 : -1;
 
         for (int currentIndex = stateIndex; currentIndex <= stateIndex + numUnrollSteps; currentIndex++) {
@@ -161,13 +162,17 @@ public abstract class Game implements Serializable {
             if (currentIndex < this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
-                if (config.isPolicyTrainingOnGoodEpisodesOnly() && value == -1f) {
-                    target.policy = new float[this.actionSpaceSize];
-                    // the idea is not to put any policy force on the network if the episode was not "good" == lost
-                    Arrays.fill(target.policy, 0f);
-                } else {
+                // TODO check + unit test
+//                if (   (currentIndexPerspective == 1 && sample.isActionTrainingPlayerA())
+//                    || (currentIndexPerspective == -1 && sample.isActionTrainingPlayerB())
+//                )
+//                {
                     target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
-                }
+//                } else {
+//                    target.policy = new float[this.actionSpaceSize];
+//                    // the idea is not to put any policy force on the network if the episode was not "good" == lost
+//                    Arrays.fill(target.policy, 0f);
+//                }
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
@@ -235,5 +240,16 @@ public abstract class Game implements Serializable {
 
     public int hashCode() {
         return this.getGameDTO().getActionHistory().hashCode();
+    }
+
+    public Optional<OneOfTwoPlayer> whoWonTheGame() {
+        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerA)) return  Optional.of(OneOfTwoPlayer.PlayerA);
+        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerB)) return  Optional.of(OneOfTwoPlayer.PlayerB);
+       return Optional.empty();
+    }
+
+    public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
+        // won or draw but not lost
+       return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
     }
 }

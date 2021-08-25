@@ -84,8 +84,6 @@ public class MuZeroConfig {
     private String networkBaseDir;
 
     private int numberTrainingStepsOnRandomPlay;
-    @Builder.Default()
-    private boolean policyTrainingOnGoodEpisodesOnly = false;
 
 
 
@@ -165,9 +163,9 @@ public class MuZeroConfig {
                 // ...
                 .numSimulations(40)
                 .numParallelPlays(1000)
-                .numPlays(1)
-                .numberOfTrainingSteps(70000)
-                // -> 0:58
+                .numPlays(2)
+                .numberOfTrainingSteps(45000)
+                // -> 0:46
 
                 .build();
 
@@ -255,14 +253,13 @@ public class MuZeroConfig {
 //                        .numParallelPlays(10)
 //                        .numPlays(5)
 //
-//                        .numSimulations(20)
-//                        .numParallelPlays(300)
-//                        .numPlays(2)
+                        .numSimulations(10)
+                        .numParallelPlays(500)
+                        .numPlays(2)
 
-                        .numSimulations(100)
-                        .numParallelPlays(80)
-                        .numPlays(6)
-                        .policyTrainingOnGoodEpisodesOnly(true)
+          //              .numSimulations(100)
+//                        .numParallelPlays(80)
+//                        .numPlays(1)
 
 //                        .numSimulations(200)
 //                        .numParallelPlays(50)

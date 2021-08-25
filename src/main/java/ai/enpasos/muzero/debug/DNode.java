@@ -196,6 +196,7 @@ public class DNode {
 
 
         }
+    //    System.out.println("actionIndexSelectedByNetwork: "+ actionIndexSelectedByNetwork);
         for (DNode n : children) {
             if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
                 return n;
