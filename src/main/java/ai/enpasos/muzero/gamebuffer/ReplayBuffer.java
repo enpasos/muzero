@@ -220,13 +220,22 @@ public class ReplayBuffer {
         try {
             byte[] raw = FileUtils.readFileToByteArray(new File(pathname));
             this.buffer = decodeDTO(raw);
-         //   this.buffer.rebuildGameTree(config);
-
-
-
+            rebuildGames();
             this.buffer.setWindowSize(config.getWindowSize());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+        public void rebuildGames() {
+            buffer.games = new ArrayList<>();
+        for (GameDTO gameDTO : buffer.getData()) {
+            Game game  = this.config.newGame();
+            game.setGameDTO(gameDTO);
+            if (!game.terminal()) {
+                game.replayToPosition(game.actionHistory().getActionIndexList().size());
+            }
+            buffer.games.add(game);
         }
     }
 
