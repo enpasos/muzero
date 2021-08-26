@@ -42,7 +42,7 @@ public class MuZero {
     // java -jar ./target/muzero-0.2.0-SNAPSHOT-jar-with-dependencies.jar
     // be careful - you have to kill the process by hand
     public static void main(String[] args) throws URISyntaxException, IOException {
-        try {
+       try {
             run();
         } catch (Exception e) {
             restartApplication();
