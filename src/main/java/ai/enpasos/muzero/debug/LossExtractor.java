@@ -23,7 +23,7 @@ public class LossExtractor {
 
     public static void main(String[] args) throws Exception {
         MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-     //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+        //   MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
@@ -51,7 +51,7 @@ public class LossExtractor {
            try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
            {
                model.setBlock(block);
-               IntStream.range(1, 100).forEach(
+               IntStream.range(1, 300).forEach(
                        i -> {
                            try {
                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));

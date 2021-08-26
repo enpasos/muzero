@@ -23,7 +23,6 @@ import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.Sample;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
-import ai.enpasos.muzero.gamebuffer.modern.StateNode;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +41,7 @@ import static ai.enpasos.muzero.gamebuffer.GameIO.getLatestBufferNo;
 public class ReplayBuffer {
     private int batchSize;
     private ReplayBufferDTO buffer;
+
     private MuZeroConfig config;
 
     public ReplayBuffer(@NotNull MuZeroConfig config) {
@@ -94,12 +94,12 @@ public class ReplayBuffer {
         return sample;
     }
 
-    private boolean existsGameStateWithPositiveResult(Game game, int pos, OneOfTwoPlayer player) {
-
-
-        StateNode base = this.buffer.gameTree.findNode(game.getGameDTO().getActionHistory(), pos);
-        return base.hasOrIsLeafNodeWithPositivResult(player);
-    }
+//    private boolean existsGameStateWithPositiveResult(Game game, int pos, OneOfTwoPlayer player) {
+//
+//
+//        StateNode base = this.buffer.gameTree.findNode(game.getGameDTO().getActionHistory(), pos);
+//        return base.hasOrIsLeafNodeWithPositivResult(player);
+//    }
 
 
 
@@ -171,18 +171,12 @@ public class ReplayBuffer {
 
 //        long start = System.currentTimeMillis();
 
-        List<GameDTO> games = new ArrayList<>(this.buffer.getData());
+        List<Game> games = new ArrayList<>(this.buffer.getGames());
         Collections.shuffle(games);
-
 
 
         List<Game> gamesToTrain = new ArrayList<>();
         gamesToTrain.addAll(games.stream()
-                .map(dto -> {
-                    Game game = config.newGame();
-                    Objects.requireNonNull(game).setGameDTO(dto);
-                    return game;
-                })
                 .filter(g -> {
                     Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
                     return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
@@ -190,19 +184,20 @@ public class ReplayBuffer {
                 .limit(this.batchSize/2)
 
                 .collect(Collectors.toList()));
+        int numberOfTrainingGamesForA = gamesToTrain.size();
+      //  log.debug("number of training games for A: " + numberOfTrainingGamesForA);
         games.removeAll(gamesToTrain);  // otherwise draw games could be selected again
         gamesToTrain.addAll(games.stream()
-                .map(dto -> {
-                    Game game = config.newGame();
-                    Objects.requireNonNull(game).setGameDTO(dto);
-                    return game;
-                })
                 .filter(g -> {
                     Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
                     return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
                 })
                 .limit(this.batchSize/2)
                 .collect(Collectors.toList()));
+
+
+        int numberOfTrainingGamesForB= gamesToTrain.size()-numberOfTrainingGamesForA ;
+       // log.debug("number of training games for B: " + numberOfTrainingGamesForB);
         return gamesToTrain;
     }
 
@@ -225,7 +220,10 @@ public class ReplayBuffer {
         try {
             byte[] raw = FileUtils.readFileToByteArray(new File(pathname));
             this.buffer = decodeDTO(raw);
-            this.buffer.rebuildGameTree(config);
+         //   this.buffer.rebuildGameTree(config);
+
+
+
             this.buffer.setWindowSize(config.getWindowSize());
         } catch (IOException e) {
             e.printStackTrace();

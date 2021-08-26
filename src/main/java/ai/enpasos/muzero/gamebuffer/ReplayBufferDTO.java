@@ -19,7 +19,6 @@ package ai.enpasos.muzero.gamebuffer;
 
 
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.gamebuffer.modern.GameTree;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,7 +38,8 @@ public class ReplayBufferDTO implements Serializable {
     private long counter;
     private int windowSize;
 
-    transient GameTree gameTree;
+  //  transient GameTree gameTree;
+ transient List<Game> games = new ArrayList<>();
 
     public ReplayBufferDTO(int windowSize) {
         this.windowSize = windowSize;
@@ -50,29 +50,34 @@ public class ReplayBufferDTO implements Serializable {
             GameDTO toberemoved = data.get(0);
             Game gameToberemoved = config.newGame();
             gameToberemoved.setGameDTO(toberemoved);
-            getGameTree().removeGame(gameToberemoved);
+         //   getGameTree().removeGame(gameToberemoved);
+            games.remove(gameToberemoved);
             data.remove(0);
         }
         data.add(game.getGameDTO());
-        getGameTree().addGame(game);
+        if (!game.terminal()) {
+            game.replayToPosition(game.actionHistory().getActionIndexList().size());
+        }
+        games.add(game);
+    //    getGameTree().addGame(game);
         counter++;
     }
 
 
-    public void rebuildGameTree( MuZeroConfig config) {
-        for (GameDTO gameDTO : data) {
-            Game game  = config.newGame();
-            game.setGameDTO(gameDTO);
-            getGameTree().addGame(game);
-        }
-    }
+//    public void rebuildGameTree( MuZeroConfig config) {
+//        for (GameDTO gameDTO : data) {
+//            Game game  = config.newGame();
+//            game.setGameDTO(gameDTO);
+//            getGameTree().addGame(game);
+//        }
+//    }
 
     public void clear() {
         data.clear();
     }
 
-    public GameTree getGameTree() {
-        if (gameTree == null) gameTree = new GameTree();
-        return gameTree;
-    }
+//    public GameTree getGameTree() {
+//        if (gameTree == null) gameTree = new GameTree();
+//        return gameTree;
+//    }
 }
