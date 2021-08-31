@@ -18,18 +18,19 @@
 package ai.enpasos.muzero.debug;
 
 import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.go.GoGame;
 import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.GameDTO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.gamebuffer.WinnerStatistics;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static ai.enpasos.muzero.gamebuffer.GameIO.getLatestBufferNo;
 
 @Slf4j
 public class BufferTest {
@@ -39,23 +40,53 @@ public class BufferTest {
         MuZeroConfig config = MuZeroConfig.getGoInstance(5);
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        replayBuffer.loadLatestState();
-        log.info("total games: {}", replayBuffer.getBuffer().getData().size());
+        List<WinnerStatistics> winnerStatisticsList = new ArrayList<>();
+
+        int cMax =  getLatestBufferNo(config);
+
+        int start = 74000;
+
+        for(int c = start; c <= cMax; c += 1000) {
+            replayBuffer.loadState(c);
 
 
-        Collection<GameDTO> collection = replayBuffer.getBuffer().getData();
-        GameDTO gameDTO = collection.iterator().next();
-        gameDTO.setRewards(List.of(42.0f));
-        replayBuffer.saveGame(new GoGame(config, gameDTO));
+            //   log.info("total games: {}", replayBuffer.getBuffer().getData().size());
 
-        Set<Game> set = replayBuffer.getBuffer().getData().stream()
-                .map(dto -> {
-                    Game game = config.newGame();
-                    Objects.requireNonNull(game).setGameDTO(dto);
-                    return game;
-                }).collect(Collectors.toSet());
-        log.info("total games: {}", replayBuffer.getBuffer().getData().size());
-        log.info("unique games: {}", set.size());
+            List<Optional<OneOfTwoPlayer>> winnerList = replayBuffer.getBuffer().getGames().stream()
+                    .map(g -> g.whoWonTheGame())
+                    .collect(Collectors.toList());
+
+            WinnerStatistics stats = WinnerStatistics.builder()
+                    .winPlayerACount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PlayerA).count())
+                    .winPlayerBCount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PlayerB).count())
+                    .drawCount(winnerList.stream().filter(o -> o.isEmpty()).count())
+                    .build();
+
+            //   System.out.println("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() +  ", draw: " + stats.getDrawCount());
+            log.info("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() + ", draw: " + stats.getDrawCount());
+
+            winnerStatisticsList.add(stats);
+        }
+        for (int i = 0; i <= (cMax - start) / 1000; i++) {
+            int c = start + i * 1000;
+            //   System.out.println("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() +  ", draw: " + stats.getDrawCount());
+            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount());
+        }
+//
+//
+//        Collection<GameDTO> collection = replayBuffer.getBuffer().getData();
+//        GameDTO gameDTO = collection.iterator().next();
+//        gameDTO.setRewards(List.of(42.0f));
+//        replayBuffer.saveGame(new GoGame(config, gameDTO));
+//
+//        Set<Game> set = replayBuffer.getBuffer().getData().stream()
+//                .map(dto -> {
+//                    Game game = config.newGame();
+//                    Objects.requireNonNull(game).setGameDTO(dto);
+//                    return game;
+//                }).collect(Collectors.toSet());
+//        log.info("total games: {}", replayBuffer.getBuffer().getData().size());
+//        log.info("unique games: {}", set.size());
 
     }
 

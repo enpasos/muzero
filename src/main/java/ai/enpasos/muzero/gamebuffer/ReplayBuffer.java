@@ -215,6 +215,10 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         int c = getLatestBufferNo(config);
+        loadState(c);
+    }
+
+    public void loadState(int c) {
         String pathname = MuZero.getGamesBasedir(config) + "/buffer" + c;
         System.out.println("loading ... " + pathname);
         try {
@@ -227,7 +231,7 @@ public class ReplayBuffer {
         }
     }
 
-        public void rebuildGames() {
+    public void rebuildGames() {
             buffer.games = new ArrayList<>();
         for (GameDTO gameDTO : buffer.getData()) {
             Game game  = this.config.newGame();
