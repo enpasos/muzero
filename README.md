@@ -17,7 +17,7 @@ We have just started playing the game of go ... with small board sizes.
 ## Build
 
 ```
-    mvn clean install
+    mvn clean install -Dmaven.test.skip=true
 ```
 
 ## Run SelfPlay and Training
