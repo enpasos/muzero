@@ -337,12 +337,6 @@ public class MCTS {
     }
 
 
-//    public Action selectActionByDrawingFromDistribution(int numMoves, @NotNull Node node, Network network) {
-//
-//        List<Pair<Action, Double>> distributionInput = getActionDistributionInput(numMoves, node, network);
-//
-//        return selectActionByDrawingFromDistribution(distributionInput);
-//    }
 
     public Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
         EnumeratedDistribution<Action> distribution = null;
@@ -357,24 +351,14 @@ public class MCTS {
 
 
 
-//    private List<Pair<Action, Double>> getActionDistributionInput(int numMoves, @NotNull Node node, @Nullable Network network) {
-//        int numTrainingSteps = network != null ? network.trainingSteps() : 1;
-//        double t = config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
-//        double td = 1.0 / t;
-//
-//        double sum = node.getChildren().values().stream().mapToDouble(v -> Math.pow(v.getVisitCount(), td)).sum();
-//
-//        return node.getChildren().entrySet().stream()
-//                .map(e -> {
-//                    Action action = e.getKey();
-//                    double v = Math.pow(e.getValue().getVisitCount(), td) / sum;
-//                    return new Pair<Action, Double>(action, v);
-//                })
-//                .collect(Collectors.toList());
-//    }
-
     private double visitSoftmaxTemperature(int numMoves, int numTrainingSteps) {
         return config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
     }
 
+    public Action selectActionByMaxFromDistribution(List<Pair<Action, Double>> distributionInput) {
+        Collections.shuffle(distributionInput);
+        return distributionInput.stream()
+                .max( (p1, p2) -> p1.getSecond().compareTo(p2.getSecond()))
+                .get().getKey();
+    }
 }
