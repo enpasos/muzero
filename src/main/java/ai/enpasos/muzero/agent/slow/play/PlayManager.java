@@ -42,13 +42,13 @@ import static ai.enpasos.muzero.agent.fast.model.djl.Helper.logNDManagers;
 @Slf4j
 public class PlayManager {
 
-    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning) {
-        playParallel(replayBuffer, config, numberOfPlays, render, fastRuleLearning, 1);
+    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config,  boolean render, boolean fastRuleLearning, ThinkConf thinkConf) {
+        playParallel(replayBuffer, config,  render, fastRuleLearning,  thinkConf);
     }
 
-    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, int numberOfPlays, boolean render, boolean fastRuleLearning, int noGamesParallel) {
+    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config,  boolean render, boolean fastRuleLearning,   ThinkConf thinkConf) {
 
-        for (int i = 0; i < numberOfPlays; i++) {
+        for (int i = 0; i < thinkConf.numOfPlays(); i++) {
             try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
                 logNDManagers(model.getNDManager());
@@ -59,18 +59,18 @@ public class PlayManager {
                 if (!fastRuleLearning)
                     network = new Network(config, model);
 
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, noGamesParallel, actionSpaceOnDevice, true);
+                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning,   actionSpaceOnDevice, true, thinkConf);
                 gameList.forEach(replayBuffer::saveGame);
 
 
-                if (i == numberOfPlays - 1)
+                if (i == thinkConf.numOfPlays() - 1)
                     logNDManagers(model.getNDManager());
 
 
             }
 
 
-            log.info("Played {} games parallel, round {}", noGamesParallel, i);
+            log.info("Played {} games parallel, round {}", thinkConf.numParallelGames(), i);
         }
 
     }
