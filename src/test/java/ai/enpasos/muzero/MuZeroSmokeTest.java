@@ -17,6 +17,8 @@
 
 package ai.enpasos.muzero;
 
+import ai.enpasos.muzero.agent.slow.play.ThinkBudget;
+import ai.enpasos.muzero.agent.slow.play.ThinkConf;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.agent.slow.play.PlayManager;
@@ -32,7 +34,22 @@ class MuZeroSmokeTest {
     public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
         deleteNetworksAndGames(config);
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        PlayManager.playParallel(replayBuffer, config, config.getBatchSize(), true, true, 1);
+        ThinkConf thinkConf = ThinkConf.builder()
+
+                .playerAConfig(
+                        ThinkBudget.builder()
+                                .numSims(config.getNumSimulations())
+                                .numParallel(1)
+                                .numOfPlays(config.getBatchSize())
+                                .build())
+                .playerBConfig(
+                        ThinkBudget.builder()
+                                .numSims(config.getNumSimulations())
+                                .numParallel(1)
+                                .numOfPlays(config.getBatchSize())
+                                .build())
+                .build();
+        PlayManager.playParallel(replayBuffer, config,  true, true, thinkConf);
 
 
     }
@@ -48,9 +65,38 @@ class MuZeroSmokeTest {
             replayBuffer.loadLatestState();
 
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
+            ThinkConf thinkConf = ThinkConf.builder()
 
-            PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            PlayManager.playParallel(replayBuffer, config, 2, false, false, 3);
+                    .playerAConfig(
+                            ThinkBudget.builder()
+                                    .numSims(config.getNumSimulations())
+                                    .numParallel(1)
+                                    .numOfPlays(1)
+                                    .build())
+                    .playerBConfig(
+                            ThinkBudget.builder()
+                                    .numSims(config.getNumSimulations())
+                                    .numParallel(1)
+                                    .numOfPlays(1)
+                                    .build())
+                    .build();
+            PlayManager.playParallel(replayBuffer, config, true, false, thinkConf);
+             thinkConf = ThinkConf.builder()
+
+                    .playerAConfig(
+                            ThinkBudget.builder()
+                                    .numSims(config.getNumSimulations())
+                                    .numParallel(3)
+                                    .numOfPlays(2)
+                                    .build())
+                    .playerBConfig(
+                            ThinkBudget.builder()
+                                    .numSims(config.getNumSimulations())
+                                    .numParallel(3)
+                                    .numOfPlays(2)
+                                    .build())
+                    .build();
+            PlayManager.playParallel(replayBuffer, config, false, false, thinkConf);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {

@@ -91,7 +91,7 @@ public class GameResult {
  // static final float DEFAULT_KOMI = 7.5f;
 
   //  static final float DEFAULT_KOMI = 0f;
-    static final float DEFAULT_KOMI = 6.5f;
+    static final float DEFAULT_KOMI = 7.5f;
 
 
     public static GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {

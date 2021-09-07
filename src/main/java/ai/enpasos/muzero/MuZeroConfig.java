@@ -249,6 +249,10 @@ public class MuZeroConfig {
                 builder
                         .numberTrainingStepsOnRandomPlay(0)
 
+//                        .numSimulations(3)
+//                        .numParallelPlays(2000)
+//                        .numPlays(1)
+
 
 //                        .numSimulations(10)
 //                        .numParallelPlays(500)
@@ -260,28 +264,28 @@ public class MuZeroConfig {
 //                        .numPlays(4)
 //
 //
-                        .numSimulations(40)
-                        .numParallelPlays(125)
-                        .numPlays(8)
+//                        .numSimulations(40)
+//                        .numParallelPlays(125)
+//                        .numPlays(8)
+//
+////                        .numSimulations(100)
+////                        .numParallelPlays(100)
+////                        .numPlays(10)
 //
 //
+                        .numSimulations(200)
+                        .numParallelPlays(50)
+                        .numPlays(20)
+//
+//
+//                        .numSimulations(600)
+//                        .numParallelPlays(20)
+//                        .numPlays(50)
+//
+//                        .numSimulations(1000)
+//                        .numParallelPlays(10)
+//                        .numPlays(100)
 
-
-//                        .numSimulations(200)
-//                        .numParallelPlays(50)
-//                        .numPlays(20)
-
-//                        .numSimulations(200)
-//                        .numParallelPlays(40)
-//                        .numPlays(12)
-
-//                        .numSimulations(100)
-//                        .numParallelPlays(80)
-//                        .numPlays(4)
-
-//                        .numSimulations(100)
-//                        .numParallelPlays(80)
-//                        .numPlays(4)
 
 
 

@@ -47,10 +47,10 @@ public class SelfPlayParallel {
     private final @Nullable DirichletGen dg = null;
 
 
-    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, int gameNo, @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning,   @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise, ThinkConf thinkConf) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
-        List<Game> gameList = IntStream.rangeClosed(1, gameNo)
+        List<Game> gameList = IntStream.rangeClosed(1, thinkConf.numParallelGames())
                 .mapToObj(i -> config.newGame())
                 .collect(Collectors.toList());
 
@@ -95,6 +95,7 @@ public class SelfPlayParallel {
 
                 inferenceDuration.value += System.currentTimeMillis();
 
+
                 if (render && indexOfJustOneOfTheGames != -1) {
                     renderNetworkGuess(config, justOneOfTheGames.toPlay(), Objects.requireNonNull(networkOutput).get(indexOfJustOneOfTheGames), false);
                 }
@@ -121,9 +122,10 @@ public class SelfPlayParallel {
                 }
                 List<MinMaxStats> minMaxStatsList = null;
                 if (!fastRuleLearning) {
+                    OneOfTwoPlayer toPlay = (OneOfTwoPlayer)justOneOfTheGames.toPlay();
                     minMaxStatsList = mcts.runParallel(rootList,
                             gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
-                            network, inferenceDuration, actionSpaceOnDevice);
+                            network, inferenceDuration, actionSpaceOnDevice, thinkConf.thinkBudget(toPlay).getNumSims());
                 }
 
 
@@ -135,8 +137,7 @@ public class SelfPlayParallel {
                     if (fastRuleLearning) {
                         action = getRandomAction(root, config);
                     } else {
-                    //    action = mcts.selectActionByMax(root, minMaxStatsList.get(g));    // TODO how greedy is good?
-                        action = mcts.selectAction(root, minMaxStatsList.get(g));    // TODO how greedy is good?
+                        action = mcts.selectAction(root, minMaxStatsList.get(g));
                     }
                     game.apply(action);
                     game.storeSearchStatistics(root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));

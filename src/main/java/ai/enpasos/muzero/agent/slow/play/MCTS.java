@@ -68,11 +68,11 @@ public class MCTS {
     public MinMaxStats run(@NotNull Node root, @NotNull ActionHistory actionHistory, @NotNull Network network,
                     Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
 
-       return runParallel(List.of(root), List.of(actionHistory), network, inferenceDuration, actionSpaceOnDevice).get(0);
+       return runParallel(List.of(root), List.of(actionHistory), network, inferenceDuration, actionSpaceOnDevice, config.getNumSimulations()).get(0);
     }
 
     public List<MinMaxStats> runParallel(@NotNull List<Node> rootList, @NotNull List<ActionHistory> actionHistoryList, @NotNull Network network,
-                            @Nullable Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice) {
+                            @Nullable Duration inferenceDuration, @NotNull List<NDArray> actionSpaceOnDevice, int numSimulations) {
 
 
         // TODO better would be a simulation object that encapsulates the info that is spread over many Lists
@@ -81,7 +81,7 @@ public class MCTS {
                 .collect(Collectors.toList());
 
 
-        for (int i = 0; i < config.getNumSimulations(); i++) { // in range(config.num_simulations):
+        for (int i = 0; i < numSimulations; i++) {
 
             List<ActionHistory> historyList = actionHistoryList.stream().map(ActionHistory::clone).collect(Collectors.toList());
 
