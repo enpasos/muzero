@@ -97,7 +97,7 @@ public class Inference {
                         return new Pair<Action, Double>(action, v);
                     }).collect(Collectors.toList());
 
-            Action action = mcts.selectActionByDrawingFromDistribution(distributionInput);
+            Action action = mcts.selectActionByMaxFromDistribution(distributionInput);
             actionIndexSelectedByNetwork = action.getIndex();
 
         } else {
@@ -107,7 +107,7 @@ public class Inference {
                 mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
                 List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
                 MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
-                Action action = mcts.selectAction(root, minMaxStats);
+                Action action = mcts.selectActionByMax(root, minMaxStats);
                 actionIndexSelectedByNetwork = action.getIndex();
 
 

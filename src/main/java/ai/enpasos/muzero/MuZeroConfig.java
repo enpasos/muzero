@@ -249,10 +249,6 @@ public class MuZeroConfig {
                 builder
                         .numberTrainingStepsOnRandomPlay(0)
 
-//                        .numSimulations(3)
-//                        .numParallelPlays(2000)
-//                        .numPlays(1)
-
 
 //                        .numSimulations(10)
 //                        .numParallelPlays(500)
@@ -286,6 +282,9 @@ public class MuZeroConfig {
 //                        .numParallelPlays(10)
 //                        .numPlays(100)
 
+//                        .numSimulations(100)
+//                        .numParallelPlays(80)
+//                        .numPlays(4)
 
 
 

@@ -49,7 +49,7 @@ class MuZeroSmokeTest {
                                 .numOfPlays(config.getBatchSize())
                                 .build())
                 .build();
-        PlayManager.playParallel(replayBuffer, config,  true, true, thinkConf);
+        PlayManager.playParallel(replayBuffer, config,  true, true, thinkConf, true);
 
 
     }
@@ -80,7 +80,7 @@ class MuZeroSmokeTest {
                                     .numOfPlays(1)
                                     .build())
                     .build();
-            PlayManager.playParallel(replayBuffer, config, true, false, thinkConf);
+            PlayManager.playParallel(replayBuffer, config, true, false, thinkConf, true);
              thinkConf = ThinkConf.builder()
 
                     .playerAConfig(
@@ -96,7 +96,7 @@ class MuZeroSmokeTest {
                                     .numOfPlays(2)
                                     .build())
                     .build();
-            PlayManager.playParallel(replayBuffer, config, false, false, thinkConf);
+            PlayManager.playParallel(replayBuffer, config, false, false, thinkConf, true);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {

@@ -40,18 +40,18 @@ public class MuZero {
     // java -jar ./target/muzero-0.2.0-SNAPSHOT-jar-with-dependencies.jar
     // be careful - you have to kill the process by hand
     public static void main(String[] args) throws URISyntaxException, IOException {
-       try {
+   //    try {
             run();
-        } catch (Exception e) {
-            restartApplication();
-        }
+    //    } catch (Exception e) {
+    //        restartApplication();
+     //   }
     }
 
 
     public static void run() {
 
-   //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-       MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+     MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+    //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
     //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
 
         createNetworkModelIfNotExisting(config);
@@ -85,40 +85,45 @@ public class MuZero {
                                 ThinkBudget.builder()
                                         .numSims(config.getNumSimulations())
                                         .numParallel(1)
+                                        .numOfPlays(1)
                                         .build())
                         .build();
 
-                PlayManager.playParallel(replayBuffer, config,   true, false, thinkConf );
+                PlayManager.playParallel(replayBuffer, config,   true, false, thinkConf, true );
             } else {
 
                 // PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
+//
+//                int numParallelPlays = config.getNumParallelPlays();
+//                int numberOfPlays = config.getNumPlays();
+//                int numSimulations = config.getNumSimulations();
+//
+//                log.info("numParallelPlays: " + numParallelPlays);
+//                log.info("numSimulations: " + numSimulations);
+//                log.info("numberOfPlays: " + numberOfPlays);
 
-                int numParallelPlays = config.getNumParallelPlays();
-                int numberOfPlays = config.getNumPlays();
-                int numSimulations = config.getNumSimulations();
-
-                log.info("numParallelPlays: " + numParallelPlays);
-                log.info("numSimulations: " + numSimulations);
-                log.info("numberOfPlays: " + numberOfPlays);
-
-                ThinkConf thinkConf = ThinkConf.builder()
-
-                        .playerAConfig(
-                            ThinkBudget.builder()
-                                    .numSims(400)
-                                    .numParallel(25)
-                                    .numOfPlays(40)
-                                    .build())
-                        .playerBConfig(
-                            ThinkBudget.builder()
-                                    .numSims(numSimulations)
-                                    .numParallel(numParallelPlays)
-                                    .numOfPlays(numberOfPlays)
-                                    .build())
-                        .build();
+                ThinkConf thinkConf = ThinkConf.instanceFromConfig( config);
+                PlayManager.playParallel(replayBuffer, config,  false, false, thinkConf, true);
 
 
-                PlayManager.playParallel(replayBuffer, config,  false, false, thinkConf);
+//                thinkConf = ThinkConf.builder()
+//                        .playerAConfig(
+//                                ThinkBudget.builder()
+//                                        .numSims(0)
+//                                        .numParallel(10000)
+//                                        .numOfPlays(1)
+//                                        .build())
+//                        .playerBConfig(
+//                                ThinkBudget.builder()
+//                                        .numSims(0)
+//                                        .numParallel(10000)
+//                                        .numOfPlays(1)
+//                                        .build())
+//                        .build();
+//                PlayManager.playParallel(replayBuffer, config,  false, false, thinkConf, false);
+
+
+
                 replayBuffer.saveState();
 
             }
@@ -130,7 +135,6 @@ public class MuZero {
 
     private static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
         ThinkConf thinkConf = ThinkConf.builder()
-
                 .playerAConfig(
                         ThinkBudget.builder()
                                 .numSims(config.getNumSimulations())
@@ -144,9 +148,11 @@ public class MuZero {
                                 .numOfPlays(1)
                                 .build())
                 .build();
+
+
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(replayBuffer, config,   false, true, thinkConf);
+            PlayManager.playParallel(replayBuffer, config,   false, true, thinkConf, true);
             replayBuffer.saveState();
         }
     }

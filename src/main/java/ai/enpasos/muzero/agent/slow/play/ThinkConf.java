@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.agent.slow.play;
 
+import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.slow.play.ThinkBudget;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import lombok.Builder;
@@ -30,5 +31,22 @@ public class ThinkConf {
             case PlayerB: return playerBConfig;
         }
         return null;
+    }
+
+    public static ThinkConf instanceFromConfig(MuZeroConfig config) {
+        return ThinkConf.builder()
+                .playerAConfig(
+                        ThinkBudget.builder()
+                                .numSims(config.getNumSimulations())
+                                .numParallel(config.getNumParallelPlays())
+                                .numOfPlays(config.getNumPlays())
+                                .build())
+                .playerBConfig(
+                        ThinkBudget.builder()
+                                .numSims(config.getNumSimulations())
+                                .numParallel(config.getNumParallelPlays())
+                                .numOfPlays(config.getNumPlays())
+                                .build())
+                .build();
     }
 }
