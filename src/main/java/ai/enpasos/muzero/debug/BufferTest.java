@@ -57,6 +57,7 @@ public class BufferTest {
                     .collect(Collectors.toList());
 
             WinnerStatistics stats = WinnerStatistics.builder()
+                    .allGames(winnerList.size())
                     .winPlayerACount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PlayerA).count())
                     .winPlayerBCount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PlayerB).count())
                     .drawCount(winnerList.stream().filter(o -> o.isEmpty()).count())
@@ -70,7 +71,7 @@ public class BufferTest {
         for (int i = 0; i <= (cMax - start) / 1000; i++) {
             int c = start + i * 1000;
             //   System.out.println("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() +  ", draw: " + stats.getDrawCount());
-            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount());
+            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames() );
         }
 //
 //
