@@ -60,15 +60,15 @@ public class MuZero {
         replayBuffer.loadLatestState();
 
 
-     //   initialFillingBuffer(config, replayBuffer);
+        initialFillingBuffer(config, replayBuffer);
 
         int trainingStep = 0;
 
 
-        for(int i = 0; i < 10; i++) {
-            playOnIntuition(config, replayBuffer);
-        }
-        replayBuffer.saveState();
+//        for(int i = 0; i < 10; i++) {
+//            playOnIntuition(config, replayBuffer);
+//        }
+//        replayBuffer.saveState();
 
 
         do {

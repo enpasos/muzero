@@ -198,7 +198,7 @@ public class MuZeroConfig {
 
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
-                .numHiddenStateChannels(5)  // squeezing the hidden state from c to 5
+                .numHiddenStateChannels(19)  // squeezing the hidden state from c to observationLayers + 2
 
                    .numResiduals(16)        // 16 in the paper
 
@@ -250,9 +250,18 @@ public class MuZeroConfig {
                         .numberTrainingStepsOnRandomPlay(0)
 
 
-//                        .numSimulations(10)
-//                        .numParallelPlays(500)
-//                        .numPlays(2)
+//                        .numSimulations(12)
+//                        .numParallelPlays(250)
+//                        .numPlays(4)
+
+//                        .numSimulations(50)
+//                        .numParallelPlays(50)
+//                        .numPlays(20)
+//
+//
+                        .numSimulations(200)
+                        .numParallelPlays(50)
+                        .numPlays(20)
 
 
 //                        .numSimulations(20)
@@ -269,9 +278,9 @@ public class MuZeroConfig {
 ////                        .numPlays(10)
 //
 //
-                        .numSimulations(200)
-                        .numParallelPlays(50)
-                        .numPlays(20)
+//                        .numSimulations(200)
+//                        .numParallelPlays(50)
+//                        .numPlays(20)
 //
 //
 //                        .numSimulations(600)

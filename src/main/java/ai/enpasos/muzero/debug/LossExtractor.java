@@ -51,7 +51,7 @@ public class LossExtractor {
            try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
            {
                model.setBlock(block);
-               IntStream.range(98,300).forEach(
+               IntStream.range(111,300).forEach(
                        i -> {
                            try {
                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
