@@ -1,6 +1,26 @@
+/*
+ *  Copyright (c) 2021 enpasos GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package ai.enpasos.muzero.environments.go.environment;
 
 
+
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,11 +33,7 @@ import java.util.*;
 /**
  * Main Go board class. Represents the board on which Go moves can be played.
  * Internally, a grid keeps track of the strings at each vertex.
- *
- * @param size the size of the go board. Values of 5, 9, 13, 17, 19, or 25 are reasonable.
- * @param grid manages association of stones with parent strings.
- *             <p>
- *
+ * <p>
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
@@ -38,11 +54,6 @@ public class GoBoard {
     private NeighborMap diagonalMap;
 
 
-    @Override
-    public String toString() {
-        return GoBoardSerializer.serialize(this);
-    }
-
     public GoBoard(int size) {
         this.size = size;
         boundsChecker = GoBoardBoundsChecker.get(size);
@@ -60,16 +71,10 @@ public class GoBoard {
         this.whiteCaptures = whiteCaptures;
     }
 
-    /**
-     * Main Go board class. Represents the board on which Go moves can be played. Immutable.
-     * Internally, a grid keeps track of the strings at each vertex.
-     *
-     * @param size the size of the go board. Values of 5, 9, 13, 17, 19, or 25 are reasonable.
-     * @param grid manages association of stones with parent strings.
-     * @author Max Pumperla
-     * @author Barry Becker
-     */
-//case class GoBoard(size: Int, grid: Grid = Grid(), blackCaptures: Int = 0, whiteCaptures: Int = 0) {
+    @Override
+    public String toString() {
+        return GoBoardSerializer.serialize(this);
+    }
 
     public boolean inBounds(Point point) {
         return boundsChecker.inBounds(point);
@@ -88,14 +93,6 @@ public class GoBoard {
     }
 
 
-//    def placeStone(player: Player, point: Point): GoBoard = {
-//        assert(boundsChecker.inBounds(point), point + " was not on the grid!")
-//
-//        if (grid.getString(point).isDefined) {
-//            println(" Illegal move attempted at: " + point + ". Already occupied: " + grid.getString(point).get)
-//            this
-//        } else makeValidStonePlacement(player, point)
-//    }
 
     public GoBoard placeStone(Player player, Point point) {
         if (!boundsChecker.inBounds(point)) {
@@ -112,25 +109,10 @@ public class GoBoard {
         }
     }
 
-//
-//    private def makeValidStonePlacement(player: Player, point: Point): GoBoard = {
-//        var (newGrid, stringsToRemove) = determineStringsToRemove(player, point)
-//
-//        var newBlackCaptures = blackCaptures
-//        var newWhiteCaptures = whiteCaptures
-//        stringsToRemove.foreach(str => {
-//                player match {
-//        case BlackPlayer => newBlackCaptures += str.size
-//        case WhitePlayer => newWhiteCaptures += str.size
-//      }
-//            newGrid = newGrid.removeString(str, neighborMap)
-//    })
-//
-//            GoBoard(size, newGrid, newBlackCaptures, newWhiteCaptures)
-//    }
+
 
     private GoBoard makeValidStonePlacement(Player player, Point point) {
-        var pair = determineStringsToRemove(player, point);
+        var pair = determineNewGridWithAddedStoneAndStringsToRemove(player, point);
         var stringsToRemove = pair.getRight();
         var newGrid = pair.getLeft();
         var newBlackCaptures = blackCaptures;
@@ -174,15 +156,11 @@ public class GoBoard {
         return true;
     }
 
-    private Pair<Grid, Set<GoString>> determineStringsToRemove(Player player, Point point) {
-//            // 1. Examine adjacent points
+    private Pair<Grid, Set<GoString>> determineNewGridWithAddedStoneAndStringsToRemove(Player player, Point point) {
+        // 1. Examine adjacent points
         var adjacentSameColor = new HashSet<GoString>();
         var adjacentOppositeColor = new HashSet<GoString>();
         var liberties = new TreeSet<Point>();
-
-        if (neighborMap.get(point) == null) {
-            int i = 42;  // TODO: check if this should be possible
-        }
 
         if (neighborMap.get(point) != null) {
             for (Point neighbor : neighborMap.get(point)) {
@@ -265,9 +243,9 @@ public class GoBoard {
 
     private boolean isAncillaryEye(Player player, Point point) {
 
-                var neighbors = neighborMap.findNumTrueNeighbors(player, point, grid);
-                var diagNeighbors = diagonalMap.findNumTrueNeighbors(player, point, grid);
-                var allNbrs = neighbors + diagNeighbors;
+        var neighbors = neighborMap.findNumTrueNeighbors(player, point, grid);
+        var diagNeighbors = diagonalMap.findNumTrueNeighbors(player, point, grid);
+        var allNbrs = neighbors + diagNeighbors;
 
         if (boundsChecker.isCorner(point)) {
             return allNbrs == 2;

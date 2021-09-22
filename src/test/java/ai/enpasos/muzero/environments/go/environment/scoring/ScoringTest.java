@@ -1,23 +1,26 @@
 package ai.enpasos.muzero.environments.go.environment.scoring;
 
 import ai.enpasos.muzero.environments.go.environment.GoBoard;
-import ai.enpasos.muzero.environments.go.environment.Point;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
-import static ai.enpasos.muzero.environments.go.environment.Player.WhitePlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.WhitePlayer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class ScoringTest {
 
-    // .w.ww
-    // wwww.
-    // bbbww
-    // .bbbb
-    // .b.b.
+    // ------------------
+    // 5  .  X  .  X  .
+    // 4  .  X  X  X  X
+    // 3  X  X  X  O  O
+    // 2  O  O  O  O  .
+    // 1  .  O  .  O  O
+    //    A  B  C  D  E
+    //------------------
     @Test
     void scoreAGiven5x5Game() {
         var board = new GoBoard(5);
@@ -66,7 +69,14 @@ public class ScoringTest {
     }
 
 
-
+    // ------------------
+    // 5  .  X  .  X  .
+    // 4  .  X  X  X  X
+    // 3  X  X  X  O  O
+    // 2  O  O  O  O  .
+    // 1  .  O  .  O  O
+    //    A  B  C  D  E
+    //------------------
     @Test
     void scoreAGiven5x5GameWithCaptures() {
         var board = new GoBoard(5);

@@ -1,11 +1,14 @@
 package ai.enpasos.muzero.environments.go.environment;
 
 
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.Data;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Maps a point on a board grid to a set of other points on that same grid.
@@ -46,5 +49,43 @@ public class NeighborMap {
                         })
                      .count();
        }
+
+
+    private static NeighborMap createNeighborMap(int size) {
+        var neighborMap = new NeighborMap();
+        for (int row = 1; row <= size; row++) {
+            for (int col = 1; col <= size; col++) {
+                var point = new Point(row, col);
+                var allNeighbors = point.neighbors();
+                var trueNeighbors = inRange(size, allNeighbors);
+                neighborMap.put(new Point(row, col), trueNeighbors);
+            }
+        }
+        return neighborMap;
+    }
+
+
+    /**
+     * For each point in the grid, the map has the diagonals from that point
+     */
+    private static NeighborMap createDiagonalNeighborMap(int size) {
+        var diagonalMap = new NeighborMap();
+        for (int row = 1; row <= size; row++) {
+            for (int col = 1; col <= size; col++) {
+                var point = new Point(row, col);
+                var allDiagonals = point.diagonals();
+                var trueDiagonals = inRange(size, allDiagonals);
+                diagonalMap.put(new Point(row, col), trueDiagonals);
+            }
+        }
+        return diagonalMap;
+    }
+
+    private static List<Point> inRange(int size, List<Point> points) {
+        return points.stream().filter(
+                nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
+        ).collect(Collectors.toList());
+    }
+
 
 }

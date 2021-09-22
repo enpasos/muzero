@@ -1,6 +1,8 @@
 package ai.enpasos.muzero.environments.go.environment;
 
 
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.tuple.Pair;
@@ -8,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 
 import static ai.enpasos.muzero.environments.go.environment.ZobristHashing.ZOBRIST;
@@ -47,10 +50,8 @@ public class Grid {
      * @param newString the new parent string for that added stone
      */
     Grid updateStringWhenAddingStone(Point point, GoString newString)  {
-        // TODO check if reference to old HashMap object is sufficient
         Map<Point, GoString> newGrid = new HashMap<>();
         newGrid.putAll(grid);
-       // assert(newString.stones.contains(point))
 
         newString.getStones().stream().forEach(
                 newStringPoint -> newGrid.put(newStringPoint, newString)
@@ -69,12 +70,11 @@ public class Grid {
     }
 
 
-    private Map<Point, GoString>  replaceString(GoString newString, Map<Point, GoString> g) {
-        var newGrid = g;  // it is not new but modified !!!!!!
+    private static Map<Point, GoString>  replaceString(GoString newString, Map<Point, GoString> g) {
         newString.getStones().forEach(
-                point -> newGrid.put(point, newString)
+                point -> g.put(point, newString)
         );
-        return newGrid;
+        return g;
     }
 
     /**

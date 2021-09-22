@@ -1,5 +1,7 @@
 package ai.enpasos.muzero.environments.go.environment;
 
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
