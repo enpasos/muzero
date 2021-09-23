@@ -16,48 +16,34 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.MuZero.getNetworksBasedir;
-import static ai.enpasos.muzero.agent.fast.model.Network.getEpoch;
-import static ai.enpasos.muzero.agent.fast.model.Network.getLoss;
+import static ai.enpasos.muzero.agent.fast.model.Network.*;
 
 public class LossExtractor {
 
     public static void main(String[] args) throws Exception {
-        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-        //   MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+       // MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+           MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
 
 
-       try( CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "loss"))) {
+       try( CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
 
 
-
-//        try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
-//           {
-//               model.setBlock(block);
-//                IntStream.range(1, 767).forEach(
-//                        i -> {
-//                            try {
-//                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
-//                                int epoch = getEpoch(model);
-//                                double loss = getLoss(model);
-//                                csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
-//                            } catch (Exception e) {
-//                            }
-//                        }
-//                );
-//           }
            try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
            {
                model.setBlock(block);
-               IntStream.range(111,300).forEach(
+               IntStream.range(1,100).forEach(
                        i -> {
                            try {
                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
                                int epoch = getEpoch(model);
-                               double loss = getLoss(model);
-                               csvPrinter.printRecord(epoch, NumberFormat.getNumberInstance().format(loss));
+                               csvPrinter.printRecord(epoch,
+                                       NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+                                       NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                       NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
+                               );
                            } catch (Exception e) {
                            }
                        }
