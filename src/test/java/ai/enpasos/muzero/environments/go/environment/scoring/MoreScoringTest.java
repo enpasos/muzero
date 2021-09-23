@@ -19,7 +19,7 @@ public class MoreScoringTest {
     // 1  .  X  X  X  X
     //    A  B  C  D  E
     @Test
-    void scoreAGiven5x5GameD() {
+    void scoreAGiven5x5GameF() {
         var board = new GoBoard(5);
 
         board = board.placeStone(BlackPlayer, new Point(5, 2));
