@@ -250,18 +250,19 @@ public class MuZeroConfig {
                         .numberTrainingStepsOnRandomPlay(0)
 
 
-//                        .numSimulations(12)
-//                        .numParallelPlays(250)
-//                        .numPlays(4)
+                        .numSimulations(12)
+                        .numParallelPlays(250)
+                        .numPlays(4)
 
-//                        .numSimulations(50)
-//                        .numParallelPlays(50)
-//                        .numPlays(20)
-//
-//
+
                         .numSimulations(200)
                         .numParallelPlays(50)
                         .numPlays(20)
+
+
+//                        .numSimulations(600)
+//                        .numParallelPlays(20)
+//                        .numPlays(50)
 
 
 //                        .numSimulations(20)
