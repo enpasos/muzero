@@ -64,11 +64,35 @@ public class Inference {
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
                 }
-                actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game);
+                actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game).getSecond();
             }
 
         }
         return actionIndexSelectedByNetwork;
+    }
+
+
+    public static double aiValue(List<Integer> actions, String networkDir, MuZeroConfig config) {
+        double valueByNetwork;
+        config.setNetworkBaseDir(networkDir);
+        config.setInferenceDevice(Device.cpu());
+        Game game = getGame(config, actions);
+
+
+        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+            Path modelPath = Paths.get("./");
+
+            Network network = new Network(config, model); //, modelPath);
+            try(NDManager nDManager =  network != null ? network.getNDManager().newSubManager() : null) {
+
+                if (network != null) {
+                    network.setHiddenStateNDManager(nDManager);
+                }
+                valueByNetwork = aiDecision(network,  false, game).getFirst();
+            }
+
+        }
+        return valueByNetwork;
     }
 
 
@@ -79,13 +103,13 @@ public class Inference {
     }
 
 
-    private static int aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
+    private static Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
         NetworkIO networkOutput = network.initialInferenceDirect(game.getObservation(network.getNDManager()));
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         MCTS mcts = new MCTS(game.getConfig());
         List<Action> legalActions = game.legalActions();
-        if (legalActions.size() == 0) return -1;
+        if (legalActions.size() == 0) return Pair.create(0d, -1);
         if (!withMCTS) {
 
             float[] policyValues = networkOutput.getPolicyValues();
@@ -112,6 +136,6 @@ public class Inference {
 
 
         }
-        return actionIndexSelectedByNetwork;
+        return Pair.create(aiValue, actionIndexSelectedByNetwork);
     }
 }
