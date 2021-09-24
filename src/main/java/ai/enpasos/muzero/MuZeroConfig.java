@@ -164,7 +164,7 @@ public class MuZeroConfig {
                 .numSimulations(40)
                 .numParallelPlays(1000)
                 .numPlays(2)
-                .numberOfTrainingSteps(45000)
+                .numberOfTrainingSteps(80000)
                 // -> 0:46
 
                 .build();

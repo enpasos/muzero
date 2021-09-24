@@ -58,8 +58,6 @@ public class MuZero {
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
-
-
         initialFillingBuffer(config, replayBuffer);
 
         int trainingStep = 0;
