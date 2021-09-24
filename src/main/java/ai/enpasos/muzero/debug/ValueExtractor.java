@@ -37,7 +37,7 @@ public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
 
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
 
         config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
 
