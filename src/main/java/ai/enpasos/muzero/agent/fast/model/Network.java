@@ -96,9 +96,9 @@ public class Network {
         initialInference.hiddenStateNDManager = hiddenStateNDManager;
         recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
     }
-    public static double getLoss(@NotNull Model model) {
+    public static double getDoubleValue(@NotNull Model model, String name) {
         double epoch = 0;
-        String prop = model.getProperty("MeanLoss");
+        String prop = model.getProperty(name);
         if (prop != null) {
             epoch = Double.parseDouble(prop);
         }

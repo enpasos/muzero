@@ -109,7 +109,7 @@ public class MuZeroConfig {
                 // network sizing
                 .numObservationLayers(3)
                 .numChannels(128)        // 256 in the paper
-                .numHiddenStateChannels(3)
+                .numHiddenStateChannels(5)
                 .numResiduals(8)        // 16 in the paper
 
 
