@@ -1,6 +1,10 @@
 package ai.enpasos.muzero.environments.go;
 
 import ai.enpasos.muzero.environments.go.environment.*;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Move;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Pass;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Play;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Resign;
 import ai.enpasos.muzero.environments.go.environment.scoring.GameResult;
 import lombok.extern.slf4j.Slf4j;
 

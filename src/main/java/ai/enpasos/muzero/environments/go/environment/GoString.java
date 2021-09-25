@@ -1,15 +1,18 @@
 package ai.enpasos.muzero.environments.go.environment;
 
 
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * A Go string is a collection of stones of given color and corresponding liberties
+ * A Go string is a collection of connected stones of given color and corresponding liberties.
+ * The set of stones and liberties are not changed inside GoString.
+ * GoString is intended to be used immutable.
  * <p>
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
@@ -40,11 +43,12 @@ public class GoString {
         return liberties.size();
     }
 
-    GoString withoutLiberty(Point point) {
+     GoString withoutLiberty(Point point) {
         Set<Point> newLiberties = new TreeSet<Point>(this.liberties);
         newLiberties.remove(point);
         return new GoString(player, stones, newLiberties);
     }
+
 
     GoString withLiberty(Point point) {
         Set<Point> newLiberties = new TreeSet<>(this.liberties);
@@ -52,14 +56,18 @@ public class GoString {
         return new GoString(player, stones, newLiberties);
     }
 
+
     GoString mergedWith(GoString goString) {
         if (!player.equals(goString.player))
             throw new IllegalArgumentException("Color of Go strings has to match");
+
         Set<Point> combinedStones = new TreeSet<>(stones);
         combinedStones.addAll(goString.stones);
+
         Set<Point> commonLiberties = new TreeSet<>(this.liberties);
         commonLiberties.addAll(goString.liberties);
         commonLiberties.removeAll(combinedStones);
+
         return new GoString(player, combinedStones, commonLiberties);
     }
 

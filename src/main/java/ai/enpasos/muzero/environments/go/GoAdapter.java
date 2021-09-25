@@ -8,6 +8,12 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.go.environment.*;
 import ai.enpasos.muzero.agent.slow.play.Action;
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Move;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Pass;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Play;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Resign;
 
 import java.util.ArrayList;
 import java.util.List;
