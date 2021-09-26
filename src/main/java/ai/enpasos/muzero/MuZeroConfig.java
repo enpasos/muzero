@@ -190,7 +190,7 @@ public class MuZeroConfig {
                 .gameClass(GoGame.class)
 
                 // game/environment
-                .maxMoves(27000) // as in pseudocode
+                .maxMoves(2 * size * size) // as in pseudocode
                 .size(size)
                 .boardHeight(size)
                 .boardWidth(size)
@@ -209,7 +209,7 @@ public class MuZeroConfig {
                 .windowSize(50000)     // 1000000 in the paper
 
                 .numUnrollSteps(5)      // 5 in paper
-                .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
+                .tdSteps(2 * size * size)         // equals maxMoves
                 .discount(1.0)
                 // loss details
                 .weightDecay(0.0001f)  // in katago 0.00003  in paper 0.0001
