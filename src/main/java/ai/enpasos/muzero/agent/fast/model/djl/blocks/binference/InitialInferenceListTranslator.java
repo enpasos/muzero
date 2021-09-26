@@ -101,10 +101,7 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
 
     }
 
-    @Override
-    public @Nullable Pipeline getPipeline() {
-        return null;
-    }
+
 
     @Override
     public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Observation> inputList) {

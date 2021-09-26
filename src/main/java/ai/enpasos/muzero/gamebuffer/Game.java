@@ -206,14 +206,16 @@ public abstract class Game implements Serializable {
 //                    // the idea is not to put any policy force on the network if the episode was not "good" == lost
 //                    Arrays.fill(target.policy, 0f);
 //                }
-            } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
-                target.value = (float) value;
-                target.reward = lastReward;
-                target.policy = new float[this.actionSpaceSize];
-                // the idea is not to put any force on the network to learn a particular action where it is not necessary
-                Arrays.fill(target.policy, 0f);
-            } else {
-                target.value = (float) value;  // instead of 0  // TODO check
+            }
+//            else if (currentIndex == this.getGameDTO().getRootValues().size()) {
+//                target.value = 0f; //(float) value;
+//                target.reward = lastReward;
+//                target.policy = new float[this.actionSpaceSize];
+//                // the idea is not to put any force on the network to learn a particular action where it is not necessary
+//                Arrays.fill(target.policy, 0f);
+//            }
+            else {
+                target.value = 0f; //(float) value;  // instead of 0  // TODO check
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);

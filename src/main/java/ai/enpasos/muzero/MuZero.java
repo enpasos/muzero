@@ -50,8 +50,8 @@ public class MuZero {
 
     public static void run() {
 
-    // MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-       MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+     MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+   //    MuZeroConfig config = MuZeroConfig.getGoInstance(5);
     //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
 
         createNetworkModelIfNotExisting(config);
