@@ -37,7 +37,7 @@ public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
 
-        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
 
         config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
 
@@ -52,18 +52,20 @@ public class ValueExtractor {
         List<Integer> actions = game.actionHistory().getActionIndexList();
 
 
+
         StringWriter stringWriter = new StringWriter();
 
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "actionIndex", "vPlayerA"))) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "vPlayerA", "actionIndex"))) {
             IntStream.range(0, actions.size()+1).forEach(
                     t -> {
                         try {
                             double value = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
                             double valuePlayerA = value * Math.pow(-1, t);
                             csvPrinter.printRecord(t,
-                                    t == 0 ? -1 : actions.get(t-1),
-                                    NumberFormat.getNumberInstance().format(valuePlayerA));
+
+                                    NumberFormat.getNumberInstance().format(valuePlayerA),
+                                    t == 0 ? -1 : actions.get(t-1));
 
                         } catch (Exception e) {
                             // ignore

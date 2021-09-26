@@ -131,6 +131,35 @@ public abstract class Game implements Serializable {
 
     }
 
+
+    /**
+     *   def make_target(self, state_index: int, num_unroll_steps: int, td_steps: int,
+     *                   to_play: Player):
+     *     # The value target is the discounted root value of the search tree N steps
+     *     # into the future, plus the discounted sum of all rewards until then.
+     *     targets = []
+     *     for current_index in range(state_index, state_index + num_unroll_steps + 1):
+     *       bootstrap_index = current_index + td_steps
+     *       if bootstrap_index < len(self.root_values):
+     *         value = self.root_values[bootstrap_index] * self.discount**td_steps
+     *       else:
+     *         value = 0
+     *
+     *       for i, reward in enumerate(self.rewards[current_index:bootstrap_index]):
+     *         value += reward * self.discount**i  # pytype: disable=unsupported-operands
+     *
+     *       if current_index > 0 and current_index <= len(self.rewards):
+     *         last_reward = self.rewards[current_index - 1]
+     *       else:
+     *         last_reward = None
+     *
+     *       if current_index < len(self.root_values):
+     *         targets.append((value, last_reward, self.child_visits[current_index]))
+     *       else:
+     *         # States past the end of games are treated as absorbing states.
+     *         targets.append((0, last_reward, []))
+     *     return targets
+     */
     // TODO at the moment we are only using the board game case.
     // the implementation also addresses the more general case, but might be not correct in detail
     public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample) {
@@ -144,11 +173,15 @@ public abstract class Game implements Serializable {
         for (int currentIndex = stateIndex; currentIndex <= stateIndex + numUnrollSteps; currentIndex++) {
             int bootstrapIndex = currentIndex + tdSteps;
             double value = 0;
+
+            // not happening for boardgames
             if (bootstrapIndex < this.getGameDTO().getRootValues().size()) {
                 value = this.getGameDTO().getRootValues().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
             }
 
             int startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size());
+
+            // condition "i < bootstrapIndex" for boardgames true
             for (int i = startIndex; i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
                 if (currentIndex == 0) continue;
                 value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1) * currentIndexPerspective * winnerPerspective;
@@ -180,12 +213,11 @@ public abstract class Game implements Serializable {
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
             } else {
-                target.value = (float) value;  // instead of 0
+                target.value = (float) value;  // instead of 0  // TODO check
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
             }
-
             targets.add(target);
             currentIndexPerspective *= -1;
         }
