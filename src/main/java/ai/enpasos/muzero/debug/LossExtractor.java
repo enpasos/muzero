@@ -45,7 +45,6 @@ public class LossExtractor {
                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                                );
                            } catch (Exception e) {
-                              // e.printStackTrace();
                            }
                        }
                );
