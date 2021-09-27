@@ -55,6 +55,7 @@ public class ValueExtractor {
     //    List<Integer> actions = game.actionHistory().getActionIndexList();
 
         List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
+    //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
 
         StringWriter stringWriter = new StringWriter();
 
