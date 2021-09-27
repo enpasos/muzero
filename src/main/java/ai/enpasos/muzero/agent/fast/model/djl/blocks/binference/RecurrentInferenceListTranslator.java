@@ -101,10 +101,6 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
     }
 
-    @Override
-    public @Nullable Pipeline getPipeline() {
-        return null;
-    }
 
     @Override
     public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {

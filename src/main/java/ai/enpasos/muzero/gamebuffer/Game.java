@@ -195,25 +195,25 @@ public abstract class Game implements Serializable {
             if (currentIndex < this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
-                // TODO check + unit test
-//                if (   (currentIndexPerspective == 1 && sample.isActionTrainingPlayerA())
-//                    || (currentIndexPerspective == -1 && sample.isActionTrainingPlayerB())
-//                )
-//                {
-                    target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
-//                } else {
-//                    target.policy = new float[this.actionSpaceSize];
-//                    // the idea is not to put any policy force on the network if the episode was not "good" == lost
-//                    Arrays.fill(target.policy, 0f);
-//                }
+                target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
+
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
-                target.value = (float) value;
+                // BIG TODO: If we do not train the reward (as only boardgames are treated here)
+                // the value has to take the role of the reward on this node (needed in MCTS)
+                // if we were running the network with reward head
+                // the value would be 0 here
+                // but as we do not get the expected reward from the network
+                // we need use this node to keep the reward value
+                // therefore target.value is not 0f
+                // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
+                target.value = (float) value;  // this is not really the value, it is taking the role of the reward here
                 target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
-            } else {
-                target.value = (float) value;  // instead of 0  // TODO check
+            }
+            else {
+                target.value = 0f; //(float) value;  // instead of 0  // TODO check
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);

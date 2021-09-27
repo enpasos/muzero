@@ -34,7 +34,7 @@ public class LossExtractor {
            try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
            {
                model.setBlock(block);
-               IntStream.range(1,100).forEach(
+               IntStream.range(1,200).forEach(
                        i -> {
                            try {
                                model.load(Paths.get(getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
@@ -45,6 +45,7 @@ public class LossExtractor {
                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                                );
                            } catch (Exception e) {
+                              // e.printStackTrace();
                            }
                        }
                );

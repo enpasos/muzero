@@ -47,11 +47,14 @@ public class ValueExtractor {
         replayBuffer.loadLatestState();
 
 
-        Game game = replayBuffer.getBuffer().getGames().get(2);
-
-        List<Integer> actions = game.actionHistory().getActionIndexList();
+       // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
 
 
+        Game game = replayBuffer.getBuffer().getGames().get(1000);
+
+    //    List<Integer> actions = game.actionHistory().getActionIndexList();
+
+        List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
 
         StringWriter stringWriter = new StringWriter();
 
