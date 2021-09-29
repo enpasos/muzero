@@ -190,7 +190,7 @@ public class MuZeroConfig {
                 .gameClass(GoGame.class)
 
                 // game/environment
-                .maxMoves(2 * size * size) // as in pseudocode
+                .maxMoves(10000) // a high number
                 .size(size)
                 .boardHeight(size)
                 .boardWidth(size)
@@ -209,7 +209,7 @@ public class MuZeroConfig {
                 .windowSize(50000)     // 1000000 in the paper
 
                 .numUnrollSteps(5)      // 5 in paper
-                .tdSteps(2 * size * size)         // equals maxMoves
+                .tdSteps(10000)         // equals maxMoves
                 .discount(1.0)
                 // loss details
                 .weightDecay(0.0001f)  // in katago 0.00003  in paper 0.0001
@@ -225,7 +225,7 @@ public class MuZeroConfig {
 
 
 
-                .rootDirichletAlpha(0.2)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
+                .rootDirichletAlpha(0.03)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
                 .knownBounds(new KnownBounds(-1d, 1d))  // as in the paper
@@ -255,9 +255,14 @@ public class MuZeroConfig {
                         .numPlays(4)
 
 
-                        .numSimulations(200)
-                        .numParallelPlays(50)
-                        .numPlays(20)
+                        .numSimulations(100)
+                        .numParallelPlays(100)
+                        .numPlays(10)
+
+
+//                        .numSimulations(200)
+//                        .numParallelPlays(50)
+//                        .numPlays(20)
 
 
 //                        .numSimulations(600)
