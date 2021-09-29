@@ -54,9 +54,9 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     }
 
     public @NotNull List<Action> legalActions() {
-        return state.getValidMoves().stream()
-                .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
-                .map(move -> translate(this.config, move)).collect(Collectors.toList());
+            return state.getValidMoves().stream()
+                    .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
+                    .map(move -> translate(this.config, move)).collect(Collectors.toList());
     }
 
 

@@ -109,7 +109,7 @@ public class Inference {
         int actionIndexSelectedByNetwork = -1;
         MCTS mcts = new MCTS(game.getConfig());
         List<Action> legalActions = game.legalActions();
-        if (legalActions.size() == 0) return Pair.create(0d, -1);
+      //  if (legalActions.size() == 0) return Pair.create(0d, -1);
         if (!withMCTS) {
 
             float[] policyValues = networkOutput.getPolicyValues();
