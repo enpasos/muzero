@@ -19,6 +19,7 @@ package ai.enpasos.muzero.agent.fast.model.djl;
 
 import ai.djl.Device;
 import ai.djl.Model;
+import ai.djl.engine.Engine;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDArray;
@@ -222,6 +223,7 @@ public class NetworkHelper {
 
 
         return new DefaultTrainingConfig(loss)
+                .optDevices(Engine.getInstance().getDevices(1))
                 .optOptimizer(setupOptimizer(muZeroConfig))
                 .addTrainingListeners(new EpochTrainingListener(),
                         new MemoryTrainingListener(outputDir),
