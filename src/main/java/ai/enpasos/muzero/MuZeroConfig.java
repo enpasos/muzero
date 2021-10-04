@@ -260,9 +260,9 @@ public class MuZeroConfig {
                         .numPlays(10)
 
 
-//                        .numSimulations(200)
-//                        .numParallelPlays(50)
-//                        .numPlays(20)
+                        .numSimulations(200)
+                        .numParallelPlays(50)
+                        .numPlays(20)
 
 
 //                        .numSimulations(600)

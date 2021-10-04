@@ -44,7 +44,7 @@ public class BufferTest {
 
         int cMax =  getLatestBufferNo(config);
 
-        int start = 198000;
+        int start = 388000;
 
         for(int c = start; c <= cMax; c += 1000) {
             replayBuffer.loadState(c);

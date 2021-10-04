@@ -59,8 +59,7 @@ public class ValueExtractor {
     //    List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
     //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
 
-    //    List<Integer> actions = List.of(16, 17, 12, 5, 13, 22, 7, 11, 1, 15, 6, 20, 18, 9, 23, 3, 0, 2, 8, 19, 10, 14, 25, 25);
-
+    //    List<Integer> actions = List.of(12, 17, 10, 13, 8, 7, 18, 11, 14, 6, 12, 16, 13, 5, 22, 21, 2, 23, 1, 3, 4, 15, 9, 19, 24, 25, 22, 0, 23, 3, 2, 1, 25, 3, 25, 19, 23, 12, 4, 13, 8, 9, 22, 2, 18, 14, 25, 25);
         StringWriter stringWriter = new StringWriter();
 
 
