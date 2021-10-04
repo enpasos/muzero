@@ -37,11 +37,13 @@ import java.util.stream.Collectors;
 
 public class TicTacToeTest {
 
-
     public static void main(String[] args) {
-
-
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+        test(config);
+    }
+
+
+    public static void test(MuZeroConfig config) {
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
@@ -62,22 +64,22 @@ public class TicTacToeTest {
                 .map(GameState::new)
                 .collect(Collectors.toSet());
 
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-            Network network = new Network(config, model);
-            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
-
-                if (network != null) {
-                    network.setHiddenStateNDManager(nDManager);
-                }
-
-            gameStateSet.forEach(gs -> {
-                DNode n = new DNode(gs.getGame());
-                n.aiChosenChild = n.aiDecision(network, false);
-                float reward = n.getGame().getGameDTO().getRewards().get(n.getGame().getGameDTO().getRewards().size() - 1);
-                System.out.println("aiValue: " + n.aiValue + ", value:" + (-reward));
-            });
-        }
-        }
+//        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+//            Network network = new Network(config, model);
+//            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+//
+//                if (network != null) {
+//                    network.setHiddenStateNDManager(nDManager);
+//                }
+//
+//            gameStateSet.forEach(gs -> {
+//                DNode n = new DNode(gs.getGame());
+//                n.aiChosenChild = n.aiDecision(network, false);
+//                float reward = n.getGame().getGameDTO().getRewards().get(n.getGame().getGameDTO().getRewards().size() - 1);
+//                System.out.println("aiValue: " + n.aiValue + ", value:" + (-reward));
+//            });
+//        }
+//        }
 
 
         System.out.println("terminatedGameDTOs           : " + gameTree.terminatedGameDTOs.size());
@@ -114,8 +116,6 @@ public class TicTacToeTest {
                     network.setHiddenStateNDManager(nDManager);
                 }
 
-                int i = 42;
-
                 List<DNode> gamesLostByPlayerA = new ArrayList<>();
                 List<DNode> gamesNotWonByPlayerA = new ArrayList<>();
                 notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, false, gamesLostByPlayerA);
@@ -125,14 +125,23 @@ public class TicTacToeTest {
                 notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, false, gamesLostByPlayerB);
 
 
-                gamesLostByPlayerA = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, true, gamesLostByPlayerA);
+                List<DNode> gamesLostByPlayerA2 = new ArrayList<>();
+                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, true, gamesLostByPlayerA2);
 
-                gamesLostByPlayerB = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, true, gamesLostByPlayerB);
+                List<DNode> gamesLostByPlayerB2 = new ArrayList<>();
+                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, true, gamesLostByPlayerB2);
 
+                boolean ok = gamesLostByPlayerA.size() == 0 &&
+                        gamesLostByPlayerB.size() == 0 &&
+                        gamesLostByPlayerA2.size() == 0 &&
+                        gamesLostByPlayerB2.size() == 0;
+
+                System.out.println("INTEGRATIONTEST = " + (ok ? "passed": "failed"));
             }
         }
+
+
+
 
 
     }
