@@ -94,7 +94,7 @@ public class MuZero {
 
     }
 
-    private static void playOnDeepThinking(MuZeroConfig config, ReplayBuffer replayBuffer) {
+    public static void playOnDeepThinking(MuZeroConfig config, ReplayBuffer replayBuffer) {
         // PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
 //
 //                int numParallelPlays = config.getNumParallelPlays();
@@ -143,7 +143,7 @@ public class MuZero {
                 false);
     }
 
-    private static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
+    public static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
         ThinkConf thinkConf = ThinkConf.builder()
                 .playerAConfig(
                         ThinkBudget.builder()
@@ -167,7 +167,7 @@ public class MuZero {
         }
     }
 
-    private static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
+    public static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
         NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, null, 0);
     }
 
