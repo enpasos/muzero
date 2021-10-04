@@ -90,14 +90,16 @@ public class GameResult {
  // static final float DEFAULT_KOMI = 7.5f;
 
   //  static final float DEFAULT_KOMI = 0f;
-    static final float DEFAULT_KOMI = 0.5f;
+  //  static final float DEFAULT_KOMI = 0.5f;
 
+   // static float defaultKomi;
 
-    public static GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {
-        return apply(goBoard, DEFAULT_KOMI, wonByResignation);
+    public   GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {
+
+        return apply(goBoard, komi, wonByResignation);
     }
-    public static GameResult apply(GoBoard goBoard) {
-        return apply(goBoard, DEFAULT_KOMI, Optional.empty());
+    public   GameResult apply(GoBoard goBoard) {
+        return apply(goBoard, komi, Optional.empty());
     }
 
     public static GameResult apply(GoBoard goBoard, float komi) {
