@@ -50,7 +50,7 @@ public class MoreScoringTest {
 
         log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board);
+        var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
@@ -97,7 +97,7 @@ public class MoreScoringTest {
 
         log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board);
+        var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
@@ -142,7 +142,7 @@ public class MoreScoringTest {
 
         log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board);
+        var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
@@ -190,7 +190,7 @@ public class MoreScoringTest {
 
         log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board);
+        var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
@@ -233,7 +233,7 @@ public class MoreScoringTest {
 
         log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board);
+        var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
@@ -278,7 +278,7 @@ public class MoreScoringTest {
 
         log.debug("final board configuration: \n" + board);
 
-        var result = GameResult.apply(board);
+        var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 

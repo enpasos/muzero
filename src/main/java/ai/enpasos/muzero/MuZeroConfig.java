@@ -37,6 +37,9 @@ public class MuZeroConfig {
     private final @NotNull String modelName;
     private final @NotNull Class<?> gameClass;
 
+    // go
+    private float komi;
+
     // game/environment
     private final int size;
     private final int maxMoves;
@@ -189,6 +192,9 @@ public class MuZeroConfig {
                 .modelName("MuZero-Go-" + size )
                 .gameClass(GoGame.class)
 
+                .komi(0.5f)  // start training
+
+
                 // game/environment
                 .maxMoves(10000) // a high number
                 .size(size)
@@ -263,6 +269,9 @@ public class MuZeroConfig {
                         .numSimulations(200)
                         .numParallelPlays(50)
                         .numPlays(20)
+
+
+                        .komi(6.5f)
 
 
 //                        .numSimulations(600)

@@ -76,7 +76,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
         float reward = 0f;
 
         if (terminal()) {
-            setResult(GameResult.apply(state.getBoard()));
+            setResult(GameResult.apply(state.getBoard(), this.getConfig().getKomi()));
             log.debug(getResult().toString());
             reward = (thisPlayer == getResult().winner()) ? 1f : -1f;
         }
