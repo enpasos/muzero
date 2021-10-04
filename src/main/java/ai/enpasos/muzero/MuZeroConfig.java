@@ -118,7 +118,7 @@ public class MuZeroConfig {
 
 
                 // network training
-                .numberOfTrainingSteps(80000)  // 1000000 in paper
+                .numberOfTrainingSteps(10000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
@@ -167,7 +167,7 @@ public class MuZeroConfig {
                 .numSimulations(40)
                 .numParallelPlays(1000)
                 .numPlays(2)
-                .numberOfTrainingSteps(80000)
+                .numberOfTrainingSteps(4000)
                 // -> 0:46
 
                 .build();
