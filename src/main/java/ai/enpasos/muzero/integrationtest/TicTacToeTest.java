@@ -28,15 +28,17 @@ public class TicTacToeTest {
         replayBuffer.loadLatestState();
         initialFillingBuffer(config, replayBuffer);
 
-        int trainingStep = 0;
+        int trainingStep = NetworkHelper.numberOfLastTrainingStep(config);
 
-        do {
+        while (trainingStep < config.getNumberOfTrainingSteps()) {
+            if (trainingStep != 0) {
+                log.info("last training step = {}", trainingStep);
+                log.info("numSimulations: " + config.getNumSimulations());
+                playOnDeepThinking(config, replayBuffer);
+                replayBuffer.saveState();
+            }
             trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
-            log.info("last training step = {}", trainingStep);
-            log.info("numSimulations: " + config.getNumSimulations());
-            playOnDeepThinking(config, replayBuffer);
-            replayBuffer.saveState();
-         } while (trainingStep < config.getNumberOfTrainingSteps());
+         }
 
     }
 }

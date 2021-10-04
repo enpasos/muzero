@@ -164,9 +164,9 @@ public class MuZeroConfig {
                 .numPlays(1)
                 // -> 1:16 hours
                 // ...
-                .numSimulations(40)
-                .numParallelPlays(1000)
-                .numPlays(2)
+                .numSimulations(30)
+                .numParallelPlays(500)
+                .numPlays(4)
                 .numberOfTrainingSteps(4000)
                 // -> 0:46
 

@@ -141,7 +141,33 @@ public class NetworkHelper {
         }
         return epoch * numberOfTrainingStepsPerEpoch;
     }
+    @SuppressWarnings("ConstantConditions")
+    public static int numberOfLastTrainingStep(@NotNull MuZeroConfig config) {
+        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+        int epoch = 0;
+        boolean withSymmetryEnrichment = true;
+        MuZeroBlock block = new MuZeroBlock(config);
 
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+
+            logNDManagers(model.getNDManager());
+
+            model.setBlock(block);
+
+            try {
+                model.load(Paths.get(getNetworksBasedir(config)));
+            } catch (Exception e) {
+                log.info("*** no existing model has been found ***");
+            }
+
+            String prop = model.getProperty("Epoch");
+            if (prop != null) {
+                epoch = Integer.parseInt(prop);
+            }
+
+        }
+        return epoch * numberOfTrainingStepsPerEpoch;
+    }
 
     public static void trainAndReturnNumberOfLastTrainingStep(int numberOfEpochs, @NotNull MuZeroConfig config) {
 
