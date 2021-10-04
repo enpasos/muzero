@@ -1,9 +1,9 @@
 pipeline {
   agent any
   stages {
-    stage('') {
+    stage('error') {
       steps {
-        sh 'mvn clean install -Dmaven.test.skip=true'
+        echo '"CI Pipeline to come"'
       }
     }
 
