@@ -2,7 +2,7 @@ def BRANCH = 'refactor'
 pipeline {
   agent any
   tools {
-        maven 'Maven 3.3.9'
+        maven 'mvn3.8.3'
 		jdk 'jdk11'
   }
   stages {
@@ -11,7 +11,7 @@ pipeline {
 		  script {
 			sh 'java -version'
 			sh 'mvn -version'
-			sh 'mvn clean install'
+			sh 'mvn clean install -Dmaven.test.failure.ignore=true'
 			}
       }
     }
