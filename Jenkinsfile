@@ -7,9 +7,11 @@ pipeline {
   stages {
     stage('build') {
       steps {
-	    sh 'java -version'
-	    sh 'mvn -version'
-        sh 'mvn clean install'
+		  script {
+			sh 'java -version'
+			sh 'mvn -version'
+			sh 'mvn clean install'
+			}
       }
     }
 
