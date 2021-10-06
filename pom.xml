@@ -242,6 +242,12 @@
                             <mainClass>ai.enpasos.muzero.debug.TicTacToeTest</mainClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>integrationTest</id>
+                        <configuration>
+                            <mainClass>ai.enpasos.muzero.integrationtest.TicTacToeTest</mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
