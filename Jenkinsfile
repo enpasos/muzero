@@ -13,6 +13,10 @@ pipeline {
 		  bat 'mvn clean install -Dmaven.test.failure.ignore=true'
 	  }
     }
-
+    stage('unit tests') {
+	  steps {
+		  bat 'mvn test'
+	  }
+    }
   }
 }
