@@ -7,11 +7,9 @@ pipeline {
   }
   stages {
     stage('build') {
-      steps {
-			sh """java -version"""
-			sh """mvn -version"""
-			sh """mvn clean install -Dmaven.test.failure.ignore=true"""
-      }
+	  sh """java -version"""
+	  sh """mvn -version"""
+	  sh """mvn clean install -Dmaven.test.failure.ignore=true"""
     }
 
   }
