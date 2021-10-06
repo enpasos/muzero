@@ -2,7 +2,8 @@ def BRANCH = 'refactor'
 pipeline {
   agent any
   tools {
-        maven 'Default'
+        maven 'Maven 3.3.9'
+		jdk 'jdk11'
   }
   stages {
     stage('build') {
