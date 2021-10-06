@@ -4,6 +4,7 @@ pipeline {
     stage('build') {
       steps {
         echo '"CI Pipeline to come"'
+        bat 'build.bat'
       }
     }
 
