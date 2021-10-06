@@ -1,9 +1,15 @@
+def BRANCH = 'refactor'
 pipeline {
   agent any
+  tools {
+        maven 'Default'
+  }
   stages {
     stage('build') {
       steps {
-        bat 'build.bat'
+	    sh 'java -version'
+	    sh 'mvn -version'
+        sh 'mvn clean install'
       }
     }
 
