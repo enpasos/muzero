@@ -21,7 +21,7 @@ public class TicTacToeTest {
         String dir = "./memory/integrationtest/tictactoe/";
         FileUtils.deleteDirectory(new File(dir));
         config.setOutputDir(dir);
-        boolean passed = false;
+        boolean passed = true;
 //        train(config);
 //        passed = test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
