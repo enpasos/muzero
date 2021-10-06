@@ -18,5 +18,10 @@ pipeline {
 		  bat 'mvn test'
 	  }
     }
+    stage('integration test') {
+	  steps {
+		  bat 'mvn exec:java@integrationtest'
+	  }
+    }
   }
 }

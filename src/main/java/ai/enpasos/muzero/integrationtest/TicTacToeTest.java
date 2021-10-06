@@ -4,7 +4,9 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -16,9 +18,15 @@ public class TicTacToeTest {
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-        config.setOutputDir("./integrationtest/tictactoe/");
-        train(config);
-        test(config);
+        String dir = "./memory/integrationtest/tictactoe/";
+        FileUtils.deleteDirectory(new File(dir));
+        config.setOutputDir(dir);
+        boolean passed = false;
+//        train(config);
+//        passed = test(config);
+        String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
+        log.info(message);
+        if (!passed) throw new RuntimeException(message);
     }
 
     public static void train(MuZeroConfig config) {
