@@ -20,10 +20,9 @@ public class TicTacToeTest {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         String dir = "./memory/integrationtest/tictactoe/";
         FileUtils.deleteDirectory(new File(dir));
-        config.setOutputDir(dir);
-        boolean passed = true;
-//        train(config);
-//        passed = test(config);
+        config.setOutputDir(dir); 
+        train(config);
+        boolean passed = test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
         log.info(message);
         if (!passed) throw new RuntimeException(message);
