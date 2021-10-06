@@ -18,7 +18,7 @@ pipeline {
 		  bat 'mvn test'
 	  }
     }
-    stage('integration test') {
+    stage('integration test (about 1h)') {
 	  steps {
 		  bat 'mvn exec:java@integrationtest'
 	  }
