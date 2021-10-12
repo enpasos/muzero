@@ -216,12 +216,17 @@ public abstract class Game implements Serializable {
                 // In case of board games
                 // after the reward on the terminal action
                 // there is no further reward and so there also will not be accumulated future reward
-                // however there is no real environment interaction and fictitiously one could think of getting the reward
-                // after on the last move in mind
-                // For MCTS it is better because the state does not need to change by the actions after the terminal state
-                // in such a way that the target.value changes
-
-                target.value = (float) value;  // instead of 0
+                // There are two feasible options to handle this
+                //
+                // 1. target.value = 0;
+                // that is the more general approach however likely slower than 2. for board games as the drop in value to 0 has to be learned.
+                // With reward network in place this should be the joice
+                //
+                // 2. target.value = value;
+                // for board games (without a reward network) the value network
+                // does not have to change the value after the final move
+                //
+                target.value = 0;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
