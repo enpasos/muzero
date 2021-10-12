@@ -43,7 +43,7 @@ public class TicTacToeTest {
     }
 
 
-    public static void test(MuZeroConfig config) {
+    public static boolean test(MuZeroConfig config) {
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
@@ -136,13 +136,11 @@ public class TicTacToeTest {
                         gamesLostByPlayerA2.size() == 0 &&
                         gamesLostByPlayerB2.size() == 0;
 
-                System.out.println("INTEGRATIONTEST = " + (ok ? "passed": "failed"));
+
+                return ok;
             }
+
         }
-
-
-
-
 
     }
 
