@@ -21,6 +21,11 @@ import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import ai.enpasos.muzero.environments.go.environment.*;
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Pass;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Play;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Resign;
 import ai.enpasos.muzero.environments.go.environment.scoring.GameResult;
 import ai.enpasos.muzero.agent.slow.play.Action;
 import lombok.extern.slf4j.Slf4j;
@@ -49,9 +54,9 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     }
 
     public @NotNull List<Action> legalActions() {
-        return state.getValidMoves().stream()
-                .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
-                .map(move -> translate(this.config, move)).collect(Collectors.toList());
+            return state.getValidMoves().stream()
+                    .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
+                    .map(move -> translate(this.config, move)).collect(Collectors.toList());
     }
 
 
@@ -71,7 +76,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
         float reward = 0f;
 
         if (terminal()) {
-            setResult(GameResult.apply(state.getBoard()));
+            setResult(GameResult.apply(state.getBoard(), this.getConfig().getKomi()));
             log.debug(getResult().toString());
             reward = (thisPlayer == getResult().winner()) ? 1f : -1f;
         }

@@ -131,6 +131,35 @@ public abstract class Game implements Serializable {
 
     }
 
+
+    /**
+     *   def make_target(self, state_index: int, num_unroll_steps: int, td_steps: int,
+     *                   to_play: Player):
+     *     # The value target is the discounted root value of the search tree N steps
+     *     # into the future, plus the discounted sum of all rewards until then.
+     *     targets = []
+     *     for current_index in range(state_index, state_index + num_unroll_steps + 1):
+     *       bootstrap_index = current_index + td_steps
+     *       if bootstrap_index < len(self.root_values):
+     *         value = self.root_values[bootstrap_index] * self.discount**td_steps
+     *       else:
+     *         value = 0
+     *
+     *       for i, reward in enumerate(self.rewards[current_index:bootstrap_index]):
+     *         value += reward * self.discount**i  # pytype: disable=unsupported-operands
+     *
+     *       if current_index > 0 and current_index <= len(self.rewards):
+     *         last_reward = self.rewards[current_index - 1]
+     *       else:
+     *         last_reward = None
+     *
+     *       if current_index < len(self.root_values):
+     *         targets.append((value, last_reward, self.child_visits[current_index]))
+     *       else:
+     *         # States past the end of games are treated as absorbing states.
+     *         targets.append((0, last_reward, []))
+     *     return targets
+     */
     // TODO at the moment we are only using the board game case.
     // the implementation also addresses the more general case, but might be not correct in detail
     public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample) {
@@ -144,11 +173,15 @@ public abstract class Game implements Serializable {
         for (int currentIndex = stateIndex; currentIndex <= stateIndex + numUnrollSteps; currentIndex++) {
             int bootstrapIndex = currentIndex + tdSteps;
             double value = 0;
+
+            // not happening for boardgames
             if (bootstrapIndex < this.getGameDTO().getRootValues().size()) {
                 value = this.getGameDTO().getRootValues().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
             }
 
             int startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size());
+
+            // condition "i < bootstrapIndex" for boardgames true
             for (int i = startIndex; i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
                 if (currentIndex == 0) continue;
                 value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1) * currentIndexPerspective * winnerPerspective;
@@ -162,30 +195,42 @@ public abstract class Game implements Serializable {
             if (currentIndex < this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
-                // TODO check + unit test
-//                if (   (currentIndexPerspective == 1 && sample.isActionTrainingPlayerA())
-//                    || (currentIndexPerspective == -1 && sample.isActionTrainingPlayerB())
-//                )
-//                {
-                    target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
-//                } else {
-//                    target.policy = new float[this.actionSpaceSize];
-//                    // the idea is not to put any policy force on the network if the episode was not "good" == lost
-//                    Arrays.fill(target.policy, 0f);
-//                }
+                target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
+
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
-                target.value = (float) value;
+                // BIG TODO: If we do not train the reward (as only boardgames are treated here)
+                // the value has to take the role of the reward on this node (needed in MCTS)
+                // if we were running the network with reward head
+                // the value would be 0 here
+                // but as we do not get the expected reward from the network
+                // we need use this node to keep the reward value
+                // therefore target.value is not 0f
+                // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
+                target.value = (float) value;  // this is not really the value, it is taking the role of the reward here
                 target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
-            } else {
-                target.value = (float) value;  // instead of 0
+            }
+            else {
+                // In case of board games
+                // after the reward on the terminal action
+                // there is no further reward and so there also will not be accumulated future reward
+                // There are two feasible options to handle this
+                //
+                // 1. target.value = 0;
+                // that is the more general approach however likely slower than 2. for board games as the drop in value to 0 has to be learned.
+                // With reward network in place this should be the joice
+                //
+                // 2. target.value = value;
+                // for board games (without a reward network) the value network
+                // does not have to change the value after the final move
+                //
+                target.value = 0;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
             }
-
             targets.add(target);
             currentIndexPerspective *= -1;
         }

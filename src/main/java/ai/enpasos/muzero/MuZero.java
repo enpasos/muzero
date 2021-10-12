@@ -17,9 +17,8 @@
 
 package ai.enpasos.muzero;
 
-import ai.djl.engine.Engine;
-import ai.djl.engine.EngineException;
-import ai.djl.ndarray.NDManager;
+import ai.enpasos.muzero.agent.slow.play.ThinkBudget;
+import ai.enpasos.muzero.agent.slow.play.ThinkConf;
 import ai.enpasos.muzero.gamebuffer.GameIO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
@@ -32,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class MuZero {
@@ -52,60 +50,124 @@ public class MuZero {
 
     public static void run() {
 
-   //  MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-       MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+     MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+    //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
     //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
 
         createNetworkModelIfNotExisting(config);
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
-
-
         initialFillingBuffer(config, replayBuffer);
 
         int trainingStep = 0;
 
 
+//        for(int i = 0; i < 10; i++) {
+//            playOnIntuition(config, replayBuffer);
+//        }
+//        replayBuffer.saveState();
+
+
         do {
 
 
-            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
-            log.info("last training step = {}", trainingStep);
-
-            log.info("numSimulations: " + config.getNumSimulations());
-            if (trainingStep < config.getNumberTrainingStepsOnRandomPlay()) {
-                PlayManager.playParallel(replayBuffer, config, 1, true, false, 1);
-            } else {
-
-                // PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
-
-                int numParallelPlays = config.getNumParallelPlays();
-                int numberOfPlays = config.getNumPlays();
-
-                log.info("numParallelPlays: " + numParallelPlays);
-                log.info("numberOfPlays: " + numberOfPlays);
-
-
-                PlayManager.playParallel(replayBuffer, config, numberOfPlays, false, false, numParallelPlays);
+//           trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+//            log.info("last training step = {}", trainingStep);
+//            log.info("numSimulations: " + config.getNumSimulations());
+//            playOnIntuition(config, replayBuffer);
+//            replayBuffer.saveState();
+//
+////
+////            for (int i = 0; i < 20; i++) {
+                trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+                log.info("last training step = {}", trainingStep);
+                log.info("numSimulations: " + config.getNumSimulations());
+                playOnDeepThinking(config, replayBuffer);
                 replayBuffer.saveState();
+//            }
 
-            }
+
 
         } while (trainingStep < config.getNumberOfTrainingSteps());
 
 
     }
 
-    private static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
+    public static void playOnDeepThinking(MuZeroConfig config, ReplayBuffer replayBuffer) {
+        // PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
+//
+//                int numParallelPlays = config.getNumParallelPlays();
+//                int numberOfPlays = config.getNumPlays();
+//                int numSimulations = config.getNumSimulations();
+//
+//                log.info("numParallelPlays: " + numParallelPlays);
+//                log.info("numSimulations: " + numSimulations);
+//                log.info("numberOfPlays: " + numberOfPlays);
+
+        ThinkConf thinkConf = ThinkConf.instanceFromConfig(config);
+//                ThinkConf thinkConf = ThinkConf.builder()
+//
+//                        .playerAConfig(
+//                                ThinkBudget.builder()
+//                                        .numSims(400)
+//                                        .numParallel(25)
+//                                        .numOfPlays(40)
+//                                        .build())
+//                        .playerBConfig(
+//                                ThinkBudget.builder()
+//                                        .numSims(numSimulations)
+//                                        .numParallel(numParallelPlays)
+//                                        .numOfPlays(numberOfPlays)
+//                                        .build())
+//                        .build();
+        PlayManager.playParallel(replayBuffer, config,  false, false, thinkConf, true);
+    }
+
+    private static void playOnIntuition(MuZeroConfig config, ReplayBuffer replayBuffer) {
+        PlayManager.playParallel(replayBuffer, config,  false, false,
+                ThinkConf.builder()
+                .playerAConfig(
+                        ThinkBudget.builder()
+                                .numSims(0)
+                                .numParallel(5000)
+                                .numOfPlays(2)
+                                .build())
+                .playerBConfig(
+                        ThinkBudget.builder()
+                                .numSims(0)
+                                .numParallel(5000)
+                                .numOfPlays(2)
+                                .build())
+                .build(),
+                false);
+    }
+
+    public static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
+        ThinkConf thinkConf = ThinkConf.builder()
+                .playerAConfig(
+                        ThinkBudget.builder()
+                                .numSims(config.getNumSimulations())
+                                .numParallel(10000)
+                                .numOfPlays(1)
+                                .build())
+                .playerBConfig(
+                        ThinkBudget.builder()
+                                .numSims(config.getNumSimulations())
+                                .numParallel(10000)
+                                .numOfPlays(1)
+                                .build())
+                .build();
+
+
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(replayBuffer, config, 1, false, true, 10000);
+            PlayManager.playParallel(replayBuffer, config,   false, true, thinkConf, true);
             replayBuffer.saveState();
         }
     }
 
-    private static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
+    public static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
         NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, null, 0);
     }
 

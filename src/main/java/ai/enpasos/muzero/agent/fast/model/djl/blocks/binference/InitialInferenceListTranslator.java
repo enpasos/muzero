@@ -44,10 +44,7 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
         return null;
     }
 
-    @Override
-    public void prepare(NDManager manager, Model model) {
 
-    }
 
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
@@ -102,11 +99,6 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
         }
         return networkIOs;
 
-    }
-
-    @Override
-    public @Nullable Pipeline getPipeline() {
-        return null;
     }
 
     @Override

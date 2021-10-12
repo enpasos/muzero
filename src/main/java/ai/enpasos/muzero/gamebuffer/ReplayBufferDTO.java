@@ -46,11 +46,11 @@ public class ReplayBufferDTO implements Serializable {
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
+      //  System.out.println(game.actionHistory().getActionIndexList());
         while (data.size() >= windowSize) {
             GameDTO toberemoved = data.get(0);
             Game gameToberemoved = config.newGame();
             gameToberemoved.setGameDTO(toberemoved);
-         //   getGameTree().removeGame(gameToberemoved);
             games.remove(gameToberemoved);
             data.remove(0);
         }
@@ -61,7 +61,10 @@ public class ReplayBufferDTO implements Serializable {
         games.add(game);
     //    getGameTree().addGame(game);
         counter++;
+       // System.out.println(game.actionHistory().getActionIndexList());
     }
+
+
 
 
 //    public void rebuildGameTree( MuZeroConfig config) {

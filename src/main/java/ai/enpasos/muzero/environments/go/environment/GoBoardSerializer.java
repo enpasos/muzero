@@ -1,7 +1,9 @@
 package ai.enpasos.muzero.environments.go.environment;
 
 
-import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
+
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
 
 /**
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
