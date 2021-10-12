@@ -2,15 +2,15 @@ package ai.enpasos.muzero.environments.go.environment.scoring;
 
 
 import ai.enpasos.muzero.environments.go.environment.GoBoard;
-import ai.enpasos.muzero.environments.go.environment.Player;
-import ai.enpasos.muzero.environments.go.environment.Point;
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 
-import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.environments.go.environment.scoring.VertexType.*;
 
 /**

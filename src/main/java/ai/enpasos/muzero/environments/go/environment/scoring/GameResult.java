@@ -2,17 +2,16 @@ package ai.enpasos.muzero.environments.go.environment.scoring;
 
 
 import ai.enpasos.muzero.environments.go.environment.GoBoard;
-import ai.enpasos.muzero.environments.go.environment.Player;
-import ai.enpasos.muzero.environments.go.environment.Point;
+import ai.enpasos.muzero.environments.go.environment.basics.Player;
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.Builder;
 import lombok.Data;
 
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Optional;
 
-import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
-import static ai.enpasos.muzero.environments.go.environment.Player.WhitePlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.WhitePlayer;
 import static java.text.MessageFormat.format;
 
 /**
@@ -22,7 +21,7 @@ import static java.text.MessageFormat.format;
  * For the scoring calculation to be most accurate, the game has to really be over in the sense that
  * all stones that can be captured are captured. There is no cost to filling in your own territory as
  * long as you do not fill in either of your last 2 eyes.
- *
+ * <p>
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
@@ -91,14 +90,16 @@ public class GameResult {
  // static final float DEFAULT_KOMI = 7.5f;
 
   //  static final float DEFAULT_KOMI = 0f;
-    static final float DEFAULT_KOMI = 6.5f;
+  //  static final float DEFAULT_KOMI = 0.5f;
 
+   // static float defaultKomi;
 
-    public static GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {
-        return apply(goBoard, DEFAULT_KOMI, wonByResignation);
+    public   GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {
+
+        return apply(goBoard, komi, wonByResignation);
     }
-    public static GameResult apply(GoBoard goBoard) {
-        return apply(goBoard, DEFAULT_KOMI, Optional.empty());
+    public   GameResult apply(GoBoard goBoard) {
+        return apply(goBoard, komi, Optional.empty());
     }
 
     public static GameResult apply(GoBoard goBoard, float komi) {

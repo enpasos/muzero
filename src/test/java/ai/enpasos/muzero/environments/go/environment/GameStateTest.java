@@ -1,9 +1,11 @@
 package ai.enpasos.muzero.environments.go.environment;
 
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
+import ai.enpasos.muzero.environments.go.environment.basics.move.Play;
 import org.junit.jupiter.api.Test;
 
-import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
-import static ai.enpasos.muzero.environments.go.environment.Player.WhitePlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.WhitePlayer;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameStateTest {

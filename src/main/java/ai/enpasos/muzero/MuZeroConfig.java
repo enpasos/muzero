@@ -37,6 +37,9 @@ public class MuZeroConfig {
     private final @NotNull String modelName;
     private final @NotNull Class<?> gameClass;
 
+    // go
+    private float komi;
+
     // game/environment
     private final int size;
     private final int maxMoves;
@@ -109,13 +112,13 @@ public class MuZeroConfig {
                 // network sizing
                 .numObservationLayers(3)
                 .numChannels(128)        // 256 in the paper
-                .numHiddenStateChannels(3)
+                .numHiddenStateChannels(5)
                 .numResiduals(8)        // 16 in the paper
 
 
 
                 // network training
-                .numberOfTrainingSteps(80000)  // 1000000 in paper
+                .numberOfTrainingSteps(10000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
                 .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
@@ -161,11 +164,16 @@ public class MuZeroConfig {
                 .numPlays(1)
                 // -> 1:16 hours
                 // ...
-                .numSimulations(40)
-                .numParallelPlays(1000)
-                .numPlays(2)
-                .numberOfTrainingSteps(45000)
+                .numSimulations(30)
+                .numParallelPlays(500)
+                .numPlays(4)
+                .numberOfTrainingSteps(10000)
                 // -> 0:46
+
+                .numPlays(2)
+                .numParallelPlays(1000)
+                .numSimulations(20)
+                .windowSize(20000)
 
                 .build();
 
@@ -189,8 +197,11 @@ public class MuZeroConfig {
                 .modelName("MuZero-Go-" + size )
                 .gameClass(GoGame.class)
 
+                .komi(0.5f)  // start training
+
+
                 // game/environment
-                .maxMoves(27000) // as in pseudocode
+                .maxMoves(10000) // a high number
                 .size(size)
                 .boardHeight(size)
                 .boardWidth(size)
@@ -198,7 +209,7 @@ public class MuZeroConfig {
 
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
-                .numHiddenStateChannels(5)  // squeezing the hidden state from c to 5
+                .numHiddenStateChannels(19)  // squeezing the hidden state from c to observationLayers + 2
 
                    .numResiduals(16)        // 16 in the paper
 
@@ -206,10 +217,10 @@ public class MuZeroConfig {
                 // network training
                 .numberOfTrainingSteps(300000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
-                .windowSize(10000)     // 1000000 in the paper
+                .windowSize(50000)     // 1000000 in the paper
 
                 .numUnrollSteps(5)      // 5 in paper
-                .tdSteps(size * size + 1)         // equals maxMoves equals actionSpaceSize
+                .tdSteps(10000)         // equals maxMoves
                 .discount(1.0)
                 // loss details
                 .weightDecay(0.0001f)  // in katago 0.00003  in paper 0.0001
@@ -225,7 +236,7 @@ public class MuZeroConfig {
 
 
 
-                .rootDirichletAlpha(0.2)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
+                .rootDirichletAlpha(0.03)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
                 .knownBounds(new KnownBounds(-1d, 1d))  // as in the paper
@@ -250,9 +261,27 @@ public class MuZeroConfig {
                         .numberTrainingStepsOnRandomPlay(0)
 
 
-//                        .numSimulations(10)
-//                        .numParallelPlays(500)
-//                        .numPlays(2)
+                        .numSimulations(12)
+                        .numParallelPlays(250)
+                        .numPlays(4)
+
+
+                        .numSimulations(100)
+                        .numParallelPlays(100)
+                        .numPlays(10)
+
+
+                        .numSimulations(200)
+                        .numParallelPlays(50)
+                        .numPlays(20)
+
+
+                        .komi(6.5f)
+
+
+//                        .numSimulations(600)
+//                        .numParallelPlays(20)
+//                        .numPlays(50)
 
 
 //                        .numSimulations(20)
@@ -260,24 +289,27 @@ public class MuZeroConfig {
 //                        .numPlays(4)
 //
 //
-                        .numSimulations(40)
-                        .numParallelPlays(125)
-                        .numPlays(8)
+//                        .numSimulations(40)
+//                        .numParallelPlays(125)
+//                        .numPlays(8)
+//
+////                        .numSimulations(100)
+////                        .numParallelPlays(100)
+////                        .numPlays(10)
 //
 //
-
-
 //                        .numSimulations(200)
 //                        .numParallelPlays(50)
 //                        .numPlays(20)
-
-//                        .numSimulations(200)
-//                        .numParallelPlays(40)
-//                        .numPlays(12)
-
-//                        .numSimulations(100)
-//                        .numParallelPlays(80)
-//                        .numPlays(4)
+//
+//
+//                        .numSimulations(600)
+//                        .numParallelPlays(20)
+//                        .numPlays(50)
+//
+//                        .numSimulations(1000)
+//                        .numParallelPlays(10)
+//                        .numPlays(100)
 
 //                        .numSimulations(100)
 //                        .numParallelPlays(80)

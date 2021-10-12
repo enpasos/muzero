@@ -19,6 +19,7 @@ package ai.enpasos.muzero.agent.fast.model.djl;
 
 import ai.djl.Device;
 import ai.djl.Model;
+import ai.djl.engine.Engine;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDArray;
@@ -80,6 +81,9 @@ public class NetworkHelper {
             }
 
             DefaultTrainingConfig djlConfig = setupTrainingConfig(config, epoch);
+
+          //  float gradientScale = 1f / config.getNumUnrollSteps();
+
             try (Trainer trainer = model.newTrainer(djlConfig)) {
                 trainer.setMetrics(new Metrics());
                 Shape[] inputShapes = getInputShapes(config);
@@ -94,10 +98,41 @@ public class NetworkHelper {
                         }
                     }
                     Metrics metrics = trainer.getMetrics();
+
+                    // mean loss
                     List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-                    Double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
+                    Double meanLoss = ms.stream().mapToDouble(m ->  m.getValue().doubleValue()).average().getAsDouble();
                     model.setProperty("MeanLoss", meanLoss.toString());
                     log.info("MeanLoss: " + meanLoss.toString());
+
+                    //
+
+
+                    // mean value loss
+                    Double meanValueLoss = metrics.getMetricNames().stream()
+                            .filter(name -> name.startsWith("train_all") && name.contains("value_0"))
+                            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m ->  m.getValue().doubleValue()).average().getAsDouble())
+                            .sum();
+                    meanValueLoss += metrics.getMetricNames().stream()
+                            .filter(name -> name.startsWith("train_all") && !name.contains("value_0") && name.contains("value"))
+                            .mapToDouble(name ->  metrics.getMetric(name).stream().mapToDouble(m ->  m.getValue().doubleValue()).average().getAsDouble())
+                            .sum();
+                    model.setProperty("MeanValueLoss", meanValueLoss.toString());
+                    log.info("MeanValueLoss: " + meanValueLoss.toString());
+
+                    // mean policy loss
+                    Double meanPolicyLoss = metrics.getMetricNames().stream()
+                            .filter(name -> name.startsWith("train_all") && name.contains("policy_0"))
+                            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m ->  m.getValue().doubleValue()).average().getAsDouble())
+                            .sum();
+                    meanPolicyLoss += metrics.getMetricNames().stream()
+                            .filter(name -> name.startsWith("train_all") && !name.contains("policy_0") && name.contains("policy"))
+                            .mapToDouble(name ->  metrics.getMetric(name).stream().mapToDouble(m ->  m.getValue().doubleValue()).average().getAsDouble())
+                            .sum();
+                    model.setProperty("MeanPolicyLoss", meanPolicyLoss.toString());
+                    log.info("MeanPolicyLoss: " + meanPolicyLoss.toString());
+
+
                     trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                 }
 
@@ -106,7 +141,33 @@ public class NetworkHelper {
         }
         return epoch * numberOfTrainingStepsPerEpoch;
     }
+    @SuppressWarnings("ConstantConditions")
+    public static int numberOfLastTrainingStep(@NotNull MuZeroConfig config) {
+        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+        int epoch = 0;
+        boolean withSymmetryEnrichment = true;
+        MuZeroBlock block = new MuZeroBlock(config);
 
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+
+            logNDManagers(model.getNDManager());
+
+            model.setBlock(block);
+
+            try {
+                model.load(Paths.get(getNetworksBasedir(config)));
+            } catch (Exception e) {
+                log.info("*** no existing model has been found ***");
+            }
+
+            String prop = model.getProperty("Epoch");
+            if (prop != null) {
+                epoch = Integer.parseInt(prop);
+            }
+
+        }
+        return epoch * numberOfTrainingStepsPerEpoch;
+    }
 
     public static void trainAndReturnNumberOfLastTrainingStep(int numberOfEpochs, @NotNull MuZeroConfig config) {
 
@@ -167,31 +228,32 @@ public class NetworkHelper {
 
         // policy
         log.info("k={}: SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + k, 1.0f, 1, false, true), k);
+        loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k);
         k++;
         // value
         log.info("k={}: L2Loss", k);
-        loss.addLoss(new L2Loss("loss_value_" + k, muZeroConfig.getValueLossWeight()), k);
+        loss.addLoss(new L2Loss("loss_value_" + 0, muZeroConfig.getValueLossWeight()), k);
         k++;
 
 
         for (int i = 1; i <= muZeroConfig.getNumUnrollSteps(); i++) {
             // policy
             log.info("k={}: SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + k, gradientScale, 1, false, true), k);
+            loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k);
             k++;
             // value
             log.info("k={}: L2Loss", k);
-            loss.addLoss(new L2Loss("loss_value_" + k, muZeroConfig.getValueLossWeight() * gradientScale), k);
+            loss.addLoss(new L2Loss("loss_value_" + i, muZeroConfig.getValueLossWeight() * gradientScale), k);
             k++;
         }
 
 
         return new DefaultTrainingConfig(loss)
+                .optDevices(Engine.getInstance().getDevices(1))
                 .optOptimizer(setupOptimizer(muZeroConfig))
                 .addTrainingListeners(new EpochTrainingListener(),
                         new MemoryTrainingListener(outputDir),
-                        new EvaluatorTrainingListener(),
+                        new MyEvaluatorTrainingListener(),
                         new DivergenceCheckTrainingListener(),
                         new MyLoggingTrainingListener(epoch),
                         new TimeMeasureTrainingListener(outputDir))

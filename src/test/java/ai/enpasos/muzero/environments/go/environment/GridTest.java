@@ -1,13 +1,14 @@
 package ai.enpasos.muzero.environments.go.environment;
 
+import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.TreeSet;
 
-import static ai.enpasos.muzero.environments.go.environment.Player.BlackPlayer;
-import static ai.enpasos.muzero.environments.go.environment.Player.WhitePlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
+import static ai.enpasos.muzero.environments.go.environment.basics.Player.WhitePlayer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GridTest {
