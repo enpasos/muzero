@@ -24,7 +24,7 @@ public class LossExtractor {
      //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
            MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
 
-      //  config.setOutputDir("./integrationtest/tictactoe/");
+        config.setOutputDir("./memory/integrationtest/tictactoe/");
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();

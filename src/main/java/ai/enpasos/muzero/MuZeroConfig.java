@@ -66,7 +66,7 @@ public class MuZeroConfig {
     private final float lrInit;
 
     // play
-    private final int numSimulations;
+    private  int numSimulations;
     private final int numParallelPlays;
     private final int numPlays;
 
@@ -174,6 +174,8 @@ public class MuZeroConfig {
                 .numParallelPlays(1000)
                 .numSimulations(20)
                 .windowSize(20000)
+                .numberOfTrainingSteps(8000)
+                .numChannels(128)
 
                 .build();
 
