@@ -10,6 +10,7 @@
 
     <properties>
         <djl.version>0.14.0-SNAPSHOT</djl.version>
+        <pytorch.version>1.9.1-SNAPSHOT</pytorch.version>
         <junit.version>5.6.0</junit.version>
         <lombok.version>1.18.12</lombok.version>
         <log4j2.version>2.14.1</log4j2.version>
@@ -45,7 +46,6 @@
             <version>1.8</version>
         </dependency>
 
-
         <!-- djl -->
         <dependency>
             <groupId>ai.djl</groupId>
@@ -57,9 +57,6 @@
             <artifactId>basicdataset</artifactId>
             <version>${djl.version}</version>
         </dependency>
-
-
-
 
         <!-- djl/mxnet -->
         <!--dependency>
@@ -113,7 +110,7 @@
       <dependency>
           <groupId>ai.djl.pytorch</groupId>
           <artifactId>pytorch-native-auto</artifactId>
-          <version>1.9.1-SNAPSHOT</version>
+          <version>${pytorch.version}</version>
       </dependency>
 
         <!-- others -->
