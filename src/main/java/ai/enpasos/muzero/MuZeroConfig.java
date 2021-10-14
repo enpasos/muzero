@@ -59,6 +59,9 @@ public class MuZeroConfig {
     private final int tdSteps;
     private final double discount;
 
+    private boolean absorbingStateDropToZero;
+
+
     // loss details
     private final float weightDecay;
     private final float valueLossWeight;
@@ -99,6 +102,11 @@ public class MuZeroConfig {
         int size = 3;
 
         return MuZeroConfig.builder()
+
+
+
+
+
                 .modelName("MuZero-TicTacToe")
                 .gameClass(TicTacToeGame.class)
 
@@ -130,6 +138,7 @@ public class MuZeroConfig {
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
                 // network training - adam optimizer
                 .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
+                .absorbingStateDropToZero(true)
 
                 // play
                 .numSimulations(160)     // 800 in the paper
@@ -174,8 +183,17 @@ public class MuZeroConfig {
                 .numParallelPlays(1000)
                 .numSimulations(20)
                 .windowSize(20000)
-                .numberOfTrainingSteps(9000)
                 .numChannels(128)
+                .absorbingStateDropToZero(true)
+                .numberOfTrainingSteps(9000)
+
+
+                // faster for integration test
+                .absorbingStateDropToZero(false)
+                .numberOfTrainingSteps(4000)
+
+
+
 
                 .build();
 
@@ -229,7 +247,7 @@ public class MuZeroConfig {
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
                 // network training - adam optimizer
                 .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
-
+                .absorbingStateDropToZero(true)
 
                 // play
 

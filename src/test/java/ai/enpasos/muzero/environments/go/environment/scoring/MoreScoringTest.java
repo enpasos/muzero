@@ -4,7 +4,7 @@ package ai.enpasos.muzero.environments.go.environment.scoring;
 import ai.enpasos.muzero.environments.go.environment.GoBoard;
 import ai.enpasos.muzero.environments.go.environment.basics.Point;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.environments.go.environment.basics.Player.WhitePlayer;

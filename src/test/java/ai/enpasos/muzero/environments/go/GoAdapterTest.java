@@ -7,7 +7,7 @@ import ai.enpasos.muzero.agent.slow.play.Action;
 import ai.enpasos.muzero.environments.go.environment.basics.move.Pass;
 import ai.enpasos.muzero.environments.go.environment.basics.move.Play;
 import ai.enpasos.muzero.environments.go.environment.basics.Point;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class GoAdapterTest {
 

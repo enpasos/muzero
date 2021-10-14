@@ -23,6 +23,7 @@ public class TicTacToeTest {
         FileUtils.deleteDirectory(new File(dir));
         config.setOutputDir(dir);
 
+
         train(config);
         boolean passed = test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
