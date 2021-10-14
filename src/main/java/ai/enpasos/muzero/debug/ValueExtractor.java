@@ -37,8 +37,8 @@ public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
 
-        //MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-        MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+  //      MuZeroConfig config = MuZeroConfig.getGoInstance(5);
 
         config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
 
@@ -51,7 +51,7 @@ public class ValueExtractor {
        // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
 
 
-        Game game = replayBuffer.getBuffer().getGames().get(49999);
+        Game game = replayBuffer.getBuffer().getGames().get( replayBuffer.getBuffer().getGames().size() - 1);
 
         List<Integer> actions = game.actionHistory().getActionIndexList();
         System.out.println(actions);

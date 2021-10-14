@@ -25,8 +25,10 @@ import ai.enpasos.muzero.environments.tictactoe.TicTacToeGame;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.agent.fast.model.Network;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -39,6 +41,13 @@ public class TicTacToeTest {
 
     public static void main(String[] args) {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+
+      //  String dir = "./memory/integrationtest/tictactoe/";
+
+
+        String dir = "C:\\Users\\jenkins\\AppData\\Local\\Jenkins\\.jenkins\\workspace\\muzero_master\\.\\memory\\integrationtest\\tictactoe\\";
+
+        config.setOutputDir(dir);
         test(config);
     }
 

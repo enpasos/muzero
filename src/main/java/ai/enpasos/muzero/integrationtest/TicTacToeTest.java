@@ -19,8 +19,10 @@ public class TicTacToeTest {
     public static void main(String[] args) throws URISyntaxException, IOException {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         String dir = "./memory/integrationtest/tictactoe/";
+
         FileUtils.deleteDirectory(new File(dir));
-        config.setOutputDir(dir); 
+        config.setOutputDir(dir);
+
         train(config);
         boolean passed = test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
