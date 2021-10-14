@@ -1,11 +1,12 @@
 package ai.enpasos.muzero.environments.go.environment;
 
 import ai.enpasos.muzero.environments.go.environment.basics.Point;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 import static ai.enpasos.muzero.environments.go.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.environments.go.environment.basics.Player.WhitePlayer;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
+
 
 class GoBoardTest {
 

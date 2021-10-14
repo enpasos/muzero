@@ -24,7 +24,7 @@ import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.agent.slow.play.PlayManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 import static ai.enpasos.muzero.MuZero.deleteNetworksAndGames;
 

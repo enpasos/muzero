@@ -19,8 +19,9 @@ package ai.enpasos.muzero;
 
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 
 public class EnumeratedIntegerDistributionTest {
 

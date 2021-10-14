@@ -20,12 +20,13 @@ package ai.enpasos.muzero;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.agent.slow.play.Action;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 
 class GameTest {
 

@@ -226,7 +226,7 @@ public abstract class Game implements Serializable {
                 // for board games (without a reward network) the value network
                 // does not have to change the value after the final move
                 //
-                target.value = 0;
+                target.value = config.isAbsorbingStateDropToZero() ? 0f : (float)value;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
