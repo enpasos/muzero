@@ -179,14 +179,14 @@ public class MuZeroConfig {
                 .numberOfTrainingSteps(10000)
                 // -> 0:46
 
-                .numPlays(2)
-                .numParallelPlays(1000)
+                .numPlays(4)
+                .numParallelPlays(500)
                 .numSimulations(20)
-                .windowSize(20000)
+                .windowSize(5000)
                 .numChannels(128)
                 .absorbingStateDropToZero(true)
                 .numberOfTrainingSteps(9000)
-
+                .numberOfTrainingStepsPerEpoch(100)
 
                 // faster for integration test
                 .absorbingStateDropToZero(false)
