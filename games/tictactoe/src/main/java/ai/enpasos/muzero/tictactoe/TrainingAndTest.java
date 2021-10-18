@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import ai.enpasos.muzero.tictactoe.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static ai.enpasos.muzero.MuZero.train;
+import static ai.enpasos.muzero.platform.MuZero.train;
 
 @Slf4j
 public class TrainingAndTest {

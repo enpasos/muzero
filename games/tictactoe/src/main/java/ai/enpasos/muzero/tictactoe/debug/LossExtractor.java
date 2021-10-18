@@ -1,9 +1,9 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
-import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 
-import static ai.enpasos.muzero.debug.LossExtractor.listLossesForTrainedNetworks;
+import static ai.enpasos.muzero.platform.debug.LossExtractor.listLossesForTrainedNetworks;
 
 public class LossExtractor {
 

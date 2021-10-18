@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.go.config;
 
-import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.environment.EnvironmentBaseBoardGames;
-import ai.enpasos.muzero.environment.OneOfTwoPlayer;
+import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.go.config.environment.*;
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
@@ -27,7 +27,7 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
-import ai.enpasos.muzero.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;

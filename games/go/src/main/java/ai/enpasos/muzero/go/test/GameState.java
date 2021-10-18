@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.go.test;
 
-import ai.enpasos.muzero.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import lombok.Data;
 
 import java.util.Arrays;

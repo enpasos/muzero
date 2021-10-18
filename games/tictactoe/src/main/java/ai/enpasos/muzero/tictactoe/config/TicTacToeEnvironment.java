@@ -17,10 +17,10 @@
 
 package ai.enpasos.muzero.tictactoe.config;
 
-import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.slow.play.Action;
-import ai.enpasos.muzero.environment.EnvironmentBaseBoardGames;
-import ai.enpasos.muzero.environment.OneOfTwoPlayer;
+import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

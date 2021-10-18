@@ -1,13 +1,11 @@
 package ai.enpasos.muzero.go.config;
 
-import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.go.config.environment.*;
 import ai.enpasos.muzero.go.config.environment.basics.move.Move;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
-import ai.enpasos.muzero.go.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;

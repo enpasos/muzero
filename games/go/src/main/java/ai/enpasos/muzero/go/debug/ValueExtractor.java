@@ -17,15 +17,15 @@
 
 package ai.enpasos.muzero.go.debug;
 
-import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.go.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.List;
 
-import static ai.enpasos.muzero.debug.ValueExtractor.getActionList;
-import static ai.enpasos.muzero.debug.ValueExtractor.listValuesForTrainedNetworks;
+import static ai.enpasos.muzero.platform.debug.ValueExtractor.getActionList;
+import static ai.enpasos.muzero.platform.debug.ValueExtractor.listValuesForTrainedNetworks;
 
 @Slf4j
 public class ValueExtractor {
