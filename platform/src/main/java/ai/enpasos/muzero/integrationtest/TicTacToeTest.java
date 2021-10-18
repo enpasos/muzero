@@ -20,7 +20,7 @@ public class TicTacToeTest {
         MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
         String dir = "./memory/integrationtest/tictactoe/";
 
-      //  FileUtils.deleteDirectory(new File(dir));
+        FileUtils.deleteDirectory(new File(dir));
         config.setOutputDir(dir);
 
 

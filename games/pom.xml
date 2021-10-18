@@ -5,13 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.enpasos.muzero</groupId>
-    <artifactId>muzero</artifactId>
+    <artifactId>games</artifactId>
     <version>0.3.0-SNAPSHOT</version>
 
      <packaging>pom</packaging>
 
     <modules>
-        <module>platform</module>
-        <module>games</module>
+        <module>tictactoe</module>
     </modules>
 </project>

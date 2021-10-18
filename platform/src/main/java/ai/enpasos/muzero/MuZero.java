@@ -40,11 +40,11 @@ public class MuZero {
     // java -jar ./target/muzero-0.2.0-SNAPSHOT-jar-with-dependencies.jar
     // be careful - you have to kill the process by hand
     public static void main(String[] args) throws URISyntaxException, IOException {
-       try {
+//       try {
             run();
-        } catch (Exception e) {
-            restartApplication();
-        }
+//        } catch (Exception e) {
+//            restartApplication();
+//        }
     }
 
 
@@ -226,6 +226,29 @@ public class MuZero {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.start();
         System.exit(0);
+    }
+
+
+
+    public static void train(MuZeroConfig config) {
+        MuZero.createNetworkModelIfNotExisting(config);
+
+        ReplayBuffer replayBuffer = new ReplayBuffer(config);
+        replayBuffer.loadLatestState();
+        MuZero.initialFillingBuffer(config, replayBuffer);
+
+        int trainingStep = NetworkHelper.numberOfLastTrainingStep(config);
+
+        while (trainingStep < config.getNumberOfTrainingSteps()) {
+            if (trainingStep != 0) {
+                log.info("last training step = {}", trainingStep);
+                log.info("numSimulations: " + config.getNumSimulations());
+                MuZero.playOnDeepThinking(config, replayBuffer);
+                replayBuffer.saveState();
+            }
+            trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+        }
+
     }
 
 }
