@@ -28,7 +28,10 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -61,7 +64,6 @@ public class ReplayBuffer {
         game.replayToPosition(gamePos);
 
 
-
         sample.setObservation(game.getObservation(ndManager));
 
 
@@ -87,8 +89,6 @@ public class ReplayBuffer {
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
 
-
-
         sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, game.toPlay(), sample));
 
         return sample;
@@ -100,7 +100,6 @@ public class ReplayBuffer {
 //        StateNode base = this.buffer.gameTree.findNode(game.getGameDTO().getActionHistory(), pos);
 //        return base.hasOrIsLeafNodeWithPositivResult(player);
 //    }
-
 
 
     public static int samplePosition(@NotNull Game game) {
@@ -181,23 +180,23 @@ public class ReplayBuffer {
                     Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
                     return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
                 })
-                .limit(this.batchSize/2)
+                .limit(this.batchSize / 2)
 
                 .collect(Collectors.toList()));
         int numberOfTrainingGamesForA = gamesToTrain.size();
-      //  log.debug("number of training games for A: " + numberOfTrainingGamesForA);
+        //  log.debug("number of training games for A: " + numberOfTrainingGamesForA);
         games.removeAll(gamesToTrain);  // otherwise draw games could be selected again
         gamesToTrain.addAll(games.stream()
                 .filter(g -> {
                     Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
                     return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
                 })
-                .limit(this.batchSize/2)
+                .limit(this.batchSize / 2)
                 .collect(Collectors.toList()));
 
 
-        int numberOfTrainingGamesForB= gamesToTrain.size()-numberOfTrainingGamesForA ;
-       // log.debug("number of training games for B: " + numberOfTrainingGamesForB);
+        int numberOfTrainingGamesForB = gamesToTrain.size() - numberOfTrainingGamesForA;
+        // log.debug("number of training games for B: " + numberOfTrainingGamesForB);
         return gamesToTrain;
     }
 
@@ -232,9 +231,9 @@ public class ReplayBuffer {
     }
 
     public void rebuildGames() {
-            buffer.games = new ArrayList<>();
+        buffer.games = new ArrayList<>();
         for (GameDTO gameDTO : buffer.getData()) {
-            Game game  = this.config.newGame();
+            Game game = this.config.newGame();
             game.setGameDTO(gameDTO);
             if (!game.terminal()) {
                 game.replayToPosition(game.actionHistory().getActionIndexList().size());

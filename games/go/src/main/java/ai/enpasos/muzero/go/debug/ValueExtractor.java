@@ -17,8 +17,8 @@
 
 package ai.enpasos.muzero.go.debug;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.go.config.ConfigFactory;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class ValueExtractor {
     public static void main(String[] args) throws IOException {
 
         MuZeroConfig config = ConfigFactory.getGoInstance(5);
-        config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
+        config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
         List<Integer> actionIndexList = getActionList(config);
 

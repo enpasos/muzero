@@ -42,11 +42,9 @@ public class RecurrentInferenceBlock extends AbstractBlock {
 
     public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
         super(VERSION);
-         g = this.addChildBlock("Dynamics", dynamicsBlock);
-         f = this.addChildBlock("Prediction", predictionBlock);
+        g = this.addChildBlock("Dynamics", dynamicsBlock);
+        f = this.addChildBlock("Prediction", predictionBlock);
     }
-
-
 
 
     /**

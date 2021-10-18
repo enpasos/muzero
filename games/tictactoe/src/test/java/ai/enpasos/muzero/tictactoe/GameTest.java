@@ -18,8 +18,8 @@
 package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Test;

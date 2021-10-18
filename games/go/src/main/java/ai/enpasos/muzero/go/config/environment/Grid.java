@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
 import static ai.enpasos.muzero.go.config.environment.ZobristHashing.ZOBRIST;
 
 /**
@@ -19,8 +18,8 @@ import static ai.enpasos.muzero.go.config.environment.ZobristHashing.ZOBRIST;
  *
  * @param grid map from grid point location to parent string of stones (if any)
  * @param hash the Zobrist hash. Gets updated as moves are played. Used to detect ko.
- *
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ *             <p>
+ *             adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
 @AllArgsConstructor
@@ -34,6 +33,13 @@ public class Grid {
         grid = new HashMap<>();
     }
 
+    private static Map<Point, GoString> replaceString(GoString newString, Map<Point, GoString> g) {
+        newString.getStones().forEach(
+                point -> g.put(point, newString)
+        );
+        return g;
+    }
+
     Optional<GoString> getString(Point point) {
         return Optional.ofNullable(grid.get(point));
     }
@@ -42,13 +48,11 @@ public class Grid {
         return getString(point).map(GoString::getPlayer);
     }
 
-
-
     /**
-     * @param point the position of the stone that was added
+     * @param point     the position of the stone that was added
      * @param newString the new parent string for that added stone
      */
-    Grid updateStringWhenAddingStone(Point point, GoString newString)  {
+    Grid updateStringWhenAddingStone(Point point, GoString newString) {
         Map<Point, GoString> newGrid = new HashMap<>();
         newGrid.putAll(grid);
 
@@ -68,35 +72,26 @@ public class Grid {
         return new Grid(replaceString(newString, grid), hash);
     }
 
-
-    private static Map<Point, GoString>  replaceString(GoString newString, Map<Point, GoString> g) {
-        newString.getStones().forEach(
-                point -> g.put(point, newString)
-        );
-        return g;
-    }
-
     /**
      * When a string is removed due to capture, also update the liberties of the adjacent strings of opposite color.
+     *
      * @param removedString the string to remove
      * @return newGrid and newHash value
      */
-    Grid removeString(GoString removedString, NeighborMap nbrMap)  {
+    Grid removeString(GoString removedString, NeighborMap nbrMap) {
         var newGrid = grid;
         var newHash = hash;
 
         // first remove the stones from the board
-        for(Point point : removedString.getStones())
-                {
-                        newGrid.remove(point);  // the point is now empty
+        for (Point point : removedString.getStones()) {
+            newGrid.remove(point);  // the point is now empty
             newHash ^= ZOBRIST.get(Pair.of(point, Optional.of(removedString.getPlayer()))); // Remove filled point hash code.
             newHash ^= ZOBRIST.get(Pair.of(point, Optional.empty())); // Add empty point hash code.
         }
 
         // for each opponent neighbor string adjacent to the one removed, add a liberty for each removed point
-        for(Point point : removedString.getStones()) {
-            for(Point neighbor : nbrMap.get(point))
-            {
+        for (Point point : removedString.getStones()) {
+            for (Point neighbor : nbrMap.get(point)) {
                 var oppNbrString = newGrid.get(neighbor);
                 if (oppNbrString != null) {
                     newGrid = replaceString(oppNbrString.withLiberty(point), newGrid);

@@ -22,10 +22,10 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class PlayManager {
 //        playParallel(replayBuffer, config,  render, fastRuleLearning,  thinkConf, true);
 //    }
 
-    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config,  boolean render, boolean fastRuleLearning,   ThinkConf thinkConf, boolean explorationNoise) {
+    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, ThinkConf thinkConf, boolean explorationNoise) {
 
         for (int i = 0; i < thinkConf.numOfPlays(); i++) {
             try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
@@ -59,7 +59,7 @@ public class PlayManager {
                 if (!fastRuleLearning)
                     network = new Network(config, model);
 
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning,   actionSpaceOnDevice, explorationNoise, thinkConf);
+                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, actionSpaceOnDevice, explorationNoise, thinkConf);
                 gameList.forEach(replayBuffer::saveGame);
 
 

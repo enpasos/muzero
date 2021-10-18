@@ -39,8 +39,6 @@ public class ValueExtractor {
     public static String listValuesForTrainedNetworks(MuZeroConfig config, List<Integer> actions) throws IOException {
 
 
-
-
         //    List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
         //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
 
@@ -49,7 +47,7 @@ public class ValueExtractor {
 
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "vPlayerA", "actionIndex"))) {
-            IntStream.range(0, actions.size()+1).forEach(
+            IntStream.range(0, actions.size() + 1).forEach(
                     t -> {
                         try {
                             if (t == 24) {
@@ -60,7 +58,7 @@ public class ValueExtractor {
                             csvPrinter.printRecord(t,
 
                                     NumberFormat.getNumberInstance().format(valuePlayerA),
-                                    t == 0 ? -1 : actions.get(t-1));
+                                    t == 0 ? -1 : actions.get(t - 1));
 
                         } catch (Exception e) {
                             // ignore
@@ -82,7 +80,7 @@ public class ValueExtractor {
         // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
 
 
-        Game game = replayBuffer.getBuffer().getGames().get( replayBuffer.getBuffer().getGames().size() - 1);
+        Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
 
         List<Integer> actions = game.actionHistory().getActionIndexList();
         System.out.println(actions);

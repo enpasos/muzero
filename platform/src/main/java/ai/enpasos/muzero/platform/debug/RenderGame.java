@@ -27,7 +27,6 @@ import java.util.Objects;
 public class RenderGame {
 
 
-
     public static void applyAction(@NotNull Game game, int a) {
         game.apply(a);
         System.out.println("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions());

@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.platform.agent.Inference;
 import ai.enpasos.muzero.go.config.ConfigFactory;
+import ai.enpasos.muzero.platform.agent.Inference;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ class GoInferenceTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = Inference.aiDecision(actions, false, "./pretrained", ConfigFactory.getGoInstance(5));
     }
-
 
 
     @Test

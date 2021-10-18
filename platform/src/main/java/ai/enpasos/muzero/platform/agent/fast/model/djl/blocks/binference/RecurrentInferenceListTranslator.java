@@ -40,23 +40,21 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
     }
 
 
-
     @Override
-    public  List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
+    public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
         NDArray s = list.get(0);
 
 
         NDArray hiddenStates = null;
 //        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-            hiddenStates = s; //s.toDevice(Device.cpu(), false);
-            hiddenStates.detach();
-            SubModel submodel = (SubModel)ctx.getModel();
-            hiddenStates.attach(submodel.hiddenStateNDManager);
+        hiddenStates = s; //s.toDevice(Device.cpu(), false);
+        hiddenStates.detach();
+        SubModel submodel = (SubModel) ctx.getModel();
+        hiddenStates.attach(submodel.hiddenStateNDManager);
 //        } else {
 //            hiddenStates = s;
 //        }
-
 
 
         NetworkIO outputA = NetworkIO.builder()
@@ -88,7 +86,6 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
                 .collect(Collectors.toList());
 
 
-
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
             networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
         }
@@ -101,7 +98,6 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
     public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {
 
 
-
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
 
         NDArray hiddenStateOnTargetDevice = input.getHiddenState();
@@ -112,7 +108,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 //            hiddenStateOnTargetDevice = input.getHiddenState();
 //        }
 
-        return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack );
+        return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
 
     }
 

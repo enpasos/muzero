@@ -8,13 +8,10 @@ import java.util.*;
 
 public class ZobristHashing {
 
-    private ZobristHashing() {
-        // hide
-    }
-
     final public static int MAX_BOARD_SIZE = 19;
     final public static Random RAND = new Random();
     final public static Map<Pair<Point, Optional<Player>>, Long> ZOBRIST = new HashMap<>();
+
     static {
         List<Optional<Player>> players = new ArrayList<>();
         players.add(Optional.of(Player.BlackPlayer));
@@ -28,6 +25,10 @@ public class ZobristHashing {
                 }
             }
         }
+    }
+
+    private ZobristHashing() {
+        // hide
     }
 
 

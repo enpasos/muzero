@@ -42,8 +42,6 @@ public class SE extends AbstractBlock {
     public final ParallelBlock block;
 
 
-
-
     public SE(int numChannels) {
         super(VERSION);
 
@@ -51,15 +49,15 @@ public class SE extends AbstractBlock {
         SequentialBlock identity;
 
         ParallelBlock globalBlock =
-            new ParallelBlock(
-                list -> {
-                    List<NDArray> concatenatedList =
-                            list.stream().map(NDList::head).collect(Collectors.toList());
-                    return new NDList(NDArrays.concat(new NDList(concatenatedList), 1));
-                },
-                Arrays.asList(
-                        Pool.globalAvgPool2dBlock(),
-                        Pool.globalMaxPool2dBlock()));
+                new ParallelBlock(
+                        list -> {
+                            List<NDArray> concatenatedList =
+                                    list.stream().map(NDList::head).collect(Collectors.toList());
+                            return new NDList(NDArrays.concat(new NDList(concatenatedList), 1));
+                        },
+                        Arrays.asList(
+                                Pool.globalAvgPool2dBlock(),
+                                Pool.globalMaxPool2dBlock()));
 
         b1 = new SequentialBlock()
 
@@ -79,12 +77,10 @@ public class SE extends AbstractBlock {
                 .add(Blocks.identityBlock());
 
 
-
-
         block = addChildBlock("seBlock", new ParallelBlock(
                 list -> {
                     NDArray scaler = list.get(0).singletonOrThrow();
-                    Shape newShape = scaler.getShape().add(1,1);
+                    Shape newShape = scaler.getShape().add(1, 1);
                     scaler = scaler.reshape(newShape);
                     NDArray original = list.get(1).singletonOrThrow();
                     return new NDList(

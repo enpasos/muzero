@@ -17,17 +17,17 @@
 
 package ai.enpasos.muzero.go.config;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.go.config.environment.*;
+import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -54,9 +54,9 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     }
 
     public @NotNull List<Action> legalActions() {
-            return state.getValidMoves().stream()
-                    .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
-                    .map(move -> translate(this.config, move)).collect(Collectors.toList());
+        return state.getValidMoves().stream()
+                .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
+                .map(move -> translate(this.config, move)).collect(Collectors.toList());
     }
 
 
@@ -85,8 +85,6 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
     }
 
 
-
-
     public void swapPlayer() {
         throw new NotImplementedException("swapPlayer() is not implemented here");
     }
@@ -97,13 +95,13 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 //    }
 
     @Override
-    public void setPlayerToMove(OneOfTwoPlayer player) {
-        throw new NotImplementedException("setPlayerToMove is not implemented");
+    public OneOfTwoPlayer getPlayerToMove() {
+        return translate(this.state.getNextPlayer());
     }
 
     @Override
-    public OneOfTwoPlayer getPlayerToMove() {
-        return translate(this.state.getNextPlayer());
+    public void setPlayerToMove(OneOfTwoPlayer player) {
+        throw new NotImplementedException("setPlayerToMove is not implemented");
     }
 
     @Override
@@ -111,7 +109,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
         // TODO
         throw new NotImplementedException("swapPlayer() is not implemented");
-      //  return this.board;
+        //  return this.board;
     }
 
     public boolean terminal() {
@@ -128,18 +126,18 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
 
         String lastMove = "NONE YET";
         if (state.getLastMove().isPresent()) {
-            if (state.getLastMove().get() instanceof Pass)  {
+            if (state.getLastMove().get() instanceof Pass) {
                 lastMove = "PASS";
-            } else if (state.getLastMove().get() instanceof Resign)  {
+            } else if (state.getLastMove().get() instanceof Resign) {
                 lastMove = "RESIGN";
-            } else if (state.getLastMove().get() instanceof Play)  {
-                Play play = (Play)state.getLastMove().get();
+            } else if (state.getLastMove().get() instanceof Play) {
+                Play play = (Play) state.getLastMove().get();
                 Point p = play.getPoint();
-                lastMove = "PLAY(" + String.valueOf((char)(64 + p.getCol()))  + ", " + (config.getBoardHeight()-p.getRow()+1) + ")";
+                lastMove = "PLAY(" + String.valueOf((char) (64 + p.getCol())) + ", " + (config.getBoardHeight() - p.getRow() + 1) + ")";
             }
         }
 
-        String lastMoveStr =  (state.getNextPlayer().other()== Player.BlackPlayer?"x":"o")
+        String lastMoveStr = (state.getNextPlayer().other() == Player.BlackPlayer ? "x" : "o")
                 + " move: " + lastMove;
 
         String status = "GAME RUNNING";
@@ -148,7 +146,7 @@ public class GoEnvironment extends EnvironmentBaseBoardGames {
             status = "GAME OVER\n" + getResult().toString();
         }
 
-         return lastMoveStr + "\n" + state.getBoard().toString() +  "\n" + status ;
+        return lastMoveStr + "\n" + state.getBoard().toString() + "\n" + status;
 
     }
 

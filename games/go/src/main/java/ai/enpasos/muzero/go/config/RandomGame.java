@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.go.config;
 
-import ai.enpasos.muzero.go.config.environment.*;
+import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.go.config.environment.basics.move.Move;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
@@ -28,7 +28,7 @@ public class RandomGame {
 
 
             if (selectedMove instanceof Play) {
-                log.info("\n"+ state.getBoard().toString());
+                log.info("\n" + state.getBoard().toString());
             } else if (selectedMove instanceof Pass) {
                 log.info("Pass");
             } else if (selectedMove instanceof Resign) {
@@ -41,11 +41,7 @@ public class RandomGame {
         log.info("*** G A M E   O V E R ***");
 
         var result = GameResult.apply(state.getBoard(), ConfigFactory.getGoInstance(5).getKomi());
-        log.info("result = " +  result + "\n" + result.toDebugString());
-
-
-
-
+        log.info("result = " + result + "\n" + result.toDebugString());
 
 
     }

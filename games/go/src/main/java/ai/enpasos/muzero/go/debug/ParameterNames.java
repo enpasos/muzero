@@ -17,8 +17,8 @@
 
 package ai.enpasos.muzero.tictactoe.debug;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.go.config.ConfigFactory;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import static ai.enpasos.muzero.platform.debug.ParameterNames.listParameterNames;

@@ -17,12 +17,12 @@
 
 package ai.enpasos.muzero.platform;
 
-import ai.enpasos.muzero.platform.agent.slow.play.ThinkBudget;
-import ai.enpasos.muzero.platform.agent.slow.play.ThinkConf;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.platform.agent.slow.play.ThinkBudget;
+import ai.enpasos.muzero.platform.agent.slow.play.ThinkConf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -121,7 +121,7 @@ public class MuZero {
 //                                        .numOfPlays(numberOfPlays)
 //                                        .build())
 //                        .build();
-        PlayManager.playParallel(replayBuffer, config,  false, false, thinkConf, true);
+        PlayManager.playParallel(replayBuffer, config, false, false, thinkConf, true);
     }
 //
 //    private static void playOnIntuition(MuZeroConfig config, ReplayBuffer replayBuffer) {
@@ -162,7 +162,7 @@ public class MuZero {
 
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(replayBuffer, config,   false, true, thinkConf, true);
+            PlayManager.playParallel(replayBuffer, config, false, true, thinkConf, true);
             replayBuffer.saveState();
         }
     }
@@ -213,10 +213,10 @@ public class MuZero {
 //        List<String> command = List.of("java -jar muzero.jar");
 
 
-                final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
         final File currentJar = new File(MuZero.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-        if(!currentJar.getName().endsWith(".jar"))
+        if (!currentJar.getName().endsWith(".jar"))
             return;
 
         final ArrayList<String> command = new ArrayList<String>();
@@ -227,7 +227,6 @@ public class MuZero {
         builder.start();
         System.exit(0);
     }
-
 
 
     public static void train(MuZeroConfig config) {

@@ -41,26 +41,6 @@ public class ActionHistory implements Cloneable {
         this.actionSpaceSize = actionSpaceSize;
     }
 
-    public @NotNull List<Integer> getActionIndexList() {
-        return actions;
-    }
-
-
-    public @NotNull ActionHistory clone() {
-        return new ActionHistory(config, actions, actionSpaceSize);
-    }
-
-
-    public void addAction(@NotNull Action action) {
-        this.actions.add(action.getIndex());
-    }
-
-
-    public @NotNull Action lastAction() {
-        return new Action(config, actions.get(actions.size() - 1));
-    }
-
-
     public static @NotNull List<Action> actionSpace(MuZeroConfig config) {
         List<Action> actions = new ArrayList<>();
         for (int i = 0; i < config.getActionSpaceSize(); i++) {
@@ -69,6 +49,21 @@ public class ActionHistory implements Cloneable {
         return actions;
     }
 
+    public @NotNull List<Integer> getActionIndexList() {
+        return actions;
+    }
+
+    public @NotNull ActionHistory clone() {
+        return new ActionHistory(config, actions, actionSpaceSize);
+    }
+
+    public void addAction(@NotNull Action action) {
+        this.actions.add(action.getIndex());
+    }
+
+    public @NotNull Action lastAction() {
+        return new Action(config, actions.get(actions.size() - 1));
+    }
 
     public @NotNull Player toPlay() {
         int t = this.actions.size();

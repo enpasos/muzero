@@ -8,6 +8,6 @@ import lombok.Data;
 public class ThinkBudget {
     int numSims;
     int numParallel;
-int numOfPlays;
+    int numOfPlays;
 
 }

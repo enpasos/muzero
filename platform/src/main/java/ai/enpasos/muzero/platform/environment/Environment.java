@@ -23,7 +23,7 @@ import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import java.util.List;
 
 /**
- * The environment MuZero is interacting with by applying actions and receiving rewards and new observations
+ * The environment the agent is interacting with by applying actions and receiving rewards and new observations
  * of whatever the environment reveals about its new internal states.
  */
 public interface Environment {

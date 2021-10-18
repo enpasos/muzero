@@ -19,11 +19,11 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.slow.play.*;
 import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import lombok.Data;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -123,7 +123,7 @@ public abstract class Game implements Serializable {
             for (Pair<Action, Double> e : distributionInput) {
                 Action action = e.getKey();
                 double v = e.getValue();
-                childVisit[action.getIndex()] = (float)v;
+                childVisit[action.getIndex()] = (float) v;
             }
         }
         this.getGameDTO().getPolicyTarget().add(childVisit);
@@ -133,32 +133,32 @@ public abstract class Game implements Serializable {
 
 
     /**
-     *   def make_target(self, state_index: int, num_unroll_steps: int, td_steps: int,
-     *                   to_play: Player):
-     *     # The value target is the discounted root value of the search tree N steps
-     *     # into the future, plus the discounted sum of all rewards until then.
-     *     targets = []
-     *     for current_index in range(state_index, state_index + num_unroll_steps + 1):
-     *       bootstrap_index = current_index + td_steps
-     *       if bootstrap_index < len(self.root_values):
-     *         value = self.root_values[bootstrap_index] * self.discount**td_steps
-     *       else:
-     *         value = 0
-     *
-     *       for i, reward in enumerate(self.rewards[current_index:bootstrap_index]):
-     *         value += reward * self.discount**i  # pytype: disable=unsupported-operands
-     *
-     *       if current_index > 0 and current_index <= len(self.rewards):
-     *         last_reward = self.rewards[current_index - 1]
-     *       else:
-     *         last_reward = None
-     *
-     *       if current_index < len(self.root_values):
-     *         targets.append((value, last_reward, self.child_visits[current_index]))
-     *       else:
-     *         # States past the end of games are treated as absorbing states.
-     *         targets.append((0, last_reward, []))
-     *     return targets
+     * def make_target(self, state_index: int, num_unroll_steps: int, td_steps: int,
+     * to_play: Player):
+     * # The value target is the discounted root value of the search tree N steps
+     * # into the future, plus the discounted sum of all rewards until then.
+     * targets = []
+     * for current_index in range(state_index, state_index + num_unroll_steps + 1):
+     * bootstrap_index = current_index + td_steps
+     * if bootstrap_index < len(self.root_values):
+     * value = self.root_values[bootstrap_index] * self.discount**td_steps
+     * else:
+     * value = 0
+     * <p>
+     * for i, reward in enumerate(self.rewards[current_index:bootstrap_index]):
+     * value += reward * self.discount**i  # pytype: disable=unsupported-operands
+     * <p>
+     * if current_index > 0 and current_index <= len(self.rewards):
+     * last_reward = self.rewards[current_index - 1]
+     * else:
+     * last_reward = None
+     * <p>
+     * if current_index < len(self.root_values):
+     * targets.append((value, last_reward, self.child_visits[current_index]))
+     * else:
+     * # States past the end of games are treated as absorbing states.
+     * targets.append((0, last_reward, []))
+     * return targets
      */
     // TODO at the moment we are only using the board game case.
     // the implementation also addresses the more general case, but might be not correct in detail
@@ -211,8 +211,7 @@ public abstract class Game implements Serializable {
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
-            }
-            else {
+            } else {
                 // In case of board games
                 // after the reward on the terminal action
                 // there is no further reward and so there also will not be accumulated future reward
@@ -226,7 +225,7 @@ public abstract class Game implements Serializable {
                 // for board games (without a reward network) the value network
                 // does not have to change the value after the final move
                 //
-                target.value = config.isAbsorbingStateDropToZero() ? 0f : (float)value;
+                target.value = config.isAbsorbingStateDropToZero() ? 0f : (float) value;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
@@ -288,13 +287,13 @@ public abstract class Game implements Serializable {
     }
 
     public Optional<OneOfTwoPlayer> whoWonTheGame() {
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerA)) return  Optional.of(OneOfTwoPlayer.PlayerA);
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerB)) return  Optional.of(OneOfTwoPlayer.PlayerB);
-       return Optional.empty();
+        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerA)) return Optional.of(OneOfTwoPlayer.PlayerA);
+        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerB)) return Optional.of(OneOfTwoPlayer.PlayerB);
+        return Optional.empty();
     }
 
     public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
         // won or draw but not lost
-       return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
+        return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
     }
 }

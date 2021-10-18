@@ -24,11 +24,11 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -127,7 +127,7 @@ public class TicTacToeGame extends Game {
             int colLastMove = action.getCol();
 
             player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-            r += player.getSymbol() + " move (" + (action.getRow()+1) + ", " + String.valueOf((char)(colLastMove + 65))  + ") index " + action.getIndex();
+            r += player.getSymbol() + " move (" + (action.getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
         }
         r += "\n";
         r += getEnvironment().render();

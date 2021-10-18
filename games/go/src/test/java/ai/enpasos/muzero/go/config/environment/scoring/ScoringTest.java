@@ -2,7 +2,6 @@ package ai.enpasos.muzero.go.config.environment.scoring;
 
 import ai.enpasos.muzero.go.config.environment.GoBoard;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
-import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
 
@@ -114,17 +113,17 @@ public class ScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
         // Expected stones on the board
-        assertEquals(  result.getNumWhiteStones(), 10);
-        assertEquals( result.getNumBlackStones(), 5);
+        assertEquals(result.getNumWhiteStones(), 10);
+        assertEquals(result.getNumBlackStones(), 5);
 
 
-            assertEquals(  result.getNumBlackTerritory(), 5);
+        assertEquals(result.getNumBlackTerritory(), 5);
 
-            assertEquals( result.getNumWhiteTerritory(), 5);
+        assertEquals(result.getNumWhiteTerritory(), 5);
         // and no dame points
-        assertEquals( result.getNumDame(), 0);
+        assertEquals(result.getNumDame(), 0);
         // White wins by
-        assertEquals( -result.blackWinningMargin(), 5.5);
+        assertEquals(-result.blackWinningMargin(), 5.5);
 
     }
 
@@ -157,16 +156,16 @@ public class ScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
         // Expected stones on the board
-            assertEquals(  result.getNumWhiteStones(), 6);
-            assertEquals(  result.getNumBlackStones(), 5);
+        assertEquals(result.getNumWhiteStones(), 6);
+        assertEquals(result.getNumBlackStones(), 5);
 
-            assertEquals(  result.getNumBlackTerritory(), 5);
+        assertEquals(result.getNumBlackTerritory(), 5);
 
-            assertEquals( result.getNumWhiteTerritory(), 4);
+        assertEquals(result.getNumWhiteTerritory(), 4);
         // and several dame points
-        assertEquals( result.getNumDame(), 5);
+        assertEquals(result.getNumDame(), 5);
         // White wins by
-        assertEquals( -result.blackWinningMargin(), 0.5);
+        assertEquals(-result.blackWinningMargin(), 0.5);
 
     }
 
@@ -180,7 +179,7 @@ public class ScoringTest {
      */
     @Test
     void scoreAGiven5x5GameWithNarrowWhiteVictory() {
-            var board = new GoBoard(5);
+        var board = new GoBoard(5);
         board = board.placeStone(BlackPlayer, new Point(1, 1));
         board = board.placeStone(BlackPlayer, new Point(1, 2));
         board = board.placeStone(BlackPlayer, new Point(1, 4));
@@ -210,28 +209,28 @@ public class ScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
         // should have expected black and white stones
-            assertEquals( result.getNumBlackStones(), 12);
-            assertEquals( result.getNumWhiteStones(), 8);
+        assertEquals(result.getNumBlackStones(), 12);
+        assertEquals(result.getNumWhiteStones(), 8);
 
         // should have expected black territory
-            assertEquals( result.getNumBlackTerritory(), 2);
+        assertEquals(result.getNumBlackTerritory(), 2);
 
         // should have expected white territory
-            assertEquals( result.getNumWhiteTerritory(), 3);
+        assertEquals(result.getNumWhiteTerritory(), 3);
 
 
         // should have expected black points
-            assertEquals( result.blackPoints(), 14);
+        assertEquals(result.blackPoints(), 14);
 
         // should have expected white points
-            assertEquals( result.whitePoints(), 11);
+        assertEquals(result.whitePoints(), 11);
 
 
         // and no dame points
-            assertEquals( result.getNumDame(), 0);
+        assertEquals(result.getNumDame(), 0);
 
         // Black wins by
-            assertEquals( result.blackWinningMargin(), -4.5);
+        assertEquals(result.blackWinningMargin(), -4.5);
 
     }
 
@@ -269,28 +268,28 @@ public class ScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
         // should have expected black and white stones
-            assertEquals( result.getNumBlackStones(), 6);
-            assertEquals( result.getNumWhiteStones(), 6);
+        assertEquals(result.getNumBlackStones(), 6);
+        assertEquals(result.getNumWhiteStones(), 6);
 
         // should have expected black territory
-            assertEquals( result.getNumBlackTerritory(), 2);
+        assertEquals(result.getNumBlackTerritory(), 2);
 
         // should have expected white territory
-            assertEquals( result.getNumWhiteTerritory(), 4);
+        assertEquals(result.getNumWhiteTerritory(), 4);
 
 
         // should have expected black points
-            assertEquals( result.blackPoints(), 8);
+        assertEquals(result.blackPoints(), 8);
 
         // should have expected white points
-            assertEquals( result.whitePoints(), 10);
+        assertEquals(result.whitePoints(), 10);
 
 
         // and no dame points
-            assertEquals( result.getNumDame(), 7);
+        assertEquals(result.getNumDame(), 7);
 
         // Black wins by
-            assertEquals( result.blackWinningMargin(), -2.5);
+        assertEquals(result.blackWinningMargin(), -2.5);
 
     }
 
@@ -323,20 +322,20 @@ public class ScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
         // Expected stones on the board
-            assertEquals( result.getNumWhiteStones(), 6);
-            assertEquals( result.getNumBlackStones(), 5);
+        assertEquals(result.getNumWhiteStones(), 6);
+        assertEquals(result.getNumBlackStones(), 5);
 
         // should have 4 points for black
-            assertEquals( result.getNumBlackTerritory(), 10);
+        assertEquals(result.getNumBlackTerritory(), 10);
 
         // should have 3 points for white
-            assertEquals( result.getNumWhiteTerritory(), 2);
+        assertEquals(result.getNumWhiteTerritory(), 2);
 
         // and dame points
-            assertEquals( result.getNumDame(), 2);
+        assertEquals(result.getNumDame(), 2);
 
         // Black wins by
-            assertEquals( result.blackWinningMargin(), 6.5);
+        assertEquals(result.blackWinningMargin(), 6.5);
 
     }
 }

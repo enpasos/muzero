@@ -12,44 +12,24 @@ import java.util.stream.Collectors;
 
 /**
  * Maps a point on a board grid to a set of other points on that same grid.
- *
+ * <p>
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
 public class NeighborMap {
 
-        private Map<Point, List<Point>> map;
+    private Map<Point, List<Point>> map;
 
-        public NeighborMap() {
-                this.map = new HashMap<>();
-        }
+    public NeighborMap() {
+        this.map = new HashMap<>();
+    }
 
-        List<Point> get(Point point) {
-                return map.get(point);
-        }
-
-        void put(Point point, List<Point> list) {
-                map.put(point, list);
-        }
-
-
-        static NeighborMap add(NeighborMap m1, NeighborMap m2)  {
-                NeighborMap m = new NeighborMap();
-                m.map.putAll(m1.map);
-                m.map.putAll(m2.map);
-                return m;
-        }
-
-
-       int findNumTrueNeighbors(Player player, Point point, Grid grid) {
-             return (int)this.map.get(point).stream().filter(
-                        neighbor -> {
-                             var str = grid.getString(neighbor);
-                             return str.isPresent() && str.get().getPlayer() == player;
-                        })
-                     .count();
-       }
-
+    static NeighborMap add(NeighborMap m1, NeighborMap m2) {
+        NeighborMap m = new NeighborMap();
+        m.map.putAll(m1.map);
+        m.map.putAll(m2.map);
+        return m;
+    }
 
     private static NeighborMap createNeighborMap(int size) {
         var neighborMap = new NeighborMap();
@@ -63,7 +43,6 @@ public class NeighborMap {
         }
         return neighborMap;
     }
-
 
     /**
      * For each point in the grid, the map has the diagonals from that point
@@ -85,6 +64,23 @@ public class NeighborMap {
         return points.stream().filter(
                 nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
         ).collect(Collectors.toList());
+    }
+
+    List<Point> get(Point point) {
+        return map.get(point);
+    }
+
+    void put(Point point, List<Point> list) {
+        map.put(point, list);
+    }
+
+    int findNumTrueNeighbors(Player player, Point point, Grid grid) {
+        return (int) this.map.get(point).stream().filter(
+                        neighbor -> {
+                            var str = grid.getString(neighbor);
+                            return str.isPresent() && str.get().getPlayer() == player;
+                        })
+                .count();
     }
 
 

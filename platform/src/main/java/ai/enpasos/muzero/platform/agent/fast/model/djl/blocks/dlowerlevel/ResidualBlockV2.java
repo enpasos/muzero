@@ -62,7 +62,7 @@ public class ResidualBlockV2 extends AbstractBlock {
                         .build())
 
                 .add(new SE(numChannels))   // Squeeze-and-Excitation Networks
-                ;
+        ;
 
         identity = new SequentialBlock()
                 .add(Blocks.identityBlock());
@@ -75,7 +75,7 @@ public class ResidualBlockV2 extends AbstractBlock {
                     return new NDList(
                             unit.singletonOrThrow()
                                     .add(parallel.singletonOrThrow())
-                                    );
+                    );
                 },
                 Arrays.asList(b1, identity)));
     }

@@ -18,7 +18,6 @@
 package ai.enpasos.muzero.go.config.environment;
 
 
-
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import lombok.AllArgsConstructor;
@@ -93,7 +92,6 @@ public class GoBoard {
     }
 
 
-
     public GoBoard placeStone(Player player, Point point) {
         if (!boundsChecker.inBounds(point)) {
             String message = point + " was not on the grid!";
@@ -108,7 +106,6 @@ public class GoBoard {
             return makeValidStonePlacement(player, point);
         }
     }
-
 
 
     private GoBoard makeValidStonePlacement(Player player, Point point) {

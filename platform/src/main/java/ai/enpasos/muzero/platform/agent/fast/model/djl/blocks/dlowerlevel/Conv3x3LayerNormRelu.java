@@ -35,12 +35,12 @@ public class Conv3x3LayerNormRelu extends MySequentialBlock {
     public static @NotNull Conv3x3LayerNormRelu newConvLayerNormRelu(int channels) {
         Conv3x3LayerNormRelu instance = new Conv3x3LayerNormRelu();
         instance.add(
-                Conv2d.builder()
-                        .setFilters(channels)
-                        .setKernelShape(new Shape(3, 3))
-                        .optBias(false)
-                        .optPadding(new Shape(1, 1))   // needed to keep in shape
-                        .build())
+                        Conv2d.builder()
+                                .setFilters(channels)
+                                .setKernelShape(new Shape(3, 3))
+                                .optBias(false)
+                                .optPadding(new Shape(1, 1))   // needed to keep in shape
+                                .build())
                 .add(LayerNorm.builder().build())
                 .add(Activation::relu);
         return instance;

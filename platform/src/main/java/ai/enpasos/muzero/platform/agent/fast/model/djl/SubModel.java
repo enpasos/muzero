@@ -32,15 +32,14 @@ import java.util.Map;
 
 @Slf4j
 public class SubModel extends BaseModel {
+    public NDManager hiddenStateNDManager;
+
     public SubModel(String modelName, @NotNull Model model, Block block) {
         super(modelName);
         super.manager = model.getNDManager().newSubManager();
 
         super.setBlock(block);
     }
-
-    public NDManager hiddenStateNDManager;
-
 
     @Override
     public void load(Path modelPath) {

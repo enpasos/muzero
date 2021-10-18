@@ -32,7 +32,9 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.Initial
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.InitialInferenceListTranslator;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.RecurrentInferenceListTranslator;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.*;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.DynamicsBlock;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -87,12 +89,6 @@ public class Network {
         this(config, model, Paths.get(getNetworksBasedir(config)));
     }
 
-
-    public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
-
-        initialInference.hiddenStateNDManager = hiddenStateNDManager;
-        recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
-    }
     public static double getDoubleValue(@NotNull Model model, String name) {
         double epoch = 0;
         String prop = model.getProperty(name);
@@ -101,6 +97,7 @@ public class Network {
         }
         return epoch;
     }
+
     public static int getEpoch(@NotNull Model model) {
         int epoch = 0;
         String prop = model.getProperty("Epoch");
@@ -110,11 +107,15 @@ public class Network {
         return epoch;
     }
 
+    public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
+
+        initialInference.hiddenStateNDManager = hiddenStateNDManager;
+        recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
+    }
+
     public NDManager getNDManager() {
         return model.getNDManager();
     }
-
-
 
 
     public NetworkIO initialInferenceDirect(@NotNull Observation observation) {
@@ -122,12 +123,11 @@ public class Network {
     }
 
 
-
     public @Nullable List<NetworkIO> initialInferenceListDirect(List<Observation> observationList) {
 
         List<NetworkIO> networkOutputFromInitialInference = null;
 
-         InitialInferenceListTranslator translator = new InitialInferenceListTranslator();
+        InitialInferenceListTranslator translator = new InitialInferenceListTranslator();
         try (Predictor<List<Observation>, List<NetworkIO>> predictor = initialInference.newPredictor(translator)) {
             networkOutputFromInitialInference = predictor.predict(observationList);
 
@@ -137,7 +137,7 @@ public class Network {
         return networkOutputFromInitialInference;
 
 
-   }
+    }
 
 
     public @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
@@ -147,7 +147,6 @@ public class Network {
         networkIO.setActionList(actionList);
 
         networkIO.setConfig(config);
-
 
 
         List<NetworkIO> networkOutput = null;
@@ -160,9 +159,9 @@ public class Network {
         }
 
 
-
         return networkOutput;
     }
+
     public int trainingSteps() {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }

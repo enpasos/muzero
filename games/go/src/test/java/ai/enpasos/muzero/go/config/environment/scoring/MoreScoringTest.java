@@ -3,7 +3,6 @@ package ai.enpasos.muzero.go.config.environment.scoring;
 
 import ai.enpasos.muzero.go.config.environment.GoBoard;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
-import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
 
@@ -105,7 +104,6 @@ public class MoreScoringTest {
     }
 
 
-
     // 5  .  O  .  O  .
     // 4  O  O  O  X  X
     // 3  .  O  X  X  X
@@ -148,9 +146,6 @@ public class MoreScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
     }
-
-
-
 
 
     // 5  X  X  O  O  .
@@ -239,7 +234,6 @@ public class MoreScoringTest {
         log.debug("result = \n" + result.toDebugString());
 
     }
-
 
 
     // bbbbb

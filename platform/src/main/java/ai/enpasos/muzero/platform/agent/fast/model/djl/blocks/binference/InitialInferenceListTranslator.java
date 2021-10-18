@@ -41,7 +41,6 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
     }
 
 
-
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
@@ -52,10 +51,10 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
 
         NDArray hiddenStates = null;
 //        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-            hiddenStates = s; //s.toDevice(Device.cpu(), false);
-            hiddenStates.detach();
-            SubModel submodel = (SubModel)ctx.getModel();
-            hiddenStates.attach(submodel.hiddenStateNDManager);
+        hiddenStates = s; //s.toDevice(Device.cpu(), false);
+        hiddenStates.detach();
+        SubModel submodel = (SubModel) ctx.getModel();
+        hiddenStates.attach(submodel.hiddenStateNDManager);
 //        } else {
 //            hiddenStates = s;
 //        }
@@ -87,7 +86,6 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
 
                 })
                 .collect(Collectors.toList());
-
 
 
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {

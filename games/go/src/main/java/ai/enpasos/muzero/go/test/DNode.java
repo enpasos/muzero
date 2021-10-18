@@ -20,12 +20,12 @@ package ai.enpasos.muzero.tictactoe.test;
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
 import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.platform.agent.slow.play.Node;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -194,9 +194,8 @@ public class DNode {
             actionIndexSelectedByNetwork = action.getIndex();
 
 
-
         }
-    //    System.out.println("actionIndexSelectedByNetwork: "+ actionIndexSelectedByNetwork);
+        //    System.out.println("actionIndexSelectedByNetwork: "+ actionIndexSelectedByNetwork);
         for (DNode n : children) {
             if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
                 return n;
