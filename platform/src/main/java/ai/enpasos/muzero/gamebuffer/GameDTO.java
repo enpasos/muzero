@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.gamebuffer;
 
-import ai.enpasos.muzero.environments.OneOfTwoPlayer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -4,21 +4,18 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.go.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.MuZero.getNetworksBasedir;
-import static ai.enpasos.muzero.agent.fast.model.Network.*;
+import static ai.enpasos.muzero.go.agent.fast.model.Network.*;
 
 public class LossExtractor {
 

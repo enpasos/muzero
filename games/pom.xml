@@ -12,5 +12,6 @@
 
     <modules>
         <module>tictactoe</module>
+        <module>go</module>
     </modules>
 </project>

@@ -19,11 +19,11 @@ package ai.enpasos.muzero.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.Sample;
-import ai.enpasos.muzero.agent.slow.play.*;
-import ai.enpasos.muzero.environments.EnvironmentBaseBoardGames;
-import ai.enpasos.muzero.environments.OneOfTwoPlayer;
-import ai.enpasos.muzero.agent.fast.model.Observation;
+import ai.enpasos.muzero.go.agent.fast.model.Sample;
+import ai.enpasos.muzero.go.agent.slow.play.*;
+import ai.enpasos.muzero.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.environment.OneOfTwoPlayer;
+import ai.enpasos.muzero.go.agent.fast.model.Observation;
 import lombok.Data;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
