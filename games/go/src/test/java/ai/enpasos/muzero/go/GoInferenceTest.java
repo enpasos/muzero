@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.agent.Inference;
+import ai.enpasos.muzero.platform.agent.Inference;
 import ai.enpasos.muzero.go.config.ConfigFactory;
 import org.testng.annotations.Test;
 

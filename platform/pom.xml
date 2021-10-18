@@ -214,13 +214,13 @@
                     <execution>
                         <id>train</id>
                         <configuration>
-                            <mainClass>ai.enpasos.muzero.MuZero</mainClass>
+                            <mainClass>ai.enpasos.muzero.platform.MuZero</mainClass>
                         </configuration>
                     </execution>
                     <execution>
                         <id>test</id>
                         <configuration>
-                            <mainClass>ai.enpasos.muzero.debug.TicTacToeTest</mainClass>
+                            <mainClass>ai.enpasos.muzero.platform.debug.TicTacToeTest</mainClass>
                         </configuration>
                     </execution>
                     <execution>
@@ -245,7 +245,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ai.enpasos.muzero.MuZero</mainClass>
+                            <mainClass>ai.enpasos.muzero.platform.MuZero</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

@@ -17,11 +17,11 @@
 
 package ai.enpasos.muzero.tictactoe.debug;
 
-import ai.enpasos.muzero.MuZeroConfig;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.go.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
-import static ai.enpasos.muzero.debug.ParameterNames.listParameterNames;
+import static ai.enpasos.muzero.platform.debug.ParameterNames.listParameterNames;
 
 @Slf4j
 public class ParameterNames {

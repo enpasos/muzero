@@ -19,11 +19,11 @@ package ai.enpasos.muzero.tictactoe.test;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.Network;
-import ai.enpasos.muzero.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.gamebuffer.Game;
-import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
 import org.jetbrains.annotations.NotNull;

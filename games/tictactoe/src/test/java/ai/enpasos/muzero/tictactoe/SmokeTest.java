@@ -17,13 +17,13 @@
 
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.MuZero;
-import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
-import ai.enpasos.muzero.agent.slow.play.PlayManager;
-import ai.enpasos.muzero.agent.slow.play.ThinkBudget;
-import ai.enpasos.muzero.agent.slow.play.ThinkConf;
-import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.MuZero;
+import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.platform.agent.slow.play.ThinkBudget;
+import ai.enpasos.muzero.platform.agent.slow.play.ThinkConf;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
