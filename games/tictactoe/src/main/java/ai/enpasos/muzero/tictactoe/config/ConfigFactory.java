@@ -18,10 +18,12 @@
 package ai.enpasos.muzero.tictactoe.config;
 
 import ai.djl.Device;
+import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 @Slf4j
@@ -100,10 +102,25 @@ public class ConfigFactory {
                 .absorbingStateDropToZero(false)
                 .numberOfTrainingSteps(4000)
 
+
+                // using the symmetry of the board to enhance the number of games played by the symmetryEnhancementFactor
+                .symmetryEnhancementFactor(8)
+                .symmetryFunction(a -> {
+                    NDArray a2 = a.rotate90(1, new int[]{2, 3});
+                    NDArray a3 = a.rotate90(2, new int[]{2, 3});
+                    NDArray a4 = a.rotate90(3, new int[]{2, 3});
+                    NDArray a5 = a.transpose(0, 1, 3, 2);
+
+                    NDArray a6 = a5.rotate90(1, new int[]{2, 3});
+                    NDArray a7 = a5.rotate90(2, new int[]{2, 3});
+                    NDArray a8 = a5.rotate90(3, new int[]{2, 3});
+                    return List.of(a, a2, a3, a4, a5, a6, a7, a8);
+                })
+
+
                 .build();
 
     }
-
 
 
 }

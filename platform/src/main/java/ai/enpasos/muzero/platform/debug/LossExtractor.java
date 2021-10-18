@@ -15,7 +15,8 @@ import java.text.NumberFormat;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.fast.model.Network.*;
+import static ai.enpasos.muzero.platform.agent.fast.model.Network.getDoubleValue;
+import static ai.enpasos.muzero.platform.agent.fast.model.Network.getEpoch;
 
 public class LossExtractor {
 
@@ -26,13 +27,12 @@ public class LossExtractor {
         StringWriter stringWriter = new StringWriter();
 
 
-        try( CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
 
 
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu()))
-            {
+            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
-                IntStream.range(1,400).forEach(
+                IntStream.range(1, 400).forEach(
                         i -> {
                             try {
                                 model.load(Paths.get(MuZero.getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));

@@ -20,10 +20,10 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +46,7 @@ public class SelfPlayParallel {
     private final @Nullable DirichletGen dg = null;
 
 
-    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning,   @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise, ThinkConf thinkConf) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise, ThinkConf thinkConf) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
         List<Game> gameList = IntStream.rangeClosed(1, thinkConf.numParallelGames())
@@ -67,7 +67,7 @@ public class SelfPlayParallel {
 
         while (gameList.size() > 0) {
 
-            try(NDManager nDManager =  network != null ? network.getNDManager().newSubManager() : null) {
+            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
 
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
@@ -110,9 +110,9 @@ public class SelfPlayParallel {
                             networkIO, fastRuleLearning);
                 }
 
-              //  double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();   // TODO check
+                //  double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();   // TODO check
                 double fraction = config.getRootExplorationFraction();
-                if( explorationNoise ) {
+                if (explorationNoise) {
                     rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
 
                     if (render && indexOfJustOneOfTheGames != -1) {
@@ -121,7 +121,7 @@ public class SelfPlayParallel {
                 }
                 List<MinMaxStats> minMaxStatsList = null;
                 if (!fastRuleLearning) {
-                    OneOfTwoPlayer toPlay = (OneOfTwoPlayer)justOneOfTheGames.toPlay();
+                    OneOfTwoPlayer toPlay = (OneOfTwoPlayer) justOneOfTheGames.toPlay();
                     minMaxStatsList = mcts.runParallel(rootList,
                             gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
                             network, inferenceDuration, actionSpaceOnDevice, thinkConf.thinkBudget(toPlay).getNumSims());
@@ -182,11 +182,10 @@ public class SelfPlayParallel {
     }
 
 
-
     private static Action getRandomAction(Node root, MuZeroConfig config) {
         SortedMap<Action, Node> children = root.getChildren();
         int index = randomStreamBase.nextInt(0, children.size() - 1);
-        return ((Map.Entry<Action, Node>)children.entrySet().toArray()[index]).getKey();
+        return ((Map.Entry<Action, Node>) children.entrySet().toArray()[index]).getKey();
     }
 
     private static void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {

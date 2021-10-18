@@ -1,7 +1,5 @@
 package ai.enpasos.muzero.go.config.environment;
 
-import ai.enpasos.muzero.go.config.environment.GoBoard;
-import ai.enpasos.muzero.go.config.environment.GoString;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import org.testng.annotations.Test;
 
@@ -129,20 +127,19 @@ class GoBoardTest {
         var board = createBoardWithEdgeCaseEyes();
         //println(board)
         //Filling non-eye allowed
-            assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(2, 2)));
-            assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(7, 3)));
-            assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(1, 1)));
+        assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(2, 2)));
+        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(7, 3)));
+        assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(1, 1)));
 
         // Filling eye not allowed
-            assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(4, 6)));
-            assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(8, 2)));
-            assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(9, 1)));
-            assertTrue(board.doesMoveFillEye(BlackPlayer, new Point(7, 9)));
-            assertTrue(board.doesMoveFillEye(BlackPlayer, new Point(6, 8)));
-            assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(3, 5)));
+        assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(4, 6)));
+        assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(8, 2)));
+        assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(9, 1)));
+        assertTrue(board.doesMoveFillEye(BlackPlayer, new Point(7, 9)));
+        assertTrue(board.doesMoveFillEye(BlackPlayer, new Point(6, 8)));
+        assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(3, 5)));
 
     }
-
 
 
     /**
@@ -157,7 +154,7 @@ class GoBoardTest {
      * 8 O.O....XX  // white eye 8,2
      * 9 .OO......  // white eye 9,1
      */
-    GoBoard createBoardWithEdgeCaseEyes()  {
+    GoBoard createBoardWithEdgeCaseEyes() {
         var board = new GoBoard(9);
         board = board.placeStone(BlackPlayer, new Point(1, 2));
         board = board.placeStone(BlackPlayer, new Point(2, 1));
@@ -192,13 +189,13 @@ class GoBoardTest {
     @Test
     void testRemovingLiberties() {
         // a stone with four liberties should end up with three if an opponent stone is added
-            var board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer, new Point(3, 3));
-            board = board.placeStone(WhitePlayer, new Point(2, 2));
-            var whiteString = board.getGoString(new Point(2, 2)).get();
-            assertTrue(whiteString.numLiberties() == 4);
+        var board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(3, 3));
+        board = board.placeStone(WhitePlayer, new Point(2, 2));
+        var whiteString = board.getGoString(new Point(2, 2)).get();
+        assertTrue(whiteString.numLiberties() == 4);
 
-            board = board.placeStone(BlackPlayer, new Point(3, 2));
+        board = board.placeStone(BlackPlayer, new Point(3, 2));
 //            var newWhiteString = board.getGoString(new Point(2, 2)).get();
 //            assertTrue(whiteString.numLiberties() == 3);
 
@@ -206,22 +203,22 @@ class GoBoardTest {
 
     @Test
     void emptyTriangleTest() {
-    // an empty triangle in the corner with one white stone should have 3 liberties
-            // x x
-            // x o
-            var board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer, new Point(1, 1));
-            board = board.placeStone(BlackPlayer, new Point(1, 2));
-            board = board.placeStone(BlackPlayer, new Point(2, 2));
-            board = board.placeStone(WhitePlayer, new Point(2, 1));
+        // an empty triangle in the corner with one white stone should have 3 liberties
+        // x x
+        // x o
+        var board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(1, 1));
+        board = board.placeStone(BlackPlayer, new Point(1, 2));
+        board = board.placeStone(BlackPlayer, new Point(2, 2));
+        board = board.placeStone(WhitePlayer, new Point(2, 1));
 
         GoString blackString = board.getGoString(new Point(1, 1)).get();
 
-            assertTrue(blackString.numLiberties() == 3);
-            assertTrue(blackString.getLiberties().contains(new Point(3, 2)));
-            assertTrue(blackString.getLiberties().contains(new Point(2, 3)));
-            assertTrue(blackString.getLiberties().contains(new Point(1, 3)));
-            //println(board)
+        assertTrue(blackString.numLiberties() == 3);
+        assertTrue(blackString.getLiberties().contains(new Point(3, 2)));
+        assertTrue(blackString.getLiberties().contains(new Point(2, 3)));
+        assertTrue(blackString.getLiberties().contains(new Point(1, 3)));
+        //println(board)
 
     }
 
@@ -229,94 +226,94 @@ class GoBoardTest {
     void testSelfCapture() {
         // ooo..
         // x.xo.
-       // black can't take it's own last liberty"
-            var board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer, new Point(1, 1));
-            board = board.placeStone(BlackPlayer, new Point(1, 3));
-            board = board.placeStone(WhitePlayer, new Point(2, 1));
-            board = board.placeStone(WhitePlayer, new Point(2, 2));
-            board = board.placeStone(WhitePlayer, new Point(2, 3));
-            board = board.placeStone(WhitePlayer, new Point(1, 4));
-            //println(board)
-            assertTrue(board.isSelfCapture(BlackPlayer, new Point(1, 2)));
+        // black can't take it's own last liberty"
+        var board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(1, 1));
+        board = board.placeStone(BlackPlayer, new Point(1, 3));
+        board = board.placeStone(WhitePlayer, new Point(2, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 2));
+        board = board.placeStone(WhitePlayer, new Point(2, 3));
+        board = board.placeStone(WhitePlayer, new Point(1, 4));
+        //println(board)
+        assertTrue(board.isSelfCapture(BlackPlayer, new Point(1, 2)));
 
 
         // o.o..
         // x.xo.
         // but if we remove one white stone, the move becomes legal
-            board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer, new Point(1, 1));
-            board = board.placeStone(BlackPlayer, new Point(1, 3));
-            board = board.placeStone(WhitePlayer, new Point(2, 1));
-            board = board.placeStone(WhitePlayer, new Point(2, 3));
-            board = board.placeStone(WhitePlayer, new Point(1, 4));
-            //println(board)
-            assertTrue(!board.isSelfCapture(BlackPlayer, new Point(1, 2)));
+        board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(1, 1));
+        board = board.placeStone(BlackPlayer, new Point(1, 3));
+        board = board.placeStone(WhitePlayer, new Point(2, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 3));
+        board = board.placeStone(WhitePlayer, new Point(1, 4));
+        //println(board)
+        assertTrue(!board.isSelfCapture(BlackPlayer, new Point(1, 2)));
 
 
         // xx...
         // oox..
         // x.o..
         // if we capture a stone in the process, it's not self-atari
-             board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer, new Point(3, 1));
-            board = board.placeStone(BlackPlayer, new Point(3, 2));
-            board = board.placeStone(BlackPlayer, new Point(2, 3));
-            board = board.placeStone(BlackPlayer, new Point(1, 1));
-            board = board.placeStone(WhitePlayer, new Point(2, 1));
-            board = board.placeStone(WhitePlayer, new Point(2, 2));
-            board = board.placeStone(WhitePlayer, new Point(1, 3));
-            //println(board)
-            assertTrue(!board.isSelfCapture(BlackPlayer, new Point(1, 2)));
+        board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(3, 1));
+        board = board.placeStone(BlackPlayer, new Point(3, 2));
+        board = board.placeStone(BlackPlayer, new Point(2, 3));
+        board = board.placeStone(BlackPlayer, new Point(1, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 2));
+        board = board.placeStone(WhitePlayer, new Point(1, 3));
+        //println(board)
+        assertTrue(!board.isSelfCapture(BlackPlayer, new Point(1, 2)));
 
 
         // xx...
         // o.x..
         // xxx..
         // Should not be able refill eye after capture
-             board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer, new Point(3, 1));
-            board = board.placeStone(BlackPlayer, new Point(3, 2));
-            board = board.placeStone(BlackPlayer, new Point(2, 3));
-            board = board.placeStone(BlackPlayer, new Point(1, 1));
-            board = board.placeStone(WhitePlayer, new Point(2, 1));
-            board = board.placeStone(WhitePlayer, new Point(2, 2));
-            board = board.placeStone(BlackPlayer, new Point(1, 3));
-            //println(board)
-            board = board.placeStone(BlackPlayer, new Point(1, 2)); // captures 2 stones
-            assertTrue(board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
-            //println("just played Black at 1, 2 (capturing 2 white stones)\n" + board)
-            board = board.placeStone(WhitePlayer, new Point(2, 1)); // refill first of 2 spaces in eye
-            //println("just played White at 2, 1\n" + board);
-            assertTrue(board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
+        board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(3, 1));
+        board = board.placeStone(BlackPlayer, new Point(3, 2));
+        board = board.placeStone(BlackPlayer, new Point(2, 3));
+        board = board.placeStone(BlackPlayer, new Point(1, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 2));
+        board = board.placeStone(BlackPlayer, new Point(1, 3));
+        //println(board)
+        board = board.placeStone(BlackPlayer, new Point(1, 2)); // captures 2 stones
+        assertTrue(board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
+        //println("just played Black at 1, 2 (capturing 2 white stones)\n" + board)
+        board = board.placeStone(WhitePlayer, new Point(2, 1)); // refill first of 2 spaces in eye
+        //println("just played White at 2, 1\n" + board);
+        assertTrue(board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
 
-            assertTrue(board.isSelfCapture(WhitePlayer, new Point(2, 2)));
+        assertTrue(board.isSelfCapture(WhitePlayer, new Point(2, 2)));
 
 
         // xx...
         // o.x..
         // xxo..
         // OK to refill eye after capture if doing so captures opponent stones
-             board = new GoBoard(5);
-            board = board.placeStone(BlackPlayer,  new Point(3, 1));
-            board = board.placeStone(BlackPlayer,  new Point(3, 2));
-            board = board.placeStone(BlackPlayer,  new Point(2, 3));
-            board = board.placeStone(BlackPlayer,  new Point(1, 1));
-            board = board.placeStone(WhitePlayer,  new Point(2, 1));
-            board = board.placeStone(WhitePlayer,  new Point(2, 2));
-            board = board.placeStone(WhitePlayer,  new Point(1, 3));
-            //println(board)
-            board = board.placeStone(BlackPlayer,  new Point(1, 2)) ;// captures 2 stones
-            assert(board.getPlayer( new Point(1, 2)).get() == BlackPlayer);
-            //println("just played Black at 1, 2 (capturing 2 white stones)\n" + board)
-            board = board.placeStone(WhitePlayer,  new Point(2, 1)); // refill first of 2 spaces in eye
-            //println("just played White at 2, 1\n" + board)
-            assert(board.getPlayer( new Point(1, 2)).get() == BlackPlayer);
+        board = new GoBoard(5);
+        board = board.placeStone(BlackPlayer, new Point(3, 1));
+        board = board.placeStone(BlackPlayer, new Point(3, 2));
+        board = board.placeStone(BlackPlayer, new Point(2, 3));
+        board = board.placeStone(BlackPlayer, new Point(1, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 1));
+        board = board.placeStone(WhitePlayer, new Point(2, 2));
+        board = board.placeStone(WhitePlayer, new Point(1, 3));
+        //println(board)
+        board = board.placeStone(BlackPlayer, new Point(1, 2));// captures 2 stones
+        assert (board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
+        //println("just played Black at 1, 2 (capturing 2 white stones)\n" + board)
+        board = board.placeStone(WhitePlayer, new Point(2, 1)); // refill first of 2 spaces in eye
+        //println("just played White at 2, 1\n" + board)
+        assert (board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
 
-            //println("White playing at 2,2 is OK because it captures 2 plack stones in doing so")
-            assert(!board.isSelfCapture(WhitePlayer,  new Point(2, 2)));
-            board = board.placeStone(WhitePlayer,  new Point(2, 2));
-            //println("just played White at 2, 2\n" + board)
+        //println("White playing at 2,2 is OK because it captures 2 plack stones in doing so")
+        assert (!board.isSelfCapture(WhitePlayer, new Point(2, 2)));
+        board = board.placeStone(WhitePlayer, new Point(2, 2));
+        //println("just played White at 2, 2\n" + board)
 
     }
 

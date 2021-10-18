@@ -18,8 +18,8 @@
 package ai.enpasos.muzero.tictactoe.test;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

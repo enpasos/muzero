@@ -14,18 +14,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * GameState encodes the state of a game of Go. Game states have board instances,
  * but also track previous moves to assert validity of moves etc. GameState is
  * immutable, i.e. after you apply a move a new GameState instance will be returned.
  *
- * @param board a GoBoard instance
- * @param nextPlayer the Player who is next to play
+ * @param board         a GoBoard instance
+ * @param nextPlayer    the Player who is next to play
  * @param previousState Previous GameState, if any
- * @param lastMove last move played in this game, if any
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * @param lastMove      last move played in this game, if any
+ *                      adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
 @AllArgsConstructor
@@ -42,8 +44,12 @@ public class GameState {
     @Builder.Default
     private Optional<Move> lastMove = Optional.empty();
 
-
-
+    public static GameState newGame(int boardSize) {
+        return GameState.builder()
+                .nextPlayer(Player.BlackPlayer)
+                .board(new GoBoard(boardSize))
+                .build();
+    }
 
     public boolean isOver() {
         if (lastMove.isEmpty()) return false;
@@ -65,7 +71,7 @@ public class GameState {
             nextBoard = board.placeStone(nextPlayer, ((Play) move).getPoint());
         }
 
-        List<Pair<Player, Long>> newAllPrevStates =  new ArrayList<>();
+        List<Pair<Player, Long>> newAllPrevStates = new ArrayList<>();
         newAllPrevStates.addAll(allPreviousStates);
         newAllPrevStates.add(Pair.of(nextPlayer, nextBoard.zobristHash()));
 
@@ -79,15 +85,14 @@ public class GameState {
 
     }
 
-
     boolean isMoveSelfCapture(Player player, Move move) {
         if (move instanceof Pass || move instanceof Resign) return false;
-        return board.isSelfCapture(player, ((Play)move).getPoint());
+        return board.isSelfCapture(player, ((Play) move).getPoint());
     }
 
     boolean doesMoveViolateKo(Player player, Move move) {
         if (move instanceof Pass || move instanceof Resign) return false;
-        Play play = (Play)move;
+        Play play = (Play) move;
         if (board.willCapture(player, play.getPoint())) {
             var nextBoard = board;
             nextBoard = nextBoard.placeStone(player, play.getPoint());
@@ -98,29 +103,32 @@ public class GameState {
         return false;
     }
 
-    /** @return true if the move fills a single point eye. Though not strictly illegal, it is never a good idea */
+    /**
+     * @return true if the move fills a single point eye. Though not strictly illegal, it is never a good idea
+     */
     public boolean doesMoveFillEye(Player player, Move move) {
         if (move instanceof Pass || move instanceof Resign) return false;
-        Play play = (Play)move;
+        Play play = (Play) move;
         return board.doesMoveFillEye(player, play.getPoint());
     }
 
     public boolean isValidMove(Move move) {
         if (isOver()) return false;
         if (move instanceof Pass || move instanceof Resign) return true;
-        Play play = (Play)move;
+        Play play = (Play) move;
         return board.getPlayer(play.getPoint()).isEmpty() &&
                 !isMoveSelfCapture(nextPlayer, move) &&
                 !doesMoveViolateKo(nextPlayer, move) &&
                 !doesMoveFillEye(nextPlayer, move);
     }
+
     public Optional<GameResult> gameResult() {
         return gameResult(0.5f);
     }
 
     public Optional<GameResult> gameResult(float komi) {
         if (!isOver()) return Optional.empty();
-        if (lastMove.isEmpty() || lastMove.get() instanceof Play || lastMove.get() instanceof Pass ) {
+        if (lastMove.isEmpty() || lastMove.get() instanceof Play || lastMove.get() instanceof Pass) {
             return Optional.of(GameResult.apply(board, komi));
         } else {
             // Resign
@@ -129,7 +137,6 @@ public class GameState {
 
 
     }
-
 
     public List<Move> getValidMoves() {
         List<Move> validMoves = new ArrayList<>();
@@ -151,13 +158,6 @@ public class GameState {
             validMoves.add(move);
         }
         return validMoves;
-    }
-
-    public static GameState newGame(int boardSize) {
-        return GameState.builder()
-                .nextPlayer(Player.BlackPlayer)
-                .board(new GoBoard(boardSize))
-                .build();
     }
 
 }

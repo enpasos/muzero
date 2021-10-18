@@ -33,7 +33,7 @@ public class ValueExtractor {
     public static void main(String[] args) throws IOException {
 
         MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
-        config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
+        config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
         List<Integer> actionIndexList = getActionList(config);
 

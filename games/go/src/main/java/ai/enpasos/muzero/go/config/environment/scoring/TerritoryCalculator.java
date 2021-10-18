@@ -4,11 +4,11 @@ package ai.enpasos.muzero.go.config.environment.scoring;
 import ai.enpasos.muzero.go.config.environment.GoBoard;
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.ListUtils;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.*;
@@ -18,10 +18,10 @@ import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.*;
  */
 public class TerritoryCalculator {
     private GoBoard goBoard;
+
     public TerritoryCalculator(GoBoard goBoard) {
         this.goBoard = goBoard;
     }
-
 
 
     /**
@@ -66,11 +66,11 @@ public class TerritoryCalculator {
         return statusMap;
     }
 
-    private Map<Point, VertexType> categorizeTerritory(Map<Point, VertexType> pointToType)  {
+    private Map<Point, VertexType> categorizeTerritory(Map<Point, VertexType> pointToType) {
         var statusMap = pointToType;
 
         for (int row = 1; row <= goBoard.getSize(); row++) {
-            for  (int col = 1; col <= goBoard.getSize(); col++) {
+            for (int col = 1; col <= goBoard.getSize(); col++) {
                 var point = new Point(row, col);
                 var playerOption = goBoard.getPlayer(point);
                 if (playerOption.isEmpty() || statusMap.get(point).isTerritory()) {
@@ -91,16 +91,15 @@ public class TerritoryCalculator {
     }
 
 
-
     /**
-     * @return (<list of points in the unoccupied area seeded by startingPint>,
-     *          <players that own stones adjacent to this area>)
-     *         If the region is bordered by only one player, then it is considered to be territory for that player.
+     * @return (< list of points in the unoccupied area seeded by startingPint >,
+     * <players that own stones adjacent to this area>)
+     * If the region is bordered by only one player, then it is considered to be territory for that player.
      */
     private Pair<List<Point>, SortedSet<Player>> collectRegion(
             Point startingPoint,
             GoBoard board,
-            Map<Point, VertexType> statusMap)  {
+            Map<Point, VertexType> statusMap) {
         var initialPlayer = board.getPlayer(startingPoint);
         // assert(initialPlayer.isEmpty() || statusMap.get(startingPoint).isTerritory())
 
@@ -123,7 +122,6 @@ public class TerritoryCalculator {
                 visitedPoints.add(point);
             }
         }
-
 
 
         return Pair.of(visitedPoints, visitedPlayers);

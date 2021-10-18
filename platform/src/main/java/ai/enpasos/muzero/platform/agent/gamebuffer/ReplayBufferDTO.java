@@ -33,19 +33,18 @@ import java.util.List;
 @NoArgsConstructor
 public class ReplayBufferDTO implements Serializable {
 
-     final List<GameDTO> data = new ArrayList<>();
+    final List<GameDTO> data = new ArrayList<>();
+    //  transient GameTree gameTree;
+    transient List<Game> games = new ArrayList<>();
     private long counter;
     private int windowSize;
-
-  //  transient GameTree gameTree;
- transient List<Game> games = new ArrayList<>();
 
     public ReplayBufferDTO(int windowSize) {
         this.windowSize = windowSize;
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
-      //  System.out.println(game.actionHistory().getActionIndexList());
+        //  System.out.println(game.actionHistory().getActionIndexList());
         while (data.size() >= windowSize) {
             GameDTO toberemoved = data.get(0);
             Game gameToberemoved = config.newGame();
@@ -58,12 +57,10 @@ public class ReplayBufferDTO implements Serializable {
             game.replayToPosition(game.actionHistory().getActionIndexList().size());
         }
         games.add(game);
-    //    getGameTree().addGame(game);
+        //    getGameTree().addGame(game);
         counter++;
-       // System.out.println(game.actionHistory().getActionIndexList());
+        // System.out.println(game.actionHistory().getActionIndexList());
     }
-
-
 
 
 //    public void rebuildGameTree( MuZeroConfig config) {

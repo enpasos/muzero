@@ -16,7 +16,6 @@ class InferenceTest {
     }
 
 
-
 //    @Test
 //    void aiDecisionSlowForAlreadyFinishedGame() {
 //

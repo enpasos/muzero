@@ -22,12 +22,12 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
+import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.platform.agent.slow.play.Node;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -59,7 +59,7 @@ public class Inference {
             Path modelPath = Paths.get("./");
 
             Network network = new Network(config, model); //, modelPath);
-            try(NDManager nDManager =  network != null ? network.getNDManager().newSubManager() : null) {
+            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
 
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
@@ -83,12 +83,12 @@ public class Inference {
             Path modelPath = Paths.get("./");
 
             Network network = new Network(config, model); //, modelPath);
-            try(NDManager nDManager =  network != null ? network.getNDManager().newSubManager() : null) {
+            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
 
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
                 }
-                valueByNetwork = aiDecision(network,  false, game).getFirst();
+                valueByNetwork = aiDecision(network, false, game).getFirst();
             }
 
         }
@@ -109,17 +109,17 @@ public class Inference {
         int actionIndexSelectedByNetwork = -1;
         MCTS mcts = new MCTS(game.getConfig());
         List<Action> legalActions = game.legalActions();
-      //  if (legalActions.size() == 0) return Pair.create(0d, -1);
+        //  if (legalActions.size() == 0) return Pair.create(0d, -1);
         if (!withMCTS) {
 
             float[] policyValues = networkOutput.getPolicyValues();
             List<Pair<Action, Double>> distributionInput =
                     IntStream.range(0, game.getConfig().getActionSpaceSize())
-                    .mapToObj(i -> {
-                        Action action = new Action(game.getConfig(), i);
-                        double v = policyValues[i];
-                        return new Pair<Action, Double>(action, v);
-                    }).collect(Collectors.toList());
+                            .mapToObj(i -> {
+                                Action action = new Action(game.getConfig(), i);
+                                double v = policyValues[i];
+                                return new Pair<Action, Double>(action, v);
+                            }).collect(Collectors.toList());
 
             Action action = mcts.selectActionByMaxFromDistribution(distributionInput);
             actionIndexSelectedByNetwork = action.getIndex();
@@ -128,11 +128,11 @@ public class Inference {
             Node root = new Node(0);
 
 
-                mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
-                List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
-                MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
-                Action action = mcts.selectActionByMax(root, minMaxStats);
-                actionIndexSelectedByNetwork = action.getIndex();
+            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
+            List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), network.getNDManager());
+            MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null, actionSpaceOnDevice);
+            Action action = mcts.selectActionByMax(root, minMaxStats);
+            actionIndexSelectedByNetwork = action.getIndex();
 
 
         }

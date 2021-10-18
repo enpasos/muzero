@@ -18,10 +18,12 @@
 package ai.enpasos.muzero.go.config;
 
 import ai.djl.Device;
+import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class ConfigFactory {
 
 
         MuZeroConfig.MuZeroConfigBuilder builder = MuZeroConfig.builder()
-                .modelName("MuZero-Go-" + size )
+                .modelName("MuZero-Go-" + size)
                 .gameClass(GoGame.class)
 
                 .komi(0.5f)  // start training
@@ -81,7 +83,6 @@ public class ConfigFactory {
                 .numSimulations(800)     // 800 in the paper
 
 
-
                 .rootDirichletAlpha(0.03)  //  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
@@ -92,16 +93,31 @@ public class ConfigFactory {
                 // inference device
                 .inferenceDevice(Device.gpu())
 
-                // local file based storage
-                .outputDir("./memory/go"+ size + "/");
 
+                // using the symmetry of the board to enhance the number of games played by the symmetryEnhancementFactor
+                .symmetryEnhancementFactor(8)
+                .symmetryFunction(a -> {
+                    NDArray a2 = a.rotate90(1, new int[]{2, 3});
+                    NDArray a3 = a.rotate90(2, new int[]{2, 3});
+                    NDArray a4 = a.rotate90(3, new int[]{2, 3});
+                    NDArray a5 = a.transpose(0, 1, 3, 2);
+
+                    NDArray a6 = a5.rotate90(1, new int[]{2, 3});
+                    NDArray a7 = a5.rotate90(2, new int[]{2, 3});
+                    NDArray a8 = a5.rotate90(3, new int[]{2, 3});
+                    return List.of(a, a2, a3, a4, a5, a6, a7, a8);
+                })
+
+
+                // local file based storage
+                .outputDir("./memory/go" + size + "/");
 
 
         // non functional size dependence
 
 
         // Quatro RTX 5000 - 16 GB - 3072 CudaCores
-        switch(size) {
+        switch (size) {
             case 5:
                 builder
                         .numberTrainingStepsOnRandomPlay(0)
@@ -162,7 +178,6 @@ public class ConfigFactory {
 //                        .numPlays(4)
 
 
-
                         .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                         .numChannels(128);        // 256 in the paper
                 break;
@@ -175,7 +190,6 @@ public class ConfigFactory {
                         .numChannels(128);        // 256 in the paper  // 64 for 5x5
                 break;
         }
-
 
 
         // RTX 3090 - 24 GB - 10496 CudaCores
@@ -199,13 +213,9 @@ public class ConfigFactory {
 //                }
 
 
-
-
         return builder.build();
 
     }
-
-
 
 
 }

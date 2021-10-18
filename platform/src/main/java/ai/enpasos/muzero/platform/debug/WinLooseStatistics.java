@@ -18,12 +18,14 @@
 package ai.enpasos.muzero.platform.debug;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.WinnerStatistics;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.gamebuffer.GameIO.getLatestBufferNo;
@@ -35,10 +37,10 @@ public class WinLooseStatistics {
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         List<WinnerStatistics> winnerStatisticsList = new ArrayList<>();
 
-        int cMax =  getLatestBufferNo(config);
+        int cMax = getLatestBufferNo(config);
 
 
-        for(int c = start; c <= cMax; c += 1000) {
+        for (int c = start; c <= cMax; c += 1000) {
             replayBuffer.loadState(c);
 
 
@@ -63,7 +65,7 @@ public class WinLooseStatistics {
         for (int i = 0; i <= (cMax - start) / 1000; i++) {
             int c = start + i * 1000;
             //   System.out.println("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() +  ", draw: " + stats.getDrawCount());
-            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames() );
+            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames());
         }
 
     }

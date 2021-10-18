@@ -20,10 +20,10 @@ package ai.enpasos.muzero.tictactoe;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
 import ai.enpasos.muzero.platform.agent.slow.play.ThinkBudget;
 import ai.enpasos.muzero.platform.agent.slow.play.ThinkConf;
-import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ class SmokeTest {
                                 .numOfPlays(config.getBatchSize())
                                 .build())
                 .build();
-        PlayManager.playParallel(replayBuffer, config,  true, true, thinkConf, true);
+        PlayManager.playParallel(replayBuffer, config, true, true, thinkConf, true);
 
 
     }
@@ -82,7 +82,7 @@ class SmokeTest {
                                     .build())
                     .build();
             PlayManager.playParallel(replayBuffer, config, true, false, thinkConf, true);
-             thinkConf = ThinkConf.builder()
+            thinkConf = ThinkConf.builder()
 
                     .playerAConfig(
                             ThinkBudget.builder()

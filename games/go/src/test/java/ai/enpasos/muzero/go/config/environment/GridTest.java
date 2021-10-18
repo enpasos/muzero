@@ -1,8 +1,5 @@
 package ai.enpasos.muzero.go.config.environment;
 
-import ai.enpasos.muzero.go.config.environment.GoString;
-import ai.enpasos.muzero.go.config.environment.Grid;
-import ai.enpasos.muzero.go.config.environment.NeighborTables;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;

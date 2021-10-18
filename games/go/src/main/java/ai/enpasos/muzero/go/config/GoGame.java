@@ -22,14 +22,14 @@ import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.go.config.environment.GameState;
+import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
-import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GoGame extends Game {
-
 
 
     public GoGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
@@ -83,12 +82,9 @@ public class GoGame extends Game {
     }
 
 
-
-
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
         OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-
 
 
         List<GameState> history = this.getEnvironment().getHistory();
@@ -104,7 +100,7 @@ public class GoGame extends Game {
         }
 
 
-        for(Optional<GameState> optionalGameState : relevantHistory) {
+        for (Optional<GameState> optionalGameState : relevantHistory) {
             if (optionalGameState.isEmpty()) {
                 ndArrayList.add(ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f));
                 ndArrayList.add(ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f));
@@ -131,6 +127,6 @@ public class GoGame extends Game {
 
     @Override
     public String render() {
-        return ((GoEnvironment)environment).render();
+        return ((GoEnvironment) environment).render();
     }
 }

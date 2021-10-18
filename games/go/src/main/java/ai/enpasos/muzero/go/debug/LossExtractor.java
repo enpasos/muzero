@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.go.debug;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.go.config.ConfigFactory;
+import ai.enpasos.muzero.platform.MuZeroConfig;
 
 import static ai.enpasos.muzero.platform.debug.LossExtractor.listLossesForTrainedNetworks;
 

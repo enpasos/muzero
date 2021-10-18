@@ -14,12 +14,12 @@ public enum VertexType {
 
     private boolean isTerritory = true;
 
-    public boolean isTerritory() {
-        return isTerritory;
-    }
-
     VertexType(boolean isTerritory) {
         this.isTerritory = isTerritory;
+    }
+
+    public boolean isTerritory() {
+        return isTerritory;
     }
 
 }
