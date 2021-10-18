@@ -73,7 +73,7 @@
                     <execution>
                         <id>test</id>
                         <configuration>
-                            <mainClass>ai.enpasos.muzero.tictactoe.debug.TicTacToeTest</mainClass>
+                            <mainClass>ai.enpasos.muzero.tictactoe.test.TicTacToeTest</mainClass>
                         </configuration>
                     </execution>
                     <execution>

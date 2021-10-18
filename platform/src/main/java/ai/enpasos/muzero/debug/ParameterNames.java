@@ -19,35 +19,34 @@ package ai.enpasos.muzero.debug;
 
 import ai.djl.Device;
 import ai.djl.Model;
+import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.go.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
-
-import static ai.enpasos.muzero.MuZero.getNetworksBasedir;
 
 @Slf4j
 public class ParameterNames {
-    public static void main(String[] args) {
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+    public static String listParameterNames(MuZeroConfig config) {
         MuZeroBlock block = new MuZeroBlock(config);
+        StringBuffer buf = new StringBuffer();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             model.setBlock(block);
 
 
             try {
-                model.load(Paths.get(getNetworksBasedir(config)));
+                model.load(Paths.get(MuZero.getNetworksBasedir(config)));
 
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e.getMessage(), e);
             }
             block.getParameters().forEach(
-                    p -> System.out.println(p.getKey() + " = " + Arrays.toString(p.getValue().getArray().toFloatArray()))
+                    //  p -> System.out.println(p.getKey() + " = " + Arrays.toString(p.getValue().getArray().toFloatArray()))
+                    p -> buf.append(p.getKey())
             );
+            return buf.toString();
         }
-
     }
 }

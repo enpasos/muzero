@@ -18,73 +18,26 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.gamebuffer.Game;
-import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.agent.Inference.aiValue;
+import static ai.enpasos.muzero.debug.ValueExtractor.getActionList;
+import static ai.enpasos.muzero.debug.ValueExtractor.listValuesForTrainedNetworks;
 
 @Slf4j
 public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
 
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-  //      MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-
+        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
         config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
 
+        List<Integer> actionIndexList = getActionList(config);
 
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-
-        replayBuffer.loadLatestState();
-
-
-       // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
-
-
-        Game game = replayBuffer.getBuffer().getGames().get( replayBuffer.getBuffer().getGames().size() - 1);
-
-        List<Integer> actions = game.actionHistory().getActionIndexList();
-        System.out.println(actions);
-
-    //    List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
-    //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
-
-    //    List<Integer> actions = List.of(12, 17, 10, 13, 8, 7, 18, 11, 14, 6, 12, 16, 13, 5, 22, 21, 2, 23, 1, 3, 4, 15, 9, 19, 24, 25, 22, 0, 23, 3, 2, 1, 25, 3, 25, 19, 23, 12, 4, 13, 8, 9, 22, 2, 18, 14, 25, 25);
-        StringWriter stringWriter = new StringWriter();
-
-
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "vPlayerA", "actionIndex"))) {
-            IntStream.range(0, actions.size()+1).forEach(
-                    t -> {
-                        try {
-                            if (t == 24) {
-                                int i = 42;
-                            }
-                            double value = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
-                            double valuePlayerA = value * Math.pow(-1, t);
-                            csvPrinter.printRecord(t,
-
-                                    NumberFormat.getNumberInstance().format(valuePlayerA),
-                                    t == 0 ? -1 : actions.get(t-1));
-
-                        } catch (Exception e) {
-                            // ignore
-                        }
-                    });
-
-        }
-
-        System.out.println(stringWriter.toString());
+        System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
     }
 
 }

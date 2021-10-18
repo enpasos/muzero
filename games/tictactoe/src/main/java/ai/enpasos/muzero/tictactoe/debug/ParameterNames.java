@@ -17,36 +17,19 @@
 
 package ai.enpasos.muzero.tictactoe.debug;
 
-import ai.djl.Device;
-import ai.djl.Model;
-import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.file.Paths;
-import java.util.Arrays;
+import static ai.enpasos.muzero.debug.ParameterNames.listParameterNames;
 
 @Slf4j
 public class ParameterNames {
     public static void main(String[] args) {
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-        MuZeroBlock block = new MuZeroBlock(config);
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            model.setBlock(block);
-
-
-            try {
-                model.load(Paths.get(MuZero.getNetworksBasedir(config)));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            block.getParameters().forEach(
-                    p -> System.out.println(p.getKey() + " = " + Arrays.toString(p.getValue().getArray().toFloatArray()))
-            );
-        }
+        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+        System.out.println(listParameterNames(config));
 
     }
+
+
 }

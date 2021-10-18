@@ -23,6 +23,7 @@ import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -30,36 +31,20 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.agent.Inference.aiValue;
+import static ai.enpasos.muzero.go.agent.Inference.aiValue;
 
 @Slf4j
 public class ValueExtractor {
 
-    public static void main(String[] args) throws IOException {
-
-        MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-  //      MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-
-        config.setNetworkBaseDir(config.getOutputDir()+ "/networks");
+    public static String listValuesForTrainedNetworks(MuZeroConfig config, List<Integer> actions) throws IOException {
 
 
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-
-        replayBuffer.loadLatestState();
 
 
-       // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
+        //    List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
+        //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
 
-
-        Game game = replayBuffer.getBuffer().getGames().get( replayBuffer.getBuffer().getGames().size() - 1);
-
-        List<Integer> actions = game.actionHistory().getActionIndexList();
-        System.out.println(actions);
-
-    //    List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
-    //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
-
-    //    List<Integer> actions = List.of(12, 17, 10, 13, 8, 7, 18, 11, 14, 6, 12, 16, 13, 5, 22, 21, 2, 23, 1, 3, 4, 15, 9, 19, 24, 25, 22, 0, 23, 3, 2, 1, 25, 3, 25, 19, 23, 12, 4, 13, 8, 9, 22, 2, 18, 14, 25, 25);
+        //    List<Integer> actions = List.of(12, 17, 10, 13, 8, 7, 18, 11, 14, 6, 12, 16, 13, 5, 22, 21, 2, 23, 1, 3, 4, 15, 9, 19, 24, 25, 22, 0, 23, 3, 2, 1, 25, 3, 25, 19, 23, 12, 4, 13, 8, 9, 22, 2, 18, 14, 25, 25);
         StringWriter stringWriter = new StringWriter();
 
 
@@ -84,7 +69,24 @@ public class ValueExtractor {
 
         }
 
-        System.out.println(stringWriter.toString());
+        return stringWriter.toString();
+    }
+
+    @NotNull
+    public static List<Integer> getActionList(MuZeroConfig config) {
+        ReplayBuffer replayBuffer = new ReplayBuffer(config);
+
+        replayBuffer.loadLatestState();
+
+
+        // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
+
+
+        Game game = replayBuffer.getBuffer().getGames().get( replayBuffer.getBuffer().getGames().size() - 1);
+
+        List<Integer> actions = game.actionHistory().getActionIndexList();
+        System.out.println(actions);
+        return actions;
     }
 
 }

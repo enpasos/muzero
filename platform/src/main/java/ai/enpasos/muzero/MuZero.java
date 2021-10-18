@@ -17,12 +17,12 @@
 
 package ai.enpasos.muzero;
 
-import ai.enpasos.muzero.agent.slow.play.ThinkBudget;
-import ai.enpasos.muzero.agent.slow.play.ThinkConf;
+import ai.enpasos.muzero.go.agent.slow.play.ThinkBudget;
+import ai.enpasos.muzero.go.agent.slow.play.ThinkConf;
 import ai.enpasos.muzero.gamebuffer.GameIO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
-import ai.enpasos.muzero.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.go.agent.fast.model.djl.NetworkHelper;
+import ai.enpasos.muzero.go.agent.slow.play.PlayManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -39,60 +39,60 @@ public class MuZero {
     // to auto restart on exception, e.g. memory leak, start
     // java -jar ./target/muzero-0.2.0-SNAPSHOT-jar-with-dependencies.jar
     // be careful - you have to kill the process by hand
-    public static void main(String[] args) throws URISyntaxException, IOException {
-//       try {
-            run();
-//        } catch (Exception e) {
-//            restartApplication();
-//        }
-    }
+//    public static void main(String[] args) throws URISyntaxException, IOException {
+////       try {
+//            run();
+////        } catch (Exception e) {
+////            restartApplication();
+////        }
+//    }
 
 
-    public static void run() {
-
-     MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
-    //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
-    //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
-
-        createNetworkModelIfNotExisting(config);
-
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        replayBuffer.loadLatestState();
-        initialFillingBuffer(config, replayBuffer);
-
-        int trainingStep = 0;
-
-
-//        for(int i = 0; i < 10; i++) {
-//            playOnIntuition(config, replayBuffer);
-//        }
-//        replayBuffer.saveState();
-
-
-        do {
-
-
-//           trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
-//            log.info("last training step = {}", trainingStep);
-//            log.info("numSimulations: " + config.getNumSimulations());
-//            playOnIntuition(config, replayBuffer);
-//            replayBuffer.saveState();
+//    public static void run() {
 //
+//     MuZeroConfig config = MuZeroConfig.getTicTacToeInstance();
+//    //   MuZeroConfig config = MuZeroConfig.getGoInstance(5);
+//    //    MuZeroConfig config = MuZeroConfig.getGoInstance(9);
+//
+//        createNetworkModelIfNotExisting(config);
+//
+//        ReplayBuffer replayBuffer = new ReplayBuffer(config);
+//        replayBuffer.loadLatestState();
+//        initialFillingBuffer(config, replayBuffer);
+//
+//        int trainingStep = 0;
+//
+//
+////        for(int i = 0; i < 10; i++) {
+////            playOnIntuition(config, replayBuffer);
+////        }
+////        replayBuffer.saveState();
+//
+//
+//        do {
+//
+//
+////           trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+////            log.info("last training step = {}", trainingStep);
+////            log.info("numSimulations: " + config.getNumSimulations());
+////            playOnIntuition(config, replayBuffer);
+////            replayBuffer.saveState();
 ////
-////            for (int i = 0; i < 20; i++) {
-                trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
-                log.info("last training step = {}", trainingStep);
-                log.info("numSimulations: " + config.getNumSimulations());
-                playOnDeepThinking(config, replayBuffer);
-                replayBuffer.saveState();
-//            }
-
-
-
-        } while (trainingStep < config.getNumberOfTrainingSteps());
-
-
-    }
+//////
+//////            for (int i = 0; i < 20; i++) {
+//                trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+//                log.info("last training step = {}", trainingStep);
+//                log.info("numSimulations: " + config.getNumSimulations());
+//                playOnDeepThinking(config, replayBuffer);
+//                replayBuffer.saveState();
+////            }
+//
+//
+//
+//        } while (trainingStep < config.getNumberOfTrainingSteps());
+//
+//
+//    }
 
     public static void playOnDeepThinking(MuZeroConfig config, ReplayBuffer replayBuffer) {
         // PlayManager.playParallel(replayBuffer, config, 1, true, false, 1, true);
@@ -123,25 +123,25 @@ public class MuZero {
 //                        .build();
         PlayManager.playParallel(replayBuffer, config,  false, false, thinkConf, true);
     }
-
-    private static void playOnIntuition(MuZeroConfig config, ReplayBuffer replayBuffer) {
-        PlayManager.playParallel(replayBuffer, config,  false, false,
-                ThinkConf.builder()
-                .playerAConfig(
-                        ThinkBudget.builder()
-                                .numSims(0)
-                                .numParallel(5000)
-                                .numOfPlays(2)
-                                .build())
-                .playerBConfig(
-                        ThinkBudget.builder()
-                                .numSims(0)
-                                .numParallel(5000)
-                                .numOfPlays(2)
-                                .build())
-                .build(),
-                false);
-    }
+//
+//    private static void playOnIntuition(MuZeroConfig config, ReplayBuffer replayBuffer) {
+//        PlayManager.playParallel(replayBuffer, config,  false, false,
+//                ThinkConf.builder()
+//                .playerAConfig(
+//                        ThinkBudget.builder()
+//                                .numSims(0)
+//                                .numParallel(5000)
+//                                .numOfPlays(2)
+//                                .build())
+//                .playerBConfig(
+//                        ThinkBudget.builder()
+//                                .numSims(0)
+//                                .numParallel(5000)
+//                                .numOfPlays(2)
+//                                .build())
+//                .build(),
+//                false);
+//    }
 
     public static void initialFillingBuffer(MuZeroConfig config, ReplayBuffer replayBuffer) {
         ThinkConf thinkConf = ThinkConf.builder()
