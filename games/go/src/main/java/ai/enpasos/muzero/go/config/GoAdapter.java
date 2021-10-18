@@ -7,7 +7,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.go.config.environment.*;
-import ai.enpasos.muzero.go.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.go.config.environment.basics.move.Move;

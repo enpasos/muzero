@@ -18,7 +18,7 @@
 package ai.enpasos.muzero;
 
 import ai.djl.Device;
-import ai.enpasos.muzero.go.agent.slow.play.KnownBounds;
+import ai.enpasos.muzero.agent.slow.play.KnownBounds;
 import ai.enpasos.muzero.gamebuffer.Game;
 import lombok.Builder;
 import lombok.Data;

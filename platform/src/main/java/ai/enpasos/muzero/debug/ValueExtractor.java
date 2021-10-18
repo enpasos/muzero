@@ -31,7 +31,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.go.agent.Inference.aiValue;
+import static ai.enpasos.muzero.agent.Inference.aiValue;
 
 @Slf4j
 public class ValueExtractor {

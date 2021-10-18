@@ -19,7 +19,7 @@ package ai.enpasos.muzero.debug;
 
 import ai.enpasos.muzero.MuZeroConfig;
 import ai.enpasos.muzero.gamebuffer.Game;
-import ai.enpasos.muzero.go.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

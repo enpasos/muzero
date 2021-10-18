@@ -21,7 +21,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.go.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;

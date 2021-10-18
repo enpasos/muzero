@@ -17,12 +17,12 @@
 
 package ai.enpasos.muzero;
 
-import ai.enpasos.muzero.go.agent.slow.play.ThinkBudget;
-import ai.enpasos.muzero.go.agent.slow.play.ThinkConf;
+import ai.enpasos.muzero.agent.slow.play.ThinkBudget;
+import ai.enpasos.muzero.agent.slow.play.ThinkConf;
 import ai.enpasos.muzero.gamebuffer.GameIO;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.go.agent.fast.model.djl.NetworkHelper;
-import ai.enpasos.muzero.go.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.agent.fast.model.djl.NetworkHelper;
+import ai.enpasos.muzero.agent.slow.play.PlayManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;

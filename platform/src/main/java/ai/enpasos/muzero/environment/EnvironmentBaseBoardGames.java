@@ -19,7 +19,7 @@ package ai.enpasos.muzero.environment;
 
 
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.go.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import lombok.Data;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;

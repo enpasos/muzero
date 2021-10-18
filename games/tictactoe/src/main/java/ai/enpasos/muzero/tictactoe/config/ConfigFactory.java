@@ -19,7 +19,7 @@ package ai.enpasos.muzero.tictactoe.config;
 
 import ai.djl.Device;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.go.agent.slow.play.KnownBounds;
+import ai.enpasos.muzero.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.BiFunction;
