@@ -20,7 +20,7 @@ package ai.enpasos.muzero.tictactoe.test;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.go.agent.fast.model.Network;
+import ai.enpasos.muzero.agent.fast.model.Network;
 import ai.enpasos.muzero.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.gamebuffer.Game;
 import ai.enpasos.muzero.gamebuffer.ReplayBuffer;

@@ -21,7 +21,7 @@ package ai.enpasos.muzero.gamebuffer;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.MuZero;
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.go.agent.fast.model.Sample;
+import ai.enpasos.muzero.agent.fast.model.Sample;
 import ai.enpasos.muzero.environment.OneOfTwoPlayer;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;

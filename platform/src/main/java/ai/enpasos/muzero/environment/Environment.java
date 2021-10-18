@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.environment;
 
 
-import ai.enpasos.muzero.go.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 
 import java.util.List;
 

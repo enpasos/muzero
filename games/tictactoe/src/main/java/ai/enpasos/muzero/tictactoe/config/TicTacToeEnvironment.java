@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe.config;
 
 import ai.enpasos.muzero.MuZeroConfig;
-import ai.enpasos.muzero.go.agent.slow.play.Action;
+import ai.enpasos.muzero.agent.slow.play.Action;
 import ai.enpasos.muzero.environment.EnvironmentBaseBoardGames;
 import ai.enpasos.muzero.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;

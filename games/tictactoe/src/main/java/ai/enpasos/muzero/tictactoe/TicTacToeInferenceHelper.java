@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.go.agent.Inference;
+import ai.enpasos.muzero.agent.Inference;
 import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
 import org.apache.commons.lang3.ArrayUtils;
 
