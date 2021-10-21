@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 @Slf4j
-public class ConfigFactory {
+public class GoConfigFactory {
 
     public static MuZeroConfig getGoInstance(int size) {
 

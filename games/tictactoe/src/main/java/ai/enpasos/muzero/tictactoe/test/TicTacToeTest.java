@@ -24,7 +24,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class TicTacToeTest {
 
     public static void main(String[] args) {
-        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
 
         //  String dir = "./memory/integrationtest/tictactoe/";
 

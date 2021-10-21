@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.go.debug;
 
-import ai.enpasos.muzero.go.config.ConfigFactory;
+import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +28,7 @@ public class WinLooseStatistics {
 
     public static void main(String[] args) {
 
-        MuZeroConfig config = ConfigFactory.getGoInstance(5);
+        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
         int start = 10000;
 
         winLooseStatisticsOnGamesInStoredBuffers(config, start);

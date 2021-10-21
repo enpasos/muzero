@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import static ai.enpasos.muzero.platform.debug.WinLooseStatistics.winLooseStatisticsOnGamesInStoredBuffers;
@@ -28,7 +28,7 @@ public class WinLooseStatistics {
 
     public static void main(String[] args) {
 
-        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
         int start = 10000;
 
         winLooseStatisticsOnGamesInStoredBuffers(config, start);

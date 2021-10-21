@@ -9,10 +9,13 @@ DeepMind's [MuZero Unplugged paper](https://arxiv.org/abs/2104.06294) and the re
 upper confidence bound by the exact solution to the policy optimization problem as given by Google/Deepmind/Columbia
 University's [paper](http://proceedings.mlr.press/v119/grill20a.html).
 
-Sanity check on the trivial game TicTacToe on a single GPU (NVIDIA GeForce RTX 3090):
-Starting from scratch it learns perfect play within 70.000 training steps and 80.000 game plays in less than an hour.
+All the common logic is encapsulated in a platform module, while each game with its specific environment is
+is implemented in a separate module.
 
-We have just started playing the game of go ... with small board sizes.
+We do an integration test on the trivial game TicTacToe on a single GPU (NVIDIA GeForce RTX 3090):
+Starting from scratch it learns perfect play (which is the test goal) within 40.000 training steps and 100.000 game plays in less than an hour.
+
+We have started training the game of go, board sizes 5x5 and 9x9.
 
 ## Build
 
@@ -20,19 +23,13 @@ We have just started playing the game of go ... with small board sizes.
     mvn clean install -Dmaven.test.skip=true
 ```
 
-## Run SelfPlay and Training
+## Run integration test on tictactoc
 
-```
-    mvn exec:java@train
+``` 
+    cd games/tictactoe
+    mvn exec:java@integrationtest
 ```
 
-You can stop any time. Restart resumes at the point stopped. To start again from scratch delete dir ```tictactoe```.
-
-## Run Test
-
-```
-    mvn exec:java@test
-```
 
 ## Further info
 

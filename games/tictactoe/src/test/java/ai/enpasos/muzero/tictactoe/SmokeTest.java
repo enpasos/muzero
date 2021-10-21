@@ -24,7 +24,7 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
 import ai.enpasos.muzero.platform.agent.slow.play.ThinkBudget;
 import ai.enpasos.muzero.platform.agent.slow.play.ThinkConf;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Test;
@@ -56,9 +56,9 @@ class SmokeTest {
     }
 
     @Test
-    void smoketest() {
+    public void smoketest() {
         try {
-            MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+            MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
             config.setOutputDir("target/smoketest/");
             config.setNumberOfTrainingStepsPerEpoch(1);
 

@@ -20,7 +20,7 @@ package ai.enpasos.muzero.tictactoe;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Test;
 
@@ -29,11 +29,10 @@ import java.util.Objects;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-
 class GameTest {
 
     @Test
-    void checkIfPlayerHasWon() {
+    public void checkIfPlayerHasWon() {
         check(new int[]{1, 5, 0, 4, 7, 2, 8, 6});
         check(new int[]{1, 5, 0, 4, 7, 2, 8, 3});
         check(new int[]{1, 5, 0, 4, 2});
@@ -41,7 +40,7 @@ class GameTest {
     }
 
     private void check(int @NotNull [] actions) {
-        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
         Game game = config.newGame();
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];

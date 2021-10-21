@@ -20,7 +20,7 @@ package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 
 import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
 import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
@@ -30,7 +30,7 @@ public class RenderGame {
 
     public static void main(String[] args) {
 
-        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
 
         Game game = config.newGame();
         applyAction(game, 0);

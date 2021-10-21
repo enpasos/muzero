@@ -13,7 +13,7 @@ class GoAdapterTest {
 
     @Test
     void translatePass() {
-        MuZeroConfig config = ConfigFactory.getGoInstance(5);
+        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
         Action action = GoAdapter.translate(config, new Pass());
 
         NDArray ndArray = action.encode(NDManager.newBaseManager());
@@ -22,7 +22,7 @@ class GoAdapterTest {
 
     @Test
     void translateSomeAction() {
-        MuZeroConfig config = ConfigFactory.getGoInstance(5);
+        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
         Action action = GoAdapter.translate(config, new Play(new Point(1, 2)));
         NDArray ndArray = action.encode(NDManager.newBaseManager());
         int i = 42;

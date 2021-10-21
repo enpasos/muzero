@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.go.debug;
 
 
-import ai.enpasos.muzero.go.config.ConfigFactory;
+import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 
@@ -30,7 +30,7 @@ public class RenderGame {
 
     public static void main(String[] args) {
 
-        MuZeroConfig config = ConfigFactory.getGoInstance(5);
+        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
 
         Game game = config.newGame();
         applyAction(game, 0);
