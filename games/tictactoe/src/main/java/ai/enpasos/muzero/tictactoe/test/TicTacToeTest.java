@@ -23,6 +23,7 @@ import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
@@ -61,8 +62,8 @@ public class TicTacToeTest {
         GameTree gameTree = new GameTree(config);
 
 
-        Set<Game> bufferGameDTOs = replayBuffer.getBuffer().getData().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
-        Set<Game> terminatedGameNotInBufferDTOs = gameTree.terminatedGameNodes.stream()
+        Set<ZeroSumGame> bufferGameDTOs = replayBuffer.getBuffer().getData().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
+        Set<ZeroSumGame> terminatedGameNotInBufferDTOs = gameTree.terminatedGameNodes.stream()
                 .map(DNode::getGame)
                 .filter(d -> !bufferGameDTOs.contains(d))
                 .collect(Collectors.toSet());

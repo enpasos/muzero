@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ai.enpasos.muzero.go.config.environment.NeighborMap.createNeighborMap;
+import static ai.enpasos.muzero.go.config.environment.NeighborMap.inRange;
+
 public class NeighborTables {
 
     private static Map<Integer, NeighborMap> neighborTables = new HashMap<>();
@@ -34,18 +37,6 @@ public class NeighborTables {
         return diagonalTables.get(size);
     }
 
-    private static NeighborMap createNeighborMap(int size) {
-        var neighborMap = new NeighborMap();
-        for (int row = 1; row <= size; row++) {
-            for (int col = 1; col <= size; col++) {
-                var point = new Point(row, col);
-                var allNeighbors = point.neighbors();
-                var trueNeighbors = inRange(size, allNeighbors);
-                neighborMap.put(new Point(row, col), trueNeighbors);
-            }
-        }
-        return neighborMap;
-    }
 
 
     /**
@@ -64,11 +55,6 @@ public class NeighborTables {
         return diagonalMap;
     }
 
-    private static List<Point> inRange(int size, List<Point> points) {
-        return points.stream().filter(
-                nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
-        ).collect(Collectors.toList());
-    }
 
 
 }

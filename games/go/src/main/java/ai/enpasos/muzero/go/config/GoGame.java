@@ -51,9 +51,6 @@ public class GoGame extends Game {
         environment = new GoEnvironment(config);
     }
 
-    public @NotNull GoEnvironment getEnvironment() {
-        return (GoEnvironment) environment;
-    }
 
     @Override
     public boolean terminal() {
@@ -128,5 +125,21 @@ public class GoGame extends Game {
     @Override
     public String render() {
         return ((GoEnvironment) environment).render();
+    }
+
+    public Optional<OneOfTwoPlayer> whoWonTheGame() {
+        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerA)) return Optional.of(OneOfTwoPlayer.PlayerA);
+        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerB)) return Optional.of(OneOfTwoPlayer.PlayerB);
+        return Optional.empty();
+    }
+
+    public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
+        // won or draw but not lost
+        return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
+    }
+
+    @Override
+    public GoEnvironment getEnvironment() {
+        return (GoEnvironment) environment;
     }
 }

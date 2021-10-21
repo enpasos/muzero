@@ -26,7 +26,8 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
-import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.platform.environment.EnvironmentBase;
+import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
@@ -40,7 +41,7 @@ import static ai.enpasos.muzero.go.config.GoAdapter.translate;
 
 
 @Slf4j
-public class GoEnvironment extends EnvironmentBaseBoardGames {
+public class GoEnvironment extends EnvironmentZeroSumBase {
 
     private List<GameState> history; // TODO refactor
     private GameState state;

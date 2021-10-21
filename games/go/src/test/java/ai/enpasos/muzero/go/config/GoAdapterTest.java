@@ -9,7 +9,7 @@ import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import org.testng.annotations.Test;
 
-class GoAdapterTest {
+public class GoAdapterTest {
 
     @Test
     void translatePass() {

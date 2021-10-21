@@ -15,29 +15,21 @@
  *
  */
 
-package ai.enpasos.muzero.go.test;
+package ai.enpasos.muzero.solitair.debug;
 
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import lombok.Data;
+import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.solitair.config.SolitairConfigFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
+import static ai.enpasos.muzero.platform.debug.ParameterNames.listParameterNames;
 
-@Data
-public class GameState {
+@Slf4j
+public class ParameterNames {
+    public static void main(String[] args) {
+        MuZeroConfig config = SolitairConfigFactory.getSolitairInstance();
+        System.out.println(listParameterNames(config));
 
-    private Game game;
-
-    public GameState(Game game) {
-        this.game = game;
     }
 
-    public int hashCode() {
-        return Arrays.deepHashCode(this.game.getEnvironment().getBoard());
-    }
 
-    public boolean equals(Object o) {
-        if (!(o instanceof GameState)) return false;
-        GameState gs = (GameState) o;
-        return Arrays.deepEquals(this.game.getEnvironment().getBoard(), gs.game.getEnvironment().getBoard());
-    }
 }

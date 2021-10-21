@@ -35,7 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames.render;
+import static ai.enpasos.muzero.platform.environment.EnvironmentBase.render;
 
 
 @Slf4j

@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.tictactoe.test;
 
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -25,9 +26,9 @@ import java.util.Arrays;
 @Data
 public class GameState {
 
-    private Game game;
+    private ZeroSumGame game;
 
-    public GameState(Game game) {
+    public GameState(ZeroSumGame game) {
         this.game = game;
     }
 

@@ -15,12 +15,13 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe;
+package ai.enpasos.muzero.solitair;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
+import ai.enpasos.muzero.solitair.config.SolitairConfigFactory;
 import org.testng.Assert;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.util.Objects;
@@ -28,8 +29,9 @@ import java.util.Objects;
 public class EnvironmentTest {
 
     @Test
+    @Ignore
     public void checkIfPlayerHasWon() {
-        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = SolitairConfigFactory.getSolitairInstance();
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         Assert.assertEquals(game.getLastReward(), 1f, 0.0);

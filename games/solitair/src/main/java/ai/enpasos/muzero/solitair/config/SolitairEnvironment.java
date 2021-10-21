@@ -15,22 +15,115 @@
  *
  */
 
-package ai.enpasos.muzero.platform.environment;
-
+package ai.enpasos.muzero.solitair.config;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.environment.Environment;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-
-
 @Data
-public class EnvironmentBaseBoardGames implements Environment, Serializable {
+public class SolitairEnvironment implements Environment, Serializable {
 
+    private final static Logger logger = LoggerFactory.getLogger(SolitairEnvironment.class);
+
+
+    public SolitairEnvironment(@NotNull MuZeroConfig config) {
+        this.config = config;
+        // -1 = not allowed position
+        // 1 = filled position
+        // 0 = empty position
+        board = new int[][] {
+                {-1, -1, 1, 1, 1, -1, -1},
+                {-1, -1, 1, 1, 1, -1, -1},
+                {1, 1, 1, 1, 1, 1, 1},
+                {1, 1, 1, 0, 1, 1, 1},
+                {1, 1, 1, 1, 1, 1, 1},
+                {-1, -1, 1, 1, 1, -1, -1},
+                {-1, -1, 1, 1, 1, -1, -1}
+        };
+        // jumps from right: total 19 -> 4*19 = 76 partial moves
+//         board = new int[][] {
+//                {-1, -1, 1, 1, X, -1, -1},
+//                {-1, -1, 1, 1, X, -1, -1},
+//                {1, 1, X, X, X, X, X},
+//                {1, 1, X, X, X, X, X},
+//                {1, 1, X, X, X, X, X},
+//                {-1, -1, 1, 1, X, -1, -1},
+//                {-1, -1, 1, 1, X, -1, -1}
+//        };
+    }
+
+
+
+    public float step(@NotNull Action action) {
+
+        // putting the stone for the player
+        int col = action.getCol();
+        int row = action.getRow();
+        if (this.board[row][col] == 0) {
+            this.board[row][col] = getPlayerToMove().getValue();
+        } else {
+            throw new RuntimeException("illegal Move");
+        }
+
+        float reward = reward();
+
+    //    swapPlayer();
+
+        return reward;
+    }
+
+    private float reward() {
+        float reward = 0f;
+//        if (hasPlayerWon(this.getPlayerToMove())) {
+//            reward = 1f;
+//        } else if (hasPlayerWon(OneOfTwoPlayer.otherPlayer(this.getPlayerToMove()))) {
+//            reward = -1f;
+//        }
+        return reward;
+    }
+
+
+
+    private boolean isLegalAction(Action action_) {
+        return legalActions().contains(action_);
+    }
+
+
+    public @NotNull List<Action> legalActions() {
+        List<Action> legal = new ArrayList<>();
+        for (int col = 0; col < config.getBoardWidth(); col++) {
+            for (int row = 0; row < config.getBoardHeight(); row++) {
+                if (this.board[row][col] == 0) {
+                    legal.add(new Action(config, row * config.getBoardWidth() + col));
+                }
+            }
+        }
+        return legal;
+    }
+
+    @Override
+    public int[][] currentImage() {
+        return this.board;
+    }
+
+    public boolean terminal() {
+        return false; //hasPlayerWon(OneOfTwoPlayer.PlayerA) || hasPlayerWon(OneOfTwoPlayer.PlayerB);
+    }
+
+
+    public @NotNull String render() {
+        return render(config, preRender());
+    }
 
     private static final String X_COORD = " A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y   Z ";
     private static final String X_COORD_SMALL = " A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ";
@@ -39,11 +132,7 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
     private OneOfTwoPlayer playerToMove;
 
 
-    public EnvironmentBaseBoardGames(@NotNull MuZeroConfig config) {
-        this.config = config;
-        board = new int[config.getBoardHeight()][config.getBoardWidth()];
-        playerToMove = OneOfTwoPlayer.PlayerA;
-    }
+
 
     public static @NotNull String render(@NotNull MuZeroConfig config, String[][] values) {
 
@@ -87,24 +176,6 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
 
     }
 
-    public float step(Action action) {
-        throw new NotImplementedException("step() not implemented, yet.");
-    }
-
-    @Override
-    public int[][] currentImage() {
-        throw new NotImplementedException("currentImage() not implemented, yet.");
-    }
-
-    @Override
-    public boolean terminal() {
-        throw new NotImplementedException("terminal() not implemented, yet.");
-    }
-
-    @Override
-    public @NotNull List<Action> legalActions() {
-        throw new NotImplementedException("legalActions() not implemented, yet.");
-    }
 
     @Override
     public @NotNull List<Action> allActionsInActionSpace() {
@@ -125,14 +196,6 @@ public class EnvironmentBaseBoardGames implements Environment, Serializable {
             }
         }
         return values;
-    }
-
-    protected void swapPlayer() {
-        this.playerToMove = OneOfTwoPlayer.otherPlayer(this.playerToMove);
-    }
-
-    public boolean hasPlayerWon(OneOfTwoPlayer player) {
-        throw new NotImplementedException("hasPlayerWon is not yet implemented");
     }
 
 

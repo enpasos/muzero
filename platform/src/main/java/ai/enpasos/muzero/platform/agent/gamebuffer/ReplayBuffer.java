@@ -177,8 +177,12 @@ public class ReplayBuffer {
         List<Game> gamesToTrain = new ArrayList<>();
         gamesToTrain.addAll(games.stream()
                 .filter(g -> {
-                    Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
-                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
+                    if (g instanceof ZeroSumGame) {
+                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame)g).whoWonTheGame();
+                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
+                    } else {
+                        return true;
+                    }
                 })
                 .limit(this.batchSize / 2)
 
@@ -188,8 +192,12 @@ public class ReplayBuffer {
         games.removeAll(gamesToTrain);  // otherwise draw games could be selected again
         gamesToTrain.addAll(games.stream()
                 .filter(g -> {
-                    Optional<OneOfTwoPlayer> winner = g.whoWonTheGame();
-                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
+                    if (g instanceof ZeroSumGame) {
+                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame)g).whoWonTheGame();
+                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
+                    } else {
+                        return true;
+                    }
                 })
                 .limit(this.batchSize / 2)
                 .collect(Collectors.toList()));

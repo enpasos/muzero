@@ -15,27 +15,34 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe;
+package ai.enpasos.muzero.solitair.debug;
+
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import ai.enpasos.muzero.solitair.config.SolitairConfigFactory;
 
-import java.util.Objects;
+import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
+import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
 
-public class EnvironmentTest {
 
-    @Test
-    public void checkIfPlayerHasWon() {
-        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+public class RenderGame {
+
+    public static void main(String[] args) {
+
+        MuZeroConfig config = SolitairConfigFactory.getSolitairInstance();
+
         Game game = config.newGame();
-        Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
-        Assert.assertEquals(game.getLastReward(), 1f, 0.0);
+        applyAction(game, 0);
+        applyAction(game, 5);
+        applyAction(game, 8);
+        applyAction(game, 7);
+        applyAction(game, 3);
+        applyAction(game, 1);
+        applyAction(game, 2);
+        applyAction(game, 6);
+        applyAction(game, 4);
 
-        game = config.newGame();
-        Objects.requireNonNull(game).apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
-        Assert.assertEquals(game.getLastReward(), 0f, 0.0);
+        renderGame(config, game);
     }
 }
