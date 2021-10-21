@@ -21,6 +21,7 @@ import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
 import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
@@ -36,7 +37,7 @@ import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActio
 
 @Data
 public class DNode {
-    Game game;
+    ZeroSumGame game;
     boolean terminated;
     DNode parent;
     List<DNode> children;
@@ -56,13 +57,13 @@ public class DNode {
     // the value the worst decision would lead to
     @Nullable Integer worstValue;
 
-    public DNode(Game game) {
+    public DNode(ZeroSumGame game) {
         this.game = game;
         children = new ArrayList<>();
         terminated = false;
     }
 
-    public DNode(DNode parent, Game game) {
+    public DNode(DNode parent, ZeroSumGame game) {
         this(game);
         this.parent = parent;
     }
@@ -141,7 +142,7 @@ public class DNode {
     public void expand(@NotNull List<DNode> unterminatedGameNodes, @NotNull List<DNode> terminatedGameNodes) {
         if (!game.terminal() && game.legalActions().size() > 0) {
             for (Action action : game.legalActions()) {
-                Game newGame = game.clone();
+                ZeroSumGame newGame = (ZeroSumGame)game.clone();
                 newGame.apply(action);
                 DNode child = new DNode(this, newGame);
                 this.children.add(child);

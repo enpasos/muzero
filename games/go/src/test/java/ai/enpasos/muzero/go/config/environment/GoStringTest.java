@@ -10,7 +10,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static org.testng.AssertJUnit.assertEquals;
 
 
-class GoStringTest {
+public class GoStringTest {
 
     @Test
     void createEmptyString() {

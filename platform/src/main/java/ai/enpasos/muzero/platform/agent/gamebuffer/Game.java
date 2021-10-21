@@ -22,7 +22,7 @@ import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.slow.play.*;
-import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import org.apache.commons.math3.util.Pair;
@@ -46,7 +46,7 @@ public abstract class Game implements Serializable {
 
     protected int actionSpaceSize;
     protected double discount;
-    protected EnvironmentBaseBoardGames environment;
+    protected Environment environment;
 
 
     public Game(@NotNull MuZeroConfig config) {
@@ -286,14 +286,5 @@ public abstract class Game implements Serializable {
         return this.getGameDTO().getActionHistory().hashCode();
     }
 
-    public Optional<OneOfTwoPlayer> whoWonTheGame() {
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerA)) return Optional.of(OneOfTwoPlayer.PlayerA);
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerB)) return Optional.of(OneOfTwoPlayer.PlayerB);
-        return Optional.empty();
-    }
 
-    public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
-        // won or draw but not lost
-        return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
-    }
 }

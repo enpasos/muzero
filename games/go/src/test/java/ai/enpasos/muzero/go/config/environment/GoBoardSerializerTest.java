@@ -7,7 +7,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
 import static org.testng.AssertJUnit.assertEquals;
 
-class GoBoardSerializerTest {
+public class GoBoardSerializerTest {
 
     @Test
     void serializeABoard1() {

@@ -8,7 +8,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
 import static org.testng.AssertJUnit.assertTrue;
 
 
-class GoBoardTest {
+public class GoBoardTest {
 
 
     @Test

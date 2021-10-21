@@ -11,7 +11,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
 import static org.testng.AssertJUnit.assertTrue;
 
-class GridTest {
+public class GridTest {
 
     Grid grid;
 

@@ -19,7 +19,8 @@ package ai.enpasos.muzero.tictactoe.config;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
-import ai.enpasos.muzero.platform.environment.EnvironmentBaseBoardGames;
+import ai.enpasos.muzero.platform.environment.EnvironmentBase;
+import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TicTacToeEnvironment extends EnvironmentBaseBoardGames {
+public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
 
     private final static Logger logger = LoggerFactory.getLogger(TicTacToeEnvironment.class);
 

@@ -9,7 +9,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
 import static org.testng.AssertJUnit.assertTrue;
 
-class GameStateTest {
+public class GameStateTest {
 
     @Test
     void startingANew19x19Game() {

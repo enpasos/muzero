@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe.config;
+package ai.enpasos.muzero.solitair.config;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
@@ -29,35 +29,33 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
-import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TicTacToeGame extends ZeroSumGame {
+public class SolitairGame extends Game {
 
     final float[] @NotNull [] boardtransfer;
 
 
-    public TicTacToeGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
+    public SolitairGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        environment = new TicTacToeEnvironment(config);
+        environment = new SolitairEnvironment(config);
         boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
-    public TicTacToeGame(@NotNull MuZeroConfig config) {
+    public SolitairGame(@NotNull MuZeroConfig config) {
         super(config);
-        environment = new TicTacToeEnvironment(config);
+        environment = new SolitairEnvironment(config);
         boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
-    public @NotNull TicTacToeEnvironment getEnvironment() {
-        return (TicTacToeEnvironment) environment;
+    public @NotNull SolitairEnvironment getEnvironment() {
+        return (SolitairEnvironment) environment;
     }
 
     @Override
@@ -78,7 +76,7 @@ public class TicTacToeGame extends ZeroSumGame {
 
 
     public void replayToPosition(int stateIndex) {
-        environment = new TicTacToeEnvironment(config);
+        environment = new SolitairEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
             Action action = new Action(config, this.getGameDTO().getActionHistory().get(i));
@@ -144,6 +142,4 @@ public class TicTacToeGame extends ZeroSumGame {
         }
         return r;
     }
-
-
 }

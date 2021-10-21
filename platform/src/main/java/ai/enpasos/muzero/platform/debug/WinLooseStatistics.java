@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.debug;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.WinnerStatistics;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +48,7 @@ public class WinLooseStatistics {
             //   log.info("total games: {}", replayBuffer.getBuffer().getData().size());
 
             List<Optional<OneOfTwoPlayer>> winnerList = replayBuffer.getBuffer().getGames().stream()
-                    .map(g -> g.whoWonTheGame())
+                    .map(g -> ((ZeroSumGame)g).whoWonTheGame())
                     .collect(Collectors.toList());
 
             WinnerStatistics stats = WinnerStatistics.builder()

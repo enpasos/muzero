@@ -31,7 +31,7 @@ public class NeighborMap {
         return m;
     }
 
-    private static NeighborMap createNeighborMap(int size) {
+    static NeighborMap createNeighborMap(int size) {
         var neighborMap = new NeighborMap();
         for (int row = 1; row <= size; row++) {
             for (int col = 1; col <= size; col++) {
@@ -60,7 +60,7 @@ public class NeighborMap {
         return diagonalMap;
     }
 
-    private static List<Point> inRange(int size, List<Point> points) {
+    static List<Point> inRange(int size, List<Point> points) {
         return points.stream().filter(
                 nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
         ).collect(Collectors.toList());

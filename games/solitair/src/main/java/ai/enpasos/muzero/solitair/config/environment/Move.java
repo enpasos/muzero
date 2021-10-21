@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.solitair.config;
+package ai.enpasos.muzero.solitair.config.environment;
 
 import lombok.Data;
 
