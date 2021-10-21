@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
 
-        MuZeroConfig config = ConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
         config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
         List<Integer> actionIndexList = getActionList(config);

@@ -13,5 +13,6 @@
     <modules>
         <module>tictactoe</module>
         <module>go</module>
+        <!--module>solitair</module-->
     </modules>
 </project>

@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.agent.Inference;
-import ai.enpasos.muzero.tictactoe.config.ConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class TicTacToeInferenceHelper {
     public static String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
 
         List<Integer> actionInts = actions.stream().map(n -> actionNameToIndex(n)).collect(Collectors.toList());
-        return actionIndexToName(Inference.aiDecision(actionInts, withMCTS, networkDir, ConfigFactory.getTicTacToeInstance()));
+        return actionIndexToName(Inference.aiDecision(actionInts, withMCTS, networkDir, TicTacToeConfigFactory.getTicTacToeInstance()));
     }
 
 }

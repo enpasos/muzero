@@ -40,7 +40,7 @@ public class RandomGame {
 
         log.info("*** G A M E   O V E R ***");
 
-        var result = GameResult.apply(state.getBoard(), ConfigFactory.getGoInstance(5).getKomi());
+        var result = GameResult.apply(state.getBoard(), GoConfigFactory.getGoInstance(5).getKomi());
         log.info("result = " + result + "\n" + result.toDebugString());
 
 

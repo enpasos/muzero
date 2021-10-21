@@ -64,19 +64,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
-                    <execution>
-                        <id>train</id>
-                        <configuration>
-                            <mainClass>ai.enpasos.muzero.tictactoe.MuZero</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>test</id>
-                        <configuration>
-                            <mainClass>ai.enpasos.muzero.tictactoe.test.TicTacToeTest</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
+                     <execution>
                         <id>integrationtest</id>
                         <configuration>
                             <mainClass>ai.enpasos.muzero.tictactoe.TrainingAndTest</mainClass>
