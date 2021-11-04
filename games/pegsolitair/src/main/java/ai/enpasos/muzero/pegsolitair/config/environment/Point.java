@@ -71,4 +71,15 @@ public class Point implements Comparable<Point> {
         }
         return c;
     }
+
+
+    public Point pointIn(Direction d) {
+        switch(d) {
+            case N: return new Point(this.row - 1, this.col);
+            case E: return new Point(this.row, this.col + 1);
+            case S: return new Point(this.row + 1, this.col);
+            case W:
+            default: return new Point(this.row, this.col - 1);
+        }
+    }
 }

@@ -103,6 +103,11 @@ public class TicTacToeConfigFactory {
                 .numberOfTrainingSteps(4000)
 
 
+                // at the limit
+                .batchSize(800)
+                .numParallelPlays(1000)
+
+
                 // using the symmetry of the board to enhance the number of games played by the symmetryEnhancementFactor
                 .symmetryEnhancementFactor(8)
                 .symmetryFunction(a -> {

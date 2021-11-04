@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.tictactoe;
 
+
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.test.TicTacToeTest;
@@ -21,7 +22,6 @@ public class TrainingAndTest {
         config.setOutputDir(dir);
 
         FileUtils.deleteDirectory(new File(dir));
-
         train(config);
         boolean passed = TicTacToeTest.test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");
