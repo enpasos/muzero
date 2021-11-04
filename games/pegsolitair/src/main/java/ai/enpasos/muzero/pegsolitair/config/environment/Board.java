@@ -11,8 +11,8 @@ public class Board {
 
     static NeighborMap neighborMap;
 
-    Set<Point> stonesOnTheBoard;
-    Set<Point> holesOnTheBoard;
+    TreeSet<Point> stonesOnTheBoard;
+    TreeSet<Point> holesOnTheBoard;
 
 //    // -1 = not allowed position
 //    // 1 = filled position
@@ -52,41 +52,138 @@ public class Board {
 
 
 
+    public Board clone() {
+        Board clone = new Board();
+        clone.holesOnTheBoard.addAll(this.holesOnTheBoard);
+        clone.stonesOnTheBoard.addAll(this.stonesOnTheBoard);
+        return clone;
+    }
+
+
+
     public List<Move> getLegalMoves() {
 
         List<Move> legalMoves = new ArrayList<>();
 
-
-
         holesOnTheBoard.stream().forEach(
-                p1 ->
-                Arrays.stream(Direction.values()).forEach(
-                     direction ->  {
-                         Point p2 = p1.pointIn(direction);
-                         Point p3 = p2.pointIn(direction);
-                         if (!inRange(p2) || !inRange(p3)) return;
-                         if (!(stonesOnTheBoard.contains(p2) && holesOnTheBoard.contains(p3) )) return;
-
-                         Jump jump = new Jump(p1, direction);
-                         Move move = new Move(List.of(jump));
-                         legalMoves.add(move);
-                     }
-                )
+                p1 ->  addDirectLegalJumpsForAHole(p1, legalMoves)
         );
 
-        // up to here only the direct jumps are taken into account
 
+        Board currentBoard = this;
 
-        // find empty positions
-        // identify stones that could jump
-        // for each such stone investigate the tree of possible moves
+        int legalMovesSize = legalMoves.size();
 
-        // ...
-        // alternatively look at the movement of the empty positions: it can move in (N,E,S,W) if there are two occupied space
-        // it leaves an occupied space behind and produces two empty positions.
-        // recursively the new (second) holes can move the same way filling the List<Jump> in a Move
+        List<Move> movesToIterate = new ArrayList<>();
+        movesToIterate.addAll(legalMoves);
+
+        do {
+            legalMovesSize = legalMoves.size();
+            List<Move> newMoves = new ArrayList<>();
+            // legalMoves_.addAll(legalMoves);
+            movesToIterate.stream().forEach(
+                    m -> {
+                        Board tempBoard = currentBoard.clone();
+                        tempBoard.applyMove(m);
+
+                        Point p1 = m.getFinalPosition();
+                        Arrays.stream(Direction.values()).forEach(
+                                direction -> {
+                                    Point p2 = p1.pointIn(direction);
+                                    Point p3 = p2.pointIn(direction);
+
+                                    if (inRange(p2) && inRange(p3) && tempBoard.stonesOnTheBoard.contains(p2) && tempBoard.holesOnTheBoard.contains(p3)) {
+                                        Jump jump = new Jump(p1, direction);
+                                        Move move = m.clone();
+                                        move.jumps.add(jump);
+                                        newMoves.add(move);
+                                        legalMoves.add(move);
+                                    }
+                                }
+                        );
+                    }
+            );
+            movesToIterate = newMoves;
+        } while (movesToIterate.size() > 0);
+
         return legalMoves;
     }
 
+    private void addDirectLegalJumpsForAHole(Point hole, List<Move> legalMoves) {
+        Arrays.stream(Direction.values()).forEach(
+             direction ->  {
+                 Point p2 = hole.pointIn(direction);
+                 Point p3 = p2.pointIn(direction);
+                 if (!inRange(p2) || !inRange(p3)) return;
 
+                 if (!stonesOnTheBoard.contains(p2) || holesOnTheBoard.contains(p3) ) return;
+
+                 Jump jump = new Jump(p3, direction.reverse());
+                 Move move = new Move(List.of(jump));
+                 legalMoves.add(move);
+             }
+        );
+    }
+
+
+    public String render() {
+        // e.g.
+        //   1  2  3  4  5  6  7
+        //1        O  O  O
+        //2        O  O  O
+        //3  O  O  O  O  O  O  O
+        //4  O  O  O  .  O  O  O
+        //5  O  O  O  O  O  O  O
+        //6        O  O  O
+        //7        O  O  O
+
+        StringBuffer buf = new StringBuffer();
+        buf.append("   1  2  3  4  5  6  7\n");
+        for(int row = 1; row <= 7; row++) {
+            buf.append(row);
+            for(int col = 1; col <= 7; col++) {
+                buf.append("  ");
+                Point p = new Point(row, col);
+//                if (!inRange(p)) {
+//
+//                }
+                if (this.stonesOnTheBoard.contains(p)) {
+                    buf.append("O");
+                } else if (this.holesOnTheBoard.contains(p)) {
+                    buf.append(".");
+                } else if (!inRange(p)) {
+                    buf.append(" ");
+                }
+            }
+            buf.append("\n");
+        }
+        return buf.toString();
+
+    }
+
+    public void applyMove(Move move) {
+        for(Jump jump : move.jumps) {
+            applyJump(jump);
+        }
+    }
+
+    private void applyJump(Jump jump) {
+        Point p1 = jump.fromPoint;
+        Point p2 = p1.pointIn(jump.direction);
+        Point p3 = p2.pointIn(jump.direction);
+        stonesOnTheBoard.remove(p1);
+        stonesOnTheBoard.remove(p2);
+        stonesOnTheBoard.add(p3);
+        holesOnTheBoard.remove(p3);
+        holesOnTheBoard.add(p1);
+        holesOnTheBoard.add(p2);
+    }
+
+    public int getScore() {
+        if (stonesOnTheBoard.size() == 1 && stonesOnTheBoard.first().equals(new Point(4,4))) {
+            return 10;
+        } else {
+            return - stonesOnTheBoard.size();
+        }
+    }
 }

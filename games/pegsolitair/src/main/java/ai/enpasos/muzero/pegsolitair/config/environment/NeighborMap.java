@@ -42,7 +42,8 @@ public class NeighborMap {
         return   (row < 3 && col < 3)
                 || (row > 5 && col < 3)
                 || (row < 3 && col > 5)
-                || (row > 5 && col > 5);
+                || (row > 5 && col > 5)
+                || row < 1 || col < 1 || row > 7 || col > 7;
     }
 
 

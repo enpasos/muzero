@@ -11,5 +11,13 @@ import java.util.List;
 public class Move {
     List<Jump> jumps = new ArrayList<>();
 
+    public Point getFinalPosition() {
+        return jumps.get(jumps.size() - 1).getToPoint();
+    }
 
+    public Move clone() {
+        Move move = new Move(new ArrayList<Jump>());
+        move.jumps.addAll(jumps);
+        return move;
+    }
 }
