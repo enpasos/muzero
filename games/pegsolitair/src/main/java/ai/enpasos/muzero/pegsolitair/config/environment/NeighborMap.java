@@ -30,21 +30,29 @@ public class NeighborMap {
         var neighborMap = new NeighborMap();
         for (int row = 1; row <= size; row++) {
             for (int col = 1; col <= size; col++) {
+                if (outOfBounds(row, col)) continue;
                 var point = new Point(row, col);
-                var allNeighbors = point.neighbors();
-                var trueNeighbors = inRange(size, allNeighbors);
-                neighborMap.put(new Point(row, col), trueNeighbors);
+                neighborMap.put(point, inRange(point.neighbors()));
             }
         }
         return neighborMap;
     }
 
+    public static boolean outOfBounds(int row, int col) {
+        return   (row < 3 && col < 3)
+                || (row > 5 && col < 3)
+                || (row < 3 && col > 5)
+                || (row > 5 && col > 5);
+    }
 
 
-    // TODO correct
-    private static List<Point> inRange(int size, List<Point> points) {
+    public static boolean inRange(Point point) {
+        return !outOfBounds(point.getRow(), point.getCol());
+    }
+
+    private static List<Point> inRange(List<Point> points) {
         return points.stream().filter(
-                nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
+                point -> inRange(point)
         ).collect(Collectors.toList());
     }
 
