@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference;
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
@@ -34,6 +35,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.MuZeroConfig.hiddenStateRemainOnGPU;
+
 public class InitialInferenceListTranslator implements Translator<List<Observation>, List<NetworkIO>> {
     @Override
     public @Nullable Batchifier getBatchifier() {
@@ -50,14 +53,18 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
 
 
         NDArray hiddenStates = null;
-//        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-        hiddenStates = s; //s.toDevice(Device.cpu(), false);
-        hiddenStates.detach();
-        SubModel submodel = (SubModel) ctx.getModel();
-        hiddenStates.attach(submodel.hiddenStateNDManager);
-//        } else {
-//            hiddenStates = s;
-//        }
+        if (hiddenStateRemainOnGPU) { //ctx.getNDManager().getDevice().equals(Device.gpu())) {
+            hiddenStates = s; //s.toDevice(Device.cpu(), false);
+            hiddenStates.detach();
+            SubModel submodel = (SubModel) ctx.getModel();
+            hiddenStates.attach(submodel.hiddenStateNDManager);
+        } else {
+            hiddenStates = s.toDevice(Device.cpu(), false);
+            s.close();
+            hiddenStates.detach();
+            SubModel submodel = (SubModel) ctx.getModel();
+            hiddenStates.attach(submodel.hiddenStateNDManager);
+        }
 
         NetworkIO outputA = NetworkIO.builder()
                 .hiddenState(hiddenStates)

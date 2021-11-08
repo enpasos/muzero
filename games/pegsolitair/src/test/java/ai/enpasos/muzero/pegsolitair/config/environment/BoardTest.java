@@ -1,9 +1,7 @@
 package ai.enpasos.muzero.pegsolitair.config.environment;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,9 +26,9 @@ public class BoardTest {
 
         assertEquals(Board.neighborMap.getMap().size(), 33);
 
-        List<Move> moves = board.getLegalMoves();
+        List<Jump> jumps = board.getLegalJumps();
 
-        board.applyMove(moves.get(0));
+        board.applyJump(jumps.get(0));
 
         assertEquals(board.render(),
                 "   1  2  3  4  5  6  7\n" +
@@ -43,28 +41,28 @@ public class BoardTest {
                         "7        O  O  O      \n");
 
 
-        moves = board.getLegalMoves();
+        jumps = board.getLegalJumps();
 
-        board.applyMove(moves.get(0));
-
-        System.out.println(board.render());
-
-
-        moves = board.getLegalMoves();
-
-        board.applyMove(moves.get(2));
+        board.applyJump(jumps.get(0));
 
         System.out.println(board.render());
 
 
-        moves = board.getLegalMoves();
+        jumps = board.getLegalJumps();
 
-        board.applyMove(moves.get(3));
+        board.applyJump(jumps.get(2));
 
         System.out.println(board.render());
 
 
-        moves = board.getLegalMoves();
+        jumps = board.getLegalJumps();
+
+        board.applyJump(jumps.get(3));
+
+        System.out.println(board.render());
+
+
+        jumps = board.getLegalJumps();
 
     }
 
@@ -73,13 +71,13 @@ public class BoardTest {
     public void testRandomGame() {
         Board board = new Board();
         System.out.println(board.render());
-        List<Move> legalMoves = board.getLegalMoves();
+        List<Jump> legalMoves = board.getLegalJumps();
         do {
             Collections.shuffle(legalMoves);
-            Move move = legalMoves.get(0);
-            board.applyMove(move);
+            Jump move = legalMoves.get(0);
+            board.applyJump(move);
             System.out.println(board.render());
-            legalMoves = board.getLegalMoves();
+            legalMoves = board.getLegalJumps();
         } while (legalMoves.size() > 0);
         System.out.println("score: " + board.getScore());
     }

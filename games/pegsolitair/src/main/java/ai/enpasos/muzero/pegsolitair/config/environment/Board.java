@@ -61,55 +61,55 @@ public class Board {
 
 
 
-    public List<Move> getLegalMoves() {
+    public List<Jump> getLegalJumps() {
 
-        List<Move> legalMoves = new ArrayList<>();
+        List<Jump> legalJumps = new ArrayList<>();
 
         holesOnTheBoard.stream().forEach(
-                p1 ->  addDirectLegalJumpsForAHole(p1, legalMoves)
+                p1 ->  addDirectLegalJumpsForAHole(p1, legalJumps)
         );
 
 
-        Board currentBoard = this;
+//        Board currentBoard = this;
+//
+//        int legalMovesSize = legalMoves.size();
+//
+//        List<Move> movesToIterate = new ArrayList<>();
+//        movesToIterate.addAll(legalMoves);
+//
+//        do {
+//            legalMovesSize = legalMoves.size();
+//            List<Move> newMoves = new ArrayList<>();
+//            // legalMoves_.addAll(legalMoves);
+//            movesToIterate.stream().forEach(
+//                    m -> {
+//                        Board tempBoard = currentBoard.clone();
+//                        tempBoard.applyMove(m);
+//
+//                        Point p1 = m.getFinalPosition();
+//                        Arrays.stream(Direction.values()).forEach(
+//                                direction -> {
+//                                    Point p2 = p1.pointIn(direction);
+//                                    Point p3 = p2.pointIn(direction);
+//
+//                                    if (inRange(p2) && inRange(p3) && tempBoard.stonesOnTheBoard.contains(p2) && tempBoard.holesOnTheBoard.contains(p3)) {
+//                                        Jump jump = new Jump(p1, direction);
+//                                        Move move = m.clone();
+//                                        move.jumps.add(jump);
+//                                        newMoves.add(move);
+//                                        legalMoves.add(move);
+//                                    }
+//                                }
+//                        );
+//                    }
+//            );
+//            movesToIterate = newMoves;
+//        } while (movesToIterate.size() > 0);
 
-        int legalMovesSize = legalMoves.size();
-
-        List<Move> movesToIterate = new ArrayList<>();
-        movesToIterate.addAll(legalMoves);
-
-        do {
-            legalMovesSize = legalMoves.size();
-            List<Move> newMoves = new ArrayList<>();
-            // legalMoves_.addAll(legalMoves);
-            movesToIterate.stream().forEach(
-                    m -> {
-                        Board tempBoard = currentBoard.clone();
-                        tempBoard.applyMove(m);
-
-                        Point p1 = m.getFinalPosition();
-                        Arrays.stream(Direction.values()).forEach(
-                                direction -> {
-                                    Point p2 = p1.pointIn(direction);
-                                    Point p3 = p2.pointIn(direction);
-
-                                    if (inRange(p2) && inRange(p3) && tempBoard.stonesOnTheBoard.contains(p2) && tempBoard.holesOnTheBoard.contains(p3)) {
-                                        Jump jump = new Jump(p1, direction);
-                                        Move move = m.clone();
-                                        move.jumps.add(jump);
-                                        newMoves.add(move);
-                                        legalMoves.add(move);
-                                    }
-                                }
-                        );
-                    }
-            );
-            movesToIterate = newMoves;
-        } while (movesToIterate.size() > 0);
-
-        return legalMoves;
+        return legalJumps;
     }
 
-    private void addDirectLegalJumpsForAHole(Point hole, List<Move> legalMoves) {
+    private void addDirectLegalJumpsForAHole(Point hole, List<Jump> legalJumps) {
         Arrays.stream(Direction.values()).forEach(
              direction ->  {
                  Point p2 = hole.pointIn(direction);
@@ -119,8 +119,7 @@ public class Board {
                  if (!stonesOnTheBoard.contains(p2) || holesOnTheBoard.contains(p3) ) return;
 
                  Jump jump = new Jump(p3, direction.reverse());
-                 Move move = new Move(List.of(jump));
-                 legalMoves.add(move);
+                 legalJumps.add(jump);
              }
         );
     }
@@ -161,13 +160,8 @@ public class Board {
 
     }
 
-    public void applyMove(Move move) {
-        for(Jump jump : move.jumps) {
-            applyJump(jump);
-        }
-    }
 
-    private void applyJump(Jump jump) {
+    public void applyJump(Jump jump) {
         Point p1 = jump.fromPoint;
         Point p2 = p1.pointIn(jump.direction);
         Point p3 = p2.pointIn(jump.direction);

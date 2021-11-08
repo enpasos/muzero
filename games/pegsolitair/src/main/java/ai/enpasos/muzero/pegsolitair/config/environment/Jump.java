@@ -14,4 +14,5 @@ public class Jump {
     public Point getToPoint() {
         return fromPoint.pointIn(direction).pointIn(direction);
     }
+
 }

@@ -48,7 +48,7 @@
             <version>${djl.version}</version>
         </dependency>
 
-        <!-- djl/mxnet -->
+        <!-- djl/mxnet  tested: works, but slow -->
         <!--dependency>
             <groupId>ai.djl.mxnet</groupId>
             <artifactId>mxnet-model-zoo</artifactId>
@@ -68,7 +68,7 @@
             <version>1.8.0</version>
         </dependency-->
 
-        <!-- djl/tensorflow not tested yet -->
+        <!-- djl/tensorflow not working -->
         <!--dependency>
           <groupId>ai.djl.tensorflow</groupId>
           <artifactId>tensorflow-engine</artifactId>

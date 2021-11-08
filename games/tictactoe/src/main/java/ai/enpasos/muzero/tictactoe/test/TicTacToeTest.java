@@ -41,11 +41,11 @@ public class TicTacToeTest {
 
     public static void main(String[] args) {
         MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+        String dir = "./memory/";
+      //    String dir = "./memory/integrationtest/tictactoe/";
 
-        //  String dir = "./memory/integrationtest/tictactoe/";
 
-
-        String dir = "C:\\Users\\jenkins\\AppData\\Local\\Jenkins\\.jenkins\\workspace\\muzero_master\\.\\memory\\integrationtest\\tictactoe\\";
+    //    String dir = "C:\\Users\\jenkins\\AppData\\Local\\Jenkins\\.jenkins\\workspace\\muzero_master\\.\\memory\\integrationtest\\tictactoe\\";
 
         config.setOutputDir(dir);
         test(config);
