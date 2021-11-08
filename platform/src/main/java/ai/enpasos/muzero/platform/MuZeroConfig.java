@@ -35,6 +35,8 @@ import java.util.function.Function;
 @Builder
 public class MuZeroConfig {
 
+    public static boolean hiddenStateRemainOnGPU = false;
+
     private final @NotNull String modelName;
     private final @NotNull Class<?> gameClass;
     // game/environment

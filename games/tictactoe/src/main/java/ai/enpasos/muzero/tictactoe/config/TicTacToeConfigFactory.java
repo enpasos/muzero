@@ -100,11 +100,11 @@ public class TicTacToeConfigFactory {
 
                 // faster for integration test
                 .absorbingStateDropToZero(false)
-                .numberOfTrainingSteps(4000)
+                .numberOfTrainingSteps(3000)
 
 
                 // at the limit
-                .batchSize(800)
+                //.batchSize(800)
                 .numParallelPlays(1000)
 
 

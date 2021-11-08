@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference;
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
@@ -33,6 +34,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.MuZeroConfig.hiddenStateRemainOnGPU;
+
 public class RecurrentInferenceListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
     @Override
     public @Nullable Batchifier getBatchifier() {
@@ -47,14 +50,19 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
 
         NDArray hiddenStates = null;
+        if (hiddenStateRemainOnGPU) {
 //        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-        hiddenStates = s; //s.toDevice(Device.cpu(), false);
-        hiddenStates.detach();
-        SubModel submodel = (SubModel) ctx.getModel();
-        hiddenStates.attach(submodel.hiddenStateNDManager);
-//        } else {
-//            hiddenStates = s;
-//        }
+            hiddenStates = s; //s.toDevice(Device.cpu(), false);
+            hiddenStates.detach();
+            SubModel submodel = (SubModel) ctx.getModel();
+            hiddenStates.attach(submodel.hiddenStateNDManager);
+        } else {
+            hiddenStates = s.toDevice(Device.cpu(), false);
+            s.close();
+            hiddenStates.detach();
+            SubModel submodel = (SubModel) ctx.getModel();
+            hiddenStates.attach(submodel.hiddenStateNDManager);
+        }
 
 
         NetworkIO outputA = NetworkIO.builder()
@@ -102,11 +110,10 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
         NDArray hiddenStateOnTargetDevice = input.getHiddenState();
 //        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-//            hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
-//            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
-//        } else {
-//            hiddenStateOnTargetDevice = input.getHiddenState();
-//        }
+        if (!hiddenStateRemainOnGPU) {
+            hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
+            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
+        }
 
         return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
 

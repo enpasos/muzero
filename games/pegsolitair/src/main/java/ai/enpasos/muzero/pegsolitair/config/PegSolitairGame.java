@@ -22,6 +22,8 @@ import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
+import ai.enpasos.muzero.pegsolitair.config.environment.Board;
+import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
@@ -38,19 +40,15 @@ import java.util.stream.IntStream;
 
 public class PegSolitairGame extends Game {
 
-    final float[] @NotNull [] boardtransfer;
-
 
     public PegSolitairGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
         environment = new PegSolitairEnvironment(config);
-        boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
     public PegSolitairGame(@NotNull MuZeroConfig config) {
         super(config);
         environment = new PegSolitairEnvironment(config);
-        boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
     public @NotNull PegSolitairEnvironment getEnvironment() {
@@ -83,62 +81,63 @@ public class PegSolitairGame extends Game {
         }
     }
 
-    private float[] @NotNull [] getBoardPositions(int[] @NotNull [] board, int p) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                boardtransfer[i][j] = board[i][j] == p ? 1 : 0;
-            }
-        }
-        return boardtransfer;
-    }
 
 
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
 
-        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
-        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
 
 
         // values in the range [0, 1]
-        NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
-        NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
-
-        NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
-
-        NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
-
+//        NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
+////        NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
+//
+//        NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
+//
+//        NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
+        NDArray stacked = null;
 
         return new Observation(stacked);
+    }
+
+    private float[] @NotNull [] getBoardPositions(Board board, int p) {
+        for (int row = 1; row <= 7; row++) {
+            for (int col = 1; col <= 7; col++) {
+                Point point = new Point(row, col);
+            }
+        }
+       // return boardtransfer;
+        return null;
     }
 
 
     @Override
     public Player toPlay() {
-        return this.getEnvironment().getPlayerToMove();
+        return null;
     }
 
     @Override
     public String render() {
 
-        String r = this.getGameDTO().getActionHistory().size() + ": ";
-        OneOfTwoPlayer player = null;
-        if (this.getGameDTO().getActionHistory().size() > 0) {
-            Action action = new Action(config, this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
-            int colLastMove = action.getCol();
-
-            player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-            r += player.getSymbol() + " move (" + (action.getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
-        }
-        r += "\n";
-        r += getEnvironment().render();
-        if (terminal() && this.getGameDTO().getRewards().size() > 0) {
-            if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
-                r += "\ndraw";
-            } else {
-                r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
-            }
-            System.out.println("\nG A M E  O V E R");
-        }
-        return r;
+//        String r = this.getGameDTO().getActionHistory().size() + ": ";
+//        OneOfTwoPlayer player = null;
+//        if (this.getGameDTO().getActionHistory().size() > 0) {
+//            Action action = new Action(config, this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
+//            int colLastMove = action.getCol();
+//
+//            player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
+//            r += player.getSymbol() + " move (" + (action.getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
+//        }
+//        r += "\n";
+//        r += getEnvironment().render();
+//        if (terminal() && this.getGameDTO().getRewards().size() > 0) {
+//            if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
+//                r += "\ndraw";
+//            } else {
+//                r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
+//            }
+//            System.out.println("\nG A M E  O V E R");
+//        }
+//        return r;
+        return null;
     }
 }
