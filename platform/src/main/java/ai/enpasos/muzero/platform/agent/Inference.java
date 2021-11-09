@@ -115,6 +115,10 @@ public class Inference {
             float[] policyValues = networkOutput.getPolicyValues();
             List<Pair<Action, Double>> distributionInput =
                     IntStream.range(0, game.getConfig().getActionSpaceSize())
+                            .filter(i -> {
+                                Action action = new Action(game.getConfig(), i);
+                                return legalActions.contains(action);
+                            })
                             .mapToObj(i -> {
                                 Action action = new Action(game.getConfig(), i);
                                 double v = policyValues[i];

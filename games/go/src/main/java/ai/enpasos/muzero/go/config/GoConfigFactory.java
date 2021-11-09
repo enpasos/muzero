@@ -138,6 +138,11 @@ public class GoConfigFactory {
                         .numPlays(20)
 
 
+                        .numSimulations(200)
+                        .numParallelPlays(1000)
+                        .numPlays(1)
+
+
                         .komi(6.5f)
 
 

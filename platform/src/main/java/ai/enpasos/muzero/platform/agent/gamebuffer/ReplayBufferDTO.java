@@ -39,13 +39,17 @@ public class ReplayBufferDTO implements Serializable {
     private long counter;
     private int windowSize;
 
+    public boolean isBufferFilled() {
+        return data.size() >= windowSize;
+    }
+
     public ReplayBufferDTO(int windowSize) {
         this.windowSize = windowSize;
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
         //  System.out.println(game.actionHistory().getActionIndexList());
-        while (data.size() >= windowSize) {
+        while (isBufferFilled()) {
             GameDTO toberemoved = data.get(0);
             Game gameToberemoved = config.newGame();
             gameToberemoved.setGameDTO(toberemoved);

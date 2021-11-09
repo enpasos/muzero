@@ -144,19 +144,6 @@ public class ReplayBuffer {
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
     public List<Sample> sampleBatch(int numUnrollSteps, int tdSteps, NDManager ndManager) {
-        //        long start = System.currentTimeMillis();
-
-//        List<GameDTO> games = new ArrayList<>(this.buffer.getData());
-//        Collections.shuffle(games);
-
-//
-//       GameDTO gameDTO = games.get(0);
-//        Game game = config.newGame();
-//        Objects.requireNonNull(game).setGameDTO(gameDTO);
-//
-//        Sample sample = sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this);
-//
-//        sample.
 
         return sampleGames().stream()
                 .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
