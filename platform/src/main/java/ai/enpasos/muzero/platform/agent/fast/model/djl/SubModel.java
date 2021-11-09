@@ -36,7 +36,7 @@ public class SubModel extends BaseModel {
 
     public SubModel(String modelName, @NotNull Model model, Block block) {
         super(modelName);
-        super.manager = model.getNDManager(); //.newSubManager();
+        super.manager = model.getNDManager();
 
         super.setBlock(block);
     }

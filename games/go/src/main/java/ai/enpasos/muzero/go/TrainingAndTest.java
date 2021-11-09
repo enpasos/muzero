@@ -13,13 +13,15 @@ import static ai.enpasos.muzero.platform.MuZero.train;
 public class TrainingAndTest {
 
     public static void main(String[] args) throws URISyntaxException, IOException {
-        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
-        String dir = "./memory/";
+        int size = 5;
+
+        MuZeroConfig config = GoConfigFactory.getGoInstance(size);
+        String dir = "./memory/go"+ size + "/";
         config.setOutputDir(dir);
 
 //        FileUtils.deleteDirectory(new File(dir));
 
-        train(config);
+        train(config, true);
         //  boolean passed = TicTacToeTest.test(config);
 //        String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
 //        log.info(message);

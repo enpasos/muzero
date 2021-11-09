@@ -106,7 +106,7 @@ public class TicTacToeConfigFactory {
                 // at the limit
                 //.batchSize(800)
                 .numParallelPlays(1000)
-
+                .windowSize(10000)
 
                 // using the symmetry of the board to enhance the number of games played by the symmetryEnhancementFactor
                 .symmetryEnhancementFactor(8)

@@ -228,13 +228,24 @@ public class MuZero {
         System.exit(0);
     }
 
-
     public static void train(MuZeroConfig config) {
+        train(config, false);
+    }
+
+    public static void train(MuZeroConfig config, boolean freshBuffer) {
         MuZero.createNetworkModelIfNotExisting(config);
 
+
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        replayBuffer.loadLatestState();
-        MuZero.initialFillingBuffer(config, replayBuffer);
+        if (freshBuffer) {
+            while (!replayBuffer.getBuffer().isBufferFilled()) {
+                MuZero.playOnDeepThinking(config, replayBuffer);
+                replayBuffer.saveState();
+            }
+        } else {
+            replayBuffer.loadLatestState();
+            MuZero.initialFillingBuffer(config, replayBuffer);
+        }
 
         int trainingStep = NetworkHelper.numberOfLastTrainingStep(config);
 
