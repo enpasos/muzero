@@ -62,14 +62,15 @@ public class Network {
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
         this.model = model;
         this.config = config;
-        MuZeroBlock block = new MuZeroBlock(config);
 
-
-        model.setBlock(block);
-        try {
-            model.load(modelPath);
-        } catch (@NotNull IOException | MalformedModelException e) {
-            e.printStackTrace();
+        if (model.getBlock() == null) {
+            MuZeroBlock block = new MuZeroBlock(config);
+            model.setBlock(block);
+            try {
+                model.load(modelPath);
+            } catch (@NotNull IOException | MalformedModelException e) {
+                e.printStackTrace();
+            }
         }
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");

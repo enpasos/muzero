@@ -46,10 +46,10 @@ public class PlayManager {
 //        playParallel(replayBuffer, config,  render, fastRuleLearning,  thinkConf, true);
 //    }
 
-    public static void playParallel(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, ThinkConf thinkConf, boolean explorationNoise) {
+    public static void playParallel(Model model, @NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, ThinkConf thinkConf, boolean explorationNoise) {
 
         for (int i = 0; i < thinkConf.numOfPlays(); i++) {
-            try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+      //      try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
                 logNDManagers(model.getNDManager());
 
@@ -67,7 +67,7 @@ public class PlayManager {
                     logNDManagers(model.getNDManager());
 
 
-            }
+        //    }
 
 
             log.info("Played {} games parallel, round {}", thinkConf.numParallelGames(), i);

@@ -17,6 +17,8 @@
 
 package ai.enpasos.muzero.pegsolitair;
 
+import ai.djl.Device;
+import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
@@ -51,8 +53,10 @@ public class SmokeTest {
                                 .numOfPlays(config.getBatchSize())
                                 .build())
                 .build();
-        PlayManager.playParallel(replayBuffer, config, true, true, thinkConf, true);
 
+        try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
+            PlayManager.playParallel(model, replayBuffer, config, true, true, thinkConf, true);
+        }
 
     }
 
@@ -84,7 +88,9 @@ public class SmokeTest {
                                     .numOfPlays(1)
                                     .build())
                     .build();
-            PlayManager.playParallel(replayBuffer, config, true, false, thinkConf, true);
+            try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
+                PlayManager.playParallel(model, replayBuffer, config, true, false, thinkConf, true);
+
             thinkConf = ThinkConf.builder()
 
                     .playerAConfig(
@@ -100,9 +106,11 @@ public class SmokeTest {
                                     .numOfPlays(2)
                                     .build())
                     .build();
-            PlayManager.playParallel(replayBuffer, config, false, false, thinkConf, true);
+            PlayManager.playParallel(model, replayBuffer, config, false, false, thinkConf, true);
+
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;
