@@ -17,6 +17,8 @@
 
 package ai.enpasos.muzero.tictactoe;
 
+import ai.djl.Device;
+import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
@@ -50,15 +52,18 @@ public class SmokeTest {
                                 .numOfPlays(config.getBatchSize())
                                 .build())
                 .build();
-        PlayManager.playParallel(replayBuffer, config, true, true, thinkConf, true);
+        try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
+            PlayManager.playParallel(model, replayBuffer, config, true, true, thinkConf, true);
+        }
 
 
     }
 
     @Test
     public void smoketest() {
-        try {
+
             MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+        try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             config.setOutputDir("target/smoketest/");
             config.setNumberOfTrainingStepsPerEpoch(1);
 
@@ -81,7 +86,7 @@ public class SmokeTest {
                                     .numOfPlays(1)
                                     .build())
                     .build();
-            PlayManager.playParallel(replayBuffer, config, true, false, thinkConf, true);
+            PlayManager.playParallel(model, replayBuffer, config, true, false, thinkConf, true);
             thinkConf = ThinkConf.builder()
 
                     .playerAConfig(
@@ -97,7 +102,7 @@ public class SmokeTest {
                                     .numOfPlays(2)
                                     .build())
                     .build();
-            PlayManager.playParallel(replayBuffer, config, false, false, thinkConf, true);
+            PlayManager.playParallel(model, replayBuffer, config, false, false, thinkConf, true);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {

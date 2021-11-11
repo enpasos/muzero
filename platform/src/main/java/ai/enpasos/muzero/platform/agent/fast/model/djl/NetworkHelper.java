@@ -64,18 +64,19 @@ public class NetworkHelper {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
         boolean withSymmetryEnrichment = true;
-        MuZeroBlock block = new MuZeroBlock(config);
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
             logNDManagers(model.getNDManager());
 
-            model.setBlock(block);
-
-            try {
-                model.load(Paths.get(getNetworksBasedir(config)));
-            } catch (Exception e) {
-                log.info("*** no existing model has been found ***");
+            if (model.getBlock() == null) {
+                MuZeroBlock block = new MuZeroBlock(config);
+                model.setBlock(block);
+                try {
+                    model.load(Paths.get(getNetworksBasedir(config)));
+                } catch (Exception e) {
+                    log.info("*** no existing model has been found ***");
+                }
             }
 
             String prop = model.getProperty("Epoch");
@@ -150,18 +151,20 @@ public class NetworkHelper {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
         boolean withSymmetryEnrichment = true;
-        MuZeroBlock block = new MuZeroBlock(config);
+
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
             logNDManagers(model.getNDManager());
 
-            model.setBlock(block);
-
-            try {
-                model.load(Paths.get(getNetworksBasedir(config)));
-            } catch (Exception e) {
-                log.info("*** no existing model has been found ***");
+            if (model.getBlock() == null) {
+                MuZeroBlock block = new MuZeroBlock(config);
+                model.setBlock(block);
+                try {
+                    model.load(Paths.get(getNetworksBasedir(config)));
+                } catch (Exception e) {
+                    log.info("*** no existing model has been found ***");
+                }
             }
 
             String prop = model.getProperty("Epoch");
@@ -188,7 +191,7 @@ public class NetworkHelper {
         return getBatch(config, model.getNDManager(), replayBuffer, withSymmetryEnrichment);
     }
 
-    private static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull NDManager ndManager, @NotNull ReplayBuffer replayBuffer, boolean withSymmetryEnrichment) {
+    public static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull NDManager ndManager, @NotNull ReplayBuffer replayBuffer, boolean withSymmetryEnrichment) {
         NDManager nd = ndManager.newSubManager();
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), config.getTdSteps(), nd);
         List<NDArray> inputs = constructInput(config, nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
@@ -205,11 +208,11 @@ public class NetworkHelper {
                 0);
     }
 
-    private static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf) {
+    public static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf) {
         return getInputShapes(conf, conf.getBatchSize());
     }
 
-    private static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf, int batchSize) {
+    public static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf, int batchSize) {
         Shape[] shapes = new Shape[conf.getNumUnrollSteps() + 1];
         // for observation input
         shapes[0] = new Shape(batchSize, conf.getNumObservationLayers(), conf.getBoardHeight(), conf.getBoardWidth());
@@ -220,7 +223,7 @@ public class NetworkHelper {
     }
 
 
-    private static DefaultTrainingConfig setupTrainingConfig(@NotNull MuZeroConfig muZeroConfig, int epoch) {
+    public static DefaultTrainingConfig setupTrainingConfig(@NotNull MuZeroConfig muZeroConfig, int epoch) {
         String outputDir = getNetworksBasedir(muZeroConfig);
         MyCheckpointsTrainingListener listener = new MyCheckpointsTrainingListener(outputDir);
         listener.setEpoch(epoch);

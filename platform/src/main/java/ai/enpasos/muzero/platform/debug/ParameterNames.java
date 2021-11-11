@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.debug;
 
 import ai.djl.Device;
 import ai.djl.Model;
+import ai.djl.nn.Block;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
@@ -26,26 +27,30 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;
 
+import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
+
 @Slf4j
 public class ParameterNames {
     public static String listParameterNames(MuZeroConfig config) {
-        MuZeroBlock block = new MuZeroBlock(config);
+
         StringBuffer buf = new StringBuffer();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            model.setBlock(block);
 
+             Block block = model.getBlock();
+            if (model.getBlock() == null) {
+                 block = new MuZeroBlock(config);
+                model.setBlock(block);
+                try {
+                    model.load(Paths.get(getNetworksBasedir(config)));
+                } catch (Exception e) {
+                    log.info("*** no existing model has been found ***");
+                }
 
-            try {
-                model.load(Paths.get(MuZero.getNetworksBasedir(config)));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage(), e);
+                block.getParameters().forEach(
+                        //  p -> System.out.println(p.getKey() + " = " + Arrays.toString(p.getValue().getArray().toFloatArray()))
+                        p -> buf.append(p.getKey())
+                );
             }
-            block.getParameters().forEach(
-                    //  p -> System.out.println(p.getKey() + " = " + Arrays.toString(p.getValue().getArray().toFloatArray()))
-                    p -> buf.append(p.getKey())
-            );
             return buf.toString();
         }
     }
