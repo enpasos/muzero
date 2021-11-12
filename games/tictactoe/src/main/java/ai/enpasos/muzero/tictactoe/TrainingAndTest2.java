@@ -12,6 +12,8 @@ import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.MyCheckpointsTrainingListener;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
@@ -44,7 +46,7 @@ public class TrainingAndTest2 {
         int numberOfEpochs = 1;
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-
+            Network network = new Network(config, model);
 
             FileUtils.deleteDirectory(new File(dir));
             MuZero.createNetworkModelIfNotExisting(config);
@@ -53,37 +55,37 @@ public class TrainingAndTest2 {
             ReplayBuffer replayBuffer = new ReplayBuffer(config);
             if (freshBuffer) {
                 while (!replayBuffer.getBuffer().isBufferFilled()) {
-                    MuZero.playOnDeepThinking(model, config, replayBuffer);
+                    MuZero.playOnDeepThinking(network, replayBuffer);
                     replayBuffer.saveState();
                 }
             } else {
                 replayBuffer.loadLatestState();
-                MuZero.initialFillingBuffer(model, config, replayBuffer);
+                MuZero.initialFillingBuffer(network, replayBuffer);
             }
 
             int trainingStep = NetworkHelper.numberOfLastTrainingStep(config);
+            DefaultTrainingConfig djlConfig = setupTrainingConfig(config, 0);
 
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (trainingStep != 0) {
                     log.info("last training step = {}", trainingStep);
                     log.info("numSimulations: " + config.getNumSimulations());
-                    MuZero.playOnDeepThinking(model, config, replayBuffer);
+                    MuZero.playOnDeepThinking(network, replayBuffer);
                     replayBuffer.saveState();
                 }
                 int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                 int epoch = 0;
                 boolean withSymmetryEnrichment = true;
-                MuZeroBlock block = new MuZeroBlock(config);
 
 
-                logNDManagers(model.getNDManager());
-
-                model.setBlock(block);
-
-                try {
-                    model.load(Paths.get(getNetworksBasedir(config)));
-                } catch (Exception e) {
-                    log.info("*** no existing model has been found ***");
+                if (model.getBlock() == null) {
+                    MuZeroBlock block = new MuZeroBlock(config);
+                    model.setBlock(block);
+                    try {
+                        model.load(Paths.get(getNetworksBasedir(config)));
+                    } catch (Exception e) {
+                        log.info("*** no existing model has been found ***");
+                    }
                 }
 
                 String prop = model.getProperty("Epoch");
@@ -91,9 +93,11 @@ public class TrainingAndTest2 {
                     epoch = Integer.parseInt(prop);
                 }
 
-                DefaultTrainingConfig djlConfig = setupTrainingConfig(config, epoch);
 
-                //  float gradientScale = 1f / config.getNumUnrollSteps();
+                int finalEpoch = epoch;
+                djlConfig.getTrainingListeners().stream()
+                        .filter(trainingListener -> trainingListener instanceof MyCheckpointsTrainingListener)
+                        .forEach(trainingListener -> ((MyCheckpointsTrainingListener) trainingListener).setEpoch(finalEpoch));
 
                 try (Trainer trainer = model.newTrainer(djlConfig)) {
                     trainer.setMetrics(new Metrics());

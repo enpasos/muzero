@@ -46,29 +46,21 @@ public class PlayManager {
 //        playParallel(replayBuffer, config,  render, fastRuleLearning,  thinkConf, true);
 //    }
 
-    public static void playParallel(Model model, @NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, ThinkConf thinkConf, boolean explorationNoise) {
+    public static void playParallel(Network network, @NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, ThinkConf thinkConf, boolean explorationNoise) {
 
         for (int i = 0; i < thinkConf.numOfPlays(); i++) {
-      //      try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
-                logNDManagers(model.getNDManager());
+        //   List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
+//                Network network = null;
+//                if (!fastRuleLearning)
+//                    network = new Network(config, model);
 
-
-                List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
-                Network network = null;
-                if (!fastRuleLearning)
-                    network = new Network(config, model);
-
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, actionSpaceOnDevice, explorationNoise, thinkConf);
+                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, network.getActionSpaceOnDevice(), explorationNoise, thinkConf);
                 gameList.forEach(replayBuffer::saveGame);
 
 
                 if (i == thinkConf.numOfPlays() - 1)
-                    logNDManagers(model.getNDManager());
-
-
-        //    }
-
+                    logNDManagers(network.getModel().getNDManager());
 
             log.info("Played {} games parallel, round {}", thinkConf.numParallelGames(), i);
         }

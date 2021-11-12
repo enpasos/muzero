@@ -4,6 +4,7 @@ package ai.enpasos.muzero.tictactoe;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,8 @@ public class TrainingAndTest {
 
         FileUtils.deleteDirectory(new File(dir));
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
-            train(model, config);
+            Network network = new Network(config, model);
+            train(network);
         }
         boolean passed = TicTacToeTest.test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");

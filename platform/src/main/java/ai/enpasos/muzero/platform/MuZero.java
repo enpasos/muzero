@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform;
 
 import ai.djl.Model;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
@@ -37,14 +38,15 @@ import java.util.ArrayList;
 public class MuZero {
 
 
-    public static void playOnDeepThinking(Model model, MuZeroConfig config, ReplayBuffer replayBuffer) {
-
+    public static void playOnDeepThinking(Network network, ReplayBuffer replayBuffer) {
+        MuZeroConfig config = network.getConfig();
         ThinkConf thinkConf = ThinkConf.instanceFromConfig(config);
 
-        PlayManager.playParallel(model, replayBuffer, config, false, false, thinkConf, true);
+        PlayManager.playParallel(network, replayBuffer, config, false, false, thinkConf, true);
     }
 
-    public static void initialFillingBuffer(Model model, MuZeroConfig config, ReplayBuffer replayBuffer) {
+    public static void initialFillingBuffer(Network network, ReplayBuffer replayBuffer) {
+        MuZeroConfig config = network.getConfig();
         ThinkConf thinkConf = ThinkConf.builder()
                 .playerAConfig(
                         ThinkBudget.builder()
@@ -63,7 +65,7 @@ public class MuZero {
 
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(model, replayBuffer, config, false, true, thinkConf, true);
+            PlayManager.playParallel(network, replayBuffer, config, false, true, thinkConf, true);
             replayBuffer.saveState();
         }
     }
@@ -129,23 +131,25 @@ public class MuZero {
         System.exit(0);
     }
 
-    public static void train(Model model,MuZeroConfig config) {
-        train(model, config, false);
+    public static void train(Network network) {
+        train(network, false);
     }
 
-    public static void train(Model model, MuZeroConfig config, boolean freshBuffer) {
+    public static void train(Network network, boolean freshBuffer) {
+        MuZeroConfig config = network.getConfig();
+        Model model = network.getModel();
         MuZero.createNetworkModelIfNotExisting(config);
 
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         if (freshBuffer) {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
-                MuZero.playOnDeepThinking(model, config, replayBuffer);
+                MuZero.playOnDeepThinking(network, replayBuffer);
                 replayBuffer.saveState();
             }
         } else {
             replayBuffer.loadLatestState();
-            MuZero.initialFillingBuffer(model, config, replayBuffer);
+            MuZero.initialFillingBuffer(network, replayBuffer);
         }
 
         int trainingStep = NetworkHelper.numberOfLastTrainingStep(config);
@@ -154,7 +158,7 @@ public class MuZero {
             if (trainingStep != 0) {
                 log.info("last training step = {}", trainingStep);
                 log.info("numSimulations: " + config.getNumSimulations());
-                MuZero.playOnDeepThinking(model, config, replayBuffer);
+                MuZero.playOnDeepThinking(network, replayBuffer);
                 replayBuffer.saveState();
             }
             trainingStep = NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
