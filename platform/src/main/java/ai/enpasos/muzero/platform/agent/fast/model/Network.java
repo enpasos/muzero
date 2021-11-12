@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
+import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
 
 @Data
 public class Network {
@@ -58,6 +59,8 @@ public class Network {
 
     private SubModel initialInference;
     private SubModel recurrentInference;
+
+    private List<NDArray> actionSpaceOnDevice;
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
         this.model = model;
@@ -72,6 +75,8 @@ public class Network {
                 e.printStackTrace();
             }
         }
+
+        actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");

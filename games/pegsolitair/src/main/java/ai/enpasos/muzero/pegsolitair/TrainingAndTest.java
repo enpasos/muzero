@@ -4,6 +4,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -24,7 +25,8 @@ public class TrainingAndTest {
         FileUtils.deleteDirectory(new File(dir));
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            train(model, config);
+            Network network = new Network(config, model);
+            train(network);
         }
 //        boolean passed = SolitairTest.test(config);
 //        String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");

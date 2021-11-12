@@ -4,6 +4,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -24,7 +25,9 @@ public class TrainingAndTest {
 //        FileUtils.deleteDirectory(new File(dir));
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            train(model, config, true);
+            Network network = new Network(config, model);
+
+            train(network, true);
         }
         //  boolean passed = TicTacToeTest.test(config);
 //        String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
