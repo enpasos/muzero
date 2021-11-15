@@ -48,16 +48,8 @@ public class PlayManager {
 
         for (int i = 0; i < thinkConf.numOfPlays(); i++) {
 
-            //   List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
-//                Network network = null;
-//                if (!fastRuleLearning)
-//                    network = new Network(config, model);
-
-            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, network.getActionSpaceOnDevice(), explorationNoise, thinkConf);
+            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning,  explorationNoise, thinkConf);
             gameList.forEach(replayBuffer::saveGame);
-
-
-
 
             log.info("Played {} games parallel, round {}", thinkConf.numParallelGames(), i);
         }

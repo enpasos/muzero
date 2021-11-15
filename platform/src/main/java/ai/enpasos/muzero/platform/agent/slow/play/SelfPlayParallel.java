@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
 import static ai.enpasos.muzero.platform.environment.EnvironmentBase.render;
 
 
@@ -46,7 +47,7 @@ public class SelfPlayParallel {
     private final @Nullable DirichletGen dg = null;
 
 
-    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise, ThinkConf thinkConf) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning,  boolean explorationNoise, ThinkConf thinkConf) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
         network.debugDump();
@@ -66,6 +67,8 @@ public class SelfPlayParallel {
             System.out.println(justOneOfTheGames.render());
         }
         try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+            List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), nDManager);
+            network.setActionSpaceOnDevice(actionSpaceOnDevice);
             while (gameList.size() > 0) {
 
                 network.debugDump();
@@ -124,7 +127,7 @@ public class SelfPlayParallel {
                     OneOfTwoPlayer toPlay = (OneOfTwoPlayer) justOneOfTheGames.toPlay();
                     minMaxStatsList = mcts.runParallel(rootList,
                             gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
-                            network, inferenceDuration, actionSpaceOnDevice, thinkConf.thinkBudget(toPlay).getNumSims());
+                            network, inferenceDuration, thinkConf.thinkBudget(toPlay).getNumSims());
                 }
 
 
