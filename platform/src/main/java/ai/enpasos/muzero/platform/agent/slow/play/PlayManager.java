@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent.slow.play;
 
-import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZero;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.agent.fast.model.djl.Helper.logNDManagers;
 
 
 @Slf4j
@@ -50,17 +48,16 @@ public class PlayManager {
 
         for (int i = 0; i < thinkConf.numOfPlays(); i++) {
 
-        //   List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
+            //   List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
 //                Network network = null;
 //                if (!fastRuleLearning)
 //                    network = new Network(config, model);
 
-                List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, network.getActionSpaceOnDevice(), explorationNoise, thinkConf);
-                gameList.forEach(replayBuffer::saveGame);
+            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, network.getActionSpaceOnDevice(), explorationNoise, thinkConf);
+            gameList.forEach(replayBuffer::saveGame);
 
 
-                if (i == thinkConf.numOfPlays() - 1)
-                    logNDManagers(network.getModel().getNDManager());
+
 
             log.info("Played {} games parallel, round {}", thinkConf.numParallelGames(), i);
         }
