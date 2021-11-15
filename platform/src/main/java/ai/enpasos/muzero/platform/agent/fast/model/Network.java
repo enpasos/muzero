@@ -20,10 +20,7 @@ package ai.enpasos.muzero.platform.agent.fast.model;
 import ai.djl.MalformedModelException;
 import ai.djl.Model;
 import ai.djl.inference.Predictor;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
-import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.*;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.SubModel;
@@ -172,5 +169,7 @@ public class Network {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }
 
-
+    public void debugDump() {
+        ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
+    }
 }

@@ -5,6 +5,8 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
+import ai.djl.ndarray.BaseNDManager;
+import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.EasyTrain;
@@ -30,7 +32,6 @@ import java.util.List;
 
 import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
 import static ai.enpasos.muzero.platform.MuZero.train;
-import static ai.enpasos.muzero.platform.agent.fast.model.djl.Helper.logNDManagers;
 import static ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper.*;
 
 @Slf4j
@@ -73,26 +74,15 @@ public class TrainingAndTest2 {
                     MuZero.playOnDeepThinking(network, replayBuffer);
                     replayBuffer.saveState();
                 }
+                network.debugDump();
                 int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                 int epoch = 0;
                 boolean withSymmetryEnrichment = true;
-
-
-                if (model.getBlock() == null) {
-                    MuZeroBlock block = new MuZeroBlock(config);
-                    model.setBlock(block);
-                    try {
-                        model.load(Paths.get(getNetworksBasedir(config)));
-                    } catch (Exception e) {
-                        log.info("*** no existing model has been found ***");
-                    }
-                }
 
                 String prop = model.getProperty("Epoch");
                 if (prop != null) {
                     epoch = Integer.parseInt(prop);
                 }
-
 
                 int finalEpoch = epoch;
                 djlConfig.getTrainingListeners().stream()
@@ -100,17 +90,19 @@ public class TrainingAndTest2 {
                         .forEach(trainingListener -> ((MyCheckpointsTrainingListener) trainingListener).setEpoch(finalEpoch));
 
                 try (Trainer trainer = model.newTrainer(djlConfig)) {
+                    network.debugDump();
                     trainer.setMetrics(new Metrics());
                     Shape[] inputShapes = getInputShapes(config);
                     trainer.initialize(inputShapes);
 
                     for (int i = 0; i < numberOfEpochs; i++) {
                         for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                            try (Batch batch = getBatch(config, model.getNDManager(), replayBuffer, withSymmetryEnrichment)) {
+                            try (Batch batch = getBatch(config, trainer.getManager(), replayBuffer, withSymmetryEnrichment)) {
                                 log.debug("trainBatch " + m);
                                 EasyTrain.trainBatch(trainer, batch);
                                 trainer.step();
                             }
+                            network.debugDump();
                         }
                         Metrics metrics = trainer.getMetrics();
 
@@ -119,9 +111,6 @@ public class TrainingAndTest2 {
                         Double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
                         model.setProperty("MeanLoss", meanLoss.toString());
                         log.info("MeanLoss: " + meanLoss.toString());
-
-                        //
-
 
                         // mean value loss
                         Double meanValueLoss = metrics.getMetricNames().stream()
@@ -151,8 +140,7 @@ public class TrainingAndTest2 {
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                     }
 
-                    logNDManagers(trainer.getManager());
-
+                    network.debugDump();
                 }
                 trainingStep = epoch * numberOfTrainingStepsPerEpoch;
 

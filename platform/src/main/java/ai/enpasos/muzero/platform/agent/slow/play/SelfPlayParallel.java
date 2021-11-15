@@ -49,6 +49,7 @@ public class SelfPlayParallel {
     public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, @NotNull List<NDArray> actionSpaceOnDevice, boolean explorationNoise, ThinkConf thinkConf) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
+        network.debugDump();
         List<Game> gameList = IntStream.rangeClosed(1, thinkConf.numParallelGames())
                 .mapToObj(i -> config.newGame())
                 .collect(Collectors.toList());
@@ -64,11 +65,10 @@ public class SelfPlayParallel {
         if (render) {
             System.out.println(justOneOfTheGames.render());
         }
+        try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+            while (gameList.size() > 0) {
 
-        while (gameList.size() > 0) {
-
-            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
-
+                network.debugDump();
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
                 }
@@ -85,9 +85,9 @@ public class SelfPlayParallel {
 
 
                 List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(
-                        gameList.stream().map(g -> g.getObservation(network.getNDManager())).collect(Collectors.toList())
+                        gameList.stream().map(g -> g.getObservation(nDManager)).collect(Collectors.toList())
                 );
-
+                network.debugDump();
                 // on this networkOutput p and v are copied to the cpu,
                 // while the hiddenstates stay on the gpu
 
@@ -158,7 +158,7 @@ public class SelfPlayParallel {
 
                 if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
                     //System.out.println("reward: " + justOneOfTheGames.reward);
-                    NetworkIO networkOutput2 = network.initialInferenceDirect(gameList.get(indexOfJustOneOfTheGames).getObservation(network.getNDManager()));
+                    NetworkIO networkOutput2 = network.initialInferenceDirect(gameList.get(indexOfJustOneOfTheGames).getObservation(nDManager));
                     renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
                 }
 

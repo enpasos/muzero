@@ -52,7 +52,6 @@ import java.util.List;
 import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
 import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstruction.constructInput;
 import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstruction.constructOutput;
-import static ai.enpasos.muzero.platform.agent.fast.model.djl.Helper.logNDManagers;
 
 
 @Slf4j
@@ -67,7 +66,6 @@ public class NetworkHelper {
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
-            logNDManagers(model.getNDManager());
 
             if (model.getBlock() == null) {
                 MuZeroBlock block = new MuZeroBlock(config);
@@ -140,7 +138,6 @@ public class NetworkHelper {
                     trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                 }
 
-                logNDManagers(trainer.getManager());
             }
         }
         return epoch * numberOfTrainingStepsPerEpoch;
@@ -155,7 +152,6 @@ public class NetworkHelper {
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
-            logNDManagers(model.getNDManager());
 
             if (model.getBlock() == null) {
                 MuZeroBlock block = new MuZeroBlock(config);
