@@ -27,7 +27,7 @@ import ai.djl.training.EasyTrain;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.MyCheckpointsTrainingListener;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
@@ -219,8 +219,8 @@ public class MuZero {
 
                 int finalEpoch = epoch;
                 djlConfig.getTrainingListeners().stream()
-                        .filter(trainingListener -> trainingListener instanceof MyCheckpointsTrainingListener)
-                        .forEach(trainingListener -> ((MyCheckpointsTrainingListener) trainingListener).setEpoch(finalEpoch));
+                        .filter(trainingListener -> trainingListener instanceof MySaveModelTrainingListener)
+                        .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
 
                 try (Trainer trainer = model.newTrainer(djlConfig)) {
                     network.debugDump();
