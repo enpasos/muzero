@@ -24,15 +24,10 @@ public class TrainingAndTest {
 
 //        FileUtils.deleteDirectory(new File(dir));
 
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            Network network = new Network(config, model);
+        boolean freshBuffer = false;
+        int numberOfEpochs = 1;
+        train(config, freshBuffer, numberOfEpochs);
 
-            train(network, true);
-        }
-        //  boolean passed = TicTacToeTest.test(config);
-//        String message = "INTEGRATIONTEST = " + (passed ? "passed": "failed");
-//        log.info(message);
-//        if (!passed) throw new RuntimeException(message);
     }
 
 

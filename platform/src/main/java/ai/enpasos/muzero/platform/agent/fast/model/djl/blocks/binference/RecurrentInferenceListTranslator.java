@@ -52,8 +52,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
         NDArray hiddenStates = null;
         if (hiddenStateRemainOnGPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
-//        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
-            hiddenStates = s; //s.toDevice(Device.cpu(), false);
+            hiddenStates = s;
             hiddenStates.detach();
             SubModel submodel = (SubModel) ctx.getModel();
             hiddenStates.attach(submodel.hiddenStateNDManager);
@@ -61,11 +60,11 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
             hiddenStates = s.toDevice(Device.cpu(), false);
             NDManager hiddenStateNDManager = hiddenStates.getManager();
             SubModel submodel = (SubModel) ctx.getModel();
-            NDManager newHiddenStateNDManager = submodel.getNDManager().newSubManager(Device.cpu());
-            submodel.hiddenStateNDManager = newHiddenStateNDManager;
-            hiddenStates.detach();
+//            submodel.getModel().
+//            hiddenStates.detach();
             hiddenStates.attach(submodel.hiddenStateNDManager);
             hiddenStateNDManager.close();
+            s.close();
         }
 
 
@@ -114,10 +113,12 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
 
         NDArray hiddenStateOnTargetDevice = input.getHiddenState();
-//        if (ctx.getNDManager().getDevice().equals(Device.gpu())) {
         if (!hiddenStateRemainOnGPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
             hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
             hiddenStateOnTargetDevice.attach(ctx.getNDManager());
+            ndArrayActionStack.attach(ctx.getNDManager());
+            NDList ndList = new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
+            return ndList;
         }
 
         return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);

@@ -65,11 +65,12 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             hiddenStates = s.toDevice(Device.cpu(), false);
             NDManager hiddenStateNDManager = hiddenStates.getManager();
             SubModel submodel = (SubModel) ctx.getModel();
-            NDManager newHiddenStateNDManager = submodel.getNDManager().newSubManager(Device.cpu());
-            submodel.hiddenStateNDManager = newHiddenStateNDManager;
+//            NDManager newHiddenStateNDManager = submodel.getNDManager().newSubManager(Device.cpu());
+//            submodel.hiddenStateNDManager = newHiddenStateNDManager;
             hiddenStates.detach();
             hiddenStates.attach(submodel.hiddenStateNDManager);
             hiddenStateNDManager.close();
+            s.close();
         }
 
         NetworkIO outputA = NetworkIO.builder()

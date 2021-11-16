@@ -33,11 +33,13 @@ import java.util.Map;
 @Slf4j
 public class SubModel extends BaseModel {
     public NDManager hiddenStateNDManager;
+    private Model model;
+
 
     public SubModel(String modelName, @NotNull Model model, Block block) {
         super(modelName);
         super.manager = model.getNDManager();
-
+        this.setModel(model);
         super.setBlock(block);
     }
 
@@ -85,4 +87,11 @@ public class SubModel extends BaseModel {
     }
 
 
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
 }

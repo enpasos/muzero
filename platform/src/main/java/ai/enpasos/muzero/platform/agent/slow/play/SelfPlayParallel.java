@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.slow.play;
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZeroConfig;
@@ -74,7 +75,13 @@ public class SelfPlayParallel {
 
                 network.debugDump();
                 if (network != null) {
-                    network.setHiddenStateNDManager(nDManager);
+                    NDManager newHiddenStateNDManager = null;
+                    if (!config.hiddenStateRemainOnGPU) {
+                        newHiddenStateNDManager = nDManager.newSubManager(Device.cpu());
+                    } else {
+                        newHiddenStateNDManager = nDManager.newSubManager(Device.gpu());
+                    }
+                    network.setHiddenStateNDManager(newHiddenStateNDManager);
                 }
 
                 int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
