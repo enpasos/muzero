@@ -212,9 +212,11 @@ public class MCTS {
 //
 //
             if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
+            network.debugDump();
             List<NetworkIO> networkOutputList = network.recurrentInferenceListDirect(hiddenStateList,
                     actionList
             );
+            network.debugDump();
             if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
 //
             for (int g = 0; g < nodeList.size(); g++) {

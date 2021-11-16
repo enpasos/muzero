@@ -147,8 +147,8 @@ public class Network {
 
     public @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();
-
-        networkIO.setHiddenState(NDArrays.stack(new NDList(hiddenStateList)));
+        NDArray hiddenState = NDArrays.stack(new NDList(hiddenStateList));
+        networkIO.setHiddenState(hiddenState);
         networkIO.setActionList(actionList);
 
         networkIO.setConfig(config);
@@ -163,7 +163,7 @@ public class Network {
             e.printStackTrace();
         }
 
-
+        hiddenState.close();
         return networkOutput;
     }
 
@@ -172,7 +172,7 @@ public class Network {
     }
 
     public void debugDump() {
-        ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
+        //((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }
 
 
