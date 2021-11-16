@@ -172,7 +172,7 @@ public class Network {
     }
 
     public void debugDump() {
-        //((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
+       // ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }
 
 
