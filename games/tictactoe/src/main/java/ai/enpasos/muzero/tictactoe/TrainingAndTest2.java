@@ -56,6 +56,7 @@ public class TrainingAndTest2 {
             ReplayBuffer replayBuffer = new ReplayBuffer(config);
             if (freshBuffer) {
                 while (!replayBuffer.getBuffer().isBufferFilled()) {
+                    network.debugDump();
                     MuZero.playOnDeepThinking(network, replayBuffer);
                     replayBuffer.saveState();
                 }
@@ -71,6 +72,7 @@ public class TrainingAndTest2 {
                 if (trainingStep != 0) {
                     log.info("last training step = {}", trainingStep);
                     log.info("numSimulations: " + config.getNumSimulations());
+                    network.debugDump();
                     MuZero.playOnDeepThinking(network, replayBuffer);
                     replayBuffer.saveState();
                 }
@@ -136,12 +138,35 @@ public class TrainingAndTest2 {
                         model.setProperty("MeanPolicyLoss", meanPolicyLoss.toString());
                         log.info("MeanPolicyLoss: " + meanPolicyLoss.toString());
 
+                        network.debugDump();
 
-                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                        trainer.notifyListeners(listener -> {
+                            System.out.println(listener.toString());
+                            network.debugDump();
+                            listener.onEpoch(trainer);
+                            network.debugDump();
+                        });
+
+                        network.debugDump();
                     }
 
-                    network.debugDump();
+//                    network.debugDump();
+//               //     trainer.close();
+//                    trainer.notifyListeners((listener) -> {
+//                        System.out.println(listener.toString());
+//                        network.debugDump();
+//                        listener.onTrainingEnd(trainer);
+//                        network.debugDump();
+//                    });
+////                    network.debugDump();
+////                    trainer.parameterStore.sync();
+//                    network.debugDump();
+//                    trainer.getManager().close();
+//                    network.debugDump();
+//                    trainer.close();
+//                    network.debugDump();
                 }
+                network.debugDump();
                 trainingStep = epoch * numberOfTrainingStepsPerEpoch;
 
             }
