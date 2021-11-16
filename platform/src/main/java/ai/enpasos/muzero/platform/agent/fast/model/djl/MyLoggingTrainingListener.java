@@ -35,6 +35,9 @@ import java.util.List;
 
 /**
  * {@link TrainingListener} that outputs the progress of training each batch and epoch into logs.
+ *
+ * @see <a href="http://docs.djl.ai/docs/development/configure_logging.html">The guide on DJL
+ *     logging</a>
  */
 public class MyLoggingTrainingListener implements TrainingListener {
 
@@ -65,9 +68,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
         this.frequency = frequency;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onEpoch(Trainer trainer) {
         numEpochs++;
@@ -107,9 +108,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onTrainingBatch(Trainer trainer, BatchData batchData) {
         if (frequency > 1 && numEpochs % frequency != 1) {
@@ -146,9 +145,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onValidationBatch(Trainer trainer, BatchData batchData) {
         if (frequency > 1 && numEpochs % frequency != 1) {
@@ -162,9 +159,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
         validateProgressBar.update(batchData.getBatch().getProgress());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onTrainingBegin(Trainer trainer) {
         String devicesMsg;
@@ -177,8 +172,9 @@ public class MyLoggingTrainingListener implements TrainingListener {
         logger.info("Training on: {}.", devicesMsg);
 
         long init = System.nanoTime();
-        String engineName = Engine.getInstance().getEngineName();
-        String version = Engine.getInstance().getVersion();
+        Engine engine = trainer.getManager().getEngine();
+        String engineName = engine.getEngineName();
+        String version = engine.getVersion();
         long loaded = System.nanoTime();
         logger.info(
                 String.format(
@@ -186,9 +182,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
                         engineName, version, (loaded - init) / 1_000_000f));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void onTrainingEnd(Trainer trainer) {
         Metrics metrics = trainer.getMetrics();

@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.fast.model;
 
 import ai.djl.MalformedModelException;
 import ai.djl.Model;
+import ai.djl.engine.Engine;
 import ai.djl.inference.Predictor;
 import ai.djl.ndarray.*;
 import ai.djl.translate.TranslateException;
@@ -32,6 +33,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.Recurre
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +75,7 @@ public class Network {
             }
         }
 
-        actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
+      //  actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
@@ -121,18 +123,18 @@ public class Network {
     }
 
 
-    public NetworkIO initialInferenceDirect(@NotNull Observation observation) {
-        return Objects.requireNonNull(initialInferenceListDirect(List.of(observation))).get(0);
+    public NetworkIO initialInferenceDirect(@NotNull Game game) {
+        return Objects.requireNonNull(initialInferenceListDirect(List.of(game))).get(0);
     }
 
 
-    public @Nullable List<NetworkIO> initialInferenceListDirect(List<Observation> observationList) {
+    public @Nullable List<NetworkIO> initialInferenceListDirect(List<Game> gameList) {
 
         List<NetworkIO> networkOutputFromInitialInference = null;
 
         InitialInferenceListTranslator translator = new InitialInferenceListTranslator();
-        try (Predictor<List<Observation>, List<NetworkIO>> predictor = initialInference.newPredictor(translator)) {
-            networkOutputFromInitialInference = predictor.predict(observationList);
+        try (Predictor<List<Game>, List<NetworkIO>> predictor = initialInference.newPredictor(translator)) {
+            networkOutputFromInitialInference = predictor.predict(gameList);
 
         } catch (TranslateException e) {
             e.printStackTrace();
@@ -172,4 +174,7 @@ public class Network {
     public void debugDump() {
         ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }
+
+
+
 }

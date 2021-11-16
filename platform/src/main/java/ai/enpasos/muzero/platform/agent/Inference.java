@@ -104,7 +104,7 @@ public class Inference {
 
 
     private static Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
-        NetworkIO networkOutput = network.initialInferenceDirect(game.getObservation(network.getNDManager()));
+        NetworkIO networkOutput = network.initialInferenceDirect(game);
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         MCTS mcts = new MCTS(game.getConfig());

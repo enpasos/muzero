@@ -221,8 +221,8 @@ public class NetworkHelper {
 
     public static DefaultTrainingConfig setupTrainingConfig(@NotNull MuZeroConfig muZeroConfig, int epoch) {
         String outputDir = getNetworksBasedir(muZeroConfig);
-        MyCheckpointsTrainingListener listener = new MyCheckpointsTrainingListener(outputDir);
-        listener.setEpoch(epoch);
+        // MyCheckpointsTrainingListener listener = new MyCheckpointsTrainingListener(outputDir);
+       // listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
 
         float gradientScale = 1f / muZeroConfig.getNumUnrollSteps();
@@ -259,8 +259,8 @@ public class NetworkHelper {
                         new MyEvaluatorTrainingListener(),
                         new DivergenceCheckTrainingListener(),
                         new MyLoggingTrainingListener(epoch),
-                        new TimeMeasureTrainingListener(outputDir))
-                .addTrainingListeners(listener);
+                        new TimeMeasureTrainingListener(outputDir));
+             //   .addTrainingListeners(listener);
     }
 
     private static @NotNull Optimizer setupOptimizer(@NotNull MuZeroConfig muZeroConfig) {

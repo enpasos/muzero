@@ -21,12 +21,14 @@ import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.SubModel;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,9 +37,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.djl.engine.Engine.debugEnvironment;
 import static ai.enpasos.muzero.platform.MuZeroConfig.hiddenStateRemainOnGPU;
 
-public class InitialInferenceListTranslator implements Translator<List<Observation>, List<NetworkIO>> {
+public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     @Override
     public @Nullable Batchifier getBatchifier() {
         return null;
@@ -60,12 +63,14 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
             hiddenStates.attach(submodel.hiddenStateNDManager);
         } else {
             hiddenStates = s.toDevice(Device.cpu(), false);
-            s.close();
-            hiddenStates.detach();
+            NDManager hiddenStateNDManager = hiddenStates.getManager();
             SubModel submodel = (SubModel) ctx.getModel();
+            NDManager newHiddenStateNDManager = submodel.getNDManager().newSubManager(Device.cpu());
+            submodel.hiddenStateNDManager = newHiddenStateNDManager;
+            hiddenStates.detach();
             hiddenStates.attach(submodel.hiddenStateNDManager);
+            hiddenStateNDManager.close();
         }
-
 
         NetworkIO outputA = NetworkIO.builder()
                 .hiddenState(hiddenStates)
@@ -99,15 +104,19 @@ public class InitialInferenceListTranslator implements Translator<List<Observati
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
             networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
         }
+        hiddenStates.close();
         return networkIOs;
 
     }
 
     @Override
-    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Observation> inputList) {
+    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Game> gameList) {
+        List<Observation> observations = gameList.stream()
+                .map(g -> g.getObservation(ctx.getNDManager()))
+                .collect(Collectors.toList());
 
         return new NDList(NDArrays.stack(new NDList(
-                inputList.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
+                observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
         )));
     }
 

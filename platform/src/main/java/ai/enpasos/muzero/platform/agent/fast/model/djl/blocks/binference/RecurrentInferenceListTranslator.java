@@ -21,6 +21,7 @@ import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
@@ -58,10 +59,13 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
             hiddenStates.attach(submodel.hiddenStateNDManager);
         } else {
             hiddenStates = s.toDevice(Device.cpu(), false);
-            s.close();
-            hiddenStates.detach();
+            NDManager hiddenStateNDManager = hiddenStates.getManager();
             SubModel submodel = (SubModel) ctx.getModel();
+            NDManager newHiddenStateNDManager = submodel.getNDManager().newSubManager(Device.cpu());
+            submodel.hiddenStateNDManager = newHiddenStateNDManager;
+            hiddenStates.detach();
             hiddenStates.attach(submodel.hiddenStateNDManager);
+            hiddenStateNDManager.close();
         }
 
 
@@ -97,6 +101,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
             networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
         }
+        hiddenStates.close();
         return networkIOs;
 
     }

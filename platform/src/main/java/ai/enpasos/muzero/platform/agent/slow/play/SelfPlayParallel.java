@@ -22,6 +22,7 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
@@ -86,10 +87,11 @@ public class SelfPlayParallel {
 
                 inferenceDuration.value -= System.currentTimeMillis();
 
+             //   network.debugDump();
+              //  NDManager ndManager2 = nDManager.newSubManager();
 
-                List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(
-                        gameList.stream().map(g -> g.getObservation(nDManager)).collect(Collectors.toList())
-                );
+              //  network.debugDump();
+                List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gameList);
                 network.debugDump();
                 // on this networkOutput p and v are copied to the cpu,
                 // while the hiddenstates stay on the gpu
@@ -161,7 +163,7 @@ public class SelfPlayParallel {
 
                 if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
                     //System.out.println("reward: " + justOneOfTheGames.reward);
-                    NetworkIO networkOutput2 = network.initialInferenceDirect(gameList.get(indexOfJustOneOfTheGames).getObservation(nDManager));
+                    NetworkIO networkOutput2 = network.initialInferenceDirect(gameList.get(indexOfJustOneOfTheGames));
                     renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
                 }
 
