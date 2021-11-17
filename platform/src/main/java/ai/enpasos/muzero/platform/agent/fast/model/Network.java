@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model;
 
+import ai.djl.Device;
 import ai.djl.MalformedModelException;
 import ai.djl.Model;
 import ai.djl.engine.Engine;
@@ -115,11 +116,26 @@ public class Network {
         }
         return epoch;
     }
-
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
-
-        initialInference.hiddenStateNDManager = hiddenStateNDManager;
-        recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
+        setHiddenStateNDManager(hiddenStateNDManager, true);
+    }
+    public void createAndSetHiddenStateNDManager(NDManager parentNDManager, boolean force) {
+        if (force || initialInference.hiddenStateNDManager == null) {
+            NDManager newHiddenStateNDManager = null;
+            if (!config.hiddenStateRemainOnGPU) {
+                newHiddenStateNDManager = parentNDManager.newSubManager(Device.cpu());
+            } else {
+                newHiddenStateNDManager = parentNDManager.newSubManager(Device.gpu());
+            }
+            initialInference.hiddenStateNDManager = newHiddenStateNDManager;
+            recurrentInference.hiddenStateNDManager = newHiddenStateNDManager;
+        }
+    }
+    public void setHiddenStateNDManager(NDManager hiddenStateNDManager, boolean force) {
+        if (force || initialInference.hiddenStateNDManager == null) {
+            initialInference.hiddenStateNDManager = hiddenStateNDManager;
+            recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
+        }
     }
 
     public NDManager getNDManager() {
@@ -176,7 +192,7 @@ public class Network {
     }
 
     public void debugDump() {
-       // ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
+        ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }
 
 
