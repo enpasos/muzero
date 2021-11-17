@@ -90,6 +90,10 @@ public class Network {
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock));
     }
 
+    public void initActionSpaceOnDevice(NDManager ndManager) {
+        actionSpaceOnDevice = getAllActionsOnDevice(config, ndManager);
+    }
+
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
         this(config, model, Paths.get(getNetworksBasedir(config)));
     }

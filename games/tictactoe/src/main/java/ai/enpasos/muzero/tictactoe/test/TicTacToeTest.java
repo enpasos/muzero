@@ -123,6 +123,7 @@ public class TicTacToeTest {
 
                 if (network != null) {
                     network.setHiddenStateNDManager(nDManager);
+                    network.initActionSpaceOnDevice(nDManager);
                 }
 
                 List<DNode> gamesLostByPlayerA = new ArrayList<>();

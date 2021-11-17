@@ -62,6 +62,7 @@ public class Inference {
             try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
 
                 if (network != null) {
+                    network.initActionSpaceOnDevice(nDManager);
                     network.setHiddenStateNDManager(nDManager);
                 }
                 actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game).getSecond();
