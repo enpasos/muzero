@@ -21,6 +21,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
@@ -34,7 +35,6 @@ import org.testng.annotations.Test;
 
 @Slf4j
 public class SmokeTest {
-
     public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
         MuZero.deleteNetworksAndGames(config);
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
@@ -53,19 +53,21 @@ public class SmokeTest {
                                 .numOfPlays(config.getBatchSize())
                                 .build())
                 .build();
-
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
-            PlayManager.playParallel(model, replayBuffer, config, true, true, thinkConf, true);
+            Network network = new Network(config, model);
+            PlayManager.playParallel(network, replayBuffer, config, true, true, thinkConf, true);
         }
+
 
     }
 
     @Test
-
     @Ignore
     public void smoketest() {
-        try {
-            MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
+
+        MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
+        try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
+            Network network = new Network(config, model);
             config.setOutputDir("target/smoketest/");
             config.setNumberOfTrainingStepsPerEpoch(1);
 
@@ -88,9 +90,7 @@ public class SmokeTest {
                                     .numOfPlays(1)
                                     .build())
                     .build();
-            try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
-                PlayManager.playParallel(model, replayBuffer, config, true, false, thinkConf, true);
-
+            PlayManager.playParallel(network, replayBuffer, config, true, false, thinkConf, true);
             thinkConf = ThinkConf.builder()
 
                     .playerAConfig(
@@ -106,11 +106,9 @@ public class SmokeTest {
                                     .numOfPlays(2)
                                     .build())
                     .build();
-            PlayManager.playParallel(model, replayBuffer, config, false, false, thinkConf, true);
-
+            PlayManager.playParallel(network, replayBuffer, config, false, false, thinkConf, true);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
-            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;
