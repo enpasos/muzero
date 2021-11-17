@@ -75,13 +75,7 @@ public class SelfPlayParallel {
 
                 network.debugDump();
                 if (network != null) {
-                    NDManager newHiddenStateNDManager = null;
-                    if (!config.hiddenStateRemainOnGPU) {
-                        newHiddenStateNDManager = nDManager.newSubManager(Device.cpu());
-                    } else {
-                        newHiddenStateNDManager = nDManager.newSubManager(Device.gpu());
-                    }
-                    network.setHiddenStateNDManager(newHiddenStateNDManager);
+                    network.createAndSetHiddenStateNDManager(nDManager, false);
                 }
 
                 int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
