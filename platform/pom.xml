@@ -10,7 +10,7 @@
 
     <properties>
         <djl.version>0.15.0-SNAPSHOT</djl.version>
-        <pytorch.version>1.9.1</pytorch.version>
+        <pytorch.version>1.10.0-SNAPSHOT</pytorch.version>
         <junit.version>5.6.0</junit.version>
         <lombok.version>1.18.20</lombok.version>
         <log4j2.version>2.14.1</log4j2.version>

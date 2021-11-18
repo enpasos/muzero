@@ -269,18 +269,13 @@ public class MuZero {
                         model.setProperty("MeanPolicyLoss", meanPolicyLoss.toString());
                         log.info("MeanPolicyLoss: " + meanPolicyLoss.toString());
 
-                        network.debugDump();
-
-                        trainer.notifyListeners(listener -> {
-                            System.out.println(listener.toString());
-                            network.debugDump();
-                            listener.onEpoch(trainer);
-                            network.debugDump();
+                         trainer.notifyListeners(listener -> {
+                             listener.onEpoch(trainer);
                         });
 
-                        network.debugDump();
                     }
 
+                    network.debugDump();
                 }
                 network.debugDump();
                 trainingStep = epoch * numberOfTrainingStepsPerEpoch;

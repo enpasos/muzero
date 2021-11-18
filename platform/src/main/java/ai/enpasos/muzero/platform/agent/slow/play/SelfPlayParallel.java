@@ -71,12 +71,11 @@ public class SelfPlayParallel {
         try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
+            network.debugDump();
+            if (network != null) {
+                network.createAndSetHiddenStateNDManager(nDManager, true);
+            }
             while (gameList.size() > 0) {
-
-                network.debugDump();
-                if (network != null) {
-                    network.createAndSetHiddenStateNDManager(nDManager, false);
-                }
 
                 int indexOfJustOneOfTheGames = gameList.indexOf(justOneOfTheGames);
 
@@ -168,14 +167,9 @@ public class SelfPlayParallel {
                     renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
                 }
 
-
                 gamesDoneList.addAll(newGameDoneList);
                 gameList.removeAll(newGameDoneList);
-
-                //   network.clearCPUMemory();
             }
-
-
         }
 
 
