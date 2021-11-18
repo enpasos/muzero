@@ -32,7 +32,7 @@ public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
 
-        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
+        MuZeroConfig config = GoConfigFactory.getGoInstance(9);
         config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
         List<Integer> actionIndexList = getActionList(config);
