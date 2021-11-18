@@ -53,15 +53,12 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
         NDArray hiddenStates = null;
         if (hiddenStateRemainOnGPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
             hiddenStates = s;
-            hiddenStates.detach();
             SubModel submodel = (SubModel) ctx.getModel();
             hiddenStates.attach(submodel.hiddenStateNDManager);
         } else {
             hiddenStates = s.toDevice(Device.cpu(), false);
             NDManager hiddenStateNDManager = hiddenStates.getManager();
             SubModel submodel = (SubModel) ctx.getModel();
-//            submodel.getModel().
-//            hiddenStates.detach();
             hiddenStates.attach(submodel.hiddenStateNDManager);
             hiddenStateNDManager.close();
             s.close();

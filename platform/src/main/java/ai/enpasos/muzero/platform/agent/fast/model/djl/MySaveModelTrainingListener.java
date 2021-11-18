@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
+import static ai.enpasos.muzero.platform.agent.fast.model.Network.debugDumpFromTrainer;
+
 /**
  * A {@link TrainingListener} that saves a model checkpoint after each epoch.
  */
@@ -127,6 +129,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     }
 
     protected void saveModel(Trainer trainer) {
+        debugDumpFromTrainer(trainer);
         Model model = trainer.getModel();
         String modelName = model.getName();
         if (overrideModelName != null) {
@@ -141,6 +144,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
         } catch (IOException e) {
             logger.error("Failed to save checkpoint", e);
         }
+        debugDumpFromTrainer(trainer);
     }
 
     public int getEpoch() {

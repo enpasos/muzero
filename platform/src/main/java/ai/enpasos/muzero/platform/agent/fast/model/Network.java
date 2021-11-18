@@ -23,6 +23,7 @@ import ai.djl.Model;
 import ai.djl.engine.Engine;
 import ai.djl.inference.Predictor;
 import ai.djl.ndarray.*;
+import ai.djl.training.Trainer;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.platform.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.SubModel;
@@ -192,9 +193,11 @@ public class Network {
     }
 
     public void debugDump() {
-        ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
+     //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }
 
-
+    public static void debugDumpFromTrainer(Trainer trainer) {
+      //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
+    }
 
 }
