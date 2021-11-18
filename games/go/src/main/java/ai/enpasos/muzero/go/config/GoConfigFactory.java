@@ -188,11 +188,17 @@ public class GoConfigFactory {
                 break;
             case 9:
                 builder
-                        .numberTrainingStepsOnRandomPlay(3000)
-                        .numParallelPlays(3)
-                        .numPlays(10)
-                        .batchSize(48)         // in paper 2048   // here: symmetry operations give a multiplication by 8
-                        .numChannels(128);        // 256 in the paper  // 64 for 5x5
+
+
+                // 256 in the paper  // 64 for 5x5
+                .numChannels(128)
+                                    .batchSize(64)
+//                    .numSimulations(120)
+//                    .numParallelPlays(25)
+                        .numSimulations(200)
+                        .numParallelPlays(100)
+                        .numPlays(10);
+                  //  .numPlays(20);
                 break;
         }
 

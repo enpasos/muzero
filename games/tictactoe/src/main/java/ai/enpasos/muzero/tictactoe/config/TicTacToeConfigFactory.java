@@ -91,20 +91,17 @@ public class TicTacToeConfigFactory {
 
                 .numPlays(1)
                 .numParallelPlays(500)
-                .numSimulations(20)
+                .numSimulations(30)
                 .windowSize(5000)
                 .numChannels(128)
                 .absorbingStateDropToZero(true)
-                .numberOfTrainingSteps(8000)
+              //  .numberOfTrainingSteps(8000)
                 .numberOfTrainingStepsPerEpoch(20)
 
                 // faster for integration test
                 .absorbingStateDropToZero(false)
-                .numberOfTrainingSteps(3000)
+                .numberOfTrainingSteps(4000)
 
-
-                // at the limit
-                //.batchSize(800)
                 .numParallelPlays(1000)
                 .windowSize(10000)
 
