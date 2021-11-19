@@ -124,7 +124,6 @@ public class SelfPlayParallel {
                 }
                 List<MinMaxStats> minMaxStatsList = null;
                 if (!fastRuleLearning) {
-                    OneOfTwoPlayer toPlay = (OneOfTwoPlayer) justOneOfTheGames.toPlay();
                     minMaxStatsList = mcts.runParallel(rootList,
                             gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
                             network, inferenceDuration, config.getNumSimulations());
