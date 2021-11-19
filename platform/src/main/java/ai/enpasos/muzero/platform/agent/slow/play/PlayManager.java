@@ -20,7 +20,7 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
@@ -40,18 +40,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PlayManager {
 
-//    public static void play(@NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config,  boolean render, boolean fastRuleLearning, ThinkConf thinkConf) {
-//        playParallel(replayBuffer, config,  render, fastRuleLearning,  thinkConf, true);
-//    }
 
-    public static void playParallel(Network network, @NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, ThinkConf thinkConf, boolean explorationNoise) {
+    public static void playParallel(Network network, @NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
 
-        for (int i = 0; i < thinkConf.numOfPlays(); i++) {
+        for (int i = 0; i < config.getNumPlays(); i++) {
 
-            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning,  explorationNoise, thinkConf);
+            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning,  explorationNoise);
             gameList.forEach(replayBuffer::saveGame);
 
-            log.info("Played {} games parallel, round {}", thinkConf.numParallelGames(), i);
+            log.info("Played {} games parallel, round {}", config.getNumParallelPlays(), i);
         }
 
     }

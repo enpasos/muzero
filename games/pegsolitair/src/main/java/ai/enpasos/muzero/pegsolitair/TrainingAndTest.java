@@ -1,10 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.djl.Device;
-import ai.djl.Model;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
-import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 

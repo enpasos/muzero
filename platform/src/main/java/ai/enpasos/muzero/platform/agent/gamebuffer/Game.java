@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.slow.play.*;

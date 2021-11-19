@@ -35,7 +35,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.MuZeroConfig.hiddenStateRemainOnGPU;
+import static ai.enpasos.muzero.platform.config.MuZeroConfig.hiddenStateRemainOnGPU;
 
 public class RecurrentInferenceListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
     @Override

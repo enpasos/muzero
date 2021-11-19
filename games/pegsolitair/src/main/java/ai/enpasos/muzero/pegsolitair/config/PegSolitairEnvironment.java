@@ -19,10 +19,9 @@ package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.environment.Environment;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

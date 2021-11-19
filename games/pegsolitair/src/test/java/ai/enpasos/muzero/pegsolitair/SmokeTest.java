@@ -20,13 +20,11 @@ package ai.enpasos.muzero.pegsolitair;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
-import ai.enpasos.muzero.platform.agent.slow.play.ThinkBudget;
-import ai.enpasos.muzero.platform.agent.slow.play.ThinkConf;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -38,24 +36,10 @@ public class SmokeTest {
     public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
         MuZero.deleteNetworksAndGames(config);
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        ThinkConf thinkConf = ThinkConf.builder()
 
-                .playerAConfig(
-                        ThinkBudget.builder()
-                                .numSims(config.getNumSimulations())
-                                .numParallel(1)
-                                .numOfPlays(config.getBatchSize())
-                                .build())
-                .playerBConfig(
-                        ThinkBudget.builder()
-                                .numSims(config.getNumSimulations())
-                                .numParallel(1)
-                                .numOfPlays(config.getBatchSize())
-                                .build())
-                .build();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            PlayManager.playParallel(network, replayBuffer, config, true, true, thinkConf, true);
+            PlayManager.playParallel(network, replayBuffer, config, true, true , true);
         }
 
 
@@ -75,38 +59,10 @@ public class SmokeTest {
             replayBuffer.loadLatestState();
 
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
-            ThinkConf thinkConf = ThinkConf.builder()
 
-                    .playerAConfig(
-                            ThinkBudget.builder()
-                                    .numSims(config.getNumSimulations())
-                                    .numParallel(1)
-                                    .numOfPlays(1)
-                                    .build())
-                    .playerBConfig(
-                            ThinkBudget.builder()
-                                    .numSims(config.getNumSimulations())
-                                    .numParallel(1)
-                                    .numOfPlays(1)
-                                    .build())
-                    .build();
-            PlayManager.playParallel(network, replayBuffer, config, true, false, thinkConf, true);
-            thinkConf = ThinkConf.builder()
+            PlayManager.playParallel(network, replayBuffer, config, true, false , true);
 
-                    .playerAConfig(
-                            ThinkBudget.builder()
-                                    .numSims(config.getNumSimulations())
-                                    .numParallel(3)
-                                    .numOfPlays(2)
-                                    .build())
-                    .playerBConfig(
-                            ThinkBudget.builder()
-                                    .numSims(config.getNumSimulations())
-                                    .numParallel(3)
-                                    .numOfPlays(2)
-                                    .build())
-                    .build();
-            PlayManager.playParallel(network, replayBuffer, config, false, false, thinkConf, true);
+            PlayManager.playParallel(network, replayBuffer, config, false, false , true);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {

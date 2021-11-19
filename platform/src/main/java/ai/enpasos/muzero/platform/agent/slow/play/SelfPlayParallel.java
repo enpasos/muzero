@@ -17,13 +17,11 @@
 
 package ai.enpasos.muzero.platform.agent.slow.play;
 
-import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
@@ -49,11 +47,11 @@ public class SelfPlayParallel {
     private final @Nullable DirichletGen dg = null;
 
 
-    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning,  boolean explorationNoise, ThinkConf thinkConf) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning,  boolean explorationNoise) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
         network.debugDump();
-        List<Game> gameList = IntStream.rangeClosed(1, thinkConf.numParallelGames())
+        List<Game> gameList = IntStream.rangeClosed(1, config.getNumParallelPlays())
                 .mapToObj(i -> config.newGame())
                 .collect(Collectors.toList());
 
@@ -129,7 +127,7 @@ public class SelfPlayParallel {
                     OneOfTwoPlayer toPlay = (OneOfTwoPlayer) justOneOfTheGames.toPlay();
                     minMaxStatsList = mcts.runParallel(rootList,
                             gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
-                            network, inferenceDuration, thinkConf.thinkBudget(toPlay).getNumSims());
+                            network, inferenceDuration, config.getNumSimulations());
                 }
 
 

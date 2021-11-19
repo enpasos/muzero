@@ -19,7 +19,8 @@ package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,22 +36,23 @@ public class PegSolitairConfigFactory {
             return (numMoves < 30) ? 1.0 : 0.0; // always returns 1.0 here as nomMoves always below 30
         };
 
-        int size = 3;
+        int size = 7;
 
         return MuZeroConfig.builder()
 
                 .modelName("MuZero-TicTacToe")
                 .gameClass(PegSolitairGame.class)
+                .playerMode(PlayerMode.singlePlayer)
 
                 // game/environment
                 .maxMoves(size * size) // in a game
                 .size(size)
                 .boardHeight(size)
                 .boardWidth(size)
-                .actionSpaceSize(size * size)
+                .actionSpaceSize(size * size * 4)  // point to start from and 4 directions
 
                 // network sizing
-                .numObservationLayers(3)
+                .numObservationLayers(1)
                 .numChannels(128)        // 256 in the paper
                 .numHiddenStateChannels(5)
                 .numResiduals(8)        // 16 in the paper

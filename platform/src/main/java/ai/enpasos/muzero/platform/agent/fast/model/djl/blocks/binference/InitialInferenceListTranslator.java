@@ -37,8 +37,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.djl.engine.Engine.debugEnvironment;
-import static ai.enpasos.muzero.platform.MuZeroConfig.hiddenStateRemainOnGPU;
+import static ai.enpasos.muzero.platform.config.MuZeroConfig.hiddenStateRemainOnGPU;
 
 public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     @Override

@@ -19,7 +19,8 @@ package ai.enpasos.muzero.go.config;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +43,7 @@ public class GoConfigFactory {
 
 
         MuZeroConfig.MuZeroConfigBuilder builder = MuZeroConfig.builder()
+                .playerMode(PlayerMode.twoPlayers)
                 .modelName("MuZero-Go-" + size)
                 .gameClass(GoGame.class)
 

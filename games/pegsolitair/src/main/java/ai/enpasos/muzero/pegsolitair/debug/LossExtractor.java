@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.pegsolitair.debug;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 
 import static ai.enpasos.muzero.platform.debug.LossExtractor.listLossesForTrainedNetworks;

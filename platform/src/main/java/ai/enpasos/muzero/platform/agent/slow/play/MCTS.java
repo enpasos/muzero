@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import lombok.extern.slf4j.Slf4j;

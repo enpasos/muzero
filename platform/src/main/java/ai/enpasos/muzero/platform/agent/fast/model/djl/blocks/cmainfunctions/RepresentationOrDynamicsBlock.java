@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.*;
 import org.jetbrains.annotations.NotNull;
 

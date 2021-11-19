@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.platform.debug;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.WinnerStatistics;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;

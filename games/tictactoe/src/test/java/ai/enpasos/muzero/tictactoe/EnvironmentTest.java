@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import org.testng.Assert;
