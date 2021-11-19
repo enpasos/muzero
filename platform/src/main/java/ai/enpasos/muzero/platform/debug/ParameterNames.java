@@ -20,8 +20,7 @@ package ai.enpasos.muzero.platform.debug;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.nn.Block;
-import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import lombok.extern.slf4j.Slf4j;
 

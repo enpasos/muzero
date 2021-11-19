@@ -38,7 +38,7 @@ import ai.djl.training.loss.L2Loss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;

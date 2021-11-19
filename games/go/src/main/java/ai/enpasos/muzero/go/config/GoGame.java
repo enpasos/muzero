@@ -23,7 +23,7 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.go.config.environment.GameState;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;

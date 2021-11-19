@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.agent.fast.model;
 
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

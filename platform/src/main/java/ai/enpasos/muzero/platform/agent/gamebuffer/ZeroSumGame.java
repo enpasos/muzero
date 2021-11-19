@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;

@@ -19,7 +19,8 @@ package ai.enpasos.muzero.tictactoe.config;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +42,7 @@ public class TicTacToeConfigFactory {
 
                 .modelName("MuZero-TicTacToe")
                 .gameClass(TicTacToeGame.class)
+                .playerMode(PlayerMode.twoPlayers)
 
                 // game/environment
                 .maxMoves(size * size) // in a game
@@ -100,11 +102,9 @@ public class TicTacToeConfigFactory {
 
                 // faster for integration test
                 .absorbingStateDropToZero(false)
-                .numberOfTrainingSteps(3000)
+                .numberOfTrainingSteps(4000)
 
 
-                // at the limit
-                //.batchSize(800)
                 .numParallelPlays(1000)
                 .windowSize(10000)
 

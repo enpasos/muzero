@@ -27,7 +27,7 @@ import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;

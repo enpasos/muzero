@@ -19,9 +19,8 @@ package ai.enpasos.muzero.platform.agent;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
@@ -37,8 +36,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
 
 public class Inference {
 

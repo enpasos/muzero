@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 

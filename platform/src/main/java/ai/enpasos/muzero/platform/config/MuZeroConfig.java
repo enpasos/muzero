@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform;
+package ai.enpasos.muzero.platform.config;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
@@ -36,6 +36,10 @@ import java.util.function.Function;
 public class MuZeroConfig {
 
     public static boolean hiddenStateRemainOnGPU = false;
+
+
+
+    private final PlayerMode playerMode;
 
     private final @NotNull String modelName;
     private final @NotNull Class<?> gameClass;

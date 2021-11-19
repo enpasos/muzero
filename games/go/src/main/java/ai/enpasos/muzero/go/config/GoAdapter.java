@@ -12,7 +12,7 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Move;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 

@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

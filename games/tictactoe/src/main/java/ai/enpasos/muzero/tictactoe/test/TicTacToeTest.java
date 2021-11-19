@@ -19,9 +19,8 @@ package ai.enpasos.muzero.tictactoe.test;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;

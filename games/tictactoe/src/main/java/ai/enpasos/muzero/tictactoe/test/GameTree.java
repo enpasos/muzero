@@ -17,8 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe.test;
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;

@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.slow.play;
 
 
-import ai.enpasos.muzero.platform.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
