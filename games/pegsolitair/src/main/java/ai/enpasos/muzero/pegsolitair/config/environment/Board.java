@@ -1,11 +1,13 @@
 package ai.enpasos.muzero.pegsolitair.config.environment;
 
+import lombok.Data;
+
 import java.util.*;
 
 import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.createNeighborMap;
 import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
 
-
+@Data
 public class Board {
 
 

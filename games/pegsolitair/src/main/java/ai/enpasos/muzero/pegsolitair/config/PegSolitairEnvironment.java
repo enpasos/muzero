@@ -75,7 +75,7 @@ public class PegSolitairEnvironment implements Environment, Serializable {
 
     @Override
     public boolean terminal() {
-        return false;
+       return legalActions().size() == 0;
     }
 
 
