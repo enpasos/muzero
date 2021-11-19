@@ -40,7 +40,7 @@ public class PegSolitairConfigFactory {
 
         return MuZeroConfig.builder()
 
-                .modelName("MuZero-TicTacToe")
+                .modelName("MuZero-PegSolitair")
                 .gameClass(PegSolitairGame.class)
                 .playerMode(PlayerMode.singlePlayer)
 
@@ -61,7 +61,7 @@ public class PegSolitairConfigFactory {
                 .numberOfTrainingSteps(10000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
-                .batchSize(256)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
@@ -92,12 +92,11 @@ public class PegSolitairConfigFactory {
                 .outputDir("./memory/")
 
                 .numPlays(1)
-                .numParallelPlays(500)
+                .numParallelPlays(100)
                 .numSimulations(20)
                 .windowSize(5000)
                 .numChannels(128)
                 .absorbingStateDropToZero(true)
-                .numberOfTrainingSteps(8000)
                 .numberOfTrainingStepsPerEpoch(20)
 
                 // faster for integration test

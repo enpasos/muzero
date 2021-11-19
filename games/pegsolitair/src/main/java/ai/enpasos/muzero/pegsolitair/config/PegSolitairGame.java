@@ -18,6 +18,8 @@
 package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDArrays;
+import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Point;
@@ -32,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
 
 public class PegSolitairGame extends Game {
 
@@ -80,28 +84,34 @@ public class PegSolitairGame extends Game {
 
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
 
-
+        Board  board = ((PegSolitairEnvironment)environment).getBoard();
 
         // values in the range [0, 1]
-//        NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
-////        NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
-//
-//        NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
-//
-//        NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
-        NDArray stacked = null;
+        NDArray boardObservation = ndManager.create(getBoardPositions(board));
+
+        NDArray stacked = NDArrays.stack(new NDList(boardObservation));
 
         return new Observation(stacked);
     }
 
-    private float[] @NotNull [] getBoardPositions(Board board, int p) {
-        for (int row = 1; row <= 7; row++) {
-            for (int col = 1; col <= 7; col++) {
-                Point point = new Point(row, col);
+
+
+    private float[] [] getBoardPositions(Board board) {
+        int size = 7;
+        float[][] boardtransfer = new float[size][size];
+        for(int row = 1; row <= size; row++) {
+            for(int col = 1; col <= size; col++) {
+                Point p = new Point(row, col);
+                if (board.getStonesOnTheBoard().contains(p)) {
+                    boardtransfer[row-1][col-1] = 1f;
+                } else if (board.getHolesOnTheBoard().contains(p)) {
+                    boardtransfer[row-1][col-1] = 0f;
+                } else if (!inRange(p)) {
+                    boardtransfer[row-1][col-1] = 0f;
+                }
             }
         }
-       // return boardtransfer;
-        return null;
+     return boardtransfer;
     }
 
 
@@ -112,27 +122,6 @@ public class PegSolitairGame extends Game {
 
     @Override
     public String render() {
-
-//        String r = this.getGameDTO().getActionHistory().size() + ": ";
-//        OneOfTwoPlayer player = null;
-//        if (this.getGameDTO().getActionHistory().size() > 0) {
-//            Action action = new Action(config, this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
-//            int colLastMove = action.getCol();
-//
-//            player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-//            r += player.getSymbol() + " move (" + (action.getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
-//        }
-//        r += "\n";
-//        r += getEnvironment().render();
-//        if (terminal() && this.getGameDTO().getRewards().size() > 0) {
-//            if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
-//                r += "\ndraw";
-//            } else {
-//                r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
-//            }
-//            System.out.println("\nG A M E  O V E R");
-//        }
-//        return r;
-        return null;
+        return ((PegSolitairEnvironment)environment).render();
     }
 }
