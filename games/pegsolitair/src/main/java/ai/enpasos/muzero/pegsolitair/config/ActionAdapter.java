@@ -6,20 +6,19 @@ import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
 
 public class ActionAdapter {
 
-    private static Map<Integer, Jump> map1;
-    private static Map<Jump, Integer> map2;
+    private static Map<Integer, Jump> integerJumpMap;
+    private static Map<Jump, Integer> jumpIntegerMap;
 
     static {
         List<Jump> possibleJumps = new ArrayList<>();
+        integerJumpMap = new HashMap<>();
+        jumpIntegerMap = new HashMap<>();
         for(int row = 1; row <= 7; row++) {
             for(int col = 1; col <= 7; col++) {
                 Point p = new Point(row, col);
@@ -39,19 +38,19 @@ public class ActionAdapter {
         }
         int c = 0;
         for(Jump j : possibleJumps) {
-            map1.put(c, j);
-            map2.put(j, c);
+            integerJumpMap.put(c, j);
+            jumpIntegerMap.put(j, c);
             c++;
         }
     }
 
     public static Action getAction(MuZeroConfig config, Jump jump) {
-        return new Action(config, map2.get(jump));
+        return new Action(config, jumpIntegerMap.get(jump));
     }
 
 
 
     public static Jump getJump(Action action) {
-        return map1.get(action.getIndex());
+        return integerJumpMap.get(action.getIndex());
     }
 }
