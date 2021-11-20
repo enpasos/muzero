@@ -44,7 +44,7 @@ public class GameTest {
         Game game = config.newGame();
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];
-            Objects.requireNonNull(game).apply(new Action(config, a));
+            Objects.requireNonNull(game).apply(config.newAction(a));
             if (i == actions.length - 1) {
                 assertTrue(game.terminal());
             } else {

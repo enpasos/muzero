@@ -99,7 +99,7 @@ public class SelfPlayParallel {
 
 
                 if (render && indexOfJustOneOfTheGames != -1) {
-                    renderNetworkGuess(config, justOneOfTheGames.toPlay(), Objects.requireNonNull(networkOutput).get(indexOfJustOneOfTheGames), false);
+                    justOneOfTheGames.renderNetworkGuess(config, justOneOfTheGames.toPlay(), Objects.requireNonNull(networkOutput).get(indexOfJustOneOfTheGames), false);
                 }
 
                 for (int g = 0; g < gameList.size(); g++) {
@@ -119,7 +119,7 @@ public class SelfPlayParallel {
                     rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
 
                     if (render && indexOfJustOneOfTheGames != -1) {
-                        renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
+                        justOneOfTheGames.renderSuggestionFromPriors(config, rootList.get(indexOfJustOneOfTheGames));
                     }
                 }
                 List<MinMaxStats> minMaxStatsList = null;
@@ -147,7 +147,7 @@ public class SelfPlayParallel {
                     if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
                         List<float[]> childVisitsList = justOneOfTheGames.getGameDTO().getPolicyTarget();
                         float[] childVisits = childVisitsList.get(childVisitsList.size() - 1);
-                        renderMCTSSuggestion(config, childVisits);
+                        justOneOfTheGames.renderMCTSSuggestion(config, childVisits);
 
                         System.out.println("\n" + game.render());
                     }
@@ -161,7 +161,7 @@ public class SelfPlayParallel {
                 if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames.terminal()) {
                     //System.out.println("reward: " + justOneOfTheGames.reward);
                     NetworkIO networkOutput2 = network.initialInferenceDirect(gameList.get(indexOfJustOneOfTheGames));
-                    renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
+                    justOneOfTheGames.renderNetworkGuess(config, justOneOfTheGames.toPlay(), networkOutput2, true);
                 }
 
                 gamesDoneList.addAll(newGameDoneList);
@@ -185,69 +185,11 @@ public class SelfPlayParallel {
         return ((Map.Entry<Action, Node>) children.entrySet().toArray()[index]).getKey();
     }
 
-    private static void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("mcts suggestion:");
-        int boardSize = config.getBoardHeight() * config.getBoardWidth();
-        for (int i = 0; i < boardSize; i++) {
-            values[Action.getRow(config, i)][Action.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
-        }
-        System.out.println(render(config, values));
-        if (childVisits.length > boardSize) {
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
-        }
-    }
 
-    private static void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        if (networkOutput != null) {
-            double v = networkOutput.getValue();
-            double p = (v + 1) / 2 * 100;
-            int percent = (int) Math.round(p);
-            System.out.println();
-            System.out.println("network guess:");
-            if (!gameOver) {
-                int boardSize = config.getBoardHeight() * config.getBoardWidth();
-                for (int i = 0; i < boardSize; i++) {
-                    values[Action.getRow(config, i)][Action.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
-                }
-                System.out.println(render(config, values));
-                if (networkOutput.getPolicyValues().length > boardSize) {
-                    System.out.println("pass: " + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
-                }
 
-            }
-            System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
 
-        }
-    }
 
-    private static void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("with exploration noise suggestion:");
-        int boardSize = config.getBoardHeight() * config.getBoardWidth();
-        for (int i = 0; i < boardSize; i++) {
-            Action a = new Action(config, i);
-            float value = 0f;
-            if (node.getChildren().containsKey(a)) {
-                value = (float) node.getChildren().get(a).getPrior();
-            }
-            values[Action.getRow(config, i)][Action.getCol(config, i)]
-                    = String.format("%2d", Math.round(100.0 * value)) + "%";
-        }
 
-        System.out.println(render(config, values));
-        if (boardSize < config.getActionSpaceSize()) {
-            Action a = new Action(config, boardSize);
-            float value = 0f;
-            if (node.getChildren().containsKey(a)) {
-                value = (float) node.getChildren().get(a).getPrior();
-            }
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
-        }
-    }
 
 
     public static void addExplorationNoise(double rootExplorationFraction, double rootDirichletAlpha, @NotNull Node node) {

@@ -49,10 +49,10 @@ import static ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper.*;
 public class MuZero {
 
 
-    public static void playOnDeepThinking(Network network, ReplayBuffer replayBuffer) {
+    public static void playOnDeepThinking(Network network, ReplayBuffer replayBuffer, boolean render) {
         MuZeroConfig config = network.getConfig();
 
-        PlayManager.playParallel(network, replayBuffer, config, false, false, true);
+        PlayManager.playParallel(network, replayBuffer, config, render, false, true);
     }
 
     public static void initialFillingBuffer(Network network, ReplayBuffer replayBuffer) {
@@ -123,8 +123,11 @@ public class MuZero {
         System.exit(0);
     }
 
-
     public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs) {
+        train(config, freshBuffer, numberOfEpochs, false);
+    }
+
+    public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
@@ -134,7 +137,7 @@ public class MuZero {
             if (freshBuffer) {
                 while (!replayBuffer.getBuffer().isBufferFilled()) {
                     network.debugDump();
-                    MuZero.playOnDeepThinking(network, replayBuffer);
+                    MuZero.playOnDeepThinking(network, replayBuffer, false);
                     replayBuffer.saveState();
                 }
             } else {
@@ -150,7 +153,7 @@ public class MuZero {
                     log.info("last training step = {}", trainingStep);
                     log.info("numSimulations: " + config.getNumSimulations());
                     network.debugDump();
-                    MuZero.playOnDeepThinking(network, replayBuffer);
+                    MuZero.playOnDeepThinking(network, replayBuffer, render);
                     replayBuffer.saveState();
                 }
                 network.debugDump();

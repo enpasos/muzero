@@ -150,7 +150,7 @@ public class InputOutputConstruction {
                 //  System.out.println("k: " + k + ", b: " + b++);
                 NDArray aArray;
                 if (s.getActionsList().size() > k) {
-                    Action action = new Action(config, s.getActionsList().get(k));
+                    Action action = config.newAction(s.getActionsList().get(k));
                     aArray = action.encode(nd);
                 } else {
                     aArray = Action.encodeEmptyNDArray(config, nd);

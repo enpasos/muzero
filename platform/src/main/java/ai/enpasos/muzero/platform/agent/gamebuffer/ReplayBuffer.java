@@ -53,43 +53,29 @@ public class ReplayBuffer {
         this.buffer = new ReplayBufferDTO(config.getWindowSize());
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, MuZeroConfig config) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager, replayBuffer);
+        return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager, replayBuffer, config);
     }
 
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer, MuZeroConfig config) {
         Sample sample = new Sample();
         game.replayToPosition(gamePos);
 
-
         sample.setObservation(game.getObservation(ndManager));
-
-
-        // int historyMax = Math.min(gamePos + numUnrollSteps, game.getGameDTO().getActionHistory().size());
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActionHistory());
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
-//            OneOfTwoPlayer winner = game.whoWonTheGame();
-//            switch(winner) {
-//                case PlayerA:
-//                    sample.setActionTrainingPlayerA(true);
-//                    sample.setActionTrainingPlayerB(!replayBuffer.existsGameStateWithPositiveResult(game, gamePos, OneOfTwoPlayer.PlayerB));
-//                    break;
-//                case PlayerB:
-//                    sample.setActionTrainingPlayerB(true);
-//                    sample.setActionTrainingPlayerA(!replayBuffer.existsGameStateWithPositiveResult(game, gamePos,  OneOfTwoPlayer.PlayerA));
-//                    break;
-//            }
+
         }
 
 
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, game.toPlay(), sample));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, game.toPlay(), sample, config));
 
         return sample;
     }
@@ -146,7 +132,7 @@ public class ReplayBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps, int tdSteps, NDManager ndManager) {
 
         return sampleGames().stream()
-                .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
+                .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this, config))
                 .collect(Collectors.toList());
 
     }

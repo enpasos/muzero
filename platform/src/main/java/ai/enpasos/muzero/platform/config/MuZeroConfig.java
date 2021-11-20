@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.config;
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.Builder;
 import lombok.Data;
@@ -43,6 +44,7 @@ public class MuZeroConfig {
 
     private final @NotNull String modelName;
     private final @NotNull Class<?> gameClass;
+    private final @NotNull Class<?> actionClass;
     // game/environment
     private final int size;
     private final int maxMoves;
@@ -90,8 +92,7 @@ public class MuZeroConfig {
     private String networkBaseDir;
     private int numberTrainingStepsOnRandomPlay;
 
-    public @Nullable Game newGame() {
-
+    public Game newGame() {
         try {
             Constructor<?> constructor = gameClass.getConstructor(MuZeroConfig.class);
             return (Game) constructor.newInstance(this);
@@ -99,7 +100,19 @@ public class MuZeroConfig {
             e.printStackTrace();
         }
         return null;
-
     }
-
+    public Action newAction(int index) {
+        Action action = this.newAction();
+        action.setIndex(index);
+        return action;
+    }
+    public Action newAction() {
+        try {
+            Constructor<?> constructor = actionClass.getConstructor(MuZeroConfig.class);
+            return (Action) constructor.newInstance(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

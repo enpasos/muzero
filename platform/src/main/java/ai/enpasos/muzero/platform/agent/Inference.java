@@ -96,7 +96,7 @@ public class Inference {
 
     public static Game getGame(MuZeroConfig config, List<Integer> actions) {
         Game game = config.newGame();
-        actions.stream().forEach(a -> game.apply(new Action(config, a)));
+        actions.stream().forEach(a -> game.apply( config.newAction(a)));
         return game;
     }
 
@@ -114,11 +114,11 @@ public class Inference {
             List<Pair<Action, Double>> distributionInput =
                     IntStream.range(0, game.getConfig().getActionSpaceSize())
                             .filter(i -> {
-                                Action action = new Action(game.getConfig(), i);
+                                Action action = game.getConfig().newAction(i);
                                 return legalActions.contains(action);
                             })
                             .mapToObj(i -> {
-                                Action action = new Action(game.getConfig(), i);
+                                Action action = game.getConfig().newAction(i);
                                 double v = policyValues[i];
                                 return new Pair<Action, Double>(action, v);
                             }).collect(Collectors.toList());

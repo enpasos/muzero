@@ -42,6 +42,7 @@ public class PegSolitairConfigFactory {
 
                 .modelName("MuZero-PegSolitair")
                 .gameClass(PegSolitairGame.class)
+                .actionClass(PegSolitairAction.class)
                 .playerMode(PlayerMode.singlePlayer)
 
                 // game/environment

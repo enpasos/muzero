@@ -37,7 +37,9 @@ public class RenderGame {
 
         System.out.println("\n" + Objects.requireNonNull(replayGame).render());
         for (int i = 0; i < game.getGameDTO().getActionHistory().size(); i++) {
-            Action action = new Action(config, game.getGameDTO().getActionHistory().get(i));
+            Action action = config.newAction(i);
+
+
             replayGame.apply(action);
             System.out.println("\n" + replayGame.render());
         }
