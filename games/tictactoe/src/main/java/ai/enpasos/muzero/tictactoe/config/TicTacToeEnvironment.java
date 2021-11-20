@@ -42,8 +42,8 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     public float step(@NotNull Action action) {
 
         // putting the stone for the player
-        int col = action.getCol();
-        int row = action.getRow();
+        int col = ((TicTacToeAction)action).getCol();
+        int row = ((TicTacToeAction)action).getRow();
         if (this.board[row][col] == 0) {
             this.board[row][col] = getPlayerToMove().getValue();
         } else {
@@ -82,7 +82,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
         for (int col = 0; col < config.getBoardWidth(); col++) {
             for (int row = 0; row < config.getBoardHeight(); row++) {
                 if (this.board[row][col] == 0) {
-                    legal.add(new Action(config, row * config.getBoardWidth() + col));
+                    legal.add(config.newAction(row * config.getBoardWidth() + col));
                 }
             }
         }

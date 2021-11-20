@@ -44,7 +44,7 @@ public class ActionHistory implements Cloneable {
     public static @NotNull List<Action> actionSpace(MuZeroConfig config) {
         List<Action> actions = new ArrayList<>();
         for (int i = 0; i < config.getActionSpaceSize(); i++) {
-            actions.add(new Action(config, i));
+            actions.add(config.newAction(i));
         }
         return actions;
     }
@@ -62,7 +62,7 @@ public class ActionHistory implements Cloneable {
     }
 
     public @NotNull Action lastAction() {
-        return new Action(config, actions.get(actions.size() - 1));
+        return config.newAction(actions.get(actions.size() - 1));
     }
 
     public @NotNull Player toPlay() {

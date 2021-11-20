@@ -45,7 +45,7 @@ public class ActionAdapter {
     }
 
     public static Action getAction(MuZeroConfig config, Jump jump) {
-        return new Action(config, jumpIntegerMap.get(jump));
+        return config.newAction(jumpIntegerMap.get(jump));
     }
 
 

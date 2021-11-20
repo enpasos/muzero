@@ -24,7 +24,7 @@ public class GoAdapter {
 
     public static Move translate(MuZeroConfig config, Action action) {
         if (0 <= action.getIndex() && action.getIndex() < config.getActionSpaceSize() - 1) {
-            return Play.apply(action.getRow() + 1, action.getCol() + 1);
+            return Play.apply(((GoAction)action).getRow() + 1, ((GoAction)action).getCol() + 1);
         } else if (action.getIndex() == config.getActionSpaceSize() - 1) {
             return new Pass();
         } else {
@@ -69,9 +69,9 @@ public class GoAdapter {
     public static Action translate(MuZeroConfig config, Move move) {
         if (move instanceof Play) {
             Play play = (Play) move;
-            return new Action(config, play.getPoint().getRow() - 1, play.getPoint().getCol() - 1);
+            return new GoAction(config, play.getPoint().getRow() - 1, play.getPoint().getCol() - 1);
         } else if (move instanceof Pass) {
-            return new Action(config, config.getActionSpaceSize() - 1);
+            return config.newAction(config.getActionSpaceSize() - 1);
         } else if (move instanceof Resign) {
             // Muzero does not resign -> not advantage for winning, it is efficiency not effectivity
             throw new RuntimeException("muzero is not resigning");

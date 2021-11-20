@@ -45,7 +45,9 @@ public class GoConfigFactory {
         MuZeroConfig.MuZeroConfigBuilder builder = MuZeroConfig.builder()
                 .playerMode(PlayerMode.twoPlayers)
                 .modelName("MuZero-Go-" + size)
+
                 .gameClass(GoGame.class)
+                .actionClass(GoAction.class)
 
                 .komi(0.5f)  // start training
 

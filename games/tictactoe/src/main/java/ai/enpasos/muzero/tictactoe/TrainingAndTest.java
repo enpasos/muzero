@@ -5,7 +5,9 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -20,7 +22,7 @@ public class TrainingAndTest {
         String dir = "./memory/";
         config.setOutputDir(dir);
 
-     //   FileUtils.deleteDirectory(new File(dir));
+        FileUtils.deleteDirectory(new File(dir));
 
         boolean freshBuffer = false;
         int numberOfEpochs = 1;

@@ -42,6 +42,7 @@ public class TicTacToeConfigFactory {
 
                 .modelName("MuZero-TicTacToe")
                 .gameClass(TicTacToeGame.class)
+                .actionClass(TicTacToeAction.class)
                 .playerMode(PlayerMode.twoPlayers)
 
                 // game/environment
