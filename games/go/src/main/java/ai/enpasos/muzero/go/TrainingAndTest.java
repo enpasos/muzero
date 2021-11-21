@@ -13,7 +13,7 @@ import static ai.enpasos.muzero.platform.MuZero.train;
 public class TrainingAndTest {
 
     public static void main(String[] args) throws URISyntaxException, IOException {
-        int size = 5;
+        int size = 9;
 
         MuZeroConfig config = GoConfigFactory.getGoInstance(size);
         String dir = "./memory/go"+ size + "/";

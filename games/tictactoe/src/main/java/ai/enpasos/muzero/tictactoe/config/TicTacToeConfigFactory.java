@@ -99,7 +99,7 @@ public class TicTacToeConfigFactory {
                 .windowSize(5000)
                 .numChannels(128)
                 .absorbingStateDropToZero(true)
-                .numberOfTrainingSteps(8000)
+              //  .numberOfTrainingSteps(8000)
                 .numberOfTrainingStepsPerEpoch(20)
 
                 // faster for integration test
