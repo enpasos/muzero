@@ -32,7 +32,7 @@ public class LossExtractor {
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
-                IntStream.range(1, 400).forEach(
+                IntStream.range(1, 1000).forEach(
                         i -> {
                             try {
                                 model.load(Paths.get(MuZero.getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
