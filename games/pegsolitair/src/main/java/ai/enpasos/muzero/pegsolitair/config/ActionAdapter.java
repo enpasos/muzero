@@ -3,8 +3,8 @@ package ai.enpasos.muzero.pegsolitair.config;
 import ai.enpasos.muzero.pegsolitair.config.environment.Direction;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
 import ai.enpasos.muzero.pegsolitair.config.environment.Point;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 
 import java.util.*;
 
@@ -19,23 +19,23 @@ public class ActionAdapter {
         List<Jump> possibleJumps = new ArrayList<>();
         integerJumpMap = new HashMap<>();
         jumpIntegerMap = new HashMap<>();
-        for(int row = 1; row <= 7; row++) {
-            for(int col = 1; col <= 7; col++) {
-                Point p = new Point(row, col);
-                if (!inRange(p)) continue;
-                Arrays.stream(Direction.values()).forEach(
-                        direction ->  {
+        Arrays.stream(Direction.values()).forEach(
+                direction -> {
+                    for (int row = 1; row <= 7; row++) {
+                        for (int col = 1; col <= 7; col++) {
+                            Point p = new Point(row, col);
+                            //   if (!inRange(p)) continue;
+
                             Point p2 = p.pointIn(direction);
                             Point p3 = p2.pointIn(direction);
-                            if (inRange(p2) && inRange(p3)) {
+                         //   if (inRange(p2) && inRange(p3)) {
                                 Jump j = new Jump(p, direction);
                                 possibleJumps.add(j);
-                            }
+                          //  }
                         }
-                );
+                    }
+                });
 
-            }
-        }
         int c = 0;
         for(Jump j : possibleJumps) {
             integerJumpMap.put(c, j);

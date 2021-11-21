@@ -61,6 +61,7 @@ public class GoConfigFactory {
 
                 // network sizing
                 .numObservationLayers(17)  // 8 history * 2 player + 1 color of next player
+                .numActionLayers(1)
                 .numHiddenStateChannels(19)  // squeezing the hidden state from c to observationLayers + 2
 
                 .numResiduals(16)        // 16 in the paper

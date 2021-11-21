@@ -213,7 +213,7 @@ public class NetworkHelper {
         // for observation input
         shapes[0] = new Shape(batchSize, conf.getNumObservationLayers(), conf.getBoardHeight(), conf.getBoardWidth());
         for (int k = 1; k <= conf.getNumUnrollSteps(); k++) {
-            shapes[k] = new Shape(batchSize, 1, conf.getBoardHeight(), conf.getBoardWidth());
+            shapes[k] = new Shape(batchSize, conf.getNumActionLayers(), conf.getBoardHeight(), conf.getBoardWidth());
         }
         return shapes;
     }

@@ -54,6 +54,7 @@ public class TicTacToeConfigFactory {
 
                 // network sizing
                 .numObservationLayers(3)
+                .numActionLayers(1)
                 .numChannels(128)        // 256 in the paper
                 .numHiddenStateChannels(5)
                 .numResiduals(8)        // 16 in the paper

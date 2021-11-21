@@ -133,67 +133,67 @@ public class PegSolitairGame extends Game {
 
     public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
 
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("mcts suggestion:");
-        int boardSize = config.getBoardHeight() * config.getBoardWidth();
-        for (int i = 0; i < boardSize; i++) {
-            values[PegSolitairAction.getRow(config, i)][PegSolitairAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
-        }
-        System.out.println(EnvironmentBase.render(config, values));
-        if (childVisits.length > boardSize) {
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
-        }
+//        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
+//        System.out.println();
+//        System.out.println("mcts suggestion:");
+//        int boardSize = config.getBoardHeight() * config.getBoardWidth();
+//        for (int i = 0; i < boardSize; i++) {
+//            values[PegSolitairAction.getRow(config, i)][PegSolitairAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
+//        }
+//        System.out.println(EnvironmentBase.render(config, values));
+//        if (childVisits.length > boardSize) {
+//            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
+//        }
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config,  Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        if (networkOutput != null) {
-            double v = networkOutput.getValue();
-            double p = (v + 1) / 2 * 100;
-            int percent = (int) Math.round(p);
-            System.out.println();
-            System.out.println("network guess:");
-            if (!gameOver) {
-                int boardSize = config.getBoardHeight() * config.getBoardWidth();
-                for (int i = 0; i < boardSize; i++) {
-                    values[PegSolitairAction.getRow(config, i)][PegSolitairAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
-                }
-                System.out.println(EnvironmentBase.render(config, values));
-                if (networkOutput.getPolicyValues().length > boardSize) {
-                    System.out.println("pass: " + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
-                }
+//        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
+//        if (networkOutput != null) {
+//            double v = networkOutput.getValue();
+//            double p = (v + 1) / 2 * 100;
+//            int percent = (int) Math.round(p);
+//            System.out.println();
+//            System.out.println("network guess:");
+//            if (!gameOver) {
+//                int boardSize = config.getBoardHeight() * config.getBoardWidth();
+//                for (int i = 0; i < boardSize; i++) {
+//                    values[PegSolitairAction.getRow(config, i)][PegSolitairAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
+//                }
+//                System.out.println(EnvironmentBase.render(config, values));
+//                if (networkOutput.getPolicyValues().length > boardSize) {
+//                    System.out.println("pass: " + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
+//                }
+//
+//            }
+//            if (toPlay instanceof OneOfTwoPlayer)
+//                System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
 
-            }
-            if (toPlay instanceof OneOfTwoPlayer)
-                System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
-
-        }
+//        }
     }
 
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
-        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("with exploration noise suggestion:");
-        int boardSize = config.getBoardHeight() * config.getBoardWidth();
-        for (int i = 0; i < boardSize; i++) {
-            Action a = config.newAction(i);
-            float value = 0f;
-            if (node.getChildren().containsKey(a)) {
-                value = (float) node.getChildren().get(a).getPrior();
-            }
-            values[PegSolitairAction.getRow(config, i)][PegSolitairAction.getCol(config, i)]
-                    = String.format("%2d", Math.round(100.0 * value)) + "%";
-        }
-
-        System.out.println(EnvironmentBase.render(config, values));
-        if (boardSize < config.getActionSpaceSize()) {
-            Action a = config.newAction(boardSize);
-            float value = 0f;
-            if (node.getChildren().containsKey(a)) {
-                value = (float) node.getChildren().get(a).getPrior();
-            }
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
-        }
+//        String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
+//        System.out.println();
+//        System.out.println("with exploration noise suggestion:");
+//        int boardSize = config.getBoardHeight() * config.getBoardWidth();
+//        for (int i = 0; i < boardSize; i++) {
+//            Action a = config.newAction(i);
+//            float value = 0f;
+//            if (node.getChildren().containsKey(a)) {
+//                value = (float) node.getChildren().get(a).getPrior();
+//            }
+//            values[PegSolitairAction.getRow(config, i)][PegSolitairAction.getCol(config, i)]
+//                    = String.format("%2d", Math.round(100.0 * value)) + "%";
+//        }
+//
+//        System.out.println(EnvironmentBase.render(config, values));
+//        if (boardSize < config.getActionSpaceSize()) {
+//            Action a = config.newAction(boardSize);
+//            float value = 0f;
+//            if (node.getChildren().containsKey(a)) {
+//                value = (float) node.getChildren().get(a).getPrior();
+//            }
+//            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
+//        }
     }
 }
