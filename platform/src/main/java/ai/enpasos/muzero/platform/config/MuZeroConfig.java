@@ -53,9 +53,11 @@ public class MuZeroConfig {
     private final int actionSpaceSize;
     // network sizing
     private final int numObservationLayers;
+    private final int numActionLayers;
     private final int numChannels;
     private final int numHiddenStateChannels;
     private final int numResiduals;
+
     private final int windowSize;
     private final int batchSize;
     private final int numUnrollSteps;

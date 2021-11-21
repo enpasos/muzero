@@ -1,5 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +21,7 @@ public class TrainingAndTest {
         String dir = "./memory/";
         config.setOutputDir(dir);
 
- //       FileUtils.deleteDirectory(new File(dir));
+        FileUtils.deleteDirectory(new File(dir));
 
         boolean freshBuffer = false;
         int numberOfEpochs = 1;

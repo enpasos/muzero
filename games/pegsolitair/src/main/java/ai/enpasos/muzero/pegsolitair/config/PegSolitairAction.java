@@ -18,9 +18,13 @@
 package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDArrays;
+import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
+import ai.enpasos.muzero.pegsolitair.config.environment.Direction;
+import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
@@ -29,6 +33,7 @@ import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
@@ -48,21 +53,17 @@ public class PegSolitairAction implements Comparable<PegSolitairAction>, Seriali
         this.index = index;
     }
 
-    public PegSolitairAction(@NotNull MuZeroConfig config, int row, int col) {
-        this(config, row * config.getBoardWidth() + col);
-    }
+//    public PegSolitairAction(@NotNull MuZeroConfig config, int row, int col) {
+//        this(config, row * config.getBoardWidth() + col);
+//    }
+//
+//    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
+//        return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
+//    }
 
-    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
-        return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
-    }
 
-
-    public static int getCol(@NotNull MuZeroConfig config, int index) {
-        return index % config.getBoardWidth();
-    }
-
-    public static int getRow(@NotNull MuZeroConfig config, int index) {
-        return (index - getCol(config, index)) / config.getBoardWidth();
+    public Jump getJump() {
+        return ActionAdapter.getJump(this);
     }
 
     @Override
@@ -71,17 +72,22 @@ public class PegSolitairAction implements Comparable<PegSolitairAction>, Seriali
     }
 
     public NDArray encode(@NotNull NDManager nd) {
-        NDArray array = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
-        array.setScalar(new NDIndex(0, getRow(), getCol()), 1f);
+        NDArray array = nd.zeros(new Shape(Direction.values().length, config.getBoardHeight(), config.getBoardWidth()));
+        array.setScalar(new NDIndex(getDirectionNumber(), getRow(), getCol()), 1f);
         return array;
     }
 
+
     public int getCol() {
-        return getCol(config, getIndex());
+        return getJump().getFromPoint().getCol()-1;
     }
 
     public int getRow() {
-        return getRow(config, getIndex());
+        return getJump().getFromPoint().getRow()-1;
+    }
+
+    public int getDirectionNumber() {
+        return  getJump().getDirection().ordinal();
     }
 
 

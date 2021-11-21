@@ -54,6 +54,7 @@ public class PegSolitairConfigFactory {
 
                 // network sizing
                 .numObservationLayers(1)
+                .numActionLayers(4)  // one for each direction
                 .numChannels(128)        // 256 in the paper
                 .numHiddenStateChannels(5)
                 .numResiduals(8)        // 16 in the paper
