@@ -73,7 +73,7 @@ public class MuZeroConfig {
     private final double rootDirichletAlpha;
     private final double rootExplorationFraction;
     private final @NotNull BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFn;
-    private final @NotNull KnownBounds knownBounds;
+    private final KnownBounds knownBounds;
     // play - PUCB params from paper
     private final int pbCBase;
     private final double pbCInit;

@@ -27,6 +27,7 @@ import ai.djl.nn.core.Linear;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.MySequentialBlock;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -47,9 +48,10 @@ public class PredictionBlock extends MySequentialBlock {
                         .build())
                 .add(Activation::relu)
                 .add(Linear.builder()
-                        .setUnits(1)
-                        .build())
-                .add(Activation::tanh);
+                        .setUnits(1).build());
+        if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+            valueHead.add(Activation::tanh);
+        }
 
         SequentialBlock policyHead = new SequentialBlock()
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())
