@@ -22,6 +22,9 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
 import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
 
@@ -32,16 +35,13 @@ public class RenderGame {
 
         MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
 
+        List<Integer> actions = List.of(173, 39, 79, 115, 166, 44, 123, 102, 66, 193, 38, 167, 121, 181, 39, 44, 78, 172, 114, 178, 51, 77, 63, 107, 30, 70, 23, 58, 109);
+
         Game game = config.newGame();
-        applyAction(game, 0);
-        applyAction(game, 5);
-        applyAction(game, 8);
-        applyAction(game, 7);
-        applyAction(game, 3);
-        applyAction(game, 1);
-        applyAction(game, 2);
-        applyAction(game, 6);
-        applyAction(game, 4);
+        actions.stream().forEach(
+                a -> {
+                    applyAction(game, a);
+                });
 
         renderGame(config, game);
     }
