@@ -56,14 +56,14 @@ public class PegSolitairConfigFactory {
                 .numObservationLayers(1)
                 .numActionLayers(4)  // one for each direction
                 .numChannels(128)        // 256 in the paper
-                .numHiddenStateChannels(5)
-                .numResiduals(8)        // 16 in the paper
+                .numHiddenStateChannels(1)
+                .numResiduals(16)        // 16 in the paper
 
                 // network training
                 .numberOfTrainingSteps(10000)  // 1000000 in paper
                 .numberOfTrainingStepsPerEpoch(100)  // each "epoch" the network state is saved
                 .windowSize(10000)     // 1000000 in the paper
-                .batchSize(128)         // in paper 2048   // here: symmetry operations give a multiplication by 8
+                .batchSize(64)         // in paper 2048   // here: symmetry operations give a multiplication by 8
                 .numUnrollSteps(5)      // 5 in paper
                 .tdSteps(size * size)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
@@ -83,7 +83,7 @@ public class PegSolitairConfigFactory {
                 .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
-                .knownBounds(new KnownBounds(-1d, 1d))  // as in the paper
+                //.knownBounds(new KnownBounds(-1d, 1d))  // no known bounds
                 // play - PUCB params from paper
                 .pbCInit(1.25)
                 .pbCBase(19652)
@@ -94,16 +94,16 @@ public class PegSolitairConfigFactory {
                 .outputDir("./memory/")
 
                 .numPlays(1)
-                .numParallelPlays(100)
-                .numSimulations(20)
-                .windowSize(5000)
+                .numParallelPlays(1000)
+                .numSimulations(40)
+                .windowSize(10000)
                 .numChannels(128)
-                .absorbingStateDropToZero(true)
-                .numberOfTrainingStepsPerEpoch(20)
+              //  .absorbingStateDropToZero(true)
+                .numberOfTrainingStepsPerEpoch(100)
 
                 // faster for integration test
-                .absorbingStateDropToZero(false)
-                .numberOfTrainingSteps(4000)
+                .absorbingStateDropToZero(true)
+                .numberOfTrainingSteps(20000)
 
 
                 // using the symmetry of the board to enhance the number of games played by the symmetryEnhancementFactor

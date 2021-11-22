@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.debug;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -54,9 +55,11 @@ public class ValueExtractor {
                                 int i = 42;
                             }
                             double value = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
-                            double valuePlayerA = value * Math.pow(-1, t);
+                            double valuePlayerA = value;
+                            if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+                                valuePlayerA *= Math.pow(-1, t);
+                            }
                             csvPrinter.printRecord(t,
-
                                     NumberFormat.getNumberInstance().format(valuePlayerA),
                                     t == 0 ? -1 : actions.get(t - 1));
 

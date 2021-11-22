@@ -26,7 +26,7 @@ public class MinMaxStats {
     private double minimum;
 
 
-    public MinMaxStats(@Nullable KnownBounds knownBounds) {
+    public MinMaxStats(KnownBounds knownBounds) {
         this();
         if (knownBounds != null) {
             this.minimum = knownBounds.min;
