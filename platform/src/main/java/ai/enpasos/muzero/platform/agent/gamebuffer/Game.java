@@ -191,7 +191,7 @@ public abstract class Game implements Serializable {
 
             // condition "i < bootstrapIndex" for boardgames true
             for (int i = startIndex; i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                if (currentIndex == 0) continue;
+                if (startIndex == 0) continue;
                 value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1)    ;
             }
 
@@ -265,7 +265,7 @@ public abstract class Game implements Serializable {
 
             // condition "i < bootstrapIndex" for boardgames true
             for (int i = startIndex; i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                if (currentIndex == 0) continue;
+                if (startIndex == 0) continue;
                 value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1) * currentIndexPerspective * winnerPerspective;
             }
 
