@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,9 +67,13 @@ public class ActionHistory implements Cloneable {
     }
 
     public @NotNull Player toPlay() {
-        int t = this.actions.size();
-        if (t % 2 == 0) return OneOfTwoPlayer.PlayerA;
-        else return OneOfTwoPlayer.PlayerB;
+        if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+            int t = this.actions.size();
+            if (t % 2 == 0) return OneOfTwoPlayer.PlayerA;
+            else return OneOfTwoPlayer.PlayerB;
+        } else {
+            return null;
+        }
 
     }
 }
