@@ -226,7 +226,7 @@ public class MCTS {
                 List<Node> searchPath = searchPathList.get(g);
                 MinMaxStats minMaxStats = minMaxStatsList.get(g);
 
-                expandNode(node, history.toPlay(), history.actionSpace(config), networkOutput, false);
+                expandNode(node, history.toPlay(), history.actionSpace(config), networkOutput, false, config);
 
                 backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats, config);
 
@@ -282,7 +282,7 @@ public class MCTS {
     }
 
     public void expandNode(@NotNull Node node, Player toPlay, @NotNull List<Action> actions, NetworkIO networkOutput,
-                           boolean fastRuleLearning) {
+                           boolean fastRuleLearning, MuZeroConfig config) {
         node.toPlay = toPlay;
         if (!fastRuleLearning) {
             node.hiddenState = networkOutput.getHiddenState();
@@ -291,7 +291,7 @@ public class MCTS {
         if (fastRuleLearning) {
             double p = 1d / actions.size();
             for (Action action : actions) {
-                node.children.put(action, new Node(p));  // p/policySum = probability that this action is chosen
+                node.children.put(action, new Node(config,p));  // p/policySum = probability that this action is chosen
             }
         } else {
             Map<Action, Float> policy = actions.stream()
@@ -303,7 +303,7 @@ public class MCTS {
             for (Map.Entry<Action, Float> e : policy.entrySet()) {
                 Action action = e.getKey();
                 Float p = e.getValue();
-                node.children.put(action, new Node(p / policySum));  // p/policySum = probability that this action is chosen
+                node.children.put(action, new Node(config, p / policySum));  // p/policySum = probability that this action is chosen
             }
 
         }

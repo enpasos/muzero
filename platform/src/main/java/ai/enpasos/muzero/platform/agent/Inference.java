@@ -127,10 +127,10 @@ public class Inference {
             actionIndexSelectedByNetwork = action.getIndex();
 
         } else {
-            Node root = new Node(0);
+            Node root = new Node(network.getConfig(), 0);
 
 
-            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
+            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false, network.getConfig());
 
             MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
             Action action = mcts.selectActionByMax(root, minMaxStats);

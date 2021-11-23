@@ -80,7 +80,7 @@ public class SelfPlayParallel {
                 // At the root of the search tree we use the representation function to
                 // obtain a hidden state given the current observation.
                 List<Node> rootList = IntStream.rangeClosed(1, gameList.size())
-                        .mapToObj(i -> new Node(0, true))
+                        .mapToObj(i -> new Node(config, 0, true))
                         .collect(Collectors.toList());
 
                 inferenceDuration.value -= System.currentTimeMillis();
@@ -110,7 +110,7 @@ public class SelfPlayParallel {
                     mcts.expandNode(rootList.get(g),
                             gameList.get(g).toPlay(),
                             gameList.get(g).legalActions(),
-                            networkIO, fastRuleLearning);
+                            networkIO, fastRuleLearning, config);
                 }
 
                 //  double fraction = fastRuleLearning ? 0.001f : config.getRootExplorationFraction();   // TODO check
