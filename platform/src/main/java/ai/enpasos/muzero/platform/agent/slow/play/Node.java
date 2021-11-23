@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,13 +38,15 @@ public class Node {
     public double reward;
     private int visitCount;
     private boolean root = false;
+    private MuZeroConfig config;
 
-    public Node(double prior, boolean root) {
-        this(prior);
+    public Node(MuZeroConfig config, double prior, boolean root) {
+        this(config, prior);
         this.root = root;
     }
 
-    public Node(double prior) {
+    public Node(MuZeroConfig config, double prior) {
+        this.config = config;
         this.visitCount = 0;
 
         this.prior = prior;
@@ -61,7 +64,12 @@ public class Node {
 
     private double value() {
         if (visitCount == 0) return 0.0;
-        return -this.valueSum / this.visitCount;
+        // TODO: check
+        if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+            return -this.valueSum / this.visitCount;
+        } else {
+            return this.valueSum / this.visitCount;
+        }
     }
 
 

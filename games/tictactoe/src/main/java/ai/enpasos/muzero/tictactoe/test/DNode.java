@@ -184,10 +184,10 @@ public class DNode {
                 }
             }
         } else {
-            Node root = new Node(0);
+            Node root = new Node(network.getConfig(), 0);
             MCTS mcts = new MCTS(this.game.getConfig());
             List<Action> legalActions = game.legalActions();
-            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
+            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false, network.getConfig());
 
             MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
 
