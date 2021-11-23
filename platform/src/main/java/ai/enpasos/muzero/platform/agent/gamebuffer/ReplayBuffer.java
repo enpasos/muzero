@@ -55,6 +55,9 @@ public class ReplayBuffer {
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, MuZeroConfig config) {
         int gamePos = samplePosition(game);
+        if (gamePos == 0) {
+            int i = 42;
+        }
         return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager, replayBuffer, config);
     }
 
