@@ -10,7 +10,7 @@ upper confidence bound by the exact solution to the policy optimization problem 
 University's [paper](http://proceedings.mlr.press/v119/grill20a.html).
 
 All the common logic is encapsulated in a platform module, while each game with its specific environment is
-is implemented in a separate module.
+implemented in a separate module.
 
 We do an integration test on the trivial game TicTacToe on a single GPU (NVIDIA GeForce RTX 3090):
 Starting from scratch it learns perfect play (which is the test goal) within 40.000 training steps and 100.000 game plays in less than an hour.
