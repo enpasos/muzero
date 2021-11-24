@@ -80,7 +80,7 @@ public class PegSolitairConfigFactory {
             //    .numPlays(2)
                 .numberTrainingStepsOnRandomPlay(0)   // 3000
 
-                .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
+                .rootDirichletAlpha(0.3)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper
                 .visitSoftmaxTemperatureFn(visitSoftmaxTemperature)
                 //.knownBounds(new KnownBounds(-1d, 1d))  // no known bounds
