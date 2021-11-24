@@ -29,7 +29,8 @@ public class RenderGame {
 
     public static void applyAction(@NotNull Game game, int a) {
         game.apply(a);
-        System.out.println("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions());
+
+        System.out.println("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getLastReward());
     }
 
     public static void renderGame(@NotNull MuZeroConfig config, @NotNull Game game) {

@@ -17,6 +17,8 @@
 
 package ai.enpasos.muzero.pegsolitair.debug;
 
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +39,18 @@ public class ValueExtractor {
 
         List<Integer> actionIndexList = getActionList(config);
 
-        System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
+          System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
+
+
+
+        ReplayBuffer replayBuffer = new ReplayBuffer(config);
+        replayBuffer.loadLatestState();
+        replayBuffer.getBuffer().getGames().forEach(g ->
+          {
+              System.out.println(g.getLastReward());
+          });
+
+
     }
 
 }
