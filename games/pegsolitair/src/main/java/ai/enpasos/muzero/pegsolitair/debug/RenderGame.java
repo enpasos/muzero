@@ -36,7 +36,7 @@ public class RenderGame {
         MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
 
      //   List<Integer> actions = List.of(108, 64, 24, 29, 178, 101, 165, 102, 77, 112, 180, 178, 45, 64, 100, 46, 164, 80, 166, 44, 181, 78, 32, 66, 174, 167, 116, 179, 30, 163);
-        List<Integer> actions = List.of(108, 64, 100, 151, 23, 70, 18, 100, 24, 23, 37, 58, 186, 123, 174, 77, 178, 44, 121, 167, 181, 193, 44, 78, 80, 116, 102, 39, 116, 81);
+        List<Integer> actions = List.of(108, 64, 29, 178, 44, 78, 186, 171, 193, 44, 173, 178, 109, 167, 25, 77, 34, 180, 102, 178, 70, 100, 23, 63, 24, 107, 101, 165, 114, 78);
         Game game = config.newGame();
         actions.stream().forEach(
                 a -> {
