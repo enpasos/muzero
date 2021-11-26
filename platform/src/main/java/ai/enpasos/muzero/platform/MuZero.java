@@ -126,8 +126,10 @@ public class MuZero {
     public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs) {
         train(config, freshBuffer, numberOfEpochs, false);
     }
-
-    public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render) {
+    public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render ) {
+        train(config, freshBuffer, numberOfEpochs, render, true);
+    }
+    public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render, boolean randomFill) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
@@ -142,7 +144,12 @@ public class MuZero {
                 }
             } else {
                 replayBuffer.loadLatestState();
-                MuZero.initialFillingBuffer(network, replayBuffer);
+                if (randomFill) {
+                    MuZero.initialFillingBuffer(network, replayBuffer);
+                } else {
+                    MuZero.playOnDeepThinking(network, replayBuffer, false);
+                    replayBuffer.saveState();
+                }
             }
 
             int trainingStep = NetworkHelper.numberOfLastTrainingStep(config);

@@ -3,7 +3,9 @@ package ai.enpasos.muzero.pegsolitair.config.environment;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.testng.Assert.assertEquals;
 
@@ -80,5 +82,31 @@ public class BoardTest {
             legalMoves = board.getLegalJumps();
         } while (legalMoves.size() > 0);
         System.out.println("score: " + board.getScore());
+    }
+
+    @Test
+    public void testIsThereAtLeastOneStoneInCenterGroup() {
+        Board board = new Board();
+        assertEquals(board.isThereAtLeastOneStoneInCenterGroup(), true);
+
+        Set group = new HashSet();
+        group.add(new Point(2,4));
+        group.add(new Point(4,2));
+        group.add(new Point(4,6));
+        group.add(new Point(6,4));
+        board.stonesOnTheBoard.removeAll(group);
+        assertEquals(board.isThereAtLeastOneStoneInCenterGroup(), false);
+
+    }
+
+    @Test
+    public void testIsOneStoneInTheMiddle() {
+
+        Board board = new Board();
+        assertEquals(board.isOneStoneInTheMiddle(), false);
+        List<Jump>  jumps = board.getLegalJumps();
+
+        board.applyJump(jumps.get(0));
+        assertEquals(board.isOneStoneInTheMiddle(), true);
     }
 }

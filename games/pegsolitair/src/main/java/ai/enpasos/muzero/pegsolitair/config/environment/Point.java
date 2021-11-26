@@ -16,7 +16,7 @@
  */
 package ai.enpasos.muzero.pegsolitair.config.environment;
 
-import lombok.Data;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

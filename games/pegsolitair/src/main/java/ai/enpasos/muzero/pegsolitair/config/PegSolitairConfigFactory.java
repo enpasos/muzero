@@ -56,7 +56,7 @@ public class PegSolitairConfigFactory {
                 .numObservationLayers(1)
                 .numActionLayers(4)  // one for each direction
                 .numChannels(128)        // 256 in the paper
-                .numHiddenStateChannels(1)
+                .numHiddenStateChannels(3)
                 .numResiduals(16)        // 16 in the paper
 
                 // network training
