@@ -148,7 +148,35 @@ public class Board {
             score++;  // all stones belong to 4 groups that never mix. Therefore it is necessary to have at least
                       // one stone in the group of stones that can reach the targeted final position
         }
+        if (areThereAtLeastTwoStonesAndOneInCenterTangentGroups()) {
+            score++;
+        }
+        if (stonesOnTheBoard.size() == 1) {
+            score++; // maximum score (2) for exactly one stone in the middle
+        }
         return score;
+    }
+
+    private boolean areThereAtLeastTwoStonesAndOneInCenterTangentGroups() {
+        return stonesOnTheBoard.size() >=2 &&
+                Set.of(
+                        new Point(1, 4),
+                        new Point(2, 3),
+                        new Point(2, 5),
+                        new Point(3, 2),
+                        new Point(3, 4),
+                        new Point(3, 6),
+                        new Point(4, 1),
+                        new Point(4, 3),
+                        new Point(4, 5),
+                        new Point(4, 7),
+                        new Point(5, 2),
+                        new Point(5, 4),
+                        new Point(5, 6),
+                        new Point(6, 3),
+                        new Point(6, 5),
+                        new Point(7,4))
+                .stream().anyMatch(stonesOnTheBoard::contains);
     }
 
     public boolean isThereAtLeastOneStoneInCenterGroup() {
