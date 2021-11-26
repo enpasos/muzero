@@ -71,43 +71,6 @@ public class Board {
                 p1 ->  addDirectLegalJumpsForAHole(p1, legalJumps)
         );
 
-
-//        Board currentBoard = this;
-//
-//        int legalMovesSize = legalMoves.size();
-//
-//        List<Move> movesToIterate = new ArrayList<>();
-//        movesToIterate.addAll(legalMoves);
-//
-//        do {
-//            legalMovesSize = legalMoves.size();
-//            List<Move> newMoves = new ArrayList<>();
-//            // legalMoves_.addAll(legalMoves);
-//            movesToIterate.stream().forEach(
-//                    m -> {
-//                        Board tempBoard = currentBoard.clone();
-//                        tempBoard.applyMove(m);
-//
-//                        Point p1 = m.getFinalPosition();
-//                        Arrays.stream(Direction.values()).forEach(
-//                                direction -> {
-//                                    Point p2 = p1.pointIn(direction);
-//                                    Point p3 = p2.pointIn(direction);
-//
-//                                    if (inRange(p2) && inRange(p3) && tempBoard.stonesOnTheBoard.contains(p2) && tempBoard.holesOnTheBoard.contains(p3)) {
-//                                        Jump jump = new Jump(p1, direction);
-//                                        Move move = m.clone();
-//                                        move.jumps.add(jump);
-//                                        newMoves.add(move);
-//                                        legalMoves.add(move);
-//                                    }
-//                                }
-//                        );
-//                    }
-//            );
-//            movesToIterate = newMoves;
-//        } while (movesToIterate.size() > 0);
-
         return legalJumps;
     }
 
@@ -176,10 +139,30 @@ public class Board {
     }
 
     public int getScore() {
-        if (stonesOnTheBoard.size() == 1 && stonesOnTheBoard.first().equals(new Point(4,4))) {
-            return 10;
-        } else {
-            return - stonesOnTheBoard.size();
+        int score = 0;
+        score -= stonesOnTheBoard.size(); // less stones on the board is better -> penalty on remaining stones
+        if (isOneStoneInTheMiddle()) {
+            score++; // the final goal is to have one stone in the middle -> reward it
         }
+        if (isThereAtLeastOneStoneInCenterGroup()) {
+            score++;  // all stones belong to 4 groups that never mix. Therefore it is necessary to have at least
+                      // one stone in the group of stones that can reach the targeted final position
+        }
+        return score;
+    }
+
+    public boolean isThereAtLeastOneStoneInCenterGroup() {
+        return Set.of(
+                        new Point(2, 4),
+                        new Point(4, 2),
+                        new Point(4, 4),
+                        new Point(4, 6),
+                        new Point(6, 4))
+                .stream().anyMatch(stonesOnTheBoard::contains);
+    }
+
+    public boolean isOneStoneInTheMiddle() {
+        Point center = new Point(4,4);
+        return stonesOnTheBoard.contains(center);
     }
 }
