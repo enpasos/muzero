@@ -143,6 +143,9 @@ public class Board {
         for (Point peg : stonesOnTheBoard) {
             score += pagoda(peg);
         }
+        if (stonesOnTheBoard.size() == 1 &&  isOneStoneInTheMiddle()) {
+            score++; // the final goal is to have one stone in the middle -> reward it
+        }
         return score;
     }
 
@@ -187,7 +190,7 @@ public class Board {
         if (this.stonesOnTheBoard.contains(new Point(7,3)))  score+=1;
         if (this.stonesOnTheBoard.contains(new Point(7,4)))  score+=1;
         if (this.stonesOnTheBoard.contains(new Point(7,5)))  score+=1;
-        return score;
+        return 5-score;
     }
 
     public int getScoreB() {
