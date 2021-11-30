@@ -140,13 +140,65 @@ public class Board {
 
     public int getScore() {
         int score = 0;
+        for (Point peg : stonesOnTheBoard) {
+            score += pagoda(peg);
+        }
+        return score;
+    }
+
+    private int pagoda(Point peg) {
+        int score = 0;
+        if (this.stonesOnTheBoard.contains(new Point(1,3)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(1,4)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(1,5)))  score+=1;
+
+        if (this.stonesOnTheBoard.contains(new Point(2,3)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(2,4)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(2,5)))  score+=1;
+
+        if (this.stonesOnTheBoard.contains(new Point(3,1)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(3,2)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(3,3)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(3,4)))  score+=3;
+        if (this.stonesOnTheBoard.contains(new Point(3,5)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(3,6)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(3,7)))  score+=1;
+
+        if (this.stonesOnTheBoard.contains(new Point(4,1)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(4,2)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(4,3)))  score+=3;
+        if (this.stonesOnTheBoard.contains(new Point(4,4)))  score+=5;
+        if (this.stonesOnTheBoard.contains(new Point(4,5)))  score+=3;
+        if (this.stonesOnTheBoard.contains(new Point(4,6)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(4,7)))  score+=1;
+
+        if (this.stonesOnTheBoard.contains(new Point(5,1)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(5,2)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(5,3)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(5,4)))  score+=3;
+        if (this.stonesOnTheBoard.contains(new Point(5,5)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(5,6)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(5,7)))  score+=1;
+
+        if (this.stonesOnTheBoard.contains(new Point(6,3)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(6,4)))  score+=2;
+        if (this.stonesOnTheBoard.contains(new Point(6,5)))  score+=1;
+
+        if (this.stonesOnTheBoard.contains(new Point(7,3)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(7,4)))  score+=1;
+        if (this.stonesOnTheBoard.contains(new Point(7,5)))  score+=1;
+        return score;
+    }
+
+    public int getScoreB() {
+        int score = 0;
         score -= stonesOnTheBoard.size(); // less stones on the board is better -> penalty on remaining stones
         if (isOneStoneInTheMiddle()) {
             score++; // the final goal is to have one stone in the middle -> reward it
         }
         if (isThereAtLeastOneStoneInCenterGroup()) {
             score++;  // all stones belong to 4 groups that never mix. Therefore it is necessary to have at least
-                      // one stone in the group of stones that can reach the targeted final position
+            // one stone in the group of stones that can reach the targeted final position
         }
         if (areThereAtLeastTwoStonesAndOneInCenterTangentGroups()) {
             score++;

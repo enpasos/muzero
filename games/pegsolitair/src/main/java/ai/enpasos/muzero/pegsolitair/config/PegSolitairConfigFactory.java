@@ -68,7 +68,7 @@ public class PegSolitairConfigFactory {
                 .tdSteps(size * size)         // equals maxMoves equals actionSpaceSize
                 .discount(1.0)
                 // loss details
-                .weightDecay(0.0001f)
+                .weightDecay(0.0001f)  // as in muzero unplugged paper
                 .valueLossWeight(1f)    // 0.25f on reanalyse but 1f on the normal run in the paper
                 // network training - adam optimizer
                 .lrInit(0.0001f)          // initial learning rate for muzero unplugged  (in paper cos drop to 0)
@@ -78,7 +78,7 @@ public class PegSolitairConfigFactory {
           //      .numSimulations(160)     // 800 in the paper
            //     .numParallelPlays(250)
             //    .numPlays(2)
-                .numberTrainingStepsOnRandomPlay(0)   // 3000
+                .numberTrainingStepsOnRandomPlay(1000)   // 3000
 
                 .rootDirichletAlpha(0.3)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
                 .rootExplorationFraction(0.25)   // as in paper

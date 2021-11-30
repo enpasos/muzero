@@ -156,7 +156,7 @@ public class MuZero {
             DefaultTrainingConfig djlConfig = setupTrainingConfig(config, 0);
 
             while (trainingStep < config.getNumberOfTrainingSteps()) {
-                if (trainingStep != 0) {
+                if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnRandomPlay()) {
                     log.info("last training step = {}", trainingStep);
                     log.info("numSimulations: " + config.getNumSimulations());
                     network.debugDump();

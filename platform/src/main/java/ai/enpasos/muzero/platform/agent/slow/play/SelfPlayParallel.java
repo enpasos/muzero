@@ -66,7 +66,8 @@ public class SelfPlayParallel {
         if (render) {
             System.out.println(justOneOfTheGames.render());
         }
-        try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+        try (NDManager nDManager =
+                     network != null ? network.getNDManager().newSubManager() : null) {
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.debugDump();
