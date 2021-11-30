@@ -149,48 +149,48 @@ public class Board {
         return score;
     }
 
-    private int pagoda(Point peg) {
+    private int pagoda(Point point) {
         int score = 0;
-        if (this.stonesOnTheBoard.contains(new Point(1,3)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(1,4)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(1,5)))  score+=1;
+        if (point.equals(new Point(1,3)))  score+=1;
+        if (point.equals(new Point(1,4)))  score+=1;
+        if (point.equals(new Point(1,5)))  score+=1;
 
-        if (this.stonesOnTheBoard.contains(new Point(2,3)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(2,4)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(2,5)))  score+=1;
+        if (point.equals(new Point(2,3)))  score+=1;
+        if (point.equals(new Point(2,4)))  score+=2;
+        if (point.equals(new Point(2,5)))  score+=1;
 
-        if (this.stonesOnTheBoard.contains(new Point(3,1)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(3,2)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(3,3)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(3,4)))  score+=3;
-        if (this.stonesOnTheBoard.contains(new Point(3,5)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(3,6)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(3,7)))  score+=1;
+        if (point.equals(new Point(3,1)))  score+=1;
+        if (point.equals(new Point(3,2)))  score+=1;
+        if (point.equals(new Point(3,3)))  score+=2;
+        if (point.equals(new Point(3,4)))  score+=3;
+        if (point.equals(new Point(3,5)))  score+=2;
+        if (point.equals(new Point(3,6)))  score+=1;
+        if (point.equals(new Point(3,7)))  score+=1;
 
-        if (this.stonesOnTheBoard.contains(new Point(4,1)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(4,2)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(4,3)))  score+=3;
-        if (this.stonesOnTheBoard.contains(new Point(4,4)))  score+=5;
-        if (this.stonesOnTheBoard.contains(new Point(4,5)))  score+=3;
-        if (this.stonesOnTheBoard.contains(new Point(4,6)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(4,7)))  score+=1;
+        if (point.equals(new Point(4,1)))  score+=1;
+        if (point.equals(new Point(4,2)))  score+=2;
+        if (point.equals(new Point(4,3)))  score+=3;
+        if (point.equals(new Point(4,4)))  score+=5;
+        if (point.equals(new Point(4,5)))  score+=3;
+        if (point.equals(new Point(4,6)))  score+=2;
+        if (point.equals(new Point(4,7)))  score+=1;
 
-        if (this.stonesOnTheBoard.contains(new Point(5,1)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(5,2)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(5,3)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(5,4)))  score+=3;
-        if (this.stonesOnTheBoard.contains(new Point(5,5)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(5,6)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(5,7)))  score+=1;
+        if (point.equals(new Point(5,1)))  score+=1;
+        if (point.equals(new Point(5,2)))  score+=1;
+        if (point.equals(new Point(5,3)))  score+=2;
+        if (point.equals(new Point(5,4)))  score+=3;
+        if (point.equals(new Point(5,5)))  score+=2;
+        if (point.equals(new Point(5,6)))  score+=1;
+        if (point.equals(new Point(5,7)))  score+=1;
 
-        if (this.stonesOnTheBoard.contains(new Point(6,3)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(6,4)))  score+=2;
-        if (this.stonesOnTheBoard.contains(new Point(6,5)))  score+=1;
+        if (point.equals(new Point(6,3)))  score+=1;
+        if (point.equals(new Point(6,4)))  score+=2;
+        if (point.equals(new Point(6,5)))  score+=1;
 
-        if (this.stonesOnTheBoard.contains(new Point(7,3)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(7,4)))  score+=1;
-        if (this.stonesOnTheBoard.contains(new Point(7,5)))  score+=1;
-        return 5-score;
+        if (point.equals(new Point(7,3)))  score+=1;
+        if (point.equals(new Point(7,4)))  score+=1;
+        if (point.equals(new Point(7,5)))  score+=1;
+        return score-5;
     }
 
     public int getScoreB() {
