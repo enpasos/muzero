@@ -53,7 +53,7 @@ public class PegSolitairEnvironment implements Environment, Serializable {
         board.applyJump(jump);
 
         if (board.getLegalJumps().size() == 0) {
-            return board.getScore();
+            return board.getScore()/5f;
         } else {
             return 0f;
         }
