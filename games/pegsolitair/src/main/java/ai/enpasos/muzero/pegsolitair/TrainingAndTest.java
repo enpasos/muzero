@@ -27,7 +27,7 @@ public class TrainingAndTest {
 
         boolean freshBuffer = false;
         int numberOfEpochs = 1;
-        train(config, freshBuffer, numberOfEpochs, true);
+        train(config, freshBuffer, numberOfEpochs, true, false);
     }
 
 
