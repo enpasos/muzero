@@ -193,20 +193,36 @@ public class Board {
     public int getScoreB() {
         int score = 0;
         score -= stonesOnTheBoard.size(); // less stones on the board is better -> penalty on remaining stones
-        if (isOneStoneInTheMiddle()) {
+        score -= getNumberOfConvexCornerStones();
+        if (stonesOnTheBoard.size() == 1 &&  isOneStoneInTheMiddle()) {
             score++; // the final goal is to have one stone in the middle -> reward it
         }
         if (isThereAtLeastOneStoneInCenterGroup()) {
             score++;  // all stones belong to 4 groups that never mix. Therefore it is necessary to have at least
             // one stone in the group of stones that can reach the targeted final position
         }
+        if (stonesOnTheBoard.size() >= 1 && getNumberOfStonesInCenterGroup() > 1) {
+            score++;
+        }
         if (areThereAtLeastTwoStonesAndOneInCenterTangentGroups()) {
             score++;
         }
-        if (stonesOnTheBoard.size() == 1) {
-            score++; // maximum score (2) for exactly one stone in the middle
-        }
         return score;
+    }
+
+
+
+    private int getNumberOfConvexCornerStones() {
+        int c = 0;
+        if (stonesOnTheBoard.contains(new Point(1, 3) )) c++;
+        if (stonesOnTheBoard.contains(new Point(1, 5) )) c++;
+        if (stonesOnTheBoard.contains(new Point(3, 1) )) c++;
+        if (stonesOnTheBoard.contains(new Point(3, 7) )) c++;
+        if (stonesOnTheBoard.contains(new Point(5, 1) )) c++;
+        if (stonesOnTheBoard.contains(new Point(5, 7) )) c++;
+        if (stonesOnTheBoard.contains(new Point(7, 3) )) c++;
+        if (stonesOnTheBoard.contains(new Point(7, 5) )) c++;
+        return c;
     }
 
     private boolean areThereAtLeastTwoStonesAndOneInCenterTangentGroups() {
@@ -231,14 +247,21 @@ public class Board {
                 .stream().anyMatch(stonesOnTheBoard::contains);
     }
 
-    public boolean isThereAtLeastOneStoneInCenterGroup() {
+    private Set<Point> centerGroup() {
         return Set.of(
-                        new Point(2, 4),
-                        new Point(4, 2),
-                        new Point(4, 4),
-                        new Point(4, 6),
-                        new Point(6, 4))
-                .stream().anyMatch(stonesOnTheBoard::contains);
+                new Point(2, 4),
+                new Point(4, 2),
+                new Point(4, 4),
+                new Point(4, 6),
+                new Point(6, 4));
+    }
+
+    public boolean isThereAtLeastOneStoneInCenterGroup() {
+        return centerGroup().stream().anyMatch(stonesOnTheBoard::contains);
+    }
+
+    private int getNumberOfStonesInCenterGroup() {
+        return  (int)centerGroup().stream().filter(p -> stonesOnTheBoard.contains(p)).count();
     }
 
     public boolean isOneStoneInTheMiddle() {
