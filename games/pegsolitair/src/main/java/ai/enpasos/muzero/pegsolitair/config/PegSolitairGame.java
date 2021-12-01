@@ -31,8 +31,6 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
-import ai.enpasos.muzero.platform.environment.EnvironmentBase;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,7 +105,7 @@ public class PegSolitairGame extends Game {
         for(int row = 1; row <= size; row++) {
             for(int col = 1; col <= size; col++) {
                 Point p = new Point(row, col);
-                if (board.getStonesOnTheBoard().contains(p)) {
+                if (board.getPegsOnTheBoard().contains(p)) {
                     boardtransfer[row-1][col-1] = 1f;
                 } else if (board.getHolesOnTheBoard().contains(p)) {
                     boardtransfer[row-1][col-1] = 0f;

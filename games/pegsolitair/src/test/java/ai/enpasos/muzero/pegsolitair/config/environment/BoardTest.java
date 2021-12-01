@@ -84,20 +84,6 @@ public class BoardTest {
         System.out.println("score: " + board.getScore());
     }
 
-    @Test
-    public void testIsThereAtLeastOneStoneInCenterGroup() {
-        Board board = new Board();
-        assertEquals(board.isThereAtLeastOneStoneInCenterGroup(), true);
-
-        Set group = new HashSet();
-        group.add(new Point(2,4));
-        group.add(new Point(4,2));
-        group.add(new Point(4,6));
-        group.add(new Point(6,4));
-        board.stonesOnTheBoard.removeAll(group);
-        assertEquals(board.isThereAtLeastOneStoneInCenterGroup(), false);
-
-    }
 
     @Test
     public void testIsOneStoneInTheMiddle() {
