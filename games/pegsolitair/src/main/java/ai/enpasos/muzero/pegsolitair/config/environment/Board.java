@@ -123,17 +123,40 @@ public class Board {
         holesOnTheBoard.add(p2);
     }
 
-    public int getScore() {
-        int score = 0;
+    public float getScore() {
+        float score = 0f;
         for (Point peg : pegsOnTheBoard) {
-            score += locationscore(peg);
-            score -= 5; // depending on the number of pegs ont he board
+            score--; // depending on the number of pegs ont he board
+            score += locationscore(peg)/5f; // closer to the target position is better
         }
-        if (pegsOnTheBoard.size() == 1 &&  isOneStoneInTheMiddle()) {
+        if (pegsOnTheBoard.size() == 1 &&  isOnePegInTheMiddle()) {
             score++; // the final goal is to have one stone in the middle -> reward it
         }
+        if (!isThereAtLeastOnePegInCenterGroup()) {
+            score-=10;  // impossible do go this way
+        }
+
         return score;
     }
+
+    private Set<Point> centerGroup() {
+        return Set.of(
+                new Point(2, 4),
+                new Point(4, 2),
+                new Point(4, 4),
+                new Point(4, 6),
+                new Point(6, 4));
+    }
+
+    public boolean isThereAtLeastOnePegInCenterGroup() {
+        return centerGroup().stream().anyMatch(pegsOnTheBoard::contains);
+    }
+
+
+    private int getNumberOfPegsInCenterGroup() {
+        return  (int)centerGroup().stream().filter(p -> pegsOnTheBoard.contains(p)).count();
+    }
+
 
     private int locationscore(Point point) {
         int score = 0;
@@ -179,7 +202,7 @@ public class Board {
         return score;
     }
 
-    public boolean isOneStoneInTheMiddle() {
+    public boolean isOnePegInTheMiddle() {
         Point center = new Point(4,4);
         return pegsOnTheBoard.contains(center);
     }

@@ -86,13 +86,13 @@ public class BoardTest {
 
 
     @Test
-    public void testIsOneStoneInTheMiddle() {
+    public void testIsOnePegInTheMiddle() {
 
         Board board = new Board();
-        assertEquals(board.isOneStoneInTheMiddle(), false);
+        assertEquals(board.isOnePegInTheMiddle(), false);
         List<Jump>  jumps = board.getLegalJumps();
 
         board.applyJump(jumps.get(0));
-        assertEquals(board.isOneStoneInTheMiddle(), true);
+        assertEquals(board.isOnePegInTheMiddle(), true);
     }
 }
