@@ -95,7 +95,7 @@ public class PegSolitairConfigFactory {
 
                 .numPlays(1)
                 .numParallelPlays(1000)
-                .numSimulations(100)
+                .numSimulations(20)
                 .windowSize(10000)
                 .numChannels(128)
               //  .absorbingStateDropToZero(true)
