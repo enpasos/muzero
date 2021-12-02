@@ -16,6 +16,8 @@ public class Board {
     TreeSet<Point> pegsOnTheBoard;
     TreeSet<Point> holesOnTheBoard;
 
+
+
     static {
         neighborMap = createNeighborMap();
     }
@@ -135,7 +137,18 @@ public class Board {
         if (!isThereAtLeastOnePegInCenterGroup()) {
             score-=10;  // impossible do go this way
         }
-
+        if (!conditionA()) {
+            score-=10;  // impossible do go this way
+        }
+        if (!conditionB()) {
+            score-=10;  // impossible do go this way
+        }
+        if (!conditionC()) {
+            score-=10;  // impossible do go this way
+        }
+        if (!conditionD()) {
+            score-=10;  // impossible do go this way
+        }
         return score;
     }
 
@@ -201,6 +214,121 @@ public class Board {
         if (point.equals(new Point(7,5)))  score+=-1;
         return score;
     }
+
+
+
+    private Set<Point> groupA() {
+        return Set.of(
+                new Point(1, 3),
+                new Point(1, 5),
+                new Point(3, 1),
+                new Point(3, 3),
+                new Point(3, 5),
+                new Point(3, 7),
+                new Point(5, 1),
+                new Point(5, 3),
+                new Point(5, 5),
+                new Point(5, 7),
+                new Point(7, 3),
+                new Point(7, 5));
+    }
+    private Set<Point> circleA() {
+        return Set.of(
+                new Point(3, 1),
+                new Point(3, 7),
+                new Point(5, 1),
+                new Point(5, 7));
+    }
+    private Set<Point> circleB() {
+        return Set.of(
+                new Point(1, 3),
+                new Point(1, 5),
+                new Point(7, 3),
+                new Point(7, 5));
+    }
+    private Set<Point> circleC() {
+        return Set.of(
+                new Point(1, 4),
+                new Point(4, 1),
+                new Point(4, 7),
+                new Point(7, 4));
+    }
+    private Set<Point> circleD() {
+        return Set.of(
+                new Point(2, 3),
+                new Point(2, 5),
+                new Point(3, 2),
+                new Point(3, 4),
+                new Point(5, 2),
+                new Point(5, 4),
+                new Point(6, 3),
+                new Point(6, 5));
+    }
+    private Set<Point> groupB() {
+        return Set.of(
+                new Point(1, 4),
+                new Point(3, 2),
+                new Point(3, 4),
+                new Point(3, 6),
+                new Point(5, 2),
+                new Point(5, 4),
+                new Point(5, 6),
+                new Point(7, 4));
+    }
+
+    private Set<Point> groupC() {
+        return Set.of(
+                new Point(2, 3),
+                new Point(2, 5),
+                new Point(4, 1),
+                new Point(4, 3),
+                new Point(4, 5),
+                new Point(4, 7),
+                new Point(6, 3),
+                new Point(6, 5));
+    }
+
+    private Set<Point> groupD() {
+        return Set.of(
+                new Point(2, 4),
+                new Point(4, 2),
+                new Point(4, 4),
+                new Point(4, 6),
+                new Point(6, 4));
+    }
+
+
+    private boolean conditionA() {
+       return condition(circleA(), groupB());
+    }
+
+    private boolean conditionB() {
+        return condition(circleB(), groupC());
+    }
+
+    private boolean conditionC() {
+
+        return condition(circleC(), groupD());
+    }
+
+    private boolean conditionD() {
+        return condition(circleD(), groupB());
+    }
+
+    private boolean condition(Set<Point> circle, Set<Point> group) {
+        return numberOfPegsOnPointSet(circle) <= numberOfPegsOnPointSet(group);
+    }
+
+
+    public boolean isThereAtLeastOneStoneInCenterGroup() {
+        return groupD().stream().anyMatch(pegsOnTheBoard::contains);
+    }
+
+    private int numberOfPegsOnPointSet(Set<Point> pointSet) {
+        return  (int) pointSet.stream().filter(p -> pegsOnTheBoard.contains(p)).count();
+    }
+
+
 
     public boolean isOnePegInTheMiddle() {
         Point center = new Point(4,4);
