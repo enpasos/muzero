@@ -16,7 +16,7 @@ implemented in a separate module:
   * **TicTacToe** is used for integration testing. Starting from scratch it learns perfect play (which is the test goal) on a single GPU (NVIDIA GeForce RTX 3090) within 3.000 training steps and 150.000 game plays in less than an hour.
   * **Go**. We have started training the game of go, board sizes 5x5 and 9x9.
 * One player games with a final reward only:
-  * **PegSolitair**: On the classic english board it learns perfect play. Starting with one hole and end up with one peg in the middle.
+  * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one peg in the middle.
 
 ## Build
 
