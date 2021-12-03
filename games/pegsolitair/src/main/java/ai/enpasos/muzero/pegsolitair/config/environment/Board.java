@@ -134,22 +134,20 @@ public class Board {
         if (pegsOnTheBoard.size() == 1 &&  isOnePegInTheMiddle()) {
             score++; // the final goal is to have one stone in the middle -> reward it
         }
-        if (!isThereAtLeastOnePegInCenterGroup()) {
-            score-=10;  // impossible do go this way
-        }
-        if (!conditionA()) {
-            score-=10;  // impossible do go this way
-        }
-        if (!conditionB()) {
-            score-=10;  // impossible do go this way
-        }
-        if (!conditionC()) {
-            score-=10;  // impossible do go this way
-        }
-        if (!conditionD()) {
-            score-=10;  // impossible do go this way
+        if (impossibleToReachSituation() ) {
+            score-=10;
         }
         return score;
+    }
+
+    private boolean impossibleToReachSituation() {
+        return !isThereAtLeastOnePegInCenterGroup()
+                || !conditionA()
+                || !conditionB()
+                || !conditionC()
+                || !conditionD()
+                || !conditionE()
+                || !conditionF();
     }
 
     private Set<Point> centerGroup() {
@@ -264,6 +262,16 @@ public class Board {
                 new Point(6, 3),
                 new Point(6, 5));
     }
+    private Set<Point> circleE() {
+        return Set.of(
+                new Point(2, 4),
+                new Point(6, 4));
+    }
+    private Set<Point> circleF() {
+        return Set.of(
+                new Point(4, 2),
+                new Point(4, 6));
+    }
     private Set<Point> groupB() {
         return Set.of(
                 new Point(1, 4),
@@ -314,7 +322,12 @@ public class Board {
     private boolean conditionD() {
         return condition(circleD(), groupB());
     }
-
+    private boolean conditionE() {
+        return condition(circleE(), groupB());
+    }
+    private boolean conditionF() {
+        return condition(circleF(), groupC());
+    }
     private boolean condition(Set<Point> circle, Set<Point> group) {
         return numberOfPegsOnPointSet(circle) <= numberOfPegsOnPointSet(group);
     }
