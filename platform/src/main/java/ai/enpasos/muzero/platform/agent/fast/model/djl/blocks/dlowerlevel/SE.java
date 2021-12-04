@@ -107,11 +107,6 @@ public class SE extends AbstractBlock {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
-//        Shape[] current = inputs;
-//        for (Block block : block.getChildren().values()) {
-//            current = block.getOutputShapes(current);
-//        }
-//        return current;
         return inputs;
     }
 
@@ -121,13 +116,4 @@ public class SE extends AbstractBlock {
     }
 
 
-//    public static void main(String[] args) {
-//        NDManager manager = NDManager.newBaseManager();
-//        NDArray original = manager.ones(new Shape(1, 2, 3, 4));
-//        NDArray scaler = manager.ones(new Shape(1, 2));
-//        Shape newShape = scaler.getShape().add(1,1);
-//        scaler = scaler.reshape(newShape);
-//        NDArray prod = original.mul(scaler);
-//        int i = 42;
-//    }
 }

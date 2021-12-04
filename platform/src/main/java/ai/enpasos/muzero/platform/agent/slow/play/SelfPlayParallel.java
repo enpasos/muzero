@@ -19,11 +19,10 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
-import static ai.enpasos.muzero.platform.environment.EnvironmentBase.render;
 
 
 @Slf4j
@@ -47,7 +45,7 @@ public class SelfPlayParallel {
     private final @Nullable DirichletGen dg = null;
 
 
-    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning,  boolean explorationNoise) {
+    public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
         network.debugDump();
@@ -86,10 +84,10 @@ public class SelfPlayParallel {
 
                 inferenceDuration.value -= System.currentTimeMillis();
 
-             //   network.debugDump();
-              //  NDManager ndManager2 = nDManager.newSubManager();
+                //   network.debugDump();
+                //  NDManager ndManager2 = nDManager.newSubManager();
 
-              //  network.debugDump();
+                //  network.debugDump();
                 List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gameList);
                 network.debugDump();
                 // on this networkOutput p and v are copied to the cpu,
@@ -185,12 +183,6 @@ public class SelfPlayParallel {
         int index = randomStreamBase.nextInt(0, children.size() - 1);
         return ((Map.Entry<Action, Node>) children.entrySet().toArray()[index]).getKey();
     }
-
-
-
-
-
-
 
 
     public static void addExplorationNoise(double rootExplorationFraction, double rootDirichletAlpha, @NotNull Node node) {

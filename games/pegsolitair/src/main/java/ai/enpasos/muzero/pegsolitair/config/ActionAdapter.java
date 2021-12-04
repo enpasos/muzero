@@ -8,12 +8,10 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 
 import java.util.*;
 
-import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
-
 public class ActionAdapter {
 
-    private static Map<Integer, Jump> integerJumpMap;
-    private static Map<Jump, Integer> jumpIntegerMap;
+    private static final Map<Integer, Jump> integerJumpMap;
+    private static final Map<Jump, Integer> jumpIntegerMap;
 
     static {
         List<Jump> possibleJumps = new ArrayList<>();
@@ -28,16 +26,16 @@ public class ActionAdapter {
 
                             Point p2 = p.pointIn(direction);
                             Point p3 = p2.pointIn(direction);
-                         //   if (inRange(p2) && inRange(p3)) {
-                                Jump j = new Jump(p, direction);
-                                possibleJumps.add(j);
-                          //  }
+                            //   if (inRange(p2) && inRange(p3)) {
+                            Jump j = new Jump(p, direction);
+                            possibleJumps.add(j);
+                            //  }
                         }
                     }
                 });
 
         int c = 0;
-        for(Jump j : possibleJumps) {
+        for (Jump j : possibleJumps) {
             integerJumpMap.put(c, j);
             jumpIntegerMap.put(j, c);
             c++;
@@ -47,7 +45,6 @@ public class ActionAdapter {
     public static Action getAction(MuZeroConfig config, Jump jump) {
         return config.newAction(jumpIntegerMap.get(jump));
     }
-
 
 
     public static Jump getJump(Action action) {

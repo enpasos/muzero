@@ -25,7 +25,6 @@ import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.Builder;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -37,7 +36,6 @@ import java.util.function.Function;
 public class MuZeroConfig {
 
     public static boolean hiddenStateRemainOnGPU = false;
-
 
 
     private final PlayerMode playerMode;
@@ -103,11 +101,13 @@ public class MuZeroConfig {
         }
         return null;
     }
+
     public Action newAction(int index) {
         Action action = this.newAction();
         action.setIndex(index);
         return action;
     }
+
     public Action newAction() {
         try {
             Constructor<?> constructor = actionClass.getConstructor(MuZeroConfig.class);

@@ -22,8 +22,8 @@ public class GoStringTest {
 
     @Test
     void createSimpleString() {
-        var stones = new TreeSet<Point>(List.of(new Point(2, 2)));
-        var liberties = new TreeSet<Point>(List.of(
+        var stones = new TreeSet<>(List.of(new Point(2, 2)));
+        var liberties = new TreeSet<>(List.of(
                 new Point(1, 2),
                 new Point(3, 2),
                 new Point(2, 1),
@@ -45,7 +45,7 @@ public class GoStringTest {
     // OO    assume surrounded by black
     @Test
     void createStringWithOneEye() {
-        var stones = new TreeSet<Point>(List.of(
+        var stones = new TreeSet<>(List.of(
                 new Point(2, 2),
                 new Point(2, 3),
                 new Point(2, 4),
@@ -55,7 +55,7 @@ public class GoStringTest {
                 new Point(4, 3)
         ));
 
-        var liberties = new TreeSet<Point>(List.of(new Point(3, 3)));
+        var liberties = new TreeSet<>(List.of(new Point(3, 3)));
 
         var goString = new GoString(BlackPlayer, stones, liberties);
 
@@ -64,10 +64,10 @@ public class GoStringTest {
 
     @Test
     void addLibertyToString() {
-        var stones = new TreeSet<Point>(List.of(
+        var stones = new TreeSet<>(List.of(
                 new Point(2, 2)
         ));
-        var liberties = new TreeSet<Point>(List.of(
+        var liberties = new TreeSet<>(List.of(
                 new Point(1, 2),
                 new Point(3, 2)
         ));
@@ -78,10 +78,10 @@ public class GoStringTest {
 
     @Test
     void removeLibertyFromString() {
-        var stones = new TreeSet<Point>(List.of(
+        var stones = new TreeSet<>(List.of(
                 new Point(2, 2)
         ));
-        var liberties = new TreeSet<Point>(List.of(
+        var liberties = new TreeSet<>(List.of(
                 new Point(1, 2),
                 new Point(3, 2),
                 new Point(2, 1),
@@ -100,10 +100,10 @@ public class GoStringTest {
     void mergeStrings() {
         var goString1 = GoString.builder()
                 .player(BlackPlayer)
-                .stones(new TreeSet<Point>(List.of(
+                .stones(new TreeSet<>(List.of(
                         new Point(2, 2)
                 )))
-                .liberties(new TreeSet<Point>(List.of(
+                .liberties(new TreeSet<>(List.of(
                         new Point(1, 2),
                         new Point(2, 1),
                         new Point(3, 2),
@@ -113,10 +113,10 @@ public class GoStringTest {
 
         var goString2 = GoString.builder()
                 .player(BlackPlayer)
-                .stones(new TreeSet<Point>(List.of(
+                .stones(new TreeSet<>(List.of(
                         new Point(2, 3)
                 )))
-                .liberties(new TreeSet<Point>(List.of(
+                .liberties(new TreeSet<>(List.of(
                         new Point(2, 2),
                         new Point(2, 4),
                         new Point(1, 3),

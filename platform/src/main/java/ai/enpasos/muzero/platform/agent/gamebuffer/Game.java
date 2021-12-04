@@ -19,10 +19,10 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.slow.play.*;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -174,83 +174,31 @@ public abstract class Game implements Serializable {
     }
 
     public @NotNull List<Target> makeTargetSinglePlayerMode(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample, MuZeroConfig config) {
-
-        List<Target> targets = new ArrayList<>();
-
-
-        for (int currentIndex = stateIndex; currentIndex <= stateIndex + numUnrollSteps; currentIndex++) {
-            int bootstrapIndex = currentIndex + tdSteps;
-            double value = 0;
-
-            // not happening for boardgames
-            if (bootstrapIndex < this.getGameDTO().getRootValues().size()) {
-                value = this.getGameDTO().getRootValues().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
-            }
-
-            int startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size());
-
-            // condition "i < bootstrapIndex" for boardgames true
-            for (int i = startIndex;  i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                if (i==0) continue;
-                value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1)    ;
-            }
-
-            float lastReward = 0f;
-            if (currentIndex >= 0 && currentIndex < this.getGameDTO().getRewards().size()) {
-                lastReward = this.getGameDTO().getRewards().get(currentIndex);
-            }
-            Target target = new Target();
-            if (currentIndex < this.getGameDTO().getRootValues().size()) {
-                target.value = (float) value;
-                target.reward = lastReward;
-                target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
-
-            } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
-                // BIG TODO: If we do not train the reward (as only boardgames are treated here)
-                // the value has to take the role of the reward on this node (needed in MCTS)
-                // if we were running the network with reward head
-                // the value would be 0 here
-                // but as we do not get the expected reward from the network
-                // we need use this node to keep the reward value
-                // therefore target.value is not 0f
-                // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-                target.value = (float) value;  // this is not really the value, it is taking the role of the reward here
-                target.reward = lastReward;
-                target.policy = new float[this.actionSpaceSize];
-                // the idea is not to put any force on the network to learn a particular action where it is not necessary
-                Arrays.fill(target.policy, 0f);
-            } else {
-                // In case of board games
-                // after the reward on the terminal action
-                // there is no further reward and so there also will not be accumulated future reward
-                // There are two feasible options to handle this
-                //
-                // 1. target.value = 0;
-                // that is the more general approach however likely slower than 2. for board games as the drop in value to 0 has to be learned.
-                // With reward network in place this should be the joice
-                //
-                // 2. target.value = value;
-                // for board games (without a reward network) the value network
-                // does not have to change the value after the final move
-                //
-                target.value = config.isAbsorbingStateDropToZero() ? 0f : (float) value;
-                target.policy = new float[this.actionSpaceSize];
-                // the idea is not to put any force on the network to learn a particular action where it is not necessary
-                Arrays.fill(target.policy, 0f);
-            }
-            targets.add(target);
-        }
-        return targets;
+        return getTargets(stateIndex, numUnrollSteps, tdSteps, config);
     }
 
 
     public @NotNull List<Target> makeTargetTwoPlayerMode(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample, MuZeroConfig config) {
 
-            List<Target> targets = new ArrayList<>();
-        int currentIndexPerspective = toPlay == OneOfTwoPlayer.PlayerA ? 1 : -1;
-
-        // TODO naming
         int winnerPerspective = this.getGameDTO().getRewards().size() % 2 == 1 ? 1 : -1;
+        int currentIndexPerspective = toPlay == OneOfTwoPlayer.PlayerA ? 1 : -1;
+        boolean perspectiveChange = true;
+
+        return getTargets(stateIndex, numUnrollSteps, tdSteps, config, winnerPerspective, currentIndexPerspective, perspectiveChange);
+    }
+
+
+    @NotNull
+    private List<Target> getTargets(int stateIndex, int numUnrollSteps, int tdSteps, MuZeroConfig config) {
+        int winnerPerspective = 1;
+        int currentIndexPerspective = 1;
+        boolean perspectiveChange = false;
+        return getTargets(stateIndex, numUnrollSteps, tdSteps, config, winnerPerspective, currentIndexPerspective, perspectiveChange);
+    }
+
+    @NotNull
+    private List<Target> getTargets(int stateIndex, int numUnrollSteps, int tdSteps, MuZeroConfig config, int winnerPerspective, int currentIndexPerspective, boolean perspectiveChange) {
+        List<Target> targets = new ArrayList<>();
 
         for (int currentIndex = stateIndex; currentIndex <= stateIndex + numUnrollSteps; currentIndex++) {
             int bootstrapIndex = currentIndex + tdSteps;
@@ -265,7 +213,7 @@ public abstract class Game implements Serializable {
 
             // condition "i < bootstrapIndex" for boardgames true
             for (int i = startIndex; i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                if (i==0) continue;
+                if (i == 0) continue;
                 value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1) * currentIndexPerspective * winnerPerspective;
             }
 
@@ -313,7 +261,8 @@ public abstract class Game implements Serializable {
                 Arrays.fill(target.policy, 0f);
             }
             targets.add(target);
-            currentIndexPerspective *= -1;
+            if (perspectiveChange)
+                currentIndexPerspective *= -1;
         }
         return targets;
     }

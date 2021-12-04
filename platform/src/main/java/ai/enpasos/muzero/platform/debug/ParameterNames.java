@@ -20,8 +20,8 @@ package ai.enpasos.muzero.platform.debug;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.nn.Block;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;
@@ -35,9 +35,9 @@ public class ParameterNames {
         StringBuffer buf = new StringBuffer();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
-             Block block = model.getBlock();
+            Block block = model.getBlock();
             if (model.getBlock() == null) {
-                 block = new MuZeroBlock(config);
+                block = new MuZeroBlock(config);
                 model.setBlock(block);
                 try {
                     model.load(Paths.get(getNetworksBasedir(config)));

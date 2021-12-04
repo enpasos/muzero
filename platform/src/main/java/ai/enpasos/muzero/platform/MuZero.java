@@ -59,7 +59,6 @@ public class MuZero {
         MuZeroConfig config = network.getConfig();
 
 
-
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
             PlayManager.playParallel(network, replayBuffer, config, false, true, true);
@@ -114,7 +113,7 @@ public class MuZero {
         if (!currentJar.getName().endsWith(".jar"))
             return;
 
-        final ArrayList<String> command = new ArrayList<String>();
+        final ArrayList<String> command = new ArrayList<>();
         command.add(javaBin);
         command.add("-jar");
         command.add(currentJar.getPath());
@@ -126,9 +125,11 @@ public class MuZero {
     public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs) {
         train(config, freshBuffer, numberOfEpochs, false);
     }
-    public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render ) {
+
+    public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render) {
         train(config, freshBuffer, numberOfEpochs, render, true);
     }
+
     public static void train(MuZeroConfig config, boolean freshBuffer, int numberOfEpochs, boolean render, boolean randomFill) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
@@ -197,12 +198,12 @@ public class MuZero {
 
                         // mean loss
                         List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-                        Double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
-                        model.setProperty("MeanLoss", meanLoss.toString());
-                        log.info("MeanLoss: " + meanLoss.toString());
+                        double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
+                        model.setProperty("MeanLoss", Double.toString(meanLoss));
+                        log.info("MeanLoss: " + meanLoss);
 
                         // mean value loss
-                        Double meanValueLoss = metrics.getMetricNames().stream()
+                        double meanValueLoss = metrics.getMetricNames().stream()
                                 .filter(name -> name.startsWith("train_all") && name.contains("value_0"))
                                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                                 .sum();
@@ -210,11 +211,11 @@ public class MuZero {
                                 .filter(name -> name.startsWith("train_all") && !name.contains("value_0") && name.contains("value"))
                                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                                 .sum();
-                        model.setProperty("MeanValueLoss", meanValueLoss.toString());
-                        log.info("MeanValueLoss: " + meanValueLoss.toString());
+                        model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
+                        log.info("MeanValueLoss: " + meanValueLoss);
 
                         // mean policy loss
-                        Double meanPolicyLoss = metrics.getMetricNames().stream()
+                        double meanPolicyLoss = metrics.getMetricNames().stream()
                                 .filter(name -> name.startsWith("train_all") && name.contains("policy_0"))
                                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                                 .sum();
@@ -222,12 +223,10 @@ public class MuZero {
                                 .filter(name -> name.startsWith("train_all") && !name.contains("policy_0") && name.contains("policy"))
                                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                                 .sum();
-                        model.setProperty("MeanPolicyLoss", meanPolicyLoss.toString());
-                        log.info("MeanPolicyLoss: " + meanPolicyLoss.toString());
+                        model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
+                        log.info("MeanPolicyLoss: " + meanPolicyLoss);
 
-                         trainer.notifyListeners(listener -> {
-                             listener.onEpoch(trainer);
-                        });
+                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
 
                     }
 

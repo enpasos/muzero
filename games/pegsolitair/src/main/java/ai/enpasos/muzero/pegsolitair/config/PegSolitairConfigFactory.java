@@ -21,7 +21,6 @@ import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -75,9 +74,9 @@ public class PegSolitairConfigFactory {
                 .absorbingStateDropToZero(true)
 
                 // play
-          //      .numSimulations(160)     // 800 in the paper
-           //     .numParallelPlays(250)
-            //    .numPlays(2)
+                //      .numSimulations(160)     // 800 in the paper
+                //     .numParallelPlays(250)
+                //    .numPlays(2)
                 .numberTrainingStepsOnRandomPlay(0)   // 3000
 
                 .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
@@ -98,7 +97,7 @@ public class PegSolitairConfigFactory {
                 .numSimulations(10)
                 .windowSize(10000)
                 .numChannels(128)
-              //  .absorbingStateDropToZero(true)
+                //  .absorbingStateDropToZero(true)
                 .numberOfTrainingStepsPerEpoch(100)
 
                 // faster for integration test

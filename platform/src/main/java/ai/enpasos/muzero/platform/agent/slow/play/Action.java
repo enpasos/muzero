@@ -19,30 +19,23 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import lombok.Data;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
+
+public interface Action {
 
 
-public interface Action  {
-
-
-
-    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
+    static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
         return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
     }
 
     int getIndex();
 
-
-     NDArray encode(NDManager nd);
-
     void setIndex(int index);
+
+    NDArray encode(NDManager nd);
 
 
 }

@@ -3,11 +3,9 @@ package ai.enpasos.muzero.pegsolitair.config.environment;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 
 public class BoardTest {
@@ -18,13 +16,13 @@ public class BoardTest {
 
         assertEquals(board.render(),
                 "   1  2  3  4  5  6  7\n" +
-                "1        O  O  O      \n" +
-                "2        O  O  O      \n" +
-                "3  O  O  O  O  O  O  O\n" +
-                "4  O  O  O  .  O  O  O\n" +
-                "5  O  O  O  O  O  O  O\n" +
-                "6        O  O  O      \n" +
-                "7        O  O  O      \n");
+                        "1        O  O  O      \n" +
+                        "2        O  O  O      \n" +
+                        "3  O  O  O  O  O  O  O\n" +
+                        "4  O  O  O  .  O  O  O\n" +
+                        "5  O  O  O  O  O  O  O\n" +
+                        "6        O  O  O      \n" +
+                        "7        O  O  O      \n");
 
         assertEquals(Board.neighborMap.getMap().size(), 33);
 
@@ -64,7 +62,7 @@ public class BoardTest {
         System.out.println(board.render());
 
 
-        jumps = board.getLegalJumps();
+     //   jumps = board.getLegalJumps();
 
     }
 
@@ -89,10 +87,10 @@ public class BoardTest {
     public void testIsOnePegInTheMiddle() {
 
         Board board = new Board();
-        assertEquals(board.isOnePegInTheMiddle(), false);
-        List<Jump>  jumps = board.getLegalJumps();
+        assertFalse(board.isOnePegInTheMiddle());
+        List<Jump> jumps = board.getLegalJumps();
 
         board.applyJump(jumps.get(0));
-        assertEquals(board.isOnePegInTheMiddle(), true);
+        assertTrue(board.isOnePegInTheMiddle());
     }
 }

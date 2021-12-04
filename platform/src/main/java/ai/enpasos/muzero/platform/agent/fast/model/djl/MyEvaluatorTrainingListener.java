@@ -38,9 +38,9 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
     public static final String TRAIN_ALL = "train/all";
     public static final String VALIDATE_EPOCH = "validate/epoch";
 
-    private int progressUpdateFrequency;
+    private final int progressUpdateFrequency;
+    private final Map<String, Float> latestEvaluations;
     private int progressCounter;
-    private Map<String, Float> latestEvaluations;
 
     /**
      * Constructs an {@link ai.djl.training.listener.EvaluatorTrainingListener} that updates the training progress the

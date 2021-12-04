@@ -24,8 +24,8 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ import static ai.enpasos.muzero.go.config.GoAdapter.translate;
 @Slf4j
 public class GoEnvironment extends EnvironmentZeroSumBase {
 
-    private List<GameState> history; // TODO refactor
+    private final List<GameState> history; // TODO refactor
     private GameState state;
     private GameResult result;
 
@@ -90,10 +90,6 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     }
 
 
-//    private boolean isLegalAction(Action action_) {
-//        return legalActions().contains(action_);
-//    }
-
     @Override
     public OneOfTwoPlayer getPlayerToMove() {
         return translate(this.state.getNextPlayer());
@@ -125,15 +121,15 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     public @NotNull String render() {
 
         String lastMove = "NONE YET";
-        if (state.getLastMove().isPresent()) {
-            if (state.getLastMove().get() instanceof Pass) {
+        if (state.getLastMove() != null) {
+            if (state.getLastMove() instanceof Pass) {
                 lastMove = "PASS";
-            } else if (state.getLastMove().get() instanceof Resign) {
+            } else if (state.getLastMove() instanceof Resign) {
                 lastMove = "RESIGN";
-            } else if (state.getLastMove().get() instanceof Play) {
-                Play play = (Play) state.getLastMove().get();
+            } else if (state.getLastMove() instanceof Play) {
+                Play play = (Play) state.getLastMove();
                 Point p = play.getPoint();
-                lastMove = "PLAY(" + String.valueOf((char) (64 + p.getCol())) + ", " + (config.getBoardHeight() - p.getRow() + 1) + ")";
+                lastMove = "PLAY(" + (char) (64 + p.getCol()) + ", " + (config.getBoardHeight() - p.getRow() + 1) + ")";
             }
         }
 

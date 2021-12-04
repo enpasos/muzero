@@ -17,8 +17,8 @@
 
 package ai.enpasos.muzero.tictactoe.test;
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +56,7 @@ public class GameTree {
         terminatedGameNodes = new ArrayList<>();
         unterminatedGameNodes = new ArrayList<>();
 
-        rootNode = new DNode((ZeroSumGame)config.newGame());
+        rootNode = new DNode((ZeroSumGame) config.newGame());
         unterminatedGameNodes.add(rootNode);
 
         int nBefore = 1;

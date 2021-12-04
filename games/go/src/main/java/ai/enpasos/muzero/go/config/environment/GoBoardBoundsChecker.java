@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GoBoardBoundsChecker {
-    private static Map<Integer, GoBoardBoundsChecker> map = new HashMap<>();
-    private int size;
+    private static final Map<Integer, GoBoardBoundsChecker> map = new HashMap<>();
+    private final int size;
 
 
     GoBoardBoundsChecker(int size) {

@@ -18,8 +18,8 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 
 import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;

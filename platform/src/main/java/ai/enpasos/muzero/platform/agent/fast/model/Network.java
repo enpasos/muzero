@@ -21,10 +21,12 @@ import ai.djl.Device;
 import ai.djl.MalformedModelException;
 import ai.djl.Model;
 import ai.djl.inference.Predictor;
-import ai.djl.ndarray.*;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDArrays;
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
 import ai.djl.training.Trainer;
 import ai.djl.translate.TranslateException;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.InitialInferenceBlock;
@@ -35,6 +37,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.Dyn
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,7 +79,7 @@ public class Network {
             }
         }
 
-      //  actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
+        //  actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
@@ -89,10 +92,6 @@ public class Network {
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock));
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock));
-    }
-
-    public void initActionSpaceOnDevice(NDManager ndManager) {
-        actionSpaceOnDevice = getAllActionsOnDevice(config, ndManager);
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
@@ -116,13 +115,23 @@ public class Network {
         }
         return epoch;
     }
+
+    public static void debugDumpFromTrainer(Trainer trainer) {
+        //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
+    }
+
+    public void initActionSpaceOnDevice(NDManager ndManager) {
+        actionSpaceOnDevice = getAllActionsOnDevice(config, ndManager);
+    }
+
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
         setHiddenStateNDManager(hiddenStateNDManager, true);
     }
+
     public void createAndSetHiddenStateNDManager(NDManager parentNDManager, boolean force) {
         if (force || initialInference.hiddenStateNDManager == null) {
             NDManager newHiddenStateNDManager = null;
-            if (!config.hiddenStateRemainOnGPU) {
+            if (!MuZeroConfig.hiddenStateRemainOnGPU) {
                 newHiddenStateNDManager = parentNDManager.newSubManager(Device.cpu());
             } else {
                 newHiddenStateNDManager = parentNDManager.newSubManager(Device.gpu());
@@ -131,6 +140,7 @@ public class Network {
             recurrentInference.hiddenStateNDManager = newHiddenStateNDManager;
         }
     }
+
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager, boolean force) {
         if (force || initialInference.hiddenStateNDManager == null) {
             initialInference.hiddenStateNDManager = hiddenStateNDManager;
@@ -142,11 +152,9 @@ public class Network {
         return model.getNDManager();
     }
 
-
     public NetworkIO initialInferenceDirect(@NotNull Game game) {
         return Objects.requireNonNull(initialInferenceListDirect(List.of(game))).get(0);
     }
-
 
     public @Nullable List<NetworkIO> initialInferenceListDirect(List<Game> gameList) {
 
@@ -163,7 +171,6 @@ public class Network {
 
 
     }
-
 
     public @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();
@@ -192,11 +199,7 @@ public class Network {
     }
 
     public void debugDump() {
-     //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
-    }
-
-    public static void debugDumpFromTrainer(Trainer trainer) {
-      //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
+        //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }
 
 }

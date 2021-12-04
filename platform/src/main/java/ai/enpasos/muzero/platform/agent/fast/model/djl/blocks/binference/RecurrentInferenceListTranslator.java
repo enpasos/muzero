@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.InitialInferenceListTranslator.getNetworkIOS;
 import static ai.enpasos.muzero.platform.config.MuZeroConfig.hiddenStateRemainOnGPU;
 
 public class RecurrentInferenceListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
@@ -46,60 +47,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
-
-        NDArray s = list.get(0);
-
-
-        NDArray hiddenStates = null;
-        if (hiddenStateRemainOnGPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
-            hiddenStates = s;
-            SubModel submodel = (SubModel) ctx.getModel();
-            hiddenStates.attach(submodel.hiddenStateNDManager);
-        } else {
-            hiddenStates = s.toDevice(Device.cpu(), false);
-            NDManager hiddenStateNDManager = hiddenStates.getManager();
-            SubModel submodel = (SubModel) ctx.getModel();
-            hiddenStates.attach(submodel.hiddenStateNDManager);
-            hiddenStateNDManager.close();
-            s.close();
-        }
-
-
-        NetworkIO outputA = NetworkIO.builder()
-                .hiddenState(hiddenStates)
-                .build();
-
-
-        NDArray p = list.get(1).softmax(1);
-        int actionSpaceSize = (int) p.getShape().get(1);
-        NDArray v = list.get(2);
-
-        float[] pArray = p.toFloatArray();
-        float[] vArray = v.toFloatArray();
-
-
-        int n = (int) v.getShape().get(0);
-
-        List<NetworkIO> networkIOs = IntStream.range(0, n)
-                .mapToObj(i ->
-                {
-                    float[] ps = new float[actionSpaceSize];
-                    System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
-                    return NetworkIO.builder()
-                            .value(vArray[i])
-                            .policyValues(ps)
-                            .build();
-
-                })
-                .collect(Collectors.toList());
-
-
-        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
-            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-        }
-        hiddenStates.close();
-        return networkIOs;
-
+        return getNetworkIOS(list, ctx);
     }
 
 
@@ -114,8 +62,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
             hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
             hiddenStateOnTargetDevice.attach(ctx.getNDManager());
             ndArrayActionStack.attach(ctx.getNDManager());
-            NDList ndList = new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
-            return ndList;
+            return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
         }
 
         return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);

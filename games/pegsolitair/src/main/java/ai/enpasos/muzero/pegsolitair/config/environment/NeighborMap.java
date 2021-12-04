@@ -39,7 +39,7 @@ public class NeighborMap {
     }
 
     public static boolean outOfBounds(int row, int col) {
-        return   (row < 3 && col < 3)
+        return (row < 3 && col < 3)
                 || (row > 5 && col < 3)
                 || (row < 3 && col > 5)
                 || (row > 5 && col > 5)
@@ -53,7 +53,7 @@ public class NeighborMap {
 
     private static List<Point> inRange(List<Point> points) {
         return points.stream().filter(
-                point -> inRange(point)
+                NeighborMap::inRange
         ).collect(Collectors.toList());
     }
 
@@ -64,9 +64,6 @@ public class NeighborMap {
     void put(Point point, List<Point> list) {
         map.put(point, list);
     }
-
-
-
 
 
 }

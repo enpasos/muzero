@@ -18,9 +18,9 @@
 package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -153,11 +153,11 @@ public class MCTS {
     public MinMaxStats run(@NotNull Node root, @NotNull ActionHistory actionHistory, @NotNull Network network,
                            Duration inferenceDuration) {
 
-        return runParallel(List.of(root), List.of(actionHistory), network, inferenceDuration,  config.getNumSimulations()).get(0);
+        return runParallel(List.of(root), List.of(actionHistory), network, inferenceDuration, config.getNumSimulations()).get(0);
     }
 
     public List<MinMaxStats> runParallel(@NotNull List<Node> rootList, @NotNull List<ActionHistory> actionHistoryList, @NotNull Network network,
-                                         @Nullable Duration inferenceDuration,int numSimulations) {
+                                         @Nullable Duration inferenceDuration, int numSimulations) {
 
 
         // TODO better would be a simulation object that encapsulates the info that is spread over many Lists
@@ -206,11 +206,6 @@ public class MCTS {
                 //   return a.duplicate();
             }).collect(Collectors.toList());
 
-//                // Inside the search tree we use the dynamics function to obtain the next
-//                // hidden state given an action and the previous hidden state.
-//                Node parent = searchPath.get(searchPath.size() - 2);
-//
-//
             if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
             network.debugDump();
             List<NetworkIO> networkOutputList = network.recurrentInferenceListDirect(hiddenStateList,
@@ -226,7 +221,7 @@ public class MCTS {
                 List<Node> searchPath = searchPathList.get(g);
                 MinMaxStats minMaxStats = minMaxStatsList.get(g);
 
-                expandNode(node, history.toPlay(), history.actionSpace(config), networkOutput, false, config);
+                expandNode(node, history.toPlay(), ActionHistory.actionSpace(config), networkOutput, false, config);
 
                 backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats, config);
 
@@ -253,12 +248,7 @@ public class MCTS {
             node.getHiddenState().close();
             node.setHiddenState(null);
         }
-        node.getChildren().entrySet().forEach(
-                e -> {
-                    Node child = e.getValue();
-                    clean(child);
-                }
-        );
+        node.getChildren().forEach((key, child) -> clean(child));
     }
 
     private @NotNull String searchPathToString(@NotNull List<Node> searchPath, boolean withValue, MinMaxStats minMaxStats) {
@@ -291,7 +281,7 @@ public class MCTS {
         if (fastRuleLearning) {
             double p = 1d / actions.size();
             for (Action action : actions) {
-                node.children.put(action, new Node(config,p));  // p/policySum = probability that this action is chosen
+                node.children.put(action, new Node(config, p));  // p/policySum = probability that this action is chosen
             }
         } else {
             Map<Action, Float> policy = actions.stream()
@@ -320,8 +310,7 @@ public class MCTS {
     public Action selectAction(@NotNull Node node, MinMaxStats minMaxStats) {
         List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config, minMaxStats);
 
-        Action action = selectActionByDrawingFromDistribution(distributionInput);
-        return action;
+        return selectActionByDrawingFromDistribution(distributionInput);
     }
 
     public Action selectActionByMax(@NotNull Node node, MinMaxStats minMaxStats) {
@@ -349,7 +338,7 @@ public class MCTS {
     public Action selectActionByMaxFromDistribution(List<Pair<Action, Double>> distributionInput) {
         Collections.shuffle(distributionInput);
         return distributionInput.stream()
-                .max((p1, p2) -> p1.getSecond().compareTo(p2.getSecond()))
+                .max(Comparator.comparing(Pair::getSecond))
                 .get().getKey();
     }
 }

@@ -18,12 +18,11 @@
 package ai.enpasos.muzero.pegsolitair.debug;
 
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
 import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
@@ -35,17 +34,14 @@ public class RenderGame {
 
         MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
 
-      // perfect: List<Integer> actions = List.of(71, 107, 165, 102, 51, 25, 174, 102, 23, 37, 25, 39, 77, 178, 112, 77, 121, 44, 193, 181, 123, 167, 109, 172, 30, 107, 186, 44, 30, 64, 108);
-     //  perfect: List<Integer> actions = List.of(173, 109, 167, 34, 25, 102, 39, 25, 51, 102, 66, 167, 16, 63, 23, 86, 70, 121, 100, 77, 37, 23, 58, 46, 122, 109, 93, 123, 46, 180, 38);
-       List<Integer> actions = List.of(173, 109, 167, 34, 25, 102, 39, 25, 51, 102, 66, 167, 16, 63, 23, 86, 70, 121, 100, 77, 37, 23, 58, 46, 122, 109, 93, 123, 46, 180, 38);
+        // perfect: List<Integer> actions = List.of(71, 107, 165, 102, 51, 25, 174, 102, 23, 37, 25, 39, 77, 178, 112, 77, 121, 44, 193, 181, 123, 167, 109, 172, 30, 107, 186, 44, 30, 64, 108);
+        //  perfect: List<Integer> actions = List.of(173, 109, 167, 34, 25, 102, 39, 25, 51, 102, 66, 167, 16, 63, 23, 86, 70, 121, 100, 77, 37, 23, 58, 46, 122, 109, 93, 123, 46, 180, 38);
+        List<Integer> actions = List.of(71, 172, 109, 58, 102, 23, 100, 173, 39, 79, 77, 37, 171, 123, 46, 70, 93, 23, 63, 107, 165, 23, 180, 38, 167, 34);
 
 
         Game game = config.newGame();
-        actions.stream().forEach(
-                a -> {
-                    applyAction(game, a);
-
-                });
+        actions.forEach(
+                a -> applyAction(game, a));
 
         renderGame(config, game);
     }

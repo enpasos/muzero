@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
@@ -28,7 +27,7 @@ import static java.text.MessageFormat.format;
 @Builder
 public class GameResult {
 
-    Optional<Player> wonByResignation;
+    private Player wonByResignation;
     private int numBlackStones;
     private int numWhiteStones;
     private int numBlackTerritory;
@@ -39,7 +38,7 @@ public class GameResult {
     private float komi;
 
     public static GameResult apply(GoBoard goBoard, float komi) {
-        return apply(goBoard, komi, Optional.empty());
+        return apply(goBoard, komi, null);
     }
 
     /**
@@ -48,7 +47,7 @@ public class GameResult {
      * @param goBoard GoBoard instance
      * @return GameResult object
      */
-    public static GameResult apply(GoBoard goBoard, float komi, Optional<Player> wonByResignation) {
+    public static GameResult apply(GoBoard goBoard, float komi, Player wonByResignation) {
         var territoryCalculator = new TerritoryCalculator(goBoard);
         var territoryMap = territoryCalculator.evaluateTerritory();
 
@@ -104,14 +103,14 @@ public class GameResult {
      * Points black scored
      */
     public int blackPoints() {
-        return numBlackTerritory + numBlackStones; // + numBlackCaptures;
+        return numBlackTerritory + numBlackStones;
     }
 
     /**
      * Points white scored
      */
     public int whitePoints() {
-        return numWhiteTerritory + numWhiteStones; // + numWhiteCaptures;
+        return numWhiteTerritory + numWhiteStones;
     }
 
     public float blackWinningMargin() {
@@ -123,13 +122,6 @@ public class GameResult {
     }
 
 
-    // static final float DEFAULT_KOMI = 7.5f;
-
-    //  static final float DEFAULT_KOMI = 0f;
-    //  static final float DEFAULT_KOMI = 0.5f;
-
-    // static float defaultKomi;
-
     public String toDebugString() {
         return format("Black: territory({0,number,#}) + stones({1,number,#}) = {2,number,#}\n",
                 numBlackTerritory, numBlackStones, blackPoints())
@@ -140,8 +132,8 @@ public class GameResult {
 
     @Override
     public String toString() {
-        if (wonByResignation.isPresent()) {
-            return (wonByResignation.get() == BlackPlayer ? "Black" : "White") + " won by resignation";
+        if (wonByResignation != null) {
+            return (wonByResignation == BlackPlayer ? "Black" : "White") + " won by resignation";
         } else {
             switch (winner()) {
                 case BlackPlayer:
@@ -153,12 +145,12 @@ public class GameResult {
         return "this should not happen";
     }
 
-    public GameResult apply(GoBoard goBoard, Optional<Player> wonByResignation) {
+    public GameResult apply(GoBoard goBoard, Player wonByResignation) {
 
         return apply(goBoard, komi, wonByResignation);
     }
 
     public GameResult apply(GoBoard goBoard) {
-        return apply(goBoard, komi, Optional.empty());
+        return apply(goBoard, komi, null);
     }
 }

@@ -17,10 +17,9 @@
 
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;

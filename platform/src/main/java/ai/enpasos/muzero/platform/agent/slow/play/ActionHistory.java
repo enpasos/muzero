@@ -66,7 +66,7 @@ public class ActionHistory implements Cloneable {
         return config.newAction(actions.get(actions.size() - 1));
     }
 
-    public @NotNull Player toPlay() {
+    public Player toPlay() {
         if (config.getPlayerMode() == PlayerMode.twoPlayers) {
             int t = this.actions.size();
             if (t % 2 == 0) return OneOfTwoPlayer.PlayerA;

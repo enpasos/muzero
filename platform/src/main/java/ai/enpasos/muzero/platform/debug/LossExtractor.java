@@ -3,8 +3,8 @@ package ai.enpasos.muzero.platform.debug;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
@@ -43,14 +43,14 @@ public class LossExtractor {
                                         NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
                                         NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                                 );
-                            } catch (Exception e) {
+                            } catch (Exception ignored) {
                             }
                         }
                 );
             }
         }
 
-        System.out.println(stringWriter.toString());
+        System.out.println(stringWriter);
     }
 
 

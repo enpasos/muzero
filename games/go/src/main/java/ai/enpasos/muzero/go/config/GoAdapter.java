@@ -12,8 +12,8 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Move;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class GoAdapter {
 
     public static Move translate(MuZeroConfig config, Action action) {
         if (0 <= action.getIndex() && action.getIndex() < config.getActionSpaceSize() - 1) {
-            return Play.apply(((GoAction)action).getRow() + 1, ((GoAction)action).getCol() + 1);
+            return Play.apply(((GoAction) action).getRow() + 1, ((GoAction) action).getCol() + 1);
         } else if (action.getIndex() == config.getActionSpaceSize() - 1) {
             return new Pass();
         } else {

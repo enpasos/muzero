@@ -18,9 +18,10 @@
 package ai.enpasos.muzero.platform.environment;
 
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +30,7 @@ import java.util.List;
 
 
 @Data
+@NoArgsConstructor
 public class EnvironmentBase implements Environment, Serializable {
 
 
@@ -48,16 +50,8 @@ public class EnvironmentBase implements Environment, Serializable {
         String v = "\u2502";
 
 
-        boolean smallSpacing = true;
-        if (values[0][0].length() > 1) {
-            smallSpacing = false;
-        }
+        boolean smallSpacing = values[0][0].length() <= 1;
         StringBuilder sb = new StringBuilder();
-//        if (smallSpacing) {
-//            sb.append("-".repeat(config.getSize() * 2 + 3));
-//        } else {
-//            sb.append("-".repeat(config.getSize() * 4 + 3));
-//        }
         sb.append("\n");
         for (int j = 0; j < config.getBoardHeight(); j++) {
             sb.append(config.getBoardHeight() - j);
@@ -73,10 +67,10 @@ public class EnvironmentBase implements Environment, Serializable {
             sb.append("\n");
         }
         if (smallSpacing) {
-            sb.append(" " + X_COORD_SMALL.substring(0, config.getSize() * 2) + "\n");
+            sb.append(" ").append(X_COORD_SMALL, 0, config.getSize() * 2).append("\n");
             //  sb.append("-".repeat(config.getSize()*2 + 2));
         } else {
-            sb.append("  " + X_COORD.substring(0, config.getSize() * 4) + "\n");
+            sb.append("  ").append(X_COORD, 0, config.getSize() * 4).append("\n");
             //   sb.append("-".repeat(config.getSize()*4 + 3));
         }
 

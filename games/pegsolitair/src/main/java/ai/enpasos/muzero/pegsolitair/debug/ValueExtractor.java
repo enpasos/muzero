@@ -18,13 +18,13 @@
 package ai.enpasos.muzero.pegsolitair.debug;
 
 import ai.djl.util.Pair;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,24 +41,16 @@ public class ValueExtractor {
 
         List<Integer> actionIndexList = getActionList(config);
 
-          System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
-
+        System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
 
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
         List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
-                .sorted((p1,p2) -> {
-                    int comp = ((Float)p1.getValue()).compareTo(((Float)p2.getValue()));
-                    if (comp != 0) return comp;
-                    return ((List<Integer>)p1.getKey()).toString().compareTo(((List<Integer>)p2.getKey()).toString());
-                })
+                .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
                 .collect(Collectors.toList());
 
-        pairs.forEach(p -> {
-          System.out.println(p.getKey() + "; " + p.getValue());
-
-        });
+        pairs.forEach(p -> System.out.println(p.getKey() + "; " + p.getValue()));
 
 
     }

@@ -3,17 +3,15 @@ package ai.enpasos.muzero.go.config.environment;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.go.config.environment.NeighborMap.createNeighborMap;
 import static ai.enpasos.muzero.go.config.environment.NeighborMap.inRange;
 
 public class NeighborTables {
 
-    private static Map<Integer, NeighborMap> neighborTables = new HashMap<>();
-    private static Map<Integer, NeighborMap> diagonalTables = new HashMap<>();
+    private static final Map<Integer, NeighborMap> neighborTables = new HashMap<>();
+    private static final Map<Integer, NeighborMap> diagonalTables = new HashMap<>();
 
     private NeighborTables() {
         // hide
@@ -38,7 +36,6 @@ public class NeighborTables {
     }
 
 
-
     /**
      * For each point in the grid, the map has the diagonals from that point
      */
@@ -54,7 +51,6 @@ public class NeighborTables {
         }
         return diagonalMap;
     }
-
 
 
 }

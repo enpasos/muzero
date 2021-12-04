@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.platform.agent.Inference;
 import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
+import ai.enpasos.muzero.platform.agent.Inference;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
@@ -18,12 +18,4 @@ public class InferenceTest {
     }
 
 
-//    @Test
-//    void aiDecisionSlowForAlreadyFinishedGame() {
-//
-//        List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25, 25);
-//
-//        int nextMoveInt = Inference.aiDecision(actions, true, "./pretrained", ConfigFactory.getGoInstance(5));
-//
-//    }
 }

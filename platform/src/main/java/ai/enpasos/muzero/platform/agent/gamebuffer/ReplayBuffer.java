@@ -20,8 +20,8 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
@@ -83,13 +83,6 @@ public class ReplayBuffer {
         return sample;
     }
 
-//    private boolean existsGameStateWithPositiveResult(Game game, int pos, OneOfTwoPlayer player) {
-//
-//
-//        StateNode base = this.buffer.gameTree.findNode(game.getGameDTO().getActionHistory(), pos);
-//        return base.hasOrIsLeafNodeWithPositivResult(player);
-//    }
-
 
     public static int samplePosition(@NotNull Game game) {
         int numActions = game.getGameDTO().getActionHistory().size();
@@ -150,26 +143,23 @@ public class ReplayBuffer {
         Collections.shuffle(games);
 
 
-        List<Game> gamesToTrain = new ArrayList<>();
-        gamesToTrain.addAll(games.stream()
+        List<Game> gamesToTrain = games.stream()
                 .filter(g -> {
                     if (g instanceof ZeroSumGame) {
-                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame)g).whoWonTheGame();
+                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
                         return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
                     } else {
                         return true;
                     }
                 })
-                .limit(this.batchSize / 2)
-
-                .collect(Collectors.toList()));
+                .limit(this.batchSize / 2).collect(Collectors.toList());
         int numberOfTrainingGamesForA = gamesToTrain.size();
         //  log.debug("number of training games for A: " + numberOfTrainingGamesForA);
         games.removeAll(gamesToTrain);  // otherwise draw games could be selected again
         gamesToTrain.addAll(games.stream()
                 .filter(g -> {
                     if (g instanceof ZeroSumGame) {
-                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame)g).whoWonTheGame();
+                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
                         return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
                     } else {
                         return true;

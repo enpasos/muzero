@@ -168,7 +168,6 @@ public class GoBoard {
                             } else {
                                 adjacentOppositeColor.add(str);
                             }
-                            return;
                         },
                         () -> liberties.add(neighbor)
                 );
@@ -179,7 +178,7 @@ public class GoBoard {
         adjacentSameColor.add(
                 GoString.builder()
                         .player(player)
-                        .stones(new TreeSet<Point>(List.of(point)))
+                        .stones(new TreeSet<>(List.of(point)))
                         .liberties(liberties)
                         .build());
 

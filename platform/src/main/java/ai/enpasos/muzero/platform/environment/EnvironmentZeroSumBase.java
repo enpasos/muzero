@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.environment;
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,12 +28,12 @@ import org.jetbrains.annotations.NotNull;
 @Data
 public class EnvironmentZeroSumBase extends EnvironmentBase {
 
+    private OneOfTwoPlayer playerToMove;
+
     public EnvironmentZeroSumBase(MuZeroConfig config) {
         super(config);
         playerToMove = OneOfTwoPlayer.PlayerA;
     }
-
-    private OneOfTwoPlayer playerToMove;
 
     protected void swapPlayer() {
         this.playerToMove = OneOfTwoPlayer.otherPlayer(this.playerToMove);
