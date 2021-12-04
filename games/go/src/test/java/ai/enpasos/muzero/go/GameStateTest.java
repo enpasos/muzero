@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertSame;
 
 public class GameStateTest {
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     void startingANew19x19Game() {
         var start = GameState.newGame(19);

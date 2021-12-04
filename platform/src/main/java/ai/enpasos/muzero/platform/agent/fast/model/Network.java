@@ -116,6 +116,7 @@ public class Network {
         return epoch;
     }
 
+    @SuppressWarnings("EmptyMethod")
     public static void debugDumpFromTrainer(Trainer trainer) {
         //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
     }
@@ -198,6 +199,7 @@ public class Network {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }
 
+    @SuppressWarnings("EmptyMethod")
     public void debugDump() {
         //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }

@@ -47,7 +47,7 @@ public class NeighborMap {
     /**
      * For each point in the grid, the map has the diagonals from that point
      */
-    private static NeighborMap createDiagonalNeighborMap(int size) {
+    static NeighborMap createDiagonalNeighborMap(int size) {
         var diagonalMap = new NeighborMap();
         for (int row = 1; row <= size; row++) {
             for (int col = 1; col <= size; col++) {

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import java.util.Objects;
 
+@SuppressWarnings("ConstantConditions")
 public class EnvironmentTest {
 
     @Test
