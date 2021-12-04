@@ -8,6 +8,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
 import static org.testng.AssertJUnit.*;
 
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class GoBoardTest {
 
 

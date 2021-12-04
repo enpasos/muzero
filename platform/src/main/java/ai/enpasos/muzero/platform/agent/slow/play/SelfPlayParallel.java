@@ -48,7 +48,7 @@ public class SelfPlayParallel {
     public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
-        network.debugDump();
+     //   network.debugDump();
         List<Game> gameList = IntStream.rangeClosed(1, config.getNumParallelPlays())
                 .mapToObj(i -> config.newGame())
                 .collect(Collectors.toList());

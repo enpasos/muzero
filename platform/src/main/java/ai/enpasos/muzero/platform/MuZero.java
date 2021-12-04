@@ -29,6 +29,7 @@ import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
@@ -40,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,8 +68,31 @@ public class MuZero {
         }
     }
 
-    public static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
-        NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, null, 0);
+    public static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config)   {
+        int epoch = 0;
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+            if (model.getBlock() == null) {
+                MuZeroBlock block = new MuZeroBlock(config);
+                model.setBlock(block);
+                try {
+                    model.load(Paths.get(getNetworksBasedir(config)));
+                } catch (Exception e) {
+                    log.info("*** no existing model has been found ***");
+                    DefaultTrainingConfig djlConfig = setupTrainingConfig(config, epoch);
+                    try (Trainer trainer = model.newTrainer(djlConfig)) {
+                        Shape[] inputShapes = getInputShapes(config);
+                        trainer.initialize(inputShapes);
+                        model.setProperty("Epoch", String.valueOf(epoch));
+                        log.info("*** new model is stored in file      ***");
+                    }
+                }
+
+            }
+        } catch (Exception e) {
+            String message = "not able to save created model";
+            log.error(message);
+            throw new RuntimeException(message, e);
+        }
     }
 
 

@@ -1,12 +1,9 @@
 package ai.enpasos.muzero.go.config.environment;
 
-import ai.enpasos.muzero.go.config.environment.basics.Point;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import static ai.enpasos.muzero.go.config.environment.NeighborMap.createNeighborMap;
-import static ai.enpasos.muzero.go.config.environment.NeighborMap.inRange;
+import static ai.enpasos.muzero.go.config.environment.NeighborMap.*;
 
 public class NeighborTables {
 
@@ -36,21 +33,7 @@ public class NeighborTables {
     }
 
 
-    /**
-     * For each point in the grid, the map has the diagonals from that point
-     */
-    private static NeighborMap createDiagonalNeighborMap(int size) {
-        var diagonalMap = new NeighborMap();
-        for (int row = 1; row <= size; row++) {
-            for (int col = 1; col <= size; col++) {
-                var point = new Point(row, col);
-                var allDiagonals = point.diagonals();
-                var trueDiagonals = inRange(size, allDiagonals);
-                diagonalMap.put(new Point(row, col), trueDiagonals);
-            }
-        }
-        return diagonalMap;
-    }
+
 
 
 }
