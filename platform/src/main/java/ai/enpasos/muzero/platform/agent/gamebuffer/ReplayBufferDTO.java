@@ -39,12 +39,12 @@ public class ReplayBufferDTO implements Serializable {
     private long counter;
     private int windowSize;
 
-    public boolean isBufferFilled() {
-        return data.size() >= windowSize;
-    }
-
     public ReplayBufferDTO(int windowSize) {
         this.windowSize = windowSize;
+    }
+
+    public boolean isBufferFilled() {
+        return data.size() >= windowSize;
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
@@ -67,20 +67,8 @@ public class ReplayBufferDTO implements Serializable {
     }
 
 
-//    public void rebuildGameTree( MuZeroConfig config) {
-//        for (GameDTO gameDTO : data) {
-//            Game game  = config.newGame();
-//            game.setGameDTO(gameDTO);
-//            getGameTree().addGame(game);
-//        }
-//    }
-
     public void clear() {
         data.clear();
     }
 
-//    public GameTree getGameTree() {
-//        if (gameTree == null) gameTree = new GameTree();
-//        return gameTree;
-//    }
 }

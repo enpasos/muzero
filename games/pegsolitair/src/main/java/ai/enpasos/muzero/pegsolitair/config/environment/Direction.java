@@ -6,11 +6,15 @@ public enum Direction {
 
     public Direction reverse() {
         switch (this) {
-            case N: return S;
-            case E: return W;
-            case S: return N;
+            case N:
+                return S;
+            case E:
+                return W;
+            case S:
+                return N;
             case W:
-            default: return E;
+            default:
+                return E;
         }
     }
 }

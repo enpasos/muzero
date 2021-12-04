@@ -19,8 +19,8 @@ package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.Environment;
 import lombok.Data;
 import org.apache.commons.lang3.NotImplementedException;
@@ -36,16 +36,14 @@ import java.util.stream.Collectors;
 public class PegSolitairEnvironment implements Environment, Serializable {
 
     private final static Logger logger = LoggerFactory.getLogger(PegSolitairEnvironment.class);
-
-
+    public transient MuZeroConfig config;
     private Board board;
+
 
     public PegSolitairEnvironment(@NotNull MuZeroConfig config) {
         this.config = config;
         board = new Board();
     }
-
-
 
     public float step(@NotNull Action action) {
 
@@ -61,9 +59,9 @@ public class PegSolitairEnvironment implements Environment, Serializable {
     }
 
     @Override
-     public @NotNull List<Action> legalActions() {
+    public @NotNull List<Action> legalActions() {
         return board.getLegalJumps().stream()
-                .map(j -> ActionAdapter.getAction(config,j))
+                .map(j -> ActionAdapter.getAction(config, j))
                 .collect(Collectors.toList());
 
     }
@@ -75,19 +73,12 @@ public class PegSolitairEnvironment implements Environment, Serializable {
 
     @Override
     public boolean terminal() {
-       return legalActions().size() == 0;
+        return legalActions().size() == 0;
     }
-
-
-
 
     public @NotNull String render() {
         return board.render();
     }
-
-
-    public transient MuZeroConfig config;
-
 
     @Override
     public @NotNull List<Action> allActionsInActionSpace() {

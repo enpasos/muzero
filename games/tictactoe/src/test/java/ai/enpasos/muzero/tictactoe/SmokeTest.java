@@ -20,11 +20,11 @@ package ai.enpasos.muzero.tictactoe;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,8 @@ import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 @Slf4j
-@Ignore  // cpu memory grows beyond 64 GB, but integration test works (came about 30/11/2021 on djl master, before was ok)
+@Ignore
+// cpu memory grows beyond 64 GB, but integration test works (came about 30/11/2021 on djl master, before was ok)
 public class SmokeTest {
 
     public static void createRandomGamesForOneBatch(@NotNull MuZeroConfig config) {
@@ -41,7 +42,7 @@ public class SmokeTest {
 
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            PlayManager.playParallel(network, replayBuffer, config, true, true , true);
+            PlayManager.playParallel(network, replayBuffer, config, true, true, true);
         }
 
 
@@ -50,7 +51,7 @@ public class SmokeTest {
     @Test
     public void smoketest() {
 
-            MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
             config.setOutputDir("target/smoketest/");
@@ -61,9 +62,9 @@ public class SmokeTest {
 
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 0);
 
-            PlayManager.playParallel(network, replayBuffer, config, true, false,   true);
+            PlayManager.playParallel(network, replayBuffer, config, true, false, true);
 
-            PlayManager.playParallel(network, replayBuffer, config, false, false,  true);
+            PlayManager.playParallel(network, replayBuffer, config, false, false, true);
             replayBuffer.saveState();
             NetworkHelper.trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, 1);
         } catch (Exception e) {

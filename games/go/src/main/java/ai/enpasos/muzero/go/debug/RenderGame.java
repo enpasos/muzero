@@ -19,8 +19,8 @@ package ai.enpasos.muzero.go.debug;
 
 
 import ai.enpasos.muzero.go.config.GoConfigFactory;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 
 import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
 import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;

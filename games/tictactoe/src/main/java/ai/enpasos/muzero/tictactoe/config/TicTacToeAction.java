@@ -24,7 +24,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,23 +39,9 @@ public class TicTacToeAction implements Comparable<TicTacToeAction>, Serializabl
 
     private transient MuZeroConfig config;
 
-        public TicTacToeAction(MuZeroConfig config) {
+    public TicTacToeAction(MuZeroConfig config) {
         this.config = config;
     }
-
-
-//    public TicTacToeAction(MuZeroConfig config, int index) {
-//        this.config = config;
-//        this.index = index;
-//    }
-
-//    public TicTacToeAction(MuZeroConfig config, int row, int col) {
-//        this(config, row * config.getBoardWidth() + col);
-//    }
-//
-//    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
-//        return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
-//    }
 
 
     public static int getCol(@NotNull MuZeroConfig config, int index) {

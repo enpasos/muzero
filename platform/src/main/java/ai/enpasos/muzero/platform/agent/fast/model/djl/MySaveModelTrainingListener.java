@@ -20,7 +20,6 @@ package ai.enpasos.muzero.platform.agent.fast.model.djl;
 
 import ai.djl.Model;
 import ai.djl.training.Trainer;
-import ai.djl.training.listener.SaveModelTrainingListener;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
 import org.slf4j.Logger;
@@ -58,7 +57,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
      * Constructs a {@link MySaveModelTrainingListener}.
      *
      * @param overrideModelName an override model name to save checkpoints with
-     * @param outputDir the directory to output the checkpointed models in
+     * @param outputDir         the directory to output the checkpointed models in
      */
     public MySaveModelTrainingListener(String outputDir, String overrideModelName) {
         this(outputDir, overrideModelName, -1);
@@ -88,7 +87,9 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onTrainingEnd(Trainer trainer) {
         if (step == -1 || epoch % step != 0) {
@@ -113,8 +114,6 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     public void setOverrideModelName(String overrideModelName) {
         this.overrideModelName = overrideModelName;
     }
-
-
 
 
     /**

@@ -19,9 +19,9 @@ package ai.enpasos.muzero.go.config;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
+import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -195,15 +195,15 @@ public class GoConfigFactory {
                 builder
 
 
-                // 256 in the paper  // 64 for 5x5
-                .numChannels(128)
-                                    .batchSize(64)
+                        // 256 in the paper  // 64 for 5x5
+                        .numChannels(128)
+                        .batchSize(64)
 //                    .numSimulations(120)
 //                    .numParallelPlays(25)
                         .numSimulations(200)
                         .numParallelPlays(100)
                         .numPlays(10);
-                  //  .numPlays(20);
+                //  .numPlays(20);
                 break;
         }
 

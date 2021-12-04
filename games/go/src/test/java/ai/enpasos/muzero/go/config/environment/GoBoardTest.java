@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 
 public class GoBoardTest {
@@ -18,15 +18,15 @@ public class GoBoardTest {
         // should place and confirm a black stone
         board = board.placeStone(BlackPlayer, new Point(2, 2));
         board = board.placeStone(WhitePlayer, new Point(1, 2));
-        assertTrue(board.getPlayer(new Point(2, 2)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 2)).get(), BlackPlayer);
 
         // if black's liberties go down to two, the stone should still be there
         board = board.placeStone(WhitePlayer, new Point(2, 1));
-        assertTrue(board.getPlayer(new Point(2, 2)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 2)).get(), BlackPlayer);
 
         // if black's liberties go down to one, the stone should still be there
         board = board.placeStone(WhitePlayer, new Point(2, 3));
-        assertTrue(board.getPlayer(new Point(2, 2)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 2)).get(), BlackPlayer);
 
         //   finally, if all liberties are taken, the stone should be gone
         board = board.placeStone(WhitePlayer, new Point(3, 2));
@@ -44,14 +44,14 @@ public class GoBoardTest {
         board = board.placeStone(WhitePlayer, new Point(1, 2));
         board = board.placeStone(WhitePlayer, new Point(1, 3));
 
-        assertTrue(board.getPlayer(new Point(2, 2)).get() == BlackPlayer);
-        assertTrue(board.getPlayer(new Point(2, 3)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 2)).get(), BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 3)).get(), BlackPlayer);
 
         // if black's liberties go down to two, the stone should still be there
         board = board.placeStone(WhitePlayer, new Point(3, 2));
         board = board.placeStone(WhitePlayer, new Point(3, 3));
-        assertTrue(board.getPlayer(new Point(2, 2)).get() == BlackPlayer);
-        assertTrue(board.getPlayer(new Point(2, 3)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 2)).get(), BlackPlayer);
+        assertSame(board.getPlayer(new Point(2, 3)).get(), BlackPlayer);
 
         // finally, if all liberties are taken, the stone should be gone
         board = board.placeStone(WhitePlayer, new Point(2, 1));
@@ -72,21 +72,21 @@ public class GoBoardTest {
         board = board.placeStone(WhitePlayer, new Point(2, 1));
         board = board.placeStone(WhitePlayer, new Point(1, 2));
         assertTrue(board.getPlayer(new Point(1, 1)).isEmpty());
-        assertTrue(board.getPlayer(new Point(2, 1)).get() == WhitePlayer);
-        assertTrue(board.getPlayer(new Point(1, 2)).get() == WhitePlayer);
+        assertSame(board.getPlayer(new Point(2, 1)).get(), WhitePlayer);
+        assertSame(board.getPlayer(new Point(1, 2)).get(), WhitePlayer);
     }
 
     @Test
     void fillingYourOwnEyeIsProhibited() {
         var board = createBoardWithEyes();
         // Filling non-eye allowed
-        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(2, 1)));
-        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(1, 1)));
-        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(1, 5)));
-        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(2, 4)));
-        assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(2, 1)));
-        assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(5, 1)));
-        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(5, 5)));
+        assertFalse(board.doesMoveFillEye(WhitePlayer, new Point(2, 1)));
+        assertFalse(board.doesMoveFillEye(WhitePlayer, new Point(1, 1)));
+        assertFalse(board.doesMoveFillEye(WhitePlayer, new Point(1, 5)));
+        assertFalse(board.doesMoveFillEye(WhitePlayer, new Point(2, 4)));
+        assertFalse(board.doesMoveFillEye(BlackPlayer, new Point(2, 1)));
+        assertFalse(board.doesMoveFillEye(BlackPlayer, new Point(5, 1)));
+        assertFalse(board.doesMoveFillEye(WhitePlayer, new Point(5, 5)));
 
         // Filling eye not allowed
         assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(5, 1)));
@@ -127,9 +127,9 @@ public class GoBoardTest {
         var board = createBoardWithEdgeCaseEyes();
         //println(board)
         //Filling non-eye allowed
-        assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(2, 2)));
-        assertTrue(!board.doesMoveFillEye(WhitePlayer, new Point(7, 3)));
-        assertTrue(!board.doesMoveFillEye(BlackPlayer, new Point(1, 1)));
+        assertFalse(board.doesMoveFillEye(BlackPlayer, new Point(2, 2)));
+        assertFalse(board.doesMoveFillEye(WhitePlayer, new Point(7, 3)));
+        assertFalse(board.doesMoveFillEye(BlackPlayer, new Point(1, 1)));
 
         // Filling eye not allowed
         assertTrue(board.doesMoveFillEye(WhitePlayer, new Point(4, 6)));
@@ -193,11 +193,9 @@ public class GoBoardTest {
         board = board.placeStone(BlackPlayer, new Point(3, 3));
         board = board.placeStone(WhitePlayer, new Point(2, 2));
         var whiteString = board.getGoString(new Point(2, 2)).get();
-        assertTrue(whiteString.numLiberties() == 4);
+        assertEquals(4, whiteString.numLiberties());
 
-        board = board.placeStone(BlackPlayer, new Point(3, 2));
-//            var newWhiteString = board.getGoString(new Point(2, 2)).get();
-//            assertTrue(whiteString.numLiberties() == 3);
+     //   board = board.placeStone(BlackPlayer, new Point(3, 2));
 
     }
 
@@ -214,7 +212,7 @@ public class GoBoardTest {
 
         GoString blackString = board.getGoString(new Point(1, 1)).get();
 
-        assertTrue(blackString.numLiberties() == 3);
+        assertEquals(3, blackString.numLiberties());
         assertTrue(blackString.getLiberties().contains(new Point(3, 2)));
         assertTrue(blackString.getLiberties().contains(new Point(2, 3)));
         assertTrue(blackString.getLiberties().contains(new Point(1, 3)));
@@ -248,7 +246,7 @@ public class GoBoardTest {
         board = board.placeStone(WhitePlayer, new Point(2, 3));
         board = board.placeStone(WhitePlayer, new Point(1, 4));
         //println(board)
-        assertTrue(!board.isSelfCapture(BlackPlayer, new Point(1, 2)));
+        assertFalse(board.isSelfCapture(BlackPlayer, new Point(1, 2)));
 
 
         // xx...
@@ -264,7 +262,7 @@ public class GoBoardTest {
         board = board.placeStone(WhitePlayer, new Point(2, 2));
         board = board.placeStone(WhitePlayer, new Point(1, 3));
         //println(board)
-        assertTrue(!board.isSelfCapture(BlackPlayer, new Point(1, 2)));
+        assertFalse(board.isSelfCapture(BlackPlayer, new Point(1, 2)));
 
 
         // xx...
@@ -281,11 +279,11 @@ public class GoBoardTest {
         board = board.placeStone(BlackPlayer, new Point(1, 3));
         //println(board)
         board = board.placeStone(BlackPlayer, new Point(1, 2)); // captures 2 stones
-        assertTrue(board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(1, 2)).get(), BlackPlayer);
         //println("just played Black at 1, 2 (capturing 2 white stones)\n" + board)
         board = board.placeStone(WhitePlayer, new Point(2, 1)); // refill first of 2 spaces in eye
         //println("just played White at 2, 1\n" + board);
-        assertTrue(board.getPlayer(new Point(1, 2)).get() == BlackPlayer);
+        assertSame(board.getPlayer(new Point(1, 2)).get(), BlackPlayer);
 
         assertTrue(board.isSelfCapture(WhitePlayer, new Point(2, 2)));
 
@@ -312,7 +310,7 @@ public class GoBoardTest {
 
         //println("White playing at 2,2 is OK because it captures 2 plack stones in doing so")
         assert (!board.isSelfCapture(WhitePlayer, new Point(2, 2)));
-        board = board.placeStone(WhitePlayer, new Point(2, 2));
+    //    board = board.placeStone(WhitePlayer, new Point(2, 2));
         //println("just played White at 2, 2\n" + board)
 
     }

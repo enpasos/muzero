@@ -22,12 +22,6 @@ import java.util.Optional;
  * GameState encodes the state of a game of Go. Game states have board instances,
  * but also track previous moves to assert validity of moves etc. GameState is
  * immutable, i.e. after you apply a move a new GameState instance will be returned.
- *
- * @param board         a GoBoard instance
- * @param nextPlayer    the Player who is next to play
- * @param previousState Previous GameState, if any
- * @param lastMove      last move played in this game, if any
- *                      adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
 @AllArgsConstructor
@@ -40,9 +34,9 @@ public class GameState {
     private GoBoard board;
     private Player nextPlayer;
     @Builder.Default
-    private Optional<GameState> previousState = Optional.empty();
+    private GameState previousState = null;
     @Builder.Default
-    private Optional<Move> lastMove = Optional.empty();
+    private Move lastMove = null;
 
     public static GameState newGame(int boardSize) {
         return GameState.builder()
@@ -52,15 +46,15 @@ public class GameState {
     }
 
     public boolean isOver() {
-        if (lastMove.isEmpty()) return false;
-        if (lastMove.get() instanceof Play) return false;
-        if (lastMove.get() instanceof Resign) return true;
-        if (lastMove.get() instanceof Pass) {
-            var secondLastMove = previousState.get().lastMove;
-            if (secondLastMove.isEmpty()) return false;
-            if (secondLastMove.get() instanceof Pass) return true;
-            if (secondLastMove.get() instanceof Play) return false;
-            if (secondLastMove.get() instanceof Resign) return false;
+        if (lastMove == null) return false;
+        if (lastMove instanceof Play) return false;
+        if (lastMove instanceof Resign) return true;
+        if (lastMove instanceof Pass) {
+            var secondLastMove = previousState.lastMove;
+            if (secondLastMove == null) return false;
+            if (secondLastMove instanceof Pass) return true;
+            if (secondLastMove instanceof Play) return false;
+            if (secondLastMove instanceof Resign) return false;
         }
         return false;
     }
@@ -71,15 +65,14 @@ public class GameState {
             nextBoard = board.placeStone(nextPlayer, ((Play) move).getPoint());
         }
 
-        List<Pair<Player, Long>> newAllPrevStates = new ArrayList<>();
-        newAllPrevStates.addAll(allPreviousStates);
+        List<Pair<Player, Long>> newAllPrevStates = new ArrayList<>(allPreviousStates);
         newAllPrevStates.add(Pair.of(nextPlayer, nextBoard.zobristHash()));
 
         return GameState.builder()
                 .board(nextBoard)
                 .nextPlayer(nextPlayer.other())
-                .previousState(Optional.of(this))
-                .lastMove(Optional.of(move))
+                .previousState(this)
+                .lastMove(move)
                 .allPreviousStates(newAllPrevStates)
                 .build();
 
@@ -128,11 +121,11 @@ public class GameState {
 
     public Optional<GameResult> gameResult(float komi) {
         if (!isOver()) return Optional.empty();
-        if (lastMove.isEmpty() || lastMove.get() instanceof Play || lastMove.get() instanceof Pass) {
+        if (lastMove == null || lastMove instanceof Play || lastMove instanceof Pass) {
             return Optional.of(GameResult.apply(board, komi));
         } else {
             // Resign
-            return Optional.of(GameResult.apply(board, komi, Optional.of(nextPlayer)));
+            return Optional.of(GameResult.apply(board, komi, nextPlayer));
         }
 
 

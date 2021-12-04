@@ -15,11 +15,6 @@ import static ai.enpasos.muzero.go.config.environment.ZobristHashing.ZOBRIST;
 
 /**
  * Keeps track of parent string for each location on the board where there is a stone.
- *
- * @param grid map from grid point location to parent string of stones (if any)
- * @param hash the Zobrist hash. Gets updated as moves are played. Used to detect ko.
- *             <p>
- *             adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 @Data
 @AllArgsConstructor
@@ -53,10 +48,9 @@ public class Grid {
      * @param newString the new parent string for that added stone
      */
     Grid updateStringWhenAddingStone(Point point, GoString newString) {
-        Map<Point, GoString> newGrid = new HashMap<>();
-        newGrid.putAll(grid);
+        Map<Point, GoString> newGrid = new HashMap<>(grid);
 
-        newString.getStones().stream().forEach(
+        newString.getStones().forEach(
                 newStringPoint -> newGrid.put(newStringPoint, newString)
         );
 

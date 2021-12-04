@@ -24,9 +24,9 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Target;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,21 +73,6 @@ public class InputOutputConstruction {
         List<NDArray> list = config.getSymmetryFunction().apply(a);
         return NDArrays.concat(new NDList(list));
     }
-
-//    @NotNull
-//    private static List<NDArray> symmetryEnhancer(@NotNull NDArray a) {
-//
-//        NDArray a2 = a.rotate90(1, new int[]{2, 3});
-//        NDArray a3 = a.rotate90(2, new int[]{2, 3});
-//        NDArray a4 = a.rotate90(3, new int[]{2, 3});
-//        NDArray a5 = a.transpose(0, 1, 3, 2);
-//
-//        NDArray a6 = a5.rotate90(1, new int[]{2, 3});
-//        NDArray a7 = a5.rotate90(2, new int[]{2, 3});
-//        NDArray a8 = a5.rotate90(3, new int[]{2, 3});
-//        List<NDArray> list = List.of(a, a2, a3, a4, a5, a6, a7, a8);
-//        return list;
-//    }
 
     public static NDArray symmetryEnhancerValue(@NotNull NDArray a, MuZeroConfig config) {
         List<NDArray> list = new ArrayList<>();

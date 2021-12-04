@@ -50,8 +50,6 @@ public class RescaleBlock extends AbstractBlock {
 
 
         // The following works on MXNet but is not implemented on PyTorch
-//        NDArray min2 = current.min(new int[]{2, 3}, true);
-//        NDArray max2 = current.max(new int[]{2, 3}, true);
 
 
         NDArray d = max2.sub(min2).maximum(1e-5);

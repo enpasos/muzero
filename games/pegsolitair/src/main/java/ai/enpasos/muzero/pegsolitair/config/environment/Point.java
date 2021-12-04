@@ -16,7 +16,7 @@
  */
 package ai.enpasos.muzero.pegsolitair.config.environment;
 
-import lombok.*;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -74,12 +74,16 @@ public class Point implements Comparable<Point> {
 
 
     public Point pointIn(Direction d) {
-        switch(d) {
-            case N: return new Point(this.row - 1, this.col);
-            case E: return new Point(this.row, this.col + 1);
-            case S: return new Point(this.row + 1, this.col);
+        switch (d) {
+            case N:
+                return new Point(this.row - 1, this.col);
+            case E:
+                return new Point(this.row, this.col + 1);
+            case S:
+                return new Point(this.row + 1, this.col);
             case W:
-            default: return new Point(this.row, this.col - 1);
+            default:
+                return new Point(this.row, this.col - 1);
         }
     }
 }

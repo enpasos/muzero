@@ -20,7 +20,6 @@ package ai.enpasos.muzero.platform.agent;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
@@ -28,6 +27,7 @@ import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
 import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.platform.agent.slow.play.Node;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,11 +40,6 @@ import java.util.stream.IntStream;
 public class Inference {
 
 
-//    public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, int size) {
-//        MuZeroConfig config = MuZeroConfig.getGoInstance(size);
-//        return aiDecision(actions, withMCTS, networkDir, config);
-//    }
-
     public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, MuZeroConfig config) {
         int actionIndexSelectedByNetwork;
         config.setNetworkBaseDir(networkDir);
@@ -55,13 +50,12 @@ public class Inference {
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
             Path modelPath = Paths.get("./");
 
-            Network network = new Network(config, model); //, modelPath);
-            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+            Network network = new Network(config, model);
+            try (NDManager nDManager = network.getNDManager().newSubManager()) {
 
-                if (network != null) {
-                    network.initActionSpaceOnDevice(nDManager);
-                    network.setHiddenStateNDManager(nDManager);
-                }
+                network.initActionSpaceOnDevice(nDManager);
+                network.setHiddenStateNDManager(nDManager);
+
                 actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game).getSecond();
             }
 
@@ -81,11 +75,11 @@ public class Inference {
             Path modelPath = Paths.get("./");
 
             Network network = new Network(config, model); //, modelPath);
-            try (NDManager nDManager = network != null ? network.getNDManager().newSubManager() : null) {
+            try (NDManager nDManager = network.getNDManager().newSubManager()) {
 
-                if (network != null) {
-                    network.setHiddenStateNDManager(nDManager);
-                }
+
+                network.setHiddenStateNDManager(nDManager);
+
                 valueByNetwork = aiDecision(network, false, game).getFirst();
             }
 
@@ -96,7 +90,7 @@ public class Inference {
 
     public static Game getGame(MuZeroConfig config, List<Integer> actions) {
         Game game = config.newGame();
-        actions.stream().forEach(a -> game.apply( config.newAction(a)));
+        actions.forEach(a -> game.apply(config.newAction(a)));
         return game;
     }
 
@@ -120,7 +114,7 @@ public class Inference {
                             .mapToObj(i -> {
                                 Action action = game.getConfig().newAction(i);
                                 double v = policyValues[i];
-                                return new Pair<Action, Double>(action, v);
+                                return new Pair<>(action, v);
                             }).collect(Collectors.toList());
 
             Action action = mcts.selectActionByMaxFromDistribution(distributionInput);

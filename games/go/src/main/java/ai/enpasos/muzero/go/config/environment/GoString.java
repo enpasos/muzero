@@ -44,7 +44,7 @@ public class GoString {
     }
 
     GoString withoutLiberty(Point point) {
-        Set<Point> newLiberties = new TreeSet<Point>(this.liberties);
+        Set<Point> newLiberties = new TreeSet<>(this.liberties);
         newLiberties.remove(point);
         return new GoString(player, stones, newLiberties);
     }

@@ -9,14 +9,13 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import static ai.enpasos.muzero.platform.MuZero.train;
 
 @Slf4j
 public class TrainingAndTest {
 
-    public static void main(String[] args) throws URISyntaxException, IOException {
+    public static void main(String[] args) throws IOException {
         MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
 
         String dir = "./memory/";
@@ -35,8 +34,6 @@ public class TrainingAndTest {
         if (!passed) throw new RuntimeException(message);
 
     }
-
-
 
 
 }

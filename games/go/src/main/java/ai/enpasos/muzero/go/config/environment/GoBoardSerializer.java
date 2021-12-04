@@ -13,20 +13,20 @@ public class GoBoardSerializer {
     private static final String X_COORD = " A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z ";
 
     public static String serialize(GoBoard board) {
-        var s = "-".repeat(board.getSize() * 3 + 3) + "\n";
+        StringBuilder s = new StringBuilder("-".repeat(board.getSize() * 3 + 3) + "\n");
 
         for (int i = 1; i <= board.getSize(); i++) {
             var rowNum = board.getSize() + 1 - i;
-            s += ((rowNum < 10) ? " " : "") + rowNum + " ";
+            s.append((rowNum < 10) ? " " : "").append(rowNum).append(" ");
             for (int j = 1; j <= board.getSize(); j++) {
                 var player = board.getPlayer(new Point(i, j));
-                s += (player.isEmpty()) ? " . " : (player.get() == BlackPlayer ? " X " : " O ");
+                s.append((player.isEmpty()) ? " . " : (player.get() == BlackPlayer ? " X " : " O "));
             }
-            s += "\n";
+            s.append("\n");
         }
-        s += "   " + X_COORD.substring(0, board.getSize() * 3) + "\n";
-        s += "-".repeat(board.getSize() * 3 + 3);
-        return s;
+        s.append("   ").append(X_COORD, 0, board.getSize() * 3).append("\n");
+        s.append("-".repeat(board.getSize() * 3 + 3));
+        return s.toString();
     }
 
 }

@@ -13,14 +13,12 @@ public class Board {
 
     static NeighborMap neighborMap;
 
-    TreeSet<Point> pegsOnTheBoard;
-    TreeSet<Point> holesOnTheBoard;
-
-
-
     static {
         neighborMap = createNeighborMap();
     }
+
+    TreeSet<Point> pegsOnTheBoard;
+    TreeSet<Point> holesOnTheBoard;
 
 
     public Board() {
@@ -40,7 +38,6 @@ public class Board {
     }
 
 
-
     public Board clone() {
         Board clone = new Board();
         clone.holesOnTheBoard.addAll(this.holesOnTheBoard);
@@ -49,13 +46,12 @@ public class Board {
     }
 
 
-
     public List<Jump> getLegalJumps() {
 
         List<Jump> legalJumps = new ArrayList<>();
 
-        holesOnTheBoard.stream().forEach(
-                p1 ->  addDirectLegalJumpsForAHole(p1, legalJumps)
+        holesOnTheBoard.forEach(
+                p1 -> addDirectLegalJumpsForAHole(p1, legalJumps)
         );
 
         return legalJumps;
@@ -63,16 +59,16 @@ public class Board {
 
     private void addDirectLegalJumpsForAHole(Point hole, List<Jump> legalJumps) {
         Arrays.stream(Direction.values()).forEach(
-             direction ->  {
-                 Point p2 = hole.pointIn(direction);
-                 Point p3 = p2.pointIn(direction);
-                 if (!inRange(p2) || !inRange(p3)) return;
+                direction -> {
+                    Point p2 = hole.pointIn(direction);
+                    Point p3 = p2.pointIn(direction);
+                    if (!inRange(p2) || !inRange(p3)) return;
 
-                 if (!pegsOnTheBoard.contains(p2) || holesOnTheBoard.contains(p3) ) return;
+                    if (!pegsOnTheBoard.contains(p2) || holesOnTheBoard.contains(p3)) return;
 
-                 Jump jump = new Jump(p3, direction.reverse());
-                 legalJumps.add(jump);
-             }
+                    Jump jump = new Jump(p3, direction.reverse());
+                    legalJumps.add(jump);
+                }
         );
     }
 
@@ -90,14 +86,11 @@ public class Board {
 
         StringBuffer buf = new StringBuffer();
         buf.append("   1  2  3  4  5  6  7\n");
-        for(int row = 1; row <= 7; row++) {
+        for (int row = 1; row <= 7; row++) {
             buf.append(row);
-            for(int col = 1; col <= 7; col++) {
+            for (int col = 1; col <= 7; col++) {
                 buf.append("  ");
                 Point p = new Point(row, col);
-//                if (!inRange(p)) {
-//
-//                }
                 if (this.pegsOnTheBoard.contains(p)) {
                     buf.append("O");
                 } else if (this.holesOnTheBoard.contains(p)) {
@@ -129,13 +122,13 @@ public class Board {
         float score = 0f;
         for (Point peg : pegsOnTheBoard) {
             score--; // depending on the number of pegs ont he board
-            score += locationscore(peg)/5f; // closer to the target position is better
+            score += locationscore(peg) / 5f; // closer to the target position is better
         }
-        if (pegsOnTheBoard.size() == 1 &&  isOnePegInTheMiddle()) {
+        if (pegsOnTheBoard.size() == 1 && isOnePegInTheMiddle()) {
             score++; // the final goal is to have one stone in the middle -> reward it
         }
-        if (impossibleToReachSituation() ) {
-            score-=10;
+        if (impossibleToReachSituation()) {
+            score -= 10;
         }
         return score;
     }
@@ -165,54 +158,53 @@ public class Board {
 
 
     private int getNumberOfPegsInCenterGroup() {
-        return  (int)centerGroup().stream().filter(p -> pegsOnTheBoard.contains(p)).count();
+        return (int) centerGroup().stream().filter(p -> pegsOnTheBoard.contains(p)).count();
     }
 
 
     private int locationscore(Point point) {
         int score = 0;
-        if (point.equals(new Point(1,3)))  score+=-1;
-        if (point.equals(new Point(1,4)))  score+=1;
-        if (point.equals(new Point(1,5)))  score+=-1;
+        if (point.equals(new Point(1, 3))) score -= 1;
+        if (point.equals(new Point(1, 4))) score += 1;
+        if (point.equals(new Point(1, 5))) score -= 1;
 
-        if (point.equals(new Point(2,3)))  score+=1;
-        if (point.equals(new Point(2,4)))  score+=2;
-        if (point.equals(new Point(2,5)))  score+=1;
+        if (point.equals(new Point(2, 3))) score += 1;
+        if (point.equals(new Point(2, 4))) score += 2;
+        if (point.equals(new Point(2, 5))) score += 1;
 
-        if (point.equals(new Point(3,1)))  score+=-1;
-        if (point.equals(new Point(3,2)))  score+=1;
-        if (point.equals(new Point(3,3)))  score+=2;
-        if (point.equals(new Point(3,4)))  score+=3;
-        if (point.equals(new Point(3,5)))  score+=2;
-        if (point.equals(new Point(3,6)))  score+=1;
-        if (point.equals(new Point(3,7)))  score+=-1;
+        if (point.equals(new Point(3, 1))) score -= 1;
+        if (point.equals(new Point(3, 2))) score += 1;
+        if (point.equals(new Point(3, 3))) score += 2;
+        if (point.equals(new Point(3, 4))) score += 3;
+        if (point.equals(new Point(3, 5))) score += 2;
+        if (point.equals(new Point(3, 6))) score += 1;
+        if (point.equals(new Point(3, 7))) score -= 1;
 
-        if (point.equals(new Point(4,1)))  score+=1;
-        if (point.equals(new Point(4,2)))  score+=2;
-        if (point.equals(new Point(4,3)))  score+=3;
-        if (point.equals(new Point(4,4)))  score+=5;
-        if (point.equals(new Point(4,5)))  score+=3;
-        if (point.equals(new Point(4,6)))  score+=2;
-        if (point.equals(new Point(4,7)))  score+=1;
+        if (point.equals(new Point(4, 1))) score += 1;
+        if (point.equals(new Point(4, 2))) score += 2;
+        if (point.equals(new Point(4, 3))) score += 3;
+        if (point.equals(new Point(4, 4))) score += 5;
+        if (point.equals(new Point(4, 5))) score += 3;
+        if (point.equals(new Point(4, 6))) score += 2;
+        if (point.equals(new Point(4, 7))) score += 1;
 
-        if (point.equals(new Point(5,1)))  score+=-1;
-        if (point.equals(new Point(5,2)))  score+=1;
-        if (point.equals(new Point(5,3)))  score+=2;
-        if (point.equals(new Point(5,4)))  score+=3;
-        if (point.equals(new Point(5,5)))  score+=2;
-        if (point.equals(new Point(5,6)))  score+=1;
-        if (point.equals(new Point(5,7)))  score+=-1;
+        if (point.equals(new Point(5, 1))) score -= 1;
+        if (point.equals(new Point(5, 2))) score += 1;
+        if (point.equals(new Point(5, 3))) score += 2;
+        if (point.equals(new Point(5, 4))) score += 3;
+        if (point.equals(new Point(5, 5))) score += 2;
+        if (point.equals(new Point(5, 6))) score += 1;
+        if (point.equals(new Point(5, 7))) score -= 1;
 
-        if (point.equals(new Point(6,3)))  score+=1;
-        if (point.equals(new Point(6,4)))  score+=2;
-        if (point.equals(new Point(6,5)))  score+=1;
+        if (point.equals(new Point(6, 3))) score += 1;
+        if (point.equals(new Point(6, 4))) score += 2;
+        if (point.equals(new Point(6, 5))) score += 1;
 
-        if (point.equals(new Point(7,3)))  score+=-1;
-        if (point.equals(new Point(7,4)))  score+=1;
-        if (point.equals(new Point(7,5)))  score+=-1;
+        if (point.equals(new Point(7, 3))) score -= 1;
+        if (point.equals(new Point(7, 4))) score += 1;
+        if (point.equals(new Point(7, 5))) score -= 1;
         return score;
     }
-
 
 
     private Set<Point> groupA() {
@@ -230,6 +222,7 @@ public class Board {
                 new Point(7, 3),
                 new Point(7, 5));
     }
+
     private Set<Point> circleA() {
         return Set.of(
                 new Point(3, 1),
@@ -237,6 +230,7 @@ public class Board {
                 new Point(5, 1),
                 new Point(5, 7));
     }
+
     private Set<Point> circleB() {
         return Set.of(
                 new Point(1, 3),
@@ -244,6 +238,7 @@ public class Board {
                 new Point(7, 3),
                 new Point(7, 5));
     }
+
     private Set<Point> circleC() {
         return Set.of(
                 new Point(1, 4),
@@ -251,6 +246,7 @@ public class Board {
                 new Point(4, 7),
                 new Point(7, 4));
     }
+
     private Set<Point> circleD() {
         return Set.of(
                 new Point(2, 3),
@@ -262,16 +258,19 @@ public class Board {
                 new Point(6, 3),
                 new Point(6, 5));
     }
+
     private Set<Point> circleE() {
         return Set.of(
                 new Point(2, 4),
                 new Point(6, 4));
     }
+
     private Set<Point> circleF() {
         return Set.of(
                 new Point(4, 2),
                 new Point(4, 6));
     }
+
     private Set<Point> groupB() {
         return Set.of(
                 new Point(1, 4),
@@ -307,7 +306,7 @@ public class Board {
 
 
     private boolean conditionA() {
-       return condition(circleA(), groupB());
+        return condition(circleA(), groupB());
     }
 
     private boolean conditionB() {
@@ -322,12 +321,15 @@ public class Board {
     private boolean conditionD() {
         return condition(circleD(), groupB());
     }
+
     private boolean conditionE() {
         return condition(circleE(), groupB());
     }
+
     private boolean conditionF() {
         return condition(circleF(), groupC());
     }
+
     private boolean condition(Set<Point> circle, Set<Point> group) {
         return numberOfPegsOnPointSet(circle) <= numberOfPegsOnPointSet(group);
     }
@@ -338,13 +340,12 @@ public class Board {
     }
 
     private int numberOfPegsOnPointSet(Set<Point> pointSet) {
-        return  (int) pointSet.stream().filter(p -> pegsOnTheBoard.contains(p)).count();
+        return (int) pointSet.stream().filter(p -> pegsOnTheBoard.contains(p)).count();
     }
 
 
-
     public boolean isOnePegInTheMiddle() {
-        Point center = new Point(4,4);
+        Point center = new Point(4, 4);
         return pegsOnTheBoard.contains(center);
     }
 }

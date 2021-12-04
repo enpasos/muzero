@@ -38,11 +38,11 @@ import ai.djl.training.loss.L2Loss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +58,6 @@ import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstructio
 public class NetworkHelper {
 
 
-    @SuppressWarnings("ConstantConditions")
     public static int trainAndReturnNumberOfLastTrainingStep(@NotNull MuZeroConfig config, ReplayBuffer replayBuffer, int numberOfEpochs) {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
@@ -103,15 +102,15 @@ public class NetworkHelper {
 
                     // mean loss
                     List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-                    Double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
-                    model.setProperty("MeanLoss", meanLoss.toString());
-                    log.info("MeanLoss: " + meanLoss.toString());
+                    double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
+                    model.setProperty("MeanLoss", Double.toString(meanLoss));
+                    log.info("MeanLoss: " + meanLoss);
 
                     //
 
 
                     // mean value loss
-                    Double meanValueLoss = metrics.getMetricNames().stream()
+                    double meanValueLoss = metrics.getMetricNames().stream()
                             .filter(name -> name.startsWith("train_all") && name.contains("value_0"))
                             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                             .sum();
@@ -119,11 +118,11 @@ public class NetworkHelper {
                             .filter(name -> name.startsWith("train_all") && !name.contains("value_0") && name.contains("value"))
                             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                             .sum();
-                    model.setProperty("MeanValueLoss", meanValueLoss.toString());
-                    log.info("MeanValueLoss: " + meanValueLoss.toString());
+                    model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
+                    log.info("MeanValueLoss: " + meanValueLoss);
 
                     // mean policy loss
-                    Double meanPolicyLoss = metrics.getMetricNames().stream()
+                    double meanPolicyLoss = metrics.getMetricNames().stream()
                             .filter(name -> name.startsWith("train_all") && name.contains("policy_0"))
                             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                             .sum();
@@ -131,8 +130,8 @@ public class NetworkHelper {
                             .filter(name -> name.startsWith("train_all") && !name.contains("policy_0") && name.contains("policy"))
                             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
                             .sum();
-                    model.setProperty("MeanPolicyLoss", meanPolicyLoss.toString());
-                    log.info("MeanPolicyLoss: " + meanPolicyLoss.toString());
+                    model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
+                    log.info("MeanPolicyLoss: " + meanPolicyLoss);
 
 
                     trainer.notifyListeners(listener -> listener.onEpoch(trainer));
@@ -143,7 +142,6 @@ public class NetworkHelper {
         return epoch * numberOfTrainingStepsPerEpoch;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static int numberOfLastTrainingStep(@NotNull MuZeroConfig config) {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;

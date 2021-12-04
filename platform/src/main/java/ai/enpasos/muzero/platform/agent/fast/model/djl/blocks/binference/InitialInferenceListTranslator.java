@@ -29,6 +29,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,16 +49,14 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
+        return getNetworkIOS(list, ctx);
+    }
 
-
-        // intermediate
+    public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
+        NDArray hiddenStates;
         NDArray s = list.get(0);
-
-
-        NDArray hiddenStates = null;
         if (hiddenStateRemainOnGPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
-            hiddenStates = s; //s.toDevice(Device.cpu(), false);
-            hiddenStates.detach();
+            hiddenStates = s;
             SubModel submodel = (SubModel) ctx.getModel();
             hiddenStates.attach(submodel.hiddenStateNDManager);
         } else {
@@ -68,6 +67,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             hiddenStateNDManager.close();
             s.close();
         }
+
 
         NetworkIO outputA = NetworkIO.builder()
                 .hiddenState(hiddenStates)
@@ -103,7 +103,6 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         }
         hiddenStates.close();
         return networkIOs;
-
     }
 
     @Override

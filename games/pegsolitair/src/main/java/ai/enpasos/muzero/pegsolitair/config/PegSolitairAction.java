@@ -18,8 +18,6 @@
 package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
-import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
@@ -28,12 +26,10 @@ import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
@@ -53,14 +49,6 @@ public class PegSolitairAction implements Comparable<PegSolitairAction>, Seriali
         this.index = index;
     }
 
-//    public PegSolitairAction(@NotNull MuZeroConfig config, int row, int col) {
-//        this(config, row * config.getBoardWidth() + col);
-//    }
-//
-//    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
-//        return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
-//    }
-
 
     public Jump getJump() {
         return ActionAdapter.getJump(this);
@@ -79,15 +67,15 @@ public class PegSolitairAction implements Comparable<PegSolitairAction>, Seriali
 
 
     public int getCol() {
-        return getJump().getFromPoint().getCol()-1;
+        return getJump().getFromPoint().getCol() - 1;
     }
 
     public int getRow() {
-        return getJump().getFromPoint().getRow()-1;
+        return getJump().getFromPoint().getRow() - 1;
     }
 
     public int getDirectionNumber() {
-        return  getJump().getDirection().ordinal();
+        return getJump().getDirection().ordinal();
     }
 
 

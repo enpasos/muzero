@@ -20,11 +20,11 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZero;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-
 @Slf4j
 public class PlayManager {
 
@@ -45,7 +44,7 @@ public class PlayManager {
 
         for (int i = 0; i < config.getNumPlays(); i++) {
 
-            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning,  explorationNoise);
+            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, explorationNoise);
             gameList.forEach(replayBuffer::saveGame);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelPlays(), i);

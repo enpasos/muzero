@@ -17,10 +17,8 @@
 
 package ai.enpasos.muzero.tictactoe.test;
 
-import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
@@ -32,8 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-
-import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
 
 @Data
 public class DNode {
@@ -142,7 +138,7 @@ public class DNode {
     public void expand(@NotNull List<DNode> unterminatedGameNodes, @NotNull List<DNode> terminatedGameNodes) {
         if (!game.terminal() && game.legalActions().size() > 0) {
             for (Action action : game.legalActions()) {
-                ZeroSumGame newGame = (ZeroSumGame)game.clone();
+                ZeroSumGame newGame = (ZeroSumGame) game.clone();
                 newGame.apply(action);
                 DNode child = new DNode(this, newGame);
                 this.children.add(child);

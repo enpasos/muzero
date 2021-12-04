@@ -23,13 +23,13 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.slow.play.Node;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.agent.slow.play.Node;
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static ai.enpasos.muzero.platform.environment.EnvironmentBase.render;
 
 public class TicTacToeGame extends ZeroSumGame {
 
@@ -130,10 +128,10 @@ public class TicTacToeGame extends ZeroSumGame {
         OneOfTwoPlayer player = null;
         if (this.getGameDTO().getActionHistory().size() > 0) {
             Action action = config.newAction(this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
-            int colLastMove = ((TicTacToeAction)action).getCol();
+            int colLastMove = ((TicTacToeAction) action).getCol();
 
             player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-            r += player.getSymbol() + " move (" + (((TicTacToeAction)action).getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
+            r += player.getSymbol() + " move (" + (((TicTacToeAction) action).getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
         }
         r += "\n";
         r += getEnvironment().render();
@@ -214,7 +212,6 @@ public class TicTacToeGame extends ZeroSumGame {
             System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
         }
     }
-
 
 
 }

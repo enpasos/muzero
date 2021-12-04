@@ -17,7 +17,7 @@ import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.*;
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 public class TerritoryCalculator {
-    private GoBoard goBoard;
+    private final GoBoard goBoard;
 
     public TerritoryCalculator(GoBoard goBoard) {
         this.goBoard = goBoard;
@@ -67,27 +67,26 @@ public class TerritoryCalculator {
     }
 
     private Map<Point, VertexType> categorizeTerritory(Map<Point, VertexType> pointToType) {
-        var statusMap = pointToType;
 
         for (int row = 1; row <= goBoard.getSize(); row++) {
             for (int col = 1; col <= goBoard.getSize(); col++) {
                 var point = new Point(row, col);
                 var playerOption = goBoard.getPlayer(point);
-                if (playerOption.isEmpty() || statusMap.get(point).isTerritory()) {
-                    var group_neighbors = collectRegion(point, goBoard, statusMap);
+                if (playerOption.isEmpty() || pointToType.get(point).isTerritory()) {
+                    var group_neighbors = collectRegion(point, goBoard, pointToType);
                     var neighbors = group_neighbors.getRight();
                     var fillWith = (neighbors.size() == 1) ? // then all one color neighbors
                             (neighbors.first() == BlackPlayer ? BlackTerritory : WhiteTerritory)
                             : Dame;
                     var group = group_neighbors.getLeft();
                     group.stream()
-                            .filter(p -> !statusMap.containsKey(p))
-                            .forEach(pos -> statusMap.put(pos, fillWith));
+                            .filter(p -> !pointToType.containsKey(p))
+                            .forEach(pos -> pointToType.put(pos, fillWith));
                 }
             }
         }
 
-        return statusMap;
+        return pointToType;
     }
 
 
@@ -112,7 +111,7 @@ public class TerritoryCalculator {
         while (!nextPoints.isEmpty()) {
             var point = nextPoints.remove(0);
             var player = board.getPlayer(point);
-            if (!player.isEmpty() && !statusMap.get(point).isTerritory())
+            if (player.isPresent() && !statusMap.get(point).isTerritory())
                 visitedPlayers.add(player.get());
 
             if (player.isEmpty() || statusMap.get(point).isTerritory()) {

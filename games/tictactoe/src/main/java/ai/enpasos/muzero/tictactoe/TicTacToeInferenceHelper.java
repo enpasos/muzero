@@ -38,7 +38,7 @@ public class TicTacToeInferenceHelper {
 
     public static String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
 
-        List<Integer> actionInts = actions.stream().map(n -> actionNameToIndex(n)).collect(Collectors.toList());
+        List<Integer> actionInts = actions.stream().map(TicTacToeInferenceHelper::actionNameToIndex).collect(Collectors.toList());
         return actionIndexToName(Inference.aiDecision(actionInts, withMCTS, networkDir, TicTacToeConfigFactory.getTicTacToeInstance()));
     }
 

@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.platform.debug;
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -40,10 +40,6 @@ public class ValueExtractor {
     public static String listValuesForTrainedNetworks(MuZeroConfig config, List<Integer> actions) throws IOException {
 
 
-        //    List<Integer> actions = List.of(4, 2, 1, 8, 7, 0);
-        //    List<Integer> actions = List.of(2, 4, 8, 1, 0, 7, 3);
-
-        //    List<Integer> actions = List.of(12, 17, 10, 13, 8, 7, 18, 11, 14, 6, 12, 16, 13, 5, 22, 21, 2, 23, 1, 3, 4, 15, 9, 19, 24, 25, 22, 0, 23, 3, 2, 1, 25, 3, 25, 19, 23, 12, 4, 13, 8, 9, 22, 2, 18, 14, 25, 25);
         StringWriter stringWriter = new StringWriter();
 
 
@@ -54,8 +50,7 @@ public class ValueExtractor {
                             if (t == 24) {
                                 int i = 42;
                             }
-                            double value = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
-                            double valuePlayerA = value;
+                            double valuePlayerA = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
                             if (config.getPlayerMode() == PlayerMode.twoPlayers) {
                                 valuePlayerA *= Math.pow(-1, t);
                             }
