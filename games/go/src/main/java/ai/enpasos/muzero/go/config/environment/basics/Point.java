@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Go board point class.
  * A point as modelled here is not aware of the boards boarders.
- * Therefore it could be constructed off board. And so do the neighbours of a point.
+ * Therefore, it could be constructed off board. And so do the neighbours of a point.
  * <p>
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */

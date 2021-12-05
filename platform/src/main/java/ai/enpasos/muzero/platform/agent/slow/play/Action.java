@@ -19,24 +19,22 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.Shape;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 
-public interface Action {
+public abstract class Action implements Comparable<Action> {
 
 
-    static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
-        return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
+    public abstract int getIndex();
+
+    public abstract void setIndex(int index);
+
+    public abstract NDArray encode(NDManager nd);
+
+    @Override
+    public int compareTo(@NotNull Action other) {
+        return Integer.compare(this.getIndex(), other.getIndex());
     }
-
-    int getIndex();
-
-    void setIndex(int index);
-
-    NDArray encode(NDManager nd);
-
 
 }
 

@@ -62,7 +62,7 @@ public class BoardTest {
         System.out.println(board.render());
 
 
-     //   jumps = board.getLegalJumps();
+        //   jumps = board.getLegalJumps();
 
     }
 

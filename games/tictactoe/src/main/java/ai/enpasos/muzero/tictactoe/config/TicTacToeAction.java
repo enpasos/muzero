@@ -32,7 +32,7 @@ import java.io.Serializable;
 @Data
 @ToString(onlyExplicitlyIncluded = true)
 
-public class TicTacToeAction implements Comparable<TicTacToeAction>, Serializable, Action {
+public class TicTacToeAction extends Action implements Serializable {
 
     @ToString.Include
     private int index;
@@ -53,8 +53,8 @@ public class TicTacToeAction implements Comparable<TicTacToeAction>, Serializabl
     }
 
     @Override
-    public int compareTo(@NotNull TicTacToeAction other) {
-        return Integer.compare(this.index, other.index);
+    public int compareTo(@NotNull Action other) {
+        return Integer.compare(this.index, other.getIndex());
     }
 
     public NDArray encode(@NotNull NDManager nd) {

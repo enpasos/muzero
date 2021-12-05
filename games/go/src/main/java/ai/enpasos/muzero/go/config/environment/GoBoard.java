@@ -57,7 +57,7 @@ public class GoBoard {
         this.size = size;
         boundsChecker = GoBoardBoundsChecker.get(size);
         neighborMap = NeighborTables.getNbrTable(size);
-        diagonalMap = NeighborTables.getDiagnonalTable(size);
+        diagonalMap = NeighborTables.getDiagonalTable(size);
         this.grid = new Grid();
         this.blackCaptures = 0;
         this.whiteCaptures = 0;
@@ -211,12 +211,12 @@ public class GoBoard {
     boolean doesMoveFillEye(Player player, Point point) {
         int neighbors = findNumNeighbors(player, point, neighborMap);
         int diagNeighbors = findNumNeighbors(player, point, diagonalMap);
-        int allNbrs = neighbors + diagNeighbors;
+        int allNeighbors = neighbors + diagNeighbors;
 
         if (boundsChecker.isCorner(point)) {
-            return allNbrs == 3;
+            return allNeighbors == 3;
         } else if (boundsChecker.isEdge(point)) {
-            return allNbrs == 5;
+            return allNeighbors == 5;
         } else {
             return neighbors == 4 && diagNeighbors >= 3;
         }

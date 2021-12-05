@@ -53,16 +53,6 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
         this(outputDir, null, -1);
     }
 
-    /**
-     * Constructs a {@link MySaveModelTrainingListener}.
-     *
-     * @param overrideModelName an override model name to save checkpoints with
-     * @param outputDir         the directory to output the checkpointed models in
-     */
-//    public MySaveModelTrainingListener(String outputDir, String overrideModelName) {
-//        this(outputDir, overrideModelName, -1);
-//    }
-
 
     public MySaveModelTrainingListener(String outputDir, String overrideModelName, int step) {
         this.outputDir = outputDir;

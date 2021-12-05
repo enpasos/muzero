@@ -48,7 +48,7 @@ public class SelfPlayParallel {
     public static @NotNull List<Game> playGame(@NotNull MuZeroConfig config, Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         long start = System.currentTimeMillis();
         Duration inferenceDuration = new Duration();
-     //   network.debugDump();
+        //   network.debugDump();
         List<Game> gameList = IntStream.rangeClosed(1, config.getNumParallelPlays())
                 .mapToObj(i -> config.newGame())
                 .collect(Collectors.toList());
@@ -84,15 +84,8 @@ public class SelfPlayParallel {
 
                 inferenceDuration.value -= System.currentTimeMillis();
 
-                //   network.debugDump();
-                //  NDManager ndManager2 = nDManager.newSubManager();
-
-                //  network.debugDump();
                 List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gameList);
                 network.debugDump();
-                // on this networkOutput p and v are copied to the cpu,
-                // while the hiddenstates stay on the gpu
-
 
                 inferenceDuration.value += System.currentTimeMillis();
 
@@ -181,6 +174,7 @@ public class SelfPlayParallel {
     private static Action getRandomAction(Node root, MuZeroConfig config) {
         SortedMap<Action, Node> children = root.getChildren();
         int index = randomStreamBase.nextInt(0, children.size() - 1);
+        //noinspection unchecked
         return ((Map.Entry<Action, Node>) children.entrySet().toArray()[index]).getKey();
     }
 

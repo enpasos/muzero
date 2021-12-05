@@ -155,7 +155,7 @@ public class ReplayBuffer {
                 .limit(this.batchSize / 2).collect(Collectors.toList());
         int numberOfTrainingGamesForA = gamesToTrain.size();
         //  log.debug("number of training games for A: " + numberOfTrainingGamesForA);
-        games.removeAll(gamesToTrain);  // otherwise draw games could be selected again
+        games.removeAll(gamesToTrain);  // otherwise, draw games could be selected again
         gamesToTrain.addAll(games.stream()
                 .filter(g -> {
                     if (g instanceof ZeroSumGame) {

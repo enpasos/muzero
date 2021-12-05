@@ -38,6 +38,8 @@ import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
 public class GameIO {
     private static int latestGameNo = -1;
 
+    private GameIO() {}
+
     public static List<Game> readGames(@NotNull MuZeroConfig config) {
         try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
             return walk.filter(path -> !path.toString().endsWith("games") && !path.toString().contains("buffer"))
@@ -110,7 +112,7 @@ public class GameIO {
         Path gamesPath = Paths.get(getGamesBasedir(config));
         if (Files.notExists(gamesPath)) {
             try {
-                Files.createFile(Files.createDirectories(gamesPath)).toFile();
+                Files.createFile(Files.createDirectories(gamesPath));
             } catch (IOException e) {
                 e.printStackTrace();
             }

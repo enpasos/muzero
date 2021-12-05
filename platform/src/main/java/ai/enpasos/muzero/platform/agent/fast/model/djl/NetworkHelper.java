@@ -53,90 +53,6 @@ import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstructio
 public class NetworkHelper {
 
 
-//    public static int trainAndReturnNumberOfLastTrainingStep(@NotNull MuZeroConfig config, ReplayBuffer replayBuffer, int numberOfEpochs) {
-//        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-//        int epoch = 0;
-//        boolean withSymmetryEnrichment = true;
-//
-//        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-//
-//
-//            if (model.getBlock() == null) {
-//                MuZeroBlock block = new MuZeroBlock(config);
-//                model.setBlock(block);
-//                try {
-//                    model.load(Paths.get(getNetworksBasedir(config)));
-//                } catch (Exception e) {
-//                    log.info("*** no existing model has been found ***");
-//                }
-//            }
-//
-//            String prop = model.getProperty("Epoch");
-//            if (prop != null) {
-//                epoch = Integer.parseInt(prop);
-//            }
-//
-//            DefaultTrainingConfig djlConfig = setupTrainingConfig(config, epoch);
-//
-//            //  float gradientScale = 1f / config.getNumUnrollSteps();
-//
-//            try (Trainer trainer = model.newTrainer(djlConfig)) {
-//                trainer.setMetrics(new Metrics());
-//                Shape[] inputShapes = getInputShapes(config);
-//                trainer.initialize(inputShapes);
-//
-//                for (int i = 0; i < numberOfEpochs; i++) {
-//                    for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-//                        try (Batch batch = getBatch(config, model.getNDManager(), replayBuffer, withSymmetryEnrichment)) {
-//                            log.debug("trainBatch " + m);
-//                            EasyTrain.trainBatch(trainer, batch);
-//                            trainer.step();
-//                        }
-//                    }
-//                    Metrics metrics = trainer.getMetrics();
-//
-//                    // mean loss
-//                    List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-//                    double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
-//                    model.setProperty("MeanLoss", Double.toString(meanLoss));
-//                    log.info("MeanLoss: " + meanLoss);
-//
-//                    //
-//
-//
-//                    // mean value loss
-//                    double meanValueLoss = metrics.getMetricNames().stream()
-//                            .filter(name -> name.startsWith("train_all") && name.contains("value_0"))
-//                            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
-//                            .sum();
-//                    meanValueLoss += metrics.getMetricNames().stream()
-//                            .filter(name -> name.startsWith("train_all") && !name.contains("value_0") && name.contains("value"))
-//                            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
-//                            .sum();
-//                    model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
-//                    log.info("MeanValueLoss: " + meanValueLoss);
-//
-//                    // mean policy loss
-//                    double meanPolicyLoss = metrics.getMetricNames().stream()
-//                            .filter(name -> name.startsWith("train_all") && name.contains("policy_0"))
-//                            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
-//                            .sum();
-//                    meanPolicyLoss += metrics.getMetricNames().stream()
-//                            .filter(name -> name.startsWith("train_all") && !name.contains("policy_0") && name.contains("policy"))
-//                            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
-//                            .sum();
-//                    model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
-//                    log.info("MeanPolicyLoss: " + meanPolicyLoss);
-//
-//
-//                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-//                }
-//
-//            }
-//        }
-//        return epoch * numberOfTrainingStepsPerEpoch;
-//    }
-
     public static int numberOfLastTrainingStep(@NotNull MuZeroConfig config) {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
@@ -164,16 +80,6 @@ public class NetworkHelper {
         }
         return epoch * numberOfTrainingStepsPerEpoch;
     }
-
-//    public static void trainAndReturnNumberOfLastTrainingStep(int numberOfEpochs, @NotNull MuZeroConfig config) {
-//
-//
-//        ReplayBuffer replayBuffer =
-//                new ReplayBuffer(config);
-//        GameIO.readGames(config).forEach(replayBuffer::saveGame);
-//
-//        trainAndReturnNumberOfLastTrainingStep(config, replayBuffer, numberOfEpochs);
-//    }
 
     private static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull Model model, boolean withSymmetryEnrichment) {
         ReplayBuffer replayBuffer = new ReplayBuffer(config);

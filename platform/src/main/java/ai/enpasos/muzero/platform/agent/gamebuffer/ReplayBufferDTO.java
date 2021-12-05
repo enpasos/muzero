@@ -50,10 +50,10 @@ public class ReplayBufferDTO implements Serializable {
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
         //  System.out.println(game.actionHistory().getActionIndexList());
         while (isBufferFilled()) {
-            GameDTO toberemoved = data.get(0);
-            Game gameToberemoved = config.newGame();
-            gameToberemoved.setGameDTO(toberemoved);
-            games.remove(gameToberemoved);
+            GameDTO toBeRemoved = data.get(0);
+            Game gameToBeRemoved = config.newGame();
+            gameToBeRemoved.setGameDTO(toBeRemoved);
+            games.remove(gameToBeRemoved);
             data.remove(0);
         }
         data.add(game.getGameDTO());

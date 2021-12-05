@@ -138,7 +138,7 @@ public class InputOutputConstruction {
                     Action action = config.newAction(s.getActionsList().get(k));
                     aArray = action.encode(nd);
                 } else {
-                    aArray = Action.encodeEmptyNDArray(config, nd);
+                    aArray = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
                 }
                 list.add(aArray);
             }

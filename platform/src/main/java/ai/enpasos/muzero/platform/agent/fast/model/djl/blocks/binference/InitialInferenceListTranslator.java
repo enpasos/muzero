@@ -40,17 +40,6 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.config.MuZeroConfig.hiddenStateRemainOnGPU;
 
 public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
-    @Override
-    public @Nullable Batchifier getBatchifier() {
-        return null;
-    }
-
-
-    @Override
-    public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
-        return getNetworkIOS(list, ctx);
-    }
-
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
         NDArray hiddenStates;
         NDArray s = list.get(0);
@@ -102,6 +91,16 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         }
         hiddenStates.close();
         return networkIOs;
+    }
+
+    @Override
+    public @Nullable Batchifier getBatchifier() {
+        return null;
+    }
+
+    @Override
+    public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
+        return getNetworkIOS(list, ctx);
     }
 
     @Override

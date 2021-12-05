@@ -33,30 +33,26 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GameDTO implements Serializable {
 
-    String gameClassName;
+    private String gameClassName;
 
     @EqualsAndHashCode.Include
-    List<Integer> actionHistory;
+    private List<Integer> actionHistory;
 
-    List<Float> rewards;
-    List<float[]> policyTarget;
-    List<Float> rootValues;
-
-    //transient OneOfTwoPlayer winner;
+    private List<Float> rewards;
+    private List<float[]> policyTarget;
+    private List<Float> rootValues;
 
     public GameDTO(@NotNull Game game) {
         this.gameClassName = game.getClass().getCanonicalName();
-        this.actionHistory = new ArrayList<>();
+        this.setActionHistory(new ArrayList<>());
         this.rewards = new ArrayList<>();
         this.policyTarget = new ArrayList<>();
         this.rootValues = new ArrayList<>();
-        //winner = game.whoWonTheGame();
     }
 
-
     public @NotNull String getActionHistoryAsString() {
-        StringBuffer buf = new StringBuffer(this.actionHistory.size());
-        this.actionHistory.forEach(a -> buf.append(a.intValue()).append("."));
+        StringBuilder buf = new StringBuilder(this.getActionHistory().size());
+        this.getActionHistory().forEach(a -> buf.append(a.intValue()).append("."));
         return buf.toString();
     }
 }

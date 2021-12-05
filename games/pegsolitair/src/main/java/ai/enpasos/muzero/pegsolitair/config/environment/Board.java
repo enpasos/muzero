@@ -121,8 +121,8 @@ public class Board {
     public float getScore() {
         float score = 0f;
         for (Point peg : pegsOnTheBoard) {
-            score--; // depending on the number of pegs ont he board
-            score += locationscore(peg) / 5f; // closer to the target position is better
+            score--; // depending on the number of pegs on the board
+            score += locationScore(peg) / 5f; // closer to the target position is better
         }
         if (pegsOnTheBoard.size() == 1 && isOnePegInTheMiddle()) {
             score++; // the final goal is to have one stone in the middle -> reward it
@@ -162,7 +162,7 @@ public class Board {
     }
 
 
-    private int locationscore(Point point) {
+    private int locationScore(Point point) {
         int score = 0;
         if (point.equals(new Point(1, 3))) score -= 1;
         if (point.equals(new Point(1, 4))) score += 1;
@@ -319,7 +319,7 @@ public class Board {
     }
 
     private boolean conditionD() {
-        return condition(circleD(), groupB());
+        return condition(circleD(), groupA());
     }
 
     private boolean conditionE() {

@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
-public class PegSolitairAction implements Comparable<PegSolitairAction>, Serializable, Action {
+public class PegSolitairAction extends Action implements Serializable {
 
     @ToString.Include
     private int index;
@@ -54,10 +54,6 @@ public class PegSolitairAction implements Comparable<PegSolitairAction>, Seriali
         return ActionAdapter.getJump(this);
     }
 
-    @Override
-    public int compareTo(@NotNull PegSolitairAction other) {
-        return Integer.compare(this.index, other.index);
-    }
 
     public NDArray encode(@NotNull NDManager nd) {
         NDArray array = nd.zeros(new Shape(Direction.values().length, config.getBoardHeight(), config.getBoardWidth()));
