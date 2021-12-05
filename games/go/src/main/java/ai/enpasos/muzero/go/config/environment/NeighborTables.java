@@ -3,7 +3,8 @@ package ai.enpasos.muzero.go.config.environment;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ai.enpasos.muzero.go.config.environment.NeighborMap.*;
+import static ai.enpasos.muzero.go.config.environment.NeighborMap.createDiagonalNeighborMap;
+import static ai.enpasos.muzero.go.config.environment.NeighborMap.createNeighborMap;
 
 public class NeighborTables {
 
@@ -25,15 +26,12 @@ public class NeighborTables {
         return neighborTables.get(size);
     }
 
-    static NeighborMap getDiagnonalTable(int size) {
+    static NeighborMap getDiagonalTable(int size) {
         if (!diagonalTables.containsKey(size)) {
             diagonalTables.put(size, createDiagonalNeighborMap(size));
         }
         return diagonalTables.get(size);
     }
-
-
-
 
 
 }

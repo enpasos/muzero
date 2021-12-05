@@ -30,6 +30,7 @@ import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
 
 public class RenderGame {
 
+    @SuppressWarnings("CommentedOutCode")
     public static void main(String[] args) {
 
         MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();

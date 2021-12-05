@@ -192,7 +192,6 @@ public class DNode {
 
 
         }
-        //    System.out.println("actionIndexSelectedByNetwork: "+ actionIndexSelectedByNetwork);
         for (DNode n : children) {
             if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
                 return n;
@@ -253,7 +252,6 @@ public class DNode {
             }
         }
         if (this.getBestForceableValue(player) == null) {
-            //if (this.getBestForceableValue(player) != null) return; // already set on node
             if (this.game.toPlay() == player) {
                 // the player decides
                 this.setBestForceableValue(player, this.children.stream().

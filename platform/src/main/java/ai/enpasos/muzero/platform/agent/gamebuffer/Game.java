@@ -272,7 +272,7 @@ public abstract class Game implements Serializable {
 
 
     public @NotNull ActionHistory actionHistory() {
-        return new ActionHistory(config, this.gameDTO.actionHistory, actionSpaceSize);
+        return new ActionHistory(config, this.gameDTO.getActionHistory(), actionSpaceSize);
     }
 
 

@@ -68,7 +68,7 @@ public class MuZero {
         }
     }
 
-    public static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config)   {
+    public static void createNetworkModelIfNotExisting(@NotNull MuZeroConfig config) {
         int epoch = 0;
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             if (model.getBlock() == null) {

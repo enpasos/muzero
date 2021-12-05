@@ -30,11 +30,12 @@ import java.util.function.BiFunction;
 @Slf4j
 public class GoConfigFactory {
 
+    @SuppressWarnings("CommentedOutCode")
     public static MuZeroConfig getGoInstance(int size) {
 
 
         // TODO
-        // should depend on the size and the correpondingly the average number of moves in a game
+        // should depend on the size and the correspondingly the average number of moves in a game
         // here 5 for size 5
         // in the paper 30 for size 19
         BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {

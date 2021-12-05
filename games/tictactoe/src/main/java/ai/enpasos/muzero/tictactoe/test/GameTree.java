@@ -20,6 +20,7 @@ package ai.enpasos.muzero.tictactoe.test;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class GameTree {
 
     final MuZeroConfig config;
@@ -42,16 +44,8 @@ public class GameTree {
         this.config = config;
         init();
     }
-//    ReplayBuffer replayBuffer;
 
     private void init() {
-
-        //  config = MuZeroConfig.getTicTacToeInstance();
-
-//        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-//        replayBuffer.loadLatestState();
-        // now let PlayerA and PlayerB play all possible moves
-
 
         terminatedGameNodes = new ArrayList<>();
         unterminatedGameNodes = new ArrayList<>();
@@ -65,7 +59,7 @@ public class GameTree {
             for (DNode node : loopGameNodes) {
                 node.expand(unterminatedGameNodes, terminatedGameNodes);
             }
-            System.out.println("unterminated games: " + unterminatedGameNodes.size() + ", terminated games: " + terminatedGameNodes.size());
+            log.info("unterminated games: " + unterminatedGameNodes.size() + ", terminated games: " + terminatedGameNodes.size());
         }
 
 
@@ -83,9 +77,6 @@ public class GameTree {
 
         forceableWinNodesPlayerB = new ArrayList<>();
         rootNode.collectForceableWinNodes(OneOfTwoPlayer.PlayerB, forceableWinNodesPlayerB);
-
-
-        int i = 42;
 
     }
 

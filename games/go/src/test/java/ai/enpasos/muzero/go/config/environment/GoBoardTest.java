@@ -196,7 +196,7 @@ public class GoBoardTest {
         var whiteString = board.getGoString(new Point(2, 2)).get();
         assertEquals(4, whiteString.numLiberties());
 
-     //   board = board.placeStone(BlackPlayer, new Point(3, 2));
+        //   board = board.placeStone(BlackPlayer, new Point(3, 2));
 
     }
 
@@ -311,7 +311,7 @@ public class GoBoardTest {
 
         //println("White playing at 2,2 is OK because it captures 2 plack stones in doing so")
         assert (!board.isSelfCapture(WhitePlayer, new Point(2, 2)));
-    //    board = board.placeStone(WhitePlayer, new Point(2, 2));
+        //    board = board.placeStone(WhitePlayer, new Point(2, 2));
         //println("just played White at 2, 2\n" + board)
 
     }

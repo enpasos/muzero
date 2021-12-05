@@ -31,7 +31,7 @@ import java.io.Serializable;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
-public class GoAction implements Comparable<GoAction>, Serializable, Action {
+public class GoAction extends Action implements Serializable {
 
     @ToString.Include
     private int index;
@@ -65,9 +65,10 @@ public class GoAction implements Comparable<GoAction>, Serializable, Action {
     }
 
     @Override
-    public int compareTo(@NotNull GoAction other) {
-        return Integer.compare(this.index, other.index);
+    public int compareTo(@NotNull Action other) {
+        return Integer.compare(this.index, other.getIndex());
     }
+
 
     public NDArray encode(@NotNull NDManager nd) {
         NDArray array = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));

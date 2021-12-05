@@ -10,6 +10,8 @@ import java.util.*;
 
 public class ActionAdapter {
 
+    private ActionAdapter() {}
+
     private static final Map<Integer, Jump> integerJumpMap;
     private static final Map<Jump, Integer> jumpIntegerMap;
 
@@ -22,14 +24,8 @@ public class ActionAdapter {
                     for (int row = 1; row <= 7; row++) {
                         for (int col = 1; col <= 7; col++) {
                             Point p = new Point(row, col);
-                            //   if (!inRange(p)) continue;
-
-                            Point p2 = p.pointIn(direction);
-                            Point p3 = p2.pointIn(direction);
-                            //   if (inRange(p2) && inRange(p3)) {
                             Jump j = new Jump(p, direction);
                             possibleJumps.add(j);
-                            //  }
                         }
                     }
                 });

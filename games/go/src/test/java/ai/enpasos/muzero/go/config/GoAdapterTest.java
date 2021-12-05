@@ -17,7 +17,6 @@ public class GoAdapterTest {
         Action action = GoAdapter.translate(config, new Pass());
 
         NDArray ndArray = action.encode(NDManager.newBaseManager());
-        int i = 42;
     }
 
     @Test
@@ -25,6 +24,5 @@ public class GoAdapterTest {
         MuZeroConfig config = GoConfigFactory.getGoInstance(5);
         Action action = GoAdapter.translate(config, new Play(new Point(1, 2)));
         NDArray ndArray = action.encode(NDManager.newBaseManager());
-        int i = 42;
     }
 }
