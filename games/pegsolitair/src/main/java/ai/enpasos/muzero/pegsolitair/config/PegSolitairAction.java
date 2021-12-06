@@ -26,17 +26,17 @@ import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
 @Data
-@ToString(onlyExplicitlyIncluded = true)
-public class PegSolitairAction extends Action implements Serializable {
+@ToString(callSuper = true, onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = true)
+public class PegSolitairAction extends Action {
 
-    @ToString.Include
-    private int index;
 
     private transient MuZeroConfig config;
 
@@ -46,7 +46,7 @@ public class PegSolitairAction extends Action implements Serializable {
 
     public PegSolitairAction(MuZeroConfig config, int index) {
         this(config);
-        this.index = index;
+        this.setIndex(index);
     }
 
 

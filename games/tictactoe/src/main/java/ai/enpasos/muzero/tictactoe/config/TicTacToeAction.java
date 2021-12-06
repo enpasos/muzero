@@ -24,6 +24,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,11 +32,8 @@ import java.io.Serializable;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
-
-public class TicTacToeAction extends Action implements Serializable {
-
-    @ToString.Include
-    private int index;
+@EqualsAndHashCode(callSuper = true)
+public class TicTacToeAction extends Action  {
 
     private transient MuZeroConfig config;
 
@@ -54,7 +52,7 @@ public class TicTacToeAction extends Action implements Serializable {
 
     @Override
     public int compareTo(@NotNull Action other) {
-        return Integer.compare(this.index, other.getIndex());
+        return Integer.compare(this.getIndex(), other.getIndex());
     }
 
     public NDArray encode(@NotNull NDManager nd) {

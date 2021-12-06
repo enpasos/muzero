@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -325,7 +326,7 @@ public class MCTS {
             distribution = new EnumeratedDistribution<>(rng, distributionInput);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
         return distribution.sample();
     }

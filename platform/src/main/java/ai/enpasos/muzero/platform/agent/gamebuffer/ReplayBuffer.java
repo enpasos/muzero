@@ -21,6 +21,7 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -96,7 +97,7 @@ public class ReplayBuffer {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(new GZIPInputStream(byteArrayInputStream))) {
             return (ReplayBufferDTO) objectInputStream.readObject();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
 
 
@@ -108,7 +109,7 @@ public class ReplayBuffer {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new GZIPOutputStream(byteArrayOutputStream))) {
             objectOutputStream.writeObject(dto);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
 
         return byteArrayOutputStream.toByteArray();

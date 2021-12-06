@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.tictactoe.config;
 
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -47,7 +48,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
         if (this.board[row][col] == 0) {
             this.board[row][col] = getPlayerToMove().getValue();
         } else {
-            throw new RuntimeException("illegal Move");
+            throw new MuZeroException("illegal Move");
         }
 
         float reward = reward();

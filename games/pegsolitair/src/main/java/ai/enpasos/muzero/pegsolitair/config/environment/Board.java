@@ -28,7 +28,7 @@ public class Board {
         holesOnTheBoard = new TreeSet<>();
 
         Point firstHole = new Point(4, 4);
-        removePeg(new Point(4, 4));
+        removePeg(firstHole);
 
     }
 
@@ -84,7 +84,7 @@ public class Board {
         //6        O  O  O
         //7        O  O  O
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("   1  2  3  4  5  6  7\n");
         for (int row = 1; row <= 7; row++) {
             buf.append(row);
@@ -125,7 +125,7 @@ public class Board {
             score += locationScore(peg) / 5f; // closer to the target position is better
         }
         if (pegsOnTheBoard.size() == 1 && isOnePegInTheMiddle()) {
-            score++; // the final goal is to have one stone in the middle -> reward it
+            score++; // the final goal is to have one peg in the middle -> reward it
         }
         if (impossibleToReachSituation()) {
             score -= 10;
@@ -157,53 +157,57 @@ public class Board {
     }
 
 
-    private int getNumberOfPegsInCenterGroup() {
-        return (int) centerGroup().stream().filter(p -> pegsOnTheBoard.contains(p)).count();
+    private int locationScore(Point peg) {
+        Integer score = 0;
+        score += scoreForPeg(peg, 1, 3, -1);
+        score += scoreForPeg(peg, 1, 4, 1);
+        score += scoreForPeg(peg, 1, 5, -1);
+
+        score += scoreForPeg(peg, 2, 3, 1);
+        score += scoreForPeg(peg, 2, 4, 2);
+        score += scoreForPeg(peg, 2, 5, 1);
+
+        score += scoreForPeg(peg, 3, 1, -1);
+        score += scoreForPeg(peg, 3, 2, 1);
+        score += scoreForPeg(peg, 3, 3, 2);
+        score += scoreForPeg(peg, 3, 4, 3);
+        score += scoreForPeg(peg, 3, 5, 2);
+        score += scoreForPeg(peg, 3, 6, 1);
+        score += scoreForPeg(peg, 3, 7, -1);
+
+        score += scoreForPeg(peg, 4, 1, 1);
+        score += scoreForPeg(peg, 4, 2, 2);
+        score += scoreForPeg(peg, 4, 3, 3);
+        score += scoreForPeg(peg, 4, 4, 5);
+        score += scoreForPeg(peg, 4, 5, 3);
+        score += scoreForPeg(peg, 4, 6, 2);
+        score += scoreForPeg(peg, 4, 7, 1);
+
+        score += scoreForPeg(peg, 5, 1, -1);
+        score += scoreForPeg(peg, 5, 2, 1);
+        score += scoreForPeg(peg, 5, 3, 2);
+        score += scoreForPeg(peg, 5, 4, 3);
+        score += scoreForPeg(peg, 5, 5, 2);
+        score += scoreForPeg(peg, 5, 6, 1);
+        score += scoreForPeg(peg, 5, 7, -1);
+
+        score += scoreForPeg(peg, 6, 3, 1);
+        score += scoreForPeg(peg, 6, 4, 2);
+        score += scoreForPeg(peg, 6, 5, 1);
+
+        score += scoreForPeg(peg, 7, 3, -1);
+        score += scoreForPeg(peg, 7, 4, 1);
+        score += scoreForPeg(peg, 7, 5, -1);
+
+        return score;
     }
 
-
-    private int locationScore(Point point) {
-        int score = 0;
-        if (point.equals(new Point(1, 3))) score -= 1;
-        if (point.equals(new Point(1, 4))) score += 1;
-        if (point.equals(new Point(1, 5))) score -= 1;
-
-        if (point.equals(new Point(2, 3))) score += 1;
-        if (point.equals(new Point(2, 4))) score += 2;
-        if (point.equals(new Point(2, 5))) score += 1;
-
-        if (point.equals(new Point(3, 1))) score -= 1;
-        if (point.equals(new Point(3, 2))) score += 1;
-        if (point.equals(new Point(3, 3))) score += 2;
-        if (point.equals(new Point(3, 4))) score += 3;
-        if (point.equals(new Point(3, 5))) score += 2;
-        if (point.equals(new Point(3, 6))) score += 1;
-        if (point.equals(new Point(3, 7))) score -= 1;
-
-        if (point.equals(new Point(4, 1))) score += 1;
-        if (point.equals(new Point(4, 2))) score += 2;
-        if (point.equals(new Point(4, 3))) score += 3;
-        if (point.equals(new Point(4, 4))) score += 5;
-        if (point.equals(new Point(4, 5))) score += 3;
-        if (point.equals(new Point(4, 6))) score += 2;
-        if (point.equals(new Point(4, 7))) score += 1;
-
-        if (point.equals(new Point(5, 1))) score -= 1;
-        if (point.equals(new Point(5, 2))) score += 1;
-        if (point.equals(new Point(5, 3))) score += 2;
-        if (point.equals(new Point(5, 4))) score += 3;
-        if (point.equals(new Point(5, 5))) score += 2;
-        if (point.equals(new Point(5, 6))) score += 1;
-        if (point.equals(new Point(5, 7))) score -= 1;
-
-        if (point.equals(new Point(6, 3))) score += 1;
-        if (point.equals(new Point(6, 4))) score += 2;
-        if (point.equals(new Point(6, 5))) score += 1;
-
-        if (point.equals(new Point(7, 3))) score -= 1;
-        if (point.equals(new Point(7, 4))) score += 1;
-        if (point.equals(new Point(7, 5))) score -= 1;
-        return score;
+    private int scoreForPeg(Point peg, int row, int col, int scoreChange) {
+        if (peg.equals(new Point(row, col))) {
+            return scoreChange;
+        } else {
+            return 0;
+        }
     }
 
 
@@ -332,11 +336,6 @@ public class Board {
 
     private boolean condition(Set<Point> circle, Set<Point> group) {
         return numberOfPegsOnPointSet(circle) <= numberOfPegsOnPointSet(group);
-    }
-
-
-    public boolean isThereAtLeastOneStoneInCenterGroup() {
-        return groupD().stream().anyMatch(pegsOnTheBoard::contains);
     }
 
     private int numberOfPegsOnPointSet(Set<Point> pointSet) {

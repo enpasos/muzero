@@ -19,15 +19,19 @@ package ai.enpasos.muzero.platform.agent.slow.play;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
+import lombok.Data;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 
-public abstract class Action implements Comparable<Action> {
 
+@Data
+@ToString(onlyExplicitlyIncluded = true)
+public abstract class Action implements Comparable<Action>, Serializable {
 
-    public abstract int getIndex();
-
-    public abstract void setIndex(int index);
+    @ToString.Include
+    private int index;
 
     public abstract NDArray encode(NDManager nd);
 

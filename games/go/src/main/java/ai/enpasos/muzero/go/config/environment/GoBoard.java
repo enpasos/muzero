@@ -20,6 +20,7 @@ package ai.enpasos.muzero.go.config.environment;
 
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -96,12 +97,12 @@ public class GoBoard {
         if (!boundsChecker.inBounds(point)) {
             String message = point + " was not on the grid!";
             log.error(message);
-            throw new RuntimeException(message);
+            throw new MuZeroException(message);
         }
         if (grid.getString(point).isPresent()) {
             var message = "Illegal move attempted at: " + point + ". Already occupied: " + grid.getString(point).get();
             log.error(message);
-            throw new RuntimeException(message);
+            throw new MuZeroException(message);
         } else {
             return makeValidStonePlacement(player, point);
         }
