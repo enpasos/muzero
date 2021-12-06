@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -47,7 +48,7 @@ public class GameIO {
                     .map(path -> Game.decode(config, loadPathAsByteArray(path)))
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
     }
 
@@ -55,7 +56,7 @@ public class GameIO {
         try {
             return Game.decode(config, Files.readAllBytes(Paths.get(getGamesBasedir(config) + "/game" + i)));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
     }
 
@@ -64,7 +65,7 @@ public class GameIO {
             log.debug("readGame " + path);
             return FileUtils.readFileToByteArray(path.toFile());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
     }
 
@@ -80,7 +81,7 @@ public class GameIO {
                 return 0;
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
 
     }
@@ -103,7 +104,7 @@ public class GameIO {
                     latestGameNo = 0;
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new MuZeroException(e);
             }
         }
     }
@@ -127,7 +128,7 @@ public class GameIO {
                 return 0;
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
 
 

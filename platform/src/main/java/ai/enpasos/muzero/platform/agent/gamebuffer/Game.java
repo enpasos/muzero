@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.slow.play.*;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -72,7 +73,7 @@ public abstract class Game implements Serializable {
             Objects.requireNonNull(game).setGameDTO(dto);
             return game;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
     }
 
@@ -283,7 +284,7 @@ public abstract class Game implements Serializable {
         try (ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
             oos.writeObject(this.gameDTO);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
         return byteArrayOutputStream.toByteArray();
     }

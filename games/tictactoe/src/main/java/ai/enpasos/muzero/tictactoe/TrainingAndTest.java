@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.test.TicTacToeTest;
@@ -31,7 +32,7 @@ public class TrainingAndTest {
         boolean passed = TicTacToeTest.test(config);
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");
         log.info(message);
-        if (!passed) throw new RuntimeException(message);
+        if (!passed) throw new MuZeroException(message);
 
     }
 

@@ -31,10 +31,7 @@ import java.io.Serializable;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
-public class GoAction extends Action implements Serializable {
-
-    @ToString.Include
-    private int index;
+public class GoAction extends Action {
 
     private transient MuZeroConfig config;
 
@@ -44,7 +41,7 @@ public class GoAction extends Action implements Serializable {
 
     public GoAction(MuZeroConfig config, int index) {
         this(config);
-        this.index = index;
+        this.setIndex(index);
     }
 
     public GoAction(@NotNull MuZeroConfig config, int row, int col) {
@@ -66,7 +63,7 @@ public class GoAction extends Action implements Serializable {
 
     @Override
     public int compareTo(@NotNull Action other) {
-        return Integer.compare(this.index, other.getIndex());
+        return Integer.compare(this.getIndex(), other.getIndex());
     }
 
 

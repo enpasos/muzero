@@ -33,6 +33,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBl
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -91,7 +92,7 @@ public class MuZero {
         } catch (Exception e) {
             String message = "not able to save created model";
             log.error(message);
-            throw new RuntimeException(message, e);
+            throw new MuZeroException(message, e);
         }
     }
 
@@ -100,7 +101,7 @@ public class MuZero {
         try {
             FileUtils.forceMkdir(new File(getNetworksBasedir(config) + "/" + (GameIO.getLatestObjectNo(config) + 1)));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MuZeroException(e);
         }
     }
 

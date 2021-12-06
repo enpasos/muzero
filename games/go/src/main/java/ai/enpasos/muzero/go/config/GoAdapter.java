@@ -13,6 +13,7 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 
@@ -28,7 +29,7 @@ public class GoAdapter {
         } else if (action.getIndex() == config.getActionSpaceSize() - 1) {
             return new Pass();
         } else {
-            throw new RuntimeException("this should not happen");
+            throw new MuZeroException("this should not happen");
         }
     }
 
@@ -74,9 +75,9 @@ public class GoAdapter {
             return config.newAction(config.getActionSpaceSize() - 1);
         } else if (move instanceof Resign) {
             // Muzero does not resign -> not advantage for winning, it is efficiency not effectivity
-            throw new RuntimeException("muzero is not resigning");
+            throw new MuZeroException("muzero is not resigning");
         }
-        throw new RuntimeException("this should not happen");
+        throw new MuZeroException("this should not happen");
     }
 
     public static OneOfTwoPlayer translate(Player player) {
@@ -86,7 +87,7 @@ public class GoAdapter {
             case WhitePlayer:
                 return OneOfTwoPlayer.PlayerB;
             default:
-                throw new RuntimeException("this should not happen");
+                throw new MuZeroException("this should not happen");
         }
     }
 }
