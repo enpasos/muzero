@@ -20,13 +20,14 @@ package ai.enpasos.muzero.platform.environment;
 
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * The environment the agent is interacting with by applying actions and receiving rewards and new observations
  * of whatever the environment reveals about its new internal states.
  */
-public interface Environment {
+public interface Environment extends Serializable {
     /**
      * applies an action and gets immediate reward
      *
