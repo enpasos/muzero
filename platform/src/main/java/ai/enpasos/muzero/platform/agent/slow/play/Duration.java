@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent.slow.play;
 
-import lombok.Data;
 
 
 public class Duration {

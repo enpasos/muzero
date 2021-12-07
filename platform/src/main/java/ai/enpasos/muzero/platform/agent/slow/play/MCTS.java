@@ -46,7 +46,7 @@ public class MCTS {
     }
 
 
-    public static void backpropagate(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
+    public static void backUp(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
             if (node.getToPlay() == toPlay) {
@@ -111,7 +111,7 @@ public class MCTS {
 
             expandNode(node, history.toPlay(), ActionHistory.actionSpace(config), networkOutput, false);
 
-            backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats);
+            backUp(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats);
 
         }
     }

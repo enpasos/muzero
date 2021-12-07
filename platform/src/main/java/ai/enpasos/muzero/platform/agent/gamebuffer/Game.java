@@ -33,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * A single episode of interaction with the environment.
@@ -88,7 +88,7 @@ public abstract class Game {
         copy.setDiscount(this.getDiscount());
         copy.setEnvironment(this.getEnvironment());
         copy.setActionSpaceSize(this.getActionSpaceSize());
-        copy.replayToPosition(copy.getGameDTO().getActionHistory().size());
+        copy.replayToPosition(copy.getGameDTO().getActions().size());
         return copy;
     }
 
@@ -98,12 +98,12 @@ public abstract class Game {
         return getGameDTO().getRewards().get(getGameDTO().getRewards().size() - 1);
     }
 
-    abstract public boolean terminal();
+    public abstract boolean terminal();
 
-    abstract public List<Action> legalActions();
+    public abstract  List<Action> legalActions();
 
 
-    abstract public List<Action> allActionsInActionSpace();
+    public abstract List<Action> allActionsInActionSpace();
 
     public void apply(int @NotNull ... actionIndex) {
         Arrays.stream(actionIndex).forEach(
@@ -115,29 +115,28 @@ public abstract class Game {
         float reward = this.environment.step(action);
 
         this.getGameDTO().getRewards().add(reward);
-        this.getGameDTO().getActionHistory().add(action.getIndex());
+        this.getGameDTO().getActions().add(action.getIndex());
     }
 
 
     public void storeSearchStatistics(@NotNull Node root, boolean fastRuleLearning, MinMaxStats minMaxStats) {
 
-        float[] childVisit = new float[this.actionSpaceSize];
+        float[] policyTarget = new float[this.actionSpaceSize];
         if (fastRuleLearning) {
-            for (SortedMap.Entry<Action, Node> e : root.getChildren().entrySet()) {
-                Action action = e.getKey();
-                Node node = e.getValue();
-                childVisit[action.getIndex()] = (float) node.prior;
-            }
+            root.getChildren().entrySet().forEach(child -> {
+                Action action = child.getKey();
+                Node node = child.getValue();
+                policyTarget[action.getIndex()] = (float) node.prior;
+            });
         } else {
-
             List<Pair<Action, Double>> distributionInput = RegularizedPolicyOptimization.getDistributionInput(root, config, minMaxStats);
             for (Pair<Action, Double> e : distributionInput) {
                 Action action = e.getKey();
                 double v = e.getValue();
-                childVisit[action.getIndex()] = (float) v;
+                policyTarget[action.getIndex()] = (float) v;
             }
         }
-        this.getGameDTO().getPolicyTarget().add(childVisit);
+        this.getGameDTO().getPolicyTargets().add(policyTarget);
         this.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));
 
     }
@@ -172,72 +171,63 @@ public abstract class Game {
      * return targets
      */
 
-    public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample, MuZeroConfig config) {
+    public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Sample sample, MuZeroConfig config) {
         switch (config.getPlayerMode()) {
             case singlePlayer:
-                return makeTargetSinglePlayerMode(stateIndex, numUnrollSteps, tdSteps, toPlay, sample, config);
+                return getTargets(stateIndex, numUnrollSteps, tdSteps, config,false);
             case twoPlayers:
             default:
-                return makeTargetTwoPlayerMode(stateIndex, numUnrollSteps, tdSteps, toPlay, sample, config);
+                return getTargets(stateIndex, numUnrollSteps, tdSteps, config,true);
         }
     }
 
-    public @NotNull List<Target> makeTargetSinglePlayerMode(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample, MuZeroConfig config) {
-        return getTargets(stateIndex, numUnrollSteps, tdSteps, config);
-    }
 
 
-    public @NotNull List<Target> makeTargetTwoPlayerMode(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample, MuZeroConfig config) {
-
-        int winnerPerspective = this.getGameDTO().getRewards().size() % 2 == 1 ? 1 : -1;
-        int currentIndexPerspective = toPlay == OneOfTwoPlayer.PlayerA ? 1 : -1;
-        boolean perspectiveChange = true;
-
-        return getTargets(stateIndex, numUnrollSteps, tdSteps, config, winnerPerspective, currentIndexPerspective, perspectiveChange);
-    }
-
-
-    @NotNull
-    private List<Target> getTargets(int stateIndex, int numUnrollSteps, int tdSteps, MuZeroConfig config) {
-        int winnerPerspective = 1;
-        int currentIndexPerspective = 1;
-        boolean perspectiveChange = false;
-        return getTargets(stateIndex, numUnrollSteps, tdSteps, config, winnerPerspective, currentIndexPerspective, perspectiveChange);
-    }
-
-    @NotNull
-    @SuppressWarnings("squid:S125")
-    private List<Target> getTargets(int stateIndex, int numUnrollSteps, int tdSteps, MuZeroConfig config, int winnerPerspective, int currentIndexPerspective, boolean perspectiveChange) {
+    private List<Target> getTargets(int stateIndex, int numUnrollSteps, int tdSteps, MuZeroConfig config,  boolean perspectiveChange) {
         List<Target> targets = new ArrayList<>();
 
-        for (int currentIndex = stateIndex; currentIndex <= stateIndex + numUnrollSteps; currentIndex++) {
+        IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             int bootstrapIndex = currentIndex + tdSteps;
-            double value = 0;
 
-            // not happening for boardgames
-            if (bootstrapIndex < this.getGameDTO().getRootValues().size()) {
-                value = this.getGameDTO().getRootValues().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
+            int currentIndexPerspective, winnerPerspective;
+            if (perspectiveChange) {
+                currentIndexPerspective =  toPlay() == OneOfTwoPlayer.PlayerA ? 1 : -1;
+                currentIndexPerspective *= Math.pow(-1, currentIndex-stateIndex);
+                 winnerPerspective = this.getGameDTO().getRewards().size() % 2 == 1 ? 1 : -1;
+            } else {
+                 currentIndexPerspective = 1;
+                 winnerPerspective = 1;
             }
+            double value;
+
+            // bootstrapping - not for board games
+            if (bootstrapIndex < this.getGameDTO().getRootValues().size()) {
+                value =  this.getGameDTO().getRootValues().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
+            } else {
+                value = 0;
+            }
+
 
             int startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size());
-
-            // condition "i < bootstrapIndex" for boardgames true
-            for (int i = startIndex; i <= this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                if (i == 0) continue;
-                value += this.getGameDTO().getRewards().get(i - 1) * Math.pow(this.discount, i - 1) * currentIndexPerspective * winnerPerspective;
+            for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+                value += (double)this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * currentIndexPerspective * winnerPerspective;
             }
 
-            float lastReward = 0f;
-            if (currentIndex >= 0 && currentIndex < this.getGameDTO().getRewards().size()) {
-                lastReward = this.getGameDTO().getRewards().get(currentIndex);
+            float lastReward;
+            if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
+                lastReward = this.getGameDTO().getRewards().get(currentIndex - 1);
+            } else {
+                lastReward = 0f;
             }
+
             Target target = new Target();
             if (currentIndex < this.getGameDTO().getRootValues().size()) {
                 target.value = (float) value;
                 target.reward = lastReward;
-                target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
+                target.policy = this.getGameDTO().getPolicyTargets().get(currentIndex);
 
-            } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
+            }
+            else if (currentIndex == this.getGameDTO().getRootValues().size()) {
                 // If we do not train the reward (as only boardgames are treated here)
                 // the value has to take the role of the reward on this node (needed in MCTS)
                 // if we were running the network with reward head
@@ -246,7 +236,13 @@ public abstract class Game {
                 // we need use this node to keep the reward value
                 // therefore target.value is not 0f
                 // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-                target.value = (float) value;  // this is not really the value, it is taking the role of the reward here
+
+                // as long as there is no reward network  // TODO: make configurable
+                if (perspectiveChange) {
+                    currentIndexPerspective =  toPlay() == OneOfTwoPlayer.PlayerA ? 1 : -1;
+                    currentIndexPerspective *= Math.pow(-1, currentIndex-1-stateIndex);
+                }
+                target.value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size()-1) * currentIndexPerspective * winnerPerspective;  // this is not really the value, it is taking the role of the reward here
                 target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
@@ -266,27 +262,27 @@ public abstract class Game {
                 // does not have to change the value after the final move
                 //
                 target.value = config.isAbsorbingStateDropToZero() ? 0f : (float) value;
+                target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.policy, 0f);
             }
             targets.add(target);
-            if (perspectiveChange)
-                currentIndexPerspective *= -1;
-        }
+
+        });
         return targets;
     }
 
 
-    abstract public Player toPlay();
+    public abstract Player toPlay();
 
 
     public @NotNull ActionHistory actionHistory() {
-        return new ActionHistory(config, this.gameDTO.getActionHistory(), actionSpaceSize);
+        return new ActionHistory(config, this.gameDTO.getActions(), actionSpaceSize);
     }
 
 
-    abstract public String render();
+    public abstract String render();
 
 
     public abstract Observation getObservation(NDManager ndManager);
@@ -306,11 +302,11 @@ public abstract class Game {
     public boolean equals(Object other) {
         if (!(other instanceof Game)) return false;
         Game otherGame = (Game) other;
-        return this.getGameDTO().getActionHistory().equals(otherGame.getGameDTO().getActionHistory());
+        return this.getGameDTO().getActions().equals(otherGame.getGameDTO().getActions());
     }
 
     public int hashCode() {
-        return this.getGameDTO().getActionHistory().hashCode();
+        return this.getGameDTO().getActions().hashCode();
     }
 
 

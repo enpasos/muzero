@@ -4,6 +4,7 @@ package ai.enpasos.muzero.go.config.environment.scoring;
 import ai.enpasos.muzero.go.config.environment.GoBoard;
 import ai.enpasos.muzero.go.config.environment.basics.Player;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -54,8 +55,8 @@ public class TerritoryCalculator {
                 var point = new Point(row, col);
                 var playerOption = goBoard.getPlayer(point);
                 if (playerOption.isPresent()) {
-                    var isBlack = playerOption.get() == BlackPlayer;
-                    if (goBoard.getGoString(point).get().getLiberties().size() == 1) {
+                    var isBlack = playerOption.orElseThrow(MuZeroException::new) == BlackPlayer;
+                    if (goBoard.getGoString(point).orElseThrow(MuZeroException::new).getLiberties().size() == 1) {
                         statusMap.put(point, isBlack ? CapturedBlackStone : CapturedWhiteStone);
                     } else {
                         statusMap.put(point, isBlack ? BlackStone : WhiteStone);
