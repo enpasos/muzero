@@ -44,7 +44,7 @@ public class PlayManager {
 
         for (int i = 0; i < config.getNumPlays(); i++) {
 
-            List<Game> gameList = SelfPlayParallel.playGame(config, network, render, fastRuleLearning, explorationNoise);
+            List<Game> gameList = SelfPlay.playGame(config, network, render, fastRuleLearning, explorationNoise);
             gameList.forEach(replayBuffer::saveGame);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelPlays(), i);
@@ -58,22 +58,22 @@ public class PlayManager {
     }
 
 
-    private static void saveGame(@NotNull ReplayBuffer replayBuffer, @NotNull Game game, @NotNull MuZeroConfig config, boolean persistPerGame) {
-
-        replayBuffer.saveGame(game);
-
-        if (persistPerGame) {
-            byte[] gameData = game.encode();
-            String pathname = MuZero.getGamesBasedir(config) + "/game" + (GameIO.getNewLatestGameNo(config));
-            System.out.println("saving ... " + pathname);
-
-            try {
-                FileUtils.writeByteArrayToFile(new File(pathname),
-                        gameData);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
+//    private static void saveGame(@NotNull ReplayBuffer replayBuffer, @NotNull Game game, @NotNull MuZeroConfig config, boolean persistPerGame) {
+//
+//        replayBuffer.saveGame(game);
+//
+//        if (persistPerGame) {
+//            byte[] gameData = game.encode();
+//            String pathname = MuZero.getGamesBasedir(config) + "/game" + (GameIO.getNewLatestGameNo(config));
+//            System.out.println("saving ... " + pathname);
+//
+//            try {
+//                FileUtils.writeByteArrayToFile(new File(pathname),
+//                        gameData);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
 }
