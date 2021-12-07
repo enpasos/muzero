@@ -180,7 +180,7 @@ public abstract class Game {
             }
 
 
-            int startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size());
+            int startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
             for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
                 value += (double)this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * currentIndexPerspective * winnerPerspective;
             }
@@ -209,12 +209,8 @@ public abstract class Game {
                 // therefore target.value is not 0f
                 // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-                // as long as there is no reward network  // TODO: make configurable
-                if (perspectiveChange) {
-                    currentIndexPerspective =  toPlay() == OneOfTwoPlayer.PlayerA ? 1 : -1;
-                    currentIndexPerspective *= Math.pow(-1, this.getGameDTO().getRewards().size()-1-stateIndex);
-                }
-                value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size()-1) * currentIndexPerspective * winnerPerspective;
+                // TODO: make configurable
+
                 target.value = (float)value;  // this is not really the value, it is taking the role of the reward here
                 target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
@@ -234,12 +230,6 @@ public abstract class Game {
                 // for board games (without a reward network) the value network
                 // does not have to change the value after the final move
                 //
-
-                if (perspectiveChange) {
-                    currentIndexPerspective =  toPlay() == OneOfTwoPlayer.PlayerA ? 1 : -1;
-                    currentIndexPerspective *= Math.pow(-1, this.getGameDTO().getRewards().size()-1-stateIndex);
-                }
-                value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size()-1) * currentIndexPerspective * winnerPerspective;
 
                 target.value = config.isAbsorbingStateDropToZero() ? 0f : (float) value;
                 target.reward = lastReward;
