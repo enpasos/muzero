@@ -41,33 +41,33 @@ public class GameIO {
 
     private GameIO() {}
 
-    public static List<Game> readGames(@NotNull MuZeroConfig config) {
-        try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
-            return walk.filter(path -> !path.toString().endsWith("games") && !path.toString().contains("buffer"))
-                    // .limit(3000)
-                    .map(path -> Game.decode(config, loadPathAsByteArray(path)))
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-    }
+//    public static List<Game> readGames(@NotNull MuZeroConfig config) {
+//        try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
+//            return walk.filter(path -> !path.toString().endsWith("games") && !path.toString().contains("buffer"))
+//                    // .limit(3000)
+//                    .map(path -> Game.decode(config, loadPathAsByteArray(path)))
+//                    .collect(Collectors.toList());
+//        } catch (IOException e) {
+//            throw new MuZeroException(e);
+//        }
+//    }
 
-    public static @NotNull Game readGame(int i, @NotNull MuZeroConfig config) {
-        try {
-            return Game.decode(config, Files.readAllBytes(Paths.get(getGamesBasedir(config) + "/game" + i)));
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-    }
+//    public static @NotNull Game readGame(int i, @NotNull MuZeroConfig config) {
+//        try {
+//            return Game.decode(config, Files.readAllBytes(Paths.get(getGamesBasedir(config) + "/game" + i)));
+//        } catch (IOException e) {
+//            throw new MuZeroException(e);
+//        }
+//    }
 
-    private static byte[] loadPathAsByteArray(@NotNull Path path) {
-        try {
-            log.debug("readGame " + path);
-            return FileUtils.readFileToByteArray(path.toFile());
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-    }
+//    private static byte[] loadPathAsByteArray(@NotNull Path path) {
+//        try {
+//            log.debug("readGame " + path);
+//            return FileUtils.readFileToByteArray(path.toFile());
+//        } catch (IOException e) {
+//            throw new MuZeroException(e);
+//        }
+//    }
 
     public static int getLatestObjectNo(@NotNull MuZeroConfig config) {
 
@@ -86,28 +86,8 @@ public class GameIO {
 
     }
 
-    public static int getNewLatestGameNo(@NotNull MuZeroConfig config) {
-        getLatestGameNo(config);
-        latestGameNo++;
-        return latestGameNo;
-    }
 
-    public static void getLatestGameNo(@NotNull MuZeroConfig config) {
-        if (latestGameNo == -1) {
-            try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
-                OptionalInt no = walk.filter(Files::isRegularFile)
-                        .mapToInt(path -> Integer.parseInt(path.toString().substring((getGamesBasedir(config) + "/game").length()).replace(".zip", "")))
-                        .max();
-                if (no.isPresent()) {
-                    latestGameNo = no.getAsInt();
-                } else {
-                    latestGameNo = 0;
-                }
-            } catch (IOException e) {
-                throw new MuZeroException(e);
-            }
-        }
-    }
+
 
     public static int getLatestBufferNo(@NotNull MuZeroConfig config) {
         Path gamesPath = Paths.get(getGamesBasedir(config));
@@ -120,7 +100,7 @@ public class GameIO {
         }
         try (Stream<Path> walk = Files.walk(gamesPath)) {
             OptionalInt no = walk.filter(Files::isRegularFile)
-                    .mapToInt(path -> Integer.parseInt(path.toString().substring((getGamesBasedir(config) + "/buffer").length())))
+                    .mapToInt(path -> Integer.parseInt(path.toString().substring((getGamesBasedir(config) + "/buffer").length()).replace(".zip", "")))
                     .max();
             if (no.isPresent()) {
                 return no.getAsInt();

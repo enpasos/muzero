@@ -193,6 +193,7 @@ public class ReplayBuffer {
 
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (ZipInputStream zis = new ZipInputStream(fis)) {
+                zis.getNextEntry();
                 byte[] raw =  zis.readAllBytes();
                 this.buffer = decodeDTO(raw);
                 rebuildGames();
