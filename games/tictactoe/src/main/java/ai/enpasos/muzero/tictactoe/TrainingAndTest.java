@@ -22,7 +22,7 @@ public class TrainingAndTest {
         String dir = "./memory/";
         config.setOutputDir(dir);
 
-        FileUtils.deleteDirectory(new File(dir));
+         FileUtils.deleteDirectory(new File(dir));
 
         boolean freshBuffer = false;
         int numberOfEpochs = 1;

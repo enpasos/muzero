@@ -31,9 +31,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class GameDTO implements Serializable {
-
-    private String gameClassName;
+public class GameDTO  {
 
     @EqualsAndHashCode.Include
     private List<Integer> actionHistory;
@@ -43,7 +41,6 @@ public class GameDTO implements Serializable {
     private List<Float> rootValues;
 
     public GameDTO(@NotNull Game game) {
-        this.gameClassName = game.getClass().getCanonicalName();
         this.setActionHistory(new ArrayList<>());
         this.rewards = new ArrayList<>();
         this.policyTarget = new ArrayList<>();

@@ -31,7 +31,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class EnvironmentBase implements Environment, Serializable {
+public class EnvironmentBase implements Environment {
 
 
     private static final String X_COORD = " A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y   Z ";
@@ -68,10 +68,8 @@ public class EnvironmentBase implements Environment, Serializable {
         }
         if (smallSpacing) {
             sb.append(" ").append(X_COORD_SMALL, 0, config.getSize() * 2).append("\n");
-            //  sb.append("-".repeat(config.getSize()*2 + 2));
         } else {
             sb.append("  ").append(X_COORD, 0, config.getSize() * 4).append("\n");
-            //   sb.append("-".repeat(config.getSize()*4 + 3));
         }
 
 

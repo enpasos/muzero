@@ -48,7 +48,7 @@ public abstract class Game implements Serializable {
 
     protected int actionSpaceSize;
     protected double discount;
-    protected Environment environment;
+    transient protected Environment environment;
 
 
     public Game(@NotNull MuZeroConfig config) {
@@ -198,6 +198,7 @@ public abstract class Game implements Serializable {
     }
 
     @NotNull
+    @SuppressWarnings("squid:S125")
     private List<Target> getTargets(int stateIndex, int numUnrollSteps, int tdSteps, MuZeroConfig config, int winnerPerspective, int currentIndexPerspective, boolean perspectiveChange) {
         List<Target> targets = new ArrayList<>();
 

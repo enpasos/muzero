@@ -31,16 +31,20 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReplayBufferDTO implements Serializable {
+public class ReplayBufferDTO   {
+
+    private String gameClassName;
+    private long counter;
+    private int windowSize;
 
     final List<GameDTO> data = new ArrayList<>();
     //  transient GameTree gameTree;
     transient List<Game> games = new ArrayList<>();
-    private long counter;
-    private int windowSize;
 
-    public ReplayBufferDTO(int windowSize) {
+
+    public ReplayBufferDTO(int windowSize, String gameClassName) {
         this.windowSize = windowSize;
+        this.gameClassName = gameClassName;
     }
 
     public boolean isBufferFilled() {
