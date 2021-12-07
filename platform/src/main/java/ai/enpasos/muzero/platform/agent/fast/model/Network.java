@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
-import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
+import static ai.enpasos.muzero.platform.agent.slow.play.SelfPlay.getAllActionsOnDevice;
 
 @Data
 public class Network {

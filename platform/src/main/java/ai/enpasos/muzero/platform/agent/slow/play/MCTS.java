@@ -47,7 +47,7 @@ public class MCTS {
     }
 
 
-    public static void backpropagate(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats, MuZeroConfig config) {
+    public static void backpropagate(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
             if (node.getToPlay() == toPlay) {
@@ -81,7 +81,7 @@ public class MCTS {
                     })
                     .max().getAsDouble() + multiplierLambda;
 
-            double alpha = calcAlpha(node, list, multiplierLambda, alphaMin, alphaMax, config, minMaxStats);
+            double alpha = calcAlpha(list, multiplierLambda, alphaMin, alphaMax, config, minMaxStats);
 
 
             distributionInput =
@@ -103,10 +103,10 @@ public class MCTS {
         return distributionInput;
     }
 
-    private static double calcAlpha(Node node, List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax, MuZeroConfig config, MinMaxStats minMaxStats) {
+    private static double calcAlpha(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax, MuZeroConfig config, MinMaxStats minMaxStats) {
         // dichotomic search
-        double optPolicySum = 0d;
-        double alpha = 0d;
+        double optPolicySum;
+        double alpha;
         double epsilon = 0.000000001d;
         int c = 0;
         do {
@@ -118,10 +118,7 @@ public class MCTS {
             } else {
                 alphaMax = alpha;
             }
-
-            //  System.out.println(optPolicySum);
         } while (++c < 100 && FastMath.abs(optPolicySum - 1d) > epsilon);
-        //System.out.println("cExit="+c);
         return alpha;
     }
 
@@ -160,9 +157,7 @@ public class MCTS {
     public List<MinMaxStats> runParallel(@NotNull List<Node> rootList, @NotNull List<ActionHistory> actionHistoryList, @NotNull Network network,
                                          @Nullable Duration inferenceDuration, int numSimulations) {
 
-
-        // TODO better would be a simulation object that encapsulates the info that is spread over many Lists
-        List<MinMaxStats> minMaxStatsList = IntStream.rangeClosed(1, rootList.size())
+        List<MinMaxStats> minMaxStatsList = IntStream.range(0, rootList.size())
                 .mapToObj(i -> new MinMaxStats(config.getKnownBounds()))
                 .collect(Collectors.toList());
 
@@ -170,72 +165,71 @@ public class MCTS {
         for (int i = 0; i < numSimulations; i++) {
 
             List<ActionHistory> historyList = actionHistoryList.stream().map(ActionHistory::clone).collect(Collectors.toList());
-
             List<Node> nodeList = new ArrayList<>(rootList);
-
-
             List<List<Node>> searchPathList = IntStream.range(0, rootList.size())
                     .mapToObj(nL -> new ArrayList<Node>())
                     .collect(Collectors.toList());
-            for (int g = 0; g < nodeList.size(); g++) {
-                Node node = nodeList.get(g);
-                List<Node> searchPath = searchPathList.get(g);
-                MinMaxStats minMaxStats = minMaxStatsList.get(g);
-                ActionHistory history = historyList.get(g);
-                searchPath.add(node);
-                while (node.expanded()) {
-                    Map.Entry<Action, Node> actionNodeEntry = selectChild(node, minMaxStats);
-                    Action action = actionNodeEntry.getKey();
-                    history.addAction(action);
-                    node = actionNodeEntry.getValue();
-                    nodeList.set(g, node);
-                    node.setAction(action);// for debugging
-                    searchPath.add(node);
-                }
-            }
 
+            search(minMaxStatsList, historyList, nodeList, searchPathList);
 
-            List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
-                Node parent = searchPath.get(searchPath.size() - 2);
-                return parent.hiddenState;
-            }).collect(Collectors.toList());
-
-
-            List<Action> lastActions = historyList.stream().map(ActionHistory::lastAction).collect(Collectors.toList());
-            List<NDArray> actionList = lastActions.stream().map(action -> {
-                return network.getActionSpaceOnDevice().get(action.getIndex());
-                //   return a.duplicate();
-            }).collect(Collectors.toList());
-
-            if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
-            network.debugDump();
-            List<NetworkIO> networkOutputList = network.recurrentInferenceListDirect(hiddenStateList,
-                    actionList
-            );
-            network.debugDump();
-            if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
-//
-            for (int g = 0; g < nodeList.size(); g++) {
-                ActionHistory history = historyList.get(g);
-                Node node = nodeList.get(g);
-                NetworkIO networkOutput = Objects.requireNonNull(networkOutputList).get(g);
-                List<Node> searchPath = searchPathList.get(g);
-                MinMaxStats minMaxStats = minMaxStatsList.get(g);
-
-                expandNode(node, history.toPlay(), ActionHistory.actionSpace(config), networkOutput, false, config);
-
-                backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats, config);
-
-                // System.out.println(i + ": " + searchPathToString(searchPath, false));
-
-            }
-
+            expandAndBackpropagate(network, inferenceDuration, minMaxStatsList, historyList, nodeList, searchPathList);
 
         }
 
-
         clean(rootList);
         return minMaxStatsList;
+    }
+
+    private void expandAndBackpropagate(@NotNull Network network, @Nullable Duration inferenceDuration, List<MinMaxStats> minMaxStatsList, List<ActionHistory> historyList, List<Node> nodeList, List<List<Node>> searchPathList) {
+        List<Action> lastActions = historyList.stream().map(ActionHistory::lastAction).collect(Collectors.toList());
+        List<NDArray> actionList = lastActions.stream().map(action ->
+            network.getActionSpaceOnDevice().get(action.getIndex())
+         ).collect(Collectors.toList());
+
+        if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
+        List<NetworkIO> networkOutputList = recurrentInference(network, searchPathList, actionList);
+        if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
+
+        for (int g = 0; g < nodeList.size(); g++) {
+            ActionHistory history = historyList.get(g);
+            Node node = nodeList.get(g);
+            NetworkIO networkOutput = Objects.requireNonNull(networkOutputList).get(g);
+            List<Node> searchPath = searchPathList.get(g);
+            MinMaxStats minMaxStats = minMaxStatsList.get(g);
+
+            expandNode(node, history.toPlay(), ActionHistory.actionSpace(config), networkOutput, false);
+
+            backpropagate(searchPath, networkOutput.getValue(), history.toPlay(), config.getDiscount(), minMaxStats);
+
+        }
+    }
+
+    @Nullable
+    private List<NetworkIO> recurrentInference(@NotNull Network network, List<List<Node>> searchPathList, List<NDArray> actionList) {
+        List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
+            Node parent = searchPath.get(searchPath.size() - 2);
+            return parent.hiddenState;
+        }).collect(Collectors.toList());
+        return network.recurrentInferenceListDirect(hiddenStateList, actionList);
+    }
+
+    private void search(List<MinMaxStats> minMaxStatsList, List<ActionHistory> historyList, List<Node> nodeList, List<List<Node>> searchPathList) {
+        for (int g = 0; g < nodeList.size(); g++) {
+            Node node = nodeList.get(g);
+            List<Node> searchPath = searchPathList.get(g);
+            MinMaxStats minMaxStats = minMaxStatsList.get(g);
+            ActionHistory history = historyList.get(g);
+            searchPath.add(node);
+            while (node.expanded()) {
+                Map.Entry<Action, Node> actionNodeEntry = selectChild(node, minMaxStats);
+                Action action = actionNodeEntry.getKey();
+                history.addAction(action);
+                node = actionNodeEntry.getValue();
+                nodeList.set(g, node);
+                node.setAction(action);// for debugging
+                searchPath.add(node);
+            }
+        }
     }
 
     private void clean(@NotNull List<Node> rootList) {
@@ -253,7 +247,7 @@ public class MCTS {
     }
 
     private @NotNull String searchPathToString(@NotNull List<Node> searchPath, boolean withValue, MinMaxStats minMaxStats) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         searchPath.forEach(
                 n -> {
                     if (n.getAction() != null) {
@@ -273,7 +267,7 @@ public class MCTS {
     }
 
     public void expandNode(@NotNull Node node, Player toPlay, @NotNull List<Action> actions, NetworkIO networkOutput,
-                           boolean fastRuleLearning, MuZeroConfig config) {
+                           boolean fastRuleLearning) {
         node.toPlay = toPlay;
         if (!fastRuleLearning) {
             node.hiddenState = networkOutput.getHiddenState();
@@ -317,7 +311,7 @@ public class MCTS {
     public Action selectActionByMax(@NotNull Node node, MinMaxStats minMaxStats) {
         List<Pair<Action, Double>> distributionInput = getDistributionInput(node, config, minMaxStats);
 
-        return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).get().getKey();
+        return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).orElseThrow(MuZeroException::new).getKey();
     }
 
     public Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
@@ -332,14 +326,10 @@ public class MCTS {
     }
 
 
-    private double visitSoftmaxTemperature(int numMoves, int numTrainingSteps) {
-        return config.getVisitSoftmaxTemperatureFn().apply(numMoves, numTrainingSteps);
-    }
-
     public Action selectActionByMaxFromDistribution(List<Pair<Action, Double>> distributionInput) {
         Collections.shuffle(distributionInput);
         return distributionInput.stream()
                 .max(Comparator.comparing(Pair::getSecond))
-                .get().getKey();
+                .orElseThrow(MuZeroException::new).getKey();
     }
 }

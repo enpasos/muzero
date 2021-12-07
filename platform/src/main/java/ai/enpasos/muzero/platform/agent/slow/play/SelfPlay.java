@@ -21,13 +21,15 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import static ai.enpasos.muzero.platform.agent.slow.play.PlayManager.getAllActionsOnDevice;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -46,10 +48,10 @@ public class SelfPlay {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             List<NDArray> actionSpaceOnDevice = getAllActionsOnDevice(network.getConfig(), nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
-                network.createAndSetHiddenStateNDManager(nDManager, true);
+            network.createAndSetHiddenStateNDManager(nDManager, true);
 
             while (episode.notFinished()) {
-                episode.play(config, network, render, fastRuleLearning, explorationNoise);
+                episode.play(network, render, fastRuleLearning, explorationNoise);
             }
         }
 
@@ -63,6 +65,20 @@ public class SelfPlay {
     }
 
 
+    public static List<NDArray> getAllActionsOnDevice(@NotNull MuZeroConfig config, @NotNull NDManager ndManager) {
+        List<Action> actions = Objects.requireNonNull(config.newGame()).allActionsInActionSpace();
+        return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
+    }
+
+    public static void playMultipleEpisodes(Network network, @NotNull ReplayBuffer replayBuffer, @NotNull MuZeroConfig config, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
+        IntStream.range(0, config.getNumEpisodes()).forEach(i ->
+        {
+            List<Game> gameList = playGame(config, network, render, fastRuleLearning, explorationNoise);
+            gameList.forEach(replayBuffer::saveGame);
+
+            log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
+        });
+    }
 }
 
 

@@ -93,7 +93,7 @@ public class TicTacToeConfigFactory {
                 // local file based storage
                 .outputDir("./memory/")
 
-                .numPlays(1)
+                .numEpisodes(1)
                 //.numParallelPlays(500)
                 .numSimulations(30)
                 //     .windowSize(5000)
@@ -107,7 +107,7 @@ public class TicTacToeConfigFactory {
                 .numberOfTrainingSteps(4000)
 
 
-                .numParallelPlays(1000)
+                .numParallelGamesPlayed(1000)
                 .windowSize(10000)
 
                 // using the symmetry of the board to enhance the number of games played by the symmetryEnhancementFactor
