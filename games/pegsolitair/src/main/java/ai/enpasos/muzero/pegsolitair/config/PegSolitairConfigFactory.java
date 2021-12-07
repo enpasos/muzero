@@ -92,8 +92,8 @@ public class PegSolitairConfigFactory {
                 // local file based storage
                 .outputDir("./memory/")
 
-                .numPlays(1)
-                .numParallelPlays(1000)
+                .numEpisodes(1)
+                .numParallelGamesPlayed(1000)
                 .numSimulations(10)
                 .windowSize(10000)
                 .numChannels(128)

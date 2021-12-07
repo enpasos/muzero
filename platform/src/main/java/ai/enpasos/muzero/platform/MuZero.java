@@ -32,7 +32,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameIO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.platform.agent.slow.play.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +55,7 @@ public class MuZero {
     public static void playOnDeepThinking(Network network, ReplayBuffer replayBuffer, boolean render) {
         MuZeroConfig config = network.getConfig();
 
-        PlayManager.playParallel(network, replayBuffer, config, render, false, true);
+        SelfPlay.playMultipleEpisodes(network, replayBuffer, config, render, false, true);
     }
 
     public static void initialFillingBuffer(Network network, ReplayBuffer replayBuffer) {
@@ -64,7 +64,7 @@ public class MuZero {
 
         while (replayBuffer.getBuffer().getData().size() < config.getWindowSize()) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + config.getWindowSize());
-            PlayManager.playParallel(network, replayBuffer, config, false, true, true);
+            SelfPlay.playMultipleEpisodes(network, replayBuffer, config, false, true, true);
             replayBuffer.saveState();
         }
     }

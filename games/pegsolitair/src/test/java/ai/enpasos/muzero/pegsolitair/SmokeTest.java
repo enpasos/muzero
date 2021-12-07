@@ -22,7 +22,7 @@ import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.slow.play.PlayManager;
+import ai.enpasos.muzero.platform.agent.slow.play.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ public class SmokeTest {
 
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            PlayManager.playParallel(network, replayBuffer, config, true, true, true);
+            SelfPlay.playMultipleEpisodes(network, replayBuffer, config, true, true, true);
         }
 
 

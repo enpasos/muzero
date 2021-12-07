@@ -66,8 +66,8 @@ public class MuZeroConfig {
     private final float valueLossWeight;
     // network training - adam optimizer
     private final float lrInit;
-    private final int numParallelPlays;
-    private final int numPlays;
+    private final int numParallelGamesPlayed;
+    private final int numEpisodes;
     private final double rootDirichletAlpha;
     private final double rootExplorationFraction;
     private final @NotNull BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFn;

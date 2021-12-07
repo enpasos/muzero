@@ -124,7 +124,7 @@ public class Inference {
             Node root = new Node(network.getConfig(), 0);
 
 
-            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false, network.getConfig());
+            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
 
             MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
             Action action = mcts.selectActionByMax(root, minMaxStats);

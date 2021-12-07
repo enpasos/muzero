@@ -130,23 +130,23 @@ public class GoConfigFactory {
 
 
                         .numSimulations(12)
-                        .numParallelPlays(250)
-                        .numPlays(4)
+                        .numParallelGamesPlayed(250)
+                        .numEpisodes(4)
 
 
                         .numSimulations(100)
-                        .numParallelPlays(100)
-                        .numPlays(10)
+                        .numParallelGamesPlayed(100)
+                        .numEpisodes(10)
 
 
                         .numSimulations(200)
-                        .numParallelPlays(50)
-                        .numPlays(20)
+                        .numParallelGamesPlayed(50)
+                        .numEpisodes(20)
 
 
                         .numSimulations(200)
-                        .numParallelPlays(1000)
-                        .numPlays(1)
+                        .numParallelGamesPlayed(1000)
+                        .numEpisodes(1)
 
 
                         .komi(6.5f)
@@ -202,8 +202,8 @@ public class GoConfigFactory {
 //                    .numSimulations(120)
 //                    .numParallelPlays(25)
                         .numSimulations(200)
-                        .numParallelPlays(100)
-                        .numPlays(10);
+                        .numParallelGamesPlayed(100)
+                        .numEpisodes(10);
                 //  .numPlays(20);
                 break;
         }

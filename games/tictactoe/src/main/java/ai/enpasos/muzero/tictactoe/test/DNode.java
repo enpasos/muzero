@@ -183,14 +183,12 @@ public class DNode {
             Node root = new Node(network.getConfig(), 0);
             MCTS mcts = new MCTS(this.game.getConfig());
             List<Action> legalActions = game.legalActions();
-            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false, network.getConfig());
+            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
 
             MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
 
             Action action = mcts.selectActionByMax(root, minMaxStats);
             actionIndexSelectedByNetwork = action.getIndex();
-
-
         }
         for (DNode n : children) {
             if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
