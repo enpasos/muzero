@@ -141,7 +141,7 @@ public class DNode {
     public void expand(@NotNull List<DNode> unterminatedGameNodes, @NotNull List<DNode> terminatedGameNodes) {
         if (!game.terminal() && game.legalActions().isEmpty()) {
             for (Action action : game.legalActions()) {
-                ZeroSumGame newGame = (ZeroSumGame) game.clone();
+                ZeroSumGame newGame = (ZeroSumGame) game.copy();
                 newGame.apply(action);
                 DNode child = new DNode(this, newGame);
                 this.children.add(child);

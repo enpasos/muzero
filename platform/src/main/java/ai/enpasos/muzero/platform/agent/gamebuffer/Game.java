@@ -31,34 +31,38 @@ import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * A single episode of interaction with the environment.
  */
 @Data
-public abstract class Game implements Serializable {
+public abstract class Game {
 
     protected boolean purelyRandom;
 
     protected GameDTO gameDTO;
 
-    protected transient MuZeroConfig config;
+    protected  MuZeroConfig config;
 
     protected int actionSpaceSize;
     protected double discount;
-    transient protected Environment environment;
+    protected Environment environment;
+    private Random r;
 
 
-    public Game(@NotNull MuZeroConfig config) {
+    protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
         this.gameDTO = new GameDTO(this);
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
+        r = new Random();
     }
 
-    public Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
+    protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
@@ -77,10 +81,15 @@ public abstract class Game implements Serializable {
         }
     }
 
-    public @NotNull Game clone() {
-        Game clone = decode(this.config, this.encode());
-        clone.replayToPosition(clone.getGameDTO().getActionHistory().size());
-        return clone;
+    public @NotNull Game copy() {
+        Game copy = getConfig().newGame();
+        copy.setGameDTO(this.gameDTO.copy());
+        copy.setConfig(this.getConfig());
+        copy.setDiscount(this.getDiscount());
+        copy.setEnvironment(this.getEnvironment());
+        copy.setActionSpaceSize(this.getActionSpaceSize());
+        copy.replayToPosition(copy.getGameDTO().getActionHistory().size());
+        return copy;
     }
 
 
@@ -162,8 +171,7 @@ public abstract class Game implements Serializable {
      * targets.append((0, last_reward, []))
      * return targets
      */
-    // TODO at the moment we are only using the board game case.
-    // the implementation also addresses the more general case, but might be not correct in detail
+
     public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Player toPlay, Sample sample, MuZeroConfig config) {
         switch (config.getPlayerMode()) {
             case singlePlayer:
@@ -230,7 +238,7 @@ public abstract class Game implements Serializable {
                 target.policy = this.getGameDTO().getPolicyTarget().get(currentIndex);
 
             } else if (currentIndex == this.getGameDTO().getRootValues().size()) {
-                // BIG TODO: If we do not train the reward (as only boardgames are treated here)
+                // If we do not train the reward (as only boardgames are treated here)
                 // the value has to take the role of the reward on this node (needed in MCTS)
                 // if we were running the network with reward head
                 // the value would be 0 here
@@ -280,15 +288,6 @@ public abstract class Game implements Serializable {
 
     abstract public String render();
 
-    public byte @NotNull [] encode() {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)) {
-            oos.writeObject(this.gameDTO);
-        } catch (Exception e) {
-            throw new MuZeroException(e);
-        }
-        return byteArrayOutputStream.toByteArray();
-    }
 
     public abstract Observation getObservation(NDManager ndManager);
 
@@ -296,11 +295,6 @@ public abstract class Game implements Serializable {
 
     public @NotNull List<Integer> getRandomActionsIndices(int i) {
 
-        Random r = new Random();
-
-        int result = r.nextInt(this.config.getActionSpaceSize());
-
-        List<Action> actions = allActionsInActionSpace();
         List<Integer> actionList = new ArrayList<>();
         for (int j = 0; j < i; j++) {
             actionList.add(r.nextInt(this.config.getActionSpaceSize()));
