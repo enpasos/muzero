@@ -31,14 +31,13 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Inference {
 
+    private Inference() {}
 
     public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, MuZeroConfig config) {
         int actionIndexSelectedByNetwork;
@@ -48,7 +47,6 @@ public class Inference {
 
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-            Path modelPath = Paths.get("./");
 
             Network network = new Network(config, model);
             try (NDManager nDManager = network.getNDManager().newSubManager()) {
@@ -72,9 +70,8 @@ public class Inference {
 
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-            Path modelPath = Paths.get("./");
 
-            Network network = new Network(config, model); //, modelPath);
+            Network network = new Network(config, model);
             try (NDManager nDManager = network.getNDManager().newSubManager()) {
 
 
@@ -101,7 +98,6 @@ public class Inference {
         int actionIndexSelectedByNetwork = -1;
         MCTS mcts = new MCTS(game.getConfig());
         List<Action> legalActions = game.legalActions();
-        //  if (legalActions.size() == 0) return Pair.create(0d, -1);
         if (!withMCTS) {
 
             float[] policyValues = networkOutput.getPolicyValues();
