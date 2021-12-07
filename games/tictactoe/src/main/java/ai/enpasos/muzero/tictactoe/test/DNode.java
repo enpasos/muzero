@@ -109,8 +109,8 @@ public class DNode {
             this.children.forEach(n -> n.setPerfectValuesOnDescendants(nodesWhereADecisionMatters));
             // now all the descendants have it
             // we are looking for options to force that means assuming that the opponent could take the best option
-            this.perfectValue = -1 * this.children.stream().min(Comparator.comparing(DNode::getPerfectValue)).get().perfectValue;
-            this.worstValue = -1 * this.children.stream().max(Comparator.comparing(DNode::getPerfectValue)).get().perfectValue;
+            this.perfectValue = -1 * this.children.stream().min(Comparator.comparing(DNode::getPerfectValue)).orElseThrow(MuZeroException::new).perfectValue;
+            this.worstValue = -1 * this.children.stream().max(Comparator.comparing(DNode::getPerfectValue)).orElseThrow(MuZeroException::new).perfectValue;
             if (!Objects.equals(this.perfectValue, this.worstValue)) {
                 nodesWhereADecisionMatters.add(this);
                 decisionMatters = true;

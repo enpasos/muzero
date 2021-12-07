@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.go.config.environment;
 
 import ai.enpasos.muzero.go.config.environment.basics.Point;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -27,8 +28,8 @@ public class GridTest {
         var mygrid = grid.updateStringWhenAddingStone(new Point(2, 2), string);
 
         // should be black at 2, 3
-        assertSame(mygrid.getPlayer(new Point(2, 3)).get(), BlackPlayer);
-        assertEquals(mygrid.getString(new Point(2, 3)).get(), string);
+        assertSame(mygrid.getPlayer(new Point(2, 3)).orElseThrow(MuZeroException::new), BlackPlayer);
+        assertEquals(mygrid.getString(new Point(2, 3)).orElseThrow(MuZeroException::new), string);
 
         // should be empty elsewhere
         assertTrue(mygrid.getPlayer(new Point(1, 2)).isEmpty());
@@ -91,8 +92,8 @@ public class GridTest {
         // the black string is surrounded but not yet captured/removed. Its liberties are not updated here.
         assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BlackPlayer);
         assertSame(mygrid.getPlayer(new Point(2, 3)).get(), BlackPlayer);
-        assertEquals(2, mygrid.getString(new Point(2, 3)).get().numLiberties()); // to be captured black string
-        assertEquals(2, mygrid.getString(new Point(3, 3)).get().numLiberties()); // white string
+        assertEquals(2, mygrid.getString(new Point(2, 3)).orElseThrow(MuZeroException::new).numLiberties()); // to be captured black string
+        assertEquals(2, mygrid.getString(new Point(3, 3)).orElseThrow(MuZeroException::new).numLiberties()); // white string
 
 
         // should have a captured black string that is captured by surrounding white string
@@ -106,8 +107,8 @@ public class GridTest {
 
 
         // should have surrounding white strings with more liberties after black's capture
-        assertEquals(6, mygrid.getString(new Point(1, 2)).get().numLiberties());
-        assertEquals(4, mygrid.getString(new Point(3, 3)).get().numLiberties());
+        assertEquals(6, mygrid.getString(new Point(1, 2)).orElseThrow(MuZeroException::new).numLiberties());
+        assertEquals(4, mygrid.getString(new Point(3, 3)).orElseThrow(MuZeroException::new).numLiberties());
         assertTrue(mygrid.getString(new Point(4, 4)).isEmpty());
 
     }

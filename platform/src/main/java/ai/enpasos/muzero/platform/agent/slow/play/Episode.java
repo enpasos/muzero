@@ -95,7 +95,7 @@ public class Episode {
 
     private void keepTrackOfOpenGames(@NotNull MuZeroConfig config) {
         List<Game> newGameDoneList = gameList.stream()
-                .filter(game -> game.terminal() || game.getGameDTO().getActionHistory().size() >= config.getMaxMoves())
+                .filter(game -> game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves())
                 .collect(Collectors.toList());
 
         gamesDoneList.addAll(newGameDoneList);
@@ -119,7 +119,7 @@ public class Episode {
 
 
             if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
-                List<float[]> childVisitsList = justOneOfTheGames().getGameDTO().getPolicyTarget();
+                List<float[]> childVisitsList = justOneOfTheGames().getGameDTO().getPolicyTargets();
                 float[] childVisits = childVisitsList.get(childVisitsList.size() - 1);
                 justOneOfTheGames().renderMCTSSuggestion(config, childVisits);
 

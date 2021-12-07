@@ -96,7 +96,7 @@ public class GameIO {
         if (latestGameNo == -1) {
             try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
                 OptionalInt no = walk.filter(Files::isRegularFile)
-                        .mapToInt(path -> Integer.parseInt(path.toString().substring((getGamesBasedir(config) + "/game").length())))
+                        .mapToInt(path -> Integer.parseInt(path.toString().substring((getGamesBasedir(config) + "/game").length()).replace(".zip", "")))
                         .max();
                 if (no.isPresent()) {
                     latestGameNo = no.getAsInt();

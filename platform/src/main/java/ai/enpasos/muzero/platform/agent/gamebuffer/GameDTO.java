@@ -23,7 +23,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,30 +34,30 @@ import java.util.List;
 public class GameDTO  {
 
     @EqualsAndHashCode.Include
-    private List<Integer> actionHistory;
+    private List<Integer> actions;
 
     private List<Float> rewards;
-    private List<float[]> policyTarget;
+    private List<float[]> policyTargets;
     private List<Float> rootValues;
 
     public GameDTO(@NotNull Game game) {
-        this.setActionHistory(new ArrayList<>());
+        this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
-        this.policyTarget = new ArrayList<>();
+        this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
     }
 
     public @NotNull String getActionHistoryAsString() {
-        StringBuilder buf = new StringBuilder(this.getActionHistory().size());
-        this.getActionHistory().forEach(a -> buf.append(a.intValue()).append("."));
+        StringBuilder buf = new StringBuilder(this.getActions().size());
+        this.actions.forEach(a -> buf.append(a.intValue()).append("."));
         return buf.toString();
     }
 
     public GameDTO copy() {
         GameDTO copy = new GameDTO();
         copy.rewards.addAll(this.rewards);
-        copy.actionHistory.addAll(this.actionHistory);
-        this.policyTarget.forEach(pT -> copy.policyTarget.add(Arrays.copyOf(pT, pT.length)));
+        copy.actions.addAll(this.actions);
+        this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         copy.rootValues.addAll(this.rootValues);
         return copy;
     }

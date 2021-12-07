@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.slow.play;
 
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Pair;
@@ -30,13 +31,13 @@ public class RegularizedPolicyOptimization {
                         Node child = an.getValue();
                         return child.valueScore(minMaxStats, config) + multiplierLambda * child.getPrior();
                     })
-                    .max().getAsDouble();
+                    .max().orElseThrow(MuZeroException::new);
             double alphaMax = list.stream()
                     .mapToDouble(an -> {
                         Node child = an.getValue();
                         return child.valueScore(minMaxStats, config);
                     })
-                    .max().getAsDouble() + multiplierLambda;
+                    .max().orElseThrow(MuZeroException::new) + multiplierLambda;
 
             double alpha = calcAlpha(list, multiplierLambda, alphaMin, alphaMax, config, minMaxStats);
 
@@ -47,6 +48,9 @@ public class RegularizedPolicyOptimization {
                             .collect(Collectors.toList());
 
         } else {
+            // if a node has never been visited during MCTS then the best estimation for the action selection to its child nodes
+            // is still the one from the network stored as prior (on the root possibly with noise)
+
             double sum = list.stream()
                     .mapToDouble(e -> e.getValue().getPrior())
                     .sum();

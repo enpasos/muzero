@@ -82,7 +82,7 @@ public class TicTacToeGame extends ZeroSumGame {
         environment = new TicTacToeEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
-            Action action = config.newAction(this.getGameDTO().getActionHistory().get(i));
+            Action action = config.newAction(this.getGameDTO().getActions().get(i));
             environment.step(action);
         }
     }
@@ -124,10 +124,10 @@ public class TicTacToeGame extends ZeroSumGame {
     @Override
     public String render() {
 
-        String r = this.getGameDTO().getActionHistory().size() + ": ";
+        String r = this.getGameDTO().getActions().size() + ": ";
         OneOfTwoPlayer player = null;
-        if (this.getGameDTO().getActionHistory().size() > 0) {
-            Action action = config.newAction(this.getGameDTO().getActionHistory().get(this.getGameDTO().getActionHistory().size() - 1));
+        if (this.getGameDTO().getActions().size() > 0) {
+            Action action = config.newAction(this.getGameDTO().getActions().get(this.getGameDTO().getActions().size() - 1));
             int colLastMove = ((TicTacToeAction) action).getCol();
 
             player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());

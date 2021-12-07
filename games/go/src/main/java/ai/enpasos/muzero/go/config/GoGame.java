@@ -77,7 +77,7 @@ public class GoGame extends Game {
         environment = new GoEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
-            Action action = config.newAction(this.getGameDTO().getActionHistory().get(i));
+            Action action = config.newAction(this.getGameDTO().getActions().get(i));
             environment.step(action);
         }
     }

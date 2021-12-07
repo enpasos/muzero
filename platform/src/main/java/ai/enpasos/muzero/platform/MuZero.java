@@ -224,18 +224,18 @@ public class MuZero {
 
                         // mean loss
                         List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-                        double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble();
+                        double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new);
                         model.setProperty("MeanLoss", Double.toString(meanLoss));
                         log.info("MeanLoss: " + meanLoss);
 
                         // mean value loss
                         double meanValueLoss = metrics.getMetricNames().stream()
                                 .filter(name -> name.startsWith("train_all") && name.contains("value_0"))
-                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
+                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
                                 .sum();
                         meanValueLoss += metrics.getMetricNames().stream()
                                 .filter(name -> name.startsWith("train_all") && !name.contains("value_0") && name.contains("value"))
-                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
+                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
                                 .sum();
                         model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
                         log.info("MeanValueLoss: " + meanValueLoss);
@@ -243,11 +243,11 @@ public class MuZero {
                         // mean policy loss
                         double meanPolicyLoss = metrics.getMetricNames().stream()
                                 .filter(name -> name.startsWith("train_all") && name.contains("policy_0"))
-                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
+                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
                                 .sum();
                         meanPolicyLoss += metrics.getMetricNames().stream()
                                 .filter(name -> name.startsWith("train_all") && !name.contains("policy_0") && name.contains("policy"))
-                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().getAsDouble())
+                                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
                                 .sum();
                         model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
                         log.info("MeanPolicyLoss: " + meanPolicyLoss);

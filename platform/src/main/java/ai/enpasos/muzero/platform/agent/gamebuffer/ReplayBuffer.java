@@ -73,24 +73,22 @@ public class ReplayBuffer {
 
         sample.setObservation(game.getObservation(ndManager));
 
-        List<Integer> actions = new ArrayList<>(game.getGameDTO().getActionHistory());
+        List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
 
         }
 
-
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
-
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, game.toPlay(), sample, config));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, sample, config));
 
         return sample;
     }
 
 
     public static int samplePosition(@NotNull Game game) {
-        int numActions = game.getGameDTO().getActionHistory().size();
+        int numActions = game.getGameDTO().getActions().size();
         return ThreadLocalRandom.current().nextInt(0, numActions + 1);  // one more positions than actions
     }
 
