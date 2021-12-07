@@ -38,7 +38,7 @@ public class Board {
     }
 
 
-    public Board clone() {
+    public Board copy() {
         Board clone = new Board();
         clone.holesOnTheBoard.addAll(this.holesOnTheBoard);
         clone.pegsOnTheBoard.addAll(this.pegsOnTheBoard);

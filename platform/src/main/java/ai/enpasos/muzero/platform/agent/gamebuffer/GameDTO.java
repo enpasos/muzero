@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -51,5 +52,14 @@ public class GameDTO  {
         StringBuilder buf = new StringBuilder(this.getActionHistory().size());
         this.getActionHistory().forEach(a -> buf.append(a.intValue()).append("."));
         return buf.toString();
+    }
+
+    public GameDTO copy() {
+        GameDTO copy = new GameDTO();
+        copy.rewards.addAll(this.rewards);
+        copy.actionHistory.addAll(this.actionHistory);
+        this.policyTarget.forEach(pT -> copy.policyTarget.add(Arrays.copyOf(pT, pT.length)));
+        copy.rootValues.addAll(this.rootValues);
+        return copy;
     }
 }

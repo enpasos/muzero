@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.List;
 
 
@@ -36,8 +35,8 @@ public class EnvironmentBase implements Environment {
 
     private static final String X_COORD = " A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y   Z ";
     private static final String X_COORD_SMALL = " A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ";
-    public int[][] board;
-    public transient MuZeroConfig config;
+    protected int[][] board;
+    protected transient MuZeroConfig config;
 
 
     public EnvironmentBase(@NotNull MuZeroConfig config) {

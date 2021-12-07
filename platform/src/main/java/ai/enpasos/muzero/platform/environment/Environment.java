@@ -27,7 +27,7 @@ import java.util.List;
  * The environment the agent is interacting with by applying actions and receiving rewards and new observations
  * of whatever the environment reveals about its new internal states.
  */
-public interface Environment extends Serializable {
+public interface Environment {
     /**
      * applies an action and gets immediate reward
      *

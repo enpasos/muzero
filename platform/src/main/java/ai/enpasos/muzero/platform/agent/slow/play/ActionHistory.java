@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ActionHistory implements Cloneable {
+public class ActionHistory   {
 
 
     private final @NotNull List<Integer> actions;
@@ -54,7 +54,7 @@ public class ActionHistory implements Cloneable {
         return actions;
     }
 
-    public @NotNull ActionHistory clone() {
+    public @NotNull ActionHistory copy() {
         return new ActionHistory(config, actions, actionSpaceSize);
     }
 

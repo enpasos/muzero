@@ -76,7 +76,7 @@ public class MCTS {
 
         for (int i = 0; i < numSimulations; i++) {
 
-            List<ActionHistory> historyList = actionHistoryList.stream().map(ActionHistory::clone).collect(Collectors.toList());
+            List<ActionHistory> historyList = actionHistoryList.stream().map(ActionHistory::copy).collect(Collectors.toList());
             List<Node> nodeList = new ArrayList<>(rootList);
             List<List<Node>> searchPathList = IntStream.range(0, rootList.size())
                     .mapToObj(nL -> new ArrayList<Node>())
