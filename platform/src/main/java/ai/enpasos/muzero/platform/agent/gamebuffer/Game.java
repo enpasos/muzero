@@ -121,7 +121,7 @@ public abstract class Game implements Serializable {
             }
         } else {
 
-            List<Pair<Action, Double>> distributionInput = MCTS.getDistributionInput(root, config, minMaxStats);
+            List<Pair<Action, Double>> distributionInput = RegularizedPolicyOptimization.getDistributionInput(root, config, minMaxStats);
             for (Pair<Action, Double> e : distributionInput) {
                 Action action = e.getKey();
                 double v = e.getValue();

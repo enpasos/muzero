@@ -24,6 +24,7 @@ import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
 import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.platform.agent.slow.play.Node;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +71,9 @@ public class DNode {
                 return bestForceableValuePlayerA;
             case PlayerB:
                 return bestForceableValuePlayerB;
+            default:
+                return null;
         }
-        return null;
     }
 
     public void setBestForceableValue(@NotNull OneOfTwoPlayer player, Integer value) {
@@ -82,6 +84,7 @@ public class DNode {
             case PlayerB:
                 bestForceableValuePlayerB = value;
                 break;
+            default:
         }
     }
 
@@ -97,7 +100,7 @@ public class DNode {
     }
 
     private void setPerfectValuesOnDescendants(@NotNull Set<DNode> nodesWhereADecisionMatters) {
-        if (this.children.size() == 0) {
+        if (this.children.isEmpty()) {
             Integer value;
             value = getValue();
             this.perfectValue = value;
@@ -136,7 +139,7 @@ public class DNode {
     }
 
     public void expand(@NotNull List<DNode> unterminatedGameNodes, @NotNull List<DNode> terminatedGameNodes) {
-        if (!game.terminal() && game.legalActions().size() > 0) {
+        if (!game.terminal() && game.legalActions().isEmpty()) {
             for (Action action : game.legalActions()) {
                 ZeroSumGame newGame = (ZeroSumGame) game.clone();
                 newGame.apply(action);
@@ -159,7 +162,7 @@ public class DNode {
             for (DNode node : this.children) {
                 node.addAIDecisions(network, player, withMCTS);
             }
-        } else if (this.children.size() > 0) {
+        } else if (!this.children.isEmpty()) {
             this.aiChosenChild = aiDecision(network, withMCTS);
             Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS);
 
@@ -221,7 +224,7 @@ public class DNode {
     }
 
     public void collectDecisionNodes(@NotNull Set<DNode> decisionNodes) {
-        if (this.children.size() > 0) {
+        if (!this.children.isEmpty()) {
             decisionNodes.add(this);
             this.children.forEach(n -> n.collectDecisionNodes(decisionNodes));
         }
@@ -254,12 +257,12 @@ public class DNode {
                 // the player decides
                 this.setBestForceableValue(player, this.children.stream().
                         max(Comparator.comparing(n -> n.getBestForceableValue(player)))
-                        .get().getBestForceableValue(player));
+                        .orElseThrow(MuZeroException::new).getBestForceableValue(player));
             } else {
                 // the opponent decides
                 this.setBestForceableValue(player, this.children.stream().
                         min(Comparator.comparing(n -> n.getBestForceableValue(player)))
-                        .get().getBestForceableValue(player));
+                        .orElseThrow(MuZeroException::new).getBestForceableValue(player));
             }
         }
     }
