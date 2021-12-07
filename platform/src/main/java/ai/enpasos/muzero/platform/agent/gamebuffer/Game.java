@@ -142,34 +142,6 @@ public abstract class Game {
     }
 
 
-    /**
-     * def make_target(self, state_index: int, num_unroll_steps: int, td_steps: int,
-     * to_play: Player):
-     * # The value target is the discounted root value of the search tree N steps
-     * # into the future, plus the discounted sum of all rewards until then.
-     * targets = []
-     * for current_index in range(state_index, state_index + num_unroll_steps + 1):
-     * bootstrap_index = current_index + td_steps
-     * if bootstrap_index < len(self.root_values):
-     * value = self.root_values[bootstrap_index] * self.discount**td_steps
-     * else:
-     * value = 0
-     * <p>
-     * for i, reward in enumerate(self.rewards[current_index:bootstrap_index]):
-     * value += reward * self.discount**i  # pytype: disable=unsupported-operands
-     * <p>
-     * if current_index > 0 and current_index <= len(self.rewards):
-     * last_reward = self.rewards[current_index - 1]
-     * else:
-     * last_reward = None
-     * <p>
-     * if current_index < len(self.root_values):
-     * targets.append((value, last_reward, self.child_visits[current_index]))
-     * else:
-     * # States past the end of games are treated as absorbing states.
-     * targets.append((0, last_reward, []))
-     * return targets
-     */
 
     public @NotNull List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, Sample sample, MuZeroConfig config) {
         switch (config.getPlayerMode()) {
@@ -240,9 +212,10 @@ public abstract class Game {
                 // as long as there is no reward network  // TODO: make configurable
                 if (perspectiveChange) {
                     currentIndexPerspective =  toPlay() == OneOfTwoPlayer.PlayerA ? 1 : -1;
-                    currentIndexPerspective *= Math.pow(-1, currentIndex-1-stateIndex);
+                    currentIndexPerspective *= Math.pow(-1, this.getGameDTO().getRewards().size()-1-stateIndex);
                 }
-                target.value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size()-1) * currentIndexPerspective * winnerPerspective;  // this is not really the value, it is taking the role of the reward here
+                value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size()-1) * currentIndexPerspective * winnerPerspective;
+                target.value = (float)value;  // this is not really the value, it is taking the role of the reward here
                 target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
@@ -261,6 +234,13 @@ public abstract class Game {
                 // for board games (without a reward network) the value network
                 // does not have to change the value after the final move
                 //
+
+                if (perspectiveChange) {
+                    currentIndexPerspective =  toPlay() == OneOfTwoPlayer.PlayerA ? 1 : -1;
+                    currentIndexPerspective *= Math.pow(-1, this.getGameDTO().getRewards().size()-1-stateIndex);
+                }
+                value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size()-1) * currentIndexPerspective * winnerPerspective;
+
                 target.value = config.isAbsorbingStateDropToZero() ? 0f : (float) value;
                 target.reward = lastReward;
                 target.policy = new float[this.actionSpaceSize];
