@@ -50,7 +50,7 @@ public class PegSolitairEnvironment implements Environment {
         Jump jump = ActionAdapter.getJump(action);
         board.applyJump(jump);
 
-        if (!board.getLegalJumps().isEmpty()) {
+        if (board.getLegalJumps().isEmpty()) {
             return board.getScore();
         } else {
             return 0f;

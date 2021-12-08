@@ -47,14 +47,8 @@ public class ValueExtractor {
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
-        List<Pair<List<Integer>,Float>> pairs = replayBuffer.getBuffer().getGames().stream().map(g ->
-                {
-                    Pair<List<Integer>,Float> pair = new Pair(g.actionHistory().getActionIndexList(), g.getLastReward());
-                    return pair;
-                })
-                .sorted(Comparator
-                        .comparing((Pair<List<Integer>,Float> p) -> p.getValue())
-                        .thenComparing((Pair<List<Integer>,Float> p) -> p.getKey().toString()))
+        List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
+                .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
                 .collect(Collectors.toList());
 
         pairs.forEach(p -> System.out.println(p.getKey() + "; " + p.getValue()));
