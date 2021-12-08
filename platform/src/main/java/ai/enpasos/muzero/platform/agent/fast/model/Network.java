@@ -79,8 +79,6 @@ public class Network {
             }
         }
 
-        //  actionSpaceOnDevice = getAllActionsOnDevice(config, model.getNDManager());
-
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
         DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
@@ -116,7 +114,8 @@ public class Network {
         return epoch;
     }
 
-    @SuppressWarnings("EmptyMethod")
+
+    @SuppressWarnings("squid:S125")
     public static void debugDumpFromTrainer(Trainer trainer) {
         //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
     }
@@ -130,22 +129,22 @@ public class Network {
     }
 
     public void createAndSetHiddenStateNDManager(NDManager parentNDManager, boolean force) {
-        if (force || initialInference.hiddenStateNDManager == null) {
+        if (force || initialInference.getHiddenStateNDManager() == null) {
             NDManager newHiddenStateNDManager = null;
-            if (!MuZeroConfig.hiddenStateRemainOnGPU) {
+            if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU) {
                 newHiddenStateNDManager = parentNDManager.newSubManager(Device.cpu());
             } else {
                 newHiddenStateNDManager = parentNDManager.newSubManager(Device.gpu());
             }
-            initialInference.hiddenStateNDManager = newHiddenStateNDManager;
-            recurrentInference.hiddenStateNDManager = newHiddenStateNDManager;
+            initialInference.setHiddenStateNDManager(newHiddenStateNDManager);
+            recurrentInference.setHiddenStateNDManager(newHiddenStateNDManager);
         }
     }
 
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager, boolean force) {
-        if (force || initialInference.hiddenStateNDManager == null) {
-            initialInference.hiddenStateNDManager = hiddenStateNDManager;
-            recurrentInference.hiddenStateNDManager = hiddenStateNDManager;
+        if (force || initialInference.getHiddenStateNDManager() == null) {
+            initialInference.setHiddenStateNDManager(hiddenStateNDManager);
+            recurrentInference.setHiddenStateNDManager(hiddenStateNDManager);
         }
     }
 
@@ -199,7 +198,7 @@ public class Network {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }
 
-    @SuppressWarnings("EmptyMethod")
+    @SuppressWarnings("squid:S125")
     public void debugDump() {
         //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }

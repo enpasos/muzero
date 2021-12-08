@@ -15,9 +15,7 @@ public class GoBoardBoundsChecker {
     }
 
     static GoBoardBoundsChecker get(int size) {
-        if (!map.containsKey(size)) {
-            map.put(size, new GoBoardBoundsChecker(size));
-        }
+        map.computeIfAbsent(size, GoBoardBoundsChecker::new);
         return map.get(size);
 
     }

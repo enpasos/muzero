@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ActionHistory   {
+public class ActionHistory {
 
 
     private final @NotNull List<Integer> actions;
@@ -67,10 +67,10 @@ public class ActionHistory   {
     }
 
     public Player toPlay() {
-        if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
             int t = this.actions.size();
-            if (t % 2 == 0) return OneOfTwoPlayer.PlayerA;
-            else return OneOfTwoPlayer.PlayerB;
+            if (t % 2 == 0) return OneOfTwoPlayer.PLAYER_A;
+            else return OneOfTwoPlayer.PLAYER_B;
         } else {
             return null;
         }

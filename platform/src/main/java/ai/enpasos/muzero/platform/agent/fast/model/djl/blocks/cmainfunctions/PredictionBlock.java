@@ -49,7 +49,7 @@ public class PredictionBlock extends MySequentialBlock {
                 .add(Activation::relu)
                 .add(Linear.builder()
                         .setUnits(1).build());
-        if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
             valueHead.add(Activation::tanh);
         }
 

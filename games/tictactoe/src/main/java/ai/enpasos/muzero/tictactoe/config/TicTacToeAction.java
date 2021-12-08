@@ -28,8 +28,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
-
 @Data
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(callSuper = true)

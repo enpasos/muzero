@@ -43,7 +43,8 @@ public class TicTacToeConfigFactory {
                 .modelName("MuZero-TicTacToe")
                 .gameClass(TicTacToeGame.class)
                 .actionClass(TicTacToeAction.class)
-                .playerMode(PlayerMode.twoPlayers)
+                .playerMode(PlayerMode.TWO_PLAYERS)
+                .networkWithRewardHead(false)
 
                 // game/environment
                 .maxMoves(size * size) // in a game

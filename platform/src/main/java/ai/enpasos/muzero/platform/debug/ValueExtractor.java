@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -36,6 +37,8 @@ import static ai.enpasos.muzero.platform.agent.Inference.aiValue;
 
 @Slf4j
 public class ValueExtractor {
+
+    private ValueExtractor() {}
 
     public static String listValuesForTrainedNetworks(MuZeroConfig config, List<Integer> actions) throws IOException {
 
@@ -47,11 +50,8 @@ public class ValueExtractor {
             IntStream.range(0, actions.size() + 1).forEach(
                     t -> {
                         try {
-                            if (t == 24) {
-                                int i = 42;
-                            }
                             double valuePlayerA = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
-                            if (config.getPlayerMode() == PlayerMode.twoPlayers) {
+                            if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                                 valuePlayerA *= Math.pow(-1, t);
                             }
                             csvPrinter.printRecord(t,
@@ -74,14 +74,10 @@ public class ValueExtractor {
 
         replayBuffer.loadLatestState();
 
-
-        // replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.actionHistory().getActionIndexList()));
-
-
         Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
 
         List<Integer> actions = game.actionHistory().getActionIndexList();
-        System.out.println(actions);
+        log.debug(actions.toString());
         return actions;
     }
 

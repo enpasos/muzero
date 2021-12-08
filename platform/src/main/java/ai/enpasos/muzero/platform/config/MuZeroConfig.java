@@ -35,8 +35,7 @@ import java.util.function.Function;
 @Builder
 public class MuZeroConfig {
 
-    public static boolean hiddenStateRemainOnGPU = false;
-
+    public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
 
     private final PlayerMode playerMode;
 
@@ -50,6 +49,7 @@ public class MuZeroConfig {
     private final int boardWidth;
     private final int actionSpaceSize;
     // network sizing
+    private final boolean networkWithRewardHead;  // at the moment
     private final int numObservationLayers;
     private final int numActionLayers;
     private final int numChannels;

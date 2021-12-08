@@ -96,7 +96,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     }
 
     public boolean terminal() {
-        return hasPlayerWon(OneOfTwoPlayer.PlayerA) || hasPlayerWon(OneOfTwoPlayer.PlayerB);
+        return hasPlayerWon(OneOfTwoPlayer.PLAYER_A) || hasPlayerWon(OneOfTwoPlayer.PLAYER_B);
     }
 
     public boolean hasPlayerWon(@NotNull OneOfTwoPlayer player) {

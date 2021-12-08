@@ -30,7 +30,9 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +83,7 @@ public class ReplayBuffer {
 
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps, sample, config));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps));
 
         return sample;
     }
@@ -140,7 +142,7 @@ public class ReplayBuffer {
                 .filter(g -> {
                     if (g instanceof ZeroSumGame) {
                         Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
-                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerA;
+                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_A;
                     } else {
                         return true;
                     }
@@ -151,7 +153,7 @@ public class ReplayBuffer {
                 .filter(g -> {
                     if (g instanceof ZeroSumGame) {
                         Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
-                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PlayerB;
+                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_B;
                     } else {
                         return true;
                     }
@@ -163,7 +165,7 @@ public class ReplayBuffer {
     }
 
     public void saveState() {
-        String filename =  "buffer" + buffer.getCounter();
+        String filename = "buffer" + buffer.getCounter();
         String pathname = MuZero.getGamesBasedir(config) + File.separator + filename + ".zip";
         log.info("saving ... " + pathname);
 
@@ -194,7 +196,7 @@ public class ReplayBuffer {
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (ZipInputStream zis = new ZipInputStream(fis)) {
                 zis.getNextEntry();
-                byte[] raw =  zis.readAllBytes();
+                byte[] raw = zis.readAllBytes();
                 this.buffer = decodeDTO(raw);
                 rebuildGames();
                 this.buffer.setWindowSize(config.getWindowSize());

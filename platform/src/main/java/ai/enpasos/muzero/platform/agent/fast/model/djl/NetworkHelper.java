@@ -52,15 +52,13 @@ import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstructio
 @Slf4j
 public class NetworkHelper {
 
+    private NetworkHelper() {}
 
     public static int numberOfLastTrainingStep(@NotNull MuZeroConfig config) {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
-        boolean withSymmetryEnrichment = true;
-
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-
 
             if (model.getBlock() == null) {
                 MuZeroBlock block = new MuZeroBlock(config);

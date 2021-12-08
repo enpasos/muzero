@@ -25,12 +25,13 @@ import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import org.jetbrains.annotations.NotNull;
 
+import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+
 public class RescaleBlock extends AbstractBlock {
 
-    private static final byte VERSION = 2;
 
     public RescaleBlock() {
-        super(VERSION);
+        super(MYVERSION);
     }
 
 

@@ -55,7 +55,7 @@ public class MCTS {
                 node.setValueSum(node.getValueSum() - value);
             }
             node.setVisitCount(node.getVisitCount() + 1);
-            value = node.reward + discount * value;
+            value = node.getReward() + discount * value;
             minMaxStats.update(value);
         }
     }
@@ -95,8 +95,8 @@ public class MCTS {
     private void expandAndBackpropagate(@NotNull Network network, @Nullable Duration inferenceDuration, List<MinMaxStats> minMaxStatsList, List<ActionHistory> historyList, List<Node> nodeList, List<List<Node>> searchPathList) {
         List<Action> lastActions = historyList.stream().map(ActionHistory::lastAction).collect(Collectors.toList());
         List<NDArray> actionList = lastActions.stream().map(action ->
-            network.getActionSpaceOnDevice().get(action.getIndex())
-         ).collect(Collectors.toList());
+                network.getActionSpaceOnDevice().get(action.getIndex())
+        ).collect(Collectors.toList());
 
         if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
         List<NetworkIO> networkOutputList = recurrentInference(network, searchPathList, actionList);
@@ -120,7 +120,7 @@ public class MCTS {
     private List<NetworkIO> recurrentInference(@NotNull Network network, List<List<Node>> searchPathList, List<NDArray> actionList) {
         List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
             Node parent = searchPath.get(searchPath.size() - 2);
-            return parent.hiddenState;
+            return parent.getHiddenState();
         }).collect(Collectors.toList());
         return network.recurrentInferenceListDirect(hiddenStateList, actionList);
     }
@@ -180,15 +180,15 @@ public class MCTS {
 
     public void expandNode(@NotNull Node node, Player toPlay, @NotNull List<Action> actions, NetworkIO networkOutput,
                            boolean fastRuleLearning) {
-        node.toPlay = toPlay;
+        node.setToPlay(toPlay);
         if (!fastRuleLearning) {
-            node.hiddenState = networkOutput.getHiddenState();
-            node.reward = networkOutput.getReward();
+            node.setHiddenState(networkOutput.getHiddenState());
+            node.setReward(networkOutput.getReward());
         }
         if (fastRuleLearning) {
             double p = 1d / actions.size();
             for (Action action : actions) {
-                node.children.put(action, new Node(config, p));  // p/policySum = probability that this action is chosen
+                node.getChildren().put(action, new Node(config, p));  // p/policySum = probability that this action is chosen
             }
         } else {
             Map<Action, Float> policy = actions.stream()
@@ -200,7 +200,7 @@ public class MCTS {
             for (Map.Entry<Action, Float> e : policy.entrySet()) {
                 Action action = e.getKey();
                 Float p = e.getValue();
-                node.children.put(action, new Node(config, p / policySum));  // p/policySum = probability that this action is chosen
+                node.getChildren().put(action, new Node(config, p / policySum));  // p/policySum = probability that this action is chosen
             }
 
         }
@@ -210,7 +210,7 @@ public class MCTS {
 
         Action action = selectAction(node, minMaxStats);
 
-        return Map.entry(action, node.children.get(action));
+        return Map.entry(action, node.getChildren().get(action));
 
     }
 

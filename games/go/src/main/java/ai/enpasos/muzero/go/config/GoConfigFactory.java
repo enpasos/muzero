@@ -30,21 +30,19 @@ import java.util.function.BiFunction;
 @Slf4j
 public class GoConfigFactory {
 
+    private GoConfigFactory() {}
     @SuppressWarnings("CommentedOutCode")
     public static MuZeroConfig getGoInstance(int size) {
 
 
-        // TODO
-        // should depend on the size and the correspondingly the average number of moves in a game
-        // here 5 for size 5
-        // in the paper 30 for size 19
-        BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {
-            return (numMoves < 30) ? 1.0 : 0.1;   // TODO:  instead of 0.1 here use max rather than softmax
-        };
+        BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) ->
+            (numMoves < 30) ? 1.0 : 0.1;
+
 
 
         MuZeroConfig.MuZeroConfigBuilder builder = MuZeroConfig.builder()
-                .playerMode(PlayerMode.twoPlayers)
+                .playerMode(PlayerMode.TWO_PLAYERS)
+                .networkWithRewardHead(false)
                 .modelName("MuZero-Go-" + size)
 
                 .gameClass(GoGame.class)
@@ -128,29 +126,23 @@ public class GoConfigFactory {
                 builder
                         .numberTrainingStepsOnRandomPlay(0)
 
-
                         .numSimulations(12)
                         .numParallelGamesPlayed(250)
                         .numEpisodes(4)
-
 
                         .numSimulations(100)
                         .numParallelGamesPlayed(100)
                         .numEpisodes(10)
 
-
                         .numSimulations(200)
                         .numParallelGamesPlayed(50)
                         .numEpisodes(20)
-
 
                         .numSimulations(200)
                         .numParallelGamesPlayed(1000)
                         .numEpisodes(1)
 
-
                         .komi(6.5f)
-
 
 //                        .numSimulations(600)
 //                        .numParallelPlays(20)
@@ -193,6 +185,7 @@ public class GoConfigFactory {
                         .numChannels(128);        // 256 in the paper
                 break;
             case 9:
+            default:
                 builder
 
 
@@ -204,7 +197,6 @@ public class GoConfigFactory {
                         .numSimulations(200)
                         .numParallelGamesPlayed(100)
                         .numEpisodes(10);
-                //  .numPlays(20);
                 break;
         }
 

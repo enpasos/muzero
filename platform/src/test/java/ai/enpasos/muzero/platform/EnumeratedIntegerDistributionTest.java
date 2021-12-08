@@ -80,7 +80,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetNumericalVariance() {
-        Assert.assertEquals( testDistribution.getNumericalVariance(),7.84, 1e-10);
+        Assert.assertEquals(testDistribution.getNumericalVariance(), 7.84, 1e-10);
     }
 
     /**
@@ -88,7 +88,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetSupportLowerBound() {
-        Assert.assertEquals(testDistribution.getSupportLowerBound(),-1);
+        Assert.assertEquals(testDistribution.getSupportLowerBound(), -1);
     }
 
     /**
@@ -96,7 +96,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetSupportUpperBound() {
-        Assert.assertEquals(testDistribution.getSupportUpperBound(),7);
+        Assert.assertEquals(testDistribution.getSupportUpperBound(), 7);
     }
 
     /**

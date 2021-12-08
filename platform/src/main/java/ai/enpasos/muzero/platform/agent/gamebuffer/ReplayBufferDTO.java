@@ -24,22 +24,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReplayBufferDTO   {
+@SuppressWarnings("squid:S2065")
+public class ReplayBufferDTO {
 
+    final List<GameDTO> data = new ArrayList<>();
+    transient List<Game> games = new ArrayList<>();
     private String gameClassName;
     private long counter;
     private int windowSize;
-
-    final List<GameDTO> data = new ArrayList<>();
-    //  transient GameTree gameTree;
-    transient List<Game> games = new ArrayList<>();
 
 
     public ReplayBufferDTO(int windowSize, String gameClassName) {
@@ -52,7 +50,6 @@ public class ReplayBufferDTO   {
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
-        //  System.out.println(game.actionHistory().getActionIndexList());
         while (isBufferFilled()) {
             GameDTO toBeRemoved = data.get(0);
             Game gameToBeRemoved = config.newGame();
@@ -65,9 +62,7 @@ public class ReplayBufferDTO   {
             game.replayToPosition(game.actionHistory().getActionIndexList().size());
         }
         games.add(game);
-        //    getGameTree().addGame(game);
         counter++;
-        // System.out.println(game.actionHistory().getActionIndexList());
     }
 
 

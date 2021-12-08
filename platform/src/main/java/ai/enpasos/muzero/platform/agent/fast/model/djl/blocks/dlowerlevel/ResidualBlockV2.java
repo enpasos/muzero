@@ -30,14 +30,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
+import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+
 public class ResidualBlockV2 extends AbstractBlock {
 
-    private static final byte VERSION = 2;
 
     public final ParallelBlock block;
 
-    public ResidualBlockV2(int numChannels) { //, Shape strideShape) {
-        super(VERSION);
+    public ResidualBlockV2(int numChannels) {
+        super(MYVERSION);
 
         SequentialBlock b1;
         SequentialBlock identity;
@@ -98,8 +99,8 @@ public class ResidualBlockV2 extends AbstractBlock {
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         Shape[] current = inputs;
-        for (Block block : block.getChildren().values()) {
-            current = block.getOutputShapes(current);
+        for (Block myblock : block.getChildren().values()) {
+            current = myblock.getOutputShapes(current);
         }
         return current;
     }
