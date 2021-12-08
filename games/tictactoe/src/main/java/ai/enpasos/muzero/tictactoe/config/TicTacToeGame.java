@@ -32,6 +32,7 @@ import ai.enpasos.muzero.platform.agent.slow.play.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,8 +41,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Slf4j
+@SuppressWarnings("squid:S2160")
 public class TicTacToeGame extends ZeroSumGame {
 
+    public static final String PASS = "pass: ";
     final float[] @NotNull [] boardtransfer;
 
 
@@ -57,6 +61,7 @@ public class TicTacToeGame extends ZeroSumGame {
         boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
+    @Override
     public @NotNull TicTacToeEnvironment getEnvironment() {
         return (TicTacToeEnvironment) environment;
     }
@@ -96,7 +101,7 @@ public class TicTacToeGame extends ZeroSumGame {
         return boardtransfer;
     }
 
-
+    @SuppressWarnings("squid:S2095")
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
@@ -106,11 +111,9 @@ public class TicTacToeGame extends ZeroSumGame {
         // values in the range [0, 1]
         NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
         NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
-
         NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
 
         NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
-
 
         return new Observation(stacked);
     }
@@ -126,7 +129,7 @@ public class TicTacToeGame extends ZeroSumGame {
 
         String r = this.getGameDTO().getActions().size() + ": ";
         OneOfTwoPlayer player = null;
-        if (this.getGameDTO().getActions().size() > 0) {
+        if (!this.getGameDTO().getActions().isEmpty()) {
             Action action = config.newAction(this.getGameDTO().getActions().get(this.getGameDTO().getActions().size() - 1));
             int colLastMove = ((TicTacToeAction) action).getCol();
 
@@ -135,13 +138,13 @@ public class TicTacToeGame extends ZeroSumGame {
         }
         r += "\n";
         r += getEnvironment().render();
-        if (terminal() && this.getGameDTO().getRewards().size() > 0) {
+        if (terminal() && !this.getGameDTO().getRewards().isEmpty()) {
             if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
                 r += "\ndraw";
             } else {
                 r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
             }
-            System.out.println("\nG A M E  O V E R");
+            log.info("\nG A M E  O V E R");
         }
         return r;
     }
@@ -150,15 +153,15 @@ public class TicTacToeGame extends ZeroSumGame {
     public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
 
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("mcts suggestion:");
+
+        log.info("\nmcts suggestion:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
         }
-        System.out.println(EnvironmentBase.render(config, values));
+        log.info(EnvironmentBase.render(config, values));
         if (childVisits.length > boardSize) {
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
+            log.info(PASS + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
         }
     }
 
@@ -168,29 +171,28 @@ public class TicTacToeGame extends ZeroSumGame {
             double v = networkOutput.getValue();
             double p = (v + 1) / 2 * 100;
             int percent = (int) Math.round(p);
-            System.out.println();
-            System.out.println("network guess:");
+            log.info("\nnetwork guess:");
             if (!gameOver) {
                 int boardSize = config.getBoardHeight() * config.getBoardWidth();
                 for (int i = 0; i < boardSize; i++) {
                     values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
                 }
-                System.out.println(EnvironmentBase.render(config, values));
+                log.info(EnvironmentBase.render(config, values));
                 if (networkOutput.getPolicyValues().length > boardSize) {
-                    System.out.println("pass: " + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
+                    log.info(PASS + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
                 }
 
             }
             if (toPlay instanceof OneOfTwoPlayer)
-                System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
+                log.info("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
 
         }
     }
 
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("with exploration noise suggestion:");
+
+        log.info("\nwith exploration noise suggestion:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
@@ -202,14 +204,14 @@ public class TicTacToeGame extends ZeroSumGame {
                     = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
-        System.out.println(EnvironmentBase.render(config, values));
+        log.info(EnvironmentBase.render(config, values));
         if (boardSize < config.getActionSpaceSize()) {
             Action a = config.newAction(boardSize);
             float value = 0f;
             if (node.getChildren().containsKey(a)) {
                 value = (float) node.getChildren().get(a).getPrior();
             }
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
+            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
         }
     }
 

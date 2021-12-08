@@ -38,5 +38,9 @@ public class EnvironmentTest {
         game = config.newGame();
         Objects.requireNonNull(game).apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
         Assert.assertEquals(game.getLastReward(), 0f, 0.0);
+
+        game = config.newGame();
+        Objects.requireNonNull(game).apply(0, 1, 2, 4, 8, 7);
+        Assert.assertEquals(game.getLastReward(), 1f, 0.0);
     }
 }

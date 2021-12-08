@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class TicTacToeTest {
 
     public static void main(String[] args) {
@@ -64,40 +66,33 @@ public class TicTacToeTest {
                 .filter(d -> !bufferGameDTOs.contains(d))
                 .collect(Collectors.toSet());
 
-
-        Set<GameState> gameStateSet = gameTree.terminatedGameDTOs.stream()
-                .map(GameState::new)
-                .collect(Collectors.toSet());
-
-
-        System.out.println("terminatedGameDTOs           : " + gameTree.terminatedGameDTOs.size());
-        System.out.println("bufferGameDTOs               : " + bufferGameDTOs.size());
-        System.out.println("terminatedGameNotInBufferDTOs: " + terminatedGameNotInBufferDTOs.size());
+        log.info("terminatedGameDTOs           : " + gameTree.terminatedGameDTOs.size());
+        log.info("bufferGameDTOs               : " + bufferGameDTOs.size());
+        log.info("terminatedGameNotInBufferDTOs: " + terminatedGameNotInBufferDTOs.size());
 
         Set<DNode> decisionNodes = new HashSet<>();
         gameTree.rootNode.collectDecisionNodes(decisionNodes);
-        System.out.println("decisionNodes:                 " + decisionNodes.size());
+        log.info("decisionNodes:                 " + decisionNodes.size());
 
         Set<DNode> nodesWhereADecisionMatters = new HashSet<>();
         gameTree.rootNode.findNodesWhereADecisionMatters(nodesWhereADecisionMatters);
-        System.out.println("nodesWhereADecisionMatters:    " + nodesWhereADecisionMatters.size());
+        log.info("nodesWhereADecisionMatters:    " + nodesWhereADecisionMatters.size());
 
 
         List<DNode> wonByPlayerAGameNodes = gameTree.terminatedGameNodes.stream()
                 .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
                 .collect(Collectors.toList());
-        System.out.println("wonByPlayerAGameNodes: " + wonByPlayerAGameNodes.size());
+        log.info("wonByPlayerAGameNodes: " + wonByPlayerAGameNodes.size());
 
         List<DNode> wonByPlayerBGameNodes = gameTree.terminatedGameNodes.stream()
                 .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B))
                 .collect(Collectors.toList());
 
-        System.out.println("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
+        log.info("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-            Path modelPath = Paths.get("./");
 
-            Network network = new Network(config, model); //, modelPath);
+            Network network = new Network(config, model);
             try (NDManager nDManager = network.getNDManager().newSubManager()) {
 
 
@@ -106,11 +101,9 @@ public class TicTacToeTest {
 
 
                 List<DNode> gamesLostByPlayerA = new ArrayList<>();
-                List<DNode> gamesNotWonByPlayerA = new ArrayList<>();
                 notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, false, gamesLostByPlayerA);
 
                 List<DNode> gamesLostByPlayerB = new ArrayList<>();
-                List<DNode> gamesNotWonByPlayerB = new ArrayList<>();
                 notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, false, gamesLostByPlayerB);
 
 
@@ -121,10 +114,10 @@ public class TicTacToeTest {
                 notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, true, gamesLostByPlayerB2);
 
 
-                return gamesLostByPlayerA.size() == 0 &&
-                        gamesLostByPlayerB.size() == 0 &&
-                        gamesLostByPlayerA2.size() == 0 &&
-                        gamesLostByPlayerB2.size() == 0;
+                return gamesLostByPlayerA.isEmpty() &&
+                        gamesLostByPlayerB.isEmpty() &&
+                        gamesLostByPlayerA2.isEmpty() &&
+                        gamesLostByPlayerB2.isEmpty();
             }
 
         }
@@ -137,24 +130,18 @@ public class TicTacToeTest {
 
 
         gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
-        System.out.println("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
+        log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
 
 
     }
 
-    private static void nodesWithBadDecisions(@NotNull Set<DNode> nodesWhereADecisionMatters, @NotNull Network network, boolean withMCTS) {
-        Set<DNode> nodesWithBadDecisions = nodesWhereADecisionMatters.stream()
-                .filter(n -> n.isBadDecision(network, withMCTS))
-                .collect(Collectors.toSet());
-        System.out.println("nodesWithBadDecisions, withMCTS=" + withMCTS + ": " + nodesWithBadDecisions.size());
 
-    }
 
     private static @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
         rootNode.addAIDecisions(network, player, withMCTS);
         List<DNode> gamesLostByPlayerA = new ArrayList<>();
         rootNode.collectGamesLost(player, gamesLostByPlayerA);
-        System.out.println("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayerA.size());
+        log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayerA.size());
         return gamesLostByPlayerA;
     }
 

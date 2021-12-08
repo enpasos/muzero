@@ -19,7 +19,9 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
+import ai.enpasos.muzero.tictactoe.config.TicTacToeEnvironment;
 import org.jetbrains.annotations.NotNull;
 import org.testng.annotations.Test;
 
@@ -30,13 +32,21 @@ import static org.testng.AssertJUnit.assertTrue;
 
 public class GameTest {
 
+
     @Test
-    public void checkIfPlayerHasWon() {
+    public void checkTerminal() {
         check(new int[]{1, 5, 0, 4, 7, 2, 8, 6});
         check(new int[]{1, 5, 0, 4, 7, 2, 8, 3});
         check(new int[]{1, 5, 0, 4, 2});
         check(new int[]{0, 5, 4, 3, 8});
+        check(new int[]{2, 1, 4, 3, 6});
+        check(new int[]{1, 2, 4, 3, 7});
+        check(new int[]{3, 1, 4, 0, 5});
+        check(new int[]{6, 1, 7, 0, 8});
+
     }
+
+
 
     private void check(int @NotNull [] actions) {
         MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
