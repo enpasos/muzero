@@ -36,10 +36,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+
 
 public class MuZeroBlock extends AbstractBlock {
 
-    private static final byte VERSION = 2;
     private final @NotNull MuZeroConfig config;
 
     private final RepresentationBlock representationBlock;
@@ -48,7 +49,7 @@ public class MuZeroBlock extends AbstractBlock {
 
 
     public MuZeroBlock(@NotNull MuZeroConfig config) {
-        super(VERSION);
+        super(MYVERSION);
         this.config = config;
 
 

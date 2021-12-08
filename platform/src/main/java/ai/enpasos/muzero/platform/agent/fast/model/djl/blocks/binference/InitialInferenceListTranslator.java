@@ -37,21 +37,21 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.config.MuZeroConfig.hiddenStateRemainOnGPU;
+import static ai.enpasos.muzero.platform.config.MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
 
 public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
         NDArray hiddenStates;
         NDArray s = list.get(0);
-        if (hiddenStateRemainOnGPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
+        if (HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
             hiddenStates = s;
             SubModel submodel = (SubModel) ctx.getModel();
-            hiddenStates.attach(submodel.hiddenStateNDManager);
+            hiddenStates.attach(submodel.getHiddenStateNDManager());
         } else {
             hiddenStates = s.toDevice(Device.cpu(), false);
             NDManager hiddenStateNDManager = hiddenStates.getManager();
             SubModel submodel = (SubModel) ctx.getModel();
-            hiddenStates.attach(submodel.hiddenStateNDManager);
+            hiddenStates.attach(submodel.getHiddenStateNDManager());
             hiddenStateNDManager.close();
             s.close();
         }

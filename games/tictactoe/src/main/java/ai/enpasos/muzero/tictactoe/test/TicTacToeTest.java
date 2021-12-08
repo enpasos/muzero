@@ -84,12 +84,12 @@ public class TicTacToeTest {
 
 
         List<DNode> wonByPlayerAGameNodes = gameTree.terminatedGameNodes.stream()
-                .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerA))
+                .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
                 .collect(Collectors.toList());
         System.out.println("wonByPlayerAGameNodes: " + wonByPlayerAGameNodes.size());
 
         List<DNode> wonByPlayerBGameNodes = gameTree.terminatedGameNodes.stream()
-                .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PlayerB))
+                .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B))
                 .collect(Collectors.toList());
 
         System.out.println("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
@@ -107,18 +107,18 @@ public class TicTacToeTest {
 
                 List<DNode> gamesLostByPlayerA = new ArrayList<>();
                 List<DNode> gamesNotWonByPlayerA = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, false, gamesLostByPlayerA);
+                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, false, gamesLostByPlayerA);
 
                 List<DNode> gamesLostByPlayerB = new ArrayList<>();
                 List<DNode> gamesNotWonByPlayerB = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, false, gamesLostByPlayerB);
+                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, false, gamesLostByPlayerB);
 
 
                 List<DNode> gamesLostByPlayerA2 = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerA, true, gamesLostByPlayerA2);
+                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, true, gamesLostByPlayerA2);
 
                 List<DNode> gamesLostByPlayerB2 = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PlayerB, true, gamesLostByPlayerB2);
+                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, true, gamesLostByPlayerB2);
 
 
                 return gamesLostByPlayerA.size() == 0 &&

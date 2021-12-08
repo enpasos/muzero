@@ -20,16 +20,13 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ai.enpasos.muzero.platform.MuZero.getGamesBasedir;
@@ -37,37 +34,9 @@ import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
 
 @Slf4j
 public class GameIO {
-    private static int latestGameNo = -1;
 
-    private GameIO() {}
-
-//    public static List<Game> readGames(@NotNull MuZeroConfig config) {
-//        try (Stream<Path> walk = Files.walk(Paths.get(getGamesBasedir(config)))) {
-//            return walk.filter(path -> !path.toString().endsWith("games") && !path.toString().contains("buffer"))
-//                    // .limit(3000)
-//                    .map(path -> Game.decode(config, loadPathAsByteArray(path)))
-//                    .collect(Collectors.toList());
-//        } catch (IOException e) {
-//            throw new MuZeroException(e);
-//        }
-//    }
-
-//    public static @NotNull Game readGame(int i, @NotNull MuZeroConfig config) {
-//        try {
-//            return Game.decode(config, Files.readAllBytes(Paths.get(getGamesBasedir(config) + "/game" + i)));
-//        } catch (IOException e) {
-//            throw new MuZeroException(e);
-//        }
-//    }
-
-//    private static byte[] loadPathAsByteArray(@NotNull Path path) {
-//        try {
-//            log.debug("readGame " + path);
-//            return FileUtils.readFileToByteArray(path.toFile());
-//        } catch (IOException e) {
-//            throw new MuZeroException(e);
-//        }
-//    }
+    private GameIO() {
+    }
 
     public static int getLatestObjectNo(@NotNull MuZeroConfig config) {
 
@@ -83,11 +52,7 @@ public class GameIO {
         } catch (IOException e) {
             throw new MuZeroException(e);
         }
-
     }
-
-
-
 
     public static int getLatestBufferNo(@NotNull MuZeroConfig config) {
         Path gamesPath = Paths.get(getGamesBasedir(config));
@@ -110,7 +75,6 @@ public class GameIO {
         } catch (IOException e) {
             throw new MuZeroException(e);
         }
-
 
     }
 }

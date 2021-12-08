@@ -34,16 +34,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+
 
 public class SE extends AbstractBlock {
 
-    private static final byte VERSION = 1;
 
     public final ParallelBlock block;
 
 
     public SE(int numChannels) {
-        super(VERSION);
+        super(MYVERSION);
 
         SequentialBlock b1;
         SequentialBlock identity;

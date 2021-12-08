@@ -8,6 +8,7 @@ import ai.djl.training.evaluator.Evaluator;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
 import ai.djl.training.loss.SimpleCompositeLoss;
+import ai.enpasos.muzero.platform.common.Constants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,12 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Results are recorded for the following stages:
  *
  * <ul>
- *   <li>{@link #TRAIN_EPOCH} - This accumulates for the whole epoch and is recorded to a metric at
+ *   <li>{@link Constants#DIR_TRAIN_EPOCH} - This accumulates for the whole epoch and is recorded to a metric at
  *       the end of the epoch
- *   <li>{@link #TRAIN_PROGRESS} - This accumulates for {@link #progressUpdateFrequency} batches and
+ *   <li>{@link Constants#DIR_TRAIN_PROGRESS} - This accumulates for {@link #progressUpdateFrequency} batches and
  *       is recorded to a metric at the end
- *   <li>{@link #TRAIN_ALL} - This does not accumulates and records every training batch to a metric
- *   <li>{@link #VALIDATE_EPOCH} - This accumulates for the whole validation epoch and is recorded
+ *   <li>{@link Constants#DIR_TRAIN_ALL} - This does not accumulates and records every training batch to a metric
+ *   <li>{@link Constants#DIR_VALIDATE_EPOCH} - This accumulates for the whole validation epoch and is recorded
  *       to a metric at the end of the epoch
  * </ul>
  *
@@ -32,11 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * also saved as model properties with the evaluator name.
  */
 public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
-
-    public static final String TRAIN_EPOCH = "train/epoch";
-    public static final String TRAIN_PROGRESS = "train/progress";
-    public static final String TRAIN_ALL = "train/all";
-    public static final String VALIDATE_EPOCH = "validate/epoch";
 
     private final int progressUpdateFrequency;
     private final Map<String, Float> latestEvaluations;
@@ -69,18 +65,18 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
      * Returns the metric created with the evaluator for the given stage.
      *
      * @param evaluator the evaluator to read the metric from
-     * @param stage     one of {@link #TRAIN_EPOCH}, {@link #TRAIN_PROGRESS}, or {@link #VALIDATE_EPOCH}
+     * @param stage     one of {@link Constants#DIR_TRAIN_EPOCH}, {@link Constants#DIR_TRAIN_PROGRESS}, or {@link Constants#DIR_VALIDATE_EPOCH}
      * @return the metric name to use
      */
     public static String metricName(Evaluator evaluator, String stage) {
         switch (stage) {
-            case TRAIN_EPOCH:
+            case Constants.DIR_TRAIN_EPOCH:
                 return "train_epoch_" + evaluator.getName();
-            case TRAIN_PROGRESS:
+            case Constants.DIR_TRAIN_PROGRESS:
                 return "train_progress_" + evaluator.getName();
-            case TRAIN_ALL:
+            case Constants.DIR_TRAIN_ALL:
                 return "train_all_" + evaluator.getName();
-            case VALIDATE_EPOCH:
+            case Constants.DIR_VALIDATE_EPOCH:
                 return "validate_epoch_" + evaluator.getName();
             default:
                 throw new IllegalArgumentException("Invalid metric stage");
@@ -94,12 +90,12 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
     public void onEpoch(Trainer trainer) {
         Metrics metrics = trainer.getMetrics();
         for (Evaluator evaluator : trainer.getEvaluators()) {
-            float trainValue = evaluator.getAccumulator(TRAIN_EPOCH);
-            float validateValue = evaluator.getAccumulator(VALIDATE_EPOCH);
+            float trainValue = evaluator.getAccumulator(Constants.DIR_TRAIN_EPOCH);
+            float validateValue = evaluator.getAccumulator(Constants.DIR_VALIDATE_EPOCH);
             if (metrics != null) {
-                String key = metricName(evaluator, TRAIN_EPOCH);
+                String key = metricName(evaluator, Constants.DIR_TRAIN_EPOCH);
                 metrics.addMetric(key, trainValue);
-                String validateKey = metricName(evaluator, VALIDATE_EPOCH);
+                String validateKey = metricName(evaluator, Constants.DIR_VALIDATE_EPOCH);
                 metrics.addMetric(validateKey, validateValue);
             }
 
@@ -112,10 +108,10 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
             }
         }
         for (Evaluator evaluator : trainer.getEvaluators()) {
-            evaluator.resetAccumulator(TRAIN_EPOCH);
-            evaluator.resetAccumulator(TRAIN_PROGRESS);
-            evaluator.resetAccumulator(TRAIN_ALL);
-            evaluator.resetAccumulator(VALIDATE_EPOCH);
+            evaluator.resetAccumulator(Constants.DIR_TRAIN_EPOCH);
+            evaluator.resetAccumulator(Constants.DIR_TRAIN_PROGRESS);
+            evaluator.resetAccumulator(Constants.DIR_TRAIN_ALL);
+            evaluator.resetAccumulator(Constants.DIR_VALIDATE_EPOCH);
         }
         progressCounter = 0;
     }
@@ -126,37 +122,37 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
     @Override
     public void onTrainingBatch(Trainer trainer, BatchData batchData) {
         for (Evaluator evaluator : trainer.getEvaluators()) {
-            evaluator.resetAccumulator(TRAIN_ALL);
+            evaluator.resetAccumulator(Constants.DIR_TRAIN_ALL);
         }
 
-        updateEvaluators(trainer, batchData, new String[]{TRAIN_EPOCH, TRAIN_PROGRESS, TRAIN_ALL});
+        updateEvaluators(trainer, batchData, new String[]{Constants.DIR_TRAIN_EPOCH, Constants.DIR_TRAIN_PROGRESS, Constants.DIR_TRAIN_ALL});
         Metrics metrics = trainer.getMetrics();
         if (metrics != null) {
             for (Evaluator evaluator : trainer.getEvaluators()) {
-                String key = metricName(evaluator, TRAIN_ALL);
-                float value = evaluator.getAccumulator(TRAIN_ALL);
+                String key = metricName(evaluator, Constants.DIR_TRAIN_ALL);
+                float value = evaluator.getAccumulator(Constants.DIR_TRAIN_ALL);
                 metrics.addMetric(key, value);
-                //System.out.println(key + ";" + NumberFormat.getNumberInstance().format(value));
-
-                // memorize the contributions to the total loss
-                if (evaluator instanceof SimpleCompositeLoss) {
-                    for (Evaluator evaluatorChild : ((SimpleCompositeLoss) evaluator).getComponents()) {
-                        String childKey = metricName(evaluatorChild, TRAIN_ALL);
-                        float childValue = evaluatorChild.getAccumulator(TRAIN_ALL);
-                        metrics.addMetric(childKey, childValue);
-                        //System.out.println(childKey + ";" + NumberFormat.getNumberInstance().format(childValue));
-                    }
-                }
+                memorizeLossContributions(metrics, evaluator);
             }
 
             progressCounter++;
             if (progressCounter == progressUpdateFrequency) {
                 for (Evaluator evaluator : trainer.getEvaluators()) {
-                    String key = metricName(evaluator, TRAIN_PROGRESS);
-                    float value = evaluator.getAccumulator(TRAIN_PROGRESS);
+                    String key = metricName(evaluator, Constants.DIR_TRAIN_PROGRESS);
+                    float value = evaluator.getAccumulator(Constants.DIR_TRAIN_PROGRESS);
                     metrics.addMetric(key, value);
                 }
                 progressCounter = 0;
+            }
+        }
+    }
+
+    private void memorizeLossContributions(Metrics metrics, Evaluator evaluator) {
+        if (evaluator instanceof SimpleCompositeLoss) {
+            for (Evaluator evaluatorChild : ((SimpleCompositeLoss) evaluator).getComponents()) {
+                String childKey = metricName(evaluatorChild, Constants.DIR_TRAIN_ALL);
+                float childValue = evaluatorChild.getAccumulator(Constants.DIR_TRAIN_ALL);
+                metrics.addMetric(childKey, childValue);
             }
         }
     }
@@ -166,7 +162,7 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
      */
     @Override
     public void onValidationBatch(Trainer trainer, BatchData batchData) {
-        updateEvaluators(trainer, batchData, new String[]{VALIDATE_EPOCH});
+        updateEvaluators(trainer, batchData, new String[]{Constants.DIR_VALIDATE_EPOCH});
     }
 
     private void updateEvaluators(Trainer trainer, BatchData batchData, String[] accumulators) {
@@ -187,10 +183,10 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
     @Override
     public void onTrainingBegin(Trainer trainer) {
         for (Evaluator evaluator : trainer.getEvaluators()) {
-            evaluator.addAccumulator(TRAIN_EPOCH);
-            evaluator.addAccumulator(TRAIN_PROGRESS);
-            evaluator.addAccumulator(TRAIN_ALL);
-            evaluator.addAccumulator(VALIDATE_EPOCH);
+            evaluator.addAccumulator(Constants.DIR_TRAIN_EPOCH);
+            evaluator.addAccumulator(Constants.DIR_TRAIN_PROGRESS);
+            evaluator.addAccumulator(Constants.DIR_TRAIN_ALL);
+            evaluator.addAccumulator(Constants.DIR_VALIDATE_EPOCH);
         }
     }
 

@@ -18,7 +18,6 @@
 package ai.enpasos.muzero.platform.agent.slow.play;
 
 
-
 public class Duration {
     long value;
 }

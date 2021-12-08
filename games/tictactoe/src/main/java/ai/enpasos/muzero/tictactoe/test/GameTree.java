@@ -53,8 +53,7 @@ public class GameTree {
         rootNode = new DNode((ZeroSumGame) config.newGame());
         unterminatedGameNodes.add(rootNode);
 
-        int nBefore = 1;
-        while (unterminatedGameNodes.size() > 0) {
+        while (!unterminatedGameNodes.isEmpty()) {
             List<DNode> loopGameNodes = new ArrayList<>(unterminatedGameNodes);
             for (DNode node : loopGameNodes) {
                 node.expand(unterminatedGameNodes, terminatedGameNodes);
@@ -66,17 +65,17 @@ public class GameTree {
         terminatedGameDTOs = terminatedGameNodes.stream().map(DNode::getGame).collect(Collectors.toSet());
 
 
-        propagateBestForceableValueBottomUp(OneOfTwoPlayer.PlayerA);
-        propagateBestForceableValueBottomUp(OneOfTwoPlayer.PlayerB);
+        propagateBestForceableValueBottomUp(OneOfTwoPlayer.PLAYER_A);
+        propagateBestForceableValueBottomUp(OneOfTwoPlayer.PLAYER_B);
 
         Set<DNode> nodesWhereADecisionMatters = new HashSet<>();
         rootNode.findNodesWhereADecisionMatters(nodesWhereADecisionMatters);
 
         forceableWinNodesPlayerA = new ArrayList<>();
-        rootNode.collectForceableWinNodes(OneOfTwoPlayer.PlayerA, forceableWinNodesPlayerA);
+        rootNode.collectForceableWinNodes(OneOfTwoPlayer.PLAYER_A, forceableWinNodesPlayerA);
 
         forceableWinNodesPlayerB = new ArrayList<>();
-        rootNode.collectForceableWinNodes(OneOfTwoPlayer.PlayerB, forceableWinNodesPlayerB);
+        rootNode.collectForceableWinNodes(OneOfTwoPlayer.PLAYER_B, forceableWinNodesPlayerB);
 
     }
 

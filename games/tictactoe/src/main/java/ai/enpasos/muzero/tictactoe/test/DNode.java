@@ -67,9 +67,9 @@ public class DNode {
 
     public @Nullable Integer getBestForceableValue(@NotNull OneOfTwoPlayer player) {
         switch (player) {
-            case PlayerA:
+            case PLAYER_A:
                 return bestForceableValuePlayerA;
-            case PlayerB:
+            case PLAYER_B:
                 return bestForceableValuePlayerB;
             default:
                 return null;
@@ -78,10 +78,10 @@ public class DNode {
 
     public void setBestForceableValue(@NotNull OneOfTwoPlayer player, Integer value) {
         switch (player) {
-            case PlayerA:
+            case PLAYER_A:
                 bestForceableValuePlayerA = value;
                 break;
-            case PlayerB:
+            case PLAYER_B:
                 bestForceableValuePlayerB = value;
                 break;
             default:

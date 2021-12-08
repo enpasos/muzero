@@ -20,7 +20,6 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class GameDTO  {
+public class GameDTO {
 
     @EqualsAndHashCode.Include
     private List<Integer> actions;

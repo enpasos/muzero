@@ -27,8 +27,6 @@ import lombok.Data;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
-
 @Data
 @ToString(onlyExplicitlyIncluded = true)
 public class GoAction extends Action {
