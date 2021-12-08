@@ -8,8 +8,9 @@ import static ai.enpasos.muzero.platform.debug.LossExtractor.listLossesForTraine
 public class LossExtractor {
 
     public static void main(String[] args) throws Exception {
-        MuZeroConfig config = GoConfigFactory.getGoInstance(9);
-        config.setOutputDir("./memory/go9/");
+        int size = 5;
+        MuZeroConfig config = GoConfigFactory.getGoInstance(size);
+        config.setOutputDir("./memory/go"+ size + "/");
         listLossesForTrainedNetworks(config);
     }
 
