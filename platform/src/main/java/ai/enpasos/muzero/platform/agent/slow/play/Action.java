@@ -28,7 +28,7 @@ import java.io.Serializable;
 
 @Data
 @ToString(onlyExplicitlyIncluded = true)
-public abstract class Action implements Comparable<Action>, Serializable {
+public abstract class Action implements Comparable<Action> {
 
     @ToString.Include
     private int index;
