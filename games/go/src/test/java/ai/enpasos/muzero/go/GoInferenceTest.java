@@ -11,6 +11,7 @@ import java.util.List;
 public class GoInferenceTest {
 
     @Test
+    @Ignore
     void aiDecisionGoFast() {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = Inference.aiDecision(actions, false, "./pretrained", GoConfigFactory.getGoInstance(5));

@@ -5,6 +5,7 @@ import ai.djl.Model;
 import ai.enpasos.muzero.platform.MuZero;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
@@ -18,17 +19,18 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.fast.model.Network.getDoubleValue;
 import static ai.enpasos.muzero.platform.agent.fast.model.Network.getEpoch;
 
+@Slf4j
 public class LossExtractor {
 
+    private LossExtractor() {}
 
+    @SuppressWarnings("squid:S106")
     public static void listLossesForTrainedNetworks(MuZeroConfig config) throws IOException {
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
 
-
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
-
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
@@ -44,6 +46,7 @@ public class LossExtractor {
                                         NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                                 );
                             } catch (Exception ignored) {
+                                log.debug("epoch " + i + " model.load not successfull");
                             }
                         }
                 );

@@ -30,16 +30,18 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.Rep
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
+import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+
 
 public class InitialInferenceBlock extends AbstractBlock {
 
-    private static final byte VERSION = 2;
+
     private final RepresentationBlock h;
     private final PredictionBlock f;
 
 
     public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
-        super(VERSION);
+        super(MYVERSION);
 
         h = this.addChildBlock("Representation", representationBlock);
         f = this.addChildBlock("Prediction", predictionBlock);

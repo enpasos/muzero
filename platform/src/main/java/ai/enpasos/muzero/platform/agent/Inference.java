@@ -37,7 +37,8 @@ import java.util.stream.IntStream;
 
 public class Inference {
 
-    private Inference() {}
+    private Inference() {
+    }
 
     public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, MuZeroConfig config) {
         int actionIndexSelectedByNetwork;

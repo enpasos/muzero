@@ -32,16 +32,17 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.Pre
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
+import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+
 
 public class RecurrentInferenceBlock extends AbstractBlock {
 
-    private static final byte VERSION = 2;
     private final DynamicsBlock g;
     private final PredictionBlock f;
 
 
     public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
-        super(VERSION);
+        super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
         f = this.addChildBlock("Prediction", predictionBlock);
     }

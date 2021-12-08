@@ -32,7 +32,8 @@ import java.util.Map;
 
 @Slf4j
 public class SubModel extends BaseModel {
-    public NDManager hiddenStateNDManager;
+    public static final String LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL = "load not implemented on SubModel (use Model)";
+    private NDManager hiddenStateNDManager;
     private Model model;
 
 
@@ -45,20 +46,20 @@ public class SubModel extends BaseModel {
 
     @Override
     public void load(Path modelPath) {
-        log.error("load1 is not implemented #### not expected to be called");
-        throw new NotImplementedException("load not implemented on SubModel (use Model)");
+        log.error(LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL);
+        throw new NotImplementedException(LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL);
     }
 
     @Override
     public void load(Path modelPath, String prefix) {
         log.error("load2 is not implemented #### not expected to be called");
-        throw new NotImplementedException("load not implemented on SubModel (use Model)");
+        throw new NotImplementedException(LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL);
     }
 
     @Override
     public void load(Path modelPath, String prefix, Map<String, ?> options) {
         log.error("load3 is not implemented #### not expected to be called");
-        throw new NotImplementedException("load not implemented on SubModel (use Model)");
+        throw new NotImplementedException(LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL);
     }
 
 
@@ -80,18 +81,19 @@ public class SubModel extends BaseModel {
         throw new NotImplementedException("close not implemented on SubModel (use Model)");
     }
 
-
-    protected void finalize() {
-        // not doing something here
-        // resource handling is done in Model not in SubModel !
-    }
-
-
     public Model getModel() {
         return model;
     }
 
     public void setModel(Model model) {
         this.model = model;
+    }
+
+    public NDManager getHiddenStateNDManager() {
+        return hiddenStateNDManager;
+    }
+
+    public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
+        this.hiddenStateNDManager = hiddenStateNDManager;
     }
 }

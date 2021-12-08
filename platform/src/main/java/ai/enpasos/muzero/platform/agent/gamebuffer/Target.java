@@ -17,8 +17,11 @@
 
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
+import lombok.Data;
+
+@Data
 public class Target {
-    public float value;
-    public float reward;
-    public float[] policy;
+    private float value;
+    private float reward;
+    private float[] policy;
 }

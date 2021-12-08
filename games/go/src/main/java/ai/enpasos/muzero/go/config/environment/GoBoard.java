@@ -100,7 +100,7 @@ public class GoBoard {
             throw new MuZeroException(message);
         }
         if (grid.getString(point).isPresent()) {
-            var message = "Illegal move attempted at: " + point + ". Already occupied: " + grid.getString(point).get();
+            var message = "Illegal move attempted at: " + point + ". Already occupied: " + grid.getString(point).orElseThrow(MuZeroException::new);
             log.error(message);
             throw new MuZeroException(message);
         } else {
@@ -121,7 +121,9 @@ public class GoBoard {
                     newBlackCaptures += str.size();
                     break;
                 case WhitePlayer:
+                default:
                     newWhiteCaptures += str.size();
+                    break;
             }
             newGrid = newGrid.removeString(str, this.neighborMap);
         }
