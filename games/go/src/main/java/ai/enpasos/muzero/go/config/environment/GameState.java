@@ -40,7 +40,7 @@ public class GameState {
 
     public static GameState newGame(int boardSize) {
         return GameState.builder()
-                .nextPlayer(Player.BlackPlayer)
+                .nextPlayer(Player.BLACK_PLAYER)
                 .board(new GoBoard(boardSize))
                 .build();
     }

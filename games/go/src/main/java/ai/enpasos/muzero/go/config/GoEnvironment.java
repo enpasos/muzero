@@ -40,9 +40,10 @@ import static ai.enpasos.muzero.go.config.GoAdapter.translate;
 
 
 @Slf4j
+@SuppressWarnings("squid:S2160")
 public class GoEnvironment extends EnvironmentZeroSumBase {
 
-    private final List<GameState> history; // TODO refactor
+    private final List<GameState> history;
     private GameState state;
     private GameResult result;
 
@@ -53,6 +54,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         history.add(state);
     }
 
+    @Override
     public @NotNull List<Action> legalActions() {
         return state.getValidMoves().stream()
                 .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
@@ -84,7 +86,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         return reward;
     }
 
-
+    @Override
     public void swapPlayer() {
         throw new NotImplementedException("swapPlayer() is not implemented here");
     }
@@ -102,16 +104,13 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
 
     @Override
     public int[][] currentImage() {
-
-        // TODO
-        throw new NotImplementedException("swapPlayer() is not implemented");
-        //  return this.board;
+         throw new NotImplementedException("swapPlayer() is not implemented");
     }
-
+    @Override
     public boolean terminal() {
         return this.state.isOver();
     }
-
+    @Override
     public boolean hasPlayerWon(OneOfTwoPlayer player) {
         if (!terminal()) return false;
         return player == translate(getResult().winner());
@@ -133,7 +132,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
             }
         }
 
-        String lastMoveStr = (state.getNextPlayer().other() == Player.BlackPlayer ? "x" : "o")
+        String lastMoveStr = (state.getNextPlayer().other() == Player.BLACK_PLAYER ? "x" : "o")
                 + " move: " + lastMove;
 
         String status = "GAME RUNNING";

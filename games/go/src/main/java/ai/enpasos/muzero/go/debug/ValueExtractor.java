@@ -28,6 +28,7 @@ import static ai.enpasos.muzero.platform.debug.ValueExtractor.getActionList;
 import static ai.enpasos.muzero.platform.debug.ValueExtractor.listValuesForTrainedNetworks;
 
 @Slf4j
+@SuppressWarnings("squid:S106")
 public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {

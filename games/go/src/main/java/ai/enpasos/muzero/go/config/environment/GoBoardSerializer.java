@@ -3,7 +3,7 @@ package ai.enpasos.muzero.go.config.environment;
 
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 
 /**
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
@@ -24,7 +24,7 @@ public class GoBoardSerializer {
                 var player = board.getPlayer(new Point(i, j));
                 String symbol;
                 if(player.isPresent()) {
-                    symbol = player.get() == BlackPlayer ? " X " : " O ";
+                    symbol = player.get() == BLACK_PLAYER ? " X " : " O ";
                 } else {
                     symbol = " . ";
                 }

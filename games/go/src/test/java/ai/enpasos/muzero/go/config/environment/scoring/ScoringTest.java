@@ -5,8 +5,8 @@ import ai.enpasos.muzero.go.config.environment.basics.Point;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
-import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.testng.Assert.assertEquals;
 
 
@@ -25,25 +25,25 @@ public class ScoringTest {
     void scoreAGiven5x5Game() {
         var board = new GoBoard(5);
 
-        board = board.placeStone(BlackPlayer, new Point(1, 2));
-        board = board.placeStone(BlackPlayer, new Point(1, 4));
-        board = board.placeStone(BlackPlayer, new Point(2, 2));
-        board = board.placeStone(BlackPlayer, new Point(2, 3));
-        board = board.placeStone(BlackPlayer, new Point(2, 4));
-        board = board.placeStone(BlackPlayer, new Point(2, 5));
-        board = board.placeStone(BlackPlayer, new Point(3, 1));
-        board = board.placeStone(BlackPlayer, new Point(3, 2));
-        board = board.placeStone(BlackPlayer, new Point(3, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 1));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 3));
 
-        board = board.placeStone(WhitePlayer, new Point(3, 4));
-        board = board.placeStone(WhitePlayer, new Point(3, 5));
-        board = board.placeStone(WhitePlayer, new Point(4, 1));
-        board = board.placeStone(WhitePlayer, new Point(4, 2));
-        board = board.placeStone(WhitePlayer, new Point(4, 3));
-        board = board.placeStone(WhitePlayer, new Point(4, 4));
-        board = board.placeStone(WhitePlayer, new Point(5, 2));
-        board = board.placeStone(WhitePlayer, new Point(5, 4));
-        board = board.placeStone(WhitePlayer, new Point(5, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 1));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 5));
         log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
@@ -81,31 +81,31 @@ public class ScoringTest {
     void scoreAGiven5x5GameWithCaptures() {
         var board = new GoBoard(5);
 
-        board = board.placeStone(BlackPlayer, new Point(1, 4));
-        board = board.placeStone(BlackPlayer, new Point(2, 4));
-        board = board.placeStone(BlackPlayer, new Point(3, 4));
-        board = board.placeStone(BlackPlayer, new Point(4, 4));
-        board = board.placeStone(BlackPlayer, new Point(5, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(4, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 4));
 
-        board = board.placeStone(WhitePlayer, new Point(1, 3));
-        board = board.placeStone(WhitePlayer, new Point(2, 3));
-        board = board.placeStone(WhitePlayer, new Point(3, 3));
-        board = board.placeStone(WhitePlayer, new Point(4, 3));
-        board = board.placeStone(WhitePlayer, new Point(5, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(1, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(2, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 3));
 
-        board = board.placeStone(BlackPlayer, new Point(2, 2));
-        board = board.placeStone(BlackPlayer, new Point(3, 2));
-        board = board.placeStone(BlackPlayer, new Point(4, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(4, 2));
 
-        board = board.placeStone(WhitePlayer, new Point(2, 5));
-        board = board.placeStone(WhitePlayer, new Point(3, 5));
-        board = board.placeStone(WhitePlayer, new Point(4, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(2, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 5));
 
-        board = board.placeStone(BlackPlayer, new Point(5, 5)); // fills second to last liberty
-        board = board.placeStone(WhitePlayer, new Point(1, 5)); // captures 6 black stones
-        board = board.placeStone(BlackPlayer, new Point(5, 2));
-        board = board.placeStone(WhitePlayer, new Point(4, 4)); // plays in white result
-        board = board.placeStone(BlackPlayer, new Point(1, 2)); // secures 5 points black result
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 5)); // fills second to last liberty
+        board = board.placeStone(WHITE_PLAYER, new Point(1, 5)); // captures 6 black stones
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 4)); // plays in white result
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 2)); // secures 5 points black result
         log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
@@ -132,23 +132,23 @@ public class ScoringTest {
     void scoreAGiven5x5GameWithCapturesAndDame() {
         var board = new GoBoard(5);
 
-        board = board.placeStone(BlackPlayer, new Point(1, 5));
-        board = board.placeStone(BlackPlayer, new Point(2, 5));
-        board = board.placeStone(BlackPlayer, new Point(3, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 5));
 
-        board = board.placeStone(WhitePlayer, new Point(1, 4));
-        board = board.placeStone(WhitePlayer, new Point(2, 4));
-        board = board.placeStone(WhitePlayer, new Point(3, 4));
-        board = board.placeStone(WhitePlayer, new Point(4, 4));
-        board = board.placeStone(WhitePlayer, new Point(5, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(1, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(2, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
 
-        board = board.placeStone(BlackPlayer, new Point(1, 2));
-        board = board.placeStone(BlackPlayer, new Point(2, 2));
-        board = board.placeStone(BlackPlayer, new Point(3, 2));
-        board = board.placeStone(BlackPlayer, new Point(4, 2));
-        board = board.placeStone(BlackPlayer, new Point(5, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(4, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 2));
 
-        board = board.placeStone(WhitePlayer, new Point(4, 5)); // capture 3 black stones and make life
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 5)); // capture 3 black stones and make life
         log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);
@@ -180,28 +180,28 @@ public class ScoringTest {
     @Test
     void scoreAGiven5x5GameWithNarrowWhiteVictory() {
         var board = new GoBoard(5);
-        board = board.placeStone(BlackPlayer, new Point(1, 1));
-        board = board.placeStone(BlackPlayer, new Point(1, 2));
-        board = board.placeStone(BlackPlayer, new Point(1, 4));
-        board = board.placeStone(BlackPlayer, new Point(1, 5));
-        board = board.placeStone(BlackPlayer, new Point(2, 2));
-        board = board.placeStone(BlackPlayer, new Point(2, 3));
-        board = board.placeStone(BlackPlayer, new Point(2, 4));
-        board = board.placeStone(BlackPlayer, new Point(2, 5));
-        board = board.placeStone(BlackPlayer, new Point(3, 1));
-        board = board.placeStone(BlackPlayer, new Point(3, 2));
-        board = board.placeStone(BlackPlayer, new Point(3, 3));
-        board = board.placeStone(BlackPlayer, new Point(3, 4));
-        board = board.placeStone(BlackPlayer, new Point(5, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 1));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 1));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(3, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 4));
 
-        board = board.placeStone(WhitePlayer, new Point(5, 2));
-        board = board.placeStone(WhitePlayer, new Point(5, 5));
-        board = board.placeStone(WhitePlayer, new Point(4, 1));
-        board = board.placeStone(WhitePlayer, new Point(4, 2));
-        board = board.placeStone(WhitePlayer, new Point(4, 3));
-        board = board.placeStone(WhitePlayer, new Point(4, 4));
-        board = board.placeStone(WhitePlayer, new Point(4, 5));
-        board = board.placeStone(WhitePlayer, new Point(3, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 1));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 5));
         log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 7.5f);
@@ -246,20 +246,20 @@ public class ScoringTest {
     void scoreAGiven5x5GameWithLotsOfDames() {
 
         var board = new GoBoard(5);
-        board = board.placeStone(WhitePlayer, new Point(5, 2));
-        board = board.placeStone(BlackPlayer, new Point(5, 4));
-        board = board.placeStone(BlackPlayer, new Point(5, 5));
-        board = board.placeStone(WhitePlayer, new Point(4, 1));
-        board = board.placeStone(WhitePlayer, new Point(4, 2));
-        board = board.placeStone(WhitePlayer, new Point(4, 3));
-        board = board.placeStone(WhitePlayer, new Point(4, 4));
-        board = board.placeStone(WhitePlayer, new Point(4, 5));
-        board = board.placeStone(BlackPlayer, new Point(2, 2));
-        board = board.placeStone(BlackPlayer, new Point(2, 3));
-        board = board.placeStone(BlackPlayer, new Point(2, 4));
-        board = board.placeStone(BlackPlayer, new Point(2, 5));
-        board = board.placeStone(BlackPlayer, new Point(1, 2));
-        board = board.placeStone(BlackPlayer, new Point(1, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(5, 5));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 1));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 5));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 4));
 
         log.debug("final board configuration: \n" + board);
 
@@ -301,20 +301,20 @@ public class ScoringTest {
 
         // first two rows of white stones that will be captured
         for (int i = 1; i <= 5; i++) {
-            board = board.placeStone(WhitePlayer, new Point(1, i));
-            board = board.placeStone(WhitePlayer, new Point(2, i));
+            board = board.placeStone(WHITE_PLAYER, new Point(1, i));
+            board = board.placeStone(WHITE_PLAYER, new Point(2, i));
         }
         // now capture them
         for (int i = 1; i <= 5; i++) {
-            board = board.placeStone(BlackPlayer, new Point(3, i));
+            board = board.placeStone(BLACK_PLAYER, new Point(3, i));
         }
         // create white group with 2 eyes
-        board = board.placeStone(WhitePlayer, new Point(4, 1));
-        board = board.placeStone(WhitePlayer, new Point(4, 2));
-        board = board.placeStone(WhitePlayer, new Point(4, 3));
-        board = board.placeStone(WhitePlayer, new Point(4, 4));
-        board = board.placeStone(WhitePlayer, new Point(5, 2));
-        board = board.placeStone(WhitePlayer, new Point(5, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 1));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(4, 4));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
         log.debug("final board configuration: \n" + board);
 
         var result = GameResult.apply(board, 0.5f);

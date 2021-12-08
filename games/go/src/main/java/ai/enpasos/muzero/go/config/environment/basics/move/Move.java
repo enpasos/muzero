@@ -17,14 +17,13 @@
 
 package ai.enpasos.muzero.go.config.environment.basics.move;
 
-import java.io.Serializable;
 
 /**
- * Go move class. A move can either be playing a point on the board, passing or resigning
+ * Go move interface. A move can either be playing a point on the board, passing or resigning
  * <p>
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
-public class Move implements Serializable {
+public interface Move {
 
 }
 

@@ -9,8 +9,8 @@ import lombok.Data;
 
 import java.util.Map;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
-import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static java.text.MessageFormat.format;
 
 /**
@@ -62,27 +62,27 @@ public class GameResult {
         for (Map.Entry<Point, VertexType> entry : territoryMap.entrySet()) {
             VertexType status = entry.getValue();
             switch (status) {
-                case BlackStone:
+                case BLACK_STONE:
                     numBlackStones += 1;
                     break;
-                case WhiteStone:
+                case WHITE_STONE:
                     numWhiteStones += 1;
                     break;
-                case BlackTerritory:
+                case BLACK_TERRITORY:
                     numBlackTerritory += 1;
                     break;
-                case WhiteTerritory:
+                case WHITE_TERRITORY:
                     numWhiteTerritory += 1;
                     break;
-                case CapturedBlackStone:
+                case CAPTURED_BLACK_STONE:
                     numWhiteTerritory += 1;
                     numWhiteCaptures += 1;
                     break;
-                case CapturedWhiteStone:
+                case CAPTURED_WHITE_STONE:
                     numBlackTerritory += 1;
                     numBlackCaptures += 1;
                     break;
-                case Dame:
+                case DAME:
                     numDame += 1;
             }
         }
@@ -118,7 +118,7 @@ public class GameResult {
     }
 
     public Player winner() {
-        return (blackWinningMargin() > 0) ? BlackPlayer : WhitePlayer;
+        return (blackWinningMargin() > 0) ? BLACK_PLAYER : WHITE_PLAYER;
     }
 
 
@@ -133,12 +133,12 @@ public class GameResult {
     @Override
     public String toString() {
         if (wonByResignation != null) {
-            return (wonByResignation == BlackPlayer ? "Black" : "White") + " won by resignation";
+            return (wonByResignation == BLACK_PLAYER ? "Black" : "White") + " won by resignation";
         } else {
             switch (winner()) {
-                case BlackPlayer:
+                case BLACK_PLAYER:
                     return "Black +" + blackWinningMargin();
-                case WhitePlayer:
+                case WHITE_PLAYER:
                     return "White +" + (-blackWinningMargin());
                 default:
                     return "this should not happen";

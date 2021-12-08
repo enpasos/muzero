@@ -81,9 +81,9 @@ public class GoAdapter {
 
     public static OneOfTwoPlayer translate(Player player) {
         switch (player) {
-            case BlackPlayer:
+            case BLACK_PLAYER:
                 return OneOfTwoPlayer.PLAYER_A;
-            case WhitePlayer:
+            case WHITE_PLAYER:
                 return OneOfTwoPlayer.PLAYER_B;
             default:
                 throw new MuZeroException("this should not happen");

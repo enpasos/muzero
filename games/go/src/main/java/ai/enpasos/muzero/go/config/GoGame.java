@@ -33,6 +33,7 @@ import ai.enpasos.muzero.platform.agent.slow.play.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +43,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Slf4j
 public class GoGame extends Game {
 
+
+    public static final String PASS = "pass: ";
 
     public GoGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
@@ -85,8 +89,6 @@ public class GoGame extends Game {
 
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
-        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-
 
         List<GameState> history = this.getEnvironment().getHistory();
         List<Optional<GameState>> relevantHistory = new ArrayList<>();
@@ -151,15 +153,14 @@ public class GoGame extends Game {
     public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
 
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("mcts suggestion:");
+        log.debug("\nmcts suggestion:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             values[GoAction.getRow(config, i)][GoAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
         }
-        System.out.println(EnvironmentBase.render(config, values));
+        log.debug(EnvironmentBase.render(config, values));
         if (childVisits.length > boardSize) {
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
+            log.debug(PASS + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
         }
     }
 
@@ -169,29 +170,29 @@ public class GoGame extends Game {
             double v = networkOutput.getValue();
             double p = (v + 1) / 2 * 100;
             int percent = (int) Math.round(p);
-            System.out.println();
-            System.out.println("network guess:");
+            log.debug("\n");
+            log.debug("network guess:");
             if (!gameOver) {
                 int boardSize = config.getBoardHeight() * config.getBoardWidth();
                 for (int i = 0; i < boardSize; i++) {
                     values[GoAction.getRow(config, i)][GoAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
                 }
-                System.out.println(EnvironmentBase.render(config, values));
+                log.debug(EnvironmentBase.render(config, values));
                 if (networkOutput.getPolicyValues().length > boardSize) {
-                    System.out.println("pass: " + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
+                    log.debug(PASS + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
                 }
 
             }
             if (toPlay instanceof OneOfTwoPlayer)
-                System.out.println("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
+                log.debug("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
 
         }
     }
 
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        System.out.println();
-        System.out.println("with exploration noise suggestion:");
+        log.debug("\n");
+        log.debug("with exploration noise suggestion:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
@@ -203,14 +204,14 @@ public class GoGame extends Game {
                     = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
-        System.out.println(EnvironmentBase.render(config, values));
+        log.debug(EnvironmentBase.render(config, values));
         if (boardSize < config.getActionSpaceSize()) {
             Action a = config.newAction(boardSize);
             float value = 0f;
             if (node.getChildren().containsKey(a)) {
                 value = (float) node.getChildren().get(a).getPrior();
             }
-            System.out.println("pass: " + String.format("%2d", Math.round(100.0 * value)) + "%");
+            log.debug(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
         }
     }
 }

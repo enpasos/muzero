@@ -20,5 +20,5 @@ package ai.enpasos.muzero.go.config.environment.basics.move;
 /**
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
-public class Pass extends Move {
+public class Pass implements Move {
 }

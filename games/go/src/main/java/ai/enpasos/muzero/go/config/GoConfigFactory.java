@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 @Slf4j
+@SuppressWarnings("squid:S125")
 public class GoConfigFactory {
 
     private GoConfigFactory() {}

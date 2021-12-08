@@ -8,14 +8,14 @@ import java.util.*;
 
 public class ZobristHashing {
 
-    final public static int MAX_BOARD_SIZE = 19;
-    final public static Random RAND = new Random();
-    final public static Map<Pair<Point, Optional<Player>>, Long> ZOBRIST = new HashMap<>();
+    public static final int MAX_BOARD_SIZE = 19;
+    public static final Random RAND = new Random();
+    protected static final Map<Pair<Point, Optional<Player>>, Long> ZOBRIST = new HashMap<>();
 
     static {
         List<Optional<Player>> players = new ArrayList<>();
-        players.add(Optional.of(Player.BlackPlayer));
-        players.add(Optional.of(Player.WhitePlayer));
+        players.add(Optional.of(Player.BLACK_PLAYER));
+        players.add(Optional.of(Player.WHITE_PLAYER));
         players.add(Optional.empty());
         for (int row = 1; row <= MAX_BOARD_SIZE; row++) {
             for (int col = 1; col <= MAX_BOARD_SIZE; col++) {
