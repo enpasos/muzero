@@ -30,11 +30,13 @@ import java.util.function.BiFunction;
 @Slf4j
 public class TicTacToeConfigFactory {
 
+    private TicTacToeConfigFactory() {}
+
     public static MuZeroConfig getTicTacToeInstance() {
 
-        BiFunction<Integer, Integer, Double> visitSoftmaxTemperature = (numMoves, trainingSteps) -> {
-            return (numMoves < 30) ? 1.0 : 0.0; // always returns 1.0 here as nomMoves always below 30
-        };
+        BiFunction<Integer, Integer, Double> visitSoftmaxTemperature
+                = (numMoves, trainingSteps) ->  (numMoves < 30) ? 1.0 : 0.0; // always returns 1.0 here as nomMoves always below 30
+
 
         int size = 3;
 
