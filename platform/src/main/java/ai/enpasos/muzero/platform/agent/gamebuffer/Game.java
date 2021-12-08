@@ -56,7 +56,7 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
-        this.gameDTO = new GameDTO(this);
+        this.gameDTO = new GameDTO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
         r = new Random();

@@ -29,7 +29,6 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GameDTO  {
 
@@ -40,7 +39,7 @@ public class GameDTO  {
     private List<float[]> policyTargets;
     private List<Float> rootValues;
 
-    public GameDTO(@NotNull Game game) {
+    public GameDTO() {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
