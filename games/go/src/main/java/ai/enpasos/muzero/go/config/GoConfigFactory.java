@@ -131,17 +131,17 @@ public class GoConfigFactory {
                         .numParallelGamesPlayed(250)
                         .numEpisodes(4)
 
-                        .numSimulations(100)
-                        .numParallelGamesPlayed(100)
-                        .numEpisodes(10)
-
-                        .numSimulations(200)
-                        .numParallelGamesPlayed(50)
-                        .numEpisodes(20)
-
-                        .numSimulations(200)
-                        .numParallelGamesPlayed(1000)
-                        .numEpisodes(1)
+//                        .numSimulations(100)
+//                        .numParallelGamesPlayed(100)
+//                        .numEpisodes(10)
+//
+//                        .numSimulations(200)
+//                        .numParallelGamesPlayed(50)
+//                        .numEpisodes(20)
+//
+//                        .numSimulations(200)
+//                        .numParallelGamesPlayed(1000)
+//                        .numEpisodes(1)
 
                         .komi(6.5f)
 
