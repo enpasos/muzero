@@ -30,9 +30,12 @@ import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
 
 @Slf4j
 public class ParameterNames {
+
+    private ParameterNames() {}
+
     public static String listParameterNames(MuZeroConfig config) {
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
             Block block = model.getBlock();

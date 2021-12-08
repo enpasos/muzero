@@ -140,9 +140,11 @@ public class GameResult {
                     return "Black +" + blackWinningMargin();
                 case WhitePlayer:
                     return "White +" + (-blackWinningMargin());
+                default:
+                    return "this should not happen";
             }
         }
-        return "this should not happen";
+
     }
 
     public GameResult apply(GoBoard goBoard, Player wonByResignation) {

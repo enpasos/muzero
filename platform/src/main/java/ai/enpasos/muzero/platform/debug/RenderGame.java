@@ -20,31 +20,34 @@ package ai.enpasos.muzero.platform.debug;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@Slf4j
 public class RenderGame {
 
+    private RenderGame() {}
 
     public static void applyAction(@NotNull Game game, int a) {
         game.apply(a);
 
-        System.out.println("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getLastReward());
+        log.debug("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getLastReward());
     }
 
     public static void renderGame(@NotNull MuZeroConfig config, @NotNull Game game) {
         Game replayGame = config.newGame();
 
-        System.out.println("\n" + Objects.requireNonNull(replayGame).render());
+        log.debug("\n" + Objects.requireNonNull(replayGame).render());
         for (int i = 0; i < game.getGameDTO().getActions().size(); i++) {
             Action action = config.newAction(game.getGameDTO().getActions().get(i));
 
 
             replayGame.apply(action);
-            System.out.println("\n" + replayGame.render());
+            log.debug("\n" + replayGame.render());
         }
-        System.out.println(game.getEnvironment().toString());
+        log.debug(game.getEnvironment().toString());
     }
 
 }

@@ -35,7 +35,7 @@ public class EnvironmentZeroSumBase extends EnvironmentBase {
 
     public EnvironmentZeroSumBase(MuZeroConfig config) {
         super(config);
-        playerToMove = OneOfTwoPlayer.PlayerA;
+        playerToMove = OneOfTwoPlayer.PLAYER_A;
     }
 
     protected void swapPlayer() {
@@ -50,10 +50,10 @@ public class EnvironmentZeroSumBase extends EnvironmentBase {
         String[][] values = new String[this.config.getBoardHeight()][config.getBoardWidth()];
         for (int j = this.config.getBoardHeight() - 1; j >= 0; j--) {
             for (int i = 0; i < config.getBoardWidth(); i++) {
-                if (this.board[j][i] == OneOfTwoPlayer.PlayerA.getValue()) {
-                    values[j][i] = String.valueOf(OneOfTwoPlayer.PlayerA.getSymbol());
-                } else if (this.board[j][i] == OneOfTwoPlayer.PlayerB.getValue()) {
-                    values[j][i] = String.valueOf(OneOfTwoPlayer.PlayerB.getSymbol());
+                if (this.board[j][i] == OneOfTwoPlayer.PLAYER_A.getValue()) {
+                    values[j][i] = String.valueOf(OneOfTwoPlayer.PLAYER_A.getSymbol());
+                } else if (this.board[j][i] == OneOfTwoPlayer.PLAYER_B.getValue()) {
+                    values[j][i] = String.valueOf(OneOfTwoPlayer.PLAYER_B.getSymbol());
                 } else {
                     values[j][i] = " ";
                 }

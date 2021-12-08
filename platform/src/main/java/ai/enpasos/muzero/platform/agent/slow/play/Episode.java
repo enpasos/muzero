@@ -49,7 +49,7 @@ public class Episode {
         for (int i = 0; i < actions.length; i++) {
             Action action = actions[i];
             Node child = node.getChildren().get(action);
-            child.prior = (1 - rootExplorationFraction) * child.prior + rootExplorationFraction * noise[i];
+            child.setPrior((1 - rootExplorationFraction) * child.getPrior() + rootExplorationFraction * noise[i]);
         }
     }
 
@@ -67,9 +67,9 @@ public class Episode {
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
-        List<Node> rootList = initRootNodes( );
+        List<Node> rootList = initRootNodes();
 
-        List<NetworkIO> networkOutput = initialInference( network, render, fastRuleLearning, indexOfJustOneOfTheGames);
+        List<NetworkIO> networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
 
         MCTS mcts = new MCTS(config);
 
@@ -79,7 +79,7 @@ public class Episode {
 
         final List<MinMaxStats> minMaxStatsList = runMCTS(network, fastRuleLearning, rootList, mcts);
 
-        selectAndApplyActionAndStoreSearchStatistics( render, fastRuleLearning, indexOfJustOneOfTheGames, rootList, mcts, minMaxStatsList);
+        selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning, indexOfJustOneOfTheGames, rootList, mcts, minMaxStatsList);
 
         renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
 
@@ -102,7 +102,7 @@ public class Episode {
         gameList.removeAll(newGameDoneList);
     }
 
-    private void selectAndApplyActionAndStoreSearchStatistics( boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames, List<Node> rootList, MCTS mcts, List<MinMaxStats> minMaxStatsList) {
+    private void selectAndApplyActionAndStoreSearchStatistics(boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames, List<Node> rootList, MCTS mcts, List<MinMaxStats> minMaxStatsList) {
         IntStream.range(0, gameList.size()).forEach(g ->
         {
             Game game = gameList.get(g);
@@ -130,7 +130,7 @@ public class Episode {
     }
 
     @Nullable
-    private List<NetworkIO> initialInference( Network network, boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames) {
+    private List<NetworkIO> initialInference(Network network, boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames) {
         inferenceDuration.value -= System.currentTimeMillis();
         List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gameList);
         inferenceDuration.value += System.currentTimeMillis();
@@ -141,7 +141,7 @@ public class Episode {
         return networkOutput;
     }
 
-    private void addExplorationNoise( boolean render, boolean explorationNoise, int indexOfJustOneOfTheGames, List<Node> rootList) {
+    private void addExplorationNoise(boolean render, boolean explorationNoise, int indexOfJustOneOfTheGames, List<Node> rootList) {
         double fraction = config.getRootExplorationFraction();
         if (explorationNoise) {
             rootList.forEach(root -> addExplorationNoise(fraction, config.getRootDirichletAlpha(), root));
@@ -152,25 +152,25 @@ public class Episode {
     }
 
     @Nullable
-    private List<MinMaxStats> runMCTS( Network network, boolean fastRuleLearning, List<Node> rootList, MCTS mcts) {
+    private List<MinMaxStats> runMCTS(Network network, boolean fastRuleLearning, List<Node> rootList, MCTS mcts) {
         return fastRuleLearning ? null :
                 mcts.runParallel(rootList,
-                    gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
+                        gameList.stream().map(Game::actionHistory).collect(Collectors.toList()),
                         network, inferenceDuration, config.getNumSimulations());
     }
 
-    private void expandRootNodes( boolean fastRuleLearning, List<Node> rootList, List<NetworkIO> networkOutput, MCTS mcts) {
+    private void expandRootNodes(boolean fastRuleLearning, List<Node> rootList, List<NetworkIO> networkOutput, MCTS mcts) {
         IntStream.range(0, gameList.size()).forEach(g ->
-            {
-                NetworkIO networkIO = null;
-                if (networkOutput != null) {
-                    networkIO = networkOutput.get(g);
-                }
-                mcts.expandNode(rootList.get(g),
-                        gameList.get(g).toPlay(),
-                        gameList.get(g).legalActions(),
-                        networkIO, fastRuleLearning);
-            });
+        {
+            NetworkIO networkIO = null;
+            if (networkOutput != null) {
+                networkIO = networkOutput.get(g);
+            }
+            mcts.expandNode(rootList.get(g),
+                    gameList.get(g).toPlay(),
+                    gameList.get(g).legalActions(),
+                    networkIO, fastRuleLearning);
+        });
     }
 
     @NotNull

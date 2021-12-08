@@ -21,21 +21,20 @@ import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Data;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 @Data
 public class Node {
-    public @Nullable Player toPlay;
-    public double prior;
-    public double multiplierLambda;
-    public double valueSum;
-    public SortedMap<Action, Node> children;
-    public @Nullable NDArray hiddenState;
-    public Action action;
-    public double reward;
+    private Player toPlay;
+    private double prior;
+    private SortedMap<Action, Node> children;
+    private NDArray hiddenState;
+    private double reward;
+    private double multiplierLambda;
+    private double valueSum;
+    private Action action;
     private int visitCount;
     private boolean root = false;
     private MuZeroConfig config;
@@ -48,7 +47,6 @@ public class Node {
     public Node(MuZeroConfig config, double prior) {
         this.config = config;
         this.visitCount = 0;
-
         this.prior = prior;
         this.valueSum = 0;
         this.children = new TreeMap<>();
@@ -58,17 +56,17 @@ public class Node {
 
 
     public boolean expanded() {
-        return this.children.size() > 0;
+        return this.getChildren().size() > 0;
     }
 
 
     private double value() {
         if (visitCount == 0) return 0.0;
-        // TODO: check
-        if (config.getPlayerMode() == PlayerMode.twoPlayers) {
-            return -this.valueSum / this.visitCount;
+        double rawValue = this.getValueSum() / this.visitCount;
+        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+            return -rawValue;
         } else {
-            return this.valueSum / this.visitCount;
+            return rawValue;
         }
     }
 

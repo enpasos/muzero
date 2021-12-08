@@ -17,11 +17,12 @@ import java.util.stream.Collectors;
  */
 public class RegularizedPolicyOptimization {
 
-    private RegularizedPolicyOptimization() {}
+    private RegularizedPolicyOptimization() {
+    }
 
     public static List<Pair<Action, Double>> getDistributionInput(@NotNull Node node, MuZeroConfig config, MinMaxStats minMaxStats) {
 
-        List<Map.Entry<Action, Node>> list = new ArrayList<>(node.children.entrySet());
+        List<Map.Entry<Action, Node>> list = new ArrayList<>(node.getChildren().entrySet());
         List<Pair<Action, Double>> distributionInput;
         if (node.getVisitCount() != 0) {
             double multiplierLambda = multiplierLambda(node, config);
@@ -93,7 +94,7 @@ public class RegularizedPolicyOptimization {
 
     private static double optPolicy(double multiplierLambda, double alpha, Node child, MinMaxStats minMaxStats, MuZeroConfig config) {
         double optPolicy;
-        optPolicy = multiplierLambda * child.prior / (alpha - child.valueScore(minMaxStats, config));
+        optPolicy = multiplierLambda * child.getPrior() / (alpha - child.valueScore(minMaxStats, config));
         return optPolicy;
     }
 

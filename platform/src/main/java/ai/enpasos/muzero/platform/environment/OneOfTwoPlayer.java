@@ -18,26 +18,27 @@
 package ai.enpasos.muzero.platform.environment;
 
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
+import ai.enpasos.muzero.platform.common.Constants;
 import org.jetbrains.annotations.NotNull;
 
 
 public enum OneOfTwoPlayer implements Player {
 
-    PlayerA(-1, 'x', 0f), PlayerB(1, 'o', 1f);
+    PLAYER_A(-1, Constants.CHAR_PLAYER_A, 0f), PLAYER_B(1, Constants.CHAR_PLAYER_B, 1f);
 
     private int value;
     private char symbol;
     private float actionValue;
 
     OneOfTwoPlayer(int value, char symbol, float actionValue) {
-        this.setValue(value);
-        this.setSymbol(symbol);
-        this.setActionValue(actionValue);
+        this.value = value;
+        this.symbol = symbol;
+        this.actionValue = actionValue;
     }
 
     public static @NotNull OneOfTwoPlayer otherPlayer(OneOfTwoPlayer player) {
-        if (player == PlayerA) return PlayerB;
-        else return PlayerA;
+        if (player == PLAYER_A) return PLAYER_B;
+        else return PLAYER_A;
     }
 
 
@@ -45,24 +46,18 @@ public enum OneOfTwoPlayer implements Player {
         return symbol;
     }
 
-    public void setSymbol(char symbol) {
-        this.symbol = symbol;
-    }
+
 
     public int getValue() {
         return value;
     }
 
-    public void setValue(int value) {
-        this.value = value;
-    }
 
     public float getActionValue() {
         return actionValue;
     }
 
-    public void setActionValue(float actionValue) {
-        this.actionValue = actionValue;
-    }
+
+
 }
 

@@ -27,6 +27,7 @@ import ai.djl.training.listener.EvaluatorTrainingListener;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.training.util.ProgressBar;
+import ai.enpasos.muzero.platform.common.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import java.util.List;
  * @see <a href="http://docs.djl.ai/docs/development/configure_logging.html">The guide on DJL
  * logging</a>
  */
+@SuppressWarnings({"squid:S1192", "squid:S2629"})
 public class MyLoggingTrainingListener implements TrainingListener {
 
     private static final Logger logger = LoggerFactory.getLogger(MyLoggingTrainingListener.class);
@@ -142,8 +144,8 @@ public class MyLoggingTrainingListener implements TrainingListener {
                         EvaluatorTrainingListener.TRAIN_PROGRESS,
                         2));
 
-        if (metrics.hasMetric("train")) {
-            float batchTime = metrics.latestMetric("train").getValue().longValue() / 1_000_000_000f;
+        if (metrics.hasMetric(Constants.METRICS_TRAIN)) {
+            float batchTime = metrics.latestMetric(Constants.METRICS_TRAIN).getValue().longValue() / 1_000_000_000f;
             sb.append(String.format(", speed: %.2f items/sec", batchSize / batchTime));
         }
         return sb.toString();
@@ -202,29 +204,29 @@ public class MyLoggingTrainingListener implements TrainingListener {
 
         float p50;
         float p90;
-        if (metrics.hasMetric("train")) {
+        if (metrics.hasMetric(Constants.METRICS_TRAIN)) {
             // possible no train metrics if only one iteration is executed
-            p50 = metrics.percentile("train", 50).getValue().longValue() / 1_000_000f;
-            p90 = metrics.percentile("train", 90).getValue().longValue() / 1_000_000f;
-            logger.info(String.format("train P50: %.3f ms, P90: %.3f ms", p50, p90));
+            p50 = metrics.percentile(Constants.METRICS_TRAIN, 50).getValue().longValue() / 1_000_000f;
+            p90 = metrics.percentile(Constants.METRICS_TRAIN, 90).getValue().longValue() / 1_000_000f;
+            logger.info(String.format(Constants.METRICS_TRAIN + " P50: %.3f ms, P90: %.3f ms", p50, p90));
         }
 
-        if (metrics.hasMetric("forward")) {
-            p50 = metrics.percentile("forward", 50).getValue().longValue() / 1_000_000f;
-            p90 = metrics.percentile("forward", 90).getValue().longValue() / 1_000_000f;
-            logger.info(String.format("forward P50: %.3f ms, P90: %.3f ms", p50, p90));
+        if (metrics.hasMetric(Constants.METRICS_FORWARD)) {
+            p50 = metrics.percentile(Constants.METRICS_FORWARD, 50).getValue().longValue() / 1_000_000f;
+            p90 = metrics.percentile(Constants.METRICS_FORWARD, 90).getValue().longValue() / 1_000_000f;
+            logger.info(String.format(Constants.METRICS_FORWARD + " P50: %.3f ms, P90: %.3f ms", p50, p90));
         }
 
-        if (metrics.hasMetric("training-metrics")) {
-            p50 = metrics.percentile("training-metrics", 50).getValue().longValue() / 1_000_000f;
-            p90 = metrics.percentile("training-metrics", 90).getValue().longValue() / 1_000_000f;
-            logger.info(String.format("training-metrics P50: %.3f ms, P90: %.3f ms", p50, p90));
+        if (metrics.hasMetric(Constants.METRICS_TRAINING_METRICS)) {
+            p50 = metrics.percentile(Constants.METRICS_TRAINING_METRICS, 50).getValue().longValue() / 1_000_000f;
+            p90 = metrics.percentile(Constants.METRICS_TRAINING_METRICS, 90).getValue().longValue() / 1_000_000f;
+            logger.info(String.format(Constants.METRICS_TRAINING_METRICS + " P50: %.3f ms, P90: %.3f ms", p50, p90));
         }
 
-        if (metrics.hasMetric("backward")) {
-            p50 = metrics.percentile("backward", 50).getValue().longValue() / 1_000_000f;
-            p90 = metrics.percentile("backward", 90).getValue().longValue() / 1_000_000f;
-            logger.info(String.format("backward P50: %.3f ms, P90: %.3f ms", p50, p90));
+        if (metrics.hasMetric(Constants.METRICS_BACKWARD)) {
+            p50 = metrics.percentile(Constants.METRICS_BACKWARD, 50).getValue().longValue() / 1_000_000f;
+            p90 = metrics.percentile(Constants.METRICS_BACKWARD, 90).getValue().longValue() / 1_000_000f;
+            logger.info(String.format(Constants.METRICS_BACKWARD + " P50: %.3f ms, P90: %.3f ms", p50, p90));
         }
 
         if (metrics.hasMetric("step")) {
@@ -233,10 +235,10 @@ public class MyLoggingTrainingListener implements TrainingListener {
             logger.info(String.format("step P50: %.3f ms, P90: %.3f ms", p50, p90));
         }
 
-        if (metrics.hasMetric("epoch")) {
-            p50 = metrics.percentile("epoch", 50).getValue().longValue() / 1_000_000_000f;
-            p90 = metrics.percentile("epoch", 90).getValue().longValue() / 1_000_000_000f;
-            logger.info(String.format("epoch P50: %.3f s, P90: %.3f s", p50, p90));
+        if (metrics.hasMetric(Constants.EPOCH)) {
+            p50 = metrics.percentile(Constants.EPOCH, 50).getValue().longValue() / 1_000_000_000f;
+            p90 = metrics.percentile(Constants.EPOCH, 90).getValue().longValue() / 1_000_000_000f;
+            logger.info(String.format(Constants.EPOCH + " P50: %.3f s, P90: %.3f s", p50, p90));
         }
     }
 
@@ -253,15 +255,12 @@ public class MyLoggingTrainingListener implements TrainingListener {
             if (metrics.hasMetric(metricName)) {
                 float value = metrics.latestMetric(metricName).getValue().floatValue();
                 // use .2 precision to avoid new line in progress bar
-                String output;
+
                 if (Math.abs(value) < .01 || Math.abs(value) > 9999) {
-                    output = String.format("%s: %.2E", evaluator.getName(), value);
-                } else if (metricName.startsWith("validate_") && Float.isNaN(value)) {
-                    continue;
-                } else {
-                    output = String.format("%s: %.2f", evaluator.getName(), value);
+                    metricOutputs.add(String.format("%s: %.2E", evaluator.getName(), value));
+                } else if (!(metricName.startsWith("validate_") && Float.isNaN(value))) {
+                    metricOutputs.add(String.format("%s: %.2f", evaluator.getName(), value));
                 }
-                metricOutputs.add(output);
             } else {
                 metricOutputs.add(String.format("%s: _", evaluator.getName()));
             }

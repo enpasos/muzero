@@ -42,7 +42,8 @@ public class PegSolitairConfigFactory {
                 .modelName("MuZero-PegSolitair")
                 .gameClass(PegSolitairGame.class)
                 .actionClass(PegSolitairAction.class)
-                .playerMode(PlayerMode.singlePlayer)
+                .playerMode(PlayerMode.SINGLE_PLAYER)
+                .networkWithRewardHead(false)
 
                 // game/environment
                 .maxMoves(size * size) // in a game

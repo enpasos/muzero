@@ -34,6 +34,8 @@ import static ai.enpasos.muzero.platform.agent.gamebuffer.GameIO.getLatestBuffer
 @Slf4j
 public class WinLooseStatistics {
 
+    private WinLooseStatistics() {}
+
     public static void winLooseStatisticsOnGamesInStoredBuffers(MuZeroConfig config, int start) {
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         List<WinnerStatistics> winnerStatisticsList = new ArrayList<>();
@@ -44,29 +46,24 @@ public class WinLooseStatistics {
         for (int c = start; c <= cMax; c += 1000) {
             replayBuffer.loadState(c);
 
-
-            //   log.info("total games: {}", replayBuffer.getBuffer().getData().size());
-
             List<Optional<OneOfTwoPlayer>> winnerList = replayBuffer.getBuffer().getGames().stream()
                     .map(g -> ((ZeroSumGame) g).whoWonTheGame())
                     .collect(Collectors.toList());
 
             WinnerStatistics stats = WinnerStatistics.builder()
                     .allGames(winnerList.size())
-                    .winPlayerACount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PlayerA).count())
-                    .winPlayerBCount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PlayerB).count())
+                    .winPlayerACount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PLAYER_A).count())
+                    .winPlayerBCount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PLAYER_B).count())
                     .drawCount(winnerList.stream().filter(Optional::isEmpty).count())
                     .build();
 
-            //   System.out.println("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() +  ", draw: " + stats.getDrawCount());
-            log.info("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() + ", draw: " + stats.getDrawCount());
+               log.info("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() + ", draw: " + stats.getDrawCount());
 
             winnerStatisticsList.add(stats);
         }
         for (int i = 0; i <= (cMax - start) / 1000; i++) {
             int c = start + i * 1000;
-            //   System.out.println("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() +  ", draw: " + stats.getDrawCount());
-            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames());
+            log.info(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames());
         }
 
     }

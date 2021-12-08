@@ -158,7 +158,7 @@ public class Board {
 
 
     private int locationScore(Point peg) {
-        Integer score = 0;
+        int score = 0;
         score += scoreForPeg(peg, 1, 3, -1);
         score += scoreForPeg(peg, 1, 4, 1);
         score += scoreForPeg(peg, 1, 5, -1);

@@ -58,8 +58,8 @@ public class SelfPlay {
 
         long duration = System.currentTimeMillis() - episode.getStart();
         log.info("duration game play [ms]: {}", duration);
-        log.info("inference duration game play [ms]: {}", episode.getInferenceDuration().value );
-        log.info("java duration game play [ms]: {}", (duration - episode.getInferenceDuration().value ));
+        log.info("inference duration game play [ms]: {}", episode.getInferenceDuration().value);
+        log.info("java duration game play [ms]: {}", (duration - episode.getInferenceDuration().value));
 
         return episode.getGamesDoneList();
     }

@@ -13,6 +13,7 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -23,21 +24,20 @@ import java.util.Optional;
 
 public class GoAdapter {
 
+    private GoAdapter() {}
+
     public static Move translate(MuZeroConfig config, Action action) {
         if (0 <= action.getIndex() && action.getIndex() < config.getActionSpaceSize() - 1) {
             return Play.apply(((GoAction) action).getRow() + 1, ((GoAction) action).getCol() + 1);
         } else if (action.getIndex() == config.getActionSpaceSize() - 1) {
             return new Pass();
         } else {
-            throw new MuZeroException("this should not happen");
+            throw new MuZeroException(Constants.THIS_SHOULD_NOT_HAPPEN);
         }
     }
 
     public static List<NDArray> translate(MuZeroConfig config, NDManager ndManager, GameState gameState) {
         List<NDArray> list = new ArrayList<>();
-
-        //    int boardSize = config.getBoardWidth();
-        // gameState.getBoard().placeStone()
 
         Player player = gameState.getNextPlayer();
 
@@ -47,7 +47,6 @@ public class GoAdapter {
         list.add(boardCurrentPlayer);
         NDArray boardOpponentPlayer = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f);
         list.add(boardOpponentPlayer);
-        Player nextPlayer = gameState.getNextPlayer();
 
         for (int row = 0; row < config.getBoardHeight(); row++) {
             for (int col = 0; col < config.getBoardWidth(); col++) {
@@ -83,9 +82,9 @@ public class GoAdapter {
     public static OneOfTwoPlayer translate(Player player) {
         switch (player) {
             case BlackPlayer:
-                return OneOfTwoPlayer.PlayerA;
+                return OneOfTwoPlayer.PLAYER_A;
             case WhitePlayer:
-                return OneOfTwoPlayer.PlayerB;
+                return OneOfTwoPlayer.PLAYER_B;
             default:
                 throw new MuZeroException("this should not happen");
         }
