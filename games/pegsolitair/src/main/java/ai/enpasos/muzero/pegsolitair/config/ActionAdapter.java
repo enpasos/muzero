@@ -10,8 +10,6 @@ import java.util.*;
 
 public class ActionAdapter {
 
-    private ActionAdapter() {}
-
     private static final Map<Integer, Jump> integerJumpMap;
     private static final Map<Jump, Integer> jumpIntegerMap;
 
@@ -36,6 +34,9 @@ public class ActionAdapter {
             jumpIntegerMap.put(j, c);
             c++;
         }
+    }
+
+    private ActionAdapter() {
     }
 
     public static Action getAction(MuZeroConfig config, Jump jump) {

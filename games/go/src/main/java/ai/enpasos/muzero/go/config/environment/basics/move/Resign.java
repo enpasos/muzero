@@ -19,5 +19,5 @@ package ai.enpasos.muzero.go.config.environment.basics.move;
 /**
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
-public class Resign extends Move {
+public class Resign implements Move {
 }

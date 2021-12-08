@@ -20,10 +20,10 @@ package ai.enpasos.muzero.go.config.environment.basics;
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
 public enum Player {
-    WhitePlayer, BlackPlayer;
+    WHITE_PLAYER, BLACK_PLAYER;
 
     public Player other() {
-        return this == WhitePlayer ? BlackPlayer : WhitePlayer;
+        return this == WHITE_PLAYER ? BLACK_PLAYER : WHITE_PLAYER;
     }
 
 }

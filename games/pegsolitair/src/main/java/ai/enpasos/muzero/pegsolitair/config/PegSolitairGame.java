@@ -53,6 +53,7 @@ public class PegSolitairGame extends Game {
         environment = new PegSolitairEnvironment(config);
     }
 
+    @Override
     public @NotNull PegSolitairEnvironment getEnvironment() {
         return (PegSolitairEnvironment) environment;
     }
@@ -128,13 +129,14 @@ public class PegSolitairGame extends Game {
 
 
     public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
-
+        // not implemented, yet
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
-
+        // not implemented, yet
     }
 
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
+        // not implemented, yet
     }
 }

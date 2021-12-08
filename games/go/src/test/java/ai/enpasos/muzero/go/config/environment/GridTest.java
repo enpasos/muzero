@@ -8,8 +8,8 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.TreeSet;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
-import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.testng.AssertJUnit.*;
 
 public class GridTest {
@@ -28,7 +28,7 @@ public class GridTest {
         var mygrid = grid.updateStringWhenAddingStone(new Point(2, 2), string);
 
         // should be black at 2, 3
-        assertSame(mygrid.getPlayer(new Point(2, 3)).orElseThrow(MuZeroException::new), BlackPlayer);
+        assertSame(mygrid.getPlayer(new Point(2, 3)).orElseThrow(MuZeroException::new), BLACK_PLAYER);
         assertEquals(mygrid.getString(new Point(2, 3)).orElseThrow(MuZeroException::new), string);
 
         // should be empty elsewhere
@@ -48,7 +48,7 @@ public class GridTest {
 
         var black2String = simpleBlackString();
         var white6String = GoString.builder()
-                .player(WhitePlayer)
+                .player(WHITE_PLAYER)
                 .stones(new TreeSet<>(List.of(
                         new Point(1, 1),
                         new Point(1, 2),
@@ -67,7 +67,7 @@ public class GridTest {
                 .build();
 
         var white2String = GoString.builder()
-                .player(WhitePlayer)
+                .player(WHITE_PLAYER)
                 .stones(new TreeSet<>(List.of(
                         new Point(3, 2),
                         new Point(3, 3)
@@ -83,22 +83,22 @@ public class GridTest {
         // should have a black string should with 2 liberties initially
         mygrid = mygrid.updateStringWhenAddingStone(new Point(2, 2), black2String);
         // the black string is surrounded but not yet captured/removed
-        assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BlackPlayer);
+        assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
         assertEquals(2, mygrid.getString(new Point(2, 3)).get().numLiberties());
 
 
         // should have a black string with liberties even when surrounded
         mygrid = mygrid.updateStringWhenAddingStone(new Point(3, 3), white2String);
         // the black string is surrounded but not yet captured/removed. Its liberties are not updated here.
-        assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BlackPlayer);
-        assertSame(mygrid.getPlayer(new Point(2, 3)).get(), BlackPlayer);
+        assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
+        assertSame(mygrid.getPlayer(new Point(2, 3)).get(), BLACK_PLAYER);
         assertEquals(2, mygrid.getString(new Point(2, 3)).orElseThrow(MuZeroException::new).numLiberties()); // to be captured black string
         assertEquals(2, mygrid.getString(new Point(3, 3)).orElseThrow(MuZeroException::new).numLiberties()); // white string
 
 
         // should have a captured black string that is captured by surrounding white string
         // maps from point to list of neighbors
-        var nbrMap = NeighborTables.getNbrTable(5);
+        var nbrMap = NeighborMaps.getNbrTable(5);
         mygrid = mygrid.removeString(black2String, nbrMap);
 
         assertTrue(mygrid.getPlayer(new Point(2, 2)).isEmpty());
@@ -116,7 +116,7 @@ public class GridTest {
 
     private GoString simpleBlackString() {
         return GoString.builder()
-                .player(BlackPlayer)
+                .player(BLACK_PLAYER)
                 .stones(new TreeSet<>(List.of(
                         new Point(2, 2),
                         new Point(2, 3)
@@ -130,7 +130,7 @@ public class GridTest {
 
     private GoString mediumWhiteString() {
         return GoString.builder()
-                .player(WhitePlayer)
+                .player(WHITE_PLAYER)
                 .stones(new TreeSet<>(List.of(
                         new Point(1, 2),
                         new Point(2, 2),

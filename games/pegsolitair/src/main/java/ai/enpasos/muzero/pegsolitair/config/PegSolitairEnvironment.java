@@ -28,15 +28,15 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class PegSolitairEnvironment implements Environment, Serializable {
+@SuppressWarnings("squid:S2065")
+public class PegSolitairEnvironment implements Environment {
 
-    private final static Logger logger = LoggerFactory.getLogger(PegSolitairEnvironment.class);
-    public transient MuZeroConfig config;
+    private static final Logger logger = LoggerFactory.getLogger(PegSolitairEnvironment.class);
+    private transient MuZeroConfig config;
     private Board board;
 
 
@@ -50,7 +50,7 @@ public class PegSolitairEnvironment implements Environment, Serializable {
         Jump jump = ActionAdapter.getJump(action);
         board.applyJump(jump);
 
-        if (board.getLegalJumps().size() == 0) {
+        if (!board.getLegalJumps().isEmpty()) {
             return board.getScore();
         } else {
             return 0f;
@@ -68,12 +68,12 @@ public class PegSolitairEnvironment implements Environment, Serializable {
 
     @Override
     public int[][] currentImage() {
-        return null;
+        throw new NotImplementedException("currentImage() not implemented.");
     }
 
     @Override
     public boolean terminal() {
-        return legalActions().size() == 0;
+        return legalActions().isEmpty();
     }
 
     public @NotNull String render() {

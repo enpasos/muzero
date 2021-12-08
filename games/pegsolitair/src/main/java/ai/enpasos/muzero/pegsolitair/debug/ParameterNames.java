@@ -24,12 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 import static ai.enpasos.muzero.platform.debug.ParameterNames.listParameterNames;
 
 @Slf4j
+@SuppressWarnings("squid:S106")
 public class ParameterNames {
     public static void main(String[] args) {
         MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
         System.out.println(listParameterNames(config));
-
     }
-
 
 }

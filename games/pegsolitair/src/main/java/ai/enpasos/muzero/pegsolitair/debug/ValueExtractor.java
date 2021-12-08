@@ -32,6 +32,7 @@ import static ai.enpasos.muzero.platform.debug.ValueExtractor.getActionList;
 import static ai.enpasos.muzero.platform.debug.ValueExtractor.listValuesForTrainedNetworks;
 
 @Slf4j
+@SuppressWarnings({"squid:S106","squid:S1612","squid:S3740","squid:S1488"})
 public class ValueExtractor {
 
     public static void main(String[] args) throws IOException {
@@ -46,8 +47,14 @@ public class ValueExtractor {
 
         ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
-        List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
-                .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
+        List<Pair<List<Integer>,Float>> pairs = replayBuffer.getBuffer().getGames().stream().map(g ->
+                {
+                    Pair<List<Integer>,Float> pair = new Pair(g.actionHistory().getActionIndexList(), g.getLastReward());
+                    return pair;
+                })
+                .sorted(Comparator
+                        .comparing((Pair<List<Integer>,Float> p) -> p.getValue())
+                        .thenComparing((Pair<List<Integer>,Float> p) -> p.getKey().toString()))
                 .collect(Collectors.toList());
 
         pairs.forEach(p -> System.out.println(p.getKey() + "; " + p.getValue()));

@@ -20,12 +20,12 @@ import static ai.enpasos.muzero.go.config.environment.ZobristHashing.ZOBRIST;
 @AllArgsConstructor
 public class Grid {
 
-    private Map<Point, GoString> grid;
+    private Map<Point, GoString> pointGoStringMap;
     private Long hash;
 
     Grid() {
         hash = 0L;
-        grid = new HashMap<>();
+        pointGoStringMap = new HashMap<>();
     }
 
     private static Map<Point, GoString> replaceString(GoString newString, Map<Point, GoString> g) {
@@ -36,7 +36,7 @@ public class Grid {
     }
 
     Optional<GoString> getString(Point point) {
-        return Optional.ofNullable(grid.get(point));
+        return Optional.ofNullable(pointGoStringMap.get(point));
     }
 
     Optional<Player> getPlayer(Point point) {
@@ -48,7 +48,7 @@ public class Grid {
      * @param newString the new parent string for that added stone
      */
     Grid updateStringWhenAddingStone(Point point, GoString newString) {
-        Map<Point, GoString> newGrid = new HashMap<>(grid);
+        Map<Point, GoString> newGrid = new HashMap<>(pointGoStringMap);
 
         newString.getStones().forEach(
                 newStringPoint -> newGrid.put(newStringPoint, newString)
@@ -63,7 +63,7 @@ public class Grid {
     }
 
     Grid replaceString(GoString newString) {
-        return new Grid(replaceString(newString, grid), hash);
+        return new Grid(replaceString(newString, pointGoStringMap), hash);
     }
 
     /**
@@ -73,7 +73,7 @@ public class Grid {
      * @return newGrid and newHash value
      */
     Grid removeString(GoString removedString, NeighborMap nbrMap) {
-        var newGrid = grid;
+        var newGrid = pointGoStringMap;
         var newHash = hash;
 
         // first remove the stones from the board
@@ -88,7 +88,7 @@ public class Grid {
             for (Point neighbor : nbrMap.get(point)) {
                 var oppNbrString = newGrid.get(neighbor);
                 if (oppNbrString != null) {
-                    newGrid = replaceString(oppNbrString.withLiberty(point), newGrid);
+                    replaceString(oppNbrString.withLiberty(point), newGrid);
                 }
             }
         }

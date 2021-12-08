@@ -57,8 +57,8 @@ public class GoBoard {
     public GoBoard(int size) {
         this.size = size;
         boundsChecker = GoBoardBoundsChecker.get(size);
-        neighborMap = NeighborTables.getNbrTable(size);
-        diagonalMap = NeighborTables.getDiagonalTable(size);
+        neighborMap = NeighborMaps.getNbrTable(size);
+        diagonalMap = NeighborMaps.getDiagonalTable(size);
         this.grid = new Grid();
         this.blackCaptures = 0;
         this.whiteCaptures = 0;
@@ -117,10 +117,10 @@ public class GoBoard {
         var newWhiteCaptures = whiteCaptures;
         for (GoString str : stringsToRemove) {
             switch (player) {
-                case BlackPlayer:
+                case BLACK_PLAYER:
                     newBlackCaptures += str.size();
                     break;
-                case WhitePlayer:
+                case WHITE_PLAYER:
                 default:
                     newWhiteCaptures += str.size();
                     break;

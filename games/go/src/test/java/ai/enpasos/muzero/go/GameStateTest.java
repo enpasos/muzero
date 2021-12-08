@@ -5,8 +5,8 @@ import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import org.testng.annotations.Test;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
-import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.testng.AssertJUnit.assertSame;
 
 public class GameStateTest {
@@ -18,8 +18,8 @@ public class GameStateTest {
         // should apply moves
         var nextState = start.applyMove(new Play(new Point(16, 16)));
         assertSame(start, nextState.getPreviousState());
-        assertSame(nextState.getBoard().getPlayer(new Point(16, 16)).get(), BlackPlayer);
-        assertSame(nextState.getNextPlayer(), WhitePlayer);
+        assertSame(nextState.getBoard().getPlayer(new Point(16, 16)).get(), BLACK_PLAYER);
+        assertSame(nextState.getNextPlayer(), WHITE_PLAYER);
     }
 
 

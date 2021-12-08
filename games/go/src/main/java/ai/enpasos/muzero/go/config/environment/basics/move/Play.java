@@ -25,7 +25,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class Play extends Move {
+public class Play implements Move {
     private Point point;
 
     public static Play apply(int row, int col) {

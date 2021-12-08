@@ -11,12 +11,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.*;
 
 /**
  * adapted from https://github.com/maxpumperla/ScalphaGoZero
  */
+@SuppressWarnings({"squid:S3776", "squid:S3358"})
 public class TerritoryCalculator {
     private final GoBoard goBoard;
 
@@ -55,11 +56,11 @@ public class TerritoryCalculator {
                 var point = new Point(row, col);
                 var playerOption = goBoard.getPlayer(point);
                 if (playerOption.isPresent()) {
-                    var isBlack = playerOption.orElseThrow(MuZeroException::new) == BlackPlayer;
+                    var isBlack = playerOption.orElseThrow(MuZeroException::new) == BLACK_PLAYER;
                     if (goBoard.getGoString(point).orElseThrow(MuZeroException::new).getLiberties().size() == 1) {
-                        statusMap.put(point, isBlack ? CapturedBlackStone : CapturedWhiteStone);
+                        statusMap.put(point, isBlack ? CAPTURED_BLACK_STONE : CAPTURED_WHITE_STONE);
                     } else {
-                        statusMap.put(point, isBlack ? BlackStone : WhiteStone);
+                        statusMap.put(point, isBlack ? BLACK_STONE : WHITE_STONE);
                     }
                 }
             }
@@ -74,12 +75,12 @@ public class TerritoryCalculator {
                 var point = new Point(row, col);
                 var playerOption = goBoard.getPlayer(point);
                 if (playerOption.isEmpty() || pointToType.get(point).isTerritory()) {
-                    var group_neighbors = collectRegion(point, goBoard, pointToType);
-                    var neighbors = group_neighbors.getRight();
+                    var groupNeighbors = collectRegion(point, goBoard, pointToType);
+                    var neighbors = groupNeighbors.getRight();
                     var fillWith = (neighbors.size() == 1) ? // then all one color neighbors
-                            (neighbors.first() == BlackPlayer ? BlackTerritory : WhiteTerritory)
-                            : Dame;
-                    var group = group_neighbors.getLeft();
+                            (neighbors.first() == BLACK_PLAYER ? BLACK_TERRITORY : WHITE_TERRITORY)
+                            : DAME;
+                    var group = groupNeighbors.getLeft();
                     group.stream()
                             .filter(p -> !pointToType.containsKey(p))
                             .forEach(pos -> pointToType.put(pos, fillWith));
@@ -100,8 +101,6 @@ public class TerritoryCalculator {
             Point startingPoint,
             GoBoard board,
             Map<Point, VertexType> statusMap) {
-        var initialPlayer = board.getPlayer(startingPoint);
-        // assert(initialPlayer.isEmpty() || statusMap.get(startingPoint).isTerritory())
 
         SortedSet<Player> visitedPlayers = new TreeSet<>();
         List<Point> visitedPoints = new ArrayList<>();

@@ -3,8 +3,8 @@ package ai.enpasos.muzero.go.config.environment;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import org.testng.annotations.Test;
 
-import static ai.enpasos.muzero.go.config.environment.basics.Player.BlackPlayer;
-import static ai.enpasos.muzero.go.config.environment.basics.Player.WhitePlayer;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
+import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class GoBoardSerializerTest {
@@ -13,10 +13,10 @@ public class GoBoardSerializerTest {
     void serializeABoard1() {
         var board = new GoBoard(9);
 
-        board = board.placeStone(BlackPlayer, new Point(2, 2));
-        board = board.placeStone(WhitePlayer, new Point(3, 3));
-        board = board.placeStone(BlackPlayer, new Point(2, 3));
-        board = board.placeStone(WhitePlayer, new Point(5, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
 
         assertEquals("------------------------------\n" +
                 " 9  .  .  .  .  .  .  .  .  . \n" +
@@ -37,10 +37,10 @@ public class GoBoardSerializerTest {
     void serializeABoard2() {
         var board = new GoBoard(9);
 
-        board = board.placeStone(BlackPlayer, new Point(1, 1));
-        board = board.placeStone(WhitePlayer, new Point(3, 3));
-        board = board.placeStone(BlackPlayer, new Point(2, 3));
-        board = board.placeStone(WhitePlayer, new Point(5, 4));
+        board = board.placeStone(BLACK_PLAYER, new Point(1, 1));
+        board = board.placeStone(WHITE_PLAYER, new Point(3, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
 
 
         assertEquals("------------------------------\n" +
