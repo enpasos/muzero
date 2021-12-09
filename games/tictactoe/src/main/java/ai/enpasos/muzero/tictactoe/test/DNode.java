@@ -157,41 +157,48 @@ public class DNode {
 
     // add AI Decisions on all descendant nodes
     // where 'player' is to play
-    public void addAIDecisions(@NotNull Network network, OneOfTwoPlayer player, boolean withMCTS) {
+    public void addAIDecisions(@NotNull Network network, OneOfTwoPlayer player, boolean withMCTS, MCTS mcts) {
         if (this.game.toPlay() != player) {   // jump over other players nodes down the tree
             for (DNode node : this.children) {
-                node.addAIDecisions(network, player, withMCTS);
+                node.addAIDecisions(network, player, withMCTS, mcts);
             }
         } else if (!this.children.isEmpty()) {
-            this.aiChosenChild = aiDecision(network, withMCTS);
-            Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS);
+            this.aiChosenChild = aiDecision(network, withMCTS, mcts);
+            if (aiChosenChild == null) {
+                int i= 42;
+            }
+            Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS, mcts);
 
         }
     }
 
-    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS) {
+    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS, MCTS mcts) {
         NetworkIO networkOutput = network.initialInferenceDirect(game);
         aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
-        if (!withMCTS) {
-            float maxValue = 0f;
-            for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
-                float v = networkOutput.getPolicyValues()[i];
-                if (v > maxValue) {
-                    maxValue = v;
-                    actionIndexSelectedByNetwork = i;
-                }
-            }
-        } else {
+        List<Action> legalActions = game.legalActions();
+        if (withMCTS)
+        {
             Node root = new Node(network.getConfig(), 0);
-            MCTS mcts = new MCTS(this.game.getConfig());
-            List<Action> legalActions = game.legalActions();
+
+
             mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
 
             MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
 
             Action action = mcts.selectActionByMax(root, minMaxStats);
             actionIndexSelectedByNetwork = action.getIndex();
+        }
+        else
+        {
+            float maxValue = 0f;
+            for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
+                float v = networkOutput.getPolicyValues()[i];
+                if (v > maxValue && legalActions.contains(network.getConfig().newAction(i))) {
+                    maxValue = v;
+                    actionIndexSelectedByNetwork = i;
+                }
+            }
         }
         for (DNode n : children) {
             if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
@@ -240,8 +247,8 @@ public class DNode {
         return n.game.equals(n.getGame());
     }
 
-    public boolean isBadDecision(@NotNull Network network, boolean withMCTS) {
-        this.aiChosenChild = aiDecision(network, withMCTS);
+    public boolean isBadDecision(@NotNull Network network, boolean withMCTS, MCTS mcts) {
+        this.aiChosenChild = aiDecision(network, withMCTS, mcts);
         int chosenValue = -1 * Objects.requireNonNull(this.aiChosenChild).perfectValue;
         return chosenValue != perfectValue;
     }

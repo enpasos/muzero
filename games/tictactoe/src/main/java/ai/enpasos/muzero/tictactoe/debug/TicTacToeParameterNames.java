@@ -15,20 +15,28 @@
  *
  */
 
-package ai.enpasos.muzero.pegsolitair.debug;
+package ai.enpasos.muzero.tictactoe.debug;
 
-import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.ParameterNames;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static ai.enpasos.muzero.platform.debug.ParameterNames.listParameterNames;
 
 @Slf4j
 @SuppressWarnings("squid:S106")
-public class ParameterNames {
-    public static void main(String[] args) {
-        MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
-        System.out.println(listParameterNames(config));
+public class TicTacToeParameterNames {
+    @Autowired
+    MuZeroConfig config;
+
+    @Autowired
+    ParameterNames parameterNames;
+
+
+
+    public  void run( ) {
+        System.out.println(parameterNames.listParameterNames());
     }
+
 
 }

@@ -36,7 +36,7 @@ public class EnvironmentBase implements Environment {
     private static final String X_COORD = " A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T   U   V   W   X   Y   Z ";
     private static final String X_COORD_SMALL = " A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ";
     protected int[][] board;
-    protected MuZeroConfig config;
+    protected MuZeroConfig  config;
 
 
     public EnvironmentBase(@NotNull MuZeroConfig config) {
@@ -44,7 +44,7 @@ public class EnvironmentBase implements Environment {
         board = new int[config.getBoardHeight()][config.getBoardWidth()];
     }
 
-    public static @NotNull String render(@NotNull MuZeroConfig config, String[][] values) {
+    public static @NotNull String render(@NotNull MuZeroConfig  config, String[][] values) {
 
         String v = "\u2502";
 

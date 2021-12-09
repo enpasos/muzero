@@ -15,44 +15,48 @@
  *
  */
 
-package ai.enpasos.muzero.pegsolitair.debug;
+package ai.enpasos.muzero.go.debug;
 
 import ai.djl.util.Pair;
-import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.debug.ValueExtractor.getActionList;
-import static ai.enpasos.muzero.platform.debug.ValueExtractor.listValuesForTrainedNetworks;
-
 @Slf4j
-@SuppressWarnings({"squid:S106","squid:S1612","squid:S3740","squid:S1488"})
-public class ValueExtractor {
+@SuppressWarnings("squid:S106")
+@Component
+public class GoValueExtractor {
+    @Autowired
+    MuZeroConfig config;
 
-    public static void main(String[] args) throws IOException {
+    @Autowired
+    ValueExtractor valueExtractor;
 
-        MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
+    @Autowired
+    ReplayBuffer replayBuffer;
+
+    public  void run()   {
+
         config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
-        List<Integer> actionIndexList = getActionList(config);
+        List<Integer> actionIndexList = valueExtractor.getActionList();
 
-        System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
+        System.out.println(valueExtractor.listValuesForTrainedNetworks(actionIndexList));
 
-
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
+
         List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
                 .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
                 .collect(Collectors.toList());
 
         pairs.forEach(p -> System.out.println(p.getKey() + "; " + p.getValue()));
-
 
     }
 

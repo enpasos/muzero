@@ -18,22 +18,25 @@
 package ai.enpasos.muzero.pegsolitair.debug;
 
 
-import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.RenderGame;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
-import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
 
+@Component
+public class PegSolitairRenderGame {
 
-public class RenderGame {
+    @Autowired
+    MuZeroConfig config;
 
-    @SuppressWarnings("squid:S125")
-    public static void main(String[] args) {
+    @Autowired
+    RenderGame renderGame;
 
-        MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
+    public  void run( ) {
 
         // perfect games:
         // List<Integer> actions = List.of(71, 107, 165, 102, 51, 25, 174, 102, 23, 37, 25, 39, 77, 178, 112, 77, 121, 44, 193, 181, 123, 167, 109, 172, 30, 107, 186, 44, 30, 64, 108);
@@ -41,13 +44,13 @@ public class RenderGame {
         // List<Integer> actions = List.of(71, 37, 171, 186, 77, 37, 113, 112, 123, 174, 116, 167, 77, 121, 107, 39, 66, 181, 102, 123, 51, 44, 121, 193, 44, 79, 39, 25, 102, 166, 108);
         //  List<Integer> actions = List.of(71, 37, 171, 186, 70, 114, 37, 77, 63, 121, 107, 44, 121, 193, 123, 181, 44, 118, 39, 117, 66, 181, 102, 123, 79, 39, 25, 51, 102, 166, 108);
 
-        List<Integer> actions = List.of(71, 107, 63, 23, 28, 37, 186, 171, 29, 63, 107, 44, 121, 193, 123, 174, 116, 44, 167, 66, 102, 51, 39, 181, 123, 79, 39, 25, 102, 166, 108);
+        List<Integer> actions = List.of(71, 172, 39, 38, 78, 44, 121, 181, 193, 80, 44, 118, 115, 166, 178, 77, 102, 181, 25, 108, 51, 102, 64, 66, 112, 117, 180, 178, 77);
 
 
         Game game = config.newGame();
         actions.forEach(
-                a -> applyAction(game, a));
+                a -> renderGame.applyAction(game, a));
 
-        renderGame(config, game);
+        renderGame.renderGame(game);
     }
 }

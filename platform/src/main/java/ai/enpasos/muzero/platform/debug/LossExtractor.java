@@ -2,14 +2,16 @@ package ai.enpasos.muzero.platform.debug;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.MuZero;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
@@ -20,12 +22,22 @@ import static ai.enpasos.muzero.platform.agent.fast.model.Network.getDoubleValue
 import static ai.enpasos.muzero.platform.agent.fast.model.Network.getEpoch;
 
 @Slf4j
+@Component
 public class LossExtractor {
+
+    @Autowired
+    MuZeroConfig config;
+
+    @Autowired
+    NetworkHelper networkHelfer;
+
+
+
 
     private LossExtractor() {}
 
     @SuppressWarnings("squid:S106")
-    public static void listLossesForTrainedNetworks(MuZeroConfig config) throws IOException {
+    public   void listLossesForTrainedNetworks()   {
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
@@ -37,7 +49,7 @@ public class LossExtractor {
                 IntStream.range(1, 1000).forEach(
                         i -> {
                             try {
-                                model.load(Paths.get(MuZero.getNetworksBasedir(config)), model.getName(), Map.of("epoch", i));
+                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
                                 int epoch = getEpoch(model);
                                 int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                                 csvPrinter.printRecord(trainingSteps,
@@ -51,6 +63,29 @@ public class LossExtractor {
                         }
                 );
             }
+
+            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+                model.setBlock(block);
+                IntStream.range(1001, 2000).forEach(
+                        i -> {
+                            try {
+                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
+                                int epoch = getEpoch(model);
+                                int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+                                csvPrinter.printRecord(trainingSteps,
+                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
+                                );
+                            } catch (Exception ignored) {
+                                log.debug("epoch " + i + " model.load not successfull");
+                            }
+                        }
+                );
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new MuZeroException(e);
         }
 
         System.out.println(stringWriter);

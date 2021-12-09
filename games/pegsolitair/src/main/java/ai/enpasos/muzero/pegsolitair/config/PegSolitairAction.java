@@ -36,13 +36,13 @@ import org.jetbrains.annotations.NotNull;
 public class PegSolitairAction extends Action {
 
 
-    private transient MuZeroConfig config;
+    private transient MuZeroConfig  config;
 
-    public PegSolitairAction(MuZeroConfig config) {
+    public PegSolitairAction(MuZeroConfig  config) {
         this.config = config;
     }
 
-    public PegSolitairAction(MuZeroConfig config, int index) {
+    public PegSolitairAction(MuZeroConfig  config, int index) {
         this(config);
         this.setIndex(index);
     }

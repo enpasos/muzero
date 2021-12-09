@@ -71,7 +71,7 @@ public class Node {
     }
 
 
-    public double valueScore(MinMaxStats minMaxStats, MuZeroConfig config) {
+    public double valueScore(MinMaxStats minMaxStats, MuZeroConfig  config) {
         return minMaxStats.normalize(getReward() + config.getDiscount() * value());
     }
 

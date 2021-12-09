@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent;
 
-import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
@@ -27,24 +26,31 @@ import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
 import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
 import ai.enpasos.muzero.platform.agent.slow.play.Node;
+import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Component
 public class Inference {
 
-    private Inference() {
-    }
+    @Autowired
+    MuZeroConfig config;
 
-    public static int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, MuZeroConfig config) {
+    @Autowired
+    MCTS mcts;
+
+    public  int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir ) {
         int actionIndexSelectedByNetwork;
         config.setNetworkBaseDir(networkDir);
-        config.setInferenceDevice(Device.cpu());
-        Game game = getGame(config, actions);
+        config.setInferenceDeviceType(DeviceType.CPU);
+        Game game = getGame( actions);
 
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
@@ -63,11 +69,11 @@ public class Inference {
     }
 
 
-    public static double aiValue(List<Integer> actions, String networkDir, MuZeroConfig config) {
+    public  double aiValue(List<Integer> actions, String networkDir ) {
         double valueByNetwork;
         config.setNetworkBaseDir(networkDir);
-        config.setInferenceDevice(Device.cpu());
-        Game game = getGame(config, actions);
+        config.setInferenceDeviceType(DeviceType.CPU);
+        Game game = getGame( actions);
 
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
@@ -86,18 +92,17 @@ public class Inference {
     }
 
 
-    public static Game getGame(MuZeroConfig config, List<Integer> actions) {
+    public  Game getGame(List<Integer> actions) {
         Game game = config.newGame();
         actions.forEach(a -> game.apply(config.newAction(a)));
         return game;
     }
 
 
-    private static Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
+    private  Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
         NetworkIO networkOutput = network.initialInferenceDirect(game);
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
-        MCTS mcts = new MCTS(game.getConfig());
         List<Action> legalActions = game.legalActions();
         if (!withMCTS) {
 

@@ -17,28 +17,27 @@
 
 package ai.enpasos.muzero.go.debug;
 
-import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.WinLooseStatistics;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
-import java.util.List;
-
-import static ai.enpasos.muzero.platform.debug.ValueExtractor.getActionList;
-import static ai.enpasos.muzero.platform.debug.ValueExtractor.listValuesForTrainedNetworks;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@SuppressWarnings("squid:S106")
-public class ValueExtractor {
+@Component
+public class GoWinLooseStatistics {
+    @Autowired
+    MuZeroConfig config;
 
-    public static void main(String[] args) throws IOException {
+    @Autowired
+    private WinLooseStatistics winLooseStatistics;
 
-        MuZeroConfig config = GoConfigFactory.getGoInstance(9);
-        config.setNetworkBaseDir(config.getOutputDir() + "/networks");
+    public   void run() {
 
-        List<Integer> actionIndexList = getActionList(config);
+        int start = 10000;
 
-        System.out.println(listValuesForTrainedNetworks(config, actionIndexList));
+        winLooseStatistics.winLooseStatisticsOnGamesInStoredBuffers(start);
+
     }
 
 }

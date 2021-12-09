@@ -78,7 +78,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         float reward = 0f;
 
         if (terminal()) {
-            setResult(GameResult.apply(state.getBoard(), this.getConfig().getKomi()));
+            setResult(GameResult.apply(state.getBoard(), (float)this.getConfig().getKomi()));
             log.debug(getResult().toString());
             reward = (thisPlayer == getResult().winner()) ? 1f : -1f;
         }

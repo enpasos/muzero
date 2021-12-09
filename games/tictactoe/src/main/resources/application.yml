@@ -1,0 +1,45 @@
+logging:
+  level.root: WARN
+  level.ai.enpasos: DEBUG
+
+muzero:
+  modelName: MuZero-TicTacToe
+  gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
+  actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
+  playerMode: TWO_PLAYERS
+  networkWithRewardHead: false
+  withRewardHead: false
+  numObservationLayers: 3
+  numActionLayers: 1
+  numChannels: 128
+  numHiddenStateChannels: 5
+  numResiduals: 8
+  numberOfTrainingSteps: 4000
+  numberOfTrainingStepsPerEpoch: 20
+  windowSize: 10000
+  batchSize: 256
+  numUnrollSteps: 5
+  tdSteps: 9 # size * size
+  discount: 1.0
+  weightDecay: 0.0001
+  valueLossWeight: 1.0
+  lrInit: 0.0001
+  absorbingStateDropToZero: false # faster for integration test
+  visitSoftmaxTemperatureThreshold: 30
+  numberTrainingStepsOnRandomPlay: 0
+  rootDirichletAlpha: 2
+  rootExplorationFraction: 0.25
+  knownBoundsType: BOARD_GAME
+  pbCInit: 1.25
+  pbCBase: 19652
+  inferenceDeviceType: GPU
+  outputDir: ./memory/
+  numEpisodes: 1
+  numSimulations: 30
+  size: 3
+  maxMoves: 9  # size*size
+  boardHeight: 3 # size
+  boardWidth: 3 # size
+  actionSpaceSize: 9  # size*size
+  symmetryType: SQUARE
+  numParallelGamesPlayed: 1000

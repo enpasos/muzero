@@ -29,24 +29,34 @@ import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
+@Component
 public class MCTS {
-    private final MuZeroConfig config;
 
-    private final @NotNull RandomGenerator rng;
+    @Autowired
+    private MuZeroConfig config;
 
-    public MCTS(MuZeroConfig config) {
-        this.config = config;
+    @Autowired
+    private RegularizedPolicyOptimization regularizedPolicyOptimization;
+
+    private @NotNull RandomGenerator rng;
+
+    public MCTS() {
         this.rng = new Well19937c();
     }
 
 
-    public static void backUp(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
+
+
+
+    public void backUp(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
             if (node.getToPlay() == toPlay) {
@@ -215,13 +225,13 @@ public class MCTS {
     }
 
     public Action selectAction(@NotNull Node node, MinMaxStats minMaxStats) {
-        List<Pair<Action, Double>> distributionInput = RegularizedPolicyOptimization.getDistributionInput(node, config, minMaxStats);
+        List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node,  minMaxStats);
 
         return selectActionByDrawingFromDistribution(distributionInput);
     }
 
     public Action selectActionByMax(@NotNull Node node, MinMaxStats minMaxStats) {
-        List<Pair<Action, Double>> distributionInput = RegularizedPolicyOptimization.getDistributionInput(node, config, minMaxStats);
+        List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node,  minMaxStats);
 
         return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).orElseThrow(MuZeroException::new).getKey();
     }

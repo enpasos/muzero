@@ -1,0 +1,14 @@
+muzero:
+  # game/environment
+  komi: 6.5
+  size: 9
+  boardHeight: 9 # size
+  boardWidth: 9 # size
+  actionSpaceSize: 82  # size * size + 1,  place a stone on the board or pass
+
+
+  numChannels: 128
+  batchSize: 64
+  numSimulations: 200
+  numParallelGamesPlayed: 100
+  numEpisodes: 10
