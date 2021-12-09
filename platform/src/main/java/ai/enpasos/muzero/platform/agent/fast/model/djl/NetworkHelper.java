@@ -34,27 +34,35 @@ import ai.djl.training.loss.L2Loss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
+import ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
 import java.util.List;
 
-import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
-import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstruction.constructInput;
-import static ai.enpasos.muzero.platform.agent.fast.model.InputOutputConstruction.constructOutput;
-
 
 @Slf4j
+@Component
 public class NetworkHelper {
 
-    private NetworkHelper() {}
+    @Autowired
+    MuZeroConfig config;
 
-    public static int numberOfLastTrainingStep(@NotNull MuZeroConfig config) {
+    @Autowired
+    ReplayBuffer replayBuffer;
+
+    @Autowired
+    InputOutputConstruction inputOutputConstruction;
+
+
+    public  int numberOfLastTrainingStep( ) {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
 
@@ -64,7 +72,7 @@ public class NetworkHelper {
                 MuZeroBlock block = new MuZeroBlock(config);
                 model.setBlock(block);
                 try {
-                    model.load(Paths.get(getNetworksBasedir(config)));
+                    model.load(Paths.get(config.getNetworkBaseDir()));
                 } catch (Exception e) {
                     log.info("*** no existing model has been found ***");
                 }
@@ -79,16 +87,16 @@ public class NetworkHelper {
         return epoch * numberOfTrainingStepsPerEpoch;
     }
 
-    private static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull Model model, boolean withSymmetryEnrichment) {
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
-        return getBatch(config, model.getNDManager(), replayBuffer, withSymmetryEnrichment);
+    private   Batch getBatch( @NotNull Model model, boolean withSymmetryEnrichment) {
+
+        return getBatch( model.getNDManager(),  withSymmetryEnrichment);
     }
 
-    public static @NotNull Batch getBatch(@NotNull MuZeroConfig config, @NotNull NDManager ndManager, @NotNull ReplayBuffer replayBuffer, boolean withSymmetryEnrichment) {
+    public  Batch getBatch( @NotNull NDManager ndManager,  boolean withSymmetryEnrichment) {
         NDManager nd = ndManager.newSubManager();
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), config.getTdSteps(), nd);
-        List<NDArray> inputs = constructInput(config, nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-        List<NDArray> outputs = constructOutput(config, nd, config.getNumUnrollSteps(), batch);
+        List<NDArray> inputs = inputOutputConstruction.constructInput( nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
+        List<NDArray> outputs = inputOutputConstruction.constructOutput( nd, config.getNumUnrollSteps(), batch);
 
         return new Batch(
                 nd,
@@ -101,28 +109,28 @@ public class NetworkHelper {
                 0);
     }
 
-    public static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf) {
-        return getInputShapes(conf, conf.getBatchSize());
+    public  Shape @NotNull [] getInputShapes( ) {
+        return getInputShapes( config.getBatchSize());
     }
 
-    public static Shape @NotNull [] getInputShapes(@NotNull MuZeroConfig conf, int batchSize) {
-        Shape[] shapes = new Shape[conf.getNumUnrollSteps() + 1];
+    public Shape @NotNull [] getInputShapes( int batchSize) {
+        Shape[] shapes = new Shape[config.getNumUnrollSteps() + 1];
         // for observation input
-        shapes[0] = new Shape(batchSize, conf.getNumObservationLayers(), conf.getBoardHeight(), conf.getBoardWidth());
-        for (int k = 1; k <= conf.getNumUnrollSteps(); k++) {
-            shapes[k] = new Shape(batchSize, conf.getNumActionLayers(), conf.getBoardHeight(), conf.getBoardWidth());
+        shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
+        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+            shapes[k] = new Shape(batchSize, config.getNumActionLayers(),config.getBoardHeight(), config.getBoardWidth());
         }
         return shapes;
     }
 
 
-    public static DefaultTrainingConfig setupTrainingConfig(@NotNull MuZeroConfig muZeroConfig, int epoch) {
-        String outputDir = getNetworksBasedir(muZeroConfig);
+    public  DefaultTrainingConfig setupTrainingConfig( int epoch) {
+        String outputDir = config.getNetworkBaseDir( );
         MySaveModelTrainingListener listener = new MySaveModelTrainingListener(outputDir);
         listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
 
-        float gradientScale = 1f / muZeroConfig.getNumUnrollSteps();
+        float gradientScale = 1f / config.getNumUnrollSteps();
 
         int k = 0;
 
@@ -132,25 +140,25 @@ public class NetworkHelper {
         k++;
         // value
         log.info("k={}: L2Loss", k);
-        loss.addLoss(new L2Loss("loss_value_" + 0, muZeroConfig.getValueLossWeight()), k);
+        loss.addLoss(new L2Loss("loss_value_" + 0, config.getValueLossWeight()), k);
         k++;
 
 
-        for (int i = 1; i <= muZeroConfig.getNumUnrollSteps(); i++) {
+        for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
             log.info("k={}: SoftmaxCrossEntropyLoss", k);
             loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k);
             k++;
             // value
             log.info("k={}: L2Loss", k);
-            loss.addLoss(new L2Loss("loss_value_" + i, muZeroConfig.getValueLossWeight() * gradientScale), k);
+            loss.addLoss(new L2Loss("loss_value_" + i, config.getValueLossWeight() * gradientScale), k);
             k++;
         }
 
 
         return new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupOptimizer(muZeroConfig))
+                .optOptimizer(setupOptimizer())
                 .addTrainingListeners(new EpochTrainingListener(),
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
@@ -160,17 +168,19 @@ public class NetworkHelper {
                         listener);
     }
 
-    private static @NotNull Optimizer setupOptimizer(@NotNull MuZeroConfig muZeroConfig) {
+    private Optimizer setupOptimizer() {
 
-        Tracker learningRateTracker = Tracker.fixed(muZeroConfig.getLrInit());
+        Tracker learningRateTracker = Tracker.fixed(config.getLrInit());
 
 
         return Optimizer.adam()
                 .optLearningRateTracker(learningRateTracker)
-                .optWeightDecays(muZeroConfig.getWeightDecay())
+                .optWeightDecays(config.getWeightDecay())
                 .optClipGrad(10f)
                 .build();
     }
+
+
 
 
 }

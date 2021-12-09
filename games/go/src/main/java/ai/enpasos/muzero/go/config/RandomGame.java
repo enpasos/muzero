@@ -6,14 +6,23 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 
 @Slf4j
+@Component
 public class RandomGame {
-    public static void main(String[] args) {
+
+    @Autowired
+    MuZeroConfig config;
+
+
+    public void run() {
         var state = GameState.newGame(5);
         log.info(state.getBoard().toString());
 
@@ -40,7 +49,7 @@ public class RandomGame {
 
         log.info("*** G A M E   O V E R ***");
 
-        var result = GameResult.apply(state.getBoard(), GoConfigFactory.getGoInstance(5).getKomi());
+        var result = GameResult.apply(state.getBoard(), (float)config.getKomi());
         log.info("result = " + result + "\n" + result.toDebugString());
 
 

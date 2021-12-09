@@ -33,9 +33,9 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class TicTacToeAction extends Action  {
 
-    private transient MuZeroConfig config;
+    private transient MuZeroConfig  config;
 
-    public TicTacToeAction(MuZeroConfig config) {
+    public TicTacToeAction(MuZeroConfig  config) {
         this.config = config;
     }
 
@@ -44,7 +44,7 @@ public class TicTacToeAction extends Action  {
         return index % config.getBoardWidth();
     }
 
-    public static int getRow(@NotNull MuZeroConfig config, int index) {
+    public static int getRow(@NotNull MuZeroConfig  config, int index) {
         return (index - getCol(config, index)) / config.getBoardWidth();
     }
 

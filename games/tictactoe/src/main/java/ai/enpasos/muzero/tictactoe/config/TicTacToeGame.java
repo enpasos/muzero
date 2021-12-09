@@ -150,7 +150,7 @@ public class TicTacToeGame extends ZeroSumGame {
     }
 
 
-    public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
+    public void renderMCTSSuggestion(@NotNull MuZeroConfig  config, float @NotNull [] childVisits) {
 
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
 
@@ -165,7 +165,7 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
-    public void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
+    public void renderNetworkGuess(@NotNull MuZeroConfig  config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         if (networkOutput != null) {
             double v = networkOutput.getValue();
@@ -189,7 +189,7 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
-    public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
+    public void renderSuggestionFromPriors(@NotNull MuZeroConfig  config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
 
         log.info("\nwith exploration noise suggestion:");

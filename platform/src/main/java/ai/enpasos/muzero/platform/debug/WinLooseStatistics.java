@@ -20,27 +20,30 @@ package ai.enpasos.muzero.platform.debug;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.WinnerStatistics;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.agent.gamebuffer.GameIO.getLatestBufferNo;
-
 @Slf4j
+@Component
 public class WinLooseStatistics {
 
-    private WinLooseStatistics() {}
 
-    public static void winLooseStatisticsOnGamesInStoredBuffers(MuZeroConfig config, int start) {
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
+
+    @Autowired
+    private ReplayBuffer replayBuffer;
+
+    public void winLooseStatisticsOnGamesInStoredBuffers(int start) {
+
         List<WinnerStatistics> winnerStatisticsList = new ArrayList<>();
 
-        int cMax = getLatestBufferNo(config);
+        int cMax = replayBuffer.getLatestBufferNo();
 
 
         for (int c = start; c <= cMax; c += 1000) {

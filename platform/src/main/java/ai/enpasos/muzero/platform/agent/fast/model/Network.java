@@ -37,8 +37,10 @@ import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.Dyn
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,14 +49,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
-import static ai.enpasos.muzero.platform.agent.slow.play.SelfPlay.getAllActionsOnDevice;
 
 @Data
+@Slf4j
 public class Network {
 
-    MuZeroConfig config;
+    MuZeroConfig  config;
     Model model;
     private SubModel representation;
     private SubModel prediction;
@@ -65,7 +67,9 @@ public class Network {
 
     private List<NDArray> actionSpaceOnDevice;
 
-    public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
+
+
+    public Network(@NotNull MuZeroConfig  config, @NotNull Model model, Path modelPath) {
         this.model = model;
         this.config = config;
 
@@ -75,7 +79,7 @@ public class Network {
             try {
                 model.load(modelPath);
             } catch (@NotNull IOException | MalformedModelException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage());
             }
         }
 
@@ -93,7 +97,7 @@ public class Network {
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
-        this(config, model, Paths.get(getNetworksBasedir(config)));
+        this(config, model, Paths.get(config.getNetworkBaseDir()));
     }
 
     public static double getDoubleValue(@NotNull Model model, String name) {
@@ -120,6 +124,11 @@ public class Network {
         //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
     }
 
+    public static List<NDArray> getAllActionsOnDevice( MuZeroConfig config, @NotNull NDManager ndManager) {
+        List<Action> actions = Objects.requireNonNull(config.newGame()).allActionsInActionSpace();
+        return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
+    }
+
     public void initActionSpaceOnDevice(NDManager ndManager) {
         actionSpaceOnDevice = getAllActionsOnDevice(config, ndManager);
     }
@@ -132,9 +141,9 @@ public class Network {
         if (force || initialInference.getHiddenStateNDManager() == null) {
             NDManager newHiddenStateNDManager = null;
             if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU) {
-                newHiddenStateNDManager = parentNDManager.newSubManager(Device.cpu());
-            } else {
                 newHiddenStateNDManager = parentNDManager.newSubManager(Device.gpu());
+            } else {
+                newHiddenStateNDManager = parentNDManager.newSubManager(Device.cpu());
             }
             initialInference.setHiddenStateNDManager(newHiddenStateNDManager);
             recurrentInference.setHiddenStateNDManager(newHiddenStateNDManager);

@@ -1,0 +1,61 @@
+logging:
+  level.root: WARN
+  level.ai.enpasos: DEBUG
+
+muzero:
+
+  # general
+  modelName: MuZero-PegSolitair
+  gameClassName: ai.enpasos.muzero.pegsolitair.config.PegSolitairGame
+  actionClassName: ai.enpasos.muzero.pegsolitair.config.PetSolitairAction
+  playerMode: ONE_PLAYER
+  networkWithRewardHead: false
+  withRewardHead: false
+  absorbingStateDropToZero: false # faster for integration test
+  inferenceDeviceType: GPU
+
+  # game/environment
+  size: 7
+  maxMoves: 49  # size*size
+  boardHeight: 7 # size
+  boardWidth: 7 # size
+  actionSpaceSize: 196  # size * size * 4 = point to start from and 4 directions
+
+  # network sizing
+  numObservationLayers: 1
+  numActionLayers: 4   # one for each direction
+  numChannels: 128     # 256 in the paper
+  numHiddenStateChannels: 3
+  numResiduals: 16
+
+  # network training
+  symmetryType: SQUARE
+  numberOfTrainingSteps: 4000
+  numberOfTrainingStepsPerEpoch: 20
+  windowSize: 10000
+  batchSize: 64
+  numUnrollSteps: 5
+  tdSteps: 196 # here equals actionSpaceSize
+  discount: 1.0
+  # loss details
+  weightDecay: 0.0001
+  valueLossWeight: 1.0
+  # network training - adam optimizer
+  lrInit: 0.0001
+
+  # play
+  numberTrainingStepsOnRandomPlay: 0
+  rootDirichletAlpha: 2
+  rootExplorationFraction: 0.25
+  visitSoftmaxTemperatureThreshold: 30
+  knownBoundsType: NONE
+  # play - PUCB params from paper
+  pbCInit: 1.25 # TODO: remove
+  pbCBase: 19652 # TODO: remove
+
+  outputDir: ./memory/
+  numEpisodes: 1
+  numSimulations: 100
+  numParallelGamesPlayed: 1000
+
+

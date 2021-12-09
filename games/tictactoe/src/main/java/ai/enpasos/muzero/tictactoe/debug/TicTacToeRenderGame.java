@@ -20,29 +20,34 @@ package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
+import ai.enpasos.muzero.platform.debug.RenderGame;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
-import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
 
+@Component
+public class TicTacToeRenderGame {
 
-public class RenderGame {
+    @Autowired
+    MuZeroConfig config;
 
-    public static void main(String[] args) {
+    @Autowired
+    RenderGame renderGame;
 
-        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+    public  void run( ) {
+
 
         Game game = config.newGame();
-        applyAction(game, 0);
-        applyAction(game, 5);
-        applyAction(game, 8);
-        applyAction(game, 7);
-        applyAction(game, 3);
-        applyAction(game, 1);
-        applyAction(game, 2);
-        applyAction(game, 6);
-        applyAction(game, 4);
+        renderGame.applyAction(game, 0);
+        renderGame.applyAction(game, 5);
+        renderGame.applyAction(game, 8);
+        renderGame.applyAction(game, 7);
+        renderGame.applyAction(game, 3);
+        renderGame.applyAction(game, 1);
+        renderGame.applyAction(game, 2);
+        renderGame.applyAction(game, 6);
+        renderGame.applyAction(game, 4);
 
-        renderGame(config, game);
+        renderGame.renderGame(game);
     }
 }

@@ -23,17 +23,19 @@ import ai.djl.nn.Block;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
 
-import static ai.enpasos.muzero.platform.MuZero.getNetworksBasedir;
-
 @Slf4j
+@Component
 public class ParameterNames {
 
-    private ParameterNames() {}
+    @Autowired
+    MuZeroConfig config;
 
-    public static String listParameterNames(MuZeroConfig config) {
+    public String listParameterNames() {
 
         StringBuilder buf = new StringBuilder();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
@@ -43,7 +45,7 @@ public class ParameterNames {
                 block = new MuZeroBlock(config);
                 model.setBlock(block);
                 try {
-                    model.load(Paths.get(getNetworksBasedir(config)));
+                    model.load(Paths.get(config.getNetworkBaseDir()));
                 } catch (Exception e) {
                     log.info("*** no existing model has been found ***");
                 }

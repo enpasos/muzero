@@ -22,15 +22,15 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,21 +38,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
 public class TicTacToeTest {
 
-    public static void main(String[] args) {
-        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
-        String dir = "./memory/";
+    @Autowired
+    MuZeroConfig config;
+
+    @Autowired
+    ReplayBuffer replayBuffer;
+
+@Autowired
+MCTS mcts;
 
 
-        config.setOutputDir(dir);
-        test(config);
-    }
+    public   boolean test( ) {
 
 
-    public static boolean test(MuZeroConfig config) {
+        replayBuffer.init();
 
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
         replayBuffer.loadLatestState();
         // now let PlayerA and PlayerB play all possible moves
 
@@ -124,9 +127,9 @@ public class TicTacToeTest {
 
     }
 
-    private static void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
+    private  void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
         gameTree.rootNode.clearAIDecisions();
-        gameTree.rootNode.addAIDecisions(network, player, withMCTS);
+        gameTree.rootNode.addAIDecisions(network, player, withMCTS, mcts);
 
 
         gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
@@ -137,8 +140,8 @@ public class TicTacToeTest {
 
 
 
-    private static @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
-        rootNode.addAIDecisions(network, player, withMCTS);
+    private   @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
+        rootNode.addAIDecisions(network, player, withMCTS, mcts);
         List<DNode> gamesLostByPlayerA = new ArrayList<>();
         rootNode.collectGamesLost(player, gamesLostByPlayerA);
         log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayerA.size());

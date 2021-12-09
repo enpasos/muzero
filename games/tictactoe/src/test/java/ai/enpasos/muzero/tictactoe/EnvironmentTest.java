@@ -19,18 +19,22 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Objects;
 
 @SuppressWarnings("ConstantConditions")
+@SpringBootTest()
 public class EnvironmentTest {
+
+    @Autowired
+    MuZeroConfig config;
 
     @Test
     public void checkIfPlayerHasWon() {
-        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         Assert.assertEquals(game.getLastReward(), 1f, 0.0);

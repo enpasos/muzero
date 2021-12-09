@@ -18,31 +18,33 @@
 package ai.enpasos.muzero.go.debug;
 
 
-import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.RenderGame;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import static ai.enpasos.muzero.platform.debug.RenderGame.applyAction;
-import static ai.enpasos.muzero.platform.debug.RenderGame.renderGame;
+import java.util.List;
 
 
-public class RenderGame {
+@Component
+public class GoRenderGame {
 
-    public static void main(String[] args) {
+    @Autowired
+    MuZeroConfig config;
 
-        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
+    @Autowired
+    RenderGame renderGame;
+
+    public  void run( ) {
+
+        List<Integer> actions = List.of(71, 172, 39, 38, 78, 44, 121, 181, 193, 80, 44, 118, 115, 166, 178, 77, 102, 181, 25, 108, 51, 102, 64, 66, 112, 117, 180, 178, 77);
+
 
         Game game = config.newGame();
-        applyAction(game, 0);
-        applyAction(game, 5);
-        applyAction(game, 8);
-        applyAction(game, 7);
-        applyAction(game, 3);
-        applyAction(game, 1);
-        applyAction(game, 2);
-        applyAction(game, 6);
-        applyAction(game, 4);
+        actions.forEach(
+                a -> renderGame.applyAction(game, a));
 
-        renderGame(config, game);
+        renderGame.renderGame(game);
     }
 }

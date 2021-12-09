@@ -17,19 +17,24 @@
 
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Objects;
 
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+@SpringBootTest()
 public class GameTest {
+
+    @Autowired
+    MuZeroConfig config;
 
     @Test
 
@@ -42,7 +47,7 @@ public class GameTest {
     }
 
     private void check(int @NotNull [] actions) {
-        MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
+
         Game game = config.newGame();
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];
