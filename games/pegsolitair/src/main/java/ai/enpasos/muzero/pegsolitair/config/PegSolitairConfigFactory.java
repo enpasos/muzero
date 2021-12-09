@@ -76,9 +76,7 @@ public class PegSolitairConfigFactory {
                 .absorbingStateDropToZero(true)
 
                 // play
-                //      .numSimulations(160)     // 800 in the paper
-                //     .numParallelPlays(250)
-                //    .numPlays(2)
+
                 .numberTrainingStepsOnRandomPlay(0)   // 3000
 
                 .rootDirichletAlpha(2)  //  in paper ... go: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 10
@@ -96,7 +94,7 @@ public class PegSolitairConfigFactory {
 
                 .numEpisodes(1)
                 .numParallelGamesPlayed(1000)
-                .numSimulations(10)
+                .numSimulations(20)
                 .windowSize(10000)
                 .numChannels(128)
                 //  .absorbingStateDropToZero(true)
