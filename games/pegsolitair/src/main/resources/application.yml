@@ -7,8 +7,9 @@ muzero:
   # general
   modelName: MuZero-PegSolitair
   gameClassName: ai.enpasos.muzero.pegsolitair.config.PegSolitairGame
-  actionClassName: ai.enpasos.muzero.pegsolitair.config.PetSolitairAction
-  playerMode: ONE_PLAYER
+  actionClassName: ai.enpasos.muzero.pegsolitair.config.PegSolitairAction
+
+  playerMode: SINGLE_PLAYER
   networkWithRewardHead: false
   withRewardHead: false
   absorbingStateDropToZero: false # faster for integration test
