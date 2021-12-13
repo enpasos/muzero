@@ -25,7 +25,7 @@ public class TrainingAndTestPegSolitair {
 
     public void run()  {
 
-        String dir = "./memory/";
+        String dir = "./memory/pegsolitair/";
         config.setOutputDir(dir);
 
         try {
