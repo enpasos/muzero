@@ -28,7 +28,7 @@ public class TrainingAndTestTicTacToe {
 
     public void run()  {
 
-        String dir = "./memory/";
+        String dir = "./memory/tictactoe/";
         config.setOutputDir(dir);
 
         try {
