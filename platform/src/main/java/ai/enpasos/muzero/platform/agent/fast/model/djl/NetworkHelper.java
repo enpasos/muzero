@@ -62,7 +62,7 @@ public class NetworkHelper {
     InputOutputConstruction inputOutputConstruction;
 
 
-    public  int numberOfLastTrainingStep( ) {
+    public int numberOfLastTrainingStep() {
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
 
@@ -87,16 +87,12 @@ public class NetworkHelper {
         return epoch * numberOfTrainingStepsPerEpoch;
     }
 
-    private   Batch getBatch( @NotNull Model model, boolean withSymmetryEnrichment) {
 
-        return getBatch( model.getNDManager(),  withSymmetryEnrichment);
-    }
-
-    public  Batch getBatch( @NotNull NDManager ndManager,  boolean withSymmetryEnrichment) {
+    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
         NDManager nd = ndManager.newSubManager();
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), config.getTdSteps(), nd);
-        List<NDArray> inputs = inputOutputConstruction.constructInput( nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-        List<NDArray> outputs = inputOutputConstruction.constructOutput( nd, config.getNumUnrollSteps(), batch);
+        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch);
 
         return new Batch(
                 nd,
@@ -109,23 +105,23 @@ public class NetworkHelper {
                 0);
     }
 
-    public  Shape @NotNull [] getInputShapes( ) {
-        return getInputShapes( config.getBatchSize());
+    public Shape @NotNull [] getInputShapes() {
+        return getInputShapes(config.getBatchSize());
     }
 
-    public Shape @NotNull [] getInputShapes( int batchSize) {
+    public Shape @NotNull [] getInputShapes(int batchSize) {
         Shape[] shapes = new Shape[config.getNumUnrollSteps() + 1];
         // for observation input
         shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-            shapes[k] = new Shape(batchSize, config.getNumActionLayers(),config.getBoardHeight(), config.getBoardWidth());
+            shapes[k] = new Shape(batchSize, config.getNumActionLayers(), config.getBoardHeight(), config.getBoardWidth());
         }
         return shapes;
     }
 
 
-    public  DefaultTrainingConfig setupTrainingConfig( int epoch) {
-        String outputDir = config.getNetworkBaseDir( );
+    public DefaultTrainingConfig setupTrainingConfig(int epoch) {
+        String outputDir = config.getNetworkBaseDir();
         MySaveModelTrainingListener listener = new MySaveModelTrainingListener(outputDir);
         listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
@@ -179,8 +175,6 @@ public class NetworkHelper {
                 .optClipGrad(10f)
                 .build();
     }
-
-
 
 
 }

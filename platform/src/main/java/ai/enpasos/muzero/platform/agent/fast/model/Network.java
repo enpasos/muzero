@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class Network {
 
-    MuZeroConfig  config;
+    MuZeroConfig config;
     Model model;
     private SubModel representation;
     private SubModel prediction;
@@ -68,8 +68,7 @@ public class Network {
     private List<NDArray> actionSpaceOnDevice;
 
 
-
-    public Network(@NotNull MuZeroConfig  config, @NotNull Model model, Path modelPath) {
+    public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
         this.model = model;
         this.config = config;
 
@@ -124,7 +123,7 @@ public class Network {
         //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
     }
 
-    public static List<NDArray> getAllActionsOnDevice( MuZeroConfig config, @NotNull NDManager ndManager) {
+    public static List<NDArray> getAllActionsOnDevice(MuZeroConfig config, @NotNull NDManager ndManager) {
         List<Action> actions = Objects.requireNonNull(config.newGame()).allActionsInActionSpace();
         return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
     }

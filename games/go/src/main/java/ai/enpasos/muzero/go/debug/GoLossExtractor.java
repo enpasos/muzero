@@ -14,7 +14,7 @@ public class GoLossExtractor {
     @Autowired
     LossExtractor lossExtractor;
 
-    public   void run()   {
+    public void run() {
 
         lossExtractor.listLossesForTrainedNetworks();
     }

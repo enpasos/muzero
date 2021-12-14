@@ -32,7 +32,7 @@ public class TicTacToeWinLooseStatistics {
     @Autowired
     private WinLooseStatistics winLooseStatistics;
 
-    public   void run() {
+    public void run() {
 
         int start = 10000;
 

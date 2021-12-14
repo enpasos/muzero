@@ -14,8 +14,8 @@ public class TicTacToeLossExtractor {
     @Autowired
     LossExtractor lossExtractor;
 
-    public   void run()   {
-      //  config.setOutputDir("./memory/tictactoe/");
+
+    public void run() {
         lossExtractor.listLossesForTrainedNetworks();
     }
 

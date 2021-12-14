@@ -41,10 +41,10 @@ import java.util.stream.Collectors;
 @Component
 public class InputOutputConstruction {
 
- @Autowired
- MuZeroConfig config;
+    @Autowired
+    MuZeroConfig config;
 
-    public   List<NDArray> constructInput( @NotNull NDManager nd, int numUnrollSteps, Observation observation, List<Integer> actionsList, boolean withSymmetryEnrichment) {
+    public List<NDArray> constructInput(@NotNull NDManager nd, int numUnrollSteps, Observation observation, List<Integer> actionsList, boolean withSymmetryEnrichment) {
 
         List<NDArray> inputs = new ArrayList<>();
 
@@ -56,30 +56,30 @@ public class InputOutputConstruction {
         List<Sample> batch = new ArrayList<>();
         batch.add(sample);
 
-        addHiddenStateInput(nd, batch, inputs );
-        addActionInput( numUnrollSteps, batch, nd, inputs, withSymmetryEnrichment);
+        addHiddenStateInput(nd, batch, inputs);
+        addActionInput(numUnrollSteps, batch, nd, inputs, withSymmetryEnrichment);
 
         return inputs;
 
     }
 
-    public   List<NDArray> constructInput( @NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment) {
+    public List<NDArray> constructInput(@NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment) {
 
         List<NDArray> inputs = new ArrayList<>();
 
-        addHiddenStateInput(ndManager, batch, inputs );
-        addActionInput( numUnrollSteps, batch, ndManager, inputs, withSymmetryEnrichment);
+        addHiddenStateInput(ndManager, batch, inputs);
+        addActionInput(numUnrollSteps, batch, ndManager, inputs, withSymmetryEnrichment);
 
         return inputs;
 
     }
 
-    public  NDArray symmetryEnhancerReturnNDArray(@NotNull NDArray a ) {
+    public NDArray symmetryEnhancerReturnNDArray(@NotNull NDArray a) {
         List<NDArray> list = config.getSymmetryType().getSymmetryFunction().apply(a);
         return NDArrays.concat(new NDList(list));
     }
 
-    public   NDArray symmetryEnhancerValue(@NotNull NDArray a ) {
+    public NDArray symmetryEnhancerValue(@NotNull NDArray a) {
         List<NDArray> list = new ArrayList<>();
         list.add(a);
         for (int i = 1; i < config.getSymmetryType().getSymmetryEnhancementFactor(); i++) {
@@ -88,7 +88,7 @@ public class InputOutputConstruction {
         return NDArrays.concat(new NDList(list));
     }
 
-    public NDArray symmetryEnhancerPolicy (@NotNull NDArray a) {
+    public NDArray symmetryEnhancerPolicy(@NotNull NDArray a) {
         Shape oldShape = a.getShape();
 
         int boardsize = config.getBoardHeight() * config.getBoardWidth();
@@ -99,7 +99,7 @@ public class InputOutputConstruction {
         NDArray policyOutput3 = a2.reshape(new Shape(oldShape2.get(0), 1, config.getBoardHeight(), config.getBoardWidth()));
 
 
-        List<NDArray> ndArrayList =  config.getSymmetryType().getSymmetryFunction().apply(policyOutput3);
+        List<NDArray> ndArrayList = config.getSymmetryType().getSymmetryFunction().apply(policyOutput3);
         List<NDArray> ndArrayList2 = ndArrayList.stream().map(
                 transformedA -> {
                     NDArray a0 = transformedA.reshape(new Shape(transformedA.getShape().get(0), oldShape2.get(1)));
@@ -120,15 +120,15 @@ public class InputOutputConstruction {
     }
 
 
-    private   void addHiddenStateInput(@NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs ) {
+    private void addHiddenStateInput(@NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
         List<NDArray> o = batch.stream()
                 .map(sample -> sample.getObservation().getNDArray(ndManager))
                 .collect(Collectors.toList());
 
-        inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o)) ));
+        inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
     }
 
-    public  void addActionInput( int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
+    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
 
         for (int k = 0; k < numUnrollSteps; k++) {
 
@@ -145,14 +145,14 @@ public class InputOutputConstruction {
             }
             NDArray inputMiniBatch2 = NDArrays.stack(new NDList(list));
             if (withSymmetryEnrichment) {
-                inputs.add(symmetryEnhancerReturnNDArray(inputMiniBatch2 ));
+                inputs.add(symmetryEnhancerReturnNDArray(inputMiniBatch2));
             } else {
                 inputs.add(inputMiniBatch2);
             }
         }
     }
 
-    public @NotNull List<NDArray> constructOutput(  @NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
         List<NDArray> outputs = new ArrayList<>();
         for (int k = 0; k <= numUnrollSteps; k++) {
             List<NDArray> policyList = new ArrayList<>();
@@ -174,7 +174,7 @@ public class InputOutputConstruction {
             }
             NDArray policyOutput2 = NDArrays.stack(new NDList(policyList));
             NDArray valueOutput2 = NDArrays.stack(new NDList(valueList));
-            outputs.add(symmetryEnhancerPolicy( policyOutput2));
+            outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
         }
         return outputs;

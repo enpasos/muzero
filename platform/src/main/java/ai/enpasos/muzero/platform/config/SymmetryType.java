@@ -29,6 +29,6 @@ public enum SymmetryType {
                 return List.of(a, a2, a3, a4, a5, a6, a7, a8);
             };
         }
-        return a -> List.of(a);
+        return List::of;
     }
 }

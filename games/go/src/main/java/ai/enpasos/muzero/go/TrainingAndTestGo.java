@@ -23,23 +23,19 @@ public class TrainingAndTestGo {
     @Autowired
     private MuZero muZero;
 
-    public void run()  {
+    public void run() {
 
-
-
-//        try {
-//            FileUtils.deleteDirectory(new File(dir));
-//        } catch (Exception e) {
-//            throw new MuZeroException(e);
-//        }
+        try {
+            FileUtils.deleteDirectory(new File(config.getOutputDir()));
+        } catch (Exception e) {
+            throw new MuZeroException(e);
+        }
 
 
         muZero.train(false, 1);
 
 
-
     }
-
 
 
 }

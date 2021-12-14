@@ -34,13 +34,13 @@ public class RenderGame {
     @Autowired
     MuZeroConfig config;
 
-    public  void applyAction(@NotNull Game game, int a) {
+    public void applyAction(@NotNull Game game, int a) {
         game.apply(a);
 
         log.debug("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getLastReward());
     }
 
-    public void renderGame( @NotNull Game game) {
+    public void renderGame(@NotNull Game game) {
         Game replayGame = config.newGame();
 
         log.debug("\n" + Objects.requireNonNull(replayGame).render());

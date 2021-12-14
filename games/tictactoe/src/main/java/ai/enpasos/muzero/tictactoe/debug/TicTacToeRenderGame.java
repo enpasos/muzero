@@ -34,7 +34,7 @@ public class TicTacToeRenderGame {
     @Autowired
     RenderGame renderGame;
 
-    public  void run( ) {
+    public void run() {
 
 
         Game game = config.newGame();

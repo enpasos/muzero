@@ -41,14 +41,10 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class MuZeroBlock extends AbstractBlock {
 
-   // private final @NotNull MuZeroConfigOld config;
-
-
-    private MuZeroConfig config;
-
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
+    private MuZeroConfig config;
 
 
     public MuZeroBlock(MuZeroConfig config) {

@@ -8,7 +8,8 @@ public class NeighborMaps {
     private static final Map<Integer, NeighborMap> directNeighborMaps = new HashMap<>();
     private static final Map<Integer, NeighborMap> diagonalNeighborMaps = new HashMap<>();
 
-    private NeighborMaps() {}
+    private NeighborMaps() {
+    }
 
     /**
      * @param size size of the board to create map for

@@ -48,7 +48,7 @@ public abstract class Game {
 
     protected GameDTO gameDTO;
 
-    protected MuZeroConfig  config;
+    protected MuZeroConfig config;
 
     protected int actionSpaceSize;
     protected double discount;
@@ -119,8 +119,6 @@ public abstract class Game {
         this.getGameDTO().getRewards().add(reward);
         this.getGameDTO().getActions().add(action.getIndex());
     }
-
-
 
 
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps) {

@@ -26,7 +26,7 @@ public class TrainingAndTestTicTacToe {
     @Autowired
     private MuZero muZero;
 
-    public void run()  {
+    public void run() {
 
         try {
             FileUtils.deleteDirectory(new File(config.getOutputDir()));
@@ -41,7 +41,6 @@ public class TrainingAndTestTicTacToe {
         log.info(message);
 
     }
-
 
 
 }

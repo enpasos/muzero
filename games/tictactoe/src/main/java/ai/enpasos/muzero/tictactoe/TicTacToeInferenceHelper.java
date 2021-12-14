@@ -29,25 +29,24 @@ import java.util.stream.Collectors;
 @Component
 public class TicTacToeInferenceHelper {
 
+    private static final String[] actionNames = {"a3", "b3", "c3", "a2", "b2", "c2", "a1", "b1", "c1"};
     @Autowired
     MuZeroConfig config;
-
     @Autowired
     Inference inference;
 
-    private TicTacToeInferenceHelper() {}
-
-    private static final String[] actionNames = {"a3", "b3", "c3", "a2", "b2", "c2", "a1", "b1", "c1"};
-
-    public  String actionIndexToName(int i) {
-        return actionNames[i];
+    private TicTacToeInferenceHelper() {
     }
 
     public static int actionNameToIndex(String name) {
         return ArrayUtils.indexOf(actionNames, name.trim());
     }
 
-    public  String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
+    public String actionIndexToName(int i) {
+        return actionNames[i];
+    }
+
+    public String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
 
         List<Integer> actionInts = actions.stream().map(TicTacToeInferenceHelper::actionNameToIndex).collect(Collectors.toList());
         return actionIndexToName(inference.aiDecision(actionInts, withMCTS, networkDir));

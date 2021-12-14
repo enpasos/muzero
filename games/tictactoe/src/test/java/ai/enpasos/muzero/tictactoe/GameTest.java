@@ -50,7 +50,6 @@ public class GameTest {
     }
 
 
-
     private void check(int @NotNull [] actions) {
         Game game = config.newGame();
         for (int i = 0; i < actions.length; i++) {

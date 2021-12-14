@@ -21,9 +21,9 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Objects;
 

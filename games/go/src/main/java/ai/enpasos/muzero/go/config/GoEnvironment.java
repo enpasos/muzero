@@ -78,7 +78,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         float reward = 0f;
 
         if (terminal()) {
-            setResult(GameResult.apply(state.getBoard(), (float)this.getConfig().getKomi()));
+            setResult(GameResult.apply(state.getBoard(), (float) this.getConfig().getKomi()));
             log.debug(getResult().toString());
             reward = (thisPlayer == getResult().winner()) ? 1f : -1f;
         }
@@ -104,12 +104,14 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
 
     @Override
     public int[][] currentImage() {
-         throw new NotImplementedException("swapPlayer() is not implemented");
+        throw new NotImplementedException("swapPlayer() is not implemented");
     }
+
     @Override
     public boolean terminal() {
         return this.state.isOver();
     }
+
     @Override
     public boolean hasPlayerWon(OneOfTwoPlayer player) {
         if (!terminal()) return false;

@@ -36,11 +36,11 @@ public class MuZeroPegSolitair implements CommandLineRunner {
     }
 
 
-
     @Override
+    @SuppressWarnings("squid:S125")
     public void run(String... args) {
-      //  trainingAndTest.run();
-       lossExtractor.run();
-      //  valueExtractor.run();
+        //  trainingAndTest.run();
+        lossExtractor.run();
+        //  valueExtractor.run();
     }
 }

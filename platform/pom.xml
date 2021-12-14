@@ -57,7 +57,6 @@
         </dependency>
 
 
-
         <!-- djl -->
         <dependency>
             <groupId>ai.djl</groupId>

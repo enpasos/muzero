@@ -42,7 +42,9 @@ public class GoValueExtractor {
     @Autowired
     ReplayBuffer replayBuffer;
 
-    public  void run()   {
+
+    @SuppressWarnings("squid:S3740")
+    public void run() {
 
         config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 

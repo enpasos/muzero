@@ -69,12 +69,12 @@ public class MuZero {
         selfPlay.playMultipleEpisodes(network, render, false, true);
     }
 
-    public void initialFillingBuffer(Network network ) {
+    public void initialFillingBuffer(Network network) {
 
         int windowSize = config.getWindowSize();
         while (replayBuffer.getBuffer().getData().size() < windowSize) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(network,  false, true, true);
+            selfPlay.playMultipleEpisodes(network, false, true, true);
             replayBuffer.saveState();
         }
     }
@@ -98,7 +98,7 @@ public class MuZero {
         try {
             model.load(Paths.get(config.getNetworkBaseDir()));
         } catch (Exception e) {
-            createNetworkModel( epoch, model);
+            createNetworkModel(epoch, model);
         }
     }
 
@@ -129,52 +129,52 @@ public class MuZero {
     }
 
 
-    public void train(  boolean freshBuffer, int numberOfEpochs) {
-        train( freshBuffer, numberOfEpochs, false);
+    public void train(boolean freshBuffer, int numberOfEpochs) {
+        train(freshBuffer, numberOfEpochs, false);
     }
 
-    public void train( boolean freshBuffer, int numberOfEpochs, boolean render) {
-        train( freshBuffer, numberOfEpochs, render, true);
+    public void train(boolean freshBuffer, int numberOfEpochs, boolean render) {
+        train(freshBuffer, numberOfEpochs, render, true);
     }
 
     public void train(boolean freshBuffer, int numberOfEpochs, boolean render, boolean randomFill) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-             init( freshBuffer, randomFill, network);
+            init(freshBuffer, randomFill, network);
 
             int trainingStep = networkHelper.numberOfLastTrainingStep();
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(0);
 
             while (trainingStep < config.getNumberOfTrainingSteps()) {
-                playGames( render, network,  trainingStep);
-                trainingStep = trainNetwork( numberOfEpochs, model,   djlConfig);
+                playGames(render, network, trainingStep);
+                trainingStep = trainNetwork(numberOfEpochs, model, djlConfig);
             }
         }
     }
 
     @NotNull
     private void init(boolean freshBuffer, boolean randomFill, Network network) {
-         createNetworkModelIfNotExisting();
-         replayBuffer.init();
+        createNetworkModelIfNotExisting();
+        replayBuffer.init();
         if (freshBuffer) {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
-                 playOnDeepThinking(network , false);
+                playOnDeepThinking(network, false);
                 replayBuffer.saveState();
             }
         } else {
             replayBuffer.loadLatestState();
             if (randomFill) {
-                 initialFillingBuffer(network );
+                initialFillingBuffer(network);
             } else {
-                 playOnDeepThinking(network , false);
+                playOnDeepThinking(network, false);
                 replayBuffer.saveState();
             }
         }
     }
 
-    private int trainNetwork(int numberOfEpochs, Model model,  DefaultTrainingConfig djlConfig) {
+    private int trainNetwork(int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = 0;
@@ -198,7 +198,7 @@ public class MuZero {
 
             for (int i = 0; i < numberOfEpochs; i++) {
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = networkHelper.getBatch( trainer.getManager(),  withSymmetryEnrichment)) {
+                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
                         log.debug("trainBatch " + m);
                         EasyTrain.trainBatch(trainer, batch);
                         trainer.step();
@@ -254,7 +254,7 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
-             playOnDeepThinking(network , render);
+            playOnDeepThinking(network, render);
             replayBuffer.saveState();
         }
     }

@@ -57,7 +57,7 @@ public class PredictionBlock extends MySequentialBlock {
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())
                 .add(Blocks.batchFlattenBlock())
                 .add(Linear.builder()
-                        .setUnits( config.getActionSpaceSize())
+                        .setUnits(config.getActionSpaceSize())
                         .build());
 
 

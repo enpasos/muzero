@@ -10,9 +10,10 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER
  */
 public class GoBoardSerializer {
 
-    private GoBoardSerializer() {}
-
     private static final String X_COORD = " A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z ";
+
+    private GoBoardSerializer() {
+    }
 
     public static String serialize(GoBoard board) {
         StringBuilder s = new StringBuilder("-".repeat(board.getSize() * 3 + 3) + "\n");
@@ -23,7 +24,7 @@ public class GoBoardSerializer {
             for (int j = 1; j <= board.getSize(); j++) {
                 var player = board.getPlayer(new Point(i, j));
                 String symbol;
-                if(player.isPresent()) {
+                if (player.isPresent()) {
                     symbol = player.get() == BLACK_PLAYER ? " X " : " O ";
                 } else {
                     symbol = " . ";

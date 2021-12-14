@@ -45,7 +45,7 @@ public class SelfPlay {
     @Autowired
     ReplayBuffer replayBuffer;
 
-    public  @NotNull List<Game> playGame( Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
+    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         episode.init();
         if (render) {
             log.debug(episode.justOneOfTheGames().render());
@@ -68,9 +68,7 @@ public class SelfPlay {
     }
 
 
-
-
-    public  void playMultipleEpisodes(Network network,  boolean render, boolean fastRuleLearning, boolean explorationNoise) {
+    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         IntStream.range(0, config.getNumEpisodes()).forEach(i ->
         {
             List<Game> gameList = playGame(network, render, fastRuleLearning, explorationNoise);
