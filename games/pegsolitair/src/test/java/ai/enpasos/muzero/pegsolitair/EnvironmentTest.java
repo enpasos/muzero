@@ -17,9 +17,10 @@
 
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.pegsolitair.config.PegSolitairConfigFactory;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.Assert;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
@@ -27,12 +28,15 @@ import org.testng.annotations.Test;
 import java.util.Objects;
 
 @SuppressWarnings("ConstantConditions")
+@SpringBootTest()
 public class EnvironmentTest {
+
+    @Autowired
+    MuZeroConfig config;
 
     @Test
     @Ignore
     public void checkIfPlayerHasWon() {
-        MuZeroConfig config = PegSolitairConfigFactory.getSolitairInstance();
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         Assert.assertEquals(game.getLastReward(), 1f, 0.0);

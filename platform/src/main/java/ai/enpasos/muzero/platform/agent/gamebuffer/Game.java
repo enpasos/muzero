@@ -20,14 +20,16 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
-import ai.enpasos.muzero.platform.agent.slow.play.*;
+import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.agent.slow.play.ActionHistory;
+import ai.enpasos.muzero.platform.agent.slow.play.Node;
+import ai.enpasos.muzero.platform.agent.slow.play.Player;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
-import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -118,28 +120,6 @@ public abstract class Game {
         this.getGameDTO().getActions().add(action.getIndex());
     }
 
-
-    public void storeSearchStatistics(@NotNull Node root, boolean fastRuleLearning, MinMaxStats minMaxStats) {
-
-        float[] policyTarget = new float[this.actionSpaceSize];
-        if (fastRuleLearning) {
-            root.getChildren().entrySet().forEach(child -> {
-                Action action = child.getKey();
-                Node node = child.getValue();
-                policyTarget[action.getIndex()] = (float) node.getPrior();
-            });
-        } else {
-            List<Pair<Action, Double>> distributionInput = RegularizedPolicyOptimization.getDistributionInput(root, config, minMaxStats);
-            for (Pair<Action, Double> e : distributionInput) {
-                Action action = e.getKey();
-                double v = e.getValue();
-                policyTarget[action.getIndex()] = (float) v;
-            }
-        }
-        this.getGameDTO().getPolicyTargets().add(policyTarget);
-        this.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));
-
-    }
 
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps) {
         List<Target> targets = new ArrayList<>();

@@ -24,14 +24,13 @@ in a separate module:
 ## Build
 
 ```
-    mvn clean install -Dmaven.test.skip=true
+    mvn clean install
 ```
 
 ## Run integration test on tictactoc
 
 ``` 
-    cd games/tictactoe
-    mvn exec:java@integrationtest
+    java -jar games/tictactoe/target/tictactoe-0.3.0-SNAPSHOT-exec.jar
 ```
 
 ## Further info

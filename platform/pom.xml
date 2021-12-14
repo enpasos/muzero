@@ -4,9 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.enpasos.muzero</groupId>
+    <parent>
+        <groupId>com.enpasos.muzero</groupId>
+        <artifactId>muzero</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>platform</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+
 
     <properties>
         <djl.version>0.15.0-SNAPSHOT</djl.version>
@@ -25,6 +30,21 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
@@ -35,6 +55,7 @@
             <artifactId>commons-csv</artifactId>
             <version>1.8</version>
         </dependency>
+
 
         <!-- djl -->
         <dependency>
@@ -105,7 +126,7 @@
 
         <!-- others -->
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${log4j2.version}</version>
@@ -119,7 +140,7 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${log4j2.version}</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>com.google.code.gson</groupId>

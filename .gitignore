@@ -7,4 +7,6 @@
 
 **/target/**
 **/logs/**
-/memory
+**/memory/**
+**/pretrained/**
+

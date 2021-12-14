@@ -25,13 +25,14 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 import static ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.InitialInferenceListTranslator.getNetworkIOS;
-import static ai.enpasos.muzero.platform.config.MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
+
 
 public class RecurrentInferenceListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
     @Override
@@ -53,7 +54,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
 
         NDArray hiddenStateOnTargetDevice = input.getHiddenState();
-        if (!HIDDEN_STATE_REMAIN_ON_GPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
+        if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
             hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
             hiddenStateOnTargetDevice.attach(ctx.getNDManager());
             ndArrayActionStack.attach(ctx.getNDManager());

@@ -18,6 +18,7 @@ public class Constants {
     public static final String EPOCH = "epoch";
     public static final char CHAR_PLAYER_A = 'x';
     public static final char CHAR_PLAYER_B = 'o';
+
     private Constants() {
     }
 }

@@ -4,15 +4,36 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.enpasos.muzero</groupId>
+    <parent>
+        <groupId>com.enpasos.muzero</groupId>
+        <artifactId>games</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>tictactoe</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+
 
     <properties>
         <lombok.version>1.18.22</lombok.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.enpasos.muzero</groupId>
             <artifactId>platform</artifactId>
@@ -81,12 +102,26 @@
                     <execution>
                         <id>integrationtest</id>
                         <configuration>
-                            <mainClass>ai.enpasos.muzero.tictactoe.TrainingAndTest</mainClass>
+                            <mainClass>ai.enpasos.muzero.tictactoe.TrainingAndTestTicTacToe</mainClass>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <classifier>exec</classifier>
+                </configuration>
+                <!--executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions-->
+            </plugin>
+            <!--plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
@@ -100,14 +135,14 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ai.enpasos.muzero.tictactoe.MuZero</mainClass>
+                            <mainClass>ai.enpasos.muzero.tictactoe.MuZeroTicTacToe</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 

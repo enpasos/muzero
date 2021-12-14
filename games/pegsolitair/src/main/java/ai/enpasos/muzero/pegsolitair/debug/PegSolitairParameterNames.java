@@ -15,24 +15,27 @@
  *
  */
 
-package ai.enpasos.muzero.go.debug;
+package ai.enpasos.muzero.pegsolitair.debug;
 
-import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.ParameterNames;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static ai.enpasos.muzero.platform.debug.WinLooseStatistics.winLooseStatisticsOnGamesInStoredBuffers;
 
 @Slf4j
-public class WinLooseStatistics {
+@SuppressWarnings("squid:S106")
+public class PegSolitairParameterNames {
+    @Autowired
+    MuZeroConfig config;
 
-    public static void main(String[] args) {
+    @Autowired
+    ParameterNames parameterNames;
 
-        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
-        int start = 10000;
 
-        winLooseStatisticsOnGamesInStoredBuffers(config, start);
-
+    public void run() {
+        System.out.println(parameterNames.listParameterNames());
     }
+
 
 }

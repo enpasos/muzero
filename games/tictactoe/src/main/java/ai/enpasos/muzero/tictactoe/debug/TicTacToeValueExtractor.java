@@ -15,22 +15,33 @@
  *
  */
 
-package ai.enpasos.muzero.go.debug;
+package ai.enpasos.muzero.tictactoe.debug;
 
-import ai.enpasos.muzero.go.config.GoConfigFactory;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import static ai.enpasos.muzero.platform.debug.ParameterNames.listParameterNames;
+import java.util.List;
 
 @Slf4j
 @SuppressWarnings("squid:S106")
-public class ParameterNames {
-    public static void main(String[] args) {
-        MuZeroConfig config = GoConfigFactory.getGoInstance(5);
-        System.out.println(listParameterNames(config));
+@Component
+public class TicTacToeValueExtractor {
+    @Autowired
+    MuZeroConfig config;
 
+    @Autowired
+    ValueExtractor valueExtractor;
+
+    public void run() {
+
+        config.setNetworkBaseDir(config.getOutputDir() + "/networks");
+
+        List<Integer> actionIndexList = valueExtractor.getActionList();
+
+        System.out.println(valueExtractor.listValuesForTrainedNetworks(actionIndexList));
     }
-
 
 }

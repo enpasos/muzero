@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@SuppressWarnings("squid:S2065")
 public class PegSolitairAction extends Action {
 
 
