@@ -1,5 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
+import ai.enpasos.muzero.pegsolitair.debug.PegSolitairLossExtractor;
+import ai.enpasos.muzero.pegsolitair.debug.PegSolitairValueExtractor;
 import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +19,11 @@ public class MuZeroPegSolitair implements CommandLineRunner {
     @Autowired
     private TrainingAndTestPegSolitair trainingAndTest;
 
-//    @Autowired
-//    private PegSolitairLossExtractor lossExtractor;
+    @Autowired
+    private PegSolitairLossExtractor lossExtractor;
+
+    @Autowired
+    private PegSolitairValueExtractor valueExtractor;
 
     @Autowired
     private MuZeroConfig conf;
@@ -34,6 +39,8 @@ public class MuZeroPegSolitair implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-         trainingAndTest.run();
+      //  trainingAndTest.run();
+       lossExtractor.run();
+      //  valueExtractor.run();
     }
 }

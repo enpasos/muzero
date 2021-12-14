@@ -32,7 +32,7 @@ muzero:
   # network training
   symmetryType: SQUARE
   numberOfTrainingSteps: 4000
-  numberOfTrainingStepsPerEpoch: 20
+  numberOfTrainingStepsPerEpoch: 100
   windowSize: 10000
   batchSize: 64
   numUnrollSteps: 5
@@ -54,7 +54,7 @@ muzero:
   pbCInit: 1.25 # TODO: remove
   pbCBase: 19652 # TODO: remove
 
-  outputDir: ./memory/
+  outputDir: ./memory/pegsolitair/
   numEpisodes: 1
   numSimulations: 100
   numParallelGamesPlayed: 1000

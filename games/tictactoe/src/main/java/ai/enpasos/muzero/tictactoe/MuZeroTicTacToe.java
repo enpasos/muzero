@@ -35,7 +35,7 @@ public class MuZeroTicTacToe implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-      // trainingAndTest.run();
+       // trainingAndTest.run();
        ticTacToeLossExtractor.run();
     }
 }
