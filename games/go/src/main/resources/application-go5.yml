@@ -1,4 +1,7 @@
 muzero:
+  modelName: MuZero-Go-5
+  outputDir: ./memory/go5/
+
   # game/environment
   komi: 0.5
   size: 5
@@ -10,3 +13,4 @@ muzero:
   numSimulations: 12
   numParallelGamesPlayed: 250
   numEpisodes: 4
+
