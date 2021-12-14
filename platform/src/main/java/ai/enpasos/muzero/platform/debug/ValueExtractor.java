@@ -17,30 +17,40 @@
 
 package ai.enpasos.muzero.platform.debug;
 
+import ai.enpasos.muzero.platform.agent.Inference;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.Inference.aiValue;
 
 @Slf4j
+@Component
 public class ValueExtractor {
 
-    private ValueExtractor() {}
+    @Autowired
+    MuZeroConfig config;
 
-    public static String listValuesForTrainedNetworks(MuZeroConfig config, List<Integer> actions) throws IOException {
+    @Autowired
+    ReplayBuffer replayBuffer;
+
+    @Autowired
+    Inference inference;
+
+    public String listValuesForTrainedNetworks(List<Integer> actions) {
 
 
         StringWriter stringWriter = new StringWriter();
@@ -50,7 +60,7 @@ public class ValueExtractor {
             IntStream.range(0, actions.size() + 1).forEach(
                     t -> {
                         try {
-                            double valuePlayerA = aiValue(actions.subList(0, t), config.getNetworkBaseDir(), config);
+                            double valuePlayerA = inference.aiValue(actions.subList(0, t), config.getNetworkBaseDir());
                             if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                                 valuePlayerA *= Math.pow(-1, t);
                             }
@@ -63,14 +73,16 @@ public class ValueExtractor {
                         }
                     });
 
+        } catch (IOException e) {
+            throw new MuZeroException(e);
         }
 
         return stringWriter.toString();
     }
 
     @NotNull
-    public static List<Integer> getActionList(MuZeroConfig config) {
-        ReplayBuffer replayBuffer = new ReplayBuffer(config);
+    public List<Integer> getActionList() {
+
 
         replayBuffer.loadLatestState();
 

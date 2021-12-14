@@ -22,21 +22,25 @@ import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Slf4j
+@Component
 public class RenderGame {
 
-    private RenderGame() {}
+    @Autowired
+    MuZeroConfig config;
 
-    public static void applyAction(@NotNull Game game, int a) {
+    public void applyAction(@NotNull Game game, int a) {
         game.apply(a);
 
         log.debug("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getLastReward());
     }
 
-    public static void renderGame(@NotNull MuZeroConfig config, @NotNull Game game) {
+    public void renderGame(@NotNull Game game) {
         Game replayGame = config.newGame();
 
         log.debug("\n" + Objects.requireNonNull(replayGame).render());

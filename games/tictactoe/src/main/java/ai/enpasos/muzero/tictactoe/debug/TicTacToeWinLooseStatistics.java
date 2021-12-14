@@ -18,20 +18,25 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
+import ai.enpasos.muzero.platform.debug.WinLooseStatistics;
 import lombok.extern.slf4j.Slf4j;
-
-import static ai.enpasos.muzero.platform.debug.WinLooseStatistics.winLooseStatisticsOnGamesInStoredBuffers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-public class WinLooseStatistics {
+@Component
+public class TicTacToeWinLooseStatistics {
+    @Autowired
+    MuZeroConfig config;
 
-    public static void main(String[] args) {
+    @Autowired
+    private WinLooseStatistics winLooseStatistics;
 
-        MuZeroConfig config = TicTacToeConfigFactory.getTicTacToeInstance();
+    public void run() {
+
         int start = 10000;
 
-        winLooseStatisticsOnGamesInStoredBuffers(config, start);
+        winLooseStatistics.winLooseStatisticsOnGamesInStoredBuffers(start);
 
     }
 

@@ -6,36 +6,39 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import umontreal.ssj.randvarmulti.DirichletGen;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Data
 @Slf4j
+@Component
 public class Episode {
     private static final RandomStream randomStreamBase = new MRG32k3a("rnd");
     private long start;
     private Duration inferenceDuration;
     private List<Game> gameList;
     private List<Game> gamesDoneList;
+
+    @Autowired
     private MuZeroConfig config;
 
-    // Episode played for a number of config.getNumParallelPlays() games in parallel
-    public Episode(MuZeroConfig config) {
-        this.config = config;
-        start = System.currentTimeMillis();
-        inferenceDuration = new Duration();
-        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
-                .mapToObj(i -> config.newGame())
-                .collect(Collectors.toList());
-        gamesDoneList = new ArrayList<>();
-    }
+    @Autowired
+    private RegularizedPolicyOptimization regularizedPolicyOptimization;
+
+
+    @Autowired
+    private MCTS mcts;
 
     private static Action getRandomAction(Node root) {
         SortedMap<Action, Node> children = root.getChildren();
@@ -64,6 +67,20 @@ public class Episode {
         return p;
     }
 
+    @PostConstruct
+    public void postConstruct() {
+        init();
+    }
+
+    public void init() {
+        start = System.currentTimeMillis();
+        inferenceDuration = new Duration();
+        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
+                .mapToObj(i -> config.newGame())
+                .collect(Collectors.toList());
+        gamesDoneList = new ArrayList<>();
+    }
+
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
@@ -71,9 +88,8 @@ public class Episode {
 
         List<NetworkIO> networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
 
-        MCTS mcts = new MCTS(config);
 
-        expandRootNodes(fastRuleLearning, rootList, networkOutput, mcts);
+        expandRootNodes(fastRuleLearning, rootList, networkOutput);
 
         addExplorationNoise(render, explorationNoise, indexOfJustOneOfTheGames, rootList);
 
@@ -83,7 +99,7 @@ public class Episode {
 
         renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
 
-        keepTrackOfOpenGames(config);
+        keepTrackOfOpenGames();
     }
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
@@ -93,7 +109,7 @@ public class Episode {
         }
     }
 
-    private void keepTrackOfOpenGames(@NotNull MuZeroConfig config) {
+    private void keepTrackOfOpenGames() {
         List<Game> newGameDoneList = gameList.stream()
                 .filter(game -> game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves())
                 .collect(Collectors.toList());
@@ -115,7 +131,7 @@ public class Episode {
                 action = mcts.selectAction(root, minMaxStatsList.get(g));
             }
             game.apply(action);
-            game.storeSearchStatistics(root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));
+            storeSearchStatistics(game, root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));
 
 
             if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {
@@ -127,6 +143,28 @@ public class Episode {
             }
 
         });
+    }
+
+    public void storeSearchStatistics(Game game, @NotNull Node root, boolean fastRuleLearning, MinMaxStats minMaxStats) {
+
+        float[] policyTarget = new float[config.getActionSpaceSize()];
+        if (fastRuleLearning) {
+            root.getChildren().entrySet().forEach(child -> {
+                Action action = child.getKey();
+                Node node = child.getValue();
+                policyTarget[action.getIndex()] = (float) node.getPrior();
+            });
+        } else {
+            List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(root, minMaxStats);
+            for (Pair<Action, Double> e : distributionInput) {
+                Action action = e.getKey();
+                double v = e.getValue();
+                policyTarget[action.getIndex()] = (float) v;
+            }
+        }
+        game.getGameDTO().getPolicyTargets().add(policyTarget);
+        game.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));
+
     }
 
     @Nullable
@@ -159,7 +197,7 @@ public class Episode {
                         network, inferenceDuration, config.getNumSimulations());
     }
 
-    private void expandRootNodes(boolean fastRuleLearning, List<Node> rootList, List<NetworkIO> networkOutput, MCTS mcts) {
+    private void expandRootNodes(boolean fastRuleLearning, List<Node> rootList, List<NetworkIO> networkOutput) {
         IntStream.range(0, gameList.size()).forEach(g ->
         {
             NetworkIO networkIO = null;

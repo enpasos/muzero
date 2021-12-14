@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
+@SuppressWarnings("squid:S2065")
 public class GoAction extends Action {
 
     private transient MuZeroConfig config;

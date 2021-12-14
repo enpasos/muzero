@@ -31,7 +31,8 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
-public class TicTacToeAction extends Action  {
+@SuppressWarnings("squid:S2065")
+public class TicTacToeAction extends Action {
 
     private transient MuZeroConfig config;
 

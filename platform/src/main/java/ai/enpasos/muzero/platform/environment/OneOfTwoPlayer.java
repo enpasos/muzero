@@ -47,7 +47,6 @@ public enum OneOfTwoPlayer implements Player {
     }
 
 
-
     public int getValue() {
         return value;
     }
@@ -56,7 +55,6 @@ public enum OneOfTwoPlayer implements Player {
     public float getActionValue() {
         return actionValue;
     }
-
 
 
 }

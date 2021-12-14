@@ -18,30 +18,38 @@
 package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.agent.Inference;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeConfigFactory;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class TicTacToeInferenceHelper {
 
-    private TicTacToeInferenceHelper() {}
-
     private static final String[] actionNames = {"a3", "b3", "c3", "a2", "b2", "c2", "a1", "b1", "c1"};
+    @Autowired
+    MuZeroConfig config;
+    @Autowired
+    Inference inference;
 
-    public static String actionIndexToName(int i) {
-        return actionNames[i];
+    private TicTacToeInferenceHelper() {
     }
 
     public static int actionNameToIndex(String name) {
         return ArrayUtils.indexOf(actionNames, name.trim());
     }
 
-    public static String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
+    public String actionIndexToName(int i) {
+        return actionNames[i];
+    }
+
+    public String aiDecision(List<String> actions, boolean withMCTS, String networkDir) {
 
         List<Integer> actionInts = actions.stream().map(TicTacToeInferenceHelper::actionNameToIndex).collect(Collectors.toList());
-        return actionIndexToName(Inference.aiDecision(actionInts, withMCTS, networkDir, TicTacToeConfigFactory.getTicTacToeInstance()));
+        return actionIndexToName(inference.aiDecision(actionInts, withMCTS, networkDir));
     }
 
 }
