@@ -25,11 +25,7 @@ public class TrainingAndTestGo {
 
     public void run()  {
 
-        // TODO
-        int size = 5;
 
-        String dir = "./memory/go" + size + "/";
-        config.setOutputDir(dir);
 
 //        try {
 //            FileUtils.deleteDirectory(new File(dir));

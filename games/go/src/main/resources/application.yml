@@ -1,66 +1,124 @@
-spring:
-  profiles:
-    active: go5
-
 logging:
   level.root: WARN
   level.ai.enpasos: DEBUG
 
 muzero:
+  activeGame: GO_5
+  games:
+    GO_5:
+      modelName: MuZero-Go-5
+      outputDir: ./memory/go5/
+      komi: 0.5
+      size: 5
+      boardHeight: 5 # size
+      boardWidth: 5 # size
+      actionSpaceSize: 26  # size * size + 1,  place a stone on the board or pass
+      numSimulations: 12
+      numParallelGamesPlayed: 250
+      numEpisodes: 4
 
-  # general
-  modelName: MuZero-Go
-  gameClassName: ai.enpasos.muzero.go.config.GoGame
-  actionClassName: ai.enpasos.muzero.go.config.GoAction
-  playerMode: TWO_PLAYERS
-  networkWithRewardHead: false
-  withRewardHead: false
-  absorbingStateDropToZero: false # faster for integration test
-  inferenceDeviceType: GPU
+      # general
+      gameClassName: ai.enpasos.muzero.go.config.GoGame
+      actionClassName: ai.enpasos.muzero.go.config.GoAction
+      playerMode: TWO_PLAYERS
+      networkWithRewardHead: false
+      withRewardHead: false
+      absorbingStateDropToZero: false # faster for integration test
+      inferenceDeviceType: GPU
 
-  # game/environment
-  komi: 0.5
-  size: 5
-  maxMoves: 10000
-  boardHeight: 5 # size
-  boardWidth: 5 # size
-  actionSpaceSize: 26  # size * size + 1,  place a stone on the board or pass
+      # game/environment
+      maxMoves: 10000
 
-  # network sizing
-  numObservationLayers: 17  # 8 history * 2 player + 1 color of next player
-  numActionLayers: 1
-  numChannels: 128     # 256 in the paper
-  numHiddenStateChannels: 19 # squeezing the hidden state from c to observationLayers + 2
-  numResiduals: 16
 
-  # network training
-  symmetryType: SQUARE
-  numberOfTrainingSteps: 300000
-  numberOfTrainingStepsPerEpoch: 100
-  windowSize: 50000
-  batchSize: 128
-  numUnrollSteps: 5
-  tdSteps: 10000 # here equals max moves
-  discount: 1.0
-  # loss details
-  weightDecay: 0.0001
-  valueLossWeight: 1.0
-  # network training - adam optimizer
-  lrInit: 0.0001
+      # network sizing
+      numObservationLayers: 17  # 8 history * 2 player + 1 color of next player
+      numActionLayers: 1
+      numChannels: 128     # 256 in the paper
+      numHiddenStateChannels: 19 # squeezing the hidden state from c to observationLayers + 2
+      numResiduals: 16
 
-  # play
-  numberTrainingStepsOnRandomPlay: 0
-  rootDirichletAlpha: 2
-  rootExplorationFraction: 0.25
-  visitSoftmaxTemperatureThreshold: 30
-  knownBoundsType: NONE
-  # play - PUCB params from paper
-  pbCInit: 1.25 # TODO: remove
-  pbCBase: 19652 # TODO: remove
+      # network training
+      symmetryType: SQUARE
+      numberOfTrainingSteps: 300000
+      numberOfTrainingStepsPerEpoch: 100
+      windowSize: 50000
+      batchSize: 128
+      numUnrollSteps: 5
+      tdSteps: 10000 # here equals max moves
+      discount: 1.0
+      # loss details
+      weightDecay: 0.0001
+      valueLossWeight: 1.0
+      # network training - adam optimizer
+      lrInit: 0.0001
 
-  outputDir: ./memory/go5/
-  numEpisodes: 1
-  numSimulations: 100
-  numParallelGamesPlayed: 1000
+      # play
+      numberTrainingStepsOnRandomPlay: 0
+      rootDirichletAlpha: 2
+      rootExplorationFraction: 0.25
+      visitSoftmaxTemperatureThreshold: 30
+      knownBoundsType: NONE
+      # play - PUCB params from paper
+      pbCInit: 1.25 # TODO: remove
+      pbCBase: 19652 # TODO: remove
+
+    GO_9:
+      modelName: MuZero-Go-9
+      outputDir: ./memory/go9/
+
+      komi: 6.5
+      size: 9
+      boardHeight: 9 # size
+      boardWidth: 9 # size
+      actionSpaceSize: 82  # size * size + 1,  place a stone on the board or pass
+      numChannels: 128
+      batchSize: 64
+      numSimulations: 200
+      numParallelGamesPlayed: 100
+      numEpisodes: 10
+
+      # general
+      gameClassName: ai.enpasos.muzero.go.config.GoGame
+      actionClassName: ai.enpasos.muzero.go.config.GoAction
+      playerMode: TWO_PLAYERS
+      networkWithRewardHead: false
+      withRewardHead: false
+      absorbingStateDropToZero: false # faster for integration test
+      inferenceDeviceType: GPU
+
+      # game/environment
+      maxMoves: 10000
+
+
+      # network sizing
+      numObservationLayers: 17  # 8 history * 2 player + 1 color of next player
+      numActionLayers: 1
+
+      numHiddenStateChannels: 19 # squeezing the hidden state from c to observationLayers + 2
+      numResiduals: 16
+
+      # network training
+      symmetryType: SQUARE
+      numberOfTrainingSteps: 300000
+      numberOfTrainingStepsPerEpoch: 100
+      windowSize: 50000
+      numUnrollSteps: 5
+      tdSteps: 10000 # here equals max moves
+      discount: 1.0
+      # loss details
+      weightDecay: 0.0001
+      valueLossWeight: 1.0
+      # network training - adam optimizer
+      lrInit: 0.0001
+
+      # play
+      numberTrainingStepsOnRandomPlay: 0
+      rootDirichletAlpha: 2
+      rootExplorationFraction: 0.25
+      visitSoftmaxTemperatureThreshold: 30
+      knownBoundsType: NONE
+      # play - PUCB params from paper
+      pbCInit: 1.25 # TODO: remove
+      pbCBase: 19652 # TODO: remove
 
 

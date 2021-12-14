@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.BOARD_GAME;
@@ -22,81 +23,59 @@ import static ai.enpasos.muzero.platform.config.KnownBoundsType.BOARD_GAME;
 @Slf4j
 public class MuZeroConfig {
     public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
- //   protected boolean hiddenStateRemainOnGPU = HIDDEN_STATE_REMAIN_ON_GPU;
 
-    protected double komi;
+    public GameType activeGame;
+    public Map<GameType, Conf> games;
 
-
-    protected String modelName;
-    protected String gameClassName;
-    protected String actionClassName;
-    protected PlayerMode playerMode;
-    protected boolean networkWithRewardHead;
-
-    protected SymmetryType symmetryType;
-
-    protected String networkBaseDir;
-    protected boolean withRewardHead;
-    protected int numObservationLayers;
-
-
-//    protected Network network;
-//    @Data
-//    public static class Network {
-    protected int numActionLayers;
-    protected int numChannels;
-    protected int numHiddenStateChannels;
-    protected int numResiduals;
-    // training
-    protected int numberOfTrainingSteps;
-    protected int numberOfTrainingStepsPerEpoch;
-    protected int windowSize;
-    protected int batchSize;
-    protected int numUnrollSteps;
-    protected int tdSteps;
-    protected float discount;
-    protected float weightDecay;
-    protected float valueLossWeight;
-    protected float lrInit;
-    protected boolean absorbingStateDropToZero;
-    //    protected Environment environment;
-//    @Data
-//    public static class Environment {
-    protected int size;
-    protected int maxMoves;
-
-//        protected Training training;
-//        @Data
-//        public static class Training {
-//
-//        }
-
-
-    //   }
-    protected int boardHeight;
-    protected int boardWidth;
-    protected int actionSpaceSize;
-    //    protected Play play;
-//    @Data
-//    public static class Play {
-    protected int numberTrainingStepsOnRandomPlay;
-    protected double rootDirichletAlpha;
-
-    //}
-    protected double rootExplorationFraction;
-    protected KnownBoundsType knownBoundsType;
-    protected double pbCInit;
-    protected double pbCBase;
-    protected DeviceType inferenceDeviceType;
-    protected String outputDir;
-    protected int numEpisodes;
-    protected int numSimulations;
-    protected int numParallelGamesPlayed;
-    int visitSoftmaxTemperatureThreshold;
+   @Data
+   public static class Conf {
+       protected double komi;
+       protected String modelName;
+       protected String gameClassName;
+       protected String actionClassName;
+       protected PlayerMode playerMode;
+       protected boolean networkWithRewardHead;
+       protected SymmetryType symmetryType;
+       protected String networkBaseDir;
+       protected boolean withRewardHead;
+       protected int numObservationLayers;
+       protected int numActionLayers;
+       protected int numChannels;
+       protected int numHiddenStateChannels;
+       protected int numResiduals;
+       protected int numberOfTrainingSteps;
+       protected int numberOfTrainingStepsPerEpoch;
+       protected int windowSize;
+       protected int batchSize;
+       protected int numUnrollSteps;
+       protected int tdSteps;
+       protected float discount;
+       protected float weightDecay;
+       protected float valueLossWeight;
+       protected float lrInit;
+       protected boolean absorbingStateDropToZero;
+       protected int size;
+       protected int maxMoves;
+       protected int boardHeight;
+       protected int boardWidth;
+       protected int actionSpaceSize;
+       protected int numberTrainingStepsOnRandomPlay;
+       protected double rootDirichletAlpha;
+       protected double rootExplorationFraction;
+       protected KnownBoundsType knownBoundsType;
+       protected double pbCInit;
+       protected double pbCBase;
+       protected DeviceType inferenceDeviceType;
+       protected String outputDir;
+       protected int numEpisodes;
+       protected int numSimulations;
+       protected int numParallelGamesPlayed;
+       int visitSoftmaxTemperatureThreshold;
+   }
 
     public Class getGameClass() {
         try {
-            return Class.forName(gameClassName);
+            return Class.forName(getGameClassName());
         } catch (ClassNotFoundException e) {
             log.error(e.getMessage());
             throw new MuZeroException(e);
@@ -105,7 +84,7 @@ public class MuZeroConfig {
 
     public Class getActionClass() {
         try {
-            return Class.forName(actionClassName);
+            return Class.forName(getActionClassName());
         } catch (ClassNotFoundException e) {
             log.error(e.getMessage());
             throw new MuZeroException(e);
@@ -113,11 +92,9 @@ public class MuZeroConfig {
     }
 
     public BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFunction() {
-        return (numMoves, trainingSteps) -> (numMoves < visitSoftmaxTemperatureThreshold) ? 1.0 : 0.0;
+        return (numMoves, trainingSteps) -> (numMoves < getVisitSoftmaxTemperatureThreshold()) ? 1.0 : 0.0;
     }
 
-
-    //  }
 
     public KnownBounds getKnownBounds() {
         if (this.getKnownBoundsType() == BOARD_GAME) {
@@ -156,10 +133,6 @@ public class MuZeroConfig {
     }
 
 
-    public String getNetworkBaseDir() {
-        if ( networkBaseDir != null) return  networkBaseDir;
-        return  getOutputDir() + "networks";
-    }
 
     public Device getInferenceDevice() {
         switch(this.getInferenceDeviceType()) {
@@ -168,4 +141,188 @@ public class MuZeroConfig {
             default: return Device.gpu();
         }
     }
+
+    private Conf getConf() {
+        return this.games.get(this.activeGame);
+    }
+    public double getKomi() {
+        return getConf().komi;
+    }
+
+    public String getModelName() {
+        return getConf().modelName;
+    }
+
+    public String getGameClassName() {
+        return getConf().gameClassName;
+    }
+
+    public String getActionClassName() {
+        return getConf().actionClassName;
+    }
+
+    public PlayerMode getPlayerMode() {
+        return getConf().playerMode;
+    }
+
+    public boolean isNetworkWithRewardHead() {
+        return getConf().networkWithRewardHead;
+    }
+
+    public SymmetryType getSymmetryType() {
+        return getConf().symmetryType;
+    }
+
+
+
+    public String getNetworkBaseDir() {
+        if ( getConf().networkBaseDir != null) return  getConf().networkBaseDir;
+        return  getConf().getOutputDir() + "networks";
+    }
+
+    public void setNetworkBaseDir(String networkBaseDir) {
+        getConf().setNetworkBaseDir(networkBaseDir);
+    }
+
+
+    public boolean isWithRewardHead() {
+        return getConf().withRewardHead;
+    }
+
+    public int getNumObservationLayers() {
+        return getConf().numObservationLayers;
+    }
+
+    public int getNumActionLayers() {
+        return getConf().numActionLayers;
+    }
+
+    public int getNumChannels() {
+        return getConf().numChannels;
+    }
+
+    public int getNumHiddenStateChannels() {
+        return getConf().numHiddenStateChannels;
+    }
+
+    public int getNumResiduals() {
+        return getConf().numResiduals;
+    }
+
+    public int getNumberOfTrainingSteps() {
+        return getConf().numberOfTrainingSteps;
+    }
+
+    public int getNumberOfTrainingStepsPerEpoch() {
+        return getConf().numberOfTrainingStepsPerEpoch;
+    }
+
+    public int getWindowSize() {
+        return getConf().windowSize;
+    }
+
+    public int getBatchSize() {
+        return getConf().batchSize;
+    }
+
+    public int getNumUnrollSteps() {
+        return getConf().numUnrollSteps;
+    }
+
+    public int getTdSteps() {
+        return getConf().tdSteps;
+    }
+
+    public float getDiscount() {
+        return getConf().discount;
+    }
+
+    public float getWeightDecay() {
+        return getConf().weightDecay;
+    }
+
+    public float getValueLossWeight() {
+        return getConf().valueLossWeight;
+    }
+
+    public float getLrInit() {
+        return getConf().lrInit;
+    }
+
+    public boolean isAbsorbingStateDropToZero() {
+        return getConf().absorbingStateDropToZero;
+    }
+
+    public int getSize() {
+        return getConf().size;
+    }
+
+    public int getMaxMoves() {
+        return getConf().maxMoves;
+    }
+
+    public int getBoardHeight() {
+        return getConf().boardHeight;
+    }
+
+    public int getBoardWidth() {
+        return getConf().boardWidth;
+    }
+
+    public int getActionSpaceSize() {
+        return getConf().actionSpaceSize;
+    }
+
+    public int getNumberTrainingStepsOnRandomPlay() {
+        return getConf().numberTrainingStepsOnRandomPlay;
+    }
+
+    public double getRootDirichletAlpha() {
+        return getConf().rootDirichletAlpha;
+    }
+
+    public double getRootExplorationFraction() {
+        return getConf().rootExplorationFraction;
+    }
+
+    public KnownBoundsType getKnownBoundsType() {
+        return getConf().knownBoundsType;
+    }
+
+    public double getPbCInit() {
+        return getConf().pbCInit;
+    }
+
+    public double getPbCBase() {
+        return getConf().pbCBase;
+    }
+
+    public DeviceType getInferenceDeviceType() {
+        return getConf().inferenceDeviceType;
+    }
+
+    public void setInferenceDeviceType(DeviceType deviceType) {
+       getConf().setInferenceDeviceType(deviceType);
+    }
+
+    public String getOutputDir() {
+        return getConf().outputDir;
+    }
+
+    public int getNumEpisodes() {
+        return getConf().numEpisodes;
+    }
+
+    public int getNumSimulations() {
+        return getConf().numSimulations;
+    }
+
+    public int getNumParallelGamesPlayed() {
+        return getConf().numParallelGamesPlayed;
+    }
+
+    public int getVisitSoftmaxTemperatureThreshold() {
+        return getConf().visitSoftmaxTemperatureThreshold;
+    }
+
 }
