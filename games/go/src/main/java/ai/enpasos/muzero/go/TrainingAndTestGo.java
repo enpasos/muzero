@@ -31,11 +31,11 @@ public class TrainingAndTestGo {
         String dir = "./memory/go" + size + "/";
         config.setOutputDir(dir);
 
-        try {
-            FileUtils.deleteDirectory(new File(dir));
-        } catch (Exception e) {
-            throw new MuZeroException(e);
-        }
+//        try {
+//            FileUtils.deleteDirectory(new File(dir));
+//        } catch (Exception e) {
+//            throw new MuZeroException(e);
+//        }
 
 
         muZero.train(false, 1);

@@ -1,4 +1,7 @@
 muzero:
+  modelName: MuZero-Go-9
+  outputDir: ./memory/go9/
+
   # game/environment
   komi: 6.5
   size: 9
@@ -12,3 +15,4 @@ muzero:
   numSimulations: 200
   numParallelGamesPlayed: 100
   numEpisodes: 10
+

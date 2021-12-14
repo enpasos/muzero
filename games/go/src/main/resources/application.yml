@@ -58,7 +58,7 @@ muzero:
   pbCInit: 1.25 # TODO: remove
   pbCBase: 19652 # TODO: remove
 
-  outputDir: ./memory/
+  outputDir: ./memory/go5/
   numEpisodes: 1
   numSimulations: 100
   numParallelGamesPlayed: 1000
