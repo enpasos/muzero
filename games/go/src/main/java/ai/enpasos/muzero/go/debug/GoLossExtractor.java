@@ -15,8 +15,7 @@ public class GoLossExtractor {
     LossExtractor lossExtractor;
 
     public   void run()   {
-        int size = 5;
-        config.setOutputDir("./memory/go"+ size + "/");
+
         lossExtractor.listLossesForTrainedNetworks();
     }
 

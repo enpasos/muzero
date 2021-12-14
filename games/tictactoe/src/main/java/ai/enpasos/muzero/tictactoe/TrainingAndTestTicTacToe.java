@@ -28,11 +28,8 @@ public class TrainingAndTestTicTacToe {
 
     public void run()  {
 
-        String dir = "./memory/tictactoe/";
-        config.setOutputDir(dir);
-
         try {
-            FileUtils.deleteDirectory(new File(dir));
+            FileUtils.deleteDirectory(new File(config.getOutputDir()));
         } catch (Exception e) {
             throw new MuZeroException(e);
         }
