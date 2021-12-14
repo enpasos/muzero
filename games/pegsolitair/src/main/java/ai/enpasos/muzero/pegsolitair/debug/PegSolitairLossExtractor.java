@@ -15,7 +15,7 @@ public class PegSolitairLossExtractor {
     LossExtractor lossExtractor;
 
     public   void run()   {
-        config.setOutputDir("./memory/");
+      //  config.setOutputDir("./memory/pegsolitair/");
         lossExtractor.listLossesForTrainedNetworks();
     }
 
