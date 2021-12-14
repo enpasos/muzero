@@ -14,7 +14,7 @@ in a separate module:
 
 * Two player zero-sum games with a final reward only:
     * **TicTacToe** is used for integration testing. Starting from scratch it learns perfect play (which is the test
-      goal) on a single GPU (NVIDIA GeForce RTX 3090) within 3.000 training steps and 150.000 game plays in less than an
+      goal) on a single GPU (NVIDIA GeForce RTX 3090) within 3.000 training steps and 75.000 game plays in an
       hour.
     * **Go**. We have started training the game of go, board sizes 5x5 and 9x9.
 * One player games with a final reward only:
