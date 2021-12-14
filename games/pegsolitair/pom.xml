@@ -75,50 +75,10 @@
                 <version>3.0.0-M5</version>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>train</id>
-                        <configuration>
-                            <mainClass>ai.enpasos.muzero.tictactoe.MuZero</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>test</id>
-                        <configuration>
-                            <mainClass>ai.enpasos.muzero.pegsolitair.test.SolitairTest</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>integrationtest</id>
-                        <configuration>
-                            <mainClass>ai.enpasos.muzero.pegsolitair.TrainingAndTest</mainClass>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>ai.enpasos.muzero.tictactoe.MuZero</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                    <classifier>exec</classifier>
                 </configuration>
             </plugin>
         </plugins>
