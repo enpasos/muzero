@@ -317,6 +317,10 @@ public class MuZeroConfig {
         return getConf().numSimulations;
     }
 
+    public void setNumSimulations(int numSimulations) {
+       getConf().setNumSimulations(numSimulations);
+    }
+
     public int getNumParallelGamesPlayed() {
         return getConf().numParallelGamesPlayed;
     }
