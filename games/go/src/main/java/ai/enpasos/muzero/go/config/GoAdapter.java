@@ -24,7 +24,8 @@ import java.util.Optional;
 
 public class GoAdapter {
 
-    private GoAdapter() {}
+    private GoAdapter() {
+    }
 
     public static Move translate(MuZeroConfig config, Action action) {
         if (0 <= action.getIndex() && action.getIndex() < config.getActionSpaceSize() - 1) {

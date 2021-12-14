@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 public class WinLooseStatistics {
 
 
-
     @Autowired
     private ReplayBuffer replayBuffer;
 
@@ -60,7 +59,7 @@ public class WinLooseStatistics {
                     .drawCount(winnerList.stream().filter(Optional::isEmpty).count())
                     .build();
 
-               log.info("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() + ", draw: " + stats.getDrawCount());
+            log.info("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() + ", draw: " + stats.getDrawCount());
 
             winnerStatisticsList.add(stats);
         }

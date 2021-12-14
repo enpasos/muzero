@@ -53,9 +53,6 @@ public class MCTS {
     }
 
 
-
-
-
     public void backUp(@NotNull List<Node> searchPath, double value, Player toPlay, double discount, @NotNull MinMaxStats minMaxStats) {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
@@ -225,13 +222,13 @@ public class MCTS {
     }
 
     public Action selectAction(@NotNull Node node, MinMaxStats minMaxStats) {
-        List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node,  minMaxStats);
+        List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node, minMaxStats);
 
         return selectActionByDrawingFromDistribution(distributionInput);
     }
 
     public Action selectActionByMax(@NotNull Node node, MinMaxStats minMaxStats) {
-        List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node,  minMaxStats);
+        List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node, minMaxStats);
 
         return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).orElseThrow(MuZeroException::new).getKey();
     }

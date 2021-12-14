@@ -50,7 +50,7 @@ public class ValueExtractor {
     @Autowired
     Inference inference;
 
-    public  String listValuesForTrainedNetworks( List<Integer> actions)   {
+    public String listValuesForTrainedNetworks(List<Integer> actions) {
 
 
         StringWriter stringWriter = new StringWriter();
@@ -81,7 +81,7 @@ public class ValueExtractor {
     }
 
     @NotNull
-    public   List<Integer> getActionList( ) {
+    public List<Integer> getActionList() {
 
 
         replayBuffer.loadLatestState();

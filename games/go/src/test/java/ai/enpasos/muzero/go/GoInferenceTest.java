@@ -2,9 +2,9 @@ package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.platform.agent.Inference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;

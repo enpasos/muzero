@@ -36,7 +36,9 @@ public class PegSolitairRenderGame {
     @Autowired
     RenderGame renderGame;
 
-    public  void run( ) {
+
+    @SuppressWarnings("squid:S125")
+    public void run() {
 
         // perfect games:
         // List<Integer> actions = List.of(71, 107, 165, 102, 51, 25, 174, 102, 23, 37, 25, 39, 77, 178, 112, 77, 121, 44, 193, 181, 123, 167, 109, 172, 30, 107, 186, 44, 30, 64, 108);

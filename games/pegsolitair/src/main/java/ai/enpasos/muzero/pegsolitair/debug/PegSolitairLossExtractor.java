@@ -14,8 +14,10 @@ public class PegSolitairLossExtractor {
     @Autowired
     LossExtractor lossExtractor;
 
-    public   void run()   {
-      //  config.setOutputDir("./memory/pegsolitair/");
+
+    @SuppressWarnings("squid:S125")
+    public void run() {
+        //  config.setOutputDir("./memory/pegsolitair/");
         lossExtractor.listLossesForTrainedNetworks();
     }
 

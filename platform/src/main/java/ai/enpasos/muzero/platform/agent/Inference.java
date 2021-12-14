@@ -46,11 +46,11 @@ public class Inference {
     @Autowired
     MCTS mcts;
 
-    public  int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir ) {
+    public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir) {
         int actionIndexSelectedByNetwork;
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
-        Game game = getGame( actions);
+        Game game = getGame(actions);
 
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
@@ -69,11 +69,11 @@ public class Inference {
     }
 
 
-    public  double aiValue(List<Integer> actions, String networkDir ) {
+    public double aiValue(List<Integer> actions, String networkDir) {
         double valueByNetwork;
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
-        Game game = getGame( actions);
+        Game game = getGame(actions);
 
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
@@ -92,14 +92,14 @@ public class Inference {
     }
 
 
-    public  Game getGame(List<Integer> actions) {
+    public Game getGame(List<Integer> actions) {
         Game game = config.newGame();
         actions.forEach(a -> game.apply(config.newAction(a)));
         return game;
     }
 
 
-    private  Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
+    private Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
         NetworkIO networkOutput = network.initialInferenceDirect(game);
         double aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;

@@ -36,7 +36,7 @@ public class GoRenderGame {
     @Autowired
     RenderGame renderGame;
 
-    public  void run( ) {
+    public void run() {
 
         List<Integer> actions = List.of(71, 172, 39, 38, 78, 44, 121, 181, 193, 80, 44, 118, 115, 166, 178, 77, 102, 181, 25, 108, 51, 102, 64, 66, 112, 117, 180, 178, 77);
 

@@ -49,7 +49,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 
-
 @Data
 @Slf4j
 @Component
@@ -63,28 +62,10 @@ public class ReplayBuffer {
     private MuZeroConfig config;
 
 
-
-
-    public ReplayBuffer( ) {
-    }
-
-    @PostConstruct
-    public void postConstruct() {
-        init();
-    }
-
-
-    public void init() {
-        this.batchSize = config.getBatchSize();
-        this.buffer = new ReplayBufferDTO(config.getWindowSize(), config.getGameClassName());
-    }
-
-
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
         return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager, replayBuffer);
     }
-
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
         Sample sample = new Sample();
@@ -104,7 +85,6 @@ public class ReplayBuffer {
 
         return sample;
     }
-
 
     public static int samplePosition(@NotNull Game game) {
         int numActions = game.getGameDTO().getActions().size();
@@ -128,6 +108,15 @@ public class ReplayBuffer {
         return json.getBytes(StandardCharsets.UTF_8);
     }
 
+    @PostConstruct
+    public void postConstruct() {
+        init();
+    }
+
+    public void init() {
+        this.batchSize = config.getBatchSize();
+        this.buffer = new ReplayBufferDTO(config.getWindowSize(), config.getGameClassName());
+    }
 
     public void saveGame(@NotNull Game game) {
 
@@ -205,7 +194,7 @@ public class ReplayBuffer {
         loadState(c);
     }
 
-    public  int getLatestBufferNo() {
+    public int getLatestBufferNo() {
         Path gamesPath = Paths.get(config.getGamesBasedir());
         if (Files.notExists(gamesPath)) {
             try {

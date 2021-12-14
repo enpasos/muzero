@@ -47,11 +47,11 @@ public class TicTacToeTest {
     @Autowired
     ReplayBuffer replayBuffer;
 
-@Autowired
-MCTS mcts;
+    @Autowired
+    MCTS mcts;
 
 
-    public   boolean test( ) {
+    public boolean test() {
 
 
         replayBuffer.init();
@@ -127,7 +127,7 @@ MCTS mcts;
 
     }
 
-    private  void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
+    private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
         gameTree.rootNode.clearAIDecisions();
         gameTree.rootNode.addAIDecisions(network, player, withMCTS, mcts);
 
@@ -139,8 +139,7 @@ MCTS mcts;
     }
 
 
-
-    private   @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
+    private @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
         rootNode.addAIDecisions(network, player, withMCTS, mcts);
         List<DNode> gamesLostByPlayerA = new ArrayList<>();
         rootNode.collectGamesLost(player, gamesLostByPlayerA);

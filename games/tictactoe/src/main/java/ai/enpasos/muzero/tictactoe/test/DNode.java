@@ -164,11 +164,7 @@ public class DNode {
             }
         } else if (!this.children.isEmpty()) {
             this.aiChosenChild = aiDecision(network, withMCTS, mcts);
-            if (aiChosenChild == null) {
-                int i= 42;
-            }
             Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS, mcts);
-
         }
     }
 
@@ -177,8 +173,7 @@ public class DNode {
         aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         List<Action> legalActions = game.legalActions();
-        if (withMCTS)
-        {
+        if (withMCTS) {
             Node root = new Node(network.getConfig(), 0);
 
 
@@ -188,9 +183,7 @@ public class DNode {
 
             Action action = mcts.selectActionByMax(root, minMaxStats);
             actionIndexSelectedByNetwork = action.getIndex();
-        }
-        else
-        {
+        } else {
             float maxValue = 0f;
             for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
                 float v = networkOutput.getPolicyValues()[i];

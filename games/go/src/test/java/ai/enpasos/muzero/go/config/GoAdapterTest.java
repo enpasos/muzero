@@ -7,8 +7,8 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 

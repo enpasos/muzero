@@ -33,16 +33,17 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
+@SuppressWarnings("squid:S2065")
 public class PegSolitairAction extends Action {
 
 
-    private transient MuZeroConfig  config;
+    private transient MuZeroConfig config;
 
-    public PegSolitairAction(MuZeroConfig  config) {
+    public PegSolitairAction(MuZeroConfig config) {
         this.config = config;
     }
 
-    public PegSolitairAction(MuZeroConfig  config, int index) {
+    public PegSolitairAction(MuZeroConfig config, int index) {
         this(config);
         this.setIndex(index);
     }

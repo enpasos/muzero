@@ -35,7 +35,7 @@ public class TicTacToeValueExtractor {
     @Autowired
     ValueExtractor valueExtractor;
 
-    public  void run()   {
+    public void run() {
 
         config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 

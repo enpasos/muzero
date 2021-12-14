@@ -32,7 +32,7 @@ public class ActionHistory {
 
     private final @NotNull List<Integer> actions;
     private final int actionSpaceSize;
-    private final MuZeroConfig  config;
+    private final MuZeroConfig config;
 
 
     public ActionHistory(MuZeroConfig config, @NotNull List<Integer> history, int actionSpaceSize) {
@@ -42,7 +42,7 @@ public class ActionHistory {
         this.actionSpaceSize = actionSpaceSize;
     }
 
-    public static @NotNull List<Action> actionSpace(MuZeroConfig  config) {
+    public static @NotNull List<Action> actionSpace(MuZeroConfig config) {
         List<Action> actions = new ArrayList<>();
         for (int i = 0; i < config.getActionSpaceSize(); i++) {
             actions.add(config.newAction(i));

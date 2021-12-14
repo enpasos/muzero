@@ -40,25 +40,6 @@ public class Episode {
     @Autowired
     private MCTS mcts;
 
-    // Episode played for a number of config.getNumParallelPlays() games in parallel
-    public Episode( ) {
-    }
-
-    @PostConstruct
-    public void postConstruct() {
-        init();
-    }
-    public void init() {
-        start = System.currentTimeMillis();
-        inferenceDuration = new Duration();
-        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
-                .mapToObj(i -> config.newGame())
-                .collect(Collectors.toList());
-        gamesDoneList = new ArrayList<>();
-    }
-
-
-
     private static Action getRandomAction(Node root) {
         SortedMap<Action, Node> children = root.getChildren();
         int index = randomStreamBase.nextInt(0, children.size() - 1);
@@ -86,6 +67,20 @@ public class Episode {
         return p;
     }
 
+    @PostConstruct
+    public void postConstruct() {
+        init();
+    }
+
+    public void init() {
+        start = System.currentTimeMillis();
+        inferenceDuration = new Duration();
+        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
+                .mapToObj(i -> config.newGame())
+                .collect(Collectors.toList());
+        gamesDoneList = new ArrayList<>();
+    }
+
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
@@ -94,7 +89,7 @@ public class Episode {
         List<NetworkIO> networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
 
 
-        expandRootNodes(fastRuleLearning, rootList, networkOutput );
+        expandRootNodes(fastRuleLearning, rootList, networkOutput);
 
         addExplorationNoise(render, explorationNoise, indexOfJustOneOfTheGames, rootList);
 
@@ -104,7 +99,7 @@ public class Episode {
 
         renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
 
-        keepTrackOfOpenGames( );
+        keepTrackOfOpenGames();
     }
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
@@ -114,7 +109,7 @@ public class Episode {
         }
     }
 
-    private void keepTrackOfOpenGames( ) {
+    private void keepTrackOfOpenGames() {
         List<Game> newGameDoneList = gameList.stream()
                 .filter(game -> game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves())
                 .collect(Collectors.toList());
@@ -136,7 +131,7 @@ public class Episode {
                 action = mcts.selectAction(root, minMaxStatsList.get(g));
             }
             game.apply(action);
-             storeSearchStatistics(game, root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));
+            storeSearchStatistics(game, root, fastRuleLearning, minMaxStatsList == null ? new MinMaxStats(config.getKnownBounds()) : minMaxStatsList.get(g));
 
 
             if (render && indexOfJustOneOfTheGames != -1 && g == indexOfJustOneOfTheGames) {

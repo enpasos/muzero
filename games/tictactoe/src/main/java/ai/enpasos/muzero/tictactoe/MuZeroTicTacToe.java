@@ -32,10 +32,10 @@ public class MuZeroTicTacToe implements CommandLineRunner {
     }
 
 
-
     @Override
+    @SuppressWarnings("squid:S125")
     public void run(String... args) {
-       trainingAndTest.run();
-       // ticTacToeLossExtractor.run();
+        trainingAndTest.run();
+        // ticTacToeLossExtractor.run();
     }
 }

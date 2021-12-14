@@ -32,12 +32,11 @@ public class LossExtractor {
     NetworkHelper networkHelfer;
 
 
-
-
-    private LossExtractor() {}
+    private LossExtractor() {
+    }
 
     @SuppressWarnings("squid:S106")
-    public   void listLossesForTrainedNetworks()   {
+    public void listLossesForTrainedNetworks() {
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();

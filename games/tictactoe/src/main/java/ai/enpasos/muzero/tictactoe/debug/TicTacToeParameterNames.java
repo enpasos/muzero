@@ -33,8 +33,7 @@ public class TicTacToeParameterNames {
     ParameterNames parameterNames;
 
 
-
-    public  void run( ) {
+    public void run() {
         System.out.println(parameterNames.listParameterNames());
     }
 

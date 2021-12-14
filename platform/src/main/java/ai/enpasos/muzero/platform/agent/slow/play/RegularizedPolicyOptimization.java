@@ -29,7 +29,7 @@ public class RegularizedPolicyOptimization {
         List<Map.Entry<Action, Node>> list = new ArrayList<>(node.getChildren().entrySet());
         List<Pair<Action, Double>> distributionInput;
         if (node.getVisitCount() != 0) {
-            double multiplierLambda = multiplierLambda(node );
+            double multiplierLambda = multiplierLambda(node);
 
             double alphaMin = list.stream()
                     .mapToDouble(an -> {
@@ -44,7 +44,7 @@ public class RegularizedPolicyOptimization {
                     })
                     .max().orElseThrow(MuZeroException::new) + multiplierLambda;
 
-            double alpha = calcAlpha(list, multiplierLambda, alphaMin, alphaMax , minMaxStats);
+            double alpha = calcAlpha(list, multiplierLambda, alphaMin, alphaMax, minMaxStats);
 
 
             distributionInput =
@@ -68,7 +68,7 @@ public class RegularizedPolicyOptimization {
         return distributionInput;
     }
 
-    private  double calcAlpha(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax,  MinMaxStats minMaxStats) {
+    private double calcAlpha(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alphaMin, double alphaMax, MinMaxStats minMaxStats) {
         // dichotomic search
         double optPolicySum;
         double alpha;
@@ -76,7 +76,7 @@ public class RegularizedPolicyOptimization {
         int c = 0;
         do {
             alpha = (alphaMax + alphaMin) / 2d;
-            optPolicySum = optPolicySum(list, multiplierLambda, alpha, minMaxStats );
+            optPolicySum = optPolicySum(list, multiplierLambda, alpha, minMaxStats);
 
             if (optPolicySum > 1d) {
                 alphaMin = alpha;
@@ -87,27 +87,27 @@ public class RegularizedPolicyOptimization {
         return alpha;
     }
 
-    private  double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha, MinMaxStats minMaxStats ) {
+    private double optPolicySum(List<Map.Entry<Action, Node>> list, double multiplierLambda, double alpha, MinMaxStats minMaxStats) {
         return list.stream()
                 .mapToDouble(e -> {
                     Node child = e.getValue();
-                    return optPolicy(multiplierLambda, alpha, child, minMaxStats );
+                    return optPolicy(multiplierLambda, alpha, child, minMaxStats);
                 })
                 .sum();
     }
 
-    private  double optPolicy(double multiplierLambda, double alpha, Node child, MinMaxStats minMaxStats ) {
+    private double optPolicy(double multiplierLambda, double alpha, Node child, MinMaxStats minMaxStats) {
         double optPolicy;
         optPolicy = multiplierLambda * child.getPrior() / (alpha - child.valueScore(minMaxStats, config));
         return optPolicy;
     }
 
     // from "MCTS as regularized policy optimization", equation 4
-    private  double multiplierLambda(@NotNull Node parent ) {
-        return c(parent ) * Math.sqrt(parent.getVisitCount()) / (parent.getVisitCount() + config.getActionSpaceSize());
+    private double multiplierLambda(@NotNull Node parent) {
+        return c(parent) * Math.sqrt(parent.getVisitCount()) / (parent.getVisitCount() + config.getActionSpaceSize());
     }
 
-    private  double c(@NotNull Node parent ) {
+    private double c(@NotNull Node parent) {
         double pbC;
         pbC = Math.log((parent.getVisitCount() + config.getPbCBase() + 1d) / config.getPbCBase()) + config.getPbCInit();
         return pbC;
