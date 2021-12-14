@@ -17,7 +17,7 @@ muzero:
       numChannels: 128
       numHiddenStateChannels: 5
       numResiduals: 8
-      numberOfTrainingSteps: 4000
+      numberOfTrainingSteps: 3000
       numberOfTrainingStepsPerEpoch: 20
       windowSize: 10000
       batchSize: 256
