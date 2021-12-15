@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.go;
 
+import ai.enpasos.muzero.go.debug.GoLossExtractor;
 import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,9 @@ public class MuZeroGo implements CommandLineRunner {
     @Autowired
     private MuZeroConfig conf;
 
+
     @Autowired
-    private RegularizedPolicyOptimization regularizedPolicyOptimization;
+    private GoLossExtractor goLossExtractor;
 
     public static void main(String[] args) {
         SpringApplication.run(MuZeroGo.class, args);
@@ -32,5 +34,6 @@ public class MuZeroGo implements CommandLineRunner {
     @Override
     public void run(String... args) {
         trainingAndTest.run();
+        // goLossExtractor.run();
     }
 }
