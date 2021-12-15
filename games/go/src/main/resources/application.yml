@@ -59,8 +59,8 @@ muzero:
       visitSoftmaxTemperatureThreshold: 30
       knownBoundsType: NONE
       # play - PUCB params from paper
-      pbCInit: 1.25 # TODO: remove
-      pbCBase: 19652 # TODO: remove
+      pbCInit: 1.25
+      pbCBase: 19652
 
     GO_9:
       modelName: MuZero-Go-9
@@ -118,7 +118,7 @@ muzero:
       visitSoftmaxTemperatureThreshold: 30
       knownBoundsType: NONE
       # play - PUCB params from paper
-      pbCInit: 1.25 # TODO: remove
-      pbCBase: 19652 # TODO: remove
+      pbCInit: 1.25
+      pbCBase: 19652
 
 
