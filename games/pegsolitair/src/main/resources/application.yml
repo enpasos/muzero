@@ -37,7 +37,7 @@ muzero:
 
       # network training
       symmetryType: SQUARE
-      numberOfTrainingSteps: 4000
+      numberOfTrainingSteps: 10000
       numberOfTrainingStepsPerEpoch: 100
       windowSize: 10000
       batchSize: 64
@@ -57,8 +57,8 @@ muzero:
       visitSoftmaxTemperatureThreshold: 30
       knownBoundsType: NONE
       # play - PUCB params from paper
-      pbCInit: 1.25 # TODO: remove
-      pbCBase: 19652 # TODO: remove
+      pbCInit: 1.25
+      pbCBase: 19652
 
 
 
