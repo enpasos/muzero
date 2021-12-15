@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.go.debug.GoLossExtractor;
+import ai.enpasos.muzero.go.debug.GoWinLooseStatistics;
 import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,10 @@ public class MuZeroGo implements CommandLineRunner {
 
 
     @Autowired
+    GoWinLooseStatistics goWinLooseStatistics;
+
+
+    @Autowired
     private GoLossExtractor goLossExtractor;
 
     public static void main(String[] args) {
@@ -35,5 +40,6 @@ public class MuZeroGo implements CommandLineRunner {
     public void run(String... args) {
         trainingAndTest.run();
         // goLossExtractor.run();
+        // goWinLooseStatistics.run();
     }
 }
