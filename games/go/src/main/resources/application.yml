@@ -8,7 +8,7 @@ muzero:
     GO_5:
       modelName: MuZero-Go-5
       outputDir: ./memory/go5/
-      komi: 0.5
+      komi: 6.5
       size: 5
       boardHeight: 5 # size
       boardWidth: 5 # size
