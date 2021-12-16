@@ -143,8 +143,9 @@ public class MuZero {
 
             init(freshBuffer, randomFill, network);
 
-            int trainingStep = networkHelper.numberOfLastTrainingStep();
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(0);
+            int epoch  = networkHelper.getEpoch();
+            int trainingStep =  config.getNumberOfTrainingStepsPerEpoch() * epoch;
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 playGames(render, network, trainingStep);
