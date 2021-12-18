@@ -46,3 +46,4 @@ muzero:
       actionSpaceSize: 9  # size*size
       symmetryType: SQUARE
       numParallelGamesPlayed: 1000
+      gameBufferWritingFormat: ZIPPED_JSON

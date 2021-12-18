@@ -1,7 +1,9 @@
 package ai.enpasos.muzero.go;
 
+import ai.enpasos.muzero.go.debug.GoArena;
 import ai.enpasos.muzero.go.debug.GoLossExtractor;
-import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
+import ai.enpasos.muzero.go.debug.GoRenderGame;
+import ai.enpasos.muzero.go.debug.GoWinLooseStatistics;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,27 +15,37 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
-public class MuZeroGo implements CommandLineRunner {
+public class Go implements CommandLineRunner {
 
     @Autowired
-    private TrainingAndTestGo trainingAndTest;
-
+    private GoTrainingAndTest trainingAndTest;
 
     @Autowired
     private MuZeroConfig conf;
 
+    @Autowired
+    private GoLossExtractor lossExtractor;
 
     @Autowired
-    private GoLossExtractor goLossExtractor;
+    private GoWinLooseStatistics goWinLooseStatistics;
+
+    @Autowired
+    private GoArena arena;
+
+    @Autowired
+    private GoRenderGame goRenderGame;
 
     public static void main(String[] args) {
-        SpringApplication.run(MuZeroGo.class, args);
+        SpringApplication.run(Go.class, args);
     }
 
 
     @Override
     public void run(String... args) {
-        trainingAndTest.run();
-        // goLossExtractor.run();
+        // trainingAndTest.run();
+        // lossExtractor.run();
+        arena.run();
+        // goRenderGame.run();
+        // goWinLooseStatistics.run();
     }
 }

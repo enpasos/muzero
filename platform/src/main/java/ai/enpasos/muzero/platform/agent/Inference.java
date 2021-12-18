@@ -47,9 +47,13 @@ public class Inference {
     MCTS mcts;
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir) {
+        return aiDecision( actions,  withMCTS,  networkDir,  DeviceType.CPU);
+    }
+    public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, DeviceType deviceType) {
+
         int actionIndexSelectedByNetwork;
         config.setNetworkBaseDir(networkDir);
-        config.setInferenceDeviceType(DeviceType.CPU);
+        config.setInferenceDeviceType(deviceType);
         Game game = getGame(actions);
 
 

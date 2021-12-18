@@ -15,7 +15,7 @@ import java.io.File;
 
 @Slf4j
 @Component
-public class TrainingAndTestTicTacToe {
+public class TicTacToeTrainingAndTest {
 
     @Autowired
     private MuZeroConfig config;

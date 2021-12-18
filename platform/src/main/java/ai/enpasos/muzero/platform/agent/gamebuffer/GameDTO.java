@@ -17,6 +17,8 @@
 
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
+import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.GameProto;
+import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.PolicyTargetProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Data
 @AllArgsConstructor
@@ -58,5 +61,21 @@ public class GameDTO {
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         copy.rootValues.addAll(this.rootValues);
         return copy;
+    }
+
+    public GameProto proto() {
+         GameProto.Builder gameBuilder =  GameProto.newBuilder();
+        gameBuilder.addAllActions( getActions());
+        gameBuilder.addAllRewards( getRewards());
+        gameBuilder.addAllRootValues(getRootValues());
+
+        getPolicyTargets().stream().forEach(policyTarget -> {
+            PolicyTargetProtos.Builder b = PolicyTargetProtos.newBuilder();
+            IntStream.range(0, policyTarget.length).forEach(i -> {
+                b.addPolicyTarget(policyTarget[i]);
+            });
+            gameBuilder.addPolicyTargets(b.build());
+        });
+        return gameBuilder.build();
     }
 }
