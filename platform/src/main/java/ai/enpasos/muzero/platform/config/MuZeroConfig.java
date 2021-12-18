@@ -282,6 +282,8 @@ public class MuZeroConfig {
         return getConf().visitSoftmaxTemperatureThreshold;
     }
 
+    public FileType getGameBufferWritingFormat() { return getConf().gameBufferWritingFormat; }
+
     @Data
     public static class Conf {
         protected double komi;
@@ -326,6 +328,7 @@ public class MuZeroConfig {
         protected int numSimulations;
         protected int numParallelGamesPlayed;
         int visitSoftmaxTemperatureThreshold;
+        protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
     }
 
 }

@@ -14,7 +14,7 @@ import java.io.File;
 
 @Slf4j
 @Component
-public class TrainingAndTestGo {
+public class GoTrainingAndTest {
 
     @Autowired
     private MuZeroConfig config;

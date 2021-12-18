@@ -10,13 +10,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
+
 @SpringBootApplication
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
-public class MuZeroTicTacToe implements CommandLineRunner {
+public class TicTacToe implements CommandLineRunner {
 
     @Autowired
-    private TrainingAndTestTicTacToe trainingAndTest;
+    private TicTacToeTrainingAndTest trainingAndTest;
 
     @Autowired
     private TicTacToeLossExtractor ticTacToeLossExtractor;
@@ -28,14 +29,16 @@ public class MuZeroTicTacToe implements CommandLineRunner {
     private RegularizedPolicyOptimization regularizedPolicyOptimization;
 
     public static void main(String[] args) {
-        SpringApplication.run(MuZeroTicTacToe.class, args);
+        SpringApplication.run(TicTacToe.class, args);
     }
 
 
     @Override
     @SuppressWarnings("squid:S125")
     public void run(String... args) {
-        trainingAndTest.run();
+         trainingAndTest.run();
         // ticTacToeLossExtractor.run();
+
+
     }
 }

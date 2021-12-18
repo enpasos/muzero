@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 
+import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.ReplayBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -68,6 +69,19 @@ public class ReplayBufferDTO {
 
     public void clear() {
         data.clear();
+    }
+
+
+    public ReplayBufferProto proto() {
+         ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
+                .setVersion(1)
+                .setCounter((int)getCounter())
+                .setWindowSize(getWindowSize())
+                .setGameClassName(getGameClassName());
+
+        getData().stream().forEach( gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
+
+        return bufferBuilder.build();
     }
 
 }

@@ -14,10 +14,10 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
-public class MuZeroPegSolitair implements CommandLineRunner {
+public class PegSolitair implements CommandLineRunner {
 
     @Autowired
-    private TrainingAndTestPegSolitair trainingAndTest;
+    private PegSolitairTrainingAndTest trainingAndTest;
 
     @Autowired
     private PegSolitairLossExtractor lossExtractor;
@@ -32,15 +32,15 @@ public class MuZeroPegSolitair implements CommandLineRunner {
     private RegularizedPolicyOptimization regularizedPolicyOptimization;
 
     public static void main(String[] args) {
-        SpringApplication.run(MuZeroPegSolitair.class, args);
+        SpringApplication.run(PegSolitair.class, args);
     }
 
 
     @Override
     @SuppressWarnings("squid:S125")
     public void run(String... args) {
-        trainingAndTest.run();
+        // trainingAndTest.run();
         // lossExtractor.run();
-        //  valueExtractor.run();
+        valueExtractor.run();
     }
 }

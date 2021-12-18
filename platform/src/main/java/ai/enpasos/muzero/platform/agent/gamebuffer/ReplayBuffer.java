@@ -20,7 +20,9 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
+import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.ReplayBufferProto;
 import ai.enpasos.muzero.platform.common.MuZeroException;
+import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import com.google.gson.Gson;
@@ -174,19 +176,46 @@ public class ReplayBuffer {
         String pathname = config.getGamesBasedir() + File.separator + filename + ".zip";
         log.info("saving ... " + pathname);
 
-        byte[] input = encodeDTO(this.buffer);
+        byte[] input;
 
-        try (FileOutputStream baos = new FileOutputStream(pathname)) {
-            try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                ZipEntry entry = new ZipEntry(filename + ".json");
-                entry.setSize(input.length);
-                zos.putNextEntry(entry);
-                zos.write(input);
-                zos.closeEntry();
+        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
+            input = encodeDTO(this.buffer);
+            try (FileOutputStream baos = new FileOutputStream(pathname)) {
+                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                    ZipEntry entry = new ZipEntry(filename + ".json");
+                    entry.setSize(input.length);
+                    zos.putNextEntry(entry);
+                    zos.write(input);
+                    zos.closeEntry();
+                }
+            } catch (Exception e) {
+                throw new MuZeroException(e);
             }
-        } catch (Exception e) {
-            throw new MuZeroException(e);
         }
+
+
+        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
+            ReplayBufferProto proto = buffer.proto();
+            pathname = config.getGamesBasedir() + File.separator + filename + "proto.zip";
+            log.info("saving ... " + pathname);
+
+            input = proto.toByteArray();
+
+            try (FileOutputStream baos = new FileOutputStream(pathname)) {
+
+                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                    ZipEntry entry = new ZipEntry(filename + ".dat");
+                    entry.setSize(input.length);
+                    zos.putNextEntry(entry);
+                    zos.write(input);
+                    zos.closeEntry();
+                }
+            } catch (Exception e) {
+                throw new MuZeroException(e);
+            }
+        }
+
+
     }
 
     public void loadLatestState() {
