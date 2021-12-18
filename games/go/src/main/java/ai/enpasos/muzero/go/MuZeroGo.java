@@ -39,7 +39,7 @@ public class MuZeroGo implements CommandLineRunner {
     @Override
     public void run(String... args) {
         trainingAndTest.run();
-        // goLossExtractor.run();
-        // goWinLooseStatistics.run();
+       // goLossExtractor.run();
+       //goWinLooseStatistics.run();
     }
 }
