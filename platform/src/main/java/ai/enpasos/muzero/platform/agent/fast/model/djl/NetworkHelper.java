@@ -63,8 +63,8 @@ public class NetworkHelper {
     InputOutputConstruction inputOutputConstruction;
 
 
-    public int numberOfLastTrainingStep() {
-        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+    public int getEpoch() {
+
         int epoch = 0;
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
@@ -85,7 +85,7 @@ public class NetworkHelper {
             }
 
         }
-        return epoch * numberOfTrainingStepsPerEpoch;
+        return epoch  ;
     }
 
 

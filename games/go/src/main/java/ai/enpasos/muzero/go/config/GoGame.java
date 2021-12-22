@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.agent.slow.play.Node;
 import ai.enpasos.muzero.platform.agent.slow.play.Player;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
-public class GoGame extends Game {
+public class GoGame extends ZeroSumGame {
 
 
     public static final String PASS = "pass: ";
