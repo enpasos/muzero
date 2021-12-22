@@ -65,7 +65,7 @@ public class WinLooseStatistics {
         }
         for (int i = 0; i <= (cMax - start) / 1000; i++) {
             int c = start + i * 1000;
-            log.info(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames());
+            System.out.println(c + ";" + winnerStatisticsList.get(i).getWinPlayerACount() + ";" + winnerStatisticsList.get(i).getAllGames());
         }
 
     }
