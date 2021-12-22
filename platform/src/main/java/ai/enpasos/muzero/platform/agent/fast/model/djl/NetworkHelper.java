@@ -30,6 +30,7 @@ import ai.djl.training.listener.DivergenceCheckTrainingListener;
 import ai.djl.training.listener.EpochTrainingListener;
 import ai.djl.training.listener.MemoryTrainingListener;
 import ai.djl.training.listener.TimeMeasureTrainingListener;
+import ai.djl.training.loss.IndexLoss;
 import ai.djl.training.loss.L2Loss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
@@ -132,22 +133,22 @@ public class NetworkHelper {
 
         // policy
         log.info("k={}: SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k);
+        loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
         k++;
         // value
         log.info("k={}: L2Loss", k);
-        loss.addLoss(new L2Loss("loss_value_" + 0, config.getValueLossWeight()), k);
+        loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + 0, config.getValueLossWeight()), k));
         k++;
 
 
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
             log.info("k={}: SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k);
+            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
             // value
             log.info("k={}: L2Loss", k);
-            loss.addLoss(new L2Loss("loss_value_" + i, config.getValueLossWeight() * gradientScale), k);
+            loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + i, config.getValueLossWeight() * gradientScale), k));
             k++;
         }
 

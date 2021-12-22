@@ -199,7 +199,7 @@ public class ReplayBuffer {
             pathname = config.getGamesBasedir() + File.separator + filename + "proto.zip";
             log.info("saving ... " + pathname);
 
-            input = proto.toByteArray();
+                input = proto.toByteArray();
 
             try (FileOutputStream baos = new FileOutputStream(pathname)) {
 
