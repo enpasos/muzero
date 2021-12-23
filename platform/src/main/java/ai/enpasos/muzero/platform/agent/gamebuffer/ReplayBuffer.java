@@ -234,7 +234,7 @@ public class ReplayBuffer {
         }
         try (Stream<Path> walk = Files.walk(gamesPath)) {
             OptionalInt no = walk.filter(Files::isRegularFile)
-                    .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + "/buffer").length()).replace(".zip", "")))
+                    .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + "/buffer").length()).replace("proto", "").replace(".zip", "")))
                     .max();
             if (no.isPresent()) {
                 return no.getAsInt();
@@ -260,7 +260,21 @@ public class ReplayBuffer {
                 this.buffer.setWindowSize(config.getWindowSize());
             }
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            pathname = config.getGamesBasedir() + "/buffer" + c + "proto.zip";
+            try (FileInputStream fis = new FileInputStream(pathname)) {
+                try (ZipInputStream zis = new ZipInputStream(fis)) {
+                    zis.getNextEntry();
+                    byte[] raw = zis.readAllBytes();
+
+                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
+                    this.buffer = new ReplayBufferDTO();
+                    this.buffer.deproto(proto);
+                    rebuildGames();
+                    this.buffer.setWindowSize(config.getWindowSize());
+                }
+            } catch (Exception e2) {
+                log.warn(e2.getMessage());
+            }
         }
 
     }
