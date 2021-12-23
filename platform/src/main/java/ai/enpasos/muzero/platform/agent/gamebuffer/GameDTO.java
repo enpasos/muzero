@@ -22,7 +22,6 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.PolicyTargetProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -85,8 +84,16 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
-        this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos ->
-                (float[])ArrayUtils.toPrimitive(policyTargetProtos.getPolicyTargetList()))
+        float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];
+
+        this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {
+                            int i = 0;
+                            for (Float f : policyTargetProtos.getPolicyTargetList()) {
+                                result[i++] = f;
+                            }
+                            return result;
+                        }
+                )
                 .collect(Collectors.toList()));
     }
 }
