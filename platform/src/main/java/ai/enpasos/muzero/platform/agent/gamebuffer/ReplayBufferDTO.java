@@ -84,4 +84,17 @@ public class ReplayBufferDTO {
         return bufferBuilder.build();
     }
 
+    public void deproto(ReplayBufferProto proto) {
+
+        this.setGameClassName(proto.getGameClassName());
+        this.setCounter(proto.getCounter());
+        this.setWindowSize(proto.getWindowSize());
+
+        proto.getGameProtosList().stream().forEach(p -> {
+            GameDTO gameDTO = new GameDTO();
+            gameDTO.deproto(p);
+            this.getData().add(gameDTO);
+
+        });
+    }
 }

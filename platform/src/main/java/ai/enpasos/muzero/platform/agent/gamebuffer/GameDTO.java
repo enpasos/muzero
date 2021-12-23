@@ -22,11 +22,13 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.PolicyTargetProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Data
@@ -77,5 +79,14 @@ public class GameDTO {
             gameBuilder.addPolicyTargets(b.build());
         });
         return gameBuilder.build();
+    }
+
+    public void deproto(GameProto p) {
+        this.setActions(p.getActionsList());
+        this.setRewards(p.getRewardsList());
+        this.setRootValues(p.getRootValuesList());
+        this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos ->
+                (float[])ArrayUtils.toPrimitive(policyTargetProtos.getPolicyTargetList()))
+                .collect(Collectors.toList()));
     }
 }
