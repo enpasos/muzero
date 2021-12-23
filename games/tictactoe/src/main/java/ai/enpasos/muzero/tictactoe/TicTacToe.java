@@ -1,8 +1,10 @@
-package ai.enpasos.muzero.go;
+package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.go.debug.GoLossExtractor;
+
 import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.tictactoe.debug.TicTacToeLossExtractor;
+import ai.enpasos.muzero.tictactoe.debug.TicTacToeWinLooseStatistics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -13,10 +15,10 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
-public class MuZeroGo implements CommandLineRunner {
+public class TicTacToe implements CommandLineRunner {
 
     @Autowired
-    private TrainingAndTestGo trainingAndTest;
+    private TicTacToeTrainingAndTest trainingAndTest;
 
 
     @Autowired
@@ -24,20 +26,20 @@ public class MuZeroGo implements CommandLineRunner {
 
 
     @Autowired
-    GoWinLooseStatistics goWinLooseStatistics;
+    TicTacToeWinLooseStatistics goWinLooseStatistics;
 
 
     @Autowired
-    private GoLossExtractor goLossExtractor;
+    private TicTacToeLossExtractor goLossExtractor;
 
     public static void main(String[] args) {
-        SpringApplication.run(MuZeroGo.class, args);
+        SpringApplication.run(TicTacToe.class, args);
     }
 
 
     @Override
     public void run(String... args) {
-        trainingAndTest.run();
+       trainingAndTest.run();
        // goLossExtractor.run();
        //goWinLooseStatistics.run();
     }
