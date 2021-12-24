@@ -17,10 +17,10 @@ muzero:
       numChannels: 128
       numHiddenStateChannels: 5
       numResiduals: 8
-      numberOfTrainingSteps: 3000
+
       numberOfTrainingStepsPerEpoch: 40
       windowSize: 10000
-      batchSize: 256
+
       numUnrollSteps: 5
       tdSteps: 9 # size * size
       discount: 1.0
@@ -44,6 +44,15 @@ muzero:
       boardHeight: 3 # size
       boardWidth: 3 # size
       actionSpaceSize: 9  # size*size
+
+      # without symmetry usage
+      # symmetryType: NONE
+      # batchSize: 2048
+
+      # using the square symmetry of the board
       symmetryType: SQUARE
+      batchSize: 256
+
+      numberOfTrainingSteps: 3000
       numParallelGamesPlayed: 1000
-      gameBufferWritingFormat: ZIPPED_JSON
+      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
