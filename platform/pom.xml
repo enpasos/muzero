@@ -308,7 +308,7 @@
                         <configuration>
                             <addProtoSources>all</addProtoSources>
                             <includeMavenTypes>direct</includeMavenTypes>
-                                     <inputDirectories>
+                            <inputDirectories>
                                 <include>src/main/protobuf</include>
                             </inputDirectories>
                         </configuration>

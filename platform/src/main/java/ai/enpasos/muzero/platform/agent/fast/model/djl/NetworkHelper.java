@@ -85,7 +85,7 @@ public class NetworkHelper {
             }
 
         }
-        return epoch  ;
+        return epoch;
     }
 
 

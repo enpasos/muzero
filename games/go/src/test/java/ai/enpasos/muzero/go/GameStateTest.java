@@ -10,7 +10,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 
-public class GameStateTest {
+class GameStateTest {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
@@ -20,7 +20,7 @@ public class GameStateTest {
         var nextState = start.applyMove(new Play(new Point(16, 16)));
         assertSame(start, nextState.getPreviousState());
         assertSame(BLACK_PLAYER, nextState.getBoard().getPlayer(new Point(16, 16)).get());
-        assertSame( WHITE_PLAYER, nextState.getNextPlayer());
+        assertSame(WHITE_PLAYER, nextState.getNextPlayer());
     }
 
 

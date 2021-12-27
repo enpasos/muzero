@@ -65,16 +65,16 @@ public class GameDTO {
     }
 
     public GameProto proto() {
-         GameProto.Builder gameBuilder =  GameProto.newBuilder();
-        gameBuilder.addAllActions( getActions());
-        gameBuilder.addAllRewards( getRewards());
+        GameProto.Builder gameBuilder = GameProto.newBuilder();
+        gameBuilder.addAllActions(getActions());
+        gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
 
         getPolicyTargets().stream().forEach(policyTarget -> {
             PolicyTargetProtos.Builder b = PolicyTargetProtos.newBuilder();
-            IntStream.range(0, policyTarget.length).forEach(i -> {
-                b.addPolicyTarget(policyTarget[i]);
-            });
+            IntStream.range(0, policyTarget.length).forEach(i ->
+                    b.addPolicyTarget(policyTarget[i])
+            );
             gameBuilder.addPolicyTargets(b.build());
         });
         return gameBuilder.build();
@@ -84,7 +84,7 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
-        if (p.getPolicyTargetsCount()>0) {
+        if (p.getPolicyTargetsCount() > 0) {
             float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];
 
             this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {

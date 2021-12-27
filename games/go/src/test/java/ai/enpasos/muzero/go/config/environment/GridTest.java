@@ -12,7 +12,7 @@ import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GridTest {
+class GridTest {
 
     Grid grid;
 
@@ -28,7 +28,7 @@ public class GridTest {
         var mygrid = grid.updateStringWhenAddingStone(new Point(2, 2), string);
 
         // should be black at 2, 3
-        assertSame(mygrid.getPlayer(new Point(2, 3)).orElseThrow(MuZeroException::new), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, mygrid.getPlayer(new Point(2, 3)).orElseThrow(MuZeroException::new));
         assertEquals(mygrid.getString(new Point(2, 3)).orElseThrow(MuZeroException::new), string);
 
         // should be empty elsewhere
@@ -83,15 +83,15 @@ public class GridTest {
         // should have a black string should with 2 liberties initially
         mygrid = mygrid.updateStringWhenAddingStone(new Point(2, 2), black2String);
         // the black string is surrounded but not yet captured/removed
-        assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, mygrid.getPlayer(new Point(2, 2)).get());
         assertEquals(2, mygrid.getString(new Point(2, 3)).get().numLiberties());
 
 
         // should have a black string with liberties even when surrounded
         mygrid = mygrid.updateStringWhenAddingStone(new Point(3, 3), white2String);
         // the black string is surrounded but not yet captured/removed. Its liberties are not updated here.
-        assertSame(mygrid.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
-        assertSame(mygrid.getPlayer(new Point(2, 3)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, mygrid.getPlayer(new Point(2, 2)).get());
+        assertSame(BLACK_PLAYER, mygrid.getPlayer(new Point(2, 3)).get());
         assertEquals(2, mygrid.getString(new Point(2, 3)).orElseThrow(MuZeroException::new).numLiberties()); // to be captured black string
         assertEquals(2, mygrid.getString(new Point(3, 3)).orElseThrow(MuZeroException::new).numLiberties()); // white string
 

@@ -123,7 +123,7 @@ public class Episode {
         {
             Game game = gameList.get(g);
             Node root = rootList.get(g);
-            Action action = null;
+            Action action;
 
             if (fastRuleLearning) {
                 action = getRandomAction(root);
@@ -149,11 +149,7 @@ public class Episode {
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (fastRuleLearning) {
-            root.getChildren().entrySet().forEach(child -> {
-                Action action = child.getKey();
-                Node node = child.getValue();
-                policyTarget[action.getIndex()] = (float) node.getPrior();
-            });
+            root.getChildren().forEach((action, node) -> policyTarget[action.getIndex()] = (float) node.getPrior());
         } else {
             List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(root, minMaxStats);
             for (Pair<Action, Double> e : distributionInput) {

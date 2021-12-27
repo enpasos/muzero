@@ -47,8 +47,9 @@ public class Inference {
     MCTS mcts;
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir) {
-        return aiDecision( actions,  withMCTS,  networkDir,  DeviceType.CPU);
+        return aiDecision(actions, withMCTS, networkDir, DeviceType.CPU);
     }
+
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, DeviceType deviceType) {
 
         int actionIndexSelectedByNetwork;
@@ -106,7 +107,7 @@ public class Inference {
     private Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
         NetworkIO networkOutput = network.initialInferenceDirect(game);
         double aiValue = networkOutput.getValue();
-        int actionIndexSelectedByNetwork = -1;
+        int actionIndexSelectedByNetwork;
         List<Action> legalActions = game.legalActions();
         if (!withMCTS) {
 

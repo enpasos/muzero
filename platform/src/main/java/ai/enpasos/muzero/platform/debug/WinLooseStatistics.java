@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@SuppressWarnings("squid:S106")
 public class WinLooseStatistics {
 
 

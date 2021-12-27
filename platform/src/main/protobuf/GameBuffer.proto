@@ -8,18 +8,18 @@ option java_multiple_files = true;
 
 
 message ReplayBufferProto {
-    int32 version = 10;
-    string game_class_name = 11;
-    int32 counter = 12;
-    int32 window_size = 13;
-    repeated GameProto game_protos = 1;
+  int32 version = 10;
+  string game_class_name = 11;
+  int32 counter = 12;
+  int32 window_size = 13;
+  repeated GameProto game_protos = 1;
 }
 message GameProto {
-    repeated int32 actions = 1;
-    repeated float rewards = 2;
-    repeated PolicyTargetProtos policy_targets = 3;
-    repeated float root_values = 4;
+  repeated int32 actions = 1;
+  repeated float rewards = 2;
+  repeated PolicyTargetProtos policy_targets = 3;
+  repeated float root_values = 4;
 }
 message PolicyTargetProtos {
-    repeated float policy_target = 1;
+  repeated float policy_target = 1;
 }

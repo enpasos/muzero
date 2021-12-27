@@ -138,7 +138,7 @@ public class Network {
 
     public void createAndSetHiddenStateNDManager(NDManager parentNDManager, boolean force) {
         if (force || initialInference.getHiddenStateNDManager() == null) {
-            NDManager newHiddenStateNDManager = null;
+            NDManager newHiddenStateNDManager;
             if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU) {
                 newHiddenStateNDManager = parentNDManager.newSubManager(Device.gpu());
             } else {

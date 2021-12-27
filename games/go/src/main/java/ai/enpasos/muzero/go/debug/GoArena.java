@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -34,18 +33,18 @@ public class GoArena {
         int numGames = 10;
         List<Float> outcomesA = new ArrayList<>();
         IntStream.range(1, numGames).forEach(i -> outcomesA.add(playAGame(dirNetwork1)));
-        log.info("1 starting ... " +  outcomesA);
+        log.info("1 starting ... " + outcomesA);
         List<Float> outcomesB = new ArrayList<>();
         IntStream.range(1, numGames).forEach(i -> outcomesB.add(playAGame(dirNetwork2)));
-        log.info("2 starting ... " +  outcomesB);
+        log.info("2 starting ... " + outcomesB);
         List<Float> outcomes = new ArrayList<>();
         outcomes.addAll(outcomesA);
         outcomes.addAll(outcomesB);
-        double fractionPlayer1wins = ((double)outcomes.stream()
+        double fractionPlayer1wins = ((double) outcomes.stream()
                 .filter(i -> i == 1.0f)
                 .count())
                 / outcomes.size();
-        log.info("fractionPlayer1wins: " +  fractionPlayer1wins);
+        log.info("fractionPlayer1wins: " + fractionPlayer1wins);
     }
 
 
@@ -58,7 +57,6 @@ public class GoArena {
             currentPlayer = changePlayer(currentPlayer);
         }
         currentPlayer = changePlayer(currentPlayer);
-        // log.debug(game.toString());
         return (currentPlayer.equals(dirNetwork1) ? 1f : -1f) * game.getLastReward();
     }
 
