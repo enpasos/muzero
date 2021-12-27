@@ -1,8 +1,10 @@
 package ai.enpasos.muzero.pegsolitair;
 
 import ai.enpasos.muzero.pegsolitair.debug.PegSolitairLossExtractor;
+import ai.enpasos.muzero.pegsolitair.debug.PegSolitairRenderGame;
 import ai.enpasos.muzero.pegsolitair.debug.PegSolitairValueExtractor;
 import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class PegSolitair implements CommandLineRunner {
     private PegSolitairValueExtractor valueExtractor;
 
     @Autowired
+    private PegSolitairRenderGame renderGame;
+
+    @Autowired
     private MuZeroConfig conf;
 
     @Autowired
@@ -39,8 +44,18 @@ public class PegSolitair implements CommandLineRunner {
     @Override
     @SuppressWarnings("squid:S125")
     public void run(String... args) {
-        // trainingAndTest.run();
-        // lossExtractor.run();
-        valueExtractor.run();
+
+        switch(conf.getRun()) {
+            case TRAIN:
+                trainingAndTest.run();
+                break;
+            case LOSS:
+                lossExtractor.run();
+                break;
+            case RENDER:
+                renderGame.run();
+            case VALUE:
+                valueExtractor.run();
+        }
     }
 }

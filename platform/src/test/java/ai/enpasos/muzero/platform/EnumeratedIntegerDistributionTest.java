@@ -18,9 +18,12 @@ package ai.enpasos.muzero.platform;
 
 
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
+import org.apache.commons.math3.exception.*;
 import org.jetbrains.annotations.NotNull;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class EnumeratedIntegerDistributionTest {
@@ -33,7 +36,7 @@ public class EnumeratedIntegerDistributionTest {
     /**
      * Creates the default distribution object used for testing.
      */
-    public EnumeratedIntegerDistributionTest() {
+    public EnumeratedIntegerDistributionTest() throws Exception {
         // Non-sorted singleton array with duplicates should be allowed.
         // Values with zero-probability do not extend the support.
         testDistribution = new EnumeratedIntegerDistribution(
@@ -50,7 +53,7 @@ public class EnumeratedIntegerDistributionTest {
         double[] results = new double[]{0, 0.2, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0};
         for (int p = 0; p < points.length; p++) {
             double probability = testDistribution.probability(points[p]);
-            Assert.assertEquals(results[p], probability, 0.0);
+             assertEquals(probability, results[p],  0.0);
         }
     }
 
@@ -63,7 +66,7 @@ public class EnumeratedIntegerDistributionTest {
         double[] results = new double[]{0, 0.2, 0.2, 0.2, 0.2, 0.7, 0.7, 0.7, 0.7, 1.0, 1.0};
         for (int p = 0; p < points.length; p++) {
             double probability = testDistribution.cumulativeProbability(points[p]);
-            Assert.assertEquals(results[p], probability, 1e-10);
+             assertEquals( probability,results[p], 1e-10);
         }
     }
 
@@ -72,7 +75,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetNumericalMean() {
-        Assert.assertEquals(testDistribution.getNumericalMean(), 3.4, 1e-10);
+         assertEquals(3.4,testDistribution.getNumericalMean(),  1e-10);
     }
 
     /**
@@ -80,7 +83,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetNumericalVariance() {
-        Assert.assertEquals(testDistribution.getNumericalVariance(), 7.84, 1e-10);
+         assertEquals(7.84,testDistribution.getNumericalVariance(),  1e-10);
     }
 
     /**
@@ -88,7 +91,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetSupportLowerBound() {
-        Assert.assertEquals(testDistribution.getSupportLowerBound(), -1);
+         assertEquals(-1, testDistribution.getSupportLowerBound() );
     }
 
     /**
@@ -96,7 +99,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testGetSupportUpperBound() {
-        Assert.assertEquals(testDistribution.getSupportUpperBound(), 7);
+         assertEquals(7, testDistribution.getSupportUpperBound() );
     }
 
     /**
@@ -104,7 +107,7 @@ public class EnumeratedIntegerDistributionTest {
      */
     @Test
     public void testIsSupportConnected() {
-        Assert.assertTrue(testDistribution.isSupportConnected());
+         assertTrue(testDistribution.isSupportConnected());
     }
 
     /**
@@ -115,15 +118,15 @@ public class EnumeratedIntegerDistributionTest {
         final int n = 1000000;
         testDistribution.reseedRandomGenerator(-334759360); // fixed seed
         final int[] samples = testDistribution.sample(n);
-        Assert.assertEquals(n, samples.length);
+        assertEquals(samples.length, n );
         double sum = 0;
         double sumOfSquares = 0;
         for (int sample : samples) {
             sum += sample;
             sumOfSquares += sample * sample;
         }
-        Assert.assertEquals(testDistribution.getNumericalMean(),
-                sum / n, 1e-2);
+        assertEquals(sum / n, 1e-2, testDistribution.getNumericalMean()
+                );
     }
 
 }

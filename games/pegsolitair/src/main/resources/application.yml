@@ -4,11 +4,12 @@ logging:
 
 muzero:
   activeGame: PEG_SOLITAIR
+  run: train
   games:
     PEG_SOLITAIR:
       outputDir: ./memory/pegsolitair/
       numEpisodes: 1
-      numSimulations: 100
+      numSimulations: 30
       numParallelGamesPlayed: 1000
 
       # general
@@ -36,11 +37,16 @@ muzero:
       numResiduals: 16
 
       # network training
+      # symmetryType: NONE
+      # batchSize: 512
       symmetryType: SQUARE
-      numberOfTrainingSteps: 10000
-      numberOfTrainingStepsPerEpoch: 100
-      windowSize: 10000
       batchSize: 64
+
+      numberOfTrainingStepsPerEpoch: 100
+
+      numberOfTrainingSteps: 100000
+
+      windowSize: 10000
       numUnrollSteps: 5
       tdSteps: 196 # here equals actionSpaceSize
       discount: 1.0
@@ -52,7 +58,7 @@ muzero:
 
       # play
       numberTrainingStepsOnRandomPlay: 0
-      rootDirichletAlpha: 2
+      rootDirichletAlpha: 0.3
       rootExplorationFraction: 0.25
       visitSoftmaxTemperatureThreshold: 30
       knownBoundsType: NONE

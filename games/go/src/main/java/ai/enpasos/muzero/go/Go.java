@@ -1,9 +1,7 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.go.debug.GoArena;
-import ai.enpasos.muzero.go.debug.GoLossExtractor;
-import ai.enpasos.muzero.go.debug.GoRenderGame;
-import ai.enpasos.muzero.go.debug.GoWinLooseStatistics;
+import ai.enpasos.muzero.go.debug.*;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +31,10 @@ public class Go implements CommandLineRunner {
     private GoArena arena;
 
     @Autowired
-    private GoRenderGame goRenderGame;
+    private GoRenderGame renderGame;
+
+    @Autowired
+    private GoValueExtractor valueExtractor;
 
     public static void main(String[] args) {
         SpringApplication.run(Go.class, args);
@@ -42,10 +43,17 @@ public class Go implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // trainingAndTest.run();
-        // lossExtractor.run();
-        arena.run();
-        // goRenderGame.run();
-        // goWinLooseStatistics.run();
+         switch(conf.getRun()) {
+            case TRAIN:
+                trainingAndTest.run();
+                break;
+            case LOSS:
+                lossExtractor.run();
+                break;
+            case RENDER:
+                renderGame.run();
+            case VALUE:
+                valueExtractor.run();
+        }
     }
 }

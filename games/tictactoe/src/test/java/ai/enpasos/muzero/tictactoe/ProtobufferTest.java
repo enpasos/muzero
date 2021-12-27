@@ -1,0 +1,81 @@
+package ai.enpasos.muzero.tictactoe;
+
+import ai.djl.Device;
+import ai.djl.Model;
+import ai.enpasos.muzero.platform.MuZero;
+import ai.enpasos.muzero.platform.agent.fast.model.Network;
+import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.GameBuffer;
+import ai.enpasos.muzero.platform.agent.slow.play.SelfPlay;
+import ai.enpasos.muzero.platform.config.FileType;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ActiveProfiles("test")
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+public class ProtobufferTest {
+
+
+
+    @Autowired
+    ReplayBuffer replayBuffer;
+
+    @Autowired
+    MuZeroConfig config;
+
+    @Autowired
+    MuZero muZero;
+
+    @Autowired
+    SelfPlay selfPlay;
+
+    @Test
+    public void writeAndReadZippedJsonTest() {
+        config.setGameBufferWritingFormat(FileType.ZIPPED_JSON);
+        writeAndReadTest();
+    }
+
+    @Test
+    public void writeAndReadProtoBufTest() {
+        config.setGameBufferWritingFormat(FileType.ZIPPED_PROTOCOL_BUFFERS);
+        writeAndReadTest();
+    }
+
+    private void writeAndReadTest() {
+        config.setOutputDir("./memory/tictactoeTest/");
+        muZero.deleteNetworksAndGames();
+        try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
+            Network network = new Network(config, model);
+            List<Game> games = selfPlay.playGame(network, false, true, true);
+            replayBuffer.init();
+            games.forEach(replayBuffer::saveGame);
+
+            replayBuffer.saveState();
+            replayBuffer.loadState(replayBuffer.getLatestBufferNo());
+            replayBuffer.rebuildGames();
+
+            IntStream.range(0, games.size()).forEach(i -> {
+                assertEquals(games.get(i), replayBuffer.getBuffer().getGames().get(i), "games should be the same");
+            });
+
+        }
+    }
+}

@@ -3,11 +3,11 @@ package ai.enpasos.muzero.go.config.environment.scoring;
 import ai.enpasos.muzero.go.config.environment.GoBoard;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import lombok.extern.slf4j.Slf4j;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
-import static org.testng.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @Slf4j

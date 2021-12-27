@@ -3,11 +3,12 @@ package ai.enpasos.muzero.go;
 import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
-import static org.testng.AssertJUnit.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 
 public class GameStateTest {
 
@@ -18,8 +19,8 @@ public class GameStateTest {
         // should apply moves
         var nextState = start.applyMove(new Play(new Point(16, 16)));
         assertSame(start, nextState.getPreviousState());
-        assertSame(nextState.getBoard().getPlayer(new Point(16, 16)).get(), BLACK_PLAYER);
-        assertSame(nextState.getNextPlayer(), WHITE_PLAYER);
+        assertSame(BLACK_PLAYER, nextState.getBoard().getPlayer(new Point(16, 16)).get());
+        assertSame( WHITE_PLAYER, nextState.getNextPlayer());
     }
 
 

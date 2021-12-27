@@ -4,6 +4,7 @@ logging:
 
 muzero:
   activeGame: TICTACTOE
+  run: train
   games:
     TICTACTOE:
       modelName: MuZero-TicTacToe

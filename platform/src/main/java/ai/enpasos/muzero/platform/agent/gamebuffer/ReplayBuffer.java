@@ -174,11 +174,12 @@ public class ReplayBuffer {
     public void saveState() {
         String filename = "buffer" + buffer.getCounter();
         String pathname = config.getGamesBasedir() + File.separator + filename + ".zip";
-        log.info("saving ... " + pathname);
+
 
         byte[] input;
 
         if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
+            log.info("saving ... " + pathname);
             input = encodeDTO(this.buffer);
             try (FileOutputStream baos = new FileOutputStream(pathname)) {
                 try (ZipOutputStream zos = new ZipOutputStream(baos)) {
@@ -198,8 +199,7 @@ public class ReplayBuffer {
             ReplayBufferProto proto = buffer.proto();
             pathname = config.getGamesBasedir() + File.separator + filename + "proto.zip";
             log.info("saving ... " + pathname);
-
-                input = proto.toByteArray();
+            input = proto.toByteArray();
 
             try (FileOutputStream baos = new FileOutputStream(pathname)) {
 
@@ -248,11 +248,13 @@ public class ReplayBuffer {
     }
 
     public void loadState(int c) {
+        init();
         String pathname = config.getGamesBasedir() + "/buffer" + c + ".zip";
-        log.info("loading ... " + pathname);
+
 
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (ZipInputStream zis = new ZipInputStream(fis)) {
+                log.info("loading ... " + pathname);
                 zis.getNextEntry();
                 byte[] raw = zis.readAllBytes();
                 this.buffer = decodeDTO(raw);
@@ -263,6 +265,7 @@ public class ReplayBuffer {
             pathname = config.getGamesBasedir() + "/buffer" + c + "proto.zip";
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
+                    log.info("loading ... " + pathname);
                     zis.getNextEntry();
                     byte[] raw = zis.readAllBytes();
 

@@ -24,8 +24,8 @@ import static ai.enpasos.muzero.platform.config.KnownBoundsType.BOARD_GAME;
 @SuppressWarnings("squid:S1104")
 public class MuZeroConfig {
     public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
-
-    public GameType activeGame;
+    private RunType run = RunType.NONE;
+    private GameType activeGame;
     public Map<GameType, Conf> games;
 
     public Class<? extends Game> getGameClass() {
@@ -261,6 +261,9 @@ public class MuZeroConfig {
     public String getOutputDir() {
         return getConf().outputDir;
     }
+    public void setOutputDir(String outputDir) {
+         getConf().setOutputDir(outputDir);
+    }
 
     public int getNumEpisodes() {
         return getConf().numEpisodes;
@@ -283,6 +286,10 @@ public class MuZeroConfig {
     }
 
     public FileType getGameBufferWritingFormat() { return getConf().gameBufferWritingFormat; }
+
+    public void setGameBufferWritingFormat(FileType fileType) {
+        getConf().setGameBufferWritingFormat(fileType);
+    }
 
     @Data
     public static class Conf {
