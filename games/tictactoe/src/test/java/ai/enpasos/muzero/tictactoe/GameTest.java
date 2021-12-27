@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,14 +36,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class GameTest {
+class GameTest {
 
 
     @Autowired
     MuZeroConfig config;
 
     @Test
-    public void checkTerminal() {
+    void checkTerminal() {
         check(new int[]{1, 5, 0, 4, 7, 2, 8, 6});
         check(new int[]{1, 5, 0, 4, 7, 2, 8, 3});
         check(new int[]{1, 5, 0, 4, 2});

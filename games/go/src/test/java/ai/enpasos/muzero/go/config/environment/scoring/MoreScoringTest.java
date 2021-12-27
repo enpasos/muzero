@@ -8,9 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-public class MoreScoringTest {
+class MoreScoringTest {
 
     // 5  X  O  O  O  .
     // 4  X  X  O  .  O
@@ -53,6 +54,7 @@ public class MoreScoringTest {
         var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
+        assertEquals(4.5f, result.blackWinningMargin());
 
     }
 
@@ -100,7 +102,7 @@ public class MoreScoringTest {
         var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
-
+        assertEquals(25.5f, -result.blackWinningMargin());
     }
 
 
@@ -144,6 +146,8 @@ public class MoreScoringTest {
         var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
+
+        assertEquals(0.5f, result.blackWinningMargin());
 
     }
 
@@ -190,6 +194,8 @@ public class MoreScoringTest {
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
+        assertEquals(1.5f, -result.blackWinningMargin());
+
     }
 
 
@@ -233,6 +239,7 @@ public class MoreScoringTest {
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
 
+        assertEquals(19.5f, result.blackWinningMargin());
     }
 
 
@@ -276,6 +283,9 @@ public class MoreScoringTest {
         var result = GameResult.apply(board, 0.5f);
         log.debug("result = \n" + result.toString());
         log.debug("result = \n" + result.toDebugString());
+
+
+        assertEquals(4.5f, result.blackWinningMargin());
 
     }
 }

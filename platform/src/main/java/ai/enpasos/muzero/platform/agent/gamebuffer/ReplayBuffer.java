@@ -21,6 +21,7 @@ package ai.enpasos.muzero.platform.agent.gamebuffer;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.fast.model.Sample;
 import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.ReplayBufferProto;
+import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -234,7 +235,7 @@ public class ReplayBuffer {
         }
         try (Stream<Path> walk = Files.walk(gamesPath)) {
             OptionalInt no = walk.filter(Files::isRegularFile)
-                    .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + "/buffer").length()).replace("proto", "").replace(".zip", "")))
+                    .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", "")))
                     .max();
             if (no.isPresent()) {
                 return no.getAsInt();
@@ -249,7 +250,7 @@ public class ReplayBuffer {
 
     public void loadState(int c) {
         init();
-        String pathname = config.getGamesBasedir() + "/buffer" + c + ".zip";
+        String pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + ".zip";
 
 
         try (FileInputStream fis = new FileInputStream(pathname)) {
@@ -262,7 +263,7 @@ public class ReplayBuffer {
                 this.buffer.setWindowSize(config.getWindowSize());
             }
         } catch (Exception e) {
-            pathname = config.getGamesBasedir() + "/buffer" + c + "proto.zip";
+            pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + "proto.zip";
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
                     log.info("loading ... " + pathname);

@@ -8,10 +8,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class BoardTest {
+class BoardTest {
 
     @Test
-    public void testGetLegalMoves() {
+    void testGetLegalMoves() {
         Board board = new Board();
 
         assertEquals(board.render(),
@@ -24,7 +24,7 @@ public class BoardTest {
                         "6        O  O  O      \n" +
                         "7        O  O  O      \n");
 
-        assertEquals(Board.neighborMap.getMap().size(), 33);
+        assertEquals(33, Board.neighborMap.getMap().size());
 
         List<Jump> jumps = board.getLegalJumps();
 
@@ -68,7 +68,7 @@ public class BoardTest {
 
 
     @Test
-    public void testRandomGame() {
+    void testRandomGame() {
         Board board = new Board();
         System.out.println(board.render());
         List<Jump> legalMoves = board.getLegalJumps();
@@ -80,11 +80,12 @@ public class BoardTest {
             legalMoves = board.getLegalJumps();
         } while (legalMoves.size() > 0);
         System.out.println("score: " + board.getScore());
+        assertTrue(board.holesOnTheBoard.size() > 10);
     }
 
 
     @Test
-    public void testIsOnePegInTheMiddle() {
+    void testIsOnePegInTheMiddle() {
 
         Board board = new Board();
         assertFalse(board.isOnePegInTheMiddle());

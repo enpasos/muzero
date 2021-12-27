@@ -18,7 +18,6 @@ package ai.enpasos.muzero.platform;
 
 
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
-import org.apache.commons.math3.exception.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class EnumeratedIntegerDistributionTest {
+class EnumeratedIntegerDistributionTest {
 
     /**
      * The distribution object used for testing.
@@ -48,12 +47,12 @@ public class EnumeratedIntegerDistributionTest {
      * Tests if the distribution returns proper probability values.
      */
     @Test
-    public void testProbability() {
+    void testProbability() {
         int[] points = new int[]{-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8};
         double[] results = new double[]{0, 0.2, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0};
         for (int p = 0; p < points.length; p++) {
             double probability = testDistribution.probability(points[p]);
-             assertEquals(probability, results[p],  0.0);
+            assertEquals(probability, results[p], 0.0);
         }
     }
 
@@ -61,12 +60,12 @@ public class EnumeratedIntegerDistributionTest {
      * Tests if the distribution returns proper cumulative probability values.
      */
     @Test
-    public void testCumulativeProbability() {
+    void testCumulativeProbability() {
         int[] points = new int[]{-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8};
         double[] results = new double[]{0, 0.2, 0.2, 0.2, 0.2, 0.7, 0.7, 0.7, 0.7, 1.0, 1.0};
         for (int p = 0; p < points.length; p++) {
             double probability = testDistribution.cumulativeProbability(points[p]);
-             assertEquals( probability,results[p], 1e-10);
+            assertEquals(probability, results[p], 1e-10);
         }
     }
 
@@ -74,59 +73,59 @@ public class EnumeratedIntegerDistributionTest {
      * Tests if the distribution returns proper mean value.
      */
     @Test
-    public void testGetNumericalMean() {
-         assertEquals(3.4,testDistribution.getNumericalMean(),  1e-10);
+    void testGetNumericalMean() {
+        assertEquals(3.4, testDistribution.getNumericalMean(), 1e-10);
     }
 
     /**
      * Tests if the distribution returns proper variance.
      */
     @Test
-    public void testGetNumericalVariance() {
-         assertEquals(7.84,testDistribution.getNumericalVariance(),  1e-10);
+    void testGetNumericalVariance() {
+        assertEquals(7.84, testDistribution.getNumericalVariance(), 1e-10);
     }
 
     /**
      * Tests if the distribution returns proper lower bound.
      */
     @Test
-    public void testGetSupportLowerBound() {
-         assertEquals(-1, testDistribution.getSupportLowerBound() );
+    void testGetSupportLowerBound() {
+        assertEquals(-1, testDistribution.getSupportLowerBound());
     }
 
     /**
      * Tests if the distribution returns proper upper bound.
      */
     @Test
-    public void testGetSupportUpperBound() {
-         assertEquals(7, testDistribution.getSupportUpperBound() );
+    void testGetSupportUpperBound() {
+        assertEquals(7, testDistribution.getSupportUpperBound());
     }
 
     /**
      * Tests if the distribution returns properly that the support is connected.
      */
     @Test
-    public void testIsSupportConnected() {
-         assertTrue(testDistribution.isSupportConnected());
+    void testIsSupportConnected() {
+        assertTrue(testDistribution.isSupportConnected());
     }
 
     /**
      * Tests sampling.
      */
     @Test
-    public void testSample() {
+    void testSample() {
         final int n = 1000000;
         testDistribution.reseedRandomGenerator(-334759360); // fixed seed
         final int[] samples = testDistribution.sample(n);
-        assertEquals(samples.length, n );
+        assertEquals(samples.length, n);
         double sum = 0;
         double sumOfSquares = 0;
         for (int sample : samples) {
             sum += sample;
             sumOfSquares += sample * sample;
         }
-        assertEquals(sum / n, 1e-2, testDistribution.getNumericalMean()
-                );
+        assertEquals(1e-2, sum / n, testDistribution.getNumericalMean()
+        );
     }
 
 }

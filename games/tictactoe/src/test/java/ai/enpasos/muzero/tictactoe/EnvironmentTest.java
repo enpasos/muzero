@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -36,23 +35,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class EnvironmentTest {
+class EnvironmentTest {
 
     @Autowired
     MuZeroConfig config;
 
     @Test
-    public void checkIfPlayerHasWon() {
+    void checkIfPlayerHasWon() {
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
-         assertEquals(1f, game.getLastReward(),  0.0);
+        assertEquals(1f, game.getLastReward(), 0.0);
 
         game = config.newGame();
         Objects.requireNonNull(game).apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
-         assertEquals(0f,game.getLastReward(),  0.0);
+        assertEquals(0f, game.getLastReward(), 0.0);
 
         game = config.newGame();
         Objects.requireNonNull(game).apply(0, 1, 2, 4, 8, 7);
-        assertEquals(1f, game.getLastReward(),  0.0);
+        assertEquals(1f, game.getLastReward(), 0.0);
     }
 }

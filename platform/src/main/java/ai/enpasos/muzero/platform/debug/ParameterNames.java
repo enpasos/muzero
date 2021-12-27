@@ -40,9 +40,8 @@ public class ParameterNames {
         StringBuilder buf = new StringBuilder();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
-            Block block = model.getBlock();
             if (model.getBlock() == null) {
-                block = new MuZeroBlock(config);
+                Block block = new MuZeroBlock(config);
                 model.setBlock(block);
                 try {
                     model.load(Paths.get(config.getNetworkBaseDir()));

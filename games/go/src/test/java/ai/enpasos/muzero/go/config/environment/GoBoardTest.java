@@ -3,14 +3,13 @@ package ai.enpasos.muzero.go.config.environment;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import org.junit.jupiter.api.Test;
 
-
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
-public class GoBoardTest {
+class GoBoardTest {
 
 
     @Test
@@ -20,15 +19,15 @@ public class GoBoardTest {
         // should place and confirm a black stone
         board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
         board = board.placeStone(WHITE_PLAYER, new Point(1, 2));
-        assertSame(board.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 2)).get());
 
         // if black's liberties go down to two, the stone should still be there
         board = board.placeStone(WHITE_PLAYER, new Point(2, 1));
-        assertSame(board.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 2)).get());
 
         // if black's liberties go down to one, the stone should still be there
         board = board.placeStone(WHITE_PLAYER, new Point(2, 3));
-        assertSame(board.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 2)).get());
 
         //   finally, if all liberties are taken, the stone should be gone
         board = board.placeStone(WHITE_PLAYER, new Point(3, 2));
@@ -46,14 +45,14 @@ public class GoBoardTest {
         board = board.placeStone(WHITE_PLAYER, new Point(1, 2));
         board = board.placeStone(WHITE_PLAYER, new Point(1, 3));
 
-        assertSame(board.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
-        assertSame(board.getPlayer(new Point(2, 3)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 2)).get());
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 3)).get());
 
         // if black's liberties go down to two, the stone should still be there
         board = board.placeStone(WHITE_PLAYER, new Point(3, 2));
         board = board.placeStone(WHITE_PLAYER, new Point(3, 3));
-        assertSame(board.getPlayer(new Point(2, 2)).get(), BLACK_PLAYER);
-        assertSame(board.getPlayer(new Point(2, 3)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 2)).get());
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(2, 3)).get());
 
         // finally, if all liberties are taken, the stone should be gone
         board = board.placeStone(WHITE_PLAYER, new Point(2, 1));
@@ -74,8 +73,8 @@ public class GoBoardTest {
         board = board.placeStone(WHITE_PLAYER, new Point(2, 1));
         board = board.placeStone(WHITE_PLAYER, new Point(1, 2));
         assertTrue(board.getPlayer(new Point(1, 1)).isEmpty());
-        assertSame(board.getPlayer(new Point(2, 1)).get(), WHITE_PLAYER);
-        assertSame(board.getPlayer(new Point(1, 2)).get(), WHITE_PLAYER);
+        assertSame(WHITE_PLAYER, board.getPlayer(new Point(2, 1)).get());
+        assertSame(WHITE_PLAYER, board.getPlayer(new Point(1, 2)).get());
     }
 
     @Test
@@ -281,11 +280,11 @@ public class GoBoardTest {
         board = board.placeStone(BLACK_PLAYER, new Point(1, 3));
         //println(board)
         board = board.placeStone(BLACK_PLAYER, new Point(1, 2)); // captures 2 stones
-        assertSame(board.getPlayer(new Point(1, 2)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(1, 2)).get());
         //println("just played Black at 1, 2 (capturing 2 white stones)\n" + board)
         board = board.placeStone(WHITE_PLAYER, new Point(2, 1)); // refill first of 2 spaces in eye
         //println("just played White at 2, 1\n" + board);
-        assertSame(board.getPlayer(new Point(1, 2)).get(), BLACK_PLAYER);
+        assertSame(BLACK_PLAYER, board.getPlayer(new Point(1, 2)).get());
 
         assertTrue(board.isSelfCapture(WHITE_PLAYER, new Point(2, 2)));
 

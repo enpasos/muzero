@@ -15,11 +15,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Disabled
-public class GoAdapterTest {
+class GoAdapterTest {
 
 
     @Autowired
@@ -28,13 +30,14 @@ public class GoAdapterTest {
     @Test
     void translatePass() {
         Action action = GoAdapter.translate(config, new Pass());
-
         NDArray ndArray = action.encode(NDManager.newBaseManager());
+        assertNotNull(ndArray);
     }
 
     @Test
     void translateSomeAction() {
         Action action = GoAdapter.translate(config, new Play(new Point(1, 2)));
         NDArray ndArray = action.encode(NDManager.newBaseManager());
+        assertNotNull(ndArray);
     }
 }

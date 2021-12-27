@@ -24,13 +24,13 @@ import static ai.enpasos.muzero.platform.config.KnownBoundsType.BOARD_GAME;
 @SuppressWarnings("squid:S1104")
 public class MuZeroConfig {
     public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
+    public Map<GameType, Conf> games;
     private RunType run = RunType.NONE;
     private GameType activeGame;
-    public Map<GameType, Conf> games;
 
     public Class<? extends Game> getGameClass() {
         try {
-            return (Class<? extends Game>)Class.forName(getGameClassName());
+            return (Class<? extends Game>) Class.forName(getGameClassName());
         } catch (ClassNotFoundException e) {
             log.error(e.getMessage());
             throw new MuZeroException(e);
@@ -39,7 +39,7 @@ public class MuZeroConfig {
 
     public Class<? extends Action> getActionClass() {
         try {
-            return (Class<? extends Action>)Class.forName(getActionClassName());
+            return (Class<? extends Action>) Class.forName(getActionClassName());
         } catch (ClassNotFoundException e) {
             log.error(e.getMessage());
             throw new MuZeroException(e);
@@ -261,8 +261,9 @@ public class MuZeroConfig {
     public String getOutputDir() {
         return getConf().outputDir;
     }
+
     public void setOutputDir(String outputDir) {
-         getConf().setOutputDir(outputDir);
+        getConf().setOutputDir(outputDir);
     }
 
     public int getNumEpisodes() {
@@ -285,7 +286,9 @@ public class MuZeroConfig {
         return getConf().visitSoftmaxTemperatureThreshold;
     }
 
-    public FileType getGameBufferWritingFormat() { return getConf().gameBufferWritingFormat; }
+    public FileType getGameBufferWritingFormat() {
+        return getConf().gameBufferWritingFormat;
+    }
 
     public void setGameBufferWritingFormat(FileType fileType) {
         getConf().setGameBufferWritingFormat(fileType);
@@ -334,8 +337,8 @@ public class MuZeroConfig {
         protected int numEpisodes;
         protected int numSimulations;
         protected int numParallelGamesPlayed;
-        int visitSoftmaxTemperatureThreshold;
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
+        int visitSoftmaxTemperatureThreshold;
     }
 
 }

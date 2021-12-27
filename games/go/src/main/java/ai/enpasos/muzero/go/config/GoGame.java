@@ -25,7 +25,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.agent.gamebuffer.GameDTO;
 import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
@@ -134,12 +133,14 @@ public class GoGame extends ZeroSumGame {
         return ((GoEnvironment) environment).render();
     }
 
+    @Override
     public Optional<OneOfTwoPlayer> whoWonTheGame() {
         if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A)) return Optional.of(OneOfTwoPlayer.PLAYER_A);
         if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B)) return Optional.of(OneOfTwoPlayer.PLAYER_B);
         return Optional.empty();
     }
 
+    @Override
     public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
         // won or draw but not lost
         return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));

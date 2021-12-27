@@ -234,7 +234,7 @@ public class MCTS {
     }
 
     public Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
-        EnumeratedDistribution<Action> distribution = null;
+        EnumeratedDistribution<Action> distribution;
         try {
             distribution = new EnumeratedDistribution<>(rng, distributionInput);
         } catch (Exception e) {

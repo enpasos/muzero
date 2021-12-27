@@ -11,18 +11,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class InferenceTest {
+class InferenceTest {
 
     @Autowired
     Inference inference;
 
     @Test
-    public void aiDecisionTicTacToeSlow() {
+    void aiDecisionTicTacToeSlow() {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true, "./pretrained");
+        assertTrue(nextMoveInt >= 0);
     }
 
 
