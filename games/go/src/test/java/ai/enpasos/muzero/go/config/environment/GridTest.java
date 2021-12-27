@@ -2,21 +2,21 @@ package ai.enpasos.muzero.go.config.environment;
 
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.platform.common.MuZeroException;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.TreeSet;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
-import static org.testng.AssertJUnit.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GridTest {
 
     Grid grid;
 
-    @BeforeTest
+    @BeforeEach
     void init() {
         grid = new Grid();
     }

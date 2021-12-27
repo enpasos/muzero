@@ -94,7 +94,6 @@ public class ReplayBufferDTO {
             GameDTO gameDTO = new GameDTO();
             gameDTO.deproto(p);
             this.getData().add(gameDTO);
-
         });
     }
 }

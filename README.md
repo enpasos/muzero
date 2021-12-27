@@ -30,7 +30,7 @@ in a separate module:
 ## Run integration test on tictactoc
 
 ``` 
-    java -jar games/tictactoe/target/tictactoe-0.3.0-SNAPSHOT-exec.jar
+    java -jar games/tictactoe/target/tictactoe-0.3.0-SNAPSHOT-exec.jar  
 ```
 
 ## Further info

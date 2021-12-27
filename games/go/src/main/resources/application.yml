@@ -4,6 +4,7 @@ logging:
 
 muzero:
   activeGame: GO_5
+  run: train
   games:
     GO_5:
       modelName: MuZero-Go-5

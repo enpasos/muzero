@@ -7,12 +7,18 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.platform.agent.slow.play.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.testng.annotations.Ignore;
-import org.testng.annotations.Test;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringBootTest()
+@ActiveProfiles("test")
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@Disabled
 public class GoAdapterTest {
 
 
@@ -20,7 +26,6 @@ public class GoAdapterTest {
     MuZeroConfig config;
 
     @Test
-    @Ignore
     void translatePass() {
         Action action = GoAdapter.translate(config, new Pass());
 
@@ -28,7 +33,6 @@ public class GoAdapterTest {
     }
 
     @Test
-    @Ignore
     void translateSomeAction() {
         Action action = GoAdapter.translate(config, new Play(new Point(1, 2)));
         NDArray ndArray = action.encode(NDManager.newBaseManager());

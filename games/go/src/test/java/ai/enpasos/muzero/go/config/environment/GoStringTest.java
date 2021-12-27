@@ -1,13 +1,14 @@
 package ai.enpasos.muzero.go.config.environment;
 
 import ai.enpasos.muzero.go.config.environment.basics.Point;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.List;
 import java.util.TreeSet;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class GoStringTest {
