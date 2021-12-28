@@ -63,6 +63,8 @@ muzero:
       pbCInit: 1.25
       pbCBase: 19652
 
+      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
     GO_9:
       modelName: MuZero-Go-9
       outputDir: ./memory/go9/
@@ -122,4 +124,4 @@ muzero:
       pbCInit: 1.25
       pbCBase: 19652
 
-
+      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON

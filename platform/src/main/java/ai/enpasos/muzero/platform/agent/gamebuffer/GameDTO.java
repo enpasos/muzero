@@ -85,9 +85,8 @@ public class GameDTO {
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
         if (p.getPolicyTargetsCount() > 0) {
-            float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];
-
             this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {
+                        float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];
                                 int i = 0;
                                 for (Float f : policyTargetProtos.getPolicyTargetList()) {
                                     result[i++] = f;
