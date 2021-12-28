@@ -46,7 +46,7 @@ muzero:
 
       numberOfTrainingSteps: 100000
 
-      windowSize: 10
+      windowSize: 10000
       numUnrollSteps: 5
       tdSteps: 196 # here equals actionSpaceSize
       discount: 1.0
