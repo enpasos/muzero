@@ -46,7 +46,7 @@ muzero:
 
       numberOfTrainingSteps: 100000
 
-      windowSize: 10000
+      windowSize: 10
       numUnrollSteps: 5
       tdSteps: 196 # here equals actionSpaceSize
       discount: 1.0
@@ -66,6 +66,6 @@ muzero:
       pbCInit: 1.25
       pbCBase: 19652
 
-
+      gameBufferWritingFormat: ZIPPED_JSON # ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
 

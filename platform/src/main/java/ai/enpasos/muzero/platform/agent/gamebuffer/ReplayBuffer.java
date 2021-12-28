@@ -271,7 +271,7 @@ public class ReplayBuffer {
                     byte[] raw = zis.readAllBytes();
 
                     ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
-                    this.buffer = new ReplayBufferDTO();
+                    //this.buffer = new ReplayBufferDTO();
                     this.buffer.deproto(proto);
                     rebuildGames();
                     this.buffer.setWindowSize(config.getWindowSize());
