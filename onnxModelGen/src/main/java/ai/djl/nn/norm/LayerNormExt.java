@@ -99,42 +99,41 @@ public class LayerNormExt extends AbstractBlock implements OnnxIO {
         Shape[] inputShapes = ctx.getInputShapes().toArray(new Shape[0]);
         String gammaName = "gamma" +  ctx.counter();
         String betaName = "beta" +  ctx.counter();
-        String dummyMeanName = "dummyMean" +  ctx.counter();
-        String dummyVarianceName = "dummyVariance" +  ctx.counter();
-        String convolutionOutput = "LayerNormalizationOutput" +  ctx.counter();
-        String firstTransposeOutput = "TransposeOutput" +  ctx.counter();
-        String secondTransposeOutput = "TransposeOutput" +  ctx.counter();
-
-       Shape transposedShape = new Shape(transposeBatchChannelDims(inputShapes[0].getShape()));
+        String normalizationOutput = "LayerNormalizationOutput" +  ctx.counter();
+        String mulOutput = "MulOutput" +  ctx.counter();
+        String addOutput = "AddOutput" +  ctx.counter();
 
         onnxBlockExt.getNodes().add(
-                nodeBuilderTranspose(
+                nodeBuilderNormalization(
                         ctx.getInputNames().get(0),
-                        firstTransposeOutput,
-                        "TransposeNode" +  ctx.counter()
+                        normalizationOutput,
+                        "MeanVarianceNormalization" +  ctx.counter()
                 ).build());
 
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(firstTransposeOutput,transposedShape));
-        onnxBlockExt.getNodes().add(
-                nodeBuilder(
-                        firstTransposeOutput,
-                        convolutionOutput,
-                        "BatchNormalizationNode" +  ctx.counter(),
-                        gammaName,
-                        betaName,
-                        dummyMeanName,
-                        dummyVarianceName
-                ).build());
 
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(convolutionOutput, transposedShape));
+        onnxBlockExt.getValueInfos().add(createValueInfoProto(normalizationOutput, inputShapes[0]));
+
         onnxBlockExt.getNodes().add(
-                nodeBuilderTranspose(
-                        convolutionOutput,
-                        secondTransposeOutput,
-                        "TransposeNode" +  ctx.counter()
+                nodeBuilderMul(
+                        normalizationOutput,
+                        mulOutput,
+                        "MulNode" +  ctx.counter(),
+                        gammaName
                 ).build());
+        onnxBlockExt.getValueInfos().add(createValueInfoProto(mulOutput, inputShapes[0]));
+
+        onnxBlockExt.getNodes().add(
+                nodeBuilderAdd(
+                        mulOutput,
+                        addOutput,
+                        "MulNode" +  ctx.counter(),
+                        betaName
+                ).build());
+        onnxBlockExt.getValueInfos().add(createValueInfoProto(addOutput, inputShapes[0]));
+
+
         onnxBlockExt.setOutputShapes(List.of(this.getOutputShapes(inputShapes)));
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(secondTransposeOutput, onnxBlockExt.getOutputShapes().get(0)));
+        onnxBlockExt.getOutputNames().add( addOutput);
 
         NDArray gamma = this.parameters.get("gamma").getArray();
         onnxBlockExt.getParameters().add(
@@ -154,58 +153,45 @@ public class LayerNormExt extends AbstractBlock implements OnnxIO {
                         .build());
 
 
-        float[] dummy = new float[(int)beta.getShape().size()];
-        onnxBlockExt.getParameters().add(
-                TensorProto.newBuilder()
-                        .setName(dummyMeanName)
-                        .setDataType(1)
-                        .addAllDims(convert(beta.getShape().getShape()))
-                        .addAllFloatData(convert(dummy))
-                        .build());
-        onnxBlockExt.getParameters().add(
-                TensorProto.newBuilder()
-                        .setName(dummyVarianceName)
-                        .setDataType(1)
-                        .addAllDims(convert(beta.getShape().getShape()))
-                        .addAllFloatData(convert(dummy))
-                        .build());
 
-
-        onnxBlockExt.getOutputNames().add( secondTransposeOutput);
         return onnxBlockExt;
     }
 
-    private long[] transposeBatchChannelDims(long[] inputDims) {
-        long[] inputDims2 = Arrays.copyOf(inputDims, inputDims.length);
-        inputDims2[1] = inputDims[0];
-        inputDims2[0]= inputDims[1];
-        return inputDims2;
-    }
+//    private long[] transposeBatchChannelDims(long[] inputDims) {
+//        long[] inputDims2 = Arrays.copyOf(inputDims, inputDims.length);
+//        inputDims2[1] = inputDims[0];
+//        inputDims2[0]= inputDims[1];
+//        return inputDims2;
+//    }
 
-    private NodeProto.Builder nodeBuilder(String inputName, String outputName, String nodeName, String gammaName, String betaName, String dummyMeanName, String dummyVarianceName) {
+    private NodeProto.Builder nodeBuilderNormalization(String inputName, String outputName, String nodeName) {
         NodeProto.Builder nodeBuilder = NodeProto.newBuilder();
         nodeBuilder.setName(nodeName);
-        nodeBuilder.setOpType("BatchNormalization");
-
-        nodeBuilder.addInput(inputName);
-        nodeBuilder.addOutput(outputName);
-        nodeBuilder.addInput(gammaName);
-        nodeBuilder.addInput(betaName);
-        nodeBuilder.addInput(dummyMeanName);
-        nodeBuilder.addInput(dummyVarianceName);
-        return nodeBuilder;
-    }
-
-    private NodeProto.Builder nodeBuilderTranspose(String inputName, String outputName, String nodeName) {
-        NodeProto.Builder nodeBuilder = NodeProto.newBuilder();
-        nodeBuilder.setName(nodeName);
-        nodeBuilder.setOpType("Transpose");
+        nodeBuilder.setOpType("MeanVarianceNormalization");
         nodeBuilder.addAttribute(AttributeProto.newBuilder()
                 .setType(AttributeProto.AttributeType.INTS)
-                .setName("perm")
-                .addAllInts(List.of(1L,0L,2L,3L))
+                .setName("axes")
+                .addAllInts(List.of(1L,2L,3L))
                 .build());
         nodeBuilder.addInput(inputName);
+        nodeBuilder.addOutput(outputName);
+        return nodeBuilder;
+    }
+    private NodeProto.Builder nodeBuilderMul(String inputName, String outputName, String nodeName, String parameterName) {
+        NodeProto.Builder nodeBuilder = NodeProto.newBuilder();
+        nodeBuilder.setName(nodeName);
+        nodeBuilder.setOpType("Mul");
+        nodeBuilder.addInput(inputName);
+        nodeBuilder.addInput(parameterName);
+        nodeBuilder.addOutput(outputName);
+        return nodeBuilder;
+    }
+    private NodeProto.Builder nodeBuilderAdd(String inputName, String outputName, String nodeName, String parameterName) {
+        NodeProto.Builder nodeBuilder = NodeProto.newBuilder();
+        nodeBuilder.setName(nodeName);
+        nodeBuilder.setOpType("Add");
+        nodeBuilder.addInput(inputName);
+        nodeBuilder.addInput(parameterName);
         nodeBuilder.addOutput(outputName);
         return nodeBuilder;
     }
