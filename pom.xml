@@ -17,6 +17,8 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>onnxModelGen</module>
+        <module>onnxWithRuntime</module>
         <module>platform</module>
         <module>games</module>
     </modules>
