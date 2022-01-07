@@ -11,3 +11,6 @@
 **/memory/**
 **/pretrained/**
 
+/onnxWithRuntime/data
+/onnxWithRuntime/build
+/mymodel
