@@ -28,8 +28,11 @@ public class OnnxHelper {
                 .collect(Collectors.toList());
     }
 
-    public static List<Long> convert(long[] longArray) {
-        return Arrays.asList(ArrayUtils.toObject(longArray));
+    public static List<Long> convert(long[] array) {
+        return Arrays.asList(ArrayUtils.toObject(array));
+    }
+    public static List<Float> convert(float[] array) {
+        return Arrays.asList(ArrayUtils.toObject(array));
     }
 
     public static ValueInfoProto createValueInfoProto(String valueName, Shape shape) {
