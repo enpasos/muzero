@@ -1,10 +1,13 @@
-package ai.djl.nn;
+package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
+import ai.djl.nn.Block;
+import ai.djl.nn.Blocks;
+import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 
-import static ai.djl.nn.LambdaBlockExt.Type.BATCH_FLATTEN;
-import static ai.djl.nn.LambdaBlockExt.Type.IDENTITY;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.BATCH_FLATTEN;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.IDENTITY;
 
 /**
  * Utility class that provides some useful blocks.
@@ -26,19 +29,6 @@ public final class BlocksExt {
         return array.reshape(batch, -1);
     }
 
-    /**
-     * Inflates the {@link ai.djl.ndarray.NDArray} provided as input to a 2-D {@link
-     * ai.djl.ndarray.NDArray} of shape (batch, size).
-     *
-     * @param array a array to be flattened
-     * @param size  the input size
-     * @return a {@link NDList} that contains the inflated {@link ai.djl.ndarray.NDArray}
-     * @throws IndexOutOfBoundsException if the input {@link NDList} has more than one {@link
-     *                                   ai.djl.ndarray.NDArray}
-     */
-    public static NDArray batchFlatten(NDArray array, long size) {
-        return array.reshape(-1, size);
-    }
 
     /**
      * Creates a {@link Block} whose forward function applies the {@link #batchFlatten(NDArray)
@@ -48,7 +38,7 @@ public final class BlocksExt {
      * batchFlatten} method
      */
     public static Block batchFlattenBlock() {
-        return LambdaBlockExt.singleton(BATCH_FLATTEN, BlocksExt::batchFlatten);
+        return LambdaBlockExt.singleton(BATCH_FLATTEN, Blocks::batchFlatten);
     }
 
     /**
@@ -60,7 +50,7 @@ public final class BlocksExt {
      * batchFlatten} method
      */
     public static Block batchFlattenBlock(long size) {
-        return LambdaBlockExt.singleton(BATCH_FLATTEN, array -> batchFlatten(array, size));
+        return LambdaBlockExt.singleton(BATCH_FLATTEN, array -> Blocks.batchFlatten(array, size));
     }
 
     /**
