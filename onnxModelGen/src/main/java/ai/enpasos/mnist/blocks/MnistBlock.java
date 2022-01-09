@@ -18,14 +18,14 @@
 package ai.enpasos.mnist.blocks;
 
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.ActivationExt;
+import ai.djl.nn.Activation;
+import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.djl.nn.Block;
-import ai.djl.nn.BlocksExt;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.djl.nn.SequentialBlock;
-import ai.djl.nn.core.Linear;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
-import ai.djl.nn.pooling.PoolExt;
+import ai.enpasos.mnist.blocks.ext.PoolExt;
 import ai.djl.util.Pair;
 import ai.enpasos.mnist.blocks.ext.Conv2dExt;
 
@@ -42,7 +42,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .optPadding(new Shape(2, 2))
                         .build())
                 .add(LayerNormExt.builder().build())
-                .add(ActivationExt::relu)
+                .add(Activation::relu)
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))   // 28 -> 14
                 .add(Conv2dExt.builder()
                         .setFilters(16)
@@ -51,7 +51,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .optPadding(new Shape(2, 2))
                         .build())
                 .add(LayerNormExt.builder().build())
-                .add(ActivationExt::relu)
+                .add(Activation::relu)
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7
                 .add(Conv2dExt.builder()
                         .setFilters(32)
@@ -60,7 +60,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .optPadding(new Shape(1, 1))
                         .build())
                 .add(LayerNormExt.builder().build())
-                .add(ActivationExt::relu)
+                .add(Activation::relu)
              //   .add(new RescaleBlockExt())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()

@@ -10,18 +10,17 @@
  * OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package ai.djl.nn.pooling;
+package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
-import ai.djl.nn.LambdaBlockExt;
 import ai.djl.util.Preconditions;
 
 import java.util.Objects;
 
-import static ai.djl.nn.LambdaBlockExt.Type.MAX_POOLING;
-import static ai.djl.nn.LambdaBlockExt.Type.NOT_IMPLEMENTED_YET;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.MAX_POOLING;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.NOT_IMPLEMENTED_YET;
 
 /**
  * Utility class that provides {@code Block} and methods for different pooling functions.
