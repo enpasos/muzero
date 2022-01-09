@@ -54,14 +54,12 @@ public class ResidualBlockV2 extends AbstractBlock {
                         .build())
                 .add(LayerNorm.builder().build())
                 .add(Activation::relu)
-
                 .add(Conv2d.builder()
                         .setFilters(numChannels)
                         .setKernelShape(new Shape(3, 3))
                         .optPadding(new Shape(1, 1))
                         .optBias(false)
                         .build())
-
                 .add(new SE(numChannels))   // Squeeze-and-Excitation Networks
         ;
 

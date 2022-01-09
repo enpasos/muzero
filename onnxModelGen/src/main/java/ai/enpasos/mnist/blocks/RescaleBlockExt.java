@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel;
+package ai.enpasos.mnist.blocks;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
@@ -23,23 +23,20 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import org.jetbrains.annotations.NotNull;
-
-import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
-
-public class RescaleBlock extends AbstractBlock {
 
 
-    public RescaleBlock() {
-        super(MYVERSION);
+public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
+
+
+    public RescaleBlockExt() {
+        super();
     }
 
 
     @Override
-    protected @NotNull NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
+    protected   NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDArray current = inputs.head();
         // Scale to the range [0, 1]  (same range as the action input)
-
 
         // scale on each  ... a pytorch view or multi-dim support would be better
         Shape origShape = current.getShape();
@@ -52,8 +49,6 @@ public class RescaleBlock extends AbstractBlock {
         NDArray d = max2.sub(min2).maximum(1e-5);
         NDArray a = current.sub(min2);
         return new NDList(a.div(d));
-
-
     }
 
     @Override
@@ -62,4 +57,8 @@ public class RescaleBlock extends AbstractBlock {
     }
 
 
+    @Override
+    public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
+        return null;
+    }
 }
