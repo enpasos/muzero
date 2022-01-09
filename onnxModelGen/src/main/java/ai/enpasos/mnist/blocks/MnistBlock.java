@@ -19,15 +19,10 @@ package ai.enpasos.mnist.blocks;
 
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Activation;
-import ai.enpasos.mnist.blocks.ext.ActivationExt;
+import ai.enpasos.mnist.blocks.ext.*;
 import ai.djl.nn.Block;
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.djl.nn.SequentialBlock;
-import ai.enpasos.mnist.blocks.ext.LinearExt;
-import ai.enpasos.mnist.blocks.ext.LayerNormExt;
-import ai.enpasos.mnist.blocks.ext.PoolExt;
 import ai.djl.util.Pair;
-import ai.enpasos.mnist.blocks.ext.Conv2dExt;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 

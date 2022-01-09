@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.mnist.blocks;
+package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
@@ -23,6 +23,9 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import ai.enpasos.mnist.blocks.OnnxBlockExt;
+import ai.enpasos.mnist.blocks.OnnxContext;
+import ai.enpasos.mnist.blocks.OnnxIO;
 
 
 public class RescaleBlockExt extends AbstractBlock implements OnnxIO {

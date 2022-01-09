@@ -1,5 +1,8 @@
-package ai.enpasos.mnist.blocks;
+package ai.enpasos.mnist.blocks.ext;
 
+import ai.enpasos.mnist.blocks.OnnxBlockExt;
+import ai.enpasos.mnist.blocks.OnnxContext;
+import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.onnx.NodeProto;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
