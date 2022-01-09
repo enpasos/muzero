@@ -54,6 +54,6 @@ muzero:
       symmetryType: SQUARE
       batchSize: 256
 
-      numberOfTrainingSteps: 3000
+      numberOfTrainingSteps: 2500
       numParallelGamesPlayed: 1000
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
