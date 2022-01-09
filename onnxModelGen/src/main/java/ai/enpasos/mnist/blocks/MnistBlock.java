@@ -22,13 +22,12 @@ import ai.djl.nn.ActivationExt;
 import ai.djl.nn.Block;
 import ai.djl.nn.BlocksExt;
 import ai.djl.nn.SequentialBlock;
-import ai.djl.nn.convolutional.Conv2dExt;
-import ai.djl.nn.core.LinearExt;
-import ai.djl.nn.norm.LayerNorm;
-import ai.djl.nn.norm.LayerNormExt;
+import ai.djl.nn.core.Linear;
+import ai.enpasos.mnist.blocks.ext.LinearExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import ai.djl.nn.pooling.PoolExt;
 import ai.djl.util.Pair;
-import lombok.Builder;
+import ai.enpasos.mnist.blocks.ext.Conv2dExt;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
@@ -62,6 +61,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .build())
                 .add(LayerNormExt.builder().build())
                 .add(ActivationExt::relu)
+             //   .add(new RescaleBlockExt())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
                         .setUnits(10)
