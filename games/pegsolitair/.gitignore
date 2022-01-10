@@ -1,9 +1,0 @@
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-/target
-/memory
-/logs

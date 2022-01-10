@@ -14,3 +14,5 @@
 /onnxWithRuntime/data
 /onnxWithRuntime/build
 /mymodel
+/games/go/arena/
+/savedModel/
