@@ -35,6 +35,9 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoValueExtractor valueExtractor;
 
+    @Autowired
+    private GoWinLooseStatistics winLooseStatistics;
+
     public static void main(String[] args) {
         SpringApplication.run(Go.class, args);
     }
@@ -54,6 +57,9 @@ public class Go implements CommandLineRunner {
                 break;
             case VALUE:
                 valueExtractor.run();
+                break;
+            case WINLOOSE:
+                winLooseStatistics.run();
                 break;
             case NONE:
             default:
