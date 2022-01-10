@@ -22,15 +22,11 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
 
-   // private static final byte VERSION = 2;
     private final Type type;
-   // private Function<NDList, NDList> lambda;
-
 
     public LambdaBlockExt(Type type, Function<NDList, NDList> lambda) {
         super(lambda);
         this.type = type;
-      //  this.lambda = lambda;
     }
 
     /**
@@ -44,9 +40,6 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
         return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
     }
 
-
-
-
     @Override
     public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
         OnnxBlockExt onnxBlockExt = new OnnxBlockExt();
@@ -59,9 +52,9 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
     }
 
     private NodeProto.Builder nodeBuilder(OnnxContext ctx, OnnxBlockExt onnxBlockExt, String inputName, String outputName) {
-        NodeProto.Builder nodeBuilder = NodeProto.newBuilder();
-        nodeBuilder.addInput(inputName);
-
+        NodeProto.Builder nodeBuilder = NodeProto.newBuilder()
+            .addInput(inputName)
+            .addOutput(outputName);
         switch (this.type) {
             case MAX_POOLING:
                 nodeBuilder.setName("maxPoolNode" + ctx.counter());
@@ -102,7 +95,6 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
                 throw new NotImplementedException(type.name());
         }
 
-        nodeBuilder.addOutput(outputName);
         return nodeBuilder;
     }
 

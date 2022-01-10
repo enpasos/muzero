@@ -142,12 +142,7 @@
                     <execution>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <target name="dir.check">
-                                <condition property="dir.exists">
-                                    <available file="./data" type="dir"/>
-                                </condition>
-                            </target>
-                            <target if="!dir.exists">
+                            <target>
                                  <unzip src="./mnist-test-data.zip" dest="./"/>
                             </target>
                         </configuration>

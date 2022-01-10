@@ -1,7 +1,6 @@
 package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.types.LayoutType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.convolutional.Conv2d;
@@ -20,11 +19,6 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 public class Conv2dExt extends Conv2dOpened implements OnnxIO {
-//    private static final LayoutType[] EXPECTED_LAYOUT = {
-//            LayoutType.BATCH, LayoutType.CHANNEL, LayoutType.HEIGHT, LayoutType.WIDTH
-//    };
-//    private static final String STRING_LAYOUT = "NCHW";
-//    private static final int NUM_DIMENSIONS = 4;
 
     Conv2dExt(Builder builder) {
         super(builder);
@@ -42,8 +36,14 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
     @Override
     public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
         OnnxBlockExt onnxBlockExt = new OnnxBlockExt();
+
+        List<Shape> outputShapes = List.of(this.getOutputShapes(ctx.getInputShapes().toArray(new Shape[0])));
+
         String parameter = "Parameter" +  ctx.counter();
         String convolutionOutput = "ConvolutionOutput" +  ctx.counter();
+
+
+
         onnxBlockExt.getNodes().add(
                 nodeBuilder(
                         ctx.getInputNames().get(0),
@@ -51,8 +51,7 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
                         "ConvolutionNode" +  ctx.counter(),
                         parameter
                 ).build());
-        onnxBlockExt.setOutputShapes(List.of(this.getOutputShapes(ctx.getInputShapes().toArray(new Shape[0]))));
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(convolutionOutput, onnxBlockExt.getOutputShapes().get(0)));
+        onnxBlockExt.getValueInfos().add(createValueInfoProto(convolutionOutput, outputShapes.get(0)));
 
         NDArray weights = this.parameters.get("weight").getArray();
         onnxBlockExt.getParameters().add(TensorProto.newBuilder()
@@ -61,43 +60,44 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
                 .addAllDims(convert(weights.getShape().getShape()))
                 .addAllFloatData(convert(weights))
                 .build());
+
+        onnxBlockExt.setOutputShapes(outputShapes);
         onnxBlockExt.getOutputNames().add(convolutionOutput);
         return onnxBlockExt;
     }
 
     private NodeProto.Builder nodeBuilder(String inputName, String outputName, String nodeName, String parameterName) {
-        NodeProto.Builder nodeBuilder = NodeProto.newBuilder();
-        nodeBuilder.setName(nodeName);
-        nodeBuilder.setOpType("Conv");
-        nodeBuilder.addAttribute(AttributeProto.newBuilder()
-                .setType(AttributeProto.AttributeType.STRING)
-                .setName("auto_pad")
-                .setS(ByteString.copyFromUtf8("SAME_UPPER"))
-                .build());
-        nodeBuilder.addAttribute(AttributeProto.newBuilder()
-                .setType(AttributeProto.AttributeType.INTS)
-                .setName("dilations")
-                .addAllInts(convert(this.dilation.getShape()))
-                .build());
-        nodeBuilder.addAttribute(AttributeProto.newBuilder()
-                .setType(AttributeProto.AttributeType.INT)
-                .setName("group")
-                .setI(this.groups)
-                .build());
-        nodeBuilder.addAttribute(AttributeProto.newBuilder()
-                .setType(AttributeProto.AttributeType.INTS)
-                .setName("kernel_shape")
-                .addAllInts(convert(this.kernelShape.getShape()))
-                .build());
-        nodeBuilder.addAttribute(AttributeProto.newBuilder()
-                .setType(AttributeProto.AttributeType.INTS)
-                .setName("strides")
-                .addAllInts(convert(this.stride.getShape()))
-                .build());
-        nodeBuilder.addInput(inputName);
-        nodeBuilder.addOutput(outputName);
-        nodeBuilder.addInput(parameterName);
-        return nodeBuilder;
+        return NodeProto.newBuilder()
+                .setName(nodeName)
+                .setOpType("Conv")
+                .addAttribute(AttributeProto.newBuilder()
+                        .setType(AttributeProto.AttributeType.STRING)
+                        .setName("auto_pad")
+                        .setS(ByteString.copyFromUtf8("SAME_UPPER"))
+                        .build())
+                .addAttribute(AttributeProto.newBuilder()
+                        .setType(AttributeProto.AttributeType.INTS)
+                        .setName("dilations")
+                        .addAllInts(convert(this.dilation.getShape()))
+                        .build())
+                .addAttribute(AttributeProto.newBuilder()
+                        .setType(AttributeProto.AttributeType.INT)
+                        .setName("group")
+                        .setI(this.groups)
+                        .build())
+                .addAttribute(AttributeProto.newBuilder()
+                        .setType(AttributeProto.AttributeType.INTS)
+                        .setName("kernel_shape")
+                        .addAllInts(convert(this.kernelShape.getShape()))
+                        .build())
+                .addAttribute(AttributeProto.newBuilder()
+                        .setType(AttributeProto.AttributeType.INTS)
+                        .setName("strides")
+                        .addAllInts(convert(this.stride.getShape()))
+                        .build())
+                .addInput(inputName)
+                .addInput(parameterName)
+                .addOutput(outputName);
     }
 
     /**
@@ -115,9 +115,6 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
             dilation = new Shape(1, 1);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         protected Conv2dExt.Builder self() {
             return this;
