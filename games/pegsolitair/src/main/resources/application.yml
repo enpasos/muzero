@@ -9,7 +9,7 @@ muzero:
     PEG_SOLITAIR:
       outputDir: ./memory/pegsolitair/
       numEpisodes: 1
-      numSimulations: 30
+      numSimulations: 100
       numParallelGamesPlayed: 1000
 
       # general
@@ -66,6 +66,6 @@ muzero:
       pbCInit: 1.25
       pbCBase: 19652
 
-      gameBufferWritingFormat: ZIPPED_JSON # ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
 
