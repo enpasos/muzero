@@ -54,7 +54,7 @@ public final class TrainMnist {
     }
 
     public static void main(String[] args) throws IOException, TranslateException {
-        String[] args_ = {"-e", "1", "-b", "256", "-o", "mymodel"};
+        String[] args_ = {"-e", "12", "-b", "256", "-o", "mymodel"};
         TrainMnist.runExample(args_);
     }
 

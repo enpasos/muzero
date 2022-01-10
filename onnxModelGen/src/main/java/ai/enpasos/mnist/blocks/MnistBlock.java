@@ -56,7 +56,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .build())
                 .add(LayerNormExt.builder().build())
                 .add(Activation::relu)
-             //   .add(new RescaleBlockExt())
+                .add(new RescaleBlockExt())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
                         .setUnits(10)

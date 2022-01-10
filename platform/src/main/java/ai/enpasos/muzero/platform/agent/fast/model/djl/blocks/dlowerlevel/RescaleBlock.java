@@ -38,9 +38,8 @@ public class RescaleBlock extends AbstractBlock {
     @Override
     protected @NotNull NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDArray current = inputs.head();
+
         // Scale to the range [0, 1]  (same range as the action input)
-
-
         Shape origShape = current.getShape();
         Shape shape2 = new Shape(origShape.get(0), origShape.get(1) * origShape.get(2) * origShape.get(3));
         NDArray current2 = current.reshape(shape2);
@@ -48,12 +47,10 @@ public class RescaleBlock extends AbstractBlock {
         NDArray min2 = current2.min(new int[]{1}, true).reshape(shape3);
         NDArray max2 = current2.max(new int[]{1}, true).reshape(shape3);
 
-
         NDArray d = max2.sub(min2).maximum(1e-5);
 
         NDArray a = current.sub(min2);
         return new NDList(a.div(d));
-
 
     }
 
