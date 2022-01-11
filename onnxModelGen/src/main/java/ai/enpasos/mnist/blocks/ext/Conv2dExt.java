@@ -5,9 +5,10 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.convolutional.Conv2dOpened;
-import ai.enpasos.mnist.blocks.OnnxBlockExt;
-import ai.enpasos.mnist.blocks.OnnxContext;
+import ai.enpasos.mnist.blocks.OnnxBlock;
+import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
 import ai.enpasos.onnx.TensorProto;
@@ -15,6 +16,7 @@ import com.google.protobuf.ByteString;
 
 import java.util.List;
 
+import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
@@ -34,70 +36,59 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
     }
 
     @Override
-    public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
-        OnnxBlockExt onnxBlockExt = new OnnxBlockExt();
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        List<Shape> outputShapes = List.of(this.getOutputShapes(ctx.getInputShapes().toArray(new Shape[0])));
-
-        String parameter = "Parameter" +  ctx.counter();
-        String convolutionOutput = "ConvolutionOutput" +  ctx.counter();
-
-
-
-        onnxBlockExt.getNodes().add(
-                nodeBuilder(
-                        ctx.getInputNames().get(0),
-                        convolutionOutput,
-                        "ConvolutionNode" +  ctx.counter(),
-                        parameter
-                ).build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(convolutionOutput, outputShapes.get(0)));
-
+        List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
         NDArray weights = this.parameters.get("weight").getArray();
-        onnxBlockExt.getParameters().add(TensorProto.newBuilder()
-                .setName(parameter)
-                .setDataType(1)
-                .addAllDims(convert(weights.getShape().getShape()))
-                .addAllFloatData(convert(weights))
-                .build());
+        String parameterName = "P" + counter.count();
 
-        onnxBlockExt.setOutputShapes(outputShapes);
-        onnxBlockExt.getOutputNames().add(convolutionOutput);
-        return onnxBlockExt;
-    }
-
-    private NodeProto.Builder nodeBuilder(String inputName, String outputName, String nodeName, String parameterName) {
-        return NodeProto.newBuilder()
-                .setName(nodeName)
-                .setOpType("Conv")
-                .addAttribute(AttributeProto.newBuilder()
+        return OnnxBlock.builder()
+            .input(input)
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(parameterName)
+                    .setDataType(1)
+                    .addAllDims(convert(weights.getShape().getShape()))
+                    .addAllFloatData(convert(weights))
+                    .build()
+            ))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Conv")
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.STRING)
                         .setName("auto_pad")
                         .setS(ByteString.copyFromUtf8("SAME_UPPER"))
                         .build())
-                .addAttribute(AttributeProto.newBuilder()
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("dilations")
                         .addAllInts(convert(this.dilation.getShape()))
                         .build())
-                .addAttribute(AttributeProto.newBuilder()
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INT)
                         .setName("group")
                         .setI(this.groups)
                         .build())
-                .addAttribute(AttributeProto.newBuilder()
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("kernel_shape")
                         .addAllInts(convert(this.kernelShape.getShape()))
                         .build())
-                .addAttribute(AttributeProto.newBuilder()
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("strides")
                         .addAllInts(convert(this.stride.getShape()))
                         .build())
-                .addInput(inputName)
-                .addInput(parameterName)
-                .addOutput(outputName);
+                    .addInput(input.get(0).getName())
+                    .addInput(parameterName)
+                    .addOutput(output.get(0).getName())
+                    .build()
+                )
+            ).build();
     }
 
     /**

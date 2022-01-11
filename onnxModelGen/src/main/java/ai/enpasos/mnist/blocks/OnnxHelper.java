@@ -35,16 +35,20 @@ public class OnnxHelper {
         return Arrays.asList(ArrayUtils.toObject(array));
     }
 
-    public static ValueInfoProto createValueInfoProto(String valueName, Shape shape) {
+    public static List<ValueInfoProto> createValueInfoProto(List<OnnxTensor> output) {
+       return output.stream().map(t -> createValueInfoProto(t)).collect(Collectors.toList());
+
+    }
+    public static ValueInfoProto createValueInfoProto(OnnxTensor output) {
         ValueInfoProto valueInfoProto = ValueInfoProto.newBuilder()
                 .setType(TypeProto.newBuilder()
                         .setTensorType(TypeProto.Tensor.newBuilder()
                                 .setElemType(1) // float32
-                                .setShape(convert(shape))
+                                .setShape(convert(output.getShape()))
 
                                 .build())
                         .build())
-                .setName(valueName)
+                .setName(output.getName())
                 .build();
         return valueInfoProto;
     }
