@@ -29,7 +29,7 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 
-public class MnistBlock extends SequentialBlock implements OnnxIO {
+public class MnistBlock extends SequentialBlockExt implements OnnxIO {
     public static MnistBlock newMnistBlock() {
         return (MnistBlock) new MnistBlock()
                 .add(Conv2dExt.builder()
@@ -66,32 +66,6 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .build());
     }
 
-
-
-
     private MnistBlock() {}
 
-    @Override
-    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-
-        // TODO instead extend SequentialBlock
-
-        OnnxBlock onnxBlock = OnnxBlock.builder()
-            .input(input)
-            .valueInfos(createValueInfoProto(input))
-            .build();
-
-        List<OnnxTensor> currentInput = input;
-        for (Pair<String, Block> p : this.getChildren()) {
-            OnnxIO onnxIO = (OnnxIO)p.getValue();
-            OnnxBlock child = onnxIO.getOnnxBlock(counter, currentInput);
-            onnxBlock.addChild(child);
-
-            currentInput = child.getOutput();
-        }
-
-        onnxBlock.setOutput(currentInput);
-
-        return onnxBlock;
-    }
 }
