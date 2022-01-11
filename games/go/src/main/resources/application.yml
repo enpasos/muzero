@@ -9,12 +9,12 @@ muzero:
     GO_5:
       modelName: MuZero-Go-5
       outputDir: ./memory/go5/
-      komi: 6.5
+      komi: 0.5
       size: 5
       boardHeight: 5 # size
       boardWidth: 5 # size
       actionSpaceSize: 26  # size * size + 1,  place a stone on the board or pass
-      numSimulations: 400
+      numSimulations: 100
       numParallelGamesPlayed: 250
       numEpisodes: 4
 
@@ -58,7 +58,7 @@ muzero:
       rootDirichletAlpha: 0.1  #  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10  ?
       rootExplorationFraction: 0.25
       visitSoftmaxTemperatureThreshold: 30
-      knownBoundsType: NONE
+      knownBoundsType: BOARD_GAME
       # play - PUCB params from paper
       pbCInit: 1.25
       pbCBase: 19652
@@ -119,7 +119,7 @@ muzero:
       rootDirichletAlpha: 0.03  #  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10
       rootExplorationFraction: 0.25
       visitSoftmaxTemperatureThreshold: 30
-      knownBoundsType: NONE
+      knownBoundsType: BOARD_GAME
       # play - PUCB params from paper
       pbCInit: 1.25
       pbCBase: 19652
