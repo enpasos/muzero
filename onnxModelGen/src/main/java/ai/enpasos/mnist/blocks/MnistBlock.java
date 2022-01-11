@@ -24,6 +24,8 @@ import ai.djl.nn.Block;
 import ai.djl.nn.SequentialBlock;
 import ai.djl.util.Pair;
 
+import java.util.List;
+
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 
@@ -37,7 +39,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .optPadding(new Shape(2, 2))
                         .build())
                 .add(LayerNormExt.builder().build())
-                .add(Activation::relu)
+                .add(ActivationExt.reluBlock())
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))   // 28 -> 14
                 .add(Conv2dExt.builder()
                         .setFilters(16)
@@ -46,7 +48,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .optPadding(new Shape(2, 2))
                         .build())
                 .add(LayerNormExt.builder().build())
-                .add(Activation::relu)
+                .add(ActivationExt.reluBlock())
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7
                 .add(Conv2dExt.builder()
                         .setFilters(32)
@@ -55,7 +57,7 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
                         .optPadding(new Shape(1, 1))
                         .build())
                 .add(LayerNormExt.builder().build())
-                .add(Activation::relu)
+                .add(ActivationExt.reluBlock())
                 .add(new RescaleBlockExt())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
@@ -70,30 +72,26 @@ public class MnistBlock extends SequentialBlock implements OnnxIO {
     private MnistBlock() {}
 
     @Override
-    public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        OnnxBlockExt onnxBlockExt = new OnnxBlockExt();
-        onnxBlockExt.setInputNames(ctx.getInputNames());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(ctx.getInputNames().get(0), ctx.getInputShapes().get(0)));
+        // TODO instead extend SequentialBlock
 
+        OnnxBlock onnxBlock = OnnxBlock.builder()
+            .input(input)
+            .valueInfos(createValueInfoProto(input))
+            .build();
 
+        List<OnnxTensor> currentInput = input;
         for (Pair<String, Block> p : this.getChildren()) {
-            Block c = p.getValue();
-            OnnxBlockExt onnxBlockExtChild = null;
-            OnnxIO onnxIO = null;
-            if (c instanceof OnnxIO) {
-               onnxIO = (OnnxIO) c;
-            } else {
-                onnxIO = new ReluBlockExt();
-            }
-            onnxBlockExtChild = onnxIO.getOnnxBlockExt(ctx);
-            onnxBlockExt.addChild(ctx, onnxBlockExtChild);
-            ctx.setInputNames(onnxBlockExtChild.getOutputNames());
-            ctx.setInputShapes(onnxBlockExtChild.getOutputShapes());
+            OnnxIO onnxIO = (OnnxIO)p.getValue();
+            OnnxBlock child = onnxIO.getOnnxBlock(counter, currentInput);
+            onnxBlock.addChild(child);
+
+            currentInput = child.getOutput();
         }
 
-        onnxBlockExt.setOutputNames(ctx.getInputNames());
+        onnxBlock.setOutput(currentInput);
 
-        return onnxBlockExt;
+        return onnxBlock;
     }
 }

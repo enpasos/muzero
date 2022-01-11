@@ -23,15 +23,16 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import ai.enpasos.mnist.blocks.OnnxBlockExt;
-import ai.enpasos.mnist.blocks.OnnxContext;
+import ai.enpasos.mnist.blocks.OnnxBlock;
+import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
-import ai.enpasos.onnx.TensorProto;
 
 import java.util.List;
 
+import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
@@ -71,99 +72,114 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
 
 
     @Override
-    public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
-        OnnxBlockExt onnxBlockExt = new OnnxBlockExt();
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        String inputName =  ctx.getInputNames().get(0);
-        Shape  inputShape = ctx.getInputShapes().toArray(new Shape[0])[0];
+        OnnxBlock blockMin = nodeMin(counter, input);
+        OnnxBlock blockMax = nodeMax(counter, input);
+        OnnxBlock blockSubA = nodeSub(counter, input, blockMin.getOutput());
+        OnnxBlock blockSubB = nodeSub(counter, blockMax.getOutput(), blockMin.getOutput());
+        OnnxBlock blockDiv = nodeDiv(counter, blockSubA.getOutput(), blockSubB.getOutput());
 
-        Shape shape2 = new Shape(inputShape.get(0), inputShape.get(1) * inputShape.get(2) * inputShape.get(3));
-        Shape shape3 = new Shape(inputShape.get(0), 1, 1, 1);
+        OnnxBlock onnxBlock = OnnxBlock.builder()
+            .input(input)
+            .output( blockDiv.getOutput())
+            .valueInfos(createValueInfoProto( blockDiv.getOutput()))
+            .build();
 
+        onnxBlock.addChild(blockMin);
+        onnxBlock.addChild(blockMax);
+        onnxBlock.addChild(blockSubA);
+        onnxBlock.addChild(blockSubB);
+        onnxBlock.addChild(blockDiv);
 
-         // NDArray current2 = current.reshape(shape2);
+        return onnxBlock;
 
-//        String outputShape3 = "Shape3Output" + ctx.counter();
-//        String parameterShape3 = "Shape3Parameter" + ctx.counter();
-//        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-//                .setName("Node" + ctx.counter())
-//                .setOpType("Reshape")
-//                .addInput(inputName)
-//                .addInput(parameterShape3)
-//                .addOutput(outputShape3)
-//                .build());
-//        long size = ctx.getInputShapes().get(0).size();
-//        onnxBlockExt.getParameters().add(TensorProto.newBuilder()
-//                .setName(parameterShape3)
-//                .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
-//                .addAllDims(List.of(2L))
-//                .addAllInt64Data(convert(shape2.getShape()))
-//                .build());
-//        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputShape3, shape2));
+    }
 
-
-        String outputMinName = "MinOutput" + + ctx.counter();
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("ReduceMin")
-                .addAttribute(AttributeProto.newBuilder()
+    private OnnxBlock nodeMin(OnnxCounter counter, List<OnnxTensor> input) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(new Shape(input.get(0).getShape().get(0), 1, 1, 1))
+        );
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("ReduceMin")
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("axes")
                         .addAllInts(List.of(1L,2L,3L))
                         .build())
-                .addInput(inputName)
-                .addOutput(outputMinName)
-                .build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputMinName, shape3));
-
-        String outputMaxName = "MaxOutput" + + ctx.counter();
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("ReduceMax")
-                .addAttribute(AttributeProto.newBuilder()
+                    .addInput(input.get(0).getName())
+                    .addOutput(output.get(0).getName())
+                    .build())
+            )
+            .build();
+     }
+    private OnnxBlock nodeMax(OnnxCounter counter, List<OnnxTensor> input) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(new Shape(input.get(0).getShape().get(0), 1, 1, 1))
+        );
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("ReduceMax")
+                    .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("axes")
                         .addAllInts(List.of(1L,2L,3L))
                         .build())
-                .addInput(inputName)
-                .addOutput(outputMaxName)
-                .build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputMaxName, shape3));
-
-        String outputASubName = "SubAOutput" + + ctx.counter();
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("Sub")
-                .addInput(inputName)
-                .addInput(outputMinName)
-                .addOutput(outputASubName)
-                .build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputASubName, inputShape));
-
-
-        String outputBSubName = "SubBOutput" + + ctx.counter();
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("Sub")
-                .addInput(outputMaxName)
-                .addInput(outputMinName)
-                .addOutput(outputBSubName)
-                .build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputBSubName, shape3));
-
-        String outputDivName = "DivOutput" + + ctx.counter();
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("Div")
-                .addInput(outputASubName)
-                .addInput(outputBSubName)
-                .addOutput(outputDivName)
-                .build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputDivName, inputShapes[0]));
-
-        onnxBlockExt.setOutputShapes(List.of(this.getOutputShapes(inputShapes)));
-        onnxBlockExt.getOutputNames().add(outputDivName);
-
-        return onnxBlockExt;
+                    .addInput(input.get(0).getName())
+                    .addOutput(output.get(0).getName())
+                    .build())
+            )
+            .build();
+    }
+    private OnnxBlock nodeSub(OnnxCounter counter, List<OnnxTensor> inputA, List<OnnxTensor> inputB) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(inputA.get(0).getShape())
+        );
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Sub")
+                    .addInput(inputA.get(0).getName())
+                    .addInput(inputB.get(0).getName())
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .valueInfos(createValueInfoProto(output))
+            .build();
+    }
+    private OnnxBlock nodeDiv(OnnxCounter counter, List<OnnxTensor> inputA, List<OnnxTensor> inputB) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(inputA.get(0).getShape())
+        );
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Div")
+                    .addInput(inputA.get(0).getName())
+                    .addInput(inputB.get(0).getName())
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .valueInfos(createValueInfoProto(output))
+            .build();
     }
 }

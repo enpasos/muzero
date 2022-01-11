@@ -6,14 +6,17 @@ import ai.djl.nn.Block;
 import ai.djl.nn.core.Linear;
 import ai.djl.nn.core.LinearOpened;
 import ai.djl.util.Preconditions;
-import ai.enpasos.mnist.blocks.OnnxBlockExt;
-import ai.enpasos.mnist.blocks.OnnxContext;
+import ai.enpasos.mnist.blocks.OnnxBlock;
+import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.NodeProto;
 import ai.enpasos.onnx.TensorProto;
 
 import java.util.List;
 
+import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
+import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
@@ -34,87 +37,124 @@ public class LinearExt extends LinearOpened implements OnnxIO {
     }
 
     @Override
-    public OnnxBlockExt getOnnxBlockExt(OnnxContext ctx) {
-        OnnxBlockExt onnxBlockExt = new OnnxBlockExt();
-
-        List<Shape> outputShapes = List.of(this.getOutputShapes(ctx.getInputShapes().toArray(new Shape[0])));
-        long inputDim = ctx.getInputShapes().get(0).get(1);
-        long outputDim = outputShapes.get(0).get(1);
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
 
-        String outputWName = "LinearWOutput" + ctx.counter();
-        nodeW(ctx, onnxBlockExt, outputWName, new Shape(new long[]{inputDim, outputDim}));
+        List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
 
-        String outputMulName = "MultOutput" + ctx.counter();
-        nodeMult(ctx, onnxBlockExt, outputWName, ctx.getInputNames().get(0), outputMulName, outputShapes.get(0));
+        Shape outputShape = output.get(0).getShape();
 
-        String outputAddName = "AddOutput" + ctx.counter();
-        nodeB(ctx, onnxBlockExt, outputMulName,  outputAddName, outputShapes.get(0));
+        long inputDim = input.get(0).getShape().get(1);
+        long outputDim = outputShape.get(1);
 
-        onnxBlockExt.getOutputNames().add(outputAddName);
-        onnxBlockExt.setOutputShapes(outputShapes);
-        return onnxBlockExt;
+        OnnxBlock blockW = nodeW(counter, new Shape(new long[]{inputDim, outputDim}));
+        OnnxBlock blockMult = nodeMult(counter, input.get(0), blockW.getOutput().get(0));
+        OnnxBlock blockB = nodeB(counter, blockMult.getOutput());
+
+        OnnxBlock onnxBlock = OnnxBlock.builder()
+            .input(input)
+            .output(blockB.getOutput())
+            .valueInfos(createValueInfoProto(blockB.getOutput()))
+            .build();
+
+        onnxBlock.addChild(blockW);
+        onnxBlock.addChild(blockMult);
+        onnxBlock.addChild(blockB);
+
+        return onnxBlock;
     }
 
-    private void nodeB(OnnxContext ctx, OnnxBlockExt onnxBlockExt, String input, String outputAddName, Shape newShape ) {
-        String parameterName = "Parameter" + ctx.counter();
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("Add")
-                .addInput(input)
-                .addInput(parameterName)
-                .addOutput(outputAddName)
-                .build());
-        onnxBlockExt.getParameters().add(TensorProto.newBuilder()
-                .setName(parameterName)
-                .setDataType(1)
-                .addAllDims(List.of(1L, 10L))
-                .addAllFloatData(convert(this.parameters.get("bias").getArray()))
-                .build());
-
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputAddName, newShape));
+    private OnnxBlock nodeB(OnnxCounter counter, List<OnnxTensor> input) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(input.get(0).getShape())
+        );
+        String parameterName = "P" + counter.count();
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Add")
+                    .addInput(input.get(0).getName())
+                    .addInput(parameterName)
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(parameterName)
+                    .setDataType(1)
+                    .addAllDims(List.of(1L, 10L))
+                    .addAllFloatData(convert(this.parameters.get("bias").getArray()))
+                    .build()
+            ))
+            .build();
     }
 
-    private  void nodeMult(OnnxContext ctx, OnnxBlockExt onnxBlockExt, String inputA, String inputB, String output,  Shape newShape) {
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Mul" + ctx.counter())
-                .setOpType("MatMul")
-                .addInput(inputB)
-                .addInput(inputA)
-                .addOutput(output)
-                .build());
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(output, newShape));
+    private OnnxBlock nodeMult(OnnxCounter counter, OnnxTensor inputA, OnnxTensor inputB) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(new Shape(inputA.getShape().get(0), inputB.getShape().get(1)))
+        );
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("Mul" + counter.count())
+                    .setOpType("MatMul")
+                    .addInput(inputA.getName())
+                    .addInput(inputB.getName())
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .valueInfos(createValueInfoProto(output))
+            .build();
     }
 
-    private void nodeW(OnnxContext ctx, OnnxBlockExt onnxBlockExt, String outputName, Shape shape) {
-        String shapeName = "batchFlattenNodeShape" + ctx.counter();
-        String parameterName = "Parameter"+ ctx.counter();
-
-        onnxBlockExt.getNodes().add(NodeProto.newBuilder()
-                .setName("Node" + ctx.counter())
-                .setOpType("Reshape")
-                .addInput(parameterName)
-                .addInput(shapeName)
-                .addOutput(outputName)
-                .build());
+    private OnnxBlock nodeW(OnnxCounter ctx, Shape outputShape) { //}, onnxBlock onnxBlock, String outputName, Shape shape) {
+        List<OnnxTensor> output =  combine(List.of("T" + ctx.count()), List.of(outputShape));
 
         NDArray weight = this.parameters.get("weight").getArray().transpose();
-        onnxBlockExt.getParameters().add(TensorProto.newBuilder()
-                .setName(parameterName)
-                .setDataType(1)
-                .addAllDims(convert(weight.getShape().getShape()))
-                .addAllFloatData(convert(weight))
-                .build());
 
-        long size = ctx.getInputShapes().get(0).size();
-        onnxBlockExt.getParameters().add(TensorProto.newBuilder()
-                .setName(shapeName)
-                .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
-                .addAllDims(List.of(2L))
-                .addAllInt64Data(List.of(size, 10L))
-                .build());
+        String parameterName1 = "P"+ ctx.count();
+        String parameterName2 = "P"+ ctx.count();
 
-        onnxBlockExt.getValueInfos().add(createValueInfoProto(outputName, shape ));
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("Node" + ctx.count())
+                    .setOpType("Reshape")
+                    .addInput(parameterName1)
+                    .addInput(parameterName2)
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .parameters(List.of(
+                // data
+                TensorProto.newBuilder()
+                    .setName(parameterName1)
+                    .setDataType(1)
+                    .addAllDims(convert(weight.getShape().getShape()))
+                    .addAllFloatData(convert(weight))
+                    .build(),
+                // shape
+                TensorProto.newBuilder()
+                    .setName(parameterName2)
+                    .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
+                    .addAllDims(List.of(2L))
+                    .addAllInt64Data(convert(outputShape.getShape()))
+                    .build()
+                ))
+            .valueInfos(
+                createValueInfoProto(output)
+            )
+            .build();
+
     }
 
 

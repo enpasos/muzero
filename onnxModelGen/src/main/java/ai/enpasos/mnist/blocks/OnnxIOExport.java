@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
+
 public class OnnxIOExport {
 
 
@@ -24,12 +26,10 @@ public class OnnxIOExport {
         OnnxIO onnxIO = (OnnxIO) model.getBlock();
 
 
-        OnnxBlockExt onnxBlockExt = onnxIO.getOnnxBlockExt(
-                OnnxContext.builder()
-                        .counter(0)
-                        .inputNames(List.of("Input"))
-                        .inputShapes(inputShapes)
-                        .build());
+        OnnxBlock onnxBlock = onnxIO.getOnnxBlock(
+            OnnxCounter.builder().counter(0).build(),
+            combine(List.of("Input"), inputShapes)
+        );
 
         ModelProto.Builder modelBuilder = ModelProto.newBuilder();
 
@@ -41,23 +41,23 @@ public class OnnxIOExport {
 
         GraphProto.Builder graphBuilder = GraphProto.newBuilder();
 
-        graphBuilder.addAllNode(onnxBlockExt.getNodes());
+        graphBuilder.addAllNode(onnxBlock.getNodes());
 
-        graphBuilder.addAllInput(onnxBlockExt.getValueInfos().stream()
-                .filter(vi -> onnxBlockExt.getInputNames().contains(vi.getName()))
+        graphBuilder.addAllInput(onnxBlock.getValueInfos().stream()
+                .filter(vi -> onnxBlock.getInputNames().contains(vi.getName()))
                 .collect(Collectors.toList())
         );
-        graphBuilder.addAllValueInfo(onnxBlockExt.getValueInfos().stream()
-                .filter(vi -> !onnxBlockExt.getOutputNames().contains(vi.getName())
-                           && !onnxBlockExt.getInputNames().contains(vi.getName()))
+        graphBuilder.addAllValueInfo(onnxBlock.getValueInfos().stream()
+                .filter(vi -> !onnxBlock.getOutputNames().contains(vi.getName())
+                           && !onnxBlock.getInputNames().contains(vi.getName()))
                 .collect(Collectors.toList())
         );
-        graphBuilder.addAllOutput(onnxBlockExt.getValueInfos().stream()
-                .filter(vi -> onnxBlockExt.getOutputNames().contains(vi.getName()))
+        graphBuilder.addAllOutput(onnxBlock.getValueInfos().stream()
+                .filter(vi -> onnxBlock.getOutputNames().contains(vi.getName()))
                 .collect(Collectors.toList())
         );
 
-        graphBuilder.addAllInitializer(onnxBlockExt.getParameters());
+        graphBuilder.addAllInitializer(onnxBlock.getParameters());
 
 
         modelBuilder.setGraph(graphBuilder);

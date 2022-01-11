@@ -1,5 +1,7 @@
 package ai.enpasos.mnist.blocks;
 
+import java.util.List;
+
 public interface OnnxIO {
-    OnnxBlockExt getOnnxBlockExt(OnnxContext ctx);
+    OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input);
 }
