@@ -18,15 +18,9 @@
 package ai.enpasos.mnist.blocks;
 
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.Activation;
 import ai.enpasos.mnist.blocks.ext.*;
-import ai.djl.nn.Block;
-import ai.djl.nn.SequentialBlock;
-import ai.djl.util.Pair;
 
-import java.util.List;
-
-import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
+import java.util.Arrays;
 
 
 public class MnistBlock extends SequentialBlockExt implements OnnxIO {
@@ -41,12 +35,23 @@ public class MnistBlock extends SequentialBlockExt implements OnnxIO {
                 .add(LayerNormExt.builder().build())
                 .add(ActivationExt.reluBlock())
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))   // 28 -> 14
-                .add(Conv2dExt.builder()
-                        .setFilters(16)
-                        .setKernelShape(new Shape(5, 5))
-                        .optBias(false)
-                        .optPadding(new Shape(2, 2))
-                        .build())
+                .add(
+                    new ParallelBlockWithConcatChannelJoinExt(
+                        Arrays.asList(
+                            Conv2dExt.builder()
+                                .setFilters(16)
+                                .setKernelShape(new Shape(5, 5))
+                                .optBias(false)
+                                .optPadding(new Shape(2, 2))
+                                .build(),
+                            Conv2dExt.builder()
+                                .setFilters(16)
+                                .setKernelShape(new Shape(3, 3))
+                                .optBias(false)
+                                .optPadding(new Shape(1, 1))
+                                .build()
+                        ))
+                )
                 .add(LayerNormExt.builder().build())
                 .add(ActivationExt.reluBlock())
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7
