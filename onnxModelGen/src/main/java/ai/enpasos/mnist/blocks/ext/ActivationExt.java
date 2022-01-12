@@ -7,8 +7,7 @@ import ai.djl.nn.Block;
 import ai.djl.nn.core.Prelu;
 import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.NOT_IMPLEMENTED_YET;
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.RELU;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
 
 /**
  * Utility class that provides activation functions and blocks.
@@ -35,7 +34,7 @@ public final class ActivationExt {
     }
 
     public static Block sigmoidBlock() {
-        return new LambdaBlockExt(NOT_IMPLEMENTED_YET, ai.djl.nn.Activation::sigmoid);
+        return new LambdaBlockExt(SIGMOID, ai.djl.nn.Activation::sigmoid);
     }
 
     public static Block tanhBlock() {

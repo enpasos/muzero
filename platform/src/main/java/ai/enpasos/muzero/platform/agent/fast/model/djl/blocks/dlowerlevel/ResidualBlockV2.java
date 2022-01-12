@@ -37,7 +37,7 @@ public class ResidualBlockV2 extends AbstractBlock {
 
     public final ParallelBlock block;
 
-    public ResidualBlockV2(int numChannels) {
+    public ResidualBlockV2(int numChannels, int squeezeChannelRatio) {
         super(MYVERSION);
 
         SequentialBlock b1;
@@ -60,7 +60,7 @@ public class ResidualBlockV2 extends AbstractBlock {
                         .optPadding(new Shape(1, 1))
                         .optBias(false)
                         .build())
-                .add(new SE(numChannels))   // Squeeze-and-Excitation Networks
+                .add(new SE(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
         ;
 
         identity = new SequentialBlock()

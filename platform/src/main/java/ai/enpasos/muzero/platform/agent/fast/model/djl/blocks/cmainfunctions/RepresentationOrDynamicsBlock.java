@@ -37,6 +37,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
                 .add(ResidualTower.builder()
                         .numResiduals(config.getNumResiduals())
                         .numChannels(config.getNumChannels())
+                        .squeezeChannelRatio(config.getSqueezeChannelRatio())
                         .build())
 
                 // compressing hidden state (not in muzero paper)

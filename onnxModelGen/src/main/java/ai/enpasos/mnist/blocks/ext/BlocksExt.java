@@ -2,12 +2,12 @@ package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.Blocks;
 import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.BATCH_FLATTEN;
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.IDENTITY;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
 
 /**
  * Utility class that provides some useful blocks.
@@ -61,4 +61,20 @@ public final class BlocksExt {
     public static Block identityBlock() {
         return new LambdaBlockExt(IDENTITY, x -> x);
     }
+
+//    public static NDArray deflate(NDArray array, int dims) {
+//        if (array.getShape().dimension() == dims) {
+//            return array;
+//        } else {
+//            long[] shape = new long[dims];
+//            for(int i = 0; i < array.getShape().getShape().length; i++) {
+//                shape[i] = array.getShape().getShape()[i];
+//            }
+//            return array.reshape(new Shape(shape));
+//        }
+//    }
+//
+//    public static Block deflateBlock(int dims) {
+//        return LambdaBlockExt.singleton(DEFLATE, array -> BlocksExt.deflate(array, dims));
+//    }
 }

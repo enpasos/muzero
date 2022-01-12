@@ -28,11 +28,11 @@ public class TicTacToeTrainingAndTest {
 
     public void run() {
 
-        try {
-            FileUtils.deleteDirectory(new File(config.getOutputDir()));
-        } catch (Exception e) {
-            throw new MuZeroException(e);
-        }
+//        try {
+//            FileUtils.deleteDirectory(new File(config.getOutputDir()));
+//        } catch (Exception e) {
+//            throw new MuZeroException(e);
+//        }
 
         muZero.train(false, 1);
 

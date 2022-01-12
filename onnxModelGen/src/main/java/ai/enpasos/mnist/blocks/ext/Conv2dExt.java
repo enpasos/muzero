@@ -39,7 +39,7 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
         List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
-        NDArray weights = this.parameters.get("weight").getArray();
+        NDArray weights = this.getParameters().get("weight").getArray();
         String parameterName = "P" + counter.count();
 
         return OnnxBlock.builder()
