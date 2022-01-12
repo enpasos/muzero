@@ -30,13 +30,13 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class SE extends AbstractBlock implements OnnxIO {
+public class SqueezeExciteExt extends AbstractBlock implements OnnxIO {
 
 
     public final ParallelBlockWithScalerJoinExt block;
 
 
-    public SE(int numChannels, int squeezeChannelRatio) {
+    public SqueezeExciteExt(int numChannels, int squeezeChannelRatio) {
         super((byte)1);
 
         SequentialBlock b1;

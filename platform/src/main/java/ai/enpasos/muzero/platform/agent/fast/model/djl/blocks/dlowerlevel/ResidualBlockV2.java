@@ -26,6 +26,10 @@ import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.norm.LayerNorm;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import ai.enpasos.mnist.blocks.SqueezeExciteExt;
+import ai.enpasos.mnist.blocks.ext.ActivationExt;
+import ai.enpasos.mnist.blocks.ext.Conv2dExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -44,23 +48,23 @@ public class ResidualBlockV2 extends AbstractBlock {
         SequentialBlock identity;
 
         b1 = new SequentialBlock()
-                .add(LayerNorm.builder().build())
-                .add(Activation::relu)
-                .add(Conv2d.builder()
+                .add(LayerNormExt.builder().build())
+                .add(ActivationExt.reluBlock())
+                .add(Conv2dExt.builder()
                         .setFilters(numChannels)
                         .setKernelShape(new Shape(3, 3))
                         .optPadding(new Shape(1, 1))
                         .optBias(false)
                         .build())
-                .add(LayerNorm.builder().build())
-                .add(Activation::relu)
-                .add(Conv2d.builder()
+                .add(LayerNormExt.builder().build())
+                .add(ActivationExt.reluBlock())
+                .add(Conv2dExt.builder()
                         .setFilters(numChannels)
                         .setKernelShape(new Shape(3, 3))
                         .optPadding(new Shape(1, 1))
                         .optBias(false)
                         .build())
-                .add(new SE(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
+                .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
         ;
 
         identity = new SequentialBlock()

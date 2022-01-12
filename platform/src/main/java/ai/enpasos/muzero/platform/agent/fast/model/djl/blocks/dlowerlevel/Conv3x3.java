@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel;
 
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.convolutional.Conv2d;
+import ai.enpasos.mnist.blocks.ext.Conv2dExt;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +34,7 @@ public class Conv3x3 extends MySequentialBlock {
     public static @NotNull Conv3x3 newConv(int channels) {
         Conv3x3 instance = new Conv3x3();
         instance.add(
-                Conv2d.builder()
+                Conv2dExt.builder()
                         .setFilters(channels)
                         .setKernelShape(new Shape(3, 3))
                         .optBias(false)
