@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.agent.Inference;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ class InferenceTest {
     Inference inference;
 
     @Test
+    @Disabled
     void aiDecisionTicTacToeSlow() {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true, "./pretrained");

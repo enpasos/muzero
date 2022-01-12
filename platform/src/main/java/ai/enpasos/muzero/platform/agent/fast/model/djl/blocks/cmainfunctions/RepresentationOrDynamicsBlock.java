@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions;
 
+import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
                 // compressing hidden state (not in muzero paper)
                 .add(Conv1x1LayerNormRelu.builder().channels(config.getNumHiddenStateChannels()).build())
 
-                .add(new RescaleBlock());
+                .add(new RescaleBlockExt());
 
     }
 

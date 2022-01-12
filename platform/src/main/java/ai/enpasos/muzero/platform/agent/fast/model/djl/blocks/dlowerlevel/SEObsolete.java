@@ -37,13 +37,13 @@ import java.util.stream.Collectors;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class SE extends AbstractBlock {
+public class SEObsolete extends AbstractBlock {
 
 
     public final ParallelBlock block;
 
 
-    public SE(int numChannels, int squeezeChannelRatio) {
+    public SEObsolete(int numChannels, int squeezeChannelRatio) {
         super(MYVERSION);
 
         SequentialBlock b1;

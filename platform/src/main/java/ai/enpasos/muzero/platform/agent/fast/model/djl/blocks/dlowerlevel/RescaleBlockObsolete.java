@@ -27,10 +27,10 @@ import org.jetbrains.annotations.NotNull;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class RescaleBlock extends AbstractBlock {
+public class RescaleBlockObsolete extends AbstractBlock {
 
 
-    public RescaleBlock() {
+    public RescaleBlockObsolete() {
         super(MYVERSION);
     }
 

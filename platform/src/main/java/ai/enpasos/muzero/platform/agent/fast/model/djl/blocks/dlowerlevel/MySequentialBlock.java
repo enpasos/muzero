@@ -19,9 +19,10 @@ package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel;
 
 import ai.djl.nn.Block;
 import ai.djl.nn.SequentialBlock;
+import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
 import org.jetbrains.annotations.NotNull;
 
-public class MySequentialBlock extends SequentialBlock {
+public class MySequentialBlock extends SequentialBlockExt {
 
     @Override
     public @NotNull String toString() {
