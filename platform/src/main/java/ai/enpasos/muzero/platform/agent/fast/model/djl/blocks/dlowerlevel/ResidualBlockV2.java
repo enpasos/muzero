@@ -26,28 +26,27 @@ import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.norm.LayerNorm;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import ai.enpasos.mnist.blocks.SqueezeExciteExt;
-import ai.enpasos.mnist.blocks.ext.ActivationExt;
-import ai.enpasos.mnist.blocks.ext.Conv2dExt;
-import ai.enpasos.mnist.blocks.ext.LayerNormExt;
+import ai.enpasos.mnist.blocks.*;
+import ai.enpasos.mnist.blocks.ext.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class ResidualBlockV2 extends AbstractBlock {
+public class ResidualBlockV2 extends AbstractBlock implements OnnxIO {
 
 
-    public final ParallelBlock block;
+    public final ParallelBlockWithAddJoinExt block;
 
     public ResidualBlockV2(int numChannels, int squeezeChannelRatio) {
         super(MYVERSION);
 
-        SequentialBlock b1;
-        SequentialBlock identity;
+        SequentialBlockExt b1;
+        SequentialBlockExt identity;
 
-        b1 = new SequentialBlock()
+        b1 = (SequentialBlockExt) new SequentialBlockExt()
                 .add(LayerNormExt.builder().build())
                 .add(ActivationExt.reluBlock())
                 .add(Conv2dExt.builder()
@@ -67,19 +66,11 @@ public class ResidualBlockV2 extends AbstractBlock {
                 .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
         ;
 
-        identity = new SequentialBlock()
-                .add(Blocks.identityBlock());
+        identity = (SequentialBlockExt) new SequentialBlockExt()
+                .add(BlocksExt.identityBlock());
 
 
-        block = addChildBlock("residualBlock", new ParallelBlock(
-                list -> {
-                    NDList unit = list.get(0);
-                    NDList parallel = list.get(1);
-                    return new NDList(
-                            unit.singletonOrThrow()
-                                    .add(parallel.singletonOrThrow())
-                    );
-                },
+        block = addChildBlock("residualBlock", new ParallelBlockWithAddJoinExt(
                 Arrays.asList(b1, identity)));
     }
 
@@ -110,5 +101,10 @@ public class ResidualBlockV2 extends AbstractBlock {
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
         block.initialize(manager, dataType, inputShapes);
+    }
+
+    @Override
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
+        return block.getOnnxBlock(counter,input);
     }
 }

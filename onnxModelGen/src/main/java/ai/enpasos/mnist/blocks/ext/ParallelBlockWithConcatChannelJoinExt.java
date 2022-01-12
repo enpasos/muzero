@@ -45,20 +45,29 @@ public class ParallelBlockWithConcatChannelJoinExt extends ParallelBlock impleme
         long size = 0; // along the concatenation dim
         OnnxTensor childOutput = null;
         for (Pair<String, Block> p : this.getChildren()) {
-            OnnxIO onnxIO = (OnnxIO)p.getValue();
+            OnnxIO onnxIO = (OnnxIO) p.getValue();
             OnnxBlock child = onnxIO.getOnnxBlock(counter, input);
             onnxBlock.addChild(child);
-            if (child.getOutput().size() > 1) throw new RuntimeException("each output is assumed to be a single tensor here");
+            if (child.getOutput().size() > 1)
+                throw new RuntimeException("each output is assumed to be a single tensor here");
             childOutput = child.getOutput().get(0);
             outputsToBeConcatenated.add(childOutput);
             size += childOutput.getShape().get(concatDim);
         }
 
-       Shape inputShapeExample = childOutput.getShape();
-        List<OnnxTensor> output = combine(List.of("T" + counter.count()), List.of(
-            new Shape(inputShapeExample.get(0), size, inputShapeExample.get(2), inputShapeExample.get(3))
-        ));
+        Shape inputShapeExample = childOutput.getShape();
 
+
+        List<OnnxTensor> output = null;
+        if (inputShapeExample.dimension() == 4) {
+            output = combine(List.of("T" + counter.count()), List.of(
+                new Shape(inputShapeExample.get(0), size, inputShapeExample.get(2), inputShapeExample.get(3))
+            ));
+    } else {
+        output = combine(List.of("T" + counter.count()), List.of(
+            new Shape(inputShapeExample.get(0), size)
+        ));
+    }
 
         OnnxBlock concatBlock = OnnxBlock.builder()
             .input(outputsToBeConcatenated)

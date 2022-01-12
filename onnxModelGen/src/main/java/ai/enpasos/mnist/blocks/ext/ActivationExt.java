@@ -38,7 +38,7 @@ public final class ActivationExt {
     }
 
     public static Block tanhBlock() {
-        return new LambdaBlockExt(NOT_IMPLEMENTED_YET, ai.djl.nn.Activation::tanh);
+        return new LambdaBlockExt(TANH, ai.djl.nn.Activation::tanh);
     }
 
 

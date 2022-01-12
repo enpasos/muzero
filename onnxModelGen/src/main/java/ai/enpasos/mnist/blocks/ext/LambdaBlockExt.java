@@ -126,6 +126,10 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
                 nodeBuilder.setOpType("Sigmoid");
                 addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
                 break;
+            case TANH:
+                nodeBuilder.setOpType("Tanh");
+                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                break;
             case GLOBAL_AVG_POOL_2d:
                 nodeBuilder.setOpType("GlobalAveragePool");
                 addOutputToOnnxBlockAddingMissingDimensions(onnxBlock,input, outputName);
@@ -147,5 +151,5 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
         return onnxBlock;
     }
 
-    public enum Type {IDENTITY, RELU, SIGMOID, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d,GLOBAL_MAX_POOL_2d,  NOT_IMPLEMENTED_YET}
+    public enum Type {IDENTITY, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d,GLOBAL_MAX_POOL_2d,  NOT_IMPLEMENTED_YET}
 }
