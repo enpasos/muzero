@@ -19,8 +19,7 @@ import ai.djl.util.Preconditions;
 
 import java.util.Objects;
 
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.MAX_POOLING;
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.NOT_IMPLEMENTED_YET;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
 
 /**
  * Utility class that provides {@code Block} and methods for different pooling functions.
@@ -126,6 +125,9 @@ public final class PoolExt {
                 input.getShape().dimension() == 4,
                 "Expect input dimension is 4 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalMaxPool();
+//        NDArray intermediate = input.getNDArrayInternal().globalMaxPool();
+//        Shape newShape = intermediate.getShape().add(1, 1);  // to keep the dimensions
+//        return intermediate.reshape(newShape);
     }
 
     /**
@@ -255,6 +257,9 @@ public final class PoolExt {
                 input.getShape().dimension() == 4,
                 "Expect input dimension is 4 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalAvgPool();
+//        NDArray intermediate = input.getNDArrayInternal().globalAvgPool();
+//        Shape newShape = intermediate.getShape().add(1, 1);  // to keep the dimensions
+//        return intermediate.reshape(newShape);
     }
 
     /**
@@ -589,7 +594,7 @@ public final class PoolExt {
      * globalmaxPool2dBlock} pooling function
      */
     public static Block globalMaxPool2dBlock() {
-        return LambdaBlockExt.singleton(MAX_POOLING, PoolExt::globalMaxPool2d);
+        return LambdaBlockExt.singleton(GLOBAL_MAX_POOL_2d, PoolExt::globalMaxPool2d);
     }
 
     /**
@@ -848,7 +853,7 @@ public final class PoolExt {
      * globalAvgPool1d} pooling function
      */
     public static Block globalAvgPool1dBlock() {
-        return LambdaBlockExt.singleton(MAX_POOLING, PoolExt::globalAvgPool1d);
+        return LambdaBlockExt.singleton(NOT_IMPLEMENTED_YET, PoolExt::globalAvgPool1d);
     }
 
     /**
@@ -859,7 +864,7 @@ public final class PoolExt {
      * globalAvgPool2d} pooling function
      */
     public static Block globalAvgPool2dBlock() {
-        return LambdaBlockExt.singleton(MAX_POOLING, PoolExt::globalAvgPool2d);
+        return LambdaBlockExt.singleton(GLOBAL_AVG_POOL_2d, PoolExt::globalAvgPool2d);
     }
 
     /**
@@ -870,7 +875,7 @@ public final class PoolExt {
      * globalAvgPool3d} pooling function
      */
     public static Block globalAvgPool3dBlock() {
-        return LambdaBlockExt.singleton(MAX_POOLING, PoolExt::globalAvgPool3d);
+        return LambdaBlockExt.singleton(NOT_IMPLEMENTED_YET, PoolExt::globalAvgPool3d);
     }
 
     /**

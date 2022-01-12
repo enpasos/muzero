@@ -3,6 +3,7 @@ package ai.enpasos.mnist.blocks.ext;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.util.Pair;
 import ai.enpasos.mnist.blocks.OnnxBlock;
@@ -39,17 +40,25 @@ public class ParallelBlockWithConcatChannelJoinExt extends ParallelBlock impleme
             .valueInfos(createValueInfoProto(input))
             .build();
 
+        int concatDim = 1;
         List<OnnxTensor> outputsToBeConcatenated = new ArrayList<>();
+        long size = 0; // along the concatenation dim
+        OnnxTensor childOutput = null;
         for (Pair<String, Block> p : this.getChildren()) {
             OnnxIO onnxIO = (OnnxIO)p.getValue();
             OnnxBlock child = onnxIO.getOnnxBlock(counter, input);
             onnxBlock.addChild(child);
             if (child.getOutput().size() > 1) throw new RuntimeException("each output is assumed to be a single tensor here");
-            outputsToBeConcatenated.add(child.getOutput().get(0));
+            childOutput = child.getOutput().get(0);
+            outputsToBeConcatenated.add(childOutput);
+            size += childOutput.getShape().get(concatDim);
         }
 
+       Shape inputShapeExample = childOutput.getShape();
+        List<OnnxTensor> output = combine(List.of("T" + counter.count()), List.of(
+            new Shape(inputShapeExample.get(0), size, inputShapeExample.get(2), inputShapeExample.get(3))
+        ));
 
-        List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
 
         OnnxBlock concatBlock = OnnxBlock.builder()
             .input(outputsToBeConcatenated)
@@ -62,7 +71,7 @@ public class ParallelBlockWithConcatChannelJoinExt extends ParallelBlock impleme
                     .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INT)
                         .setName("axis")
-                        .setI(1)
+                        .setI(concatDim)
                         .build())
                     .addAllInput(getNames(outputsToBeConcatenated))
                     .addOutput(output.get(0).getName())

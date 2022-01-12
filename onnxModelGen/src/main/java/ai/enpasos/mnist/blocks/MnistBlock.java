@@ -18,6 +18,7 @@
 package ai.enpasos.mnist.blocks;
 
 import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.pooling.Pool;
 import ai.enpasos.mnist.blocks.ext.*;
 
 import java.util.Arrays;
@@ -52,6 +53,7 @@ public class MnistBlock extends SequentialBlockExt implements OnnxIO {
                                 .build()
                         ))
                 )
+                .add(new SE(32, 8))
                 .add(LayerNormExt.builder().build())
                 .add(ActivationExt.reluBlock())
                 .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7

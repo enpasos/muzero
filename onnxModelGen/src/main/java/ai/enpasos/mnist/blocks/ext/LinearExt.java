@@ -54,7 +54,6 @@ public class LinearExt extends LinearOpened implements OnnxIO {
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .output(blockB.getOutput())
-            .valueInfos(createValueInfoProto(blockB.getOutput()))
             .build();
 
         onnxBlock.addChild(blockW);
@@ -86,7 +85,7 @@ public class LinearExt extends LinearOpened implements OnnxIO {
                 TensorProto.newBuilder()
                     .setName(parameterName)
                     .setDataType(1)
-                    .addAllDims(List.of(1L, 10L))
+                    .addAllDims(List.of(1L, this.parameters.get("bias").getArray().size()))
                     .addAllFloatData(convert(this.parameters.get("bias").getArray()))
                     .build()
             ))
@@ -110,7 +109,6 @@ public class LinearExt extends LinearOpened implements OnnxIO {
                     .addOutput(output.get(0).getName())
                     .build()
             ))
-            .valueInfos(createValueInfoProto(output))
             .build();
     }
 

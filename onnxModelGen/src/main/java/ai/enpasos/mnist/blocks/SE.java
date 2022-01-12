@@ -15,89 +15,66 @@
  *
  */
 
-package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel;
+package ai.enpasos.mnist.blocks;
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.*;
-import ai.djl.nn.core.Linear;
-import ai.djl.nn.pooling.Pool;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import org.jetbrains.annotations.NotNull;
+import ai.enpasos.mnist.blocks.ext.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class SE extends AbstractBlock {
+public class SE extends AbstractBlock implements OnnxIO {
 
 
-    public final ParallelBlock block;
+    public final ParallelBlockWithScalerJoinExt block;
 
 
     public SE(int numChannels, int squeezeChannelRatio) {
-        super(MYVERSION);
+        super((byte)1);
 
         SequentialBlock b1;
         SequentialBlock identity;
 
-        ParallelBlock globalBlock =
-                new ParallelBlock(
-                        list -> {
-                            List<NDArray> concatenatedList =
-                                    list.stream().map(NDList::head).collect(Collectors.toList());
-                            return new NDList(NDArrays.concat(new NDList(concatenatedList), 1));
-                        },
+        ParallelBlockWithConcatChannelJoinExt globalBlock =
+                new ParallelBlockWithConcatChannelJoinExt(
                         Arrays.asList(
-                                Pool.globalAvgPool2dBlock(),
-                                Pool.globalMaxPool2dBlock()));
+                                PoolExt.globalAvgPool2dBlock(),
+                                PoolExt.globalMaxPool2dBlock()));
 
-        b1 = new SequentialBlock()
-
+        b1 = new SequentialBlockExt()
                 .add(globalBlock)
-
-                .add(Linear.builder()
+                .add(BlocksExt.batchFlattenBlock())  // TODO intermediate workaround for mismatch DJL <-> ONNX
+                .add(LinearExt.builder()
                         .setUnits(numChannels/squeezeChannelRatio)
                         .build())
-                .add(Activation::relu)
-                .add(Linear.builder()
+                .add(ActivationExt.reluBlock())
+                .add(LinearExt.builder()
                         .setUnits(numChannels)
                         .build())
-                .add(Activation::sigmoid)
+                .add(ActivationExt.sigmoidBlock())
+
         ;
 
-        identity = new SequentialBlock()
-                .add(Blocks.identityBlock());
+        identity = new SequentialBlockExt()
+                .add(BlocksExt.identityBlock());
 
-
-        block = addChildBlock("seBlock", new ParallelBlock(
-                list -> {
-                    NDArray scaler = list.get(0).singletonOrThrow();
-                    Shape newShape = scaler.getShape().add(1, 1);
-                    scaler = scaler.reshape(newShape);
-                    NDArray original = list.get(1).singletonOrThrow();
-                    return new NDList(
-                            original.mul(scaler)
-                    );
-                },
-                Arrays.asList(b1, identity)));
+        block = addChildBlock("seBlock", new ParallelBlockWithScalerJoinExt(Arrays.asList(b1, identity)));
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "Residual()";
     }
 
     @Override
-    public NDList forward(@NotNull ParameterStore parameterStore, NDList inputs, boolean training) {
+    public NDList forward( ParameterStore parameterStore, NDList inputs, boolean training) {
         return forward(parameterStore, inputs, training, null);
     }
 
@@ -117,4 +94,8 @@ public class SE extends AbstractBlock {
     }
 
 
+    @Override
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
+        return block.getOnnxBlock(counter, input);
+    }
 }
