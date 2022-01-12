@@ -3,6 +3,7 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.OnnxExport;
 import ai.enpasos.muzero.tictactoe.debug.TicTacToeLossExtractor;
 import ai.enpasos.muzero.tictactoe.debug.TicTacToeWinLooseStatistics;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ public class TicTacToe implements CommandLineRunner {
     private MuZeroConfig conf;
     @Autowired
     private TicTacToeLossExtractor goLossExtractor;
+    @Autowired
+    private OnnxExport onnxExport;
 
     public static void main(String[] args) {
         SpringApplication.run(TicTacToe.class, args);
@@ -39,6 +42,9 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case LOSS:
                 goLossExtractor.run();
+                break;
+            case ONNX:
+                onnxExport.run();
                 break;
             case RENDER:
                 throw new MuZeroException("RENDER not implemented yet.");

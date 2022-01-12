@@ -24,6 +24,7 @@ import ai.djl.nn.Blocks;
 import ai.djl.nn.ParallelBlock;
 import ai.djl.nn.SequentialBlock;
 import ai.djl.nn.core.Linear;
+import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -40,36 +41,37 @@ public class PredictionBlock extends MySequentialBlock {
     public PredictionBlock(@NotNull MuZeroConfig config) {
 
 
-        SequentialBlock valueHead = new SequentialBlock()
+        SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt()
                 .add(Conv1x1LayerNormRelu.builder().channels(1).build())
-                .add(Blocks.batchFlattenBlock())
-                .add(Linear.builder()
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
                         .setUnits(config.getNumChannels()) // config.getNumChannels())  // originally 256
                         .build())
-                .add(Activation::relu)
-                .add(Linear.builder()
+                .add(ActivationExt.reluBlock())
+                .add(LinearExt.builder()
                         .setUnits(1).build());
         if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-            valueHead.add(Activation::tanh);
+            valueHead.add(ActivationExt.tanhBlock());
         }
 
-        SequentialBlock policyHead = new SequentialBlock()
+        SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt()
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())
-                .add(Blocks.batchFlattenBlock())
-                .add(Linear.builder()
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
                         .setUnits(config.getActionSpaceSize())
                         .build());
 
 
-        add(new ParallelBlock(
-                list -> {
-                    List<NDArray> concatenatedList = list
-                            .stream()
-                            .map(NDList::head)
-                            .collect(Collectors.toList());
-
-                    return new NDList(concatenatedList);
-                }, Arrays.asList(policyHead, valueHead))
+        add(new ParallelBlockWithConcatChannelJoinExt(
+//                list -> {
+//                    List<NDArray> concatenatedList = list
+//                            .stream()
+//                            .map(NDList::head)
+//                            .collect(Collectors.toList());
+//
+//                    return new NDList(concatenatedList);
+//                },
+            Arrays.asList(policyHead, valueHead))
         );
     }
 

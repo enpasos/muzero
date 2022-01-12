@@ -7,8 +7,10 @@ import ai.enpasos.onnx.ModelProto;
 import ai.enpasos.onnx.OperatorSetIdProto;
 
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 
@@ -16,19 +18,24 @@ public class OnnxIOExport {
 
 
     public static void onnxExport(Model model, List<Shape> inputShapes, String fileName) {
-        ModelProto modelProto = getModelProto(model, inputShapes);
+        onnxExport((OnnxIO) model.getBlock(),  inputShapes,  fileName);
+    }
+
+    public static void onnxExport(OnnxIO onnxIO, List<Shape> inputShapes, String fileName) {
+        ModelProto modelProto = getModelProto(onnxIO, inputShapes);
         save(modelProto, fileName);
     }
 
+    private static ModelProto getModelProto(OnnxIO onnxIO, List<Shape> inputShapes) {
+        OnnxCounter counter = OnnxCounter.builder().counter(0).build();
 
-    private static ModelProto getModelProto(Model model, List<Shape> inputShapes) {
-
-        OnnxIO onnxIO = (OnnxIO) model.getBlock();
+        List<String> inputNames = new ArrayList<>();
+        IntStream.range(0, inputShapes.size()).forEach(i -> inputNames.add("Input" + counter.count()));
 
 
         OnnxBlock onnxBlock = onnxIO.getOnnxBlock(
             OnnxCounter.builder().counter(0).build(),
-            combine(List.of("Input"), inputShapes)
+            combine(inputNames, inputShapes)
         );
 
         ModelProto.Builder modelBuilder = ModelProto.newBuilder();
