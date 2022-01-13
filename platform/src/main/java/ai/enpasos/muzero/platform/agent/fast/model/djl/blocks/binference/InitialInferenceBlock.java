@@ -136,8 +136,8 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
         onnxBlock.getValueInfos().addAll(createValueInfoProto(concatOutput));
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
 
         onnxBlock.setOutput(fOutput);
 

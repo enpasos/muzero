@@ -113,11 +113,11 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         int concatDim = 1;
         Shape stateShape = input.get(0).getShape();
         Shape actionShape = input.get(1).getShape();
-        Shape hInputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-        Shape[] gOutputShapes = g.getOutputShapes(new Shape[] {hInputShapes});
+        Shape hConcatOutputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
+        Shape[] gOutputShapes = g.getOutputShapes(new Shape[] {hConcatOutputShapes});
         Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
 
-        List<OnnxTensor> concatOutput = combine(List.of("T" + counter.count()), List.of(hInputShapes));
+        List<OnnxTensor> hInput = combine(List.of("T" + counter.count()), List.of(hConcatOutputShapes));
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
@@ -135,11 +135,11 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
                         .setI(concatDim)
                         .build())
                     .addAllInput(getNames(input))
-                    .addOutput(concatOutput.get(0).getName())
+                    .addOutput(hInput.get(0).getName())
                     .build()
         );
 
-        OnnxBlock gOnnx = g.getOnnxBlock(counter, concatOutput);
+        OnnxBlock gOnnx = g.getOnnxBlock(counter, hInput);
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
         OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutput);
@@ -147,9 +147,9 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(concatOutput));
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
+        onnxBlock.getValueInfos().addAll(createValueInfoProto(hInput));
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
 
         onnxBlock.setOutput(fOutput);
 
