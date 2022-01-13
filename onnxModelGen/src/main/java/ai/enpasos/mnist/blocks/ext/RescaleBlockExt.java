@@ -29,6 +29,7 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
+import ai.enpasos.onnx.TensorProto;
 
 import java.util.List;
 
@@ -74,11 +75,13 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        OnnxBlock blockMin = nodeMin(counter, input);
-        OnnxBlock blockMax = nodeMax(counter, input);
-        OnnxBlock blockSubA = nodeSub(counter, input, blockMin.getOutput());
-        OnnxBlock blockSubB = nodeSub(counter, blockMax.getOutput(), blockMin.getOutput());
-        OnnxBlock blockDiv = nodeDiv(counter, blockSubA.getOutput(), blockSubB.getOutput());
+        OnnxBlock blockReduceMin = nodeReduceMin(counter, input);
+        OnnxBlock blockReduceMax = nodeReduceMax(counter, input);
+        OnnxBlock blockSubA = nodeSub(counter, input, blockReduceMin.getOutput());
+        OnnxBlock blockSubB = nodeSub(counter, blockReduceMax.getOutput(), blockReduceMin.getOutput());
+        OnnxBlock blockMax = nodeMax(counter, blockSubB.getOutput());
+
+        OnnxBlock blockDiv = nodeDiv(counter, blockSubA.getOutput(), blockMax.getOutput());
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
@@ -86,17 +89,19 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
             .valueInfos(createValueInfoProto( blockDiv.getOutput()))
             .build();
 
-        onnxBlock.addChild(blockMin);
-        onnxBlock.addChild(blockMax);
+        onnxBlock.addChild(blockReduceMin);
+        onnxBlock.addChild(blockReduceMax);
         onnxBlock.addChild(blockSubA);
         onnxBlock.addChild(blockSubB);
         onnxBlock.addChild(blockDiv);
+        onnxBlock.addChild(blockMax);
 
         return onnxBlock;
 
     }
 
-    private OnnxBlock nodeMin(OnnxCounter counter, List<OnnxTensor> input) {
+
+    private OnnxBlock nodeReduceMin(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
             List.of(new Shape(input.get(0).getShape().get(0), 1, 1, 1))
@@ -119,7 +124,7 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
             )
             .build();
      }
-    private OnnxBlock nodeMax(OnnxCounter counter, List<OnnxTensor> input) {
+    private OnnxBlock nodeReduceMax(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
             List.of(new Shape(input.get(0).getShape().get(0), 1, 1, 1))
@@ -142,6 +147,35 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
             )
             .build();
     }
+    private OnnxBlock nodeMax(OnnxCounter counter, List<OnnxTensor> input) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(input.get(0).getShape())
+        );
+        String parameterName = "T" + counter.count();
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Max")
+                    .addInput(input.get(0).getName())
+                    .addInput(parameterName)
+                    .addOutput(output.get(0).getName())
+                    .build())
+            )
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(parameterName)
+                    .setDataType(1)
+                    .addAllDims(List.of(1L))
+                    .addAllFloatData(List.of(1e-5f))
+                    .build()
+            ))
+            .build();
+    }
+
     private OnnxBlock nodeSub(OnnxCounter counter, List<OnnxTensor> inputA, List<OnnxTensor> inputB) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
