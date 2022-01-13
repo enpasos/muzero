@@ -31,6 +31,12 @@
 
     <dependencies>
 
+
+        <dependency>
+            <groupId>com.enpasos.muzero</groupId>
+            <artifactId>tictactoe</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -82,7 +88,7 @@
             <groupId>ai.djl.onnxruntime</groupId>
             <artifactId>onnxruntime-engine</artifactId>
             <version>${djl.version}</version>
-            <scope>runtime</scope>
+            <!--scope>runtime</scope-->
             <!--exclusions>
                 <exclusion>
                     <groupId>com.microsoft.onnxruntime</groupId>

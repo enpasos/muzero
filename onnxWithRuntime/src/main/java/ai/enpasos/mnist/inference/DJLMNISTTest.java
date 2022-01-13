@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
-public class DJLTest {
+public class DJLMNISTTest {
     public static void main(String[] args) throws Exception {
 
         testClassifications(

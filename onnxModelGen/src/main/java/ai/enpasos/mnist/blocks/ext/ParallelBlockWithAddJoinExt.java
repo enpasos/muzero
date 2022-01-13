@@ -39,7 +39,6 @@ public class ParallelBlockWithAddJoinExt extends ParallelBlock implements OnnxIO
 
 
 
-    // TODO
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
         OnnxBlock onnxBlock = OnnxBlock.builder()
@@ -48,8 +47,8 @@ public class ParallelBlockWithAddJoinExt extends ParallelBlock implements OnnxIO
             .build();
 
         int concatDim = 1;
-        List<OnnxTensor> outputsToBeConcatenated = new ArrayList<>();
-        long size = 0; // along the concatenation dim
+        List<OnnxTensor> outputsToBeCombined = new ArrayList<>();
+     //   long size = 0; // along the concatenation dim
         OnnxTensor childOutput = null;
         for (Pair<String, Block> p : this.getChildren()) {
             OnnxIO onnxIO = (OnnxIO)p.getValue();
@@ -57,30 +56,25 @@ public class ParallelBlockWithAddJoinExt extends ParallelBlock implements OnnxIO
             onnxBlock.addChild(child);
             if (child.getOutput().size() > 1) throw new RuntimeException("each output is assumed to be a single tensor here");
             childOutput = child.getOutput().get(0);
-            outputsToBeConcatenated.add(childOutput);
-            size += childOutput.getShape().get(concatDim);
+            outputsToBeCombined.add(childOutput);
+          //  size += childOutput.getShape().get(concatDim);
         }
 
        Shape inputShapeExample = childOutput.getShape();
         List<OnnxTensor> output = combine(List.of("T" + counter.count()), List.of(
-            new Shape(inputShapeExample.get(0), size, inputShapeExample.get(2), inputShapeExample.get(3))
+            inputShapeExample
         ));
 
 
         OnnxBlock concatBlock = OnnxBlock.builder()
-            .input(outputsToBeConcatenated)
+            .input(outputsToBeCombined)
             .output(output)
             .valueInfos(createValueInfoProto(output))
             .nodes(List.of(
                 NodeProto.newBuilder()
                     .setName("N" + counter.count())
-                    .setOpType("Concat")
-                    .addAttribute(AttributeProto.newBuilder()
-                        .setType(AttributeProto.AttributeType.INT)
-                        .setName("axis")
-                        .setI(concatDim)
-                        .build())
-                    .addAllInput(getNames(outputsToBeConcatenated))
+                    .setOpType("Add")
+                    .addAllInput(getNames(outputsToBeCombined))
                     .addOutput(output.get(0).getName())
                     .build()
             ))

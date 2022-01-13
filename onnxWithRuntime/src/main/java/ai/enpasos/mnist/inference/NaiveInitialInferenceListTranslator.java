@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference;
+package ai.enpasos.mnist.inference;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
@@ -39,32 +39,32 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
+public class NaiveInitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
         NDArray hiddenStates;
-        NDArray s = list.get(0);
-        if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
-            hiddenStates = s;
-            SubModel submodel = (SubModel) ctx.getModel();
-            hiddenStates.attach(submodel.getHiddenStateNDManager());
-        } else {
-            hiddenStates = s.toDevice(Device.cpu(), false);
-            NDManager hiddenStateNDManager = hiddenStates.getManager();
-            SubModel submodel = (SubModel) ctx.getModel();
-            hiddenStates.attach(submodel.getHiddenStateNDManager());
-            hiddenStateNDManager.close();
-            s.close();
-        }
+    //    NDArray s = list.get(0);
+   //     if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
+      //      hiddenStates = s;
+//            SubModel submodel = (SubModel) ctx.getModel();
+//            hiddenStates.attach(submodel.getHiddenStateNDManager());
+//        } else {
+//            hiddenStates = s.toDevice(Device.cpu(), false);
+//            NDManager hiddenStateNDManager = hiddenStates.getManager();
+//            SubModel submodel = (SubModel) ctx.getModel();
+//            hiddenStates.attach(submodel.getHiddenStateNDManager());
+//            hiddenStateNDManager.close();
+//            s.close();
+//        }
 
 
         NetworkIO outputA = NetworkIO.builder()
-                .hiddenState(hiddenStates)
+              //  .hiddenState(hiddenStates)
                 .build();
 
-
-        NDArray p = list.get(1).softmax(1);
+// TODO Hiddenstate output is missing
+        NDArray p = list.get(0).softmax(1);
         int actionSpaceSize = (int) p.getShape().get(1);
-        NDArray v = list.get(2);
+        NDArray v = list.get(1);
 
         float[] pArray = p.toFloatArray();
         float[] vArray = v.toFloatArray();
@@ -86,10 +86,10 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 .collect(Collectors.toList());
 
 
-        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
-            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-        }
-        hiddenStates.close();
+//        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
+//            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
+//        }
+      //  hiddenStates.close();
         return networkIOs;
     }
 

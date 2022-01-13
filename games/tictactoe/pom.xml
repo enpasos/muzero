@@ -30,6 +30,11 @@
             </exclusions>
         </dependency>
         <dependency>
+    <groupId>com.microsoft.onnxruntime</groupId>
+    <artifactId>onnxruntime</artifactId>
+    <version>1.10.0</version>
+</dependency>
+        <dependency>
             <groupId>com.enpasos.muzero</groupId>
             <artifactId>platform</artifactId>
             <version>${project.version}</version>
