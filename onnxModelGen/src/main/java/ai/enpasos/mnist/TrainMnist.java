@@ -32,6 +32,7 @@ import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.TranslateException;
+import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.MnistBlock;
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,6 +88,7 @@ public final class TrainMnist {
                 Shape inputShape = new Shape(1, 1, Mnist.IMAGE_HEIGHT, Mnist.IMAGE_WIDTH);
 
                 trainer.initialize(inputShape);
+          PairList<String,Shape> pList =  model.getBlock().describeInput();
 
                 EasyTrain.fit(trainer, arguments.getEpoch(), trainingSet, validateSet);
 
