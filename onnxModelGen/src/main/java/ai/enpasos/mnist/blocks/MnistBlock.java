@@ -26,7 +26,7 @@ import java.util.Arrays;
 public class MnistBlock extends SequentialBlockExt implements OnnxIO {
     public static MnistBlock newMnistBlock() {
         return (MnistBlock) new MnistBlock()
-                .add(Conv2dExt.builder()
+            .add(Conv2dExt.builder()
                         .setFilters(8)
                         .setKernelShape(new Shape(5, 5))
                         .optBias(false)
