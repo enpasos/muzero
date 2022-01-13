@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.FloatBuffer;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,9 +45,7 @@ class MnistBlockTest {
         Pair<NDList, NDList> inputOutput =   inputOutputFromDJL(block, inputShapes, modelPath);
         NDList input = inputOutput.getKey();
         NDList outputDJL = inputOutput.getValue();
-
         NDList outputOnnx = outputFromOnnx(modelPath, input);
-
 
         assertEquals(outputDJL.size(), outputOnnx.size());
         for (int i = 0; i < outputDJL.size(); i++) {
@@ -62,22 +61,19 @@ class MnistBlockTest {
 
     public static Pair<NDList, NDList> inputOutputFromDJL(Block block,List<Shape> inputShapes, String modelPath) {
 
-
-        NDList input_ = null;
+        NDList input = null;
         NDList outputDJL = null;
         try (Model model = Model.newInstance("mymodel", Device.cpu())) {
 
             model.setBlock(block);
 
-
-
-            input_ = new NDList(inputShapes.stream()
+            input = new NDList(inputShapes.stream()
                 .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
                 .collect(Collectors.toList()));
 
             // no training here - loss function is a dummy
             try (Trainer trainer = model.newTrainer(new DefaultTrainingConfig(Loss.l2Loss()))) {
-                outputDJL = trainer.forward(input_).toDevice(Device.cpu(), true);
+                outputDJL = trainer.forward(input).toDevice(Device.cpu(), true);
             } catch (Exception e) {
             }
 
@@ -88,7 +84,7 @@ class MnistBlockTest {
             String message = "not able to save created model";
             log.error(message);
         }
-        return new Pair<>(input_, outputDJL);
+        return new Pair<>(input, outputDJL);
     }
 
     private NDList outputFromOnnx(String modelPath, NDList input) throws OrtException {
@@ -111,16 +107,21 @@ class MnistBlockTest {
                     log.info(i.toString());
                 }
 
-                Shape outputShape = new Shape(1, 10);
-                // output [1, 10]
+                List<Shape> outputShapes = session.getOutputInfo().values().stream()
+                    .map(info -> new Shape(((TensorInfo)info.getInfo()).getShape()))
+                    .collect(Collectors.toList());
 
                 try (
-                    // TODO generalize
                     OnnxTensor inputOnnx = OnnxTensor.createTensor(env, FloatBuffer.wrap(input.get(0).toFloatArray()), input.get(0).getShape().getShape());
                     OrtSession.Result output = session.run(Collections.singletonMap("Input0", inputOnnx));) {
 
-                    OnnxTensor t = (OnnxTensor) output.get(0);
-                    outputOnnx = new NDList(NDManager.newBaseManager().create(t.getFloatBuffer().array(), outputShape));
+                    List<NDArray> ndArrays = new ArrayList<>();
+                    for(int i = 0; i< output.size(); i++) {
+                        OnnxTensor t = (OnnxTensor) output.get(i);
+                        ndArrays.add(NDManager.newBaseManager().create(t.getFloatBuffer().array(), outputShapes.get(i)));
+                    }
+
+                    outputOnnx = new NDList(ndArrays);
 
                 }
 
