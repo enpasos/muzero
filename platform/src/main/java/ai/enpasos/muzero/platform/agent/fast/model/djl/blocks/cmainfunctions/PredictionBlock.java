@@ -17,13 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions;
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDList;
-import ai.djl.nn.Activation;
-import ai.djl.nn.Blocks;
-import ai.djl.nn.ParallelBlock;
-import ai.djl.nn.SequentialBlock;
-import ai.djl.nn.core.Linear;
 import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.MySequentialBlock;
@@ -32,8 +25,6 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PredictionBlock extends MySequentialBlock {
 
@@ -62,7 +53,7 @@ public class PredictionBlock extends MySequentialBlock {
                         .build());
 
 
-        add(new ParallelBlockWithConcatChannelJoinExt(
+        add(new ParallelBlockWithCollectChannelJoinExt(
 //                list -> {
 //                    List<NDArray> concatenatedList = list
 //                            .stream()
