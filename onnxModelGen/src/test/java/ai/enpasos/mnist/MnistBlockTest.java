@@ -6,14 +6,13 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.loss.Loss;
+import ai.djl.util.Pair;
 import ai.enpasos.mnist.blocks.MnistBlock;
-import ai.onnxruntime.NodeInfo;
-import ai.onnxruntime.OnnxTensor;
-import ai.onnxruntime.OrtEnvironment;
-import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.mnist.blocks.OnnxIOExport.onnxExport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,47 +33,66 @@ class MnistBlockTest {
     @Test
     void newMnistBlock() throws Exception {
 
+        compareOnnxWithDJL(
+            "./target/MnistBlock.onnx",
+            MnistBlock.newMnistBlock(),
+            List.of(new Shape(1, 1, 28, 28)));
 
-        String modelPath = "./target/MnistBlock.onnx";
+    }
 
-        String parameterDir = "../mymodel/";
+    private void compareOnnxWithDJL(String modelPath, Block block, List<Shape> inputShapes) throws OrtException {
+        Pair<NDList, NDList> inputOutput =   inputOutputFromDJL(block, inputShapes, modelPath);
+        NDList input = inputOutput.getKey();
+        NDList outputDJL = inputOutput.getValue();
+
+        NDList outputOnnx = outputFromOnnx(modelPath, input);
 
 
-        NDList input = null;
+        assertEquals(outputDJL.size(), outputOnnx.size());
+        for (int i = 0; i < outputDJL.size(); i++) {
+            boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-04, 1e-04, true);
+            if (!check) {
+                log.error("DJL ... " + Arrays.toString(outputDJL.get(i).toFloatArray()));
+                log.error("Onnx ... " + Arrays.toString(outputOnnx.get(i).toFloatArray()));
+            }
+            assertTrue(check);
+        }
+    }
+
+
+    public static Pair<NDList, NDList> inputOutputFromDJL(Block block,List<Shape> inputShapes, String modelPath) {
+
+
+        NDList input_ = null;
         NDList outputDJL = null;
-        NDList outputOnnx = null;
-
-
         try (Model model = Model.newInstance("mymodel", Device.cpu())) {
 
-            MnistBlock block = MnistBlock.newMnistBlock();
             model.setBlock(block);
 
-            model.load(Paths.get(parameterDir));
 
-            // TODO generalize ... and repair the describeInput()
-          //  Shape inputShape = model.getBlock().describeInput().get(0).getValue();
-            Shape inputShape = new Shape(1, 1, 28, 28);
 
-            onnxExport(model, List.of(inputShape), modelPath);
+            input_ = new NDList(inputShapes.stream()
+                .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
+                .collect(Collectors.toList()));
 
-            NDArray inputArray = NDManager.newBaseManager().randomUniform(0f, 1f, inputShape);
-            input = new NDList(inputArray);
-
-// not training here - loss function is a dummy
+            // no training here - loss function is a dummy
             try (Trainer trainer = model.newTrainer(new DefaultTrainingConfig(Loss.l2Loss()))) {
-                outputDJL = trainer.forward(input).toDevice(Device.cpu(), true);
+                outputDJL = trainer.forward(input_).toDevice(Device.cpu(), true);
             } catch (Exception e) {
             }
 
-            // output = model.getBlock().forward(new ParameterStore(model.getNDManager(), true), input, false);
+            onnxExport(model, inputShapes, modelPath);
 
         } catch (Exception e) {
             e.printStackTrace();
             String message = "not able to save created model";
             log.error(message);
         }
+        return new Pair<>(input_, outputDJL);
+    }
 
+    private NDList outputFromOnnx(String modelPath, NDList input) throws OrtException {
+        NDList outputOnnx;
         try (OrtEnvironment env = OrtEnvironment.getEnvironment();
              OrtSession.SessionOptions opts = new OrtSession.SessionOptions()) {
 
@@ -92,12 +111,6 @@ class MnistBlockTest {
                     log.info(i.toString());
                 }
 
-                // input [1, 1, 28, 28]
-//                Shape inputShape = new Shape(1, 1, 28, 28);
-//                NDArray inputArray = NDManager.newBaseManager().randomUniform(0f, 1f, inputShape);
-//                input = new NDList(inputArray);
-
-
                 Shape outputShape = new Shape(1, 10);
                 // output [1, 10]
 
@@ -113,18 +126,8 @@ class MnistBlockTest {
 
             }
         }
-
-
-        assertEquals(outputDJL.size(), outputOnnx.size());
-        for (int i = 0; i < outputDJL.size(); i++) {
-            boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-04, 1e-04, true);
-            if (!check) {
-                log.error("DJL ... " + Arrays.toString(outputDJL.get(i).toFloatArray()));
-                log.error("Onnx ... " + Arrays.toString(outputOnnx.get(i).toFloatArray()));
-            }
-            assertTrue(check);
-        }
-
-
+        return outputOnnx;
     }
+
+
 }
