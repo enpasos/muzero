@@ -37,7 +37,7 @@ public class TicTacToeMicrosoftRT {
 
                     try (OnnxTensor test = OnnxTensor.createTensor(env, input);
                          OrtSession.Result output = session.run(Collections.singletonMap("Input0", test))) {
-                        float[][][][] v = (float[][][][]) output.get("T605").get().getValue();
+                        float[][][][] v = (float[][][][]) output.get("T695").get().getValue();
                      //   log.info("value: " + v[0][0]);
                         int i = 42;
 

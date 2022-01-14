@@ -41,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
@@ -72,16 +73,15 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
      */
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-        NDArray state = inputs.get(0);
-        NDArray action = inputs.get(1);
-        NDArray inputsAll = NDArrays.concat(new NDList(state, action), 1);
-        NDList gResult = g.forward(parameterStore, new NDList(inputsAll), training);
+        NDList gResult = g.forward(parameterStore, inputs, training);
         NDList fResult = f.forward(parameterStore, gResult, training);
         return gResult.addAll(fResult);
     }
 
 
-    @Override
+
+
+        @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
         Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
@@ -91,11 +91,8 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        Shape stateShape = inputShapes[0];
-        Shape actionShape = inputShapes[1];
-        Shape hInputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
 
-        g.initialize(manager, dataType, hInputShapes);
+        g.initialize(manager, dataType, inputShapes);
         Shape[] hOutputShapes = g.getOutputShapes(inputShapes);
         f.initialize(manager, dataType, hOutputShapes);
     }

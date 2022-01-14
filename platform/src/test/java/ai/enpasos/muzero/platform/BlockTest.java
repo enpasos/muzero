@@ -14,6 +14,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,7 @@ class BlockTest {
     }
 
     @Test
+    @Disabled
     void residualZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/ResidualBlockV2.onnx",
@@ -88,6 +90,7 @@ class BlockTest {
     }
 
     @Test
+    @Disabled
     void residualTowerZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/ResidualTowerBlock.onnx",
@@ -102,6 +105,7 @@ class BlockTest {
     }
 
     @Test
+    @Disabled
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
@@ -112,6 +116,7 @@ class BlockTest {
     }
 
     @Test
+    @Disabled
     void predictionZERO() throws Exception {
 
         boolean check = compareOnnxWithDJL(

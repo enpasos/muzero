@@ -75,7 +75,7 @@ switch(testdata) {
             } catch (Exception e) {
             }
 
-            onnxExport(model, inputShapes, modelPath);
+            onnxExport(model, inputShapes, modelPath, "");
 
         } catch (Exception e) {
             e.printStackTrace();

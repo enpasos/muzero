@@ -92,7 +92,7 @@ public final class TrainMnist {
 
                 EasyTrain.fit(trainer, arguments.getEpoch(), trainingSet, validateSet);
 
-                onnxExport(model, List.of(inputShape), "./models/mnist.onnx");
+                onnxExport(model, List.of(inputShape), "./models/mnist.onnx", "");
 
                 return trainer.getTrainingResult();
             }

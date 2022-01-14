@@ -7,6 +7,7 @@ import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -55,6 +56,7 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
     @Test
+    @Disabled
     void layerNormZERO() throws Exception {
         boolean check =
             compareOnnxWithDJL(
@@ -79,6 +81,7 @@ class BlockTest {
     }
 
     @Test
+    @Disabled
     void  mnistBlockZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/MnistBlock.onnx",

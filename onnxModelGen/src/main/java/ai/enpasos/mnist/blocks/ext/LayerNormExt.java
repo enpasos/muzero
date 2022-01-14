@@ -1,7 +1,6 @@
 package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.norm.LayerNormOpened;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -36,24 +35,61 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        OnnxBlock blockMVN = nodeMVN(counter, input);
+
+        OnnxBlock blockRandomLike = nodeRandomLike(counter, input);
+        OnnxBlock blockNodeAdd = nodeAdd(counter, input, blockRandomLike.getOutput());
+
+        OnnxBlock blockMVN = nodeMVN(counter, blockNodeAdd.getOutput());
         OnnxBlock blockMul = nodeMul(counter, blockMVN.getOutput());
-        OnnxBlock blockAdd = nodeAdd(counter, blockMul.getOutput());
+        OnnxBlock blockAddBeta = nodeAddBeta(counter, blockMul.getOutput());
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .valueInfos(createValueInfoProto(input))
-            .output(blockAdd.getOutput())
+            .output(blockAddBeta.getOutput())
             .build();
 
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(blockAdd.getOutput()));
+        onnxBlock.getValueInfos().addAll(createValueInfoProto(blockAddBeta.getOutput()));
         onnxBlock.addChild(blockMVN);
         onnxBlock.addChild(blockMul);
-        onnxBlock.addChild(blockAdd);
+        onnxBlock.addChild(blockAddBeta);
+        onnxBlock.addChild(blockRandomLike);
+        onnxBlock.addChild(blockNodeAdd);
 
         return onnxBlock;
 
     }
+
+
+  private OnnxBlock nodeRandomLike(OnnxCounter counter, List<OnnxTensor> input) {
+      List<OnnxTensor> output = combine(
+          List.of("T" + counter.count()),
+          List.of(input.get(0).getShape())
+      );
+      return OnnxBlock.builder()
+          .output(output)
+          .valueInfos(createValueInfoProto(output))
+          .nodes(List.of(
+              NodeProto.newBuilder()
+                  .setName("Node" + counter.count())
+                  .setOpType("RandomUniformLike")
+                  .addAttribute(AttributeProto.newBuilder()
+                      .setType(AttributeProto.AttributeType.FLOAT)
+                      .setName("low")
+                      .setF(-1e-7f)
+                      .build())
+                  .addAttribute(AttributeProto.newBuilder()
+                      .setType(AttributeProto.AttributeType.FLOAT)
+                      .setName("high")
+                      .setF(1e-7f)
+                      .build())
+                  .addInput(input.get(0).getName())
+                  .addOutput(output.get(0).getName())
+                  .build()
+          ))
+          .valueInfos(createValueInfoProto(output))
+          .build();
+  }
 
     private OnnxBlock nodeMVN(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
@@ -110,7 +146,30 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
             .valueInfos(createValueInfoProto(output))
             .build();
     }
-    private OnnxBlock nodeAdd(OnnxCounter counter, List<OnnxTensor> input) {
+    private OnnxBlock nodeAdd(OnnxCounter counter, List<OnnxTensor> inputA, List<OnnxTensor> inputB) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(inputA.get(0).getShape())
+        );
+        String betaName = "beta" + counter.count();
+        NDArray beta = this.parameters.get("beta").getArray();
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Add")
+                    .addInput(inputA.get(0).getName())
+                    .addInput(inputB.get(0).getName())
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .valueInfos(createValueInfoProto(output))
+            .build();
+
+    }
+    private OnnxBlock nodeAddBeta(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
             List.of(input.get(0).getShape())
