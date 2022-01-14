@@ -105,7 +105,7 @@ class BlockTest {
     }
 
     @Test
-    @Disabled
+
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",

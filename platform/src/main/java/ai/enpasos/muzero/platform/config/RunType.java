@@ -1,5 +1,5 @@
 package ai.enpasos.muzero.platform.config;
 
 public enum RunType {
-    NONE, TRAIN, VALUE, LOSS, RENDER, WINLOOSE, ONNX
+    NONE, TRAIN, VALUE, LOSS, RENDER, WINLOOSE, ONNX, INFERENCE
 }
