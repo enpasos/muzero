@@ -17,10 +17,15 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions;
 
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDList;
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
@@ -39,7 +44,12 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
     public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int squeezeChannelRatio, int numHiddenStateChannels) {
 
-        this.add(Conv3x3LayerNormRelu.builder().channels(numChannels).build())
+
+
+
+
+
+            this.add(Conv3x3LayerNormRelu.builder().channels(numChannels).build())
 
                 .add(ResidualTower.builder()
                         .numResiduals(numResiduals)

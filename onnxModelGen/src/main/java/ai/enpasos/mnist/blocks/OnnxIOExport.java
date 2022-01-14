@@ -17,24 +17,23 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 public class OnnxIOExport {
 
 
-    public static void onnxExport(Model model, List<Shape> inputShapes, String fileName) {
-        onnxExport((OnnxIO) model.getBlock(),  inputShapes,  fileName);
+    public static void onnxExport(Model model, List<Shape> inputShapes, String fileName, String namePrefix) {
+        onnxExport((OnnxIO) model.getBlock(),  inputShapes,  fileName, namePrefix);
     }
 
-    public static void onnxExport(OnnxIO onnxIO, List<Shape> inputShapes, String fileName) {
-        ModelProto modelProto = getModelProto(onnxIO, inputShapes);
+    public static void onnxExport(OnnxIO onnxIO, List<Shape> inputShapes, String fileName, String namePrefix) {
+        ModelProto modelProto = getModelProto(onnxIO, inputShapes, namePrefix);
         save(modelProto, fileName);
     }
 
-    private static ModelProto getModelProto(OnnxIO onnxIO, List<Shape> inputShapes) {
-        OnnxCounter counter = OnnxCounter.builder().counter(0).build();
+    private static ModelProto getModelProto(OnnxIO onnxIO, List<Shape> inputShapes, String namePrefix) {
+        OnnxCounter counter = OnnxCounter.builder().counter(0).prefix(namePrefix).build();
 
         List<String> inputNames = new ArrayList<>();
-        IntStream.range(0, inputShapes.size()).forEach(i -> inputNames.add("Input" + counter.count()));
-
+        IntStream.range(0, inputShapes.size()).forEach(i -> inputNames.add("Input"+ counter.count()));
 
         OnnxBlock onnxBlock = onnxIO.getOnnxBlock(
-            OnnxCounter.builder().counter(0).build(),
+            counter,
             combine(inputNames, inputShapes)
         );
 
@@ -58,7 +57,6 @@ public class OnnxIOExport {
                             .findFirst().get()
             )
         );
-
 
         graphBuilder.addAllValueInfo(onnxBlock.getValueInfos().stream()
                 .filter(vi -> !onnxBlock.getOutputNames().contains(vi.getName())

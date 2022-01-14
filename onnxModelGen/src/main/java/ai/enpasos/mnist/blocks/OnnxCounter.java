@@ -9,9 +9,9 @@ import java.util.List;
 @Builder
 public class OnnxCounter {
     int counter;
+    String prefix = "";
 
-
-    public int count() {
-        return counter++;
+    public String count() {
+         return prefix + counter++;
     }
 }
