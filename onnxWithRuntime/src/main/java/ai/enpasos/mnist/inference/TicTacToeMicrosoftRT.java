@@ -1,93 +1,70 @@
 package ai.enpasos.mnist.inference;
 
-import ai.onnxruntime.NodeInfo;
-import ai.onnxruntime.OnnxTensor;
-import ai.onnxruntime.OrtEnvironment;
-import ai.onnxruntime.OrtSession;
+import ai.djl.engine.Engine;
+import ai.djl.ndarray.NDArray;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.Shape;
+import ai.onnxruntime.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
+import java.nio.FloatBuffer;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class TicTacToeMicrosoftRT {
     public static void main(String[] args) throws  Exception {
 
-        String modelPath = "./models/representation.onnx";
+        List<JvmData> resultA = runFunction("./models/representation.onnx",
+            List.of(
+                JvmData.builder()
+            .name("InputH_0")
+            .shape(new Shape(1,3,3,3))
+            .data(new float[27])
+            .build()
+            ));
 
-       try (OrtEnvironment env = OrtEnvironment.getEnvironment();
+        resultA.get(0).setName("InputF_0");
+        List<JvmData> result2 = runFunction("./models/prediction.onnx", resultA);
+int i = 42;
+    }
+
+    private static List<JvmData> runFunction(String modelPath, List<JvmData> input) throws OrtException {
+
+        try (OrtEnvironment env = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions()) {
+            opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.BASIC_OPT);
+            try (OrtSession session = env.createSession(modelPath, opts)) {
+                Map<String, OnnxTensor> map = new TreeMap<>();
+                try  {
+                    for (int i = 0; i < input.size(); i++) {
+                        JvmData jvmData = input.get(i);
+                        map.put(jvmData.getName(), OnnxTensor.createTensor(env, FloatBuffer.wrap(jvmData.getData()), jvmData.getShape().getShape()));
+                    }
+                    OrtSession.Result output = session.run(map);
+                    return convert(output);
+                 }  finally {
+                         map.values().stream().forEach(t -> t.close());
+                 }
+            }
+         }
+    }
 
-        //    opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.BASIC_OPT);
 
-            log.info("Loading model from " + modelPath);
-           try (OrtSession session = env.createSession(modelPath, opts)) {
+    public static List<JvmData> convert(OrtSession.Result raw) {
 
-                log.info("Inputs:");
-                for (NodeInfo i : session.getInputInfo().values()) {
-                    log.info(i.toString());
-                }
+        List<JvmData> data = new ArrayList<>();
+        for (Iterator<Map.Entry<String,OnnxValue>> it = raw.iterator(); it.hasNext();  ) {
+          Map.Entry<String,OnnxValue> entry = it.next();
+          String name = entry.getKey();
+            OnnxValue v = entry.getValue();
 
-                log.info("Outputs:");
-                for (NodeInfo i : session.getOutputInfo().values()) {
-                    log.info(i.toString());
-                }
-
-
-                float[][][][] input = new float[1][3][3][3];
-
-                    try (OnnxTensor test = OnnxTensor.createTensor(env, input);
-                         OrtSession.Result output = session.run(Collections.singletonMap("Input0", test))) {
-                        float[][][][] v = (float[][][][]) output.get("T695").get().getValue();
-                     //   log.info("value: " + v[0][0]);
-                        int i = 42;
-
-//                        int predLabel;
-//
-//                        if (args.length == 3) {
-//                            long[] labels = (long[]) output.get(0).getValue();
-//                            predLabel = (int) labels[0];
-//                        } else {
-//                            float[][] outputProbs = (float[][]) output.get(0).getValue();
-//                            predLabel = pred(outputProbs[0]);
-//                        }
-//                        if (predLabel == data.labels[i]) {
-//                            correctCount++;
-//                        }
-//
-//                        confusionMatrix[data.labels[i]][predLabel]++;
-//
-//                        if (i % 2000 == 0) {
-//                            logger.log(Level.INFO, "Cur accuracy = " + ((float) correctCount) / (i + 1));
-//                            logger.log(Level.INFO, "Output type = " + output.get(0).toString());
-//                            if (args.length == 3) {
-//                                logger.log(Level.INFO, "Output type = " + output.get(1).toString());
-//                                logger.log(Level.INFO, "Output value = " + output.get(1).getValue().toString());
-//                            }
-//                        }
-//                    }
-                }
-//
-//                logger.info("Final accuracy = " + ((float) correctCount) / data.labels.length);
-//
-//                StringBuilder sb = new StringBuilder();
-//                sb.append("Label");
-//                for (int i = 0; i < confusionMatrix.length; i++) {
-//                    sb.append(String.format("%1$5s", "" + i));
-//                }
-//                sb.append("\n");
-//
-//                for (int i = 0; i < confusionMatrix.length; i++) {
-//                    sb.append(String.format("%1$5s", "" + i));
-//                    for (int j = 0; j < confusionMatrix[i].length; j++) {
-//                        sb.append(String.format("%1$5s", "" + confusionMatrix[i][j]));
-//                    }
-//                    sb.append("\n");
-//                }
-//
-//                System.out.println(sb.toString());
-           }
+            data.add(JvmData.builder()
+                    .data(((OnnxTensor) v).getFloatBuffer().array())
+                    .name(name)
+                    .shape(new Shape(((TensorInfo)v.getInfo()).getShape()))
+                .build());
         }
-//
-//        logger.info("Done!");
+        return data;
     }
 }
