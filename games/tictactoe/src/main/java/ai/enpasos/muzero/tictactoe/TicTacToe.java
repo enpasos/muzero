@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 
+import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.debug.OnnxExport;
@@ -13,6 +14,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+
+import java.util.List;
 
 @SpringBootApplication
 @Slf4j
@@ -45,7 +48,10 @@ public class TicTacToe implements CommandLineRunner {
                 goLossExtractor.run();
                 break;
             case ONNX:
-                onnxExport.run();
+                List<Shape> inputRepresentation = List.of(new Shape(1L,3L,3L,3L));
+                List<Shape> inputPrediction = List.of(new Shape(1L,5L,3L,3L));
+                List<Shape> inputGeneration = List.of(new Shape(1L,5L,3L,3L), new Shape(1L,1L,3L,3L));
+                onnxExport.run(inputRepresentation, inputPrediction, inputGeneration);
                 break;
             case RENDER:
                 throw new MuZeroException("RENDER not implemented yet.");

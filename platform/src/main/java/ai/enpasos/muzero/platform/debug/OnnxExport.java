@@ -7,6 +7,8 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Network;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.InitialInferenceBlock;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -41,21 +43,21 @@ public class OnnxExport {
     }
 
     @SuppressWarnings("squid:S106")
-    public void run() {
+    public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration) {
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
 
-// Beispiel tictactoe
-        List<Shape> inputInitialInference = List.of(new Shape(1L,3L,3L,3L));
-        List<Shape> inputRecurrentInference = List.of(new Shape(1L,5L,3L,3L), new Shape(1L,1L,3L,3L));
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
 
             try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
                 Network network = new Network(config, model);
-                onnxExport((OnnxIO) network.getInitialInference().getBlock(),  inputInitialInference, "./models/initialInference.onnx");
-                onnxExport((OnnxIO)network.getRecurrentInference().getBlock(),  inputRecurrentInference, "./models/recurrentInference.onnx");
+                InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock)network.getInitialInference().getBlock();
+                RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock)network.getRecurrentInference().getBlock();
+                onnxExport((OnnxIO) initialInferenceBlock.getH() ,  inputRepresentation, "./models/representation.onnx");
+                onnxExport((OnnxIO) initialInferenceBlock.getF() ,  inputPrediction, "./models/prediction.onnx");
+                onnxExport((OnnxIO)recurrentInferenceBlock.getG() ,  inputGeneration, "./models/generation.onnx");
             }
 
         } catch (Exception e) {

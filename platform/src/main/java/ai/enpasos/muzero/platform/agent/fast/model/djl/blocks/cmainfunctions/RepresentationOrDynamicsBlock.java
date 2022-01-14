@@ -31,18 +31,24 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
      * 3 × 3 kernels and 256 hidden planes for each convolution."
      */
 
-    public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
 
-        this.add(Conv3x3LayerNormRelu.builder().channels(config.getNumChannels()).build())
+    public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
+        this(config.getNumResiduals(), config.getNumChannels(), config.getSqueezeChannelRatio(), config.getNumHiddenStateChannels());
+    }
+
+
+    public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int squeezeChannelRatio, int numHiddenStateChannels) {
+
+        this.add(Conv3x3LayerNormRelu.builder().channels(numChannels).build())
 
                 .add(ResidualTower.builder()
-                        .numResiduals(config.getNumResiduals())
-                        .numChannels(config.getNumChannels())
-                        .squeezeChannelRatio(config.getSqueezeChannelRatio())
+                        .numResiduals(numResiduals)
+                        .numChannels(numChannels)
+                        .squeezeChannelRatio(squeezeChannelRatio)
                         .build())
 
                 // compressing hidden state (not in muzero paper)
-                .add(Conv1x1LayerNormRelu.builder().channels(config.getNumHiddenStateChannels()).build())
+                .add(Conv1x1LayerNormRelu.builder().channels(numHiddenStateChannels).build())
 
                 .add(new RescaleBlockExt());
 
