@@ -50,18 +50,28 @@ public class OnnxIOExport {
 
         graphBuilder.addAllNode(onnxBlock.getNodes());
 
-        graphBuilder.addAllInput(onnxBlock.getValueInfos().stream()
-                .filter(vi -> onnxBlock.getInputNames().contains(vi.getName()))
-                .collect(Collectors.toList())
+
+        onnxBlock.getInputNames().stream().forEach(
+            n ->  graphBuilder.addInput(
+                        onnxBlock.getValueInfos().stream()
+                            .filter(vi ->  vi.getName().equals(n))
+                            .findFirst().get()
+            )
         );
+
+
         graphBuilder.addAllValueInfo(onnxBlock.getValueInfos().stream()
                 .filter(vi -> !onnxBlock.getOutputNames().contains(vi.getName())
                            && !onnxBlock.getInputNames().contains(vi.getName()))
-                .collect(Collectors.toList())
+                .collect(Collectors.toSet())
         );
-        graphBuilder.addAllOutput(onnxBlock.getValueInfos().stream()
-                .filter(vi -> onnxBlock.getOutputNames().contains(vi.getName()))
-                .collect(Collectors.toList())
+
+        onnxBlock.getOutputNames().stream().forEach(
+            n ->  graphBuilder.addOutput(
+                onnxBlock.getValueInfos().stream()
+                    .filter(vi ->  vi.getName().equals(n))
+                    .findFirst().get()
+            )
         );
 
         graphBuilder.addAllInitializer(onnxBlock.getParameters());

@@ -53,6 +53,12 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     private final DynamicsBlock g;
     private final PredictionBlock f;
 
+    public DynamicsBlock getG() {
+        return g;
+    }
+    public PredictionBlock getF() {
+        return f;
+    }
 
     public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
         super(MYVERSION);

@@ -12,12 +12,12 @@ import java.util.Collections;
 public class TicTacToeMicrosoftRT {
     public static void main(String[] args) throws  Exception {
 
-        String modelPath = "./models/initialInference.onnx";
+        String modelPath = "./models/representation.onnx";
 
        try (OrtEnvironment env = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions()) {
 
-            opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.BASIC_OPT);
+        //    opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.BASIC_OPT);
 
             log.info("Loading model from " + modelPath);
            try (OrtSession session = env.createSession(modelPath, opts)) {
@@ -34,28 +34,11 @@ public class TicTacToeMicrosoftRT {
 
 
                 float[][][][] input = new float[1][3][3][3];
-//
-//                SparseData data = load(args[1]);
-//
-//                float[][][][] testData = new float[1][1][28][28];
-//                float[][] testDataSKL = new float[1][780];
-//
-//                int correctCount = 0;
-//                int[][] confusionMatrix = new int[10][10];
-//
-//                String inputName = session.getInputNames().iterator().next();
-//
-//                for (int i = 0; i < data.labels.length; i++) {
-//                    if (args.length == 3) {
-//                        writeDataSKL(testDataSKL, data.indices.get(i), data.values.get(i));
-//                    } else {
-//                        writeData(testData, data.indices.get(i), data.values.get(i));
-//                    }
-//
+
                     try (OnnxTensor test = OnnxTensor.createTensor(env, input);
                          OrtSession.Result output = session.run(Collections.singletonMap("Input0", test))) {
-                        float[][] v = (float[][]) output.get("T673").get().getValue();
-                        log.info("value: " + v[0][0]);
+                        float[][][][] v = (float[][][][]) output.get("T605").get().getValue();
+                     //   log.info("value: " + v[0][0]);
                         int i = 42;
 
 //                        int predLabel;

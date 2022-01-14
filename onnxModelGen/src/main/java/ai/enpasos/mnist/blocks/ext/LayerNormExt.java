@@ -42,10 +42,11 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
+            .valueInfos(createValueInfoProto(input))
             .output(blockAdd.getOutput())
-            .valueInfos(createValueInfoProto(blockAdd.getOutput()))
             .build();
 
+        onnxBlock.getValueInfos().addAll(createValueInfoProto(blockAdd.getOutput()));
         onnxBlock.addChild(blockMVN);
         onnxBlock.addChild(blockMul);
         onnxBlock.addChild(blockAdd);

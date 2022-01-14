@@ -1,4 +1,4 @@
-package ai.enpasos.mnist;
+package ai.enpasos.mnist.blocks;
 
 import ai.djl.Device;
 import ai.djl.Model;
@@ -13,63 +13,61 @@ import ai.djl.training.loss.Loss;
 import ai.djl.util.Pair;
 import ai.enpasos.mnist.blocks.MnistBlock;
 import ai.onnxruntime.*;
+import ai.onnxruntime.OnnxTensor;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 
 import java.nio.FloatBuffer;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.mnist.blocks.OnnxIOExport.onnxExport;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
-class MnistBlockTest {
+public
+class BlockTestHelper {
 
-    @Test
-    void newMnistBlock() throws Exception {
+    public enum Testdata {RANDOM, ZERO}
 
-        compareOnnxWithDJL(
-            "./target/MnistBlock.onnx",
-            MnistBlock.newMnistBlock(),
-            List.of(new Shape(1, 1, 28, 28)));
-
-    }
-
-    private void compareOnnxWithDJL(String modelPath, Block block, List<Shape> inputShapes) throws OrtException {
-        Pair<NDList, NDList> inputOutput =   inputOutputFromDJL(block, inputShapes, modelPath);
+    public static boolean compareOnnxWithDJL(String modelPath, Block block, List<Shape> inputShapes, Testdata testdata) throws OrtException {
+        Pair<NDList, NDList> inputOutput =   inputOutputFromDJL(block, inputShapes, modelPath, testdata);
         NDList input = inputOutput.getKey();
         NDList outputDJL = inputOutput.getValue();
         NDList outputOnnx = outputFromOnnx(modelPath, input);
 
-        assertEquals(outputDJL.size(), outputOnnx.size());
+        boolean checkResult =  outputDJL.size() == outputOnnx.size();
         for (int i = 0; i < outputDJL.size(); i++) {
-            boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-04, 1e-04, true);
+            boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-04, 1e-04, false);
             if (!check) {
                 log.error("DJL ... " + Arrays.toString(outputDJL.get(i).toFloatArray()));
                 log.error("Onnx ... " + Arrays.toString(outputOnnx.get(i).toFloatArray()));
             }
-            assertTrue(check);
+            checkResult = checkResult && check;
         }
+        return checkResult;
     }
 
 
-    public static Pair<NDList, NDList> inputOutputFromDJL(Block block,List<Shape> inputShapes, String modelPath) {
+    public static Pair<NDList, NDList> inputOutputFromDJL(Block block,List<Shape> inputShapes, String modelPath, Testdata testdata) {
 
         NDList input = null;
         NDList outputDJL = null;
         try (Model model = Model.newInstance("mymodel", Device.cpu())) {
 
             model.setBlock(block);
+switch(testdata) {
+    case ZERO:
+        input = new NDList(inputShapes.stream()
+            .map(inputShape -> NDManager.newBaseManager().create(inputShape))
+            .collect(Collectors.toList()));
+        break;
+    case RANDOM:
+        input = new NDList(inputShapes.stream()
+           .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
 
-            input = new NDList(inputShapes.stream()
-                .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
-                .collect(Collectors.toList()));
+            .collect(Collectors.toList()));
+        break;
+}
+
 
             // no training here - loss function is a dummy
             try (Trainer trainer = model.newTrainer(new DefaultTrainingConfig(Loss.l2Loss()))) {
@@ -87,7 +85,7 @@ class MnistBlockTest {
         return new Pair<>(input, outputDJL);
     }
 
-    private NDList outputFromOnnx(String modelPath, NDList input) throws OrtException {
+    public static NDList outputFromOnnx(String modelPath, NDList input) throws OrtException {
         NDList outputOnnx;
         try (OrtEnvironment env = OrtEnvironment.getEnvironment();
              OrtSession.SessionOptions opts = new OrtSession.SessionOptions()) {
@@ -111,18 +109,26 @@ class MnistBlockTest {
                     .map(info -> new Shape(((TensorInfo)info.getInfo()).getShape()))
                     .collect(Collectors.toList());
 
-                try (
-                    OnnxTensor inputOnnx = OnnxTensor.createTensor(env, FloatBuffer.wrap(input.get(0).toFloatArray()), input.get(0).getShape().getShape());
-                    OrtSession.Result output = session.run(Collections.singletonMap("Input0", inputOnnx));) {
+                Map<String, ai.onnxruntime.OnnxTensor> inputMap = new TreeMap<>();
+                try {
+
+                    for (int i = 0; i < input.size(); i++) {
+                        inputMap.put("Input" + i, ai.onnxruntime.OnnxTensor.createTensor(env, FloatBuffer.wrap(input.get(i).toFloatArray()), input.get(i).getShape().getShape()));
+                    }
+                    OrtSession.Result output = session.run(inputMap);
+
 
                     List<NDArray> ndArrays = new ArrayList<>();
-                    for(int i = 0; i< output.size(); i++) {
-                        OnnxTensor t = (OnnxTensor) output.get(i);
+                    for (int i = 0; i < output.size(); i++) {
+                        ai.onnxruntime.OnnxTensor t = (OnnxTensor) output.get(i);
                         ndArrays.add(NDManager.newBaseManager().create(t.getFloatBuffer().array(), outputShapes.get(i)));
                     }
 
                     outputOnnx = new NDList(ndArrays);
 
+                }
+                finally {
+                    inputMap.values().stream().forEach(t -> t.close());
                 }
 
             }

@@ -50,6 +50,13 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
     private final RepresentationBlock h;
     private final PredictionBlock f;
 
+    public RepresentationBlock getH() {
+        return h;
+    }
+    public PredictionBlock getF() {
+        return f;
+    }
+
 
     public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
         super(MYVERSION);
