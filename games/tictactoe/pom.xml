@@ -30,14 +30,20 @@
             </exclusions>
         </dependency>
         <dependency>
-    <groupId>com.microsoft.onnxruntime</groupId>
-    <artifactId>onnxruntime</artifactId>
-    <version>1.10.0</version>
-</dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.10.0</version>
+        </dependency>
         <dependency>
             <groupId>com.enpasos.muzero</groupId>
             <artifactId>platform</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

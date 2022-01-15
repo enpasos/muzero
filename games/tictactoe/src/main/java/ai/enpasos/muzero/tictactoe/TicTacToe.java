@@ -7,6 +7,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.debug.OnnxExport;
 import ai.enpasos.muzero.tictactoe.debug.TicTacToeInference;
 import ai.enpasos.muzero.tictactoe.debug.TicTacToeLossExtractor;
+import ai.enpasos.muzero.tictactoe.debug.TicTacToeOnnx;
 import ai.enpasos.muzero.tictactoe.debug.TicTacToeWinLooseStatistics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeLossExtractor goLossExtractor;
     @Autowired
-    private OnnxExport onnxExport;
+    private TicTacToeOnnx onnx;
 
     @Autowired
     private TicTacToeInference inference;
@@ -52,10 +53,7 @@ public class TicTacToe implements CommandLineRunner {
                 goLossExtractor.run();
                 break;
             case ONNX:
-                List<Shape> inputRepresentation = List.of(new Shape(1L,3L,3L,3L));
-                List<Shape> inputPrediction = List.of(new Shape(1L,5L,3L,3L));
-                List<Shape> inputGeneration = List.of(new Shape(1L,5L,3L,3L), new Shape(1L,1L,3L,3L));
-                onnxExport.run(inputRepresentation, inputPrediction, inputGeneration);
+                onnx.run();
                 break;
             case INFERENCE:
                 inference.run();

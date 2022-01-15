@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
 import ai.enpasos.muzero.pegsolitair.debug.PegSolitairLossExtractor;
+import ai.enpasos.muzero.pegsolitair.debug.PegSolitairOnnx;
 import ai.enpasos.muzero.pegsolitair.debug.PegSolitairRenderGame;
 import ai.enpasos.muzero.pegsolitair.debug.PegSolitairValueExtractor;
 import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
@@ -33,6 +34,9 @@ public class PegSolitair implements CommandLineRunner {
     private MuZeroConfig conf;
 
     @Autowired
+    private PegSolitairOnnx onnx;
+
+    @Autowired
     private RegularizedPolicyOptimization regularizedPolicyOptimization;
 
     public static void main(String[] args) {
@@ -50,6 +54,9 @@ public class PegSolitair implements CommandLineRunner {
                 break;
             case LOSS:
                 lossExtractor.run();
+                break;
+            case ONNX:
+                onnx.run();
                 break;
             case RENDER:
                 renderGame.run();

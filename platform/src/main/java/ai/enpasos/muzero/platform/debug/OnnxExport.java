@@ -14,9 +14,11 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
@@ -50,14 +52,14 @@ public class OnnxExport {
 
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
-
+            FileUtils.forceMkdir(new File(config.getOutputDir()+"onnx"));
             try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
                 Network network = new Network(config, model);
                 InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock)network.getInitialInference().getBlock();
                 RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock)network.getRecurrentInference().getBlock();
-                onnxExport((OnnxIO) initialInferenceBlock.getH() ,  inputRepresentation, "./models/representation.onnx", "H_");
-                onnxExport((OnnxIO) initialInferenceBlock.getF() ,  inputPrediction, "./models/prediction.onnx", "F_");
-                onnxExport((OnnxIO)recurrentInferenceBlock.getG() ,  inputGeneration, "./models/generation.onnx", "G_");
+                onnxExport((OnnxIO) initialInferenceBlock.getH() ,  inputRepresentation, config.getOutputDir()+"onnx/representation.onnx", "H_");
+                onnxExport((OnnxIO) initialInferenceBlock.getF() ,  inputPrediction, config.getOutputDir()+"onnx/prediction.onnx", "F_");
+                onnxExport((OnnxIO)recurrentInferenceBlock.getG() ,  inputGeneration, config.getOutputDir()+"onnx/generation.onnx", "G_");
             }
 
         } catch (Exception e) {

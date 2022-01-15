@@ -3,7 +3,7 @@ logging:
   level.ai.enpasos: DEBUG
 
 muzero:
-  activeGame: GO_5
+  activeGame: GO_9
   run: train
   games:
     GO_5:
@@ -80,6 +80,7 @@ muzero:
       numSimulations: 100
       numParallelGamesPlayed: 100
       numEpisodes: 10
+      squeezeChannelRatio: 10  # on squeeze and excitation (SE) block
 
       # general
       gameClassName: ai.enpasos.muzero.go.config.GoGame

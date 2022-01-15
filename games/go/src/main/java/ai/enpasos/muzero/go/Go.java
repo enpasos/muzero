@@ -1,13 +1,17 @@
 package ai.enpasos.muzero.go;
 
+import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.go.debug.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.OnnxExport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+
+import java.util.List;
 
 @SpringBootApplication
 @Slf4j
@@ -38,6 +42,9 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoWinLooseStatistics winLooseStatistics;
 
+    @Autowired
+    private GoOnnx onnx;
+
     public static void main(String[] args) {
         SpringApplication.run(Go.class, args);
     }
@@ -51,6 +58,9 @@ public class Go implements CommandLineRunner {
                 break;
             case LOSS:
                 lossExtractor.run();
+                break;
+            case ONNX:
+                onnx.run();
                 break;
             case RENDER:
                 renderGame.run();
