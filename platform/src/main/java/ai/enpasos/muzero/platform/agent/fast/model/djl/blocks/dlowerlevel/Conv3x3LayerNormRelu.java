@@ -21,6 +21,9 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Activation;
 import ai.djl.nn.convolutional.Conv2d;
 import ai.djl.nn.norm.LayerNorm;
+import ai.enpasos.mnist.blocks.ext.ActivationExt;
+import ai.enpasos.mnist.blocks.ext.Conv2dExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,14 +38,14 @@ public class Conv3x3LayerNormRelu extends MySequentialBlock {
     public static @NotNull Conv3x3LayerNormRelu newConvLayerNormRelu(int channels) {
         Conv3x3LayerNormRelu instance = new Conv3x3LayerNormRelu();
         instance.add(
-                        Conv2d.builder()
+                        Conv2dExt.builder()
                                 .setFilters(channels)
                                 .setKernelShape(new Shape(3, 3))
                                 .optBias(false)
                                 .optPadding(new Shape(1, 1))   // needed to keep in shape
                                 .build())
-                .add(LayerNorm.builder().build())
-                .add(Activation::relu);
+                .add(LayerNormExt.builder().build())
+                .add(ActivationExt.reluBlock());
         return instance;
     }
 

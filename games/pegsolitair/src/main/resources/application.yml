@@ -35,6 +35,7 @@ muzero:
       numChannels: 128     # 256 in the paper
       numHiddenStateChannels: 3
       numResiduals: 16
+      squeezeChannelRatio: 10  # on squeeze and excitation (SE) block
 
       # network training
       # symmetryType: NONE

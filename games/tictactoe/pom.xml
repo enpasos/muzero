@@ -30,6 +30,11 @@
             </exclusions>
         </dependency>
         <dependency>
+    <groupId>com.microsoft.onnxruntime</groupId>
+    <artifactId>onnxruntime</artifactId>
+    <version>1.10.0</version>
+</dependency>
+        <dependency>
             <groupId>com.enpasos.muzero</groupId>
             <artifactId>platform</artifactId>
             <version>${project.version}</version>
@@ -71,7 +76,7 @@
                 <version>3.2.1</version>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <name>attach-sources</name>
                         <phase>verify</phase>
                         <goals>
                             <goal>jar-no-fork</goal>
