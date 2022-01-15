@@ -79,7 +79,6 @@ class BlockTest {
     }
 
     @Test
-    @Disabled
     void residualZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/ResidualBlockV2.onnx",
@@ -90,7 +89,6 @@ class BlockTest {
     }
 
     @Test
-    @Disabled
     void residualTowerZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/ResidualTowerBlock.onnx",
@@ -105,7 +103,6 @@ class BlockTest {
     }
 
     @Test
-    @Disabled
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
@@ -116,7 +113,6 @@ class BlockTest {
     }
 
     @Test
-    @Disabled
     void predictionZERO() throws Exception {
 
         boolean check = compareOnnxWithDJL(

@@ -23,6 +23,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Slf4j
 class BlockTest {
     @Test
+    void layerNormZERO() throws Exception {
+        boolean check =
+            compareOnnxWithDJL(
+                "./target/LayerNorm.onnx",
+                LayerNormExt.builder().build(),
+                List.of(new Shape(1, 128, 3, 3)),
+                ZERO
+            );
+        Assertions.assertTrue(check);
+    }
+
+
+    @Test
     void layerNormRANDOM() throws Exception {
         boolean check =
             compareOnnxWithDJL(
@@ -55,18 +68,6 @@ class BlockTest {
             RANDOM);
         Assertions.assertTrue(check);
     }
-    @Test
-    @Disabled
-    void layerNormZERO() throws Exception {
-        boolean check =
-            compareOnnxWithDJL(
-                "./target/LayerNorm.onnx",
-                LayerNormExt.builder().build(),
-                List.of(new Shape(1, 128, 3, 3)),
-                ZERO
-            );
-        Assertions.assertTrue(check);
-    }
 
 
     @Test
@@ -81,7 +82,6 @@ class BlockTest {
     }
 
     @Test
-    @Disabled
     void  mnistBlockZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/MnistBlock.onnx",
