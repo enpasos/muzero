@@ -190,6 +190,8 @@ public class MuZeroConfig {
         return getConf().discount;
     }
 
+    public int getSqueezeChannelRatio() { return getConf().squeezeChannelRatio; }
+
     public float getWeightDecay() {
         return getConf().weightDecay;
     }
@@ -310,6 +312,7 @@ public class MuZeroConfig {
         protected int numChannels;
         protected int numHiddenStateChannels;
         protected int numResiduals;
+        protected int squeezeChannelRatio;
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSize;

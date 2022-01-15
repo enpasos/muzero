@@ -16,6 +16,7 @@ muzero:
       numObservationLayers: 3
       numActionLayers: 1
       numChannels: 128
+      squeezeChannelRatio: 16  # on squeeze and excitation (SE) block
       numHiddenStateChannels: 5
       numResiduals: 8
 

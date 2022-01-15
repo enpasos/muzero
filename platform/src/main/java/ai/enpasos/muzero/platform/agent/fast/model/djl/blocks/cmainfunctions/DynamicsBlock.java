@@ -17,13 +17,33 @@
 
 package ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions;
 
+import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.convolutional.Conv2d;
+import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.mnist.blocks.ext.*;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.ConcatInputsBlock;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-public class DynamicsBlock extends RepresentationOrDynamicsBlock {
+import java.util.Arrays;
 
-    public DynamicsBlock(@NotNull MuZeroConfig config) {
-        super(config);
+public class DynamicsBlock  extends MySequentialBlock implements OnnxIO {
+
+
+    public DynamicsBlock() {
+    }
+
+
+    @Builder()
+    public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config) {
+        return (DynamicsBlock) new DynamicsBlock()
+              .add(new ConcatInputsBlock())
+             .add(new RepresentationOrDynamicsBlock(config));
+
     }
 
 }

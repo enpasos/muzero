@@ -25,19 +25,37 @@ import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import ai.enpasos.mnist.blocks.OnnxBlock;
+import ai.enpasos.mnist.blocks.OnnxCounter;
+import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationBlock;
+import ai.enpasos.onnx.AttributeProto;
+import ai.enpasos.onnx.NodeProto;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
+import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
+import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
+import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class InitialInferenceBlock extends AbstractBlock {
+public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
 
     private final RepresentationBlock h;
     private final PredictionBlock f;
+
+    public RepresentationBlock getH() {
+        return h;
+    }
+    public PredictionBlock getF() {
+        return f;
+    }
 
 
     public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
@@ -84,4 +102,52 @@ public class InitialInferenceBlock extends AbstractBlock {
     }
 
 
+    @Override
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
+
+        int concatDim = 1;
+        Shape inputShape = input.get(0).getShape();
+        Shape[] gOutputShapes = h.getOutputShapes(new Shape[] {inputShape});
+        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
+
+        List<OnnxTensor> concatOutput = combine(List.of("T" + counter.count()), List.of(inputShape));
+
+        OnnxBlock onnxBlock = OnnxBlock.builder()
+            .input(input)
+          //  .valueInfos(createValueInfoProto(input))
+//            .nodes(List.of(
+//
+//            ))
+            .build();
+
+        onnxBlock.getNodes().add(
+            NodeProto.newBuilder()
+                .setName("N" + counter.count())
+                .setOpType("Concat")
+                .addAttribute(AttributeProto.newBuilder()
+                    .setType(AttributeProto.AttributeType.INT)
+                    .setName("axis")
+                    .setI(concatDim)
+                    .build())
+                .addAllInput(getNames(input))
+                .addOutput(concatOutput.get(0).getName())
+                .build()
+        );
+
+        OnnxBlock gOnnx = h.getOnnxBlock(counter, concatOutput);
+        onnxBlock.addChild(gOnnx);
+        List<OnnxTensor> gOutput = gOnnx.getOutput();
+        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutput);
+        onnxBlock.addChild(fOnnx);
+        List<OnnxTensor> fOutput = fOnnx.getOutput();
+
+        onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
+        onnxBlock.getValueInfos().addAll(createValueInfoProto(concatOutput));
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
+
+        onnxBlock.setOutput(fOutput);
+
+        return onnxBlock;
+    }
 }

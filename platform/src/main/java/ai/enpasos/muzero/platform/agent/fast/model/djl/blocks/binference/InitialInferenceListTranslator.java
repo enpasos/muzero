@@ -105,6 +105,8 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
     @Override
     public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Game> gameList) {
+
+
         List<Observation> observations = gameList.stream()
                 .map(g -> g.getObservation(ctx.getNDManager()))
                 .collect(Collectors.toList());
