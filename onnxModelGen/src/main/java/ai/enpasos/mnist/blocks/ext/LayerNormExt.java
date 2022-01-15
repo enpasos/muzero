@@ -11,6 +11,7 @@ import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
 import ai.enpasos.onnx.TensorProto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
@@ -42,35 +43,29 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
         OnnxBlock blockReshape = nodeReshape(counter, input, condensedShape);
         OnnxBlock blockTranspose = nodeTranspose(counter,  blockReshape.getOutput());
 
-        String betaName = "beta" + counter.count();
-        NDArray beta = this.parameters.get("beta").getArray();   // transpose??
-        String gammaName = "gamma" + counter.count();
-        NDArray gamma = this.parameters.get("gamma").getArray();  // transpose??
-
-        OnnxBlock blockDataGamma = nodeData(counter, gamma, fullyCondensedShape);
-        OnnxBlock blockDataBeta = nodeData(counter, beta, fullyCondensedShape);
-
-
-
-        OnnxBlock blockBatchNormalization = nodeBatchNormalization(counter, blockTranspose.getOutput(), blockDataGamma.getOutput(), blockDataBeta.getOutput(), beta);
+        OnnxBlock blockBatchNormalization = nodeBatchNormalization(counter, blockTranspose.getOutput());
         OnnxBlock blockTranspose2 = nodeTranspose(counter,  blockBatchNormalization.getOutput());
         OnnxBlock blockReshape2 = nodeReshape(counter, blockTranspose2.getOutput(), inputShape);
+
+        OnnxBlock blockMul = nodeMul(counter, blockReshape2.getOutput());
+        OnnxBlock blockAddBeta = nodeAddBeta(counter, blockMul.getOutput());
 
 
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .valueInfos(createValueInfoProto(input))
-            .output(blockReshape2.getOutput())
+            .output(blockAddBeta.getOutput())
             .build();
 
         onnxBlock.addChild(blockReshape);
         onnxBlock.addChild(blockTranspose);
-        onnxBlock.addChild(blockDataGamma);
-        onnxBlock.addChild(blockDataBeta);
         onnxBlock.addChild(blockBatchNormalization);
         onnxBlock.addChild(blockTranspose2);
         onnxBlock.addChild(blockReshape2);
+
+        onnxBlock.addChild(blockMul);
+        onnxBlock.addChild(blockAddBeta);
 
         return onnxBlock;
 
@@ -100,7 +95,7 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
               TensorProto.newBuilder()
                   .setName(shapeName)
                   .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
-                  .addAllDims(List.of(2L))
+                  .addAllDims(List.of((long)targetShape.dimension()))
                   .addAllInt64Data(convert(targetShape.getShape()))
                   .build()
           ))
@@ -135,14 +130,16 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
             .build();
     }
 
-    private OnnxBlock nodeBatchNormalization(OnnxCounter counter, List<OnnxTensor> input,List<OnnxTensor> gamma,List<OnnxTensor> beta, NDArray betaData) {
+    private OnnxBlock nodeBatchNormalization(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
-            List.of("T" + counter.count()),
-            List.of(input.get(0).getShape())
+            List.of("T" + counter.count(), "T" + counter.count(), "T" + counter.count()),
+            List.of(input.get(0).getShape(), new Shape(1), new Shape(1))
         );
 
         String dummyRunningMean = "T" + counter.count();
         String dummyRunningVar = "T" + counter.count();
+        String dummyGamma = "T" + counter.count();
+        String dummyBeta = "T" + counter.count();
         return OnnxBlock.builder()
             .output(output)
             .valueInfos(createValueInfoProto(output))
@@ -158,28 +155,42 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
                     .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INT)
                         .setName("training_mode")
-                        .setI(0)   // default
+                        .setI(1)   // default 0
                         .build())
                     .addInput(input.get(0).getName())
-                    .addInput(gamma.get(0).getName())
-                    .addInput(beta.get(0).getName())
+                    .addInput(dummyGamma)
+                    .addInput(dummyBeta)
                     .addInput(dummyRunningMean)
                     .addInput(dummyRunningVar)
                     .addOutput(output.get(0).getName())
+                    .addOutput(output.get(1).getName())
+                    .addOutput(output.get(2).getName())
                     .build()
             ))
             .parameters(List.of(
                 TensorProto.newBuilder()
                     .setName(dummyRunningMean)
                     .setDataType(1)
-                    .addAllDims(convert(beta.get(0).getShape().getShape()))
-                    .addAllFloatData(  convert(betaData.toFloatArray() ))
+                    .addAllDims(List.of(1L))
+                    .addAllFloatData(  List.of(0f))
                     .build(),
                 TensorProto.newBuilder()
                     .setName(dummyRunningVar)
                     .setDataType(1)
-                    .addAllDims(convert(beta.get(0).getShape().getShape()))
-                    .addAllFloatData(  convert(betaData.toFloatArray() ))
+                    .addAllDims(List.of(1L))
+                    .addAllFloatData(  List.of(0f))
+                    .build(),
+                TensorProto.newBuilder()
+                    .setName(dummyGamma)
+                    .setDataType(1)
+                    .addAllDims(List.of(1L))
+                    .addAllFloatData(  List.of(1f))
+                    .build(),
+                TensorProto.newBuilder()
+                    .setName(dummyBeta)
+                    .setDataType(1)
+                    .addAllDims(List.of(1L))
+                    .addAllFloatData(  List.of(0f))
                     .build()
             ))
             .build();
@@ -229,7 +240,73 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
 
     }
 
+    private OnnxBlock nodeMul(OnnxCounter counter, List<OnnxTensor> input) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(input.get(0).getShape())
+        );
+        String gammaName = "gamma" + counter.count();
+        NDArray gamma = this.parameters.get("gamma").getArray();
+        List<Long> allDims = new ArrayList<>();
+        allDims.add(1L);
+        allDims.addAll(convert(gamma.getShape().getShape()));
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Mul")
+                    .addInput(input.get(0).getName())
+                    .addInput(gammaName)
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(gammaName)
+                    .setDataType(1)
+                    .addAllDims(allDims)
+                    .addAllFloatData(convert(gamma))
+                    .build()
+            ))
+            .valueInfos(createValueInfoProto(output))
+            .build();
+    }
+    private OnnxBlock nodeAddBeta(OnnxCounter counter, List<OnnxTensor> input) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(input.get(0).getShape())
+        );
+        String betaName = "beta" + counter.count();
+        NDArray beta = this.parameters.get("beta").getArray();
+        List<Long> allDims = new ArrayList<>();
+        allDims.add(1L);
+        allDims.addAll(convert(beta.getShape().getShape()));
+        return OnnxBlock.builder()
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("N" + counter.count())
+                    .setOpType("Add")
+                    .addInput(input.get(0).getName())
+                    .addInput(betaName)
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(betaName)
+                    .setDataType(1)
+                    .addAllDims(allDims)
+                    .addAllFloatData(convert(beta))
+                    .build()
+            ))
+            .valueInfos(createValueInfoProto(output))
+            .build();
 
+    }
 
     public static final class Builder extends LayerNormOpened.Builder {
 

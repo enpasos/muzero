@@ -22,8 +22,9 @@ public class TicTacToeMicrosoftRT {
 
         resultA.get(0).setName("InputF_0");
         List<JvmData> result2 = runFunction("./models/prediction.onnx", resultA);
-        log.info(result2.toString());
+       // log.info(result2.toString());
         log.info(Arrays.toString(softmax(result2.get(0).getData())));
+        log.info(Arrays.toString(result2.get(1).getData()));
     }
 
     public static float[] softmax(float[] input) {
