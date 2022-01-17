@@ -57,6 +57,11 @@ public class OnnxExport {
                 Network network = new Network(config, model);
                 InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock)network.getInitialInference().getBlock();
                 RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock)network.getRecurrentInference().getBlock();
+
+                onnxExport((OnnxIO) initialInferenceBlock ,  inputRepresentation, config.getOutputDir()+"onnx/initialInference.onnx", "I_");
+
+                onnxExport((OnnxIO) recurrentInferenceBlock ,  inputGeneration, config.getOutputDir()+"onnx/recurrentInference.onnx", "R_");
+
                 onnxExport((OnnxIO) initialInferenceBlock.getH() ,  inputRepresentation, config.getOutputDir()+"onnx/representation.onnx", "H_");
                 onnxExport((OnnxIO) initialInferenceBlock.getF() ,  inputPrediction, config.getOutputDir()+"onnx/prediction.onnx", "F_");
                 onnxExport((OnnxIO)recurrentInferenceBlock.getG() ,  inputGeneration, config.getOutputDir()+"onnx/generation.onnx", "G_");
