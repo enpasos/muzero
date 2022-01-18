@@ -20,6 +20,8 @@ in a separate module:
     * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one
       peg in the middle.
 
+We implemented [onnx export for the muzero network](http://localhost:9090/muzero/How#onnx). You can find out the inception time on your edge device [TicTacToe online](https://enpasos.ai/muzero/TicTacToe).
+
 ## Build
 
 ```
