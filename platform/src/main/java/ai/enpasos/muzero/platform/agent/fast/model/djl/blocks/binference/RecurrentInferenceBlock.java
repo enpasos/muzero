@@ -40,11 +40,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
+import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
@@ -116,11 +118,12 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         int concatDim = 1;
         Shape stateShape = input.get(0).getShape();
         Shape actionShape = input.get(1).getShape();
-        Shape hConcatOutputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-        Shape[] gOutputShapes = g.getOutputShapes(new Shape[] {hConcatOutputShapes});
+        Shape[] inputShapes = new Shape[] {stateShape, actionShape};
+     //   Shape hConcatOutputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
+        Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
         Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
 
-        List<OnnxTensor> hInput = combine(List.of("T" + counter.count()), List.of(hConcatOutputShapes));
+      //  List<OnnxTensor> hInput = combine(List.of("T" + counter.count()), Arrays.asList(inputShapes));
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
@@ -128,21 +131,21 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
 
             .build();
 
-        onnxBlock.getNodes().add(
-                NodeProto.newBuilder()
-                    .setName("N" + counter.count())
-                    .setOpType("Concat")
-                    .addAttribute(AttributeProto.newBuilder()
-                        .setType(AttributeProto.AttributeType.INT)
-                        .setName("axis")
-                        .setI(concatDim)
-                        .build())
-                    .addAllInput(getNames(input))
-                    .addOutput(hInput.get(0).getName())
-                    .build()
-        );
+//        onnxBlock.getNodes().add(
+//                NodeProto.newBuilder()
+//                    .setName("N" + counter.count())
+//                    .setOpType("Concat")
+//                    .addAttribute(AttributeProto.newBuilder()
+//                        .setType(AttributeProto.AttributeType.INT)
+//                        .setName("axis")
+//                        .setI(concatDim)
+//                        .build())
+//                    .addAllInput(getNames(input))
+//                    .addOutput(hInput.get(0).getName())
+//                    .build()
+//        );
 
-        OnnxBlock gOnnx = g.getOnnxBlock(counter, hInput);
+        OnnxBlock gOnnx = g.getOnnxBlock(counter, input);
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
         OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutput);
@@ -150,11 +153,13 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(hInput));
-//        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
-//        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
+      //  onnxBlock.getValueInfos().addAll(createValueInfoProto(hInput));
 
-        onnxBlock.setOutput(fOutput);
+        List<OnnxTensor> totalOutput = new ArrayList<>();
+        totalOutput.addAll(gOutput);
+        totalOutput.addAll(fOutput);
+
+        onnxBlock.setOutput(totalOutput);
 
         return onnxBlock;
     }

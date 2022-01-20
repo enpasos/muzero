@@ -36,6 +36,7 @@ import ai.enpasos.onnx.NodeProto;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
@@ -143,10 +144,12 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
         onnxBlock.getValueInfos().addAll(createValueInfoProto(concatOutput));
-//        onnxBlock.getValueInfos().addAll(createValueInfoProto(gOutput));
-//        onnxBlock.getValueInfos().addAll(createValueInfoProto(fOutput));
 
-        onnxBlock.setOutput(fOutput);
+        List<OnnxTensor> totalOutput = new ArrayList<>();
+        totalOutput.addAll(gOutput);
+        totalOutput.addAll(fOutput);
+
+        onnxBlock.setOutput(totalOutput);
 
         return onnxBlock;
     }
