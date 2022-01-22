@@ -1,17 +1,13 @@
 package ai.enpasos.muzero.go;
 
-import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.go.debug.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.debug.OnnxExport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-
-import java.util.List;
 
 @SpringBootApplication
 @Slf4j
