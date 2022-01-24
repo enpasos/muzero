@@ -2,7 +2,6 @@ package ai.enpasos.muzero.go.selfcritical;
 
 
 import ai.djl.Model;
-import ai.djl.basicdataset.cv.classification.Mnist;
 import ai.djl.basicmodelzoo.basic.Mlp;
 import ai.djl.engine.Engine;
 import ai.djl.metric.Metrics;
@@ -59,11 +58,8 @@ public final class Train {
             try (Trainer trainer = model.newTrainer(config)) {
                 trainer.setMetrics(new Metrics());
 
-                /*
-                 * MNIST is 28x28 grayscale image and pre processed into 28 * 28 NDArray.
-                 * 1st axis is batch axis, we can use 1 for initialization.
-                 */
-                Shape inputShape = new Shape(1, Mnist.IMAGE_HEIGHT * Mnist.IMAGE_WIDTH);
+
+                Shape inputShape = new Shape(1, 3);
 
                 // initialize trainer with proper input shape
                 trainer.initialize(inputShape);
@@ -95,13 +91,13 @@ public final class Train {
 
     private static RandomAccessDataset getDataset(Dataset.Usage usage, Arguments arguments)
         throws IOException {
-        Mnist mnist =
-            Mnist.builder()
+        DJLDataSet dataSet =
+            DJLDataSet.builder()
                 .optUsage(usage)
                 .setSampling(arguments.getBatchSize(), true)
                 .optLimit(arguments.getLimit())
                 .build();
-        mnist.prepare(new ProgressBar());
-        return mnist;
+        dataSet.prepare(new ProgressBar());
+        return dataSet;
     }
 }
