@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.go.selfcritical;
 
+import ai.djl.util.Pair;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -33,5 +34,32 @@ public class SelfCriticalDataSet {
             .reduce(0, Integer::max);
         features.stream().forEach(f -> f.numberOfMovesPlayedSofar = f.numberOfMovesPlayedSofar / maxMoveNumber);
    }
+
+    public SelfCriticalDataSet getTrainingDataSet() {
+        int n = splitTrainingTestNumbers().getKey();
+        SelfCriticalDataSet newDataSet = new SelfCriticalDataSet();
+        newDataSet.setFeatures(features.subList(0, n));
+        newDataSet.setMaxEntropy(this.maxEntropy);
+        newDataSet.setMaxMoveNumber(this.getMaxMoveNumber());
+        return newDataSet;
+    }
+
+    public SelfCriticalDataSet getTestDataSet() {
+        Pair<Integer, Integer> numbers = splitTrainingTestNumbers();
+        // int n = splitTrainingTestNumbers().getValue();
+        SelfCriticalDataSet newDataSet = new SelfCriticalDataSet();
+        newDataSet.setFeatures(features.subList(numbers.getValue(), numbers.getValue()+ numbers.getKey()));
+        newDataSet.setMaxEntropy(this.maxEntropy);
+        newDataSet.setMaxMoveNumber(this.getMaxMoveNumber());
+        return newDataSet;
+    }
+
+    public Pair<Integer, Integer> splitTrainingTestNumbers() {
+        int l = this.getFeatures().size();
+        int lTrain = (int)(l*0.8);
+        int lTest = l - lTrain;
+        return new Pair(lTrain,lTest );
+    }
+
 
 }

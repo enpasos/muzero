@@ -4,8 +4,6 @@ import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
 public class SelfCriticalLabeledFeature {
@@ -17,6 +15,10 @@ public class SelfCriticalLabeledFeature {
     OneOfTwoPlayer toPlay;
     int numberOfMovesPlayedSofar;
 
+
+    // normalized label data
+    float playerAWinsNormalizedLabel;
+
     // normalized input data
     double entropy;  // not normalized
     double toPlayNormalized;
@@ -25,6 +27,7 @@ public class SelfCriticalLabeledFeature {
     public void transformRawToPreNormalizedInput() {
         entropy = - value * Math.log(value) - (1.0 - value) * Math.log(1.0 - value);
         toPlayNormalized = toPlay.getActionValue();
+        playerAWinsNormalizedLabel = playerAWins ? 0f : 1f;
     }
 
 
