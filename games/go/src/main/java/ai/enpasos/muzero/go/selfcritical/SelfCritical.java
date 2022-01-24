@@ -38,6 +38,9 @@ public class SelfCritical {
     @Autowired
     private ReplayBuffer replayBuffer;
 
+    @Autowired
+    private SelfCriticalTrain train;
+
     public void run() {
 
         // assuming that the buffer is filled only by data produced by one (the latest) network
@@ -65,7 +68,11 @@ public class SelfCritical {
 
         dataSet.transformRawToNormalizedInput();
 
-        int i = 42;
+        try {
+            train.run(dataSet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }

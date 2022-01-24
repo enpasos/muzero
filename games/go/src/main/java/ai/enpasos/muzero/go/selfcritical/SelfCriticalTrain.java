@@ -20,20 +20,21 @@ import ai.djl.training.loss.Loss;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.mnist.Arguments;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Slf4j
+@Component
+public class SelfCriticalTrain {
 
-public final class Train {
+    private SelfCriticalTrain() {}
 
-    private Train() {}
+    public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
+        String[] args_ = {"-e", "12", "-b", "256", "-o", "mymodel"};
 
-    public static void main(String[] args) throws IOException, TranslateException {
-        Train.runExample(args);
-    }
-
-    public static TrainingResult runExample(String[] args) throws IOException, TranslateException {
-        Arguments arguments = new Arguments().parseArgs(args);
+        Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
             return null;
         }
@@ -49,8 +50,8 @@ public final class Train {
             model.setBlock(block);
 
             // get training and validation dataset
-            RandomAccessDataset trainingSet = getDataset(Dataset.Usage.TRAIN, arguments);
-            RandomAccessDataset validateSet = getDataset(Dataset.Usage.TEST, arguments);
+            RandomAccessDataset trainingSet = getDataset(Dataset.Usage.TRAIN, arguments, dataSet.getTrainingDataSet());
+            RandomAccessDataset validateSet = getDataset(Dataset.Usage.TEST, arguments, dataSet.getTestDataSet());
 
             // setup training configuration
             DefaultTrainingConfig config = setupTrainingConfig(arguments);
@@ -89,13 +90,14 @@ public final class Train {
             .addTrainingListeners(listener);
     }
 
-    private static RandomAccessDataset getDataset(Dataset.Usage usage, Arguments arguments)
+    private static DJLDataSet getDataset(Dataset.Usage usage, Arguments arguments, SelfCriticalDataSet inputData)
         throws IOException {
-        DJLDataSet dataSet =
-            DJLDataSet.builder()
+       // DJLDataSet dataSet = new DJLDataSet(usage, inputData);
+        DJLDataSet dataSet =   DJLDataSet.builder()
                 .optUsage(usage)
-                .setSampling(arguments.getBatchSize(), true)
-                .optLimit(arguments.getLimit())
+               // .setSampling(arguments.getBatchSize(), true)
+              //  .optLimit(arguments.getLimit())
+                .inputData(inputData)
                 .build();
         dataSet.prepare(new ProgressBar());
         return dataSet;
