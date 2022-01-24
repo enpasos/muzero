@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.go.debug.*;
+import ai.enpasos.muzero.go.selfcritical.SelfCritical;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class Go implements CommandLineRunner {
 
     @Autowired
     private GoTrainingAndTest trainingAndTest;
+
+    @Autowired
+    private SelfCritical selfCritical;
 
     @Autowired
     private MuZeroConfig conf;
@@ -66,6 +70,9 @@ public class Go implements CommandLineRunner {
                 break;
             case WINLOOSE:
                 winLooseStatistics.run();
+                break;
+            case SELFCRITICAL:
+                selfCritical.run();
                 break;
             case NONE:
             default:
