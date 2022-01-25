@@ -1,27 +1,15 @@
 package ai.enpasos.muzero.go.selfcritical;
 
 
-import ai.djl.Application;
-import ai.djl.basicdataset.BasicDatasets;
 import ai.djl.basicdataset.cv.classification.Mnist;
 import ai.djl.engine.Engine;
-import ai.djl.modality.cv.transform.ToTensor;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.repository.Artifact;
-import ai.djl.repository.MRL;
-import ai.djl.repository.Repository;
 import ai.djl.training.dataset.ArrayDataset;
-import ai.djl.translate.Pipeline;
 import ai.djl.util.Progress;
-import ai.djl.util.Utils;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 
 public  class DJLDataSet extends ArrayDataset {
@@ -54,12 +42,17 @@ public  class DJLDataSet extends ArrayDataset {
 
         int length = this.inputData.getFeatures().size();
 
-        float[] labels = new float[length];
+        float[] labels = new float[length * 2];
         float[] data = new float[length * 3];
-        for (int i = 0; i < labels.length; i++) {
+     //   float[] data = new float[length];
+        for (int i = 0; i < length; i++) {
             SelfCriticalLabeledFeature feature = this.inputData.getFeatures().get(i);
-            labels[i] = feature.playerAWinsNormalizedLabel;
-            data[3 * i + 0] = (float) (feature.entropy / this.inputData.maxEntropy);
+            labels[2 * i + 0] = feature.correctAndNoMindChange ? 1f : 0f;
+            labels[2 * i + 1] = feature.correctAndNoMindChange ? 0f : 1f;
+
+            //data[i ] = (float) (feature.entropy);
+
+            data[3 * i + 0] = (float) (feature.entropy);
             data[3 * i + 1] = (float) feature.normalizedNumberOfMovesPlayedSofar;
             data[3 * i + 2] = (float) (feature.toPlayNormalized);
 
@@ -67,9 +60,8 @@ public  class DJLDataSet extends ArrayDataset {
 
         manager = Engine.getInstance().newBaseManager();
 
-        this.labels = new NDArray[]{manager.create(labels, new Shape(length, 1))};
+        this.labels = new NDArray[]{manager.create(labels, new Shape(length, 2))};
         this.data = new NDArray[]{manager.create(data, new Shape(length, 3))};
-
 
         prepared = true;
     }
@@ -119,6 +111,7 @@ public  class DJLDataSet extends ArrayDataset {
         public Builder() {
             usage = Usage.TRAIN;
             manager = Engine.getInstance().newBaseManager();
+           // pipeline = new Pipeline(new ToTensor());
         }
 
         /**
@@ -136,21 +129,15 @@ public  class DJLDataSet extends ArrayDataset {
             return this;
         }
 
-
-
         public Builder optUsage(Usage usage) {
             this.usage = usage;
             return this;
         }
 
-
-
         public Builder inputData(SelfCriticalDataSet inputData) {
             this.inputData = inputData;
             return this;
         }
-
-
 
         public DJLDataSet build() {
             return new DJLDataSet(this);

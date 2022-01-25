@@ -25,9 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -39,7 +39,10 @@ public class SelfCritical {
     private ReplayBuffer replayBuffer;
 
     @Autowired
-    private SelfCriticalTrain train;
+    private SelfCriticalTrain  train;
+
+    @Autowired
+    private SelfCriticalTest test;
 
     public void run() {
 
@@ -47,34 +50,92 @@ public class SelfCritical {
         replayBuffer.loadLatestState();
 
 
-        int numOfGames = replayBuffer.getBuffer().getData().size();
+      int numOfGames = replayBuffer.getBuffer().getData().size();
+
         List<SelfCriticalLabeledFeature> rawFeatures = new ArrayList<>();
 
         SelfCriticalDataSet dataSet = new SelfCriticalDataSet();
 
+        // int g = replayBuffer.getBuffer().getGames().size() - 3;
         for(int g = 0; g < numOfGames; g++) {
             Game game = replayBuffer.getBuffer().getGames().get(g);
-            for(int a = 0; a < game.getGameDTO().getActions().size(); a++) {
-                rawFeatures.add(SelfCriticalLabeledFeature.builder()
-                        .numberOfMovesPlayedSofar(a + 1)
-                        .playerAWins(((GoGame)game).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_A)
-                        .value(game.getGameDTO().getRootValues().get(a))
-                        .toPlay((OneOfTwoPlayer) game.toPlay())
-                    .build());
+            boolean trusted = true;
+            for(int a = game.getGameDTO().getActions().size()-1; a >= 0; a--) {
+                SelfCriticalLabeledFeature feature = SelfCriticalLabeledFeature.builder()
+                    .numberOfMovesPlayedSofar(a + 1)
+                    .winner(((GoGame)game).whoWonTheGame().get() )
+                    .value(game.getGameDTO().getRootValuesFromInitialInference().get(a))
+                    .toPlay( (a % 2 == 0) ?  OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B)
+                    .build();
+                feature.transformRawToPreNormalizedInput();
+                if (!feature.correct) {
+                    trusted = false;
+                }
+                feature.setCorrectAndNoMindChange(trusted && feature.correct);
+                rawFeatures.add(feature);
             }
         }
 
         dataSet.features = rawFeatures;
 
+
+//        Collections.reverse( dataSet.features);
+//        dataSet.features.stream().forEach(f -> System.out.println(f.correctAndNoMindChange ? 1f : -1f));
+//        System.out.println("");
+
+
         dataSet.transformRawToNormalizedInput();
 
+//        dataSet.features.stream().forEach(f -> System.out.println(f.value));
+//        System.out.println("");
+
+//        dataSet.features.stream().forEach(f -> System.out.println(f.correct));
+//        System.out.println("");
+
+        long correctN = dataSet.features.stream()
+            .filter(f -> f.correct).count();
+
+        long notCorrectN = dataSet.features.stream()
+            .filter(f -> !f.correct).count();
+
+        System.out.println("correct: " + correctN + ", not correct: " + notCorrectN);
+
+if (notCorrectN > 0 ) {
+    double entropy = dataSet.features.stream()
+        .filter(f -> !f.correct)
+        .min(Comparator.comparing(SelfCriticalLabeledFeature::getEntropy))
+        .get().getEntropy();
+
+
+    System.out.println("below this entropy only correct guesses: " + entropy);
+
+
+        long countReliableDataPoints = dataSet.features.stream()
+            .filter(f -> f.entropy < entropy).count();
+
+        long countAllDataPoints = dataSet.features.stream()
+            .count();
+
+        System.out.println("reliable data points " + countReliableDataPoints + " out of " + countAllDataPoints);
+}
+
+//        dataSet.features.stream().forEach(f -> System.out.println(f.correct ? 1 : 0));
+//        System.out.println("");
+//
+//        dataSet.features.stream().forEach(f -> System.out.println(f.value));
+//        System.out.println("");
         try {
             train.run(dataSet);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
+        List<Float>  testResult = test.run(dataSet.features);
+        testResult.stream().forEach(f -> System.out.println(f));
+//        System.out.println("");
+//        long numberOK = testResult.stream().filter(f -> f.booleanValue()).count();
+//        long numberNOK = testResult.stream().filter(f -> !f.booleanValue()).count();
+//        log.info("ok: " + numberOK + ", nok: " + numberNOK);
     }
 
 }

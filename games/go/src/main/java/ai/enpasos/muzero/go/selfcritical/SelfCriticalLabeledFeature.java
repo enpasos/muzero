@@ -8,26 +8,32 @@ import lombok.Data;
 @Builder
 public class SelfCriticalLabeledFeature {
     // raw label data
-    boolean playerAWins;
+     OneOfTwoPlayer winner;
 
     // raw input data
-    float value;  // from rootValues already normalized to [0,1] and from the perspective of the player toPlay
+    float value;
     OneOfTwoPlayer toPlay;
     int numberOfMovesPlayedSofar;
 
 
-    // normalized label data
-    float playerAWinsNormalizedLabel;
+    boolean correct;
+    boolean correctAndNoMindChange;
 
     // normalized input data
-    double entropy;  // not normalized
+    double entropy;
     double toPlayNormalized;
     double normalizedNumberOfMovesPlayedSofar;
 
     public void transformRawToPreNormalizedInput() {
+        value = value * (toPlay == OneOfTwoPlayer.PLAYER_A ?  1f : -1f) ;
+
+        value = (value + 1.0f) / 2.0f;
+
         entropy = - value * Math.log(value) - (1.0 - value) * Math.log(1.0 - value);
         toPlayNormalized = toPlay.getActionValue();
-        playerAWinsNormalizedLabel = playerAWins ? 0f : 1f;
+
+        correct  = (OneOfTwoPlayer.PLAYER_A == winner) ? value > 0.5 : value < 0.5;
+
     }
 
 
