@@ -14,12 +14,15 @@ import ai.djl.training.TrainingResult;
 import ai.djl.training.dataset.Dataset;
 import ai.djl.training.dataset.RandomAccessDataset;
 import ai.djl.training.evaluator.Accuracy;
-import ai.djl.training.listener.SaveModelTrainingListener;
-import ai.djl.training.listener.TrainingListener;
+import ai.djl.training.listener.*;
 import ai.djl.training.loss.Loss;
+import ai.djl.training.optimizer.Optimizer;
+import ai.djl.training.tracker.Tracker;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.mnist.Arguments;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.MyEvaluatorTrainingListener;
+import ai.enpasos.muzero.platform.agent.fast.model.djl.MyLoggingTrainingListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +35,7 @@ public class SelfCriticalTrain {
     private SelfCriticalTrain() {}
 
     public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
-        String[] args_ = {"-e", "12", "-b", "256", "-o", "mymodel"};
+        String[] args_ = {"-e", "3", "-b", "256", "-o", "mymodel"};
 
         Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
@@ -40,11 +43,7 @@ public class SelfCriticalTrain {
         }
 
         // Construct neural network
-        Block block =
-            new Mlp(
-                3,
-                1,
-                new int[] {60, 20});
+        Block block = SelfCriticalBlock.newSelfCriticalBlock();
 
         try (Model model = Model.newInstance("mlp")) {
             model.setBlock(block);
@@ -59,7 +58,6 @@ public class SelfCriticalTrain {
             try (Trainer trainer = model.newTrainer(config)) {
                 trainer.setMetrics(new Metrics());
 
-
                 Shape inputShape = new Shape(1, 3);
 
                 // initialize trainer with proper input shape
@@ -73,30 +71,47 @@ public class SelfCriticalTrain {
     }
 
     private static DefaultTrainingConfig setupTrainingConfig(Arguments arguments) {
+
+
         String outputDir = arguments.getOutputDir();
         SaveModelTrainingListener listener = new SaveModelTrainingListener(outputDir);
         listener.setSaveModelCallback(
-            trainer -> {
-                TrainingResult result = trainer.getTrainingResult();
-                Model model = trainer.getModel();
-                float accuracy = result.getValidateEvaluation("Accuracy");
-                model.setProperty("Accuracy", String.format("%.5f", accuracy));
-                model.setProperty("Loss", String.format("%.5f", result.getValidateLoss()));
-            });
+                trainer -> {
+                    TrainingResult result = trainer.getTrainingResult();
+                    Model model = trainer.getModel();
+                    float accuracy = result.getValidateEvaluation("Accuracy");
+                    model.setProperty("Accuracy", String.format("%.4f", accuracy));
+                    model.setProperty("Loss", String.format("%.4f", result.getValidateLoss()));
+                    log.info("Accuracy: " + String.format("%.4f", accuracy));
+                    log.info("Loss: " + String.format("%.4f", result.getValidateLoss()));
+                });
         return new DefaultTrainingConfig(Loss.softmaxCrossEntropyLoss())
-            .addEvaluator(new Accuracy())
-            .optDevices(Engine.getInstance().getDevices(arguments.getMaxGpus()))
-            .addTrainingListeners(TrainingListener.Defaults.logging(outputDir))
-            .addTrainingListeners(listener);
+                .addEvaluator(new Accuracy())
+                .optDevices(Engine.getInstance().getDevices(arguments.getMaxGpus()))
+                .addTrainingListeners(TrainingListener.Defaults.logging(outputDir))
+            .optOptimizer(setupOptimizer())
+                .addTrainingListeners(listener);
+
     }
+
+    private static Optimizer setupOptimizer() {
+
+        Tracker learningRateTracker = Tracker.fixed(0.0001f);
+
+        return Optimizer.adam()
+            .optLearningRateTracker(learningRateTracker)
+           // .optWeightDecays(config.getWeightDecay())
+            .optClipGrad(10f)
+            .build();
+    }
+
 
     private static DJLDataSet getDataset(Dataset.Usage usage, Arguments arguments, SelfCriticalDataSet inputData)
         throws IOException {
-       // DJLDataSet dataSet = new DJLDataSet(usage, inputData);
         DJLDataSet dataSet =   DJLDataSet.builder()
                 .optUsage(usage)
-               // .setSampling(arguments.getBatchSize(), true)
-              //  .optLimit(arguments.getLimit())
+                .setSampling(arguments.getBatchSize(), true)
+                .optLimit(Long.getLong("DATASET_LIMIT", Long.MAX_VALUE))
                 .inputData(inputData)
                 .build();
         dataSet.prepare(new ProgressBar());

@@ -18,22 +18,19 @@ public class SelfCriticalDataSet {
     }
 
 
-        public void transformRawToNormalizedInput() {
-////        double minEntropy = features.stream()
-////            .mapToDouble(f -> f.entropy)
-////            .reduce(0, Double::min);
-////        double maxEntropy = features.stream()
-////            .mapToDouble(f -> f.entropy)
-////            .reduce(0, Double::max);
+    public void transformRawToNormalizedInput() {
+      //  features.stream().forEach(f -> f.transformRawToPreNormalizedInput());
 
         features.stream().forEach(f -> f.entropy = f.entropy / maxEntropy);
 
-
-            maxMoveNumber = features.stream()
+        maxMoveNumber = features.stream()
             .mapToInt(f -> f.numberOfMovesPlayedSofar)
             .reduce(0, Integer::max);
-        features.stream().forEach(f -> f.numberOfMovesPlayedSofar = f.numberOfMovesPlayedSofar / maxMoveNumber);
-   }
+        features.stream().forEach(f -> f.normalizedNumberOfMovesPlayedSofar = (float)f.numberOfMovesPlayedSofar / (float)maxMoveNumber);
+
+       // features.stream().limit(100).forEach(f -> System.out.println(f.numberOfMovesPlayedSofar + "; " +f.value));
+        //features.stream().limit(100).forEach(f -> System.out.println(f));
+    }
 
     public SelfCriticalDataSet getTrainingDataSet() {
         int n = splitTrainingTestNumbers().getKey();
@@ -46,9 +43,9 @@ public class SelfCriticalDataSet {
 
     public SelfCriticalDataSet getTestDataSet() {
         Pair<Integer, Integer> numbers = splitTrainingTestNumbers();
-        // int n = splitTrainingTestNumbers().getValue();
+        // int n = splitTrainingTestNumbers().getValueFromInitialInception();
         SelfCriticalDataSet newDataSet = new SelfCriticalDataSet();
-        newDataSet.setFeatures(features.subList(numbers.getValue(), numbers.getValue()+ numbers.getKey()));
+        newDataSet.setFeatures(features.subList(numbers.getKey(), numbers.getValue() + numbers.getKey()));
         newDataSet.setMaxEntropy(this.maxEntropy);
         newDataSet.setMaxMoveNumber(this.getMaxMoveNumber());
         return newDataSet;
@@ -56,9 +53,9 @@ public class SelfCriticalDataSet {
 
     public Pair<Integer, Integer> splitTrainingTestNumbers() {
         int l = this.getFeatures().size();
-        int lTrain = (int)(l*0.8);
+        int lTrain = (int) (l * 0.8);
         int lTest = l - lTrain;
-        return new Pair(lTrain,lTest );
+        return new Pair(lTrain, lTest);
     }
 
 
