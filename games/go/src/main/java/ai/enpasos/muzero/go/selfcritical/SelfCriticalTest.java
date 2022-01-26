@@ -20,17 +20,18 @@ public class SelfCriticalTest  {
     @Autowired
     private MuZeroConfig conf;
 
-    public List<Float> run(List<SelfCriticalGame> input) {
+    public List<Integer> run(SelfCriticalDataSet dataSet ) {
+        List<SelfCriticalGame> input = dataSet.data;
         String modelPath = "./mymodel";
-        List<Float> output = null;
+        List<Integer> output = null;
 
-        Block block = SelfCriticalBlock.newSelfCriticalBlock();
+        Block block = SelfCriticalBlock.newSelfCriticalBlock(dataSet.maxFullMoves);
 
         try (Model model = Model.newInstance("mlp")) {
             model.setBlock(block);
             model.load(Path.of(modelPath));
             var predictor = model.newPredictor(new SelfCriticalTranslator());
-            output = predictor.predict(input);
+            output = predictor.predict(dataSet);
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);

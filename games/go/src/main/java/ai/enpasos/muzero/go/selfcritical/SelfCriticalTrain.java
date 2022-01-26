@@ -5,6 +5,7 @@ import ai.djl.Model;
 import ai.djl.basicmodelzoo.basic.Mlp;
 import ai.djl.engine.Engine;
 import ai.djl.metric.Metrics;
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
@@ -35,7 +36,7 @@ public class SelfCriticalTrain {
     private SelfCriticalTrain() {}
 
     public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
-        String[] args_ = {"-e", "20", "-b", "1000", "-o", "mymodel"};
+        String[] args_ = {"-e", "20", "-b", "10", "-o", "mymodel"};
 
         Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
@@ -43,7 +44,7 @@ public class SelfCriticalTrain {
         }
 
         // Construct neural network
-        Block block = SelfCriticalBlock.newSelfCriticalBlock();
+        Block block = SelfCriticalBlock.newSelfCriticalBlock(dataSet.maxFullMoves);
 
         try (Model model = Model.newInstance("mlp")) {
             model.setBlock(block);
@@ -52,13 +53,17 @@ public class SelfCriticalTrain {
             RandomAccessDataset trainingSet = getDataset(Dataset.Usage.TRAIN, arguments, dataSet.getTrainingDataSet());
             RandomAccessDataset validateSet = getDataset(Dataset.Usage.TEST, arguments, dataSet.getTestDataSet());
 
+
+
+
             // setup training configuration
             DefaultTrainingConfig config = setupTrainingConfig(arguments);
 
             try (Trainer trainer = model.newTrainer(config)) {
                 trainer.setMetrics(new Metrics());
 
-                Shape inputShape = new Shape(1, 3);
+                Shape inputShape = new Shape(1, 1, 2, dataSet.maxFullMoves);
+
 
                 // initialize trainer with proper input shape
                 trainer.initialize(inputShape);
