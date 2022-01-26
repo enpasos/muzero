@@ -28,16 +28,20 @@ import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class SelfCriticalTranslator implements Translator<List<SelfCriticalLabeledFeature>, List<Float>> {
+public class SelfCriticalTranslator implements Translator<SelfCriticalDataSet, List<Integer>> {
 
 
     @Override
@@ -46,32 +50,54 @@ public class SelfCriticalTranslator implements Translator<List<SelfCriticalLabel
     }
 
     @Override
-    public List<Float> processOutput(TranslatorContext ctx, @NotNull NDList list) {
+    public List<Integer> processOutput(TranslatorContext ctx, @NotNull NDList list) {
 
-        List<Float> result = new ArrayList<>();
+        List<Integer> result = new ArrayList<>();
         long length = list.get(0).getShape().get(0);
         NDArray softmaxed = list.get(0).softmax(1);
         for (int i = 0; i < length; i++) {
-            result.add(softmaxed.get(i).toFloatArray()[0]);
+            float[] probabilities = softmaxed.get(i).toFloatArray();
+            float max = 0;
+            int maxI = -1;
+            for (int k = 0; k < probabilities.length; k++) {
+                if (probabilities[k] > max) {
+                    max = probabilities[k];
+                    maxI = k;
+                }
+            }
+
+            result.add(maxI);
         }
         return result;
     }
 
     @Override
-    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<SelfCriticalLabeledFeature> featureList) {
+    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull SelfCriticalDataSet dataSet) {
+        List<SelfCriticalGame> gameList = dataSet.data;
+        int maxFullMoves = dataSet.maxFullMoves;
 
-        int length = featureList.size();
-        float[] rawData = new float[length * 3];
-      //  float[] rawData = new float[length];
+        int length = gameList.size();
+
+        float[] dataArray = new float[length * 2 * maxFullMoves];
+
         for (int i = 0; i < length; i++) {
-            SelfCriticalLabeledFeature feature = featureList.get(i);
-         //   rawData[i] = (float) (feature.entropy);
-            rawData[3 * i + 0] = (float) (feature.entropy);
-            rawData[3 * i + 1] = (float) feature.normalizedNumberOfMovesPlayedSofar;
-            rawData[3 * i + 2] = (float) (feature.toPlayNormalized);
-        }
 
-        NDArray[]  data = new NDArray[]{ctx.getNDManager().create(rawData, new Shape(length, 3))};
+            SelfCriticalGame game = gameList.get(i);
+            int fullMove = 0;
+
+            for (Map.Entry<SelfCriticalPosition, Float> entry : game.normalizedEntropyValues.entrySet()) {
+                SelfCriticalPosition pos = entry.getKey();
+                float entropy = entry.getValue();
+
+                dataArray[i * 2 * maxFullMoves + fullMove + 0] = pos.getPlayer() == OneOfTwoPlayer.PLAYER_A ? 0f : 1f;
+                dataArray[i * 2 * maxFullMoves + fullMove + 1] = entropy;
+
+
+                fullMove++;
+            }
+
+        }
+        NDArray[]  data = new NDArray[]{ctx.getNDManager().create(dataArray, new Shape(length, 1, 2, dataSet.maxFullMoves))};
 
 
         return new NDList(data);

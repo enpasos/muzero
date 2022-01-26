@@ -111,7 +111,8 @@ public class SelfCritical {
 //         dataSet = getSelfCriticalDataSet(numOfGames-7, numOfGames-7);
 //          Collections.reverse(dataSet.features);
 //
-       List<Float>  testResult = test.run(dataSet.data);
+       List<Integer>  testResult = test.run(dataSet);
+        int i = 42;
 //        testResult.stream().forEach(f -> System.out.println(String.format("%2f",f)));
 //        System.out.println("");
 //        long numberOK = testResult.stream().filter(f -> f.booleanValue()).count();
@@ -125,14 +126,23 @@ public class SelfCritical {
         SelfCriticalDataSet dataSet = new SelfCriticalDataSet();
 
         // int g = replayBuffer.getBuffer().getGames().size() - 7;
+
+        int maxFullMoveOfAllGames = 0;
         for(int g = firstGame; g <= lastGame; g++) {
             Game game = replayBuffer.getBuffer().getGames().get(g);
             SelfCriticalGame scGame = new SelfCriticalGame();
             dataSet.data.add(scGame);
             boolean trusted = true;
             int totalMoves = game.getGameDTO().getActions().size();
+
+            int maxFullMoveOfCurrentGame = totalMoves / 2;
+            if (totalMoves % 2 != 0) {
+                maxFullMoveOfCurrentGame++;
+            }
+            maxFullMoveOfAllGames = Math.max(maxFullMoveOfAllGames, maxFullMoveOfCurrentGame);
             for(int a = totalMoves-1; a >= 0; a--) {
                 int fullMove = a/2;
+
                 OneOfTwoPlayer toPlay = (a % 2 == 0) ?  OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
                 SelfCriticalPosition pos = SelfCriticalPosition.builder()
                     .player(toPlay)
@@ -153,6 +163,7 @@ public class SelfCritical {
                 scGame.normalizedEntropyValues.put(pos, (float)feature.getEntropy());
             }
         }
+        dataSet.maxFullMoves = maxFullMoveOfAllGames;
         return dataSet;
     }
 

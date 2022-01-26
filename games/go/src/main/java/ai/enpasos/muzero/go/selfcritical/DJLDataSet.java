@@ -8,8 +8,10 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.dataset.ArrayDataset;
 import ai.djl.util.Progress;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 
 import java.io.IOException;
+import java.util.Map;
 
 
 public  class DJLDataSet extends ArrayDataset {
@@ -38,71 +40,39 @@ public  class DJLDataSet extends ArrayDataset {
         if (prepared) {
             return;
         }
+        int maxFullMoves = this.inputData.maxFullMoves;
 
+        int length = this.inputData.getData().size();
 
-        int length = this.inputData.getFeatures().size();
+        float[] labels = new float[length * maxFullMoves];
+        float[] data = new float[length * 2 * maxFullMoves];
 
-        float[] labels = new float[length * 2];
-        float[] data = new float[length * 3];
-     //   float[] data = new float[length];
         for (int i = 0; i < length; i++) {
-            SelfCriticalLabeledFeature feature = this.inputData.getFeatures().get(i);
-            labels[2 * i + 0] = feature.correctAndNoMindChange ? 1f : 0f;
-            labels[2 * i + 1] = feature.correctAndNoMindChange ? 0f : 1f;
 
-            //data[i ] = (float) (feature.entropy);
+            SelfCriticalGame game = this.inputData.getData().get(i);
+            int fullMove = 0;
 
-//            data[3 * i + 0] = (float) (feature.entropy);
-//            data[3 * i + 1] = (float) feature.normalizedNumberOfMovesPlayedSofar;
-//            data[3 * i + 2] = (float) (feature.toPlayNormalized);
+            for (Map.Entry<SelfCriticalPosition, Float> entry : game.normalizedEntropyValues.entrySet()) {
+                SelfCriticalPosition pos = entry.getKey();
+                float entropy = entry.getValue();
 
+                data[i * 2 * maxFullMoves + fullMove + 0] = pos.getPlayer() == OneOfTwoPlayer.PLAYER_A ? 0f : 1f;
+                data[i * 2 * maxFullMoves + fullMove + 1] = entropy;
 
-            data[3 * i + 0] = (float) (feature.entropy);
-            data[3 * i + 1] = (float) feature.normalizedNumberOfMovesPlayedSofar;
-            data[3 * i + 2] = (float) (feature.toPlayNormalized);
+                labels[i * maxFullMoves + fullMove] = (game.firstReliableFullMove == fullMove) ? 1f : 0f;
+
+                fullMove++;
+            }
 
         }
 
         manager = Engine.getInstance().newBaseManager();
 
-        this.labels = new NDArray[]{manager.create(labels, new Shape(length, 2))};
-        this.data = new NDArray[]{manager.create(data, new Shape(length, 3))};
+        this.labels = new NDArray[]{manager.create(labels, new Shape(length, maxFullMoves))};
+        this.data = new NDArray[]{manager.create(data, new Shape(length, 1, 2, maxFullMoves))};
 
         prepared = true;
     }
-//
-//    public NDManager getManager() {
-//        return manager;
-//    }
-//
-//    public void setManager(NDManager manager) {
-//        this.manager = manager;
-//    }
-//
-//    public Usage getUsage() {
-//        return usage;
-//    }
-//
-//    public void setUsage(Usage usage) {
-//        this.usage = usage;
-//    }
-//
-//    public SelfCriticalDataSet getInputData() {
-//        return inputData;
-//    }
-//
-//    public void setInputData(SelfCriticalDataSet inputData) {
-//        this.inputData = inputData;
-//    }
-//
-//    public boolean isPrepared() {
-//        return prepared;
-//    }
-//
-//    public void setPrepared(boolean prepared) {
-//        this.prepared = prepared;
-//    }
-
 
 
     public static final class Builder extends BaseBuilder<Builder> {

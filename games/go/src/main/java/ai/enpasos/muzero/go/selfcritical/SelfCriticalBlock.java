@@ -39,7 +39,7 @@ public class SelfCriticalBlock extends SequentialBlockExt implements OnnxIO {
                 .build())
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
-            .add(PoolExt.maxPool2dBlock(new Shape(2, 1), new Shape(2, 1)))   // yN -> 1
+           // .add(PoolExt.maxPool2dBlock(new Shape(2, 1), new Shape(1, 1)))   // yN -> 1
             .add(Conv2dExt.builder()
                 .setFilters(16)
                 .setKernelShape(new Shape(1, 3))

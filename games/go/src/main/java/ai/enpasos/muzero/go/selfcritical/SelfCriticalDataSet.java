@@ -9,11 +9,14 @@ import java.util.List;
 @Data
 public class SelfCriticalDataSet {
 
+    int maxFullMoves;
+
     List<SelfCriticalGame> data = new ArrayList<>();
 
     public SelfCriticalDataSet getTrainingDataSet() {
         int n = splitTrainingTestNumbers().getKey();
         SelfCriticalDataSet newDataSet = new SelfCriticalDataSet();
+        newDataSet.maxFullMoves = this.maxFullMoves;
         newDataSet.setData(data.subList(0, n));
         return newDataSet;
     }
@@ -21,6 +24,7 @@ public class SelfCriticalDataSet {
     public SelfCriticalDataSet getTestDataSet() {
         Pair<Integer, Integer> numbers = splitTrainingTestNumbers();
         SelfCriticalDataSet newDataSet = new SelfCriticalDataSet();
+        newDataSet.maxFullMoves = this.maxFullMoves;
         newDataSet.setData(data.subList(numbers.getKey(), numbers.getValue() + numbers.getKey()));
         return newDataSet;
     }
