@@ -21,6 +21,7 @@ import ai.enpasos.muzero.go.config.GoGame;
 import ai.enpasos.muzero.platform.agent.gamebuffer.*;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,74 +51,48 @@ public class SelfCritical {
         replayBuffer.loadLatestState();
 
 
-      int numOfGames = replayBuffer.getBuffer().getData().size();
-
-        List<SelfCriticalLabeledFeature> rawFeatures = new ArrayList<>();
-
-        SelfCriticalDataSet dataSet = new SelfCriticalDataSet();
-
-        // int g = replayBuffer.getBuffer().getGames().size() - 3;
-        for(int g = 0; g < numOfGames; g++) {
-            Game game = replayBuffer.getBuffer().getGames().get(g);
-            boolean trusted = true;
-            for(int a = game.getGameDTO().getActions().size()-1; a >= 0; a--) {
-                SelfCriticalLabeledFeature feature = SelfCriticalLabeledFeature.builder()
-                    .numberOfMovesPlayedSofar(a + 1)
-                    .winner(((GoGame)game).whoWonTheGame().get() )
-                    .value(game.getGameDTO().getRootValuesFromInitialInference().get(a))
-                    .toPlay( (a % 2 == 0) ?  OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B)
-                    .build();
-                feature.transformRawToPreNormalizedInput();
-                if (!feature.correct) {
-                    trusted = false;
-                }
-                feature.setCorrectAndNoMindChange(trusted && feature.correct);
-                rawFeatures.add(feature);
-            }
-        }
-
-        dataSet.features = rawFeatures;
+        int numOfGames = replayBuffer.getBuffer().getData().size();
+        SelfCriticalDataSet dataSet = getSelfCriticalDataSet(0, numOfGames-1);
 
 
-//        Collections.reverse( dataSet.features);
+        //     Collections.reverse( dataSet.features);
 //        dataSet.features.stream().forEach(f -> System.out.println(f.correctAndNoMindChange ? 1f : -1f));
 //        System.out.println("");
 
 
-        dataSet.transformRawToNormalizedInput();
+     //   dataSet.transformRawToNormalizedInput();
 
-//        dataSet.features.stream().forEach(f -> System.out.println(f.value));
+//        dataSet.features.stream().forEach(f -> System.out.println(f.normalizedNumberOfMovesPlayedSofar));
 //        System.out.println("");
 
-//        dataSet.features.stream().forEach(f -> System.out.println(f.correct));
-//        System.out.println("");
-
-        long correctN = dataSet.features.stream()
-            .filter(f -> f.correct).count();
-
-        long notCorrectN = dataSet.features.stream()
-            .filter(f -> !f.correct).count();
-
-        System.out.println("correct: " + correctN + ", not correct: " + notCorrectN);
-
-if (notCorrectN > 0 ) {
-    double entropy = dataSet.features.stream()
-        .filter(f -> !f.correct)
-        .min(Comparator.comparing(SelfCriticalLabeledFeature::getEntropy))
-        .get().getEntropy();
 
 
-    System.out.println("below this entropy only correct guesses: " + entropy);
+//        long correctN = dataSet.features.stream()
+//            .filter(f -> f.correctAndNoMindChange).count();
+//
+//        long notCorrectN = dataSet.features.stream()
+//            .filter(f -> !f.correctAndNoMindChange).count();
 
+   //     System.out.println("correct: " + correctN + ", not correct: " + notCorrectN);
 
-        long countReliableDataPoints = dataSet.features.stream()
-            .filter(f -> f.entropy < entropy).count();
-
-        long countAllDataPoints = dataSet.features.stream()
-            .count();
-
-        System.out.println("reliable data points " + countReliableDataPoints + " out of " + countAllDataPoints);
-}
+//if (notCorrectN > 0 ) {
+//    double entropy = dataSet.features.stream()
+//        .filter(f -> !f.correctAndNoMindChange)
+//        .min(Comparator.comparing(SelfCriticalLabeledFeature::getEntropy))
+//        .get().getEntropy();
+//
+//
+//    System.out.println("below this entropy only correct guesses: " + entropy);
+//
+//
+//        long countReliableDataPoints = dataSet.features.stream()
+//            .filter(f -> f.entropy < entropy).count();
+//
+//        long countAllDataPoints = dataSet.features.stream()
+//            .count();
+//
+//        System.out.println("reliable data points " + countReliableDataPoints + " out of " + countAllDataPoints);
+//}
 
 //        dataSet.features.stream().forEach(f -> System.out.println(f.correct ? 1 : 0));
 //        System.out.println("");
@@ -130,12 +105,55 @@ if (notCorrectN > 0 ) {
             e.printStackTrace();
         }
 
-        List<Float>  testResult = test.run(dataSet.features);
-        testResult.stream().forEach(f -> System.out.println(f));
+
+
+
+//         dataSet = getSelfCriticalDataSet(numOfGames-7, numOfGames-7);
+//          Collections.reverse(dataSet.features);
+//
+       List<Float>  testResult = test.run(dataSet.data);
+//        testResult.stream().forEach(f -> System.out.println(String.format("%2f",f)));
 //        System.out.println("");
 //        long numberOK = testResult.stream().filter(f -> f.booleanValue()).count();
 //        long numberNOK = testResult.stream().filter(f -> !f.booleanValue()).count();
 //        log.info("ok: " + numberOK + ", nok: " + numberNOK);
+    }
+
+    @NotNull
+    private SelfCriticalDataSet getSelfCriticalDataSet(int firstGame, int lastGame) {
+
+        SelfCriticalDataSet dataSet = new SelfCriticalDataSet();
+
+        // int g = replayBuffer.getBuffer().getGames().size() - 7;
+        for(int g = firstGame; g <= lastGame; g++) {
+            Game game = replayBuffer.getBuffer().getGames().get(g);
+            SelfCriticalGame scGame = new SelfCriticalGame();
+            dataSet.data.add(scGame);
+            boolean trusted = true;
+            int totalMoves = game.getGameDTO().getActions().size();
+            for(int a = totalMoves-1; a >= 0; a--) {
+                int fullMove = a/2;
+                OneOfTwoPlayer toPlay = (a % 2 == 0) ?  OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
+                SelfCriticalPosition pos = SelfCriticalPosition.builder()
+                    .player(toPlay)
+                    .fullMove(fullMove)
+                    .build();
+                SelfCriticalLabeledFeature feature = SelfCriticalLabeledFeature.builder()
+                    .winner(((GoGame)game).whoWonTheGame().get() )
+                    .value(game.getGameDTO().getRootValuesFromInitialInference().get(a))
+                    .toPlay(toPlay)
+                    .build();
+                feature.transformRawToPreNormalizedInput();
+                if (trusted && !feature.correct) {
+                    trusted = false;
+                    scGame.firstReliableFullMove = fullMove + 1;
+                }
+                //feature.setCorrectAndNoMindChange(trusted && feature.correct);
+
+                scGame.normalizedEntropyValues.put(pos, (float)feature.getEntropy());
+            }
+        }
+        return dataSet;
     }
 
 }

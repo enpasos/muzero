@@ -20,7 +20,7 @@ public class SelfCriticalTest  {
     @Autowired
     private MuZeroConfig conf;
 
-    public List<Float> run(List<SelfCriticalLabeledFeature> input) {
+    public List<Float> run(List<SelfCriticalGame> input) {
         String modelPath = "./mymodel";
         List<Float> output = null;
 

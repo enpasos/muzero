@@ -35,7 +35,7 @@ public class SelfCriticalTrain {
     private SelfCriticalTrain() {}
 
     public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
-        String[] args_ = {"-e", "3", "-b", "256", "-o", "mymodel"};
+        String[] args_ = {"-e", "20", "-b", "1000", "-o", "mymodel"};
 
         Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
@@ -96,13 +96,21 @@ public class SelfCriticalTrain {
 
     private static Optimizer setupOptimizer() {
 
-        Tracker learningRateTracker = Tracker.fixed(0.0001f);
+        Tracker learningRateTracker = Tracker.fixed(0.001f);
 
-        return Optimizer.adam()
-            .optLearningRateTracker(learningRateTracker)
-           // .optWeightDecays(config.getWeightDecay())
+        return Optimizer.sgd()
+            .setLearningRateTracker(learningRateTracker)
+            .optMomentum(0.9f)
+            .optWeightDecays(0.0001f)
             .optClipGrad(10f)
             .build();
+
+//        return Optimizer.adam()
+//            .optLearningRateTracker(learningRateTracker)
+//            // .optWeightDecays(config.getWeightDecay())
+//            //  .optClipGrad(10f)
+//            .build();
+
     }
 
 

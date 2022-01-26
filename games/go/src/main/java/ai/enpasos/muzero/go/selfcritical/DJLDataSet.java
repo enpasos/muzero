@@ -52,6 +52,11 @@ public  class DJLDataSet extends ArrayDataset {
 
             //data[i ] = (float) (feature.entropy);
 
+//            data[3 * i + 0] = (float) (feature.entropy);
+//            data[3 * i + 1] = (float) feature.normalizedNumberOfMovesPlayedSofar;
+//            data[3 * i + 2] = (float) (feature.toPlayNormalized);
+
+
             data[3 * i + 0] = (float) (feature.entropy);
             data[3 * i + 1] = (float) feature.normalizedNumberOfMovesPlayedSofar;
             data[3 * i + 2] = (float) (feature.toPlayNormalized);
