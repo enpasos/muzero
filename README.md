@@ -24,7 +24,7 @@ We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/Ho
 
 You can find out the inference time while running MuZero on your edge device: 
 * [TicTacToe](https://enpasos.ai/muzero/TicTacToe) 
-* [Go](https://enpasos.ai/muzero/Go).
+* [Go](https://enpasos.ai/muzero/Go)
 
 ## Build
 
