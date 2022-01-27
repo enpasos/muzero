@@ -23,7 +23,7 @@ in a separate module:
 We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/How#onnx). 
 
 You can find out the inference time while running MuZero on your edge device: 
-* [TicTacToe](https://enpasos.ai/muzero/TicTacToe) or 
+* [TicTacToe](https://enpasos.ai/muzero/TicTacToe) 
 * [Go](https://enpasos.ai/muzero/Go).
 
 ## Build
