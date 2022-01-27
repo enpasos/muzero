@@ -35,6 +35,7 @@ public class OnnxHelper {
         return Arrays.asList(ArrayUtils.toObject(array));
     }
 
+
     public static List<ValueInfoProto> createValueInfoProto(List<OnnxTensor> output) {
        return output.stream().map(t -> createValueInfoProto(t)).collect(Collectors.toList());
 

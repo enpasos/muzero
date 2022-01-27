@@ -41,12 +41,14 @@ public class GameDTO {
     private List<Float> rewards;
     private List<float[]> policyTargets;
     private List<Float> rootValues;
+    private List<Float> rootValuesFromInitialInference;
 
     public GameDTO() {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
+        this.rootValuesFromInitialInference = new ArrayList<>();
     }
 
     public @NotNull String getActionHistoryAsString() {
@@ -69,6 +71,7 @@ public class GameDTO {
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
+        gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
         getPolicyTargets().stream().forEach(policyTarget -> {
             PolicyTargetProtos.Builder b = PolicyTargetProtos.newBuilder();
@@ -84,6 +87,12 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
+        try {
+            this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
+        } catch (Exception e) {
+
+        }
+
         if (p.getPolicyTargetsCount() > 0) {
             this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {
                         float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];

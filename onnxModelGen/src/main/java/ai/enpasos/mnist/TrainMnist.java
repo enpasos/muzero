@@ -55,7 +55,7 @@ public final class TrainMnist {
     }
 
     public static void main(String[] args) throws IOException, TranslateException {
-        String[] args_ = {"-e", "12", "-b", "256", "-o", "mymodel"};
+        String[] args_ = {"-e", "12", "-b", "10", "-o", "mymodel"};
         TrainMnist.runExample(args_);
     }
 
@@ -88,7 +88,7 @@ public final class TrainMnist {
                 Shape inputShape = new Shape(1, 1, Mnist.IMAGE_HEIGHT, Mnist.IMAGE_WIDTH);
 
                 trainer.initialize(inputShape);
-          PairList<String,Shape> pList =  model.getBlock().describeInput();
+                PairList<String,Shape> pList =  model.getBlock().describeInput();
 
                 EasyTrain.fit(trainer, arguments.getEpoch(), trainingSet, validateSet);
 

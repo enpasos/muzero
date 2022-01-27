@@ -31,8 +31,9 @@ public class GoTrainingAndTest {
 //            throw new MuZeroException(e);
 //        }
 
-
-        muZero.train(false, 1);
+        muZero.train(false, 1, false, false);
+      //  muZero.train(true, 1);
+       // muZero.train(false, 1);
 
 
     }
