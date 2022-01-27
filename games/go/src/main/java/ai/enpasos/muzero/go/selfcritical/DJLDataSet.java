@@ -9,11 +9,13 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.training.dataset.ArrayDataset;
 import ai.djl.util.Progress;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
-
+@Slf4j
 public  class DJLDataSet extends ArrayDataset {
 
     private NDManager manager;
@@ -44,32 +46,44 @@ public  class DJLDataSet extends ArrayDataset {
 
         int length = this.inputData.getData().size();
 
-        float[] labels = new float[length * maxFullMoves];
-        float[] data = new float[length * 2 * maxFullMoves];
+        float[] labels = new float[length * (maxFullMoves+1)]; // + 1, because v can be wrong for all moves
+        float[] data = new float[length * 2 * (maxFullMoves+1)];
 
         for (int i = 0; i < length; i++) {
 
             SelfCriticalGame game = this.inputData.getData().get(i);
             int fullMove = 0;
-
+            int move = 0;
             for (Map.Entry<SelfCriticalPosition, Float> entry : game.normalizedEntropyValues.entrySet()) {
                 SelfCriticalPosition pos = entry.getKey();
                 float entropy = entry.getValue();
 
-                data[i * 2 * maxFullMoves + fullMove + 0] = pos.getPlayer() == OneOfTwoPlayer.PLAYER_A ? 0f : 1f;
-                data[i * 2 * maxFullMoves + fullMove + 1] = entropy;
+                if (pos.getPlayer() == OneOfTwoPlayer.PLAYER_A) {
+                    data[i * 2 * (maxFullMoves + 1) +                      fullMove ] = entropy;
+                } else {
+                    data[i * 2 * (maxFullMoves + 1) + (maxFullMoves + 1) + fullMove] = entropy;
+                    fullMove++;
+                }
 
-                labels[i * maxFullMoves + fullMove] = (game.firstReliableFullMove == fullMove) ? 1f : 0f;
-
-                fullMove++;
+                move++;
             }
+            labels[i * (maxFullMoves+1) + game.firstReliableFullMove] = 1f;
 
         }
 
+
+        int count = 0;
+        for(int i = 0; i < labels.length; i++) {
+            if (labels[i] != 0) count++;
+        }
+        log.info("labels expected 1 sum: " + length + ", measured: " + count);
+
+
+
         manager = Engine.getInstance().newBaseManager();
 
-        this.labels = new NDArray[]{manager.create(labels, new Shape(length, maxFullMoves))};
-        this.data = new NDArray[]{manager.create(data, new Shape(length, 1, 2, maxFullMoves))};
+        this.labels = new NDArray[]{manager.create(labels, new Shape(length, maxFullMoves +1))};
+        this.data = new NDArray[]{manager.create(data, new Shape(length, 1, 2, maxFullMoves +1))};
 
         prepared = true;
     }
