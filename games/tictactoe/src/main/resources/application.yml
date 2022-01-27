@@ -31,7 +31,7 @@ muzero:
       lrInit: 0.0001
       absorbingStateDropToZero: false # faster for integration test
       visitSoftmaxTemperatureThreshold: 30
-      numberTrainingStepsOnRandomPlay: 0
+      numberTrainingStepsOnStart: 0
       rootDirichletAlpha: 2
       rootExplorationFraction: 0.25
       knownBoundsType: BOARD_GAME

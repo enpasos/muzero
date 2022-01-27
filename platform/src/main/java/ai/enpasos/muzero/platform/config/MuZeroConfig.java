@@ -228,8 +228,8 @@ public class MuZeroConfig {
         return getConf().actionSpaceSize;
     }
 
-    public int getNumberTrainingStepsOnRandomPlay() {
-        return getConf().numberTrainingStepsOnRandomPlay;
+    public int getNumberTrainingStepsOnStart() {
+        return getConf().numberTrainingStepsOnStart;
     }
 
     public double getRootDirichletAlpha() {
@@ -329,7 +329,7 @@ public class MuZeroConfig {
         protected int boardHeight;
         protected int boardWidth;
         protected int actionSpaceSize;
-        protected int numberTrainingStepsOnRandomPlay;
+        protected int numberTrainingStepsOnStart;
         protected double rootDirichletAlpha;
         protected double rootExplorationFraction;
         protected KnownBoundsType knownBoundsType;
