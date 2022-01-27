@@ -159,8 +159,8 @@ public class Episode {
             }
         }
         game.getGameDTO().getPolicyTargets().add(policyTarget);
-        game.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));
-
+        game.getGameDTO().getRootValues().add((float) root.valueScore(minMaxStats, config));  // TODO check sign
+        game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
     }
 
     @Nullable

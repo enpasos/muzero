@@ -29,6 +29,7 @@ import java.util.TreeMap;
 public class Node {
     private Player toPlay;
     private double prior;
+    private double valueFromInitialInference;
     private SortedMap<Action, Node> children;
     private NDArray hiddenState;
     private double reward;
@@ -60,11 +61,12 @@ public class Node {
     }
 
 
+
     private double value() {
         if (visitCount == 0) return 0.0;
         double rawValue = this.getValueSum() / this.visitCount;
         if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-            return -rawValue;
+            return - rawValue;    // with the sign as needed by regularized policy optimization
         } else {
             return rawValue;
         }
