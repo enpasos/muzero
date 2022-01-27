@@ -50,8 +50,15 @@ public class SelfCritical {
         // assuming that the buffer is filled only by data produced by one (the latest) network
         replayBuffer.loadLatestState();
 
+       long nWinA = replayBuffer.getBuffer().getGames().stream().filter(g -> (((GoGame)g).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_A)).count();
+        long nWinB = replayBuffer.getBuffer().getGames().stream().filter(g -> (((GoGame)g).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_B)).count();
+
+
 
         int numOfGames = replayBuffer.getBuffer().getData().size();
+
+
+
         SelfCriticalDataSet dataSet = getSelfCriticalDataSet(0, numOfGames-1);
 
 
@@ -113,7 +120,7 @@ public class SelfCritical {
 //
        List<Integer>  testResult = test.run(dataSet);
         int i = 42;
-//        testResult.stream().forEach(f -> System.out.println(String.format("%2f",f)));
+        testResult.stream().forEach(f -> System.out.println(f.intValue()));
 //        System.out.println("");
 //        long numberOK = testResult.stream().filter(f -> f.booleanValue()).count();
 //        long numberNOK = testResult.stream().filter(f -> !f.booleanValue()).count();

@@ -3,7 +3,7 @@ logging:
   level.ai.enpasos: DEBUG
 
 muzero:
-  activeGame: GO_5
+  activeGame: GO_9
   run: train
   games:
     GO_5:

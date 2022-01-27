@@ -36,7 +36,7 @@ public class SelfCriticalTrain {
     private SelfCriticalTrain() {}
 
     public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
-        String[] args_ = {"-e", "20", "-b", "10", "-o", "mymodel"};
+        String[] args_ = {"-e", "3", "-b", "100", "-o", "mymodel"};
 
         Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
