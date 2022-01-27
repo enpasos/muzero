@@ -21,7 +21,10 @@ in a separate module:
       peg in the middle.
 
 We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/How#onnx). 
-You can find out the inception time on your edge device while playing [TicTacToe](https://enpasos.ai/muzero/TicTacToe) or [Go](https://enpasos.ai/muzero/Go) online.
+
+You can find out the inference time while running MuZero on your edge device: 
+* [TicTacToe](https://enpasos.ai/muzero/TicTacToe) or 
+* [Go](https://enpasos.ai/muzero/Go).
 
 ## Build
 
