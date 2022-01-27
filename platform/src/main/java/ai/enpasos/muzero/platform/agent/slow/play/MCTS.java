@@ -189,6 +189,7 @@ public class MCTS {
                            boolean fastRuleLearning) {
         node.setToPlay(toPlay);
         if (!fastRuleLearning) {
+            node.setValueFromInitialInference(networkOutput.getValue());
             node.setHiddenState(networkOutput.getHiddenState());
             node.setReward(networkOutput.getReward());
         }

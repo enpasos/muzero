@@ -33,15 +33,15 @@ public class SelfCriticalBlock extends SequentialBlockExt implements OnnxIO {
         return (SelfCriticalBlock) new SelfCriticalBlock()
             .add(Conv2dExt.builder()
                 .setFilters(8)
-                .setKernelShape(new Shape(2, 5))  // xN -> xN
+                .setKernelShape(new Shape(1, 3))  // xN -> xN
                 .optBias(false)
-                .optPadding(new Shape(0, 2))
+                .optPadding(new Shape(0, 1))
                 .build())
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
            // .add(PoolExt.maxPool2dBlock(new Shape(2, 1), new Shape(1, 1)))   // yN -> 1
             .add(Conv2dExt.builder()
-                .setFilters(16)
+                .setFilters(8)
                 .setKernelShape(new Shape(1, 3))
                 .optBias(false)
                 .optPadding(new Shape(0, 1))
@@ -49,7 +49,7 @@ public class SelfCriticalBlock extends SequentialBlockExt implements OnnxIO {
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
             .add(Conv2dExt.builder()
-                .setFilters(32)
+                .setFilters(8)
                 .setKernelShape(new Shape(1, 3))
                 .optBias(false)
                 .optPadding(new Shape(0, 1))
