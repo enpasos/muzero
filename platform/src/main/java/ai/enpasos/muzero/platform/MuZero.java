@@ -251,7 +251,7 @@ public class MuZero {
     }
 
     private void playGames(boolean render, Network network, int trainingStep) {
-        if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnRandomPlay()) {
+        if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
             log.info("last training step = {}", trainingStep);
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
