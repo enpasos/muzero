@@ -80,29 +80,33 @@ public class SelfCriticalTranslator implements Translator<SelfCriticalDataSet, L
 
         float[] dataArray = new float[length * 2 * (maxFullMoves+1)];
 
+
+
         for (int i = 0; i < length; i++) {
-
             SelfCriticalGame game = gameList.get(i);
-            int fullMove = 0;
-
-            for (Map.Entry<SelfCriticalPosition, Float> entry : game.normalizedEntropyValues.entrySet()) {
-                SelfCriticalPosition pos = entry.getKey();
-                float entropy = entry.getValue();
-
-                if (pos.getPlayer() == OneOfTwoPlayer.PLAYER_A) {
-                    dataArray[i * 2 * (maxFullMoves + 1) +                      fullMove ] = entropy;
-                } else {
-                    dataArray[i * 2 * (maxFullMoves + 1) + (maxFullMoves + 1) + fullMove] = entropy;
-                    fullMove++;
-                }
-
-            }
-
+            //int move = 0;
+            fillDataForOneGame(maxFullMoves, dataArray, i, game);
         }
+
+
+
         NDArray[]  data = new NDArray[]{ctx.getNDManager().create(dataArray, new Shape(length, 1, 2, dataSet.maxFullMoves + 1))};
 
 
         return new NDList(data);
+    }
+
+    static void fillDataForOneGame(int maxFullMoves, float[] dataArray, int i, SelfCriticalGame game) {
+        for (int p = 0; p < 2; p++) {
+            OneOfTwoPlayer player = (p == 0) ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
+            for (int fullMove = 0; fullMove < maxFullMoves; fullMove++) {
+                SelfCriticalPosition pos = SelfCriticalPosition.builder().player(player).fullMove(fullMove).build();
+                if (game.normalizedEntropyValues.containsKey(pos)) {
+                    float entropy = game.normalizedEntropyValues.get(pos);
+                    dataArray[i * 2 * (maxFullMoves + 1) + p * (maxFullMoves + 1) + fullMove] = entropy;
+                }
+            }
+        }
     }
 
 

@@ -12,8 +12,8 @@ import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
+
+import static ai.enpasos.muzero.go.selfcritical.SelfCriticalTranslator.fillDataForOneGame;
 
 @Slf4j
 public  class DJLDataSet extends ArrayDataset {
@@ -50,31 +50,15 @@ public  class DJLDataSet extends ArrayDataset {
         float[] data = new float[length * 2 * (maxFullMoves+1)];
 
         for (int i = 0; i < length; i++) {
-
             SelfCriticalGame game = this.inputData.getData().get(i);
-            int fullMove = 0;
-            int move = 0;
-            for (Map.Entry<SelfCriticalPosition, Float> entry : game.normalizedEntropyValues.entrySet()) {
-                SelfCriticalPosition pos = entry.getKey();
-                float entropy = entry.getValue();
-
-                if (pos.getPlayer() == OneOfTwoPlayer.PLAYER_A) {
-                    data[i * 2 * (maxFullMoves + 1) +                      fullMove ] = entropy;
-                } else {
-                    data[i * 2 * (maxFullMoves + 1) + (maxFullMoves + 1) + fullMove] = entropy;
-                    fullMove++;
-                }
-
-                move++;
-            }
-            labels[i * (maxFullMoves+1) + game.firstReliableFullMove] = 1f;
-
+            //int move = 0;
+            fillDataForOneGame(maxFullMoves, data, i, game);
+            labels[i * (maxFullMoves + 1) + game.firstReliableFullMove] = 1f;
         }
 
-
         int count = 0;
-        for(int i = 0; i < labels.length; i++) {
-            if (labels[i] != 0) count++;
+        for(int k = 0; k < labels.length; k++) {
+            if (labels[k] != 0) count++;
         }
         log.info("labels expected 1 sum: " + length + ", measured: " + count);
 
