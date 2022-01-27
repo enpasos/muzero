@@ -20,15 +20,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.StringWriter;
-import java.nio.file.Paths;
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.mnist.blocks.OnnxIOExport.onnxExport;
-import static ai.enpasos.muzero.platform.agent.fast.model.Network.getDoubleValue;
-import static ai.enpasos.muzero.platform.agent.fast.model.Network.getEpoch;
 
 @Slf4j
 @Component
@@ -58,13 +52,13 @@ public class OnnxExport {
                 InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock)network.getInitialInference().getBlock();
                 RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock)network.getRecurrentInference().getBlock();
 
-                onnxExport((OnnxIO) initialInferenceBlock ,  inputRepresentation, config.getOutputDir()+"onnx/initialInference.onnx", "I_");
+                onnxExport((OnnxIO) initialInferenceBlock ,  inputRepresentation, config.getOutputDir()+"onnx/" + config.getModelName() + "-InitialInference.onnx", "I_");
 
-                onnxExport((OnnxIO) recurrentInferenceBlock ,  inputGeneration, config.getOutputDir()+"onnx/recurrentInference.onnx", "R_");
+                onnxExport((OnnxIO) recurrentInferenceBlock ,  inputGeneration, config.getOutputDir()+"onnx/" + config.getModelName() + "-RecurrentInference.onnx", "R_");
 
-                onnxExport((OnnxIO) initialInferenceBlock.getH() ,  inputRepresentation, config.getOutputDir()+"onnx/representation.onnx", "H_");
-                onnxExport((OnnxIO) initialInferenceBlock.getF() ,  inputPrediction, config.getOutputDir()+"onnx/prediction.onnx", "F_");
-                onnxExport((OnnxIO)recurrentInferenceBlock.getG() ,  inputGeneration, config.getOutputDir()+"onnx/generation.onnx", "G_");
+                onnxExport((OnnxIO) initialInferenceBlock.getH() ,  inputRepresentation, config.getOutputDir()+"onnx/"  + config.getModelName() + "-Representation.onnx", "H_");
+                onnxExport((OnnxIO) initialInferenceBlock.getF() ,  inputPrediction, config.getOutputDir()+"onnx/"+ config.getModelName() +"-Prediction.onnx", "F_");
+                onnxExport((OnnxIO)recurrentInferenceBlock.getG() ,  inputGeneration, config.getOutputDir()+"onnx/"+ config.getModelName() +"-Generation.onnx", "G_");
             }
 
         } catch (Exception e) {

@@ -189,6 +189,7 @@ public class MCTS {
                            boolean fastRuleLearning) {
         node.setToPlay(toPlay);
         if (!fastRuleLearning) {
+            node.setValueFromInitialInference(networkOutput.getValue());
             node.setHiddenState(networkOutput.getHiddenState());
             node.setReward(networkOutput.getReward());
         }
@@ -214,22 +215,17 @@ public class MCTS {
     }
 
     public Map.@NotNull Entry<Action, Node> selectChild(@NotNull Node node, MinMaxStats minMaxStats) {
-
         Action action = selectAction(node, minMaxStats);
-
         return Map.entry(action, node.getChildren().get(action));
-
     }
 
     public Action selectAction(@NotNull Node node, MinMaxStats minMaxStats) {
         List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node, minMaxStats);
-
         return selectActionByDrawingFromDistribution(distributionInput);
     }
 
     public Action selectActionByMax(@NotNull Node node, MinMaxStats minMaxStats) {
         List<Pair<Action, Double>> distributionInput = regularizedPolicyOptimization.getDistributionInput(node, minMaxStats);
-
         return distributionInput.stream().max(Comparator.comparing(Pair::getValue)).orElseThrow(MuZeroException::new).getKey();
     }
 

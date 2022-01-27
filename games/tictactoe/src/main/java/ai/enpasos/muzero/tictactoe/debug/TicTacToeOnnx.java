@@ -1,7 +1,6 @@
 package ai.enpasos.muzero.tictactoe.debug;
 
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.muzero.platform.agent.Inference;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.debug.OnnxExport;
 import lombok.extern.slf4j.Slf4j;

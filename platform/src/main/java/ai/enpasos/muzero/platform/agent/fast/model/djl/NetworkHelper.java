@@ -169,7 +169,6 @@ public class NetworkHelper {
 
         Tracker learningRateTracker = Tracker.fixed(config.getLrInit());
 
-
         return Optimizer.adam()
                 .optLearningRateTracker(learningRateTracker)
                 .optWeightDecays(config.getWeightDecay())

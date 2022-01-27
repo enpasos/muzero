@@ -86,7 +86,7 @@ public class ValueExtractor {
 
         replayBuffer.loadLatestState();
 
-        Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
+        Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 7);
 
         List<Integer> actions = game.actionHistory().getActionIndexList();
         log.debug(actions.toString());
