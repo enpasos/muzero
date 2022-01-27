@@ -13,6 +13,10 @@ public class SelfCriticalPosition implements Comparable<SelfCriticalPosition> {
 
     @Override
     public int compareTo(@NotNull SelfCriticalPosition o) {
-        return Integer.compare(this.fullMove, getFullMove());
+        int comp =  Integer.compare(this.fullMove, o.getFullMove());
+        if (comp == 0) {
+            comp = Float.compare(this.player.getActionValue(), o.getPlayer().getActionValue());
+        }
+        return comp;
     }
 }

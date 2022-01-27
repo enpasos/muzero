@@ -36,7 +36,7 @@ public class SelfCriticalTrain {
     private SelfCriticalTrain() {}
 
     public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
-        String[] args_ = {"-e", "3", "-b", "100", "-o", "mymodel"};
+        String[] args_ = {"-e", "50", "-b", "100", "-o", "mymodel"};
 
         Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
@@ -62,7 +62,7 @@ public class SelfCriticalTrain {
             try (Trainer trainer = model.newTrainer(config)) {
                 trainer.setMetrics(new Metrics());
 
-                Shape inputShape = new Shape(1, 1, 2, dataSet.maxFullMoves);
+                Shape inputShape = new Shape(1, 1, 2, (dataSet.maxFullMoves+1));
 
 
                 // initialize trainer with proper input shape
@@ -101,20 +101,20 @@ public class SelfCriticalTrain {
 
     private static Optimizer setupOptimizer() {
 
-        Tracker learningRateTracker = Tracker.fixed(0.001f);
-
-        return Optimizer.sgd()
-            .setLearningRateTracker(learningRateTracker)
-            .optMomentum(0.9f)
-            .optWeightDecays(0.0001f)
-            .optClipGrad(10f)
-            .build();
-
-//        return Optimizer.adam()
-//            .optLearningRateTracker(learningRateTracker)
-//            // .optWeightDecays(config.getWeightDecay())
-//            //  .optClipGrad(10f)
+        Tracker learningRateTracker = Tracker.fixed(0.0001f);
+//
+//        return Optimizer.sgd()
+//            .setLearningRateTracker(learningRateTracker)
+//            .optMomentum(0.9f)
+//            .optWeightDecays(0.0001f)
+//            .optClipGrad(10f)
 //            .build();
+
+        return Optimizer.adam()
+            .optLearningRateTracker(learningRateTracker)
+            // .optWeightDecays(config.getWeightDecay())
+            //  .optClipGrad(10f)
+            .build();
 
     }
 

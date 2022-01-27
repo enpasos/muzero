@@ -120,7 +120,9 @@ public class SelfCritical {
 //
        List<Integer>  testResult = test.run(dataSet);
         int i = 42;
-        testResult.stream().forEach(f -> System.out.println(f.intValue()));
+      //  testResult.stream().forEach(f -> System.out.println(f.intValue()));
+
+        System.out.println("results not 0: " + testResult.stream().filter(r -> r != 0).count());
 //        System.out.println("");
 //        long numberOK = testResult.stream().filter(f -> f.booleanValue()).count();
 //        long numberNOK = testResult.stream().filter(f -> !f.booleanValue()).count();
@@ -168,6 +170,9 @@ public class SelfCritical {
                 //feature.setCorrectAndNoMindChange(trusted && feature.correct);
 
                 scGame.normalizedEntropyValues.put(pos, (float)feature.getEntropy());
+            }
+            if (scGame.firstReliableFullMove == totalMoves/2)  {
+                scGame.firstReliableFullMove = maxFullMoveOfAllGames;
             }
         }
         dataSet.maxFullMoves = maxFullMoveOfAllGames;

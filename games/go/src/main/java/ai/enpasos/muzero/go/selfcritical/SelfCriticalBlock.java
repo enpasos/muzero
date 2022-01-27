@@ -58,7 +58,7 @@ public class SelfCriticalBlock extends SequentialBlockExt implements OnnxIO {
             .add(ActivationExt.reluBlock())
             .add(BlocksExt.batchFlattenBlock())
             .add(LinearExt.builder()
-                .setUnits(maxFullMoves)
+                .setUnits(maxFullMoves + 1)
                 .optBias(true)
                 .build());
     }

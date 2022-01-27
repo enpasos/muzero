@@ -78,7 +78,7 @@ public class SelfCriticalTranslator implements Translator<SelfCriticalDataSet, L
 
         int length = gameList.size();
 
-        float[] dataArray = new float[length * 2 * maxFullMoves];
+        float[] dataArray = new float[length * 2 * (maxFullMoves+1)];
 
         for (int i = 0; i < length; i++) {
 
@@ -89,15 +89,17 @@ public class SelfCriticalTranslator implements Translator<SelfCriticalDataSet, L
                 SelfCriticalPosition pos = entry.getKey();
                 float entropy = entry.getValue();
 
-                dataArray[i * 2 * maxFullMoves + fullMove + 0] = pos.getPlayer() == OneOfTwoPlayer.PLAYER_A ? 0f : 1f;
-                dataArray[i * 2 * maxFullMoves + fullMove + 1] = entropy;
+                if (pos.getPlayer() == OneOfTwoPlayer.PLAYER_A) {
+                    dataArray[i * 2 * (maxFullMoves + 1) +                      fullMove ] = entropy;
+                } else {
+                    dataArray[i * 2 * (maxFullMoves + 1) + (maxFullMoves + 1) + fullMove] = entropy;
+                    fullMove++;
+                }
 
-
-                fullMove++;
             }
 
         }
-        NDArray[]  data = new NDArray[]{ctx.getNDManager().create(dataArray, new Shape(length, 1, 2, dataSet.maxFullMoves))};
+        NDArray[]  data = new NDArray[]{ctx.getNDManager().create(dataArray, new Shape(length, 1, 2, dataSet.maxFullMoves + 1))};
 
 
         return new NDList(data);
