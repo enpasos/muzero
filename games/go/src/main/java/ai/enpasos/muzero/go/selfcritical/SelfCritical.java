@@ -26,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -48,83 +50,45 @@ public class SelfCritical {
         // assuming that the buffer is filled only by data produced by one (the latest) network
         replayBuffer.loadLatestState();
 
-       long nWinA = replayBuffer.getBuffer().getGames().stream().filter(g -> (((GoGame)g).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_A)).count();
-        long nWinB = replayBuffer.getBuffer().getGames().stream().filter(g -> (((GoGame)g).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_B)).count();
+        replayBuffer.keepOnlyTheLatestGames(1000);
 
-
+        long nWinA = replayBuffer.getBuffer().getGames().stream().filter(g -> (((GoGame) g).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_A)).count();
+        long nWinB = replayBuffer.getBuffer().getGames().stream().filter(g -> (((GoGame) g).whoWonTheGame().get() == OneOfTwoPlayer.PLAYER_B)).count();
 
         int numOfGames = replayBuffer.getBuffer().getData().size();
 
+        SelfCriticalDataSet dataSet = getSelfCriticalDataSet(0, numOfGames - 1);
 
 
-        SelfCriticalDataSet dataSet = getSelfCriticalDataSet(0, numOfGames-1);
+        long fromWhichFullMoveOnIsTheOutcomeCertain = dataSet.data.stream()
+            .mapToLong(selfCriticalGame -> selfCriticalGame.firstReliableFullMove).max().getAsLong();
 
 
-        //     Collections.reverse( dataSet.features);
-//        dataSet.features.stream().forEach(f -> System.out.println(f.correctAndNoMindChange ? 1f : -1f));
-//        System.out.println("");
+        int[] firstReliableFullMoves = dataSet.data.stream()
+            .mapToInt(selfCriticalGame -> selfCriticalGame.firstReliableFullMove)
+            .toArray();
 
 
-     //   dataSet.transformRawToNormalizedInput();
+        int[] density = new int[100];
+        for (int d = 0; d < density.length; d++) {
+            final int dFinal = d;
+            density[d] = (int) Arrays.stream(firstReliableFullMoves).filter(v -> v == dFinal).count();
+        }
 
-//        dataSet.features.stream().forEach(f -> System.out.println(f.normalizedNumberOfMovesPlayedSofar));
-//        System.out.println("");
+        System.out.println(Arrays.toString(density));
 
+        int k = 42;
 
-
-//        long correctN = dataSet.features.stream()
-//            .filter(f -> f.correctAndNoMindChange).count();
-//
-//        long notCorrectN = dataSet.features.stream()
-//            .filter(f -> !f.correctAndNoMindChange).count();
-
-   //     System.out.println("correct: " + correctN + ", not correct: " + notCorrectN);
-
-//if (notCorrectN > 0 ) {
-//    double entropy = dataSet.features.stream()
-//        .filter(f -> !f.correctAndNoMindChange)
-//        .min(Comparator.comparing(SelfCriticalLabeledFeature::getEntropy))
-//        .get().getEntropy();
-//
-//
-//    System.out.println("below this entropy only correct guesses: " + entropy);
-//
-//
-//        long countReliableDataPoints = dataSet.features.stream()
-//            .filter(f -> f.entropy < entropy).count();
-//
-//        long countAllDataPoints = dataSet.features.stream()
-//            .count();
-//
-//        System.out.println("reliable data points " + countReliableDataPoints + " out of " + countAllDataPoints);
-//}
-
-//        dataSet.features.stream().forEach(f -> System.out.println(f.correct ? 1 : 0));
-//        System.out.println("");
-//
-//        dataSet.features.stream().forEach(f -> System.out.println(f.value));
-//        System.out.println("");
         try {
             train.run(dataSet);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
-
-
-//         dataSet = getSelfCriticalDataSet(numOfGames-7, numOfGames-7);
-//          Collections.reverse(dataSet.features);
-//
-       List<Integer>  testResult = test.run(dataSet);
-        int i = 42;
-      //  testResult.stream().forEach(f -> System.out.println(f.intValue()));
+        List<Integer> testResult = test.run(dataSet);
 
         System.out.println("results not 0: " + testResult.stream().filter(r -> r != 0).count());
-//        System.out.println("");
-//        long numberOK = testResult.stream().filter(f -> f.booleanValue()).count();
-//        long numberNOK = testResult.stream().filter(f -> !f.booleanValue()).count();
-//        log.info("ok: " + numberOK + ", nok: " + numberNOK);
+
     }
 
     @NotNull
@@ -161,6 +125,7 @@ public class SelfCritical {
                     .toPlay(toPlay)
                     .build();
                 feature.transformRawToPreNormalizedInput();
+                if (g == 1) System.out.println(feature.value);
                 if (trusted && !feature.correct) {
                     trusted = false;
                     scGame.firstReliableFullMove = fullMove + 1;

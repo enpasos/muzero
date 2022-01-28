@@ -296,4 +296,8 @@ public class ReplayBuffer {
     }
 
 
+    public void keepOnlyTheLatestGames(int n) {
+        buffer.games =  buffer.games.subList(Math.max( buffer.games.size() - n, 0),  buffer.games.size());
+        buffer.data =  buffer.data.subList(Math.max( buffer.data.size() - n, 0),  buffer.data.size());
+    }
 }
