@@ -29,16 +29,11 @@ import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.fast.model.Observation;
 import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 public class SelfCriticalTranslator implements Translator<SelfCriticalDataSet, List<Integer>> {

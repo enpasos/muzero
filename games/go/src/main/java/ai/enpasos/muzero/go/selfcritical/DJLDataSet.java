@@ -8,7 +8,6 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.dataset.ArrayDataset;
 import ai.djl.util.Progress;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
