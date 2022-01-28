@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.go.selfcritical;
 
+
 import ai.enpasos.muzero.go.config.GoGame;
 import ai.enpasos.muzero.platform.agent.gamebuffer.*;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -25,9 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j

@@ -2,10 +2,8 @@ package ai.enpasos.muzero.go.selfcritical;
 
 
 import ai.djl.Model;
-import ai.djl.basicmodelzoo.basic.Mlp;
 import ai.djl.engine.Engine;
 import ai.djl.metric.Metrics;
-import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
@@ -15,15 +13,14 @@ import ai.djl.training.TrainingResult;
 import ai.djl.training.dataset.Dataset;
 import ai.djl.training.dataset.RandomAccessDataset;
 import ai.djl.training.evaluator.Accuracy;
-import ai.djl.training.listener.*;
+import ai.djl.training.listener.SaveModelTrainingListener;
+import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
 import ai.djl.training.util.ProgressBar;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.mnist.Arguments;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.MyEvaluatorTrainingListener;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.MyLoggingTrainingListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +33,7 @@ public class SelfCriticalTrain {
     private SelfCriticalTrain() {}
 
     public TrainingResult run(SelfCriticalDataSet dataSet) throws IOException, TranslateException {
-        String[] args_ = {"-e", "20", "-b", "100", "-o", "mymodel"};
+        String[] args_ = {"-e", "10", "-b", "20", "-o", "mymodel"};
 
         Arguments arguments = new Arguments().parseArgs(args_);
         if (arguments == null) {
@@ -101,11 +98,11 @@ public class SelfCriticalTrain {
 
     private static Optimizer setupOptimizer() {
 
-        Tracker learningRateTracker = Tracker.fixed(0.001f);
+        Tracker learningRateTracker = Tracker.fixed(0.0001f);
 
         return Optimizer.sgd()
             .setLearningRateTracker(learningRateTracker)
-          //  .optMomentum(0.1f)
+            .optMomentum(0.9f)
            // .optWeightDecays(0.0001f)
          //   .optClipGrad(10f)
             .build();
