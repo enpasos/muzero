@@ -34,6 +34,7 @@ import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.slow.play.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,10 @@ public class MuZero {
 
     @Autowired
     ReplayBuffer replayBuffer;
+
+
+    @Autowired
+    ValueSelfconsistency valueSelfconsistency;
 
 
     @Autowired
@@ -147,9 +152,14 @@ public class MuZero {
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
+            int i = 1;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 playGames(render, network, trainingStep);
                 trainingStep = trainNetwork(numberOfEpochs, model, djlConfig);
+                if (i % 10 == 0) {
+                   // valueSelfconsistency.run(false);
+                }
+                i++;
             }
         }
     }

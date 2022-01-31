@@ -84,8 +84,6 @@ public class MuZeroBlock extends AbstractBlock {
 
             // recurrent Inference
             NDArray action = inputs.get(k);
-        //    NDArray dynamicsInput = NDArrays.concat(new NDList(stateWithScaledBackpropagation, action), 1);
-
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, new NDList(stateWithScaledBackpropagation, action), training, params);
             state = dynamicsResult.get(0);
 

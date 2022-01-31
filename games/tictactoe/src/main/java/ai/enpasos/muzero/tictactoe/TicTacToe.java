@@ -3,10 +3,7 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.debug.TicTacToeInference;
-import ai.enpasos.muzero.tictactoe.debug.TicTacToeLossExtractor;
-import ai.enpasos.muzero.tictactoe.debug.TicTacToeOnnx;
-import ai.enpasos.muzero.tictactoe.debug.TicTacToeWinLooseStatistics;
+import ai.enpasos.muzero.tictactoe.debug.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -23,12 +20,19 @@ public class TicTacToe implements CommandLineRunner {
     TicTacToeWinLooseStatistics goWinLooseStatistics;
     @Autowired
     private TicTacToeTrainingAndTest trainingAndTest;
+
+
+    @Autowired
+    private TicTacToeTestComponent test;
     @Autowired
     private MuZeroConfig conf;
     @Autowired
     private TicTacToeLossExtractor goLossExtractor;
     @Autowired
     private TicTacToeOnnx onnx;
+
+    @Autowired
+    private TicTacToeValueSelfconsistency valueSelfconsistency;
 
     @Autowired
     private TicTacToeInference inference;
@@ -44,6 +48,9 @@ public class TicTacToe implements CommandLineRunner {
             case TRAIN:
                 trainingAndTest.run();
                 break;
+            case TEST:
+                test.run();
+                break;
             case LOSS:
                 goLossExtractor.run();
                 break;
@@ -52,6 +59,9 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case INFERENCE:
                 inference.run();
+                break;
+            case VALUESELFCONSISTENCY:
+                valueSelfconsistency.run();
                 break;
             case RENDER:
                 throw new MuZeroException("RENDER not implemented yet.");

@@ -20,6 +20,7 @@ message GameProto {
   repeated PolicyTargetProtos policy_targets = 3;
   repeated float root_values = 4;
   repeated float root_values_from_initial_inference = 5;
+  float last_value_error = 6;
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;

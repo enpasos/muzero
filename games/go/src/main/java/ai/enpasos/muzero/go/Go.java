@@ -2,6 +2,7 @@ package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.go.debug.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.debug.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -42,6 +43,9 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoOnnx onnx;
 
+    @Autowired
+    private GoValueSelfconsistency valueSelfconsistency;
+
     public static void main(String[] args) {
         SpringApplication.run(Go.class, args);
     }
@@ -67,6 +71,9 @@ public class Go implements CommandLineRunner {
                 break;
             case WINLOOSE:
                 winLooseStatistics.run();
+                break;
+            case VALUESELFCONSISTENCY:
+                valueSelfconsistency.run();
                 break;
             case NONE:
             default:

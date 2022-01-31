@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -42,6 +43,7 @@ public class GameDTO {
     private List<float[]> policyTargets;
     private List<Float> rootValues;
     private List<Float> rootValuesFromInitialInference;
+    private float lastValueError;
 
     public GameDTO() {
         this.actions = new ArrayList<>();
@@ -49,7 +51,7 @@ public class GameDTO {
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
-    }
+          }
 
     public @NotNull String getActionHistoryAsString() {
         StringBuilder buf = new StringBuilder(this.getActions().size());
@@ -68,6 +70,7 @@ public class GameDTO {
 
     public GameProto proto() {
         GameProto.Builder gameBuilder = GameProto.newBuilder();
+        gameBuilder.setLastValueError(this.lastValueError);
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
@@ -87,6 +90,7 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
+        this.setLastValueError(p.getLastValueError());
         try {
             this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         } catch (Exception e) {
