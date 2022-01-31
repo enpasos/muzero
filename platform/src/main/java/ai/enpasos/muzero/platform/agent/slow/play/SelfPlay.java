@@ -68,6 +68,22 @@ public class SelfPlay {
     }
 
 
+    public @NotNull List<Game> justReplayGamesWithInitialInference(Network network, List<Game> inputGames) {
+        episode.init(inputGames);
+
+        try (NDManager nDManager = network.getNDManager().newSubManager()) {
+            List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
+            network.setActionSpaceOnDevice(actionSpaceOnDevice);
+            network.createAndSetHiddenStateNDManager(nDManager, true);
+            while (episode.notFinished()) {
+                episode.justReplayWithInitialInference(network);
+            }
+        }
+
+        return episode.getGamesDoneList();
+    }
+
+
     public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         IntStream.range(0, config.getNumEpisodes()).forEach(i ->
         {

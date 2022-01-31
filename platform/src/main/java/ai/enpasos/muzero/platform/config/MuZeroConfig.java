@@ -170,6 +170,9 @@ public class MuZeroConfig {
         return getConf().numberOfTrainingStepsPerEpoch;
     }
 
+    public int getWindowValueSelfconsistencySize() {
+        return getConf().windowValueSelfconsistencySize;
+    }
     public int getWindowSize() {
         return getConf().windowSize;
     }
@@ -316,6 +319,7 @@ public class MuZeroConfig {
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSize;
+        protected int windowValueSelfconsistencySize;
         protected int batchSize;
         protected int numUnrollSteps;
         protected int tdSteps;

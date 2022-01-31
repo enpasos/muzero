@@ -43,6 +43,8 @@ public class Node {
     public Node(MuZeroConfig config, double prior, boolean root) {
         this(config, prior);
         this.root = root;
+        this.valueFromInitialInference = 100000f; // to produce a high error if not changed
+
     }
 
     public Node(MuZeroConfig config, double prior) {
@@ -53,6 +55,7 @@ public class Node {
         this.children = new TreeMap<>();
         hiddenState = null;
         reward = 0.0;
+        this.valueFromInitialInference = 100000f;  // to produce a high error if not changed
     }
 
 

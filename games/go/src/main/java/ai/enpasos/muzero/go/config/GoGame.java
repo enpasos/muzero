@@ -51,12 +51,12 @@ public class GoGame extends ZeroSumGame {
 
     public GoGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        environment = new GoEnvironment(config);
+        initEnvironment();
     }
 
     public GoGame(@NotNull MuZeroConfig config) {
         super(config);
-        environment = new GoEnvironment(config);
+        initEnvironment();
     }
 
 
@@ -164,6 +164,11 @@ public class GoGame extends ZeroSumGame {
         if (childVisits.length > boardSize) {
             log.debug(PASS + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
         }
+    }
+
+    @Override
+    public void initEnvironment() {
+        environment = new GoEnvironment(config);
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

@@ -55,9 +55,16 @@ public abstract class Game {
     protected Environment environment;
     private Random r;
 
+    private float error;
+
+
+    //protected List<Float> valuesFromCurrentInitialInference;
+    protected GameDTO originalGameDTO;
+
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
+    //    valuesFromCurrentInitialInference = new ArrayList<>();
         this.gameDTO = new GameDTO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
@@ -66,6 +73,7 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
+     //   valuesFromCurrentInitialInference = new ArrayList<>();
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
@@ -81,6 +89,16 @@ public abstract class Game {
         } catch (Exception e) {
             throw new MuZeroException(e);
         }
+    }
+
+    public float calculateSquaredDistanceBetweenOriginalAndCurrentValue() {
+        this.error = 0;
+        for (int i = 0; i < this.originalGameDTO.getRootValuesFromInitialInference().size(); i++) {
+            double d = this.originalGameDTO.getRootValuesFromInitialInference().get(i)
+                     - this.getGameDTO().getRootValuesFromInitialInference().get(i);
+            this.error += d * d;
+        }
+        return this.error;
     }
 
     public @NotNull Game copy() {
@@ -261,4 +279,16 @@ public abstract class Game {
     public abstract void renderSuggestionFromPriors(MuZeroConfig config, Node node);
 
     public abstract void renderMCTSSuggestion(MuZeroConfig config, float[] childVisits);
+
+    public void beforeReplay() {
+        this.originalGameDTO = this.gameDTO;
+        this.gameDTO = new GameDTO();
+        this.initEnvironment();
+    }
+
+    public void afterReplay() {
+        this.gameDTO = this.originalGameDTO;
+    }
+
+    public abstract void initEnvironment();
 }

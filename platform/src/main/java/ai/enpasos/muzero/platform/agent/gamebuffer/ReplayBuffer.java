@@ -300,4 +300,19 @@ public class ReplayBuffer {
         buffer.games =  buffer.games.subList(Math.max( buffer.games.size() - n, 0),  buffer.games.size());
         buffer.data =  buffer.data.subList(Math.max( buffer.data.size() - n, 0),  buffer.data.size());
     }
+
+    public void sortGamesByLastValueError() {
+        this.getBuffer().getGames().sort(
+            (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
+        this.getBuffer().getData().sort(
+            (GameDTO g1, GameDTO g2) -> Float.compare(g2.getLastValueError(), g1.getLastValueError()));
+    }
+
+    public void removeHighLastValueErrorGames() {
+        int max = this.getConfig().getWindowValueSelfconsistencySize();
+        int size = this.getBuffer().getGames().size();
+        if (size <= max) return;
+        this.getBuffer().setGames(this.getBuffer().getGames().subList(size-max, size));
+        this.getBuffer().setData(this.getBuffer().getData().subList(size-max, size));
+    }
 }

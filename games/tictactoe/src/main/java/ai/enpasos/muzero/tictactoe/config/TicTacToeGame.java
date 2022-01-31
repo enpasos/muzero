@@ -53,7 +53,7 @@ public class TicTacToeGame extends ZeroSumGame {
 
     public TicTacToeGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        environment = new TicTacToeEnvironment(config);
+        initEnvironment();
         boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
@@ -174,6 +174,11 @@ public class TicTacToeGame extends ZeroSumGame {
         if (childVisits.length > boardSize) {
             log.info(PASS + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
         }
+    }
+
+    @Override
+    public void initEnvironment() {
+        environment = new TicTacToeEnvironment(config);
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {
