@@ -29,6 +29,7 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +77,19 @@ public class ValueSelfconsistency {
 
         games.stream().forEach(g -> g.beforeReplay());
 
+
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+
+
+        List<Game> resultGames = new ArrayList<>();
+
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
-            games = selfPlay.justReplayGamesWithInitialInference(network, replayBuffer.getBuffer().getGames());
+            for(List<Game> gameList : gameBatches) {
+                resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, replayBuffer.getBuffer().getGames()));
+            }
         }
+        games = resultGames;
 
         this.replayBuffer.getBuffer().setGames(games);
         this.replayBuffer.getBuffer().setData(

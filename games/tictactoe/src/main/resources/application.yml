@@ -21,8 +21,8 @@ muzero:
       numResiduals: 8
 
       numberOfTrainingStepsPerEpoch: 40
-      windowSize: 20000
-      windowValueSelfconsistencySize: 5000
+      windowSize: 10000
+      # windowValueSelfconsistencySize: 5000 <- postponed
 
       numUnrollSteps: 5
       tdSteps: 9 # size * size

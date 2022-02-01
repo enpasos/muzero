@@ -72,9 +72,9 @@ public class Go implements CommandLineRunner {
             case WINLOOSE:
                 winLooseStatistics.run();
                 break;
-            case VALUESELFCONSISTENCY:
-                valueSelfconsistency.run();
-                break;
+//            case VALUESELFCONSISTENCY:
+//                valueSelfconsistency.run();
+//                break;
             case NONE:
             default:
                 return;
