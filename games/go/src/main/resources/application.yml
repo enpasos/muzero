@@ -3,7 +3,7 @@ logging:
   level.ai.enpasos: DEBUG
 
 muzero:
-  activeGame: GO_9
+  activeGame: GO_5
   run: train
   games:
     GO_5:
@@ -43,7 +43,8 @@ muzero:
       symmetryType: SQUARE
       numberOfTrainingSteps: 300000
       numberOfTrainingStepsPerEpoch: 100
-      windowSize: 50000
+      windowSize: 40000
+      # windowValueSelfconsistencySize: 30000   <- postponed
       batchSize: 128
       numUnrollSteps: 5
       tdSteps: 10000 # here equals max moves
