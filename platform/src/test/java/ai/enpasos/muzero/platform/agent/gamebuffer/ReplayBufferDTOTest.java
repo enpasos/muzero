@@ -1,7 +1,8 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
-import ai.enpasos.muzero.platform.agent.gamebuffer.protobuf.ReplayBufferProto;
-import com.google.protobuf.InvalidProtocolBufferException;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
+import ai.enpasos.muzero.platform.agent.memory.GameDTO;
+import ai.enpasos.muzero.platform.agent.memory.ReplayBufferDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 

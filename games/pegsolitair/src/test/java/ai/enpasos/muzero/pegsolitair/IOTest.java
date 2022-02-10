@@ -1,8 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.platform.agent.Inference;
-import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.gamebuffer.ReplayBufferDTO;
+import ai.enpasos.muzero.platform.agent.memory.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memory.ReplayBufferDTO;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

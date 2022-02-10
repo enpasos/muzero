@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.platform.agent.Inference;
+import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

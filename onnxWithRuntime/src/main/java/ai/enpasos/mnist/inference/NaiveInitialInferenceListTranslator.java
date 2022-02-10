@@ -17,24 +17,19 @@
 
 package ai.enpasos.mnist.inference;
 
-import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.fast.model.Observation;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.SubModel;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
+import ai.enpasos.muzero.platform.agent.intuitive.Observation;
+import ai.enpasos.muzero.platform.agent.memory.Game;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 

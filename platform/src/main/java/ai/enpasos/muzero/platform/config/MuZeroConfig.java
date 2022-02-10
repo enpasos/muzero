@@ -1,9 +1,9 @@
 package ai.enpasos.muzero.platform.config;
 
 import ai.djl.Device;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
-import ai.enpasos.muzero.platform.agent.slow.play.Action;
-import ai.enpasos.muzero.platform.agent.slow.play.KnownBounds;
+import ai.enpasos.muzero.platform.agent.memory.Game;
+import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.rational.KnownBounds;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

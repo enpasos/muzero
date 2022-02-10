@@ -3,8 +3,7 @@ package ai.enpasos.mnist.inference;
 
 import ai.djl.Model;
 import ai.djl.engine.Engine;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.binference.InitialInferenceListTranslator;
-import ai.enpasos.muzero.platform.agent.gamebuffer.Game;
+import ai.enpasos.muzero.platform.agent.memory.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.TicTacToe;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.FilterType;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication

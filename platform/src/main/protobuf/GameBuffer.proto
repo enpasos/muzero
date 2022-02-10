@@ -3,7 +3,7 @@ syntax = "proto3";
 package protobuf;
 
 
-option java_package = "ai.enpasos.muzero.platform.agent.gamebuffer.protobuf";
+option java_package = "ai.enpasos.muzero.platform.agent.memory.protobuf";
 option java_multiple_files = true;
 
 
