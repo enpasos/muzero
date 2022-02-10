@@ -248,7 +248,7 @@ public class Episode {
     }
 
     @NotNull
-    private List<Node> initRootNodes() {
+    public List<Node> initRootNodes() {
         // At the root of the search tree we use the representation function to
         // obtain a hidden state given the current observation.
         return IntStream.range(0, gameList.size())

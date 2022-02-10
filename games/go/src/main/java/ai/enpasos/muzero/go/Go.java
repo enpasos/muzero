@@ -42,8 +42,12 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoOnnx onnx;
 
+//    @Autowired
+//    private GoValueSelfconsistency valueSelfconsistency;
+
+
     @Autowired
-    private GoValueSelfconsistency valueSelfconsistency;
+    private GoElo elo;
 
     public static void main(String[] args) {
         SpringApplication.run(Go.class, args);
@@ -70,6 +74,9 @@ public class Go implements CommandLineRunner {
                 break;
             case WINLOOSE:
                 winLooseStatistics.run();
+                break;
+            case ELO:
+                elo.run();
                 break;
 //            case VALUESELFCONSISTENCY:
 //                valueSelfconsistency.run();
