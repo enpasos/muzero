@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.function.Consumer;
 
 /**
- * A {@link TrainingListener} that saves a model checkpoint after each epoch.
+ * A {@link TrainingListener} that saves a model checkpoint after each player.
  */
 public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
@@ -71,7 +71,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
         }
 
         if (step > 0 && epoch % step == 0) {
-            // save model at end of each epoch
+            // save model at end of each player
             saveModel(trainer);
         }
     }

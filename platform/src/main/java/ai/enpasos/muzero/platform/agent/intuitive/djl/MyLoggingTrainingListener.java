@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link TrainingListener} that outputs the progress of training each batch and epoch into logs.
+ * {@link TrainingListener} that outputs the progress of training each batch and player into logs.
  *
  * @see <a href="http://docs.djl.ai/docs/development/configure_logging.html">The guide on DJL
  * logging</a>
@@ -61,9 +61,9 @@ public class MyLoggingTrainingListener implements TrainingListener {
     /**
      * Constructs a {@code LoggingTrainingListener} instance with specified steps.
      *
-     * <p>Print out logs every {@code frequency} epoch.
+     * <p>Print out logs every {@code frequency} player.
      *
-     * @param frequency the frequency of epoch to print out
+     * @param frequency the frequency of player to print out
      */
     public MyLoggingTrainingListener(int numEpochs, int frequency) {
         this(numEpochs);

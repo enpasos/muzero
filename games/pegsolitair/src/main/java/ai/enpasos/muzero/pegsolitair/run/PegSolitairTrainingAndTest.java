@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+
 
 @Slf4j
 @Component
@@ -25,12 +27,7 @@ public class PegSolitairTrainingAndTest {
 
     public void run() {
 
-        try {
-            FileUtils.deleteDirectory(new File(config.getOutputDir()));
-        } catch (Exception e) {
-            throw new MuZeroException(e);
-        }
-
+        rmDir(config.getOutputDir());
 
         muZero.train(false, 1, true, true);
 

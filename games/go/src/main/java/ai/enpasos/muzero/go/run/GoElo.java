@@ -1,20 +1,15 @@
 package ai.enpasos.muzero.go.run;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.memory.Game;
+import ai.enpasos.muzero.platform.ranking.BattleDTO;
+import ai.enpasos.muzero.platform.ranking.Ranking;
+import ai.enpasos.muzero.platform.ranking.RankingEntryDTO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
-import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
-
-import static ai.enpasos.muzero.go.run.GoArena.*;
-import static ai.enpasos.muzero.platform.common.FileUtils.*;
 
 @Component
 @Slf4j
@@ -23,34 +18,82 @@ public class GoElo {
     @Autowired
     MuZeroConfig config;
 
+
+    @Autowired
+    Ranking ranking;
+
     @Autowired
     GoArena goArena;
 
-
-
     public void run() {
+        int numGamesPerBattle = 100;
+        int a = 22;
+        int b = 0;
+        //for (int b = 0; b < 9; b++) {
+        //    double result = battle(a, b, numGamesPerBattle);
+         //   System.out.println(a + ";" + b + ";" + result);
+       // }
 
-        rmDir(ARENA);
-        mkDir(ARENA_NETWORK_1);
-        mkDir(ARENA_NETWORK_2);
-
-        cp(config.getNetworkBaseDir()+"/MuZero-Go-5-0009.params", ARENA_NETWORK_1);
-        cp(config.getNetworkBaseDir()+"/MuZero-Go-5-0005.params", ARENA_NETWORK_2);
-
-        goArena.run();
-
-//        double resultPlayerA = 19d/20d;
+        //        double resultPlayerA = 19d/20d;
 //
 //        System.out.println("eloA;eloB");
-//        int eloA = -3000;
-//        int eloB = -3000;
+        double resultPlayerA = 0.77;
+        int eloA = -3000;
+        int eloB = -3000;
 //        System.out.println(eloA + ";" + eloB);
 //
 //        for (int i = 0; i < 100; i++) {
-//            eloA = calculateNewElo(eloA, eloB, resultPlayerA);
-//            eloB = calculateNewElo(eloB, eloA, 1d - resultPlayerA);
-//            System.out.println(eloA + ";" + eloB);
+            eloA = calculateNewElo(eloA, eloB, resultPlayerA);
+            eloB = calculateNewElo(eloB, eloA, 1d - resultPlayerA);
+            System.out.println(eloA + ";" + eloB);
 //        }
+
+        List<RankingEntryDTO> rs = ranking.getRankingList().getRankings();
+        rs.add(RankingEntryDTO.builder()
+                .player(a + "")
+                .elo(eloA)
+                .battles(
+                    List.of(BattleDTO.builder()
+                            .epochPlayer(a)
+                            .epochOpponent(b)
+                            .numGamesPlayed(numGamesPerBattle)
+                            .result(resultPlayerA)
+                            .eloBefore(-3000)
+                            .eloAfter(eloA)
+                        .build())
+                )
+            .build());
+        rs.add(RankingEntryDTO.builder()
+            .player(b + "")
+            .elo(eloB)
+            .battles(
+                List.of(BattleDTO.builder()
+                    .epochPlayer(b)
+                    .epochOpponent(a)
+                    .numGamesPlayed(numGamesPerBattle)
+                    .result(1.0 - resultPlayerA)
+                    .eloBefore(-3000)
+                    .eloAfter(eloB)
+                    .build())
+            )
+            .build());
+
+        ranking.saveRanking();
+    }
+
+
+    public double battle(int a, int b, int numGames) {
+
+//        rmDir(ARENA);
+//        mkDir(ARENA_NETWORK_1);
+//        mkDir(ARENA_NETWORK_2);
+
+//        String a
+//        cp(config.getNetworkBaseDir()+"/MuZero-Go-5-" + String.format("%04d", a) +  ".params", ARENA_NETWORK_1);
+//        cp(config.getNetworkBaseDir()+"/MuZero-Go-5-" + String.format("%04d", b) +  ".params", ARENA_NETWORK_2);
+        return goArena.battleAndReturnAveragePointsFromPlayerAPerspective(numGames, a + "", b + "");
+
+
     }
 
 

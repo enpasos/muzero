@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -67,8 +68,11 @@ public class Network {
 
     private List<NDArray> actionSpaceOnDevice;
 
-
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
+        this(config, model,  modelPath,null);
+    }
+
+    public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath, Map<String, ?> options) {
         this.model = model;
         this.config = config;
 
@@ -76,7 +80,7 @@ public class Network {
             MuZeroBlock block = new MuZeroBlock(config);
             model.setBlock(block);
             try {
-                model.load(modelPath);
+                model.load(modelPath,null, options);
             } catch (@NotNull IOException | MalformedModelException e) {
                 log.warn(e.getMessage());
             }

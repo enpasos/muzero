@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+
 
 @Slf4j
 @Component
@@ -28,12 +30,7 @@ public class TicTacToeTrainingAndTest {
 
     public void run() {
 
-        try {
-            FileUtils.deleteDirectory(new File(config.getOutputDir()));
-        } catch (Exception e) {
-            throw new MuZeroException(e);
-        }
-
+        rmDir(config.getOutputDir());
 
       //  muZero.train(true, 1, false, false);
         muZero.train(false, 1);

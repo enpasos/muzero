@@ -17,7 +17,6 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoTrainingAndTest trainingAndTest;
 
-
     @Autowired
     private MuZeroConfig conf;
 
