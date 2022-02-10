@@ -61,8 +61,8 @@ public class Arguments {
     }
 
     protected void setCmd(CommandLine cmd) {
-        if (cmd.hasOption("epoch")) {
-            epoch = Integer.parseInt(cmd.getOptionValue("epoch"));
+        if (cmd.hasOption("player")) {
+            epoch = Integer.parseInt(cmd.getOptionValue("player"));
         }
         if (cmd.hasOption("max-gpus")) {
             maxGpus = Math.min(Integer.parseInt(cmd.getOptionValue("max-gpus")), maxGpus);
@@ -115,7 +115,7 @@ public class Arguments {
                 Option.builder("h").longOpt("help").hasArg(false).desc("Print this help.").build());
         options.addOption(
                 Option.builder("e")
-                        .longOpt("epoch")
+                        .longOpt("player")
                         .hasArg()
                         .argName("EPOCH")
                         .desc("Numbers of epochs user would like to run")
@@ -159,7 +159,7 @@ public class Arguments {
                         .hasArg()
                         .argName("max-batches")
                         .desc(
-                                "Limit each epoch to a fixed number of iterations to test the training script")
+                                "Limit each player to a fixed number of iterations to test the training script")
                         .build());
         options.addOption(
                 Option.builder("d")

@@ -48,7 +48,7 @@ public class LossExtractor {
                 IntStream.range(1, 1000).forEach(
                         i -> {
                             try {
-                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
+                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("player", i));
                                 int epoch = getEpoch(model);
                                 int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                                 csvPrinter.printRecord(trainingSteps,
@@ -57,7 +57,7 @@ public class LossExtractor {
                                         NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                                 );
                             } catch (Exception ignored) {
-                                log.debug("epoch " + i + " model.load not successfull");
+                                log.debug("player " + i + " model.load not successfull");
                             }
                         }
                 );
@@ -68,7 +68,7 @@ public class LossExtractor {
                 IntStream.range(1001, 2000).forEach(
                         i -> {
                             try {
-                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
+                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("player", i));
                                 int epoch = getEpoch(model);
                                 int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                                 csvPrinter.printRecord(trainingSteps,
@@ -77,7 +77,7 @@ public class LossExtractor {
                                         NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                                 );
                             } catch (Exception ignored) {
-                                log.debug("epoch " + i + " model.load not successfull");
+                                log.debug("player " + i + " model.load not successfull");
                             }
                         }
                 );

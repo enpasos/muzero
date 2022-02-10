@@ -11,8 +11,11 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.Map.entry;
 
 @Component
 @Slf4j
@@ -23,23 +26,20 @@ public class GoArena {
 
     @Autowired
     Inference inference;
-    static final String ARENA = "./games/go/arena/";
-    static final String ARENA_NETWORK_1 = ARENA + "network1/";
-    static final String ARENA_NETWORK_2 = ARENA + "network2/";
+//    static final String ARENA = "./games/go/arena/";
+//    static final String ARENA_NETWORK_1 = ARENA + "network1/";
+//    static final String ARENA_NETWORK_2 = ARENA + "network2/";
+
 
     public void run() {
+        battleAndReturnAveragePointsFromPlayerAPerspective(10, "0", "1");
+    }
+    public double battleAndReturnAveragePointsFromPlayerAPerspective(int numGames, String playerA, String playerB) {
 
 
 
-       // ARENA_NETWORK_1 = "./games/go/arena/network1/";
-        //ARENA_NETWORK_2 = "./games/go/arena/network2/";
-
-        int numGames = 100;
-      //  List<Float> outcomesA = new ArrayList<>();
-        double[] outcomesA = play(ARENA_NETWORK_1, numGames);
-        log.info("1 starting ... " + Arrays.toString(outcomesA));
-        double[] outcomesB = play(ARENA_NETWORK_2, numGames);
-        log.info("2 starting ... " + Arrays.toString(outcomesB));
+        double[] outcomesA = play(true, playerA, playerB, numGames);
+        double[] outcomesB = play(false, playerB,  playerB, numGames);
 
 
         double[] outcomes = ArrayUtils.addAll(outcomesA, outcomesB);
@@ -50,25 +50,27 @@ public class GoArena {
             .count())
             / (double)outcomes.length;
         log.info("fractionPlayer1wins: " + fractionPlayer1wins);
+
+        return fractionPlayer1wins;
     }
 
 
     // 1f player1 wins, -1f player2 wins - no draw here
-    private double[] play(String startingPlayer, int n) {
+    private double[] play(boolean startingPlayerA, String playerA, String playerB, int n) {
         List<Game> gameList = IntStream.range(0, n).mapToObj(i -> config.newGame()).collect(Collectors.toList());
         // Game game = config.newGame();
         List<Game> runningGames = new ArrayList<>();
         runningGames.addAll(gameList);
-        String currentPlayer = startingPlayer;
+        String currentPlayer = startingPlayerA ? playerA : playerB;
         while (!runningGames.isEmpty()) {
             move(runningGames, currentPlayer);
             runningGames = runningGames.stream().filter(g -> !g.terminal()).collect(Collectors.toList());
-            currentPlayer = changePlayer(currentPlayer);
+            currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         }
-        currentPlayer = changePlayer(currentPlayer);
+        currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         String currentPlayerFinal = currentPlayer;
         return gameList.stream()
-            .mapToDouble(game -> (startingPlayer.equals(ARENA_NETWORK_1) ? 1f : -1f)
+            .mapToDouble(game -> (startingPlayerA ? 1f : -1f)
                 * (game.actionHistory().getActionIndexList().size() % 2 == 0 ? -1f : 1f)
                 * game.getLastReward())
             .toArray();
@@ -76,14 +78,14 @@ public class GoArena {
     }
 
     private void move(List<Game> games, String player) {
-        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, player);
+        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("player",player)));
         for(int g = 0; g < games.size(); g++) {
             games.get(g).apply(actionsSelectedByAI[g]);
         }
     }
 
-    private String changePlayer(String currentPlayer) {
-        return currentPlayer.equals(ARENA_NETWORK_1) ? ARENA_NETWORK_2 : ARENA_NETWORK_1;
+    private String changePlayer(String currentPlayer, String playerA, String playerB) {
+        return currentPlayer.equals(playerA) ? playerB : playerA;
     }
 
 }

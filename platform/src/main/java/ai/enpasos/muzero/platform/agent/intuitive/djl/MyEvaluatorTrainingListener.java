@@ -19,13 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Results are recorded for the following stages:
  *
  * <ul>
- *   <li>{@link Constants#DIR_TRAIN_EPOCH} - This accumulates for the whole epoch and is recorded to a metric at
- *       the end of the epoch
+ *   <li>{@link Constants#DIR_TRAIN_EPOCH} - This accumulates for the whole player and is recorded to a metric at
+ *       the end of the player
  *   <li>{@link Constants#DIR_TRAIN_PROGRESS} - This accumulates for {@link #progressUpdateFrequency} batches and
  *       is recorded to a metric at the end
  *   <li>{@link Constants#DIR_TRAIN_ALL} - This does not accumulates and records every training batch to a metric
- *   <li>{@link Constants#DIR_VALIDATE_EPOCH} - This accumulates for the whole validation epoch and is recorded
- *       to a metric at the end of the epoch
+ *   <li>{@link Constants#DIR_VALIDATE_EPOCH} - This accumulates for the whole validation player and is recorded
+ *       to a metric at the end of the player
  * </ul>
  *
  * <p>The training and validation evaluators are saved as metrics with names that can be found using
@@ -193,7 +193,7 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
     /**
      * Returns the latest evaluations.
      *
-     * <p>The latest evaluations are updated on each epoch.
+     * <p>The latest evaluations are updated on each player.
      *
      * @return the latest evaluations
      */

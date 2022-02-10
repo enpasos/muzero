@@ -1,6 +1,6 @@
 logging:
   level.root: WARN
-  level.ai.enpasos: DEBUG
+  level.ai.enpasos: INFO
 
 muzero:
   activeGame: GO_5

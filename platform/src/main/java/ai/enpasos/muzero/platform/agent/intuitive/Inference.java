@@ -33,8 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -52,14 +54,14 @@ public class Inference {
     }
 
 
-    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, String networkDir) {
+    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
 
         int[] actionIndexesSelectedByNetwork;
-        config.setNetworkBaseDir(networkDir);
+       // config.setNetworkBaseDir(networkDir);
 
         try (Model model = Model.newInstance(config.getModelName())) {
 
-            Network network = new Network(config, model);
+            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()),  options);
             try (NDManager nDManager = network.getNDManager().newSubManager()) {
 
                 network.initActionSpaceOnDevice(nDManager);
