@@ -1,10 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.pegsolitair.debug.PegSolitairLossExtractor;
-import ai.enpasos.muzero.pegsolitair.debug.PegSolitairOnnx;
-import ai.enpasos.muzero.pegsolitair.debug.PegSolitairRenderGame;
-import ai.enpasos.muzero.pegsolitair.debug.PegSolitairValueExtractor;
-import ai.enpasos.muzero.platform.agent.slow.play.RegularizedPolicyOptimization;
+import ai.enpasos.muzero.pegsolitair.run.*;
+import ai.enpasos.muzero.platform.agent.rational.RegularizedPolicyOptimization;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

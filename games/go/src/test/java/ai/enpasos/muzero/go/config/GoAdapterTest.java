@@ -5,7 +5,7 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
-import ai.enpasos.muzero.platform.agent.slow.play.Action;
+import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

@@ -17,13 +17,13 @@
 
 package ai.enpasos.muzero.tictactoe.test;
 
-import ai.enpasos.muzero.platform.agent.fast.model.Network;
-import ai.enpasos.muzero.platform.agent.fast.model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.slow.play.Action;
-import ai.enpasos.muzero.platform.agent.slow.play.MCTS;
-import ai.enpasos.muzero.platform.agent.slow.play.MinMaxStats;
-import ai.enpasos.muzero.platform.agent.slow.play.Node;
+import ai.enpasos.muzero.platform.agent.intuitive.Network;
+import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
+import ai.enpasos.muzero.platform.agent.memory.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.rational.MCTS;
+import ai.enpasos.muzero.platform.agent.rational.MinMaxStats;
+import ai.enpasos.muzero.platform.agent.rational.Node;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;

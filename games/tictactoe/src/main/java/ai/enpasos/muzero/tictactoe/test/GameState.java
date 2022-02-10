@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe.test;
 
-import ai.enpasos.muzero.platform.agent.gamebuffer.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.memory.ZeroSumGame;
 import lombok.Data;
 
 import java.util.Arrays;

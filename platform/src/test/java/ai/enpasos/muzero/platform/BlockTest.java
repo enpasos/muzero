@@ -1,28 +1,15 @@
 package ai.enpasos.muzero.platform;
 
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.mnist.blocks.MnistBlock;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
-import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.cmainfunctions.RepresentationOrDynamicsBlock;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.Conv3x3LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.ResidualBlockV2;
-import ai.enpasos.muzero.platform.agent.fast.model.djl.blocks.dlowerlevel.ResidualTower;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationOrDynamicsBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualBlockV2;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.nio.channels.Channels;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.BlockTestHelper.Testdata.RANDOM;
