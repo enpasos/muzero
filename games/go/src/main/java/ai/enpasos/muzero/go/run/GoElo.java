@@ -49,7 +49,7 @@ public class GoElo {
             ranking.setElo(a, eloA);
         }
 
-        int numGamesPerBattle = 100;
+        int numGamesPerBattle = 1000;
         double resultPlayerA = battle(a, b, numGamesPerBattle);
 
         ranking.addBattle(a, b, resultPlayerA, numGamesPerBattle);

@@ -48,7 +48,7 @@ public class LossExtractor {
                 IntStream.range(1, 1000).forEach(
                         i -> {
                             try {
-                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("player", i));
+                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
                                 int epoch = getEpoch(model);
                                 int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                                 csvPrinter.printRecord(trainingSteps,
@@ -68,7 +68,7 @@ public class LossExtractor {
                 IntStream.range(1001, 2000).forEach(
                         i -> {
                             try {
-                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("player", i));
+                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
                                 int epoch = getEpoch(model);
                                 int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                                 csvPrinter.printRecord(trainingSteps,
