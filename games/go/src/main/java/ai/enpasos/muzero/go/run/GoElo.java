@@ -1,8 +1,8 @@
 package ai.enpasos.muzero.go.run;
 
-import ai.enpasos.muzero.platform.ranking.BattleDTO;
-import ai.enpasos.muzero.platform.ranking.Ranking;
-import ai.enpasos.muzero.platform.ranking.RankingEntryDTO;
+import ai.enpasos.muzero.go.ranking.BattleDTO;
+import ai.enpasos.muzero.go.ranking.Ranking;
+import ai.enpasos.muzero.go.ranking.RankingEntryDTO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;

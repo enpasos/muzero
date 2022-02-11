@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.ranking;
+package ai.enpasos.muzero.go.ranking;
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
