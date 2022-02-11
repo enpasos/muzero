@@ -19,9 +19,7 @@ package ai.enpasos.muzero.platform.agent.intuitive;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.memory.Game;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.MCTS;
 import ai.enpasos.muzero.platform.agent.rational.MinMaxStats;

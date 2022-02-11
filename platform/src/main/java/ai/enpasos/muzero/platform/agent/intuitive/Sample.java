@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive;
 
-import ai.enpasos.muzero.platform.agent.memory.Target;
+import ai.enpasos.muzero.platform.agent.memorize.Target;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -19,7 +19,7 @@ package ai.enpasos.muzero.tictactoe.test;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.memory.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.MCTS;
 import ai.enpasos.muzero.platform.agent.rational.MinMaxStats;

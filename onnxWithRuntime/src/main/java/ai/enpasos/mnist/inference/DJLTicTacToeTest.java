@@ -3,7 +3,7 @@ package ai.enpasos.mnist.inference;
 
 import ai.djl.Model;
 import ai.djl.engine.Engine;
-import ai.enpasos.muzero.platform.agent.memory.Game;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.TicTacToe;
 import lombok.extern.slf4j.Slf4j;

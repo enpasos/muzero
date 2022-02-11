@@ -1,8 +1,8 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
-import ai.enpasos.muzero.platform.agent.memory.GameDTO;
-import ai.enpasos.muzero.platform.agent.memory.ReplayBufferDTO;
+import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBufferDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
