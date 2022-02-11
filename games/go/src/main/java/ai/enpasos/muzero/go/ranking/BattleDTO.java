@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform.ranking;
+package ai.enpasos.muzero.go.ranking;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
