@@ -36,8 +36,8 @@ public class GoArena {
     }
     public double battleAndReturnAveragePointsFromPlayerAPerspective(int numGames, String playerA, String playerB) {
 
-        double[] outcomesA = play(true, playerA, playerB, numGames);
-        double[] outcomesB = play(false, playerB,  playerA, numGames);
+        double[] outcomesA = play(true, playerA, playerB, numGames/2);
+        double[] outcomesB = play(false, playerB,  playerA, numGames/2);
 
         double[] outcomes = ArrayUtils.addAll(outcomesA, outcomesB);
 
@@ -74,7 +74,7 @@ public class GoArena {
     }
 
     private void move(List<Game> games, String player) {
-        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("player",player)));
+        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("epoch",player)));
         for(int g = 0; g < games.size(); g++) {
             games.get(g).apply(actionsSelectedByAI[g]);
         }

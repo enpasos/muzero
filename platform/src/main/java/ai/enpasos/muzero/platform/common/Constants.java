@@ -15,7 +15,7 @@ public class Constants {
     public static final String METRICS_FORWARD = "forward";
     public static final String METRICS_TRAINING_METRICS = "training-metrics";
     public static final String METRICS_BACKWARD = "backward";
-    public static final String EPOCH = "player";
+    public static final String EPOCH = "epoch";
     public static final char CHAR_PLAYER_A = 'x';
     public static final char CHAR_PLAYER_B = 'o';
     public static final String BUFFER_DIR = "/buffer";
