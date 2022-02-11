@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.pegsolitair;
 
-import ai.enpasos.muzero.platform.agent.memory.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.memory.ReplayBufferDTO;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBufferDTO;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;

@@ -15,29 +15,13 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe.test;
+package ai.enpasos.muzero.platform.agent.memorize;
 
-import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import lombok.Data;
 
-import java.util.Arrays;
-
 @Data
-public class GameState {
-
-    private ZeroSumGame game;
-
-    public GameState(ZeroSumGame game) {
-        this.game = game;
-    }
-
-    public int hashCode() {
-        return Arrays.deepHashCode(this.game.getEnvironment().getBoard());
-    }
-
-    public boolean equals(Object o) {
-        if (!(o instanceof GameState)) return false;
-        GameState gs = (GameState) o;
-        return Arrays.deepEquals(this.game.getEnvironment().getBoard(), gs.game.getEnvironment().getBoard());
-    }
+public class Target {
+    private float value;
+    private float reward;
+    private float[] policy;
 }

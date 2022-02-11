@@ -36,7 +36,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.binference.Recurren
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.memory.Game;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;

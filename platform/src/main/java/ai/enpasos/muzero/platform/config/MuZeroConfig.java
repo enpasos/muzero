@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.platform.config;
 
 import ai.djl.Device;
-import ai.enpasos.muzero.platform.agent.memory.Game;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.KnownBounds;
 import ai.enpasos.muzero.platform.common.MuZeroException;

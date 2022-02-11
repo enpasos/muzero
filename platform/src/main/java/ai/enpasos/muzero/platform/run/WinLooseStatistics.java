@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.enpasos.muzero.platform.agent.memory.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.memory.WinnerStatistics;
-import ai.enpasos.muzero.platform.agent.memory.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.WinnerStatistics;
+import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
