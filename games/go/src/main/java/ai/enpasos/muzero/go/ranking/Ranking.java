@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.go.ranking;
 
+import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import com.google.gson.Gson;
@@ -13,7 +14,17 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static ai.enpasos.muzero.go.ranking.Elo.calculateNewElo;
 
 @Component
 @Slf4j
@@ -74,5 +85,104 @@ public class Ranking {
             throw new MuZeroException(e.getMessage(), e);
         }
 
+    }
+
+    public void assureAllPlayerInRankingList() {
+
+        Path networkPath = Paths.get(config.getNetworkBaseDir());
+        if (Files.notExists(networkPath)) {
+            return;
+        }
+        List<String> players = null;
+        try (Stream<Path> walk = Files.walk(networkPath)) {
+            players = walk.filter(Files::isRegularFile)
+                .filter(path -> path.toString().endsWith(".params"))
+                .mapToInt(path -> {
+                    String pathStr = path.toString();
+                    String noStr = pathStr.substring(pathStr.length()-"0000.params".length(),pathStr.length()-"params".length()-1);
+                    int i = Integer.parseInt(noStr);
+                    return i;
+                })
+                .mapToObj(i -> i+"")
+                .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new MuZeroException(e);
+        }
+
+        List<String> playerInRanking = this.rankingList.getRankings().stream().map(r -> r.epochPlayer + "").collect(Collectors.toList());
+        players.removeAll(playerInRanking);
+
+        addPlayersToRanking(players);
+
+    }
+
+    private void addPlayersToRanking(List<String> players) {
+        players.stream().forEach(p -> {
+            this.rankingList.rankings.add(RankingEntryDTO.builder()
+                .epochPlayer(Integer.parseInt(p))
+                .build());
+        });
+
+    }
+
+    public void clear() {
+        this.rankingList.rankings.clear();
+    }
+
+    public int selectPlayerWithHighestEpoch() {
+         return this.rankingList.rankings.stream().mapToInt(r -> r.epochPlayer).max().getAsInt();
+    }
+
+    public int selectPlayerWithLowestEpoch() {
+        return this.rankingList.rankings.stream().mapToInt(r -> r.epochPlayer).min().getAsInt();
+    }
+
+    public int getElo(int playerEpoch) {
+        RankingEntryDTO dto = getRankingEntryDTO(playerEpoch);
+        return dto.getElo();
+    }
+
+    public void setElo(int playerEpoch, int elo) {
+        RankingEntryDTO dto = getRankingEntryDTO(playerEpoch);
+        dto.setElo(elo);
+    }
+
+    private RankingEntryDTO getRankingEntryDTO(int playerEpoch) {
+       return this.rankingList.rankings.stream().filter(r -> r.epochPlayer == playerEpoch).findFirst().get();
+    }
+
+    public void addBattle(int a, int b, double resultPlayerA, int numGamesPerBattle) {
+
+        RankingEntryDTO rA = getRankingEntryDTO(a);
+        RankingEntryDTO rB = getRankingEntryDTO(b);
+
+        int newEloA = calculateNewElo(rA.elo, rB.elo, resultPlayerA);
+        int newEloB = calculateNewElo(rB.elo, rA.elo, 1d - resultPlayerA);
+
+rA.battles.add(
+        BattleDTO.builder()
+            .epochPlayer(a)
+            .epochOpponent(b)
+            .numGamesPlayed(numGamesPerBattle)
+            .result(resultPlayerA)
+            .eloBefore(rA.elo)
+            .eloAfter(newEloA)
+            .build()
+);
+        rB.battles.add(
+            BattleDTO.builder()
+                .epochPlayer(b)
+                .epochOpponent(a)
+                .numGamesPlayed(numGamesPerBattle)
+                .result(1d - resultPlayerA)
+                .eloBefore(rB.elo)
+                .eloAfter(newEloB)
+                .build()
+        );
+
+        rA.setElo(newEloA);
+        rB.setElo(newEloB);
     }
 }
