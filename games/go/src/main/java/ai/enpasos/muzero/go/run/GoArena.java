@@ -36,14 +36,10 @@ public class GoArena {
     }
     public double battleAndReturnAveragePointsFromPlayerAPerspective(int numGames, String playerA, String playerB) {
 
-
-
         double[] outcomesA = play(true, playerA, playerB, numGames);
-        double[] outcomesB = play(false, playerB,  playerB, numGames);
-
+        double[] outcomesB = play(false, playerB,  playerA, numGames);
 
         double[] outcomes = ArrayUtils.addAll(outcomesA, outcomesB);
-
 
         double fractionPlayer1wins = ((double)Arrays.stream(outcomes)
             .filter(i -> i == 1.0d)

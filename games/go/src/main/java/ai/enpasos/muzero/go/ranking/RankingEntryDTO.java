@@ -29,10 +29,12 @@ import java.util.List;
 @Builder
 public class RankingEntryDTO {
 
-    String player;
-    int elo;
+    int epochPlayer;
+    @Builder.Default
+    int elo = Integer.MIN_VALUE;
 
     @Builder.Default
+
     List<BattleDTO> battles = new ArrayList<>();
 
 }
