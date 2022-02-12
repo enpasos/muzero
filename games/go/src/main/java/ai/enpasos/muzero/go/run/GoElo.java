@@ -1,16 +1,12 @@
 package ai.enpasos.muzero.go.run;
 
-import ai.enpasos.muzero.go.ranking.BattleDTO;
 import ai.enpasos.muzero.go.ranking.Ranking;
-import ai.enpasos.muzero.go.ranking.RankingEntryDTO;
 import ai.enpasos.muzero.go.ranking.RankingListDTO;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
@@ -37,26 +33,38 @@ public class GoElo {
         if (ranking.exists()) {
             ranking.loadRanking();
             ranking.assureAllPlayerInRankingList();
-            ranking.fillMissingRankingsByLinearInterpolation();
+            battleLatestEpochAgainstHighestEpochWithElo(numGamesPerBattle);
         } else {
             ranking.assureAllPlayerInRankingList();
             firstRanking(numGamesPerBattle);
         }
 
+        ranking.fillMissingRankingsByLinearInterpolation();
+
         IntStream.range(0, numOfBattles).forEach(i -> {
-            randomBattle(numGamesPerBattle);
             ranking.saveRanking();
+            randomBattle(numGamesPerBattle);
         });
 
+        printRankingList();
+
+        ranking.saveRanking();
+
+    }
 
 
-
-
+    private void printRankingList( ) {
+        RankingListDTO rankingList = ranking.getRankingList();
+        rankingList.sortByEpoch();
+        System.out.println("epoch;elo");
+        rankingList.getRankings().stream().forEach(r ->
+            System.out.println(r.getEpochPlayer()+ ";" + r.getElo())
+        );
     }
 
     private void randomBattle(int numGamesPerBattle) {
         RankingListDTO rankingList = ranking.getRankingList();
-        rankingList.sort();
+        rankingList.sortByElo();
 
         int challengerIndex = ThreadLocalRandom.current().nextInt(0, rankingList.getRankings().size() - 1);
         int a = rankingList.getRankings().get(challengerIndex).getEpochPlayer();

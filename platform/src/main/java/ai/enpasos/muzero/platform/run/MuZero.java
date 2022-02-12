@@ -151,14 +151,14 @@ public class MuZero {
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
-//            int i = 1;
+            int i = 1;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 playGames(render, network, trainingStep);
                 trainingStep = trainNetwork(numberOfEpochs, model, djlConfig);
 // postponed
-//                if (i % 10 == 0) {
+                if (i % 10 == 0) {
 //                    valueSelfconsistency.run(false);
-//                }
+                }
 //                i++;
             }
         }

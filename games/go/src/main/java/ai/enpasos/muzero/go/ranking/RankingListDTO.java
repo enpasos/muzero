@@ -16,7 +16,11 @@ public class RankingListDTO {
     @Builder.Default
     List<RankingEntryDTO> rankings = new ArrayList<>();
 
-    public void sort() {
+    public void sortByElo() {
         rankings.sort((RankingEntryDTO r1, RankingEntryDTO r2) -> Integer.compare(r1.getElo(), r2.getElo()));
+    }
+
+    public void sortByEpoch () {
+        rankings.sort((RankingEntryDTO r1, RankingEntryDTO r2) -> Integer.compare(r1.epochPlayer, r2.epochPlayer));
     }
 }
