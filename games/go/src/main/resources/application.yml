@@ -14,7 +14,7 @@ muzero:
       boardHeight: 5 # size
       boardWidth: 5 # size
       actionSpaceSize: 26  # size * size + 1,  place a stone on the board or pass
-      numSimulations: 20
+      numSimulations: 50
       numParallelGamesPlayed: 250
       numEpisodes: 4
 
