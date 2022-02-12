@@ -15,4 +15,8 @@ import java.util.List;
 public class RankingListDTO {
     @Builder.Default
     List<RankingEntryDTO> rankings = new ArrayList<>();
+
+    public void sort() {
+        rankings.sort((RankingEntryDTO r1, RankingEntryDTO r2) -> Integer.compare(r1.getElo(), r2.getElo()));
+    }
 }

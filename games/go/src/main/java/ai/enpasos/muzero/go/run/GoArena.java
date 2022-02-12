@@ -37,7 +37,7 @@ public class GoArena {
     public double battleAndReturnAveragePointsFromPlayerAPerspective(int numGames, String playerA, String playerB) {
 
         double[] outcomesA = play(true, playerA, playerB, numGames/2);
-        double[] outcomesB = play(false, playerB,  playerA, numGames/2);
+        double[] outcomesB = play(false, playerA,  playerB, numGames/2);
 
         double[] outcomes = ArrayUtils.addAll(outcomesA, outcomesB);
 

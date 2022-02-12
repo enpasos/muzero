@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.go.ranking;
 
-import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import com.google.gson.Gson;
@@ -20,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -99,11 +97,11 @@ public class Ranking {
                 .filter(path -> path.toString().endsWith(".params"))
                 .mapToInt(path -> {
                     String pathStr = path.toString();
-                    String noStr = pathStr.substring(pathStr.length()-"0000.params".length(),pathStr.length()-"params".length()-1);
+                    String noStr = pathStr.substring(pathStr.length() - "0000.params".length(), pathStr.length() - "params".length() - 1);
                     int i = Integer.parseInt(noStr);
                     return i;
                 })
-                .mapToObj(i -> i+"")
+                .mapToObj(i -> i + "")
                 .collect(Collectors.toList());
 
         } catch (IOException e) {
@@ -131,13 +129,7 @@ public class Ranking {
         this.rankingList.rankings.clear();
     }
 
-    public int selectPlayerWithHighestEpoch() {
-         return this.rankingList.rankings.stream().mapToInt(r -> r.epochPlayer).max().getAsInt();
-    }
 
-    public int selectPlayerWithLowestEpoch() {
-        return this.rankingList.rankings.stream().mapToInt(r -> r.epochPlayer).min().getAsInt();
-    }
 
     public int getElo(int playerEpoch) {
         RankingEntryDTO dto = getRankingEntryDTO(playerEpoch);
@@ -150,7 +142,7 @@ public class Ranking {
     }
 
     private RankingEntryDTO getRankingEntryDTO(int playerEpoch) {
-       return this.rankingList.rankings.stream().filter(r -> r.epochPlayer == playerEpoch).findFirst().get();
+        return this.rankingList.rankings.stream().filter(r -> r.epochPlayer == playerEpoch).findFirst().get();
     }
 
     public void addBattle(int a, int b, double resultPlayerA, int numGamesPerBattle) {
@@ -161,16 +153,16 @@ public class Ranking {
         int newEloA = calculateNewElo(rA.elo, rB.elo, resultPlayerA);
         int newEloB = calculateNewElo(rB.elo, rA.elo, 1d - resultPlayerA);
 
-rA.battles.add(
-        BattleDTO.builder()
-            .epochPlayer(a)
-            .epochOpponent(b)
-            .numGamesPlayed(numGamesPerBattle)
-            .result(resultPlayerA)
-            .eloBefore(rA.elo)
-            .eloAfter(newEloA)
-            .build()
-);
+        rA.battles.add(
+            BattleDTO.builder()
+                .epochPlayer(a)
+                .epochOpponent(b)
+                .numGamesPlayed(numGamesPerBattle)
+                .result(resultPlayerA)
+                .eloBefore(rA.elo)
+                .eloAfter(newEloA)
+                .build()
+        );
         rB.battles.add(
             BattleDTO.builder()
                 .epochPlayer(b)
@@ -184,5 +176,53 @@ rA.battles.add(
 
         rA.setElo(newEloA);
         rB.setElo(newEloB);
+    }
+
+    public boolean exists() {
+        File f = new File(getPathname());
+        return f.exists();
+    }
+
+    public void fillMissingRankingsByLinearInterpolation() {
+        int high = selectPlayerWithHighestEpoch();
+        int low = selectPlayerWithLowestEpoch();
+        int next = low;
+        do {
+            next = findNextPlayerWithElo(low, high);
+            interpolateElo(low, next);
+            low = next;
+        } while (next != high);
+    }
+
+    private void interpolateElo(int low, int high) {
+        var eloLow = getElo(low);
+        var eloHigh = getElo(high);
+        double m = (double)(eloHigh - eloLow) / (double)(high - low);
+        for (int x = low + 1; x < high; x++) {
+            setElo(x, (int)Math.round(eloLow + m * (x-low)));
+        }
+    }
+
+    private int findNextPlayerWithElo(int low, int high) {
+        if (
+            getElo(low) == Integer.MIN_VALUE
+            || getElo(high) == Integer.MIN_VALUE
+        ) throw new MuZeroException("players " + low + " and "+ high + " are expected to have an elo.");
+        for (int p = low + 1; p <= high; p++) {
+            if (getElo(p) != Integer.MIN_VALUE) return p;
+        }
+        return high;
+    }
+
+    public int selectPlayerWithHighestEpochThatHasRanking() {
+        return this.rankingList.rankings.stream().filter(r -> r.elo != Integer.MIN_VALUE).mapToInt(r -> r.epochPlayer).max().getAsInt();
+    }
+
+    public int selectPlayerWithHighestEpoch() {
+        return this.rankingList.rankings.stream().mapToInt(r -> r.epochPlayer).max().getAsInt();
+    }
+
+    public int selectPlayerWithLowestEpoch() {
+        return this.rankingList.rankings.stream().mapToInt(r -> r.epochPlayer).min().getAsInt();
     }
 }
