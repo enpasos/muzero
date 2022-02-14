@@ -30,16 +30,7 @@ public class GoElo {
         var numOfBattles = 10;
         var numGamesPerBattle = 100;
 
-        if (ranking.exists()) {
-            ranking.loadRanking();
-            ranking.assureAllPlayerInRankingList();
-            battleLatestEpochAgainstHighestEpochWithElo(numGamesPerBattle);
-        } else {
-            ranking.assureAllPlayerInRankingList();
-            firstRanking(numGamesPerBattle);
-        }
-
-        ranking.fillMissingRankingsByLinearInterpolation();
+        assureThereIsSomeRankingForAllNetworks(numGamesPerBattle);
 
         IntStream.range(0, numOfBattles).forEach(i -> {
             ranking.saveRanking();
@@ -50,6 +41,23 @@ public class GoElo {
 
         ranking.saveRanking();
 
+    }
+
+    public void assureThereIsSomeRankingForAllNetworks() {
+        assureThereIsSomeRankingForAllNetworks(0);
+    }
+
+    private void assureThereIsSomeRankingForAllNetworks(int numGamesPerBattle) {
+        if (ranking.exists()) {
+            ranking.loadRanking();
+            ranking.assureAllPlayerInRankingList();
+            battleLatestEpochAgainstHighestEpochWithElo(numGamesPerBattle);
+        } else {
+            ranking.assureAllPlayerInRankingList();
+            firstRanking(numGamesPerBattle);
+        }
+
+        ranking.fillMissingRankingsByLinearInterpolation();
     }
 
 
@@ -75,6 +83,7 @@ public class GoElo {
     }
 
     private void battleLatestEpochAgainstHighestEpochWithElo(int numGamesPerBattle) {
+        if (numGamesPerBattle < 1) return;
         int a = ranking.selectPlayerWithHighestEpoch();
         int b = ranking.selectPlayerWithHighestEpochThatHasRanking();
         if (a == b) return;
@@ -88,6 +97,14 @@ public class GoElo {
     }
 
     private void firstRanking(int numGamesPerBattle) {
+
+        int a = ranking.selectPlayerWithHighestEpoch();
+        int eloA = ranking.getElo(a);
+        if (eloA == Integer.MIN_VALUE) {
+            eloA = -3000;
+            ranking.setElo(a, eloA);
+        }
+
 
         int b = ranking.selectPlayerWithLowestEpoch();
         int eloB = ranking.getElo(b);
