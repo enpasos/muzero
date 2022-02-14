@@ -50,6 +50,12 @@ public class ReplayBufferDTO {
         return data.size() >= windowSize;
     }
 
+
+    public void removeGame(Game game) {
+        games.remove(game);
+        data.remove(game.getGameDTO());
+    }
+
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
         while (isBufferFilled()) {
             GameDTO toBeRemoved = data.get(0);

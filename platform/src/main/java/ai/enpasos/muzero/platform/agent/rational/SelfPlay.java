@@ -24,10 +24,12 @@ import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -50,23 +52,34 @@ public class SelfPlay {
         if (render) {
             log.debug(episode.justOneOfTheGames().render());
         }
+        runEpisode(network, render, fastRuleLearning, explorationNoise);
+        long duration = System.currentTimeMillis() - episode.getStart();
+        log.info("duration game play [ms]: {}", duration);
+        log.info("inference duration game play [ms]: {}", episode.getInferenceDuration().value);
+        log.info("java duration game play [ms]: {}", (duration - episode.getInferenceDuration().value));
+        return episode.getGamesDoneList();
+    }
+    public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, boolean explorationNoise, List<Game> replayGames) {
+        log.info("playGamesFromTheirCurrentState");
+        episode.init(replayGames);
+        runEpisode(network, false, false, explorationNoise);
+        long duration = System.currentTimeMillis() - episode.getStart();
+        log.info("duration replay [ms]: {}", duration);
+        log.info("inference duration replay [ms]: {}", episode.getInferenceDuration().value);
+        log.info("java duration replay [ms]: {}", (duration - episode.getInferenceDuration().value));
+        return episode.getGamesDoneList();
+    }
+
+    private void runEpisode(Network network, boolean render, boolean render1, boolean explorationNoise) {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.createAndSetHiddenStateNDManager(nDManager, true);
             while (episode.notFinished()) {
-                episode.play(network, render, fastRuleLearning, explorationNoise);
+                episode.play(network, render, render1, explorationNoise);
             }
         }
-
-        long duration = System.currentTimeMillis() - episode.getStart();
-        log.info("duration game play [ms]: {}", duration);
-        log.info("inference duration game play [ms]: {}", episode.getInferenceDuration().value);
-        log.info("java duration game play [ms]: {}", (duration - episode.getInferenceDuration().value));
-
-        return episode.getGamesDoneList();
     }
-
 
     public @NotNull List<Game> justReplayGamesWithInitialInference(Network network, List<Game> inputGames) {
         episode.init(inputGames);
@@ -92,6 +105,18 @@ public class SelfPlay {
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
         });
+    }
+
+
+    public void replayGamesToEliminateSurprise(Network network, boolean explorationNoise, List<Game> gamesToReplay) {
+        log.info("replayGamesToEliminateSurprise, {} games", gamesToReplay.size());
+        List<List<Game>> gameBatches = ListUtils.partition(gamesToReplay, config.getNumParallelGamesPlayed());
+
+        List<Game> resultGames = new ArrayList<>();
+        for(List<Game> gameList : gameBatches) {
+            resultGames.addAll(playGamesFromTheirCurrentState(network, explorationNoise, gamesToReplay));
+        }
+        resultGames.forEach(replayBuffer::saveGame);
     }
 }
 

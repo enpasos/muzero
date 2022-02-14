@@ -122,6 +122,26 @@ public class Episode {
         keepTrackOfOpenGames();
     }
 
+
+//    public void replayGameToEliminateSurprise(Network network,  boolean explorationNoise, List<Game> replayGames) {
+//        int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
+//
+//        List<Node> rootList = initRootNodes();
+//
+////        List<NetworkIO> networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
+////
+////        expandRootNodes(fastRuleLearning, rootList, networkOutput);
+////
+////        addExplorationNoise(render, explorationNoise, indexOfJustOneOfTheGames, rootList);
+////
+////        final List<MinMaxStats> minMaxStatsList = runMCTS(network, fastRuleLearning, rootList, mcts);
+////
+////        selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning, indexOfJustOneOfTheGames, rootList, mcts, minMaxStatsList);
+////
+////        renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
+//
+//        keepTrackOfOpenGames();
+//    }
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean explorationNoise) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 

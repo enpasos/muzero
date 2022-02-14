@@ -55,6 +55,12 @@ public abstract class Game {
     protected Environment environment;
     private Random r;
 
+    private double[] surprises;
+    double[] values;
+    double[] entropies;
+    boolean done;
+    int tSurprise;
+
     private float error;
 
 

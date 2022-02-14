@@ -315,4 +315,12 @@ public class ReplayBuffer {
         this.getBuffer().setGames(this.getBuffer().getGames().subList(size-max, size));
         this.getBuffer().setData(this.getBuffer().getData().subList(size-max, size));
     }
+
+    public void removeGames(List<Game> games) {
+        games.stream().forEach(game -> this.removeGame(game));
+    }
+
+    public void removeGame(Game game) {
+        this.buffer.removeGame(game);
+    }
 }
