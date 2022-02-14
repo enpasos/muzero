@@ -35,6 +35,10 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoValueExtractor valueExtractor;
 
+
+    @Autowired
+    private GoStartValueExtractor startValueExtractor;
+
     @Autowired
     private GoWinLooseStatistics winLooseStatistics;
 
@@ -70,6 +74,9 @@ public class Go implements CommandLineRunner {
                 break;
             case VALUE:
                 valueExtractor.run();
+                break;
+            case STARTVALUES:
+                startValueExtractor.run();
                 break;
             case WINLOOSE:
                 winLooseStatistics.run();

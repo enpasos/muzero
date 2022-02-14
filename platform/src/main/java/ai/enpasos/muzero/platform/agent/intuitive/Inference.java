@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Map.entry;
+
 @Component
 public class Inference {
 
@@ -97,7 +99,20 @@ public class Inference {
         return actionIndexSelectedByNetwork;
     }
 
-
+    public double aiStartValue(int epoch) {
+        double valueByNetwork;
+        //config.setNetworkBaseDir(networkDir);
+        //config.setInferenceDeviceType(DeviceType.CPU);
+        Game game = config.newGame();
+        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()),  Map.ofEntries(entry("epoch", epoch + "")));
+            try (NDManager nDManager = network.getNDManager().newSubManager()) {
+                network.setHiddenStateNDManager(nDManager);
+                valueByNetwork = aiDecision(network, false, game).getFirst();
+            }
+        }
+        return valueByNetwork;
+    }
     public double aiValue(List<Integer> actions, String networkDir) {
         double valueByNetwork;
         config.setNetworkBaseDir(networkDir);

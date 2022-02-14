@@ -27,7 +27,7 @@ public class GoTrainingAndTest {
 
     public void run() {
 
-         rmDir(config.getOutputDir());
+     //    rmDir(config.getOutputDir());
 
 
       //  muZero.train(false, 1, false, false);
