@@ -2,7 +2,7 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.run.MuZero;
+import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;

@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform.run;
+package ai.enpasos.muzero.platform.run.train;
 
 import ai.djl.Device;
 import ai.djl.Model;
@@ -34,6 +34,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -132,20 +133,24 @@ public class MuZero {
         }
     }
 
+    public void train(TrainParams params) {
+//        train(params.freshBuffer, params.numberOfEpochs, params.render, params.randomFill);
+//    }
 
-    public void train(boolean freshBuffer, int numberOfEpochs) {
-        train(freshBuffer, numberOfEpochs, false);
-    }
+//
+//    public void train(boolean freshBuffer, int numberOfEpochs) {
+//        train(freshBuffer, numberOfEpochs, false);
+//    }
+//
+//    public void train(boolean freshBuffer, int numberOfEpochs, boolean render) {
+//        train(freshBuffer, numberOfEpochs, render, true);
+//    }
 
-    public void train(boolean freshBuffer, int numberOfEpochs, boolean render) {
-        train(freshBuffer, numberOfEpochs, render, true);
-    }
-
-    public void train(boolean freshBuffer, int numberOfEpochs, boolean render, boolean randomFill) {
+//    private void train(boolean freshBuffer, int numberOfEpochs, boolean render, boolean randomFill) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-            init(freshBuffer, randomFill, network);
+            init(params.freshBuffer, params.randomFill, network);
 
             int epoch = networkHelper.getEpoch();
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
@@ -153,13 +158,14 @@ public class MuZero {
 
             int i = 1;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
-                playGames(render, network, trainingStep);
-                trainingStep = trainNetwork(numberOfEpochs, model, djlConfig);
+                playGames(params.render, network, trainingStep);
+                trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
 // postponed
                 if (i % 10 == 0) {
+                    params.getHookIn().accept(epoch, model);
 //                    valueSelfconsistency.run(false);
                 }
-//                i++;
+               i++;
             }
         }
     }

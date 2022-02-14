@@ -105,6 +105,10 @@ public class MuZeroConfig {
         return getConf().komi;
     }
 
+    public void setKomi(double komi) {
+        getConf().setKomi(komi);
+    }
+
     public String getModelName() {
         return getConf().modelName;
     }
