@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe.test;
+package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;

@@ -262,7 +262,7 @@
                     <execution>
                         <id>train</id>
                         <configuration>
-                            <mainClass>ai.enpasos.muzero.platform.run.MuZero</mainClass>
+                            <mainClass>ai.enpasos.muzero.platform.run.train.MuZero</mainClass>
                         </configuration>
                     </execution>
                     <execution>
@@ -293,7 +293,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ai.enpasos.muzero.platform.run.MuZero</mainClass>
+                            <mainClass>ai.enpasos.muzero.platform.run.train.MuZero</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

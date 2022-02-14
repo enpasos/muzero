@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe.test;
+package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
