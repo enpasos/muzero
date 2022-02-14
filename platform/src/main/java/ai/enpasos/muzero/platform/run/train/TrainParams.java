@@ -1,19 +1,23 @@
 package ai.enpasos.muzero.platform.run.train;
 
 import ai.djl.Model;
+import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Data
 @Builder
 public class TrainParams {
 
     @Builder.Default
-    BiConsumer<Integer, Model> hookIn = (epoch, model) -> {};
+    BiConsumer<Integer, Model> after10TrainingsHookIn = (epoch, model) -> {};
+
+
+    @Builder.Default
+    Consumer<Network> afterSelfPlayHookIn = (network) -> {};
 
     @Builder.Default
     boolean freshBuffer = false;

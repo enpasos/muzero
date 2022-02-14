@@ -43,7 +43,7 @@ public class GoValueExtractor {
     @SuppressWarnings("squid:S3740")
     public void run() {
 
-        config.setNetworkBaseDir(config.getOutputDir() + "/networks");
+      //  config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
         List<Integer> actionIndexList = valueExtractor.getActionList();
 

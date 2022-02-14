@@ -134,19 +134,6 @@ public class MuZero {
     }
 
     public void train(TrainParams params) {
-//        train(params.freshBuffer, params.numberOfEpochs, params.render, params.randomFill);
-//    }
-
-//
-//    public void train(boolean freshBuffer, int numberOfEpochs) {
-//        train(freshBuffer, numberOfEpochs, false);
-//    }
-//
-//    public void train(boolean freshBuffer, int numberOfEpochs, boolean render) {
-//        train(freshBuffer, numberOfEpochs, render, true);
-//    }
-
-//    private void train(boolean freshBuffer, int numberOfEpochs, boolean render, boolean randomFill) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
@@ -159,11 +146,10 @@ public class MuZero {
             int i = 1;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 playGames(params.render, network, trainingStep);
+                params.getAfterSelfPlayHookIn().accept(network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-// postponed
                 if (i % 10 == 0) {
-                    params.getHookIn().accept(epoch, model);
-//                    valueSelfconsistency.run(false);
+                    params.getAfter10TrainingsHookIn().accept(epoch, model);
                 }
                i++;
             }
