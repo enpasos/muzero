@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe.test;
+package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;

@@ -1,15 +1,12 @@
 package ai.enpasos.muzero.pegsolitair.run;
 
 
-import ai.enpasos.muzero.platform.run.MuZero;
-import ai.enpasos.muzero.platform.common.MuZeroException;
+import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.train.TrainParams;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 
@@ -29,8 +26,10 @@ public class PegSolitairTrainingAndTest {
 
         rmDir(config.getOutputDir());
 
-        muZero.train(false, 1, true, true);
-
+       // muZero.train(false, 1, true, true);
+        muZero.train(TrainParams.builder()
+                .render(true)
+            .build());
 
     }
 
