@@ -71,7 +71,7 @@ public class GoSurprise {
     public void run() {
            replayBuffer.loadLatestState();
    //      replayBuffer.keepOnlyTheLatestGames(10);
-        List<Game> gamesToInvestigate = getGamesToInvestigate(10);
+        List<Game> gamesToInvestigate = getGamesToInvestigate(10, 0.1d);
 
 
         NumberFormat nf = NumberFormat.getInstance();
@@ -80,14 +80,14 @@ public class GoSurprise {
         Game game = gamesToInvestigate.get(gamesToInvestigate.size() - 1);
           log.info("a game's surprises: ");
           log.info("" + nf.format(game.getTSurprise()));
-          System.out.println(csvString(game.getSurprises()));
+        //  System.out.println(csvString(game.getSurprises()));
 
 
        // getMoreExperience(gamesToInvestigate);
 
     }
 
-    private List<Game>  getGamesToInvestigate(int numGames) {
+    private List<Game>  getGamesToInvestigate(int numGames, double fraction) {
 
 //        replayBuffer.loadLatestState();
 //        replayBuffer.keepOnlyTheLatestGames(numGames);
@@ -111,12 +111,12 @@ public class GoSurprise {
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(6);
         nf.setMaximumFractionDigits(6);
-        allValues.stream().forEach(v -> System.out.println(nf.format(v)));
+    //    allValues.stream().forEach(v -> System.out.println(nf.format(v)));
         //  log.info("last game's surprises: ");
         //  System.out.println(csvString(games.get(games.size() - 1).getSurprises()));
 
         // value of the numGames-th highest value
-        double quantil = allValues.get(allValues.size()  - numGames);
+        double quantil = allValues.get((int)(allValues.size() * (1d-fraction)));
 
         List<Game> gamesToInvestigate = games.stream()
                 .filter(g -> Arrays.stream(g.getSurprises()).max().getAsDouble() >= quantil).collect(Collectors.toList());
@@ -126,7 +126,7 @@ public class GoSurprise {
             for(int t = game.getSurprises().length-1; t >= 0; t--) {
                double s = game.getSurprises()[t];
                if (s >= quantil) {
-                   game.setTSurprise(t - 3);
+                   game.setTSurprise(t);
                    break;
                }
             }
@@ -231,10 +231,10 @@ public class GoSurprise {
 
 
     public void train(Network network) {
-        List<Game> gamesToInvestigate = getGamesToInvestigate(1000);
+        List<Game> gamesToInvestigate = getGamesToInvestigate(1000, 0.001d);
         this.replayBuffer.removeGames(gamesToInvestigate);
 
-        int numOfReplaysPerGame = 10;
+        int numOfReplaysPerGame = 5;
 
         List<Game> gamesToReplay = new ArrayList<>();
 
@@ -242,13 +242,20 @@ public class GoSurprise {
             List<Integer> actions = game.actionHistory().getActionIndexList();
             IntStream.range(0, numOfReplaysPerGame).forEach(i -> {
                 Game newGame = config.newGame();
-                IntStream.range(0, game.getTSurprise()).forEach(t -> {
+                int replayStart = game.getTSurprise() - 3 + i;
+                if (replayStart < 0) return;
+                newGame.setTTrainingStart(replayStart);
+                IntStream.range(0, replayStart).forEach(t -> {
                     newGame.apply(actions.get(t));
                 });
-                gamesToReplay.add(newGame);
+                if (!newGame.terminal()) {
+                    gamesToReplay.add(newGame);
+                }
             });
 
         });
+
+
 
 
         selfPlay.replayGamesToEliminateSurprise( network, true,  gamesToReplay);

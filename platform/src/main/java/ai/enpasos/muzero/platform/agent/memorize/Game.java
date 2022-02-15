@@ -60,6 +60,7 @@ public abstract class Game {
     double[] entropies;
     boolean done;
     int tSurprise;
+    int tTrainingStart;
 
     private float error;
 
