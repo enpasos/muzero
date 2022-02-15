@@ -91,7 +91,7 @@ public class ReplayBuffer {
 
     public static int samplePosition(@NotNull Game game) {
         int numActions = game.getGameDTO().getActions().size();
-        return ThreadLocalRandom.current().nextInt(0, numActions + 1);  // one more positions than actions
+        return ThreadLocalRandom.current().nextInt(game.getTTrainingStart(), numActions + 1);  // one more positions than actions
     }
 
     public static @NotNull ReplayBufferDTO decodeDTO(byte @NotNull [] bytes) {

@@ -151,7 +151,7 @@ public class MuZero {
                 if (i % 5 == 0) {
                     params.getAfter10TrainingsHookIn().accept(epoch, model);
                 }
-               i++;
+                i++;
             }
         }
     }

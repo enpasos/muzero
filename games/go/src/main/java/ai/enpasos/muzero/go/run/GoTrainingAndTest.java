@@ -42,7 +42,7 @@ public class GoTrainingAndTest {
         .after10TrainingsHookIn((epoch, model) -> {
             adjustKomi(epoch, model);
         })
-      //  .afterSelfPlayHookIn((network) ->  goSurprise.train(network))
+        .afterSelfPlayHookIn((network) ->  goSurprise.train(network))
         .build());
     }
 
