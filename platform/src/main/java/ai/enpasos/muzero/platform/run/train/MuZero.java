@@ -148,7 +148,7 @@ public class MuZero {
                 playGames(params.render, network, trainingStep);
                 params.getAfterSelfPlayHookIn().accept(network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-                if (i % 10 == 0) {
+                if (i % 5 == 0) {
                     params.getAfter10TrainingsHookIn().accept(epoch, model);
                 }
                i++;
