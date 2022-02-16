@@ -125,11 +125,15 @@ public class MCTS {
 
     @Nullable
     private List<NetworkIO> recurrentInference(@NotNull Network network, List<List<Node>> searchPathList, List<NDArray> actionList) {
-        List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
-            Node parent = searchPath.get(searchPath.size() - 2);
-            return parent.getHiddenState();
-        }).collect(Collectors.toList());
-        return network.recurrentInferenceListDirect(hiddenStateList, actionList);
+            List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
+                if (searchPath.size() < 2) {
+                    int i = 42;
+                    // TODO find the bug!
+                }
+                Node parent = searchPath.get(searchPath.size() - 2);
+                return parent.getHiddenState();
+            }).collect(Collectors.toList());
+            return network.recurrentInferenceListDirect(hiddenStateList, actionList);
     }
 
     private void search(List<MinMaxStats> minMaxStatsList, List<ActionHistory> historyList, List<Node> nodeList, List<List<Node>> searchPathList) {
@@ -147,6 +151,9 @@ public class MCTS {
                 nodeList.set(g, node);
                 node.setAction(action);// for debugging
                 searchPath.add(node);
+            }
+            if (searchPath.size() < 2) {
+                int i = 42;
             }
         }
     }
