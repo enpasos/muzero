@@ -104,6 +104,9 @@ public class MuZeroConfig {
     public double getKomi() {
         return getConf().komi;
     }
+    public double getMaxKomi() {
+        return getConf().maxKomi;
+    }
 
     public void setKomi(double komi) {
         getConf().setKomi(komi);
@@ -306,6 +309,7 @@ public class MuZeroConfig {
     @Data
     public static class Conf {
         protected double komi;
+        protected double maxKomi = Double.MAX_VALUE;
         protected String modelName;
         protected String gameClassName;
         protected String actionClassName;

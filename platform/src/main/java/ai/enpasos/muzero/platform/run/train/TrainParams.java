@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class TrainParams {
 
     @Builder.Default
-    BiConsumer<Integer, Model> after10TrainingsHookIn = (epoch, model) -> {};
+    BiConsumer<Integer, Model> afterTrainingHookIn = (epoch, model) -> {};
 
 
     @Builder.Default
