@@ -79,15 +79,23 @@ public class NetworkHelper {
                 }
             }
 
-            String prop = model.getProperty("Epoch");
-            if (prop != null) {
-                epoch = Integer.parseInt(prop);
-            }
+
+                epoch = getEpochFromModel(model);
+
 
         }
         return epoch;
     }
 
+
+    public static int getEpochFromModel(Model model) {
+        int epoch = 0;
+        String prop = model.getProperty("Epoch");
+        if (prop != null) {
+            epoch = Integer.parseInt(prop);
+        }
+        return epoch;
+    }
 
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
         NDManager nd = ndManager.newSubManager();

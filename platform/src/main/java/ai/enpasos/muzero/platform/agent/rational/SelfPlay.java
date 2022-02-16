@@ -114,7 +114,7 @@ public class SelfPlay {
 
         List<Game> resultGames = new ArrayList<>();
         for(List<Game> gameList : gameBatches) {
-            resultGames.addAll(playGamesFromTheirCurrentState(network, explorationNoise, gamesToReplay));
+            resultGames.addAll(playGamesFromTheirCurrentState(network, explorationNoise, gameList));
         }
         resultGames.forEach(replayBuffer::saveGame);
     }

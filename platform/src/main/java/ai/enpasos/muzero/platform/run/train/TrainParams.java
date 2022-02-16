@@ -17,7 +17,7 @@ public class TrainParams {
 
 
     @Builder.Default
-    Consumer<Network> afterSelfPlayHookIn = (network) -> {};
+    BiConsumer<Integer, Network> afterSelfPlayHookIn = (epoch, network) -> {};
 
     @Builder.Default
     boolean freshBuffer = false;

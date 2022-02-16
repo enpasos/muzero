@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 
 @Slf4j
@@ -143,15 +144,16 @@ public class MuZero {
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
-           // int i = 1;
-            while (trainingStep < config.getNumberOfTrainingSteps()) {
+            int i = 0;
+             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 playGames(params.render, network, trainingStep);
-                params.getAfterSelfPlayHookIn().accept(network);
+                params.getAfterSelfPlayHookIn().accept(epoch, network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-                if (epoch % 20 == 0) {
+
+                if (i % 5 == 0) {
                     params.getAfterTrainingHookIn().accept(epoch, model);
                 }
-//               i++;
+                i++;
             }
         }
     }
@@ -180,13 +182,9 @@ public class MuZero {
     private int trainNetwork(int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-        int epoch = 0;
+        int epoch =   getEpochFromModel(model);
         boolean withSymmetryEnrichment = true;
 
-        String prop = model.getProperty("Epoch");
-        if (prop != null) {
-            epoch = Integer.parseInt(prop);
-        }
 
         int finalEpoch = epoch;
         djlConfig.getTrainingListeners().stream()
@@ -247,7 +245,7 @@ public class MuZero {
 
 
         }
-
+        epoch = getEpochFromModel(model);
         trainingStep = epoch * numberOfTrainingStepsPerEpoch;
         return trainingStep;
     }
