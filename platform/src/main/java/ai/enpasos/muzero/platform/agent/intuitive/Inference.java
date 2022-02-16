@@ -132,11 +132,17 @@ public class Inference {
         double[] valueByNetwork;
         try (Model model = Model.newInstance(config.getModelName())) {
             Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-                network.setHiddenStateNDManager(nDManager);
-               List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-                valueByNetwork = networkOutputs.stream().mapToDouble(o -> o.getValue()).toArray();
-            }
+            valueByNetwork = aiValue( network,  games);
+        }
+        return valueByNetwork;
+    }
+
+    public  double[] aiValue(Network network, List<Game> games) {
+        double[] valueByNetwork;
+        try (NDManager nDManager = network.getNDManager().newSubManager()) {
+            network.setHiddenStateNDManager(nDManager);
+            List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
+            valueByNetwork = networkOutputs.stream().mapToDouble(o -> o.getValue()).toArray();
         }
         return valueByNetwork;
     }

@@ -3,16 +3,14 @@ package ai.enpasos.muzero.go.run;
 
 import ai.djl.Model;
 import ai.djl.util.Pair;
-import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.run.train.TrainParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 
 
 @Slf4j
@@ -35,17 +33,12 @@ public class GoTrainingAndTest {
 
         // rmDir(config.getOutputDir());
 
-
-      //  muZero.train(false, 1, false, false);
-      //  muZero.train(true, 1);
-       // muZero.train(false, 1);
-
-    muZero.train(TrainParams.builder()
-        .afterTrainingHookIn((epoch, model) -> {
-            adjustKomi(epoch, model);
-        })
-        .afterSelfPlayHookIn((epoch, network) ->  goSurprise.train(epoch, network))
-        .build());
+        muZero.train(TrainParams.builder()
+            .afterTrainingHookIn((epoch, model) -> {
+                adjustKomi(epoch, model);
+            })
+            .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
+            .build());
     }
 
     private void adjustKomi(Integer epoch, Model model) {

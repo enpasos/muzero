@@ -86,15 +86,18 @@ public class GoSurprise {
        // getMoreExperience(gamesToInvestigate);
 
     }
+    private List<Game>  getGamesToInvestigate( int numGames, double fraction) {
+        return getGamesToInvestigate( null, numGames,  fraction);
+    }
 
-    private List<Game>  getGamesToInvestigate(int numGames, double fraction) {
+    private List<Game>  getGamesToInvestigate(Network network, int numGames, double fraction) {
 
 //        replayBuffer.loadLatestState();
 //        replayBuffer.keepOnlyTheLatestGames(numGames);
 
         int bufferSize = replayBuffer.getBuffer().getGames().size();
         List<Game> games = replayBuffer.getBuffer().getGames().subList(Math.max( bufferSize - numGames, 0),  bufferSize);
-        enrichGamesWithSurprises(games);
+        enrichGamesWithSurprises(network, games);
 
         double surpriseMean = games.stream().mapToDouble(g -> Arrays.stream(g.getSurprises()).average().getAsDouble())
             .average().getAsDouble();
@@ -137,7 +140,7 @@ public class GoSurprise {
 
 
 
-    public void enrichGamesWithSurprises(List<Game> gameList) {
+    public void enrichGamesWithSurprises(Network network, List<Game> gameList) {
         int numOfGames = gameList.size();
 
 
@@ -172,8 +175,12 @@ public class GoSurprise {
                         gamesToEvaluate.add(newGame);
                     }
                 }
-                ;
-                double[] vs = inference.aiValue(gamesToEvaluate);
+                double[] vs = null;
+                if (network == null) {
+                    vs = inference.aiValue(gamesToEvaluate);
+                } else {
+                    vs = inference.aiValue(network, gamesToEvaluate);
+                }
                 int i = 0;
                 for (int g = 0; g < numOfGames; g++) {
                     Game game = gameList.get(g);
@@ -232,7 +239,7 @@ public class GoSurprise {
 
     public void train(Integer epoch, Network network) {
         if (epoch < 40) return;
-        List<Game> gamesToInvestigate = getGamesToInvestigate(1000, 0.001d);
+        List<Game> gamesToInvestigate = getGamesToInvestigate(network,1000, 0.001d);
         this.replayBuffer.removeGames(gamesToInvestigate);
 
         int numOfReplaysPerGame = 5;
