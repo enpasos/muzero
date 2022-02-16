@@ -230,7 +230,8 @@ public class GoSurprise {
     }
 
 
-    public void train(Network network) {
+    public void train(Integer epoch, Network network) {
+        if (epoch < 40) return;
         List<Game> gamesToInvestigate = getGamesToInvestigate(1000, 0.001d);
         this.replayBuffer.removeGames(gamesToInvestigate);
 
