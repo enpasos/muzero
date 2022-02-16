@@ -115,9 +115,9 @@ public class GameState {
                 !doesMoveFillEye(nextPlayer, move);
     }
 
-    public Optional<GameResult> gameResult() {
-        return gameResult(0.5f);
-    }
+//    public Optional<GameResult> gameResult() {
+//        return gameResult(0.5f);
+//    }
 
     public Optional<GameResult> gameResult(float komi) {
         if (!isOver()) return Optional.empty();
