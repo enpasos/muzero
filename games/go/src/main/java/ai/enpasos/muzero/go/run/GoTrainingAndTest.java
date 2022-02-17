@@ -3,6 +3,7 @@ package ai.enpasos.muzero.go.run;
 
 import ai.djl.Model;
 import ai.djl.util.Pair;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.run.train.TrainParams;
@@ -25,6 +26,9 @@ public class GoTrainingAndTest {
 
     @Autowired
     private MuZero muZero;
+
+    @Autowired
+    ReplayBuffer replayBuffer;
 
     @Autowired
     private GoSurprise goSurprise;
@@ -65,6 +69,7 @@ public class GoTrainingAndTest {
             config.setKomi(newKomi);
             log.info("komi changed: " + oldKomi + " -> " + newKomi);
             model.setProperty("komi", newKomi + "");
+            this.replayBuffer.rebuildGames();
         }
     }
 
