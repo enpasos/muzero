@@ -3,6 +3,8 @@ package ai.enpasos.muzero.platform.agent.rational.gumbel;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.add;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,23 +20,43 @@ class GumbelTest {
     }
 
 
-
     @Test
-    void drawActions() {
-        double[] pis = {0.2, 0.7, 0.1};
-        assertEquals( 3, Gumbel.drawGumbleAndActions(pis, 3).size());
-        assertEquals(2, Gumbel.drawGumbleAndActions(pis, 2).size());
-        assertEquals(1, Gumbel.drawGumbleAndActions(pis, 1).size());
-        assertEquals(0, Gumbel.drawGumbleAndActions(pis, 0).size());
+    void drawActionsTest() {
+        //double[] pis = {0.2, 0.7, 0.1};
+        List<GumbelAction> actions = List.of(
+            GumbelAction.builder()
+                .actionIndex(0)
+                .policyValue(0.2)
+                .q(0.1)
+                .build(),
+            GumbelAction.builder()
+                .actionIndex(1)
+                .policyValue(0.7)
+                .q(0.2)
+                .build(),
+            GumbelAction.builder()
+                .actionIndex(2)
+                .policyValue(0.1)
+                .q(0.3)
+                .build()
+         );
+
+
+
+        assertEquals(2, Gumbel.drawGumbelActionsInitially(actions, 2).size());
+        assertEquals( 3, Gumbel.drawGumbelActionsInitially(actions, 3).size());
+        assertEquals(1, Gumbel.drawGumbelActionsInitially(actions, 1).size());
+        assertEquals(0, Gumbel.drawGumbelActionsInitially(actions, 0).size());
         assertThrows(MuZeroException.class, () -> {
-            Gumbel.drawGumbleAndActions(pis, 4);
+            Gumbel.drawGumbelActionsInitially(actions, 4);
         });
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
-        System.out.println(Gumbel.drawGumbleAndActions(pis, 2).toString());
+        System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
+        System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
+        System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
+        System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
+        System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
+        System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
     }
+
+
 }

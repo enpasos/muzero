@@ -2,7 +2,6 @@ package ai.enpasos.muzero.platform.agent.rational.gumbel;
 
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
@@ -12,18 +11,47 @@ import java.util.stream.IntStream;
 
 public class Gumbel {
 
-    public static Set<Integer> drawGumbleAndActions(double[] pis, int n) {
-        double[] g = drawGumble(pis.length);
-        double[] logits = getLogits(pis);
-        return drawActions(add(logits, g),  n);
+//    public static Set<Integer> drawGumbelAndActions(double[] policyValues, int n) {
+//        double[] g = drawGumble(policyValues.length);
+//        double[] logits = getLogits(policyValues);
+//        return drawActions(add(logits, g),  n);
+//    }
+
+    public static Set<Integer> drawGumbelActionsInitially(double[] policyValues, int n) {
+        List<GumbelAction> gumbelActions = getGumbelActions(policyValues);
+        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
+        return drawActions(actions, add(logits, g),  n);
+    }
+
+    public static List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
+        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
+        Set<Integer> selectedActions = drawActions(actions, add(logits, g),  n);
+        return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
+    }
+    public static List<GumbelAction> getGumbelActions(double[] policyValues) {
+        return IntStream.range(0, policyValues.length).mapToObj(i -> {
+            GumbelAction a = GumbelAction.builder()
+                .actionIndex(i)
+                .policyValue(policyValues[i])
+                .build();
+            a.initGumbelValueAndLogit();
+            return a;
+        }).collect(Collectors.toList());
     }
 
     private static double[] getLogits(double[] pis) {
-        return Arrays.stream(pis).map(pi -> Math.log(pi / (1 - pi))).toArray();
+        return Arrays.stream(pis).map(pi -> logit(pi)).toArray();
+    }
+    public static double logit(double pi) {
+        return Math.log(pi / (1 - pi));
     }
 
-    public static Set<Integer> drawActions(double[] x, int n) {
-        if (n > x.length) throw new MuZeroException("n should not be larger than the number of actions");
+    public static Set<Integer> drawActions(int[] actions, double[] x, int n) {
+       // if (n < x.length) throw new MuZeroException("n should not be larger than the number of actions");
         Set<Integer> result = new HashSet<>();
 
          List<Pair>  gPlusLogits = IntStream.range(0, x.length).mapToObj(
@@ -32,7 +60,7 @@ public class Gumbel {
 
         IntStream.range(0, n).forEach(i -> {
                 Pair<Integer, Double> max = gPlusLogits.stream().max((a,b) -> Double.compare((Double)a.getValue(), (Double)b.getValue())).get();
-                result.add(max.getKey());
+                result.add(actions[max.getKey()]);
                 gPlusLogits.remove(max);
             });
 
@@ -58,4 +86,7 @@ public class Gumbel {
         }
         return -Math.log(-Math.log(r));
     }
+
+
+
 }
