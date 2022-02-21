@@ -69,14 +69,14 @@ public class GoStartValueExtractor {
 
     public List<Pair<Integer, Double>> smoothing(List<Pair<Integer, Double>> values, int n) {
         List<Pair<Integer, Double>> smoothedValues = new ArrayList<>();
-        for(int k = 0; k < values.size(); k++) {
+        for (int k = 0; k < values.size(); k++) {
             int count = 0;
             double sum = 0d;
             for (int i = 0; i < n && k - i >= 0; i++) {
                 count++;
-                sum += values.get(k-i).getValue();
+                sum += values.get(k - i).getValue();
             }
-            smoothedValues.add(new Pair<>(values.get(k).getKey(), sum/(double)count));
+            smoothedValues.add(new Pair<>(values.get(k).getKey(), sum / (double) count));
         }
         return smoothedValues;
     }
@@ -101,9 +101,6 @@ public class GoStartValueExtractor {
 
         return values;
     }
-
-
-
 
 
     public String csvString(List<Pair<Integer, Double>> values) {

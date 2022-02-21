@@ -22,7 +22,7 @@ public class TicTacToeInference {
 
         String dir = config.getOutputDir() + "/networks";
 
-        int action  = inference.aiDecision(List.of(new Integer[0]), false ,dir);
+        int action = inference.aiDecision(List.of(new Integer[0]), false, dir);
 
         log.info("action: " + action);
     }

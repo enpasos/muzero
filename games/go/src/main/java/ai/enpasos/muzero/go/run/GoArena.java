@@ -34,17 +34,18 @@ public class GoArena {
     public void run() {
         battleAndReturnAveragePointsFromPlayerAPerspective(10, "0", "1");
     }
+
     public double battleAndReturnAveragePointsFromPlayerAPerspective(int numGames, String playerA, String playerB) {
 
-        double[] outcomesA = play(true, playerA, playerB, numGames/2);
-        double[] outcomesB = play(false, playerA,  playerB, numGames/2);
+        double[] outcomesA = play(true, playerA, playerB, numGames / 2);
+        double[] outcomesB = play(false, playerA, playerB, numGames / 2);
 
         double[] outcomes = ArrayUtils.addAll(outcomesA, outcomesB);
 
-        double fractionPlayer1wins = ((double)Arrays.stream(outcomes)
+        double fractionPlayer1wins = ((double) Arrays.stream(outcomes)
             .filter(i -> i == 1.0d)
             .count())
-            / (double)outcomes.length;
+            / (double) outcomes.length;
         log.info("fractionPlayer1wins: " + fractionPlayer1wins);
 
         return fractionPlayer1wins;
@@ -70,12 +71,12 @@ public class GoArena {
                 * (game.actionHistory().getActionIndexList().size() % 2 == 0 ? -1f : 1f)
                 * game.getLastReward())
             .toArray();
-       // return (currentPlayer.equals(ARENA_NETWORK_1) ? 1f : -1f) * game.getLastReward();
+        // return (currentPlayer.equals(ARENA_NETWORK_1) ? 1f : -1f) * game.getLastReward();
     }
 
     private void move(List<Game> games, String player) {
-        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("epoch",player)));
-        for(int g = 0; g < games.size(); g++) {
+        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("epoch", player)));
+        for (int g = 0; g < games.size(); g++) {
             games.get(g).apply(actionsSelectedByAI[g]);
         }
     }

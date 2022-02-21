@@ -12,31 +12,11 @@
  */
 package ai.enpasos.mnist;
 
-import ai.djl.Model;
-import ai.djl.basicdataset.cv.classification.Mnist;
 import ai.djl.engine.Engine;
-import ai.djl.metric.Metrics;
-import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.Block;
-import ai.djl.training.DefaultTrainingConfig;
-import ai.djl.training.EasyTrain;
-import ai.djl.training.Trainer;
-import ai.djl.training.TrainingResult;
-import ai.djl.training.dataset.Dataset;
-import ai.djl.training.dataset.RandomAccessDataset;
-import ai.djl.training.evaluator.Accuracy;
-import ai.djl.training.listener.SaveModelTrainingListener;
-import ai.djl.training.listener.TrainingListener;
-import ai.djl.training.loss.Loss;
-import ai.djl.training.util.ProgressBar;
-import ai.djl.translate.TranslateException;
 import ai.djl.util.JsonUtils;
-import ai.enpasos.mnist.blocks.MnistBlock;
 import com.google.gson.reflect.TypeToken;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -112,69 +92,69 @@ public class Arguments {
     public Options getOptions() {
         Options options = new Options();
         options.addOption(
-                Option.builder("h").longOpt("help").hasArg(false).desc("Print this help.").build());
+            Option.builder("h").longOpt("help").hasArg(false).desc("Print this help.").build());
         options.addOption(
-                Option.builder("e")
-                        .longOpt("epoch")
-                        .hasArg()
-                        .argName("EPOCH")
-                        .desc("Numbers of epochs user would like to run")
-                        .build());
+            Option.builder("e")
+                .longOpt("epoch")
+                .hasArg()
+                .argName("EPOCH")
+                .desc("Numbers of epochs user would like to run")
+                .build());
         options.addOption(
-                Option.builder("b")
-                        .longOpt("batch-size")
-                        .hasArg()
-                        .argName("BATCH-SIZE")
-                        .desc("The batch size of the training data.")
-                        .build());
+            Option.builder("b")
+                .longOpt("batch-size")
+                .hasArg()
+                .argName("BATCH-SIZE")
+                .desc("The batch size of the training data.")
+                .build());
         options.addOption(
-                Option.builder("g")
-                        .longOpt("max-gpus")
-                        .hasArg()
-                        .argName("MAXGPUS")
-                        .desc("Max number of GPUs to use for training")
-                        .build());
+            Option.builder("g")
+                .longOpt("max-gpus")
+                .hasArg()
+                .argName("MAXGPUS")
+                .desc("Max number of GPUs to use for training")
+                .build());
         options.addOption(
-                Option.builder("s")
-                        .longOpt("symbolic-model")
-                        .argName("SYMBOLIC")
-                        .desc("Use symbolic model, use imperative model if false")
-                        .build());
+            Option.builder("s")
+                .longOpt("symbolic-model")
+                .argName("SYMBOLIC")
+                .desc("Use symbolic model, use imperative model if false")
+                .build());
         options.addOption(
-                Option.builder("p")
-                        .longOpt("pre-trained")
-                        .argName("PRE-TRAINED")
-                        .desc("Use pre-trained weights")
-                        .build());
+            Option.builder("p")
+                .longOpt("pre-trained")
+                .argName("PRE-TRAINED")
+                .desc("Use pre-trained weights")
+                .build());
         options.addOption(
-                Option.builder("o")
-                        .longOpt("output-dir")
-                        .hasArg()
-                        .argName("OUTPUT-DIR")
-                        .desc("Use output to determine directory to save your model parameters")
-                        .build());
+            Option.builder("o")
+                .longOpt("output-dir")
+                .hasArg()
+                .argName("OUTPUT-DIR")
+                .desc("Use output to determine directory to save your model parameters")
+                .build());
         options.addOption(
-                Option.builder("m")
-                        .longOpt("max-batches")
-                        .hasArg()
-                        .argName("max-batches")
-                        .desc(
-                                "Limit each player to a fixed number of iterations to test the training script")
-                        .build());
+            Option.builder("m")
+                .longOpt("max-batches")
+                .hasArg()
+                .argName("max-batches")
+                .desc(
+                    "Limit each player to a fixed number of iterations to test the training script")
+                .build());
         options.addOption(
-                Option.builder("d")
-                        .longOpt("model-dir")
-                        .hasArg()
-                        .argName("MODEL-DIR")
-                        .desc("pre-trained model file directory")
-                        .build());
+            Option.builder("d")
+                .longOpt("model-dir")
+                .hasArg()
+                .argName("MODEL-DIR")
+                .desc("pre-trained model file directory")
+                .build());
         options.addOption(
-                Option.builder("r")
-                        .longOpt("criteria")
-                        .hasArg()
-                        .argName("CRITERIA")
-                        .desc("The criteria used for the model.")
-                        .build());
+            Option.builder("r")
+                .longOpt("criteria")
+                .hasArg()
+                .argName("CRITERIA")
+                .desc("The criteria used for the model.")
+                .build());
         return options;
     }
 

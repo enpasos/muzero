@@ -34,7 +34,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NetworkIO {
-
+    private float[] logits;
     private float[] policyValues;
     private double value;
 

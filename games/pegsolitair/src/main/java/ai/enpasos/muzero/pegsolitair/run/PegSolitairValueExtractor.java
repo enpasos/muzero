@@ -54,8 +54,8 @@ public class PegSolitairValueExtractor {
         replayBuffer.loadLatestState();
 
         List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
-                .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
+            .collect(Collectors.toList());
 
         pairs.forEach(p -> System.out.println(p.getKey() + "; " + p.getValue()));
 

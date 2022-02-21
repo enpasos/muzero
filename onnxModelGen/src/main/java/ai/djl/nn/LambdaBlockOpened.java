@@ -40,24 +40,28 @@ public class LambdaBlockOpened extends AbstractBlock {
      * Creates a {@link LambdaBlockOpened} for a singleton function.
      *
      * @param lambda a function accepting a singleton {@link NDList} and returning another sinleton
-     *     {@link NDList}
+     *               {@link NDList}
      * @return a new {@link LambdaBlockOpened} for the function
      */
     public static LambdaBlockOpened singleton(Function<NDArray, NDArray> lambda) {
         return new LambdaBlockOpened(arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected NDList forwardInternal(
-            ParameterStore parameterStore,
-            NDList inputs,
-            boolean training,
-            PairList<String, Object> params) {
+        ParameterStore parameterStore,
+        NDList inputs,
+        boolean training,
+        PairList<String, Object> params) {
         return lambda.apply(inputs);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         try (NDManager manager = NDManager.newBaseManager()) {
@@ -74,10 +78,12 @@ public class LambdaBlockOpened extends AbstractBlock {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadParameters(NDManager manager, DataInputStream is)
-            throws IOException, MalformedModelException {
+        throws IOException, MalformedModelException {
         byte version = is.readByte();
         if (version == VERSION) {
             readInputShapes(is);
@@ -86,7 +92,9 @@ public class LambdaBlockOpened extends AbstractBlock {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "Lambda()";

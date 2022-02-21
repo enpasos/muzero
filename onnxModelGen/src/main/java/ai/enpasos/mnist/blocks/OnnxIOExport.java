@@ -18,7 +18,7 @@ public class OnnxIOExport {
 
 
     public static void onnxExport(Model model, List<Shape> inputShapes, String fileName, String namePrefix) {
-        onnxExport((OnnxIO) model.getBlock(),  inputShapes,  fileName, namePrefix);
+        onnxExport((OnnxIO) model.getBlock(), inputShapes, fileName, namePrefix);
     }
 
     public static void onnxExport(OnnxIO onnxIO, List<Shape> inputShapes, String fileName, String namePrefix) {
@@ -30,7 +30,7 @@ public class OnnxIOExport {
         OnnxCounter counter = OnnxCounter.builder().counter(0).prefix(namePrefix).build();
 
         List<String> inputNames = new ArrayList<>();
-        IntStream.range(0, inputShapes.size()).forEach(i -> inputNames.add("Input"+ counter.count()));
+        IntStream.range(0, inputShapes.size()).forEach(i -> inputNames.add("Input" + counter.count()));
 
         OnnxBlock onnxBlock = onnxIO.getOnnxBlock(
             counter,
@@ -51,23 +51,23 @@ public class OnnxIOExport {
 
 
         onnxBlock.getInputNames().stream().forEach(
-            n ->  graphBuilder.addInput(
-                        onnxBlock.getValueInfos().stream()
-                            .filter(vi ->  vi.getName().equals(n))
-                            .findFirst().get()
+            n -> graphBuilder.addInput(
+                onnxBlock.getValueInfos().stream()
+                    .filter(vi -> vi.getName().equals(n))
+                    .findFirst().get()
             )
         );
 
         graphBuilder.addAllValueInfo(onnxBlock.getValueInfos().stream()
-                .filter(vi -> !onnxBlock.getOutputNames().contains(vi.getName())
-                           && !onnxBlock.getInputNames().contains(vi.getName()))
-                .collect(Collectors.toSet())
+            .filter(vi -> !onnxBlock.getOutputNames().contains(vi.getName())
+                && !onnxBlock.getInputNames().contains(vi.getName()))
+            .collect(Collectors.toSet())
         );
 
         onnxBlock.getOutputNames().stream().forEach(
-            n ->  graphBuilder.addOutput(
+            n -> graphBuilder.addOutput(
                 onnxBlock.getValueInfos().stream()
-                    .filter(vi ->  vi.getName().equals(n))
+                    .filter(vi -> vi.getName().equals(n))
                     .findFirst().get()
             )
         );

@@ -56,15 +56,19 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             s.close();
         }
 
-
         NetworkIO outputA = NetworkIO.builder()
-                .hiddenState(hiddenStates)
-                .build();
+            .hiddenState(hiddenStates)
+            .build();
 
 
-        NDArray p = list.get(1).softmax(1);
-        int actionSpaceSize = (int) p.getShape().get(1);
+        NDArray logits = list.get(1);
+
+        NDArray p = logits.softmax(1);
+
+        int actionSpaceSize = (int) logits.getShape().get(1);
         NDArray v = list.get(2);
+
+        float[] logitsArray = logits.toFloatArray();
 
         float[] pArray = p.toFloatArray();
         float[] vArray = v.toFloatArray();
@@ -73,17 +77,20 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         int n = (int) v.getShape().get(0);
 
         List<NetworkIO> networkIOs = IntStream.range(0, n)
-                .mapToObj(i ->
-                {
-                    float[] ps = new float[actionSpaceSize];
-                    System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
-                    return NetworkIO.builder()
-                            .value(vArray[i])
-                            .policyValues(ps)
-                            .build();
+            .mapToObj(i ->
+            {
+                float[] ps = new float[actionSpaceSize];
+                float[] logits_ = new float[actionSpaceSize];
+                System.arraycopy(logitsArray, i * actionSpaceSize, logits_, 0, actionSpaceSize);
+                System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
+                return NetworkIO.builder()
+                    .value(vArray[i])
+                    .policyValues(ps)
+                    .logits(logits_)
+                    .build();
 
-                })
-                .collect(Collectors.toList());
+            })
+            .collect(Collectors.toList());
 
 
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
@@ -108,11 +115,11 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
 
         List<Observation> observations = gameList.stream()
-                .map(g -> g.getObservation(ctx.getNDManager()))
-                .collect(Collectors.toList());
+            .map(g -> g.getObservation(ctx.getNDManager()))
+            .collect(Collectors.toList());
 
         return new NDList(NDArrays.stack(new NDList(
-                observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
+            observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
         )));
     }
 

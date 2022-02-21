@@ -21,8 +21,8 @@ import java.util.List;
 
 @SpringBootApplication
 @Slf4j
-@ComponentScan(basePackages = "ai.enpasos.*", excludeFilters={
-    @ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, value=TicTacToe.class)})
+@ComponentScan(basePackages = "ai.enpasos.*", excludeFilters = {
+    @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = TicTacToe.class)})
 public class DJLTicTacToeTest implements CommandLineRunner {
 
 
@@ -36,9 +36,9 @@ public class DJLTicTacToeTest implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-            log.info("default engine name: "+ Engine.getDefaultEngineName());
-        log.info("all engines: "+  Engine.getAllEngines());
-            String modelPath = "./models/initialInference.onnx";
+        log.info("default engine name: " + Engine.getDefaultEngineName());
+        log.info("all engines: " + Engine.getAllEngines());
+        String modelPath = "./models/initialInference.onnx";
 
 
         Model model = Model.newInstance("model", "OnnxRuntime");

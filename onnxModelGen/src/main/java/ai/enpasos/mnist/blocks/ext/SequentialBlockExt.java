@@ -23,7 +23,7 @@ public class SequentialBlockExt extends SequentialBlock implements OnnxIO {
 
         List<OnnxTensor> currentInput = input;
         for (Pair<String, Block> p : this.getChildren()) {
-            OnnxIO onnxIO = (OnnxIO)p.getValue();
+            OnnxIO onnxIO = (OnnxIO) p.getValue();
             OnnxBlock child = onnxIO.getOnnxBlock(counter, currentInput);
             onnxBlock.addChild(child);
 

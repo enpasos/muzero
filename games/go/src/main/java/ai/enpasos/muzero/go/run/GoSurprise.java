@@ -69,8 +69,8 @@ public class GoSurprise {
 
     @SuppressWarnings("squid:S3740")
     public void run() {
-           replayBuffer.loadLatestState();
-   //      replayBuffer.keepOnlyTheLatestGames(10);
+        replayBuffer.loadLatestState();
+        //      replayBuffer.keepOnlyTheLatestGames(10);
         List<Game> gamesToInvestigate = getGamesToInvestigate(10, 0.1d);
 
 
@@ -78,25 +78,26 @@ public class GoSurprise {
         nf.setMinimumFractionDigits(6);
         nf.setMaximumFractionDigits(6);
         Game game = gamesToInvestigate.get(gamesToInvestigate.size() - 1);
-          log.info("a game's surprises: ");
-          log.info("" + nf.format(game.getTSurprise()));
+        log.info("a game's surprises: ");
+        log.info("" + nf.format(game.getTSurprise()));
         //  System.out.println(csvString(game.getSurprises()));
 
 
-       // getMoreExperience(gamesToInvestigate);
+        // getMoreExperience(gamesToInvestigate);
 
     }
-    private List<Game>  getGamesToInvestigate( int numGames, double fraction) {
-        return getGamesToInvestigate( null, numGames,  fraction);
+
+    private List<Game> getGamesToInvestigate(int numGames, double fraction) {
+        return getGamesToInvestigate(null, numGames, fraction);
     }
 
-    private List<Game>  getGamesToInvestigate(Network network, int numGames, double fraction) {
+    private List<Game> getGamesToInvestigate(Network network, int numGames, double fraction) {
 
 //        replayBuffer.loadLatestState();
 //        replayBuffer.keepOnlyTheLatestGames(numGames);
 
         int bufferSize = replayBuffer.getBuffer().getGames().size();
-        List<Game> games = replayBuffer.getBuffer().getGames().subList(Math.max( bufferSize - numGames, 0),  bufferSize);
+        List<Game> games = replayBuffer.getBuffer().getGames().subList(Math.max(bufferSize - numGames, 0), bufferSize);
         enrichGamesWithSurprises(network, games);
 
         double surpriseMean = games.stream().mapToDouble(g -> Arrays.stream(g.getSurprises()).average().getAsDouble())
@@ -104,7 +105,7 @@ public class GoSurprise {
         double surpriseMax = games.stream().mapToDouble(g -> Arrays.stream(g.getSurprises()).max().getAsDouble())
             .max().getAsDouble();
         List<Double> allValues = new ArrayList<>();
-        games.stream().forEach(g ->  Arrays.stream(g.getSurprises()).forEach(v -> allValues.add(v)));
+        games.stream().forEach(g -> Arrays.stream(g.getSurprises()).forEach(v -> allValues.add(v)));
         Collections.sort(allValues);
 
 
@@ -114,30 +115,28 @@ public class GoSurprise {
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(6);
         nf.setMaximumFractionDigits(6);
-    //    allValues.stream().forEach(v -> System.out.println(nf.format(v)));
+        //    allValues.stream().forEach(v -> System.out.println(nf.format(v)));
         //  log.info("last game's surprises: ");
         //  System.out.println(csvString(games.get(games.size() - 1).getSurprises()));
 
         // value of the numGames-th highest value
-        double quantil = allValues.get((int)(allValues.size() * (1d-fraction)));
+        double quantil = allValues.get((int) (allValues.size() * (1d - fraction)));
 
         List<Game> gamesToInvestigate = games.stream()
-                .filter(g -> Arrays.stream(g.getSurprises()).max().getAsDouble() >= quantil).collect(Collectors.toList());
+            .filter(g -> Arrays.stream(g.getSurprises()).max().getAsDouble() >= quantil).collect(Collectors.toList());
 
 
         gamesToInvestigate.stream().forEach(game -> {
-            for(int t = game.getSurprises().length-1; t >= 0; t--) {
-               double s = game.getSurprises()[t];
-               if (s >= quantil) {
-                   game.setTSurprise(t);
-                   break;
-               }
+            for (int t = game.getSurprises().length - 1; t >= 0; t--) {
+                double s = game.getSurprises()[t];
+                if (s >= quantil) {
+                    game.setTSurprise(t);
+                    break;
+                }
             }
         });
-        return  gamesToInvestigate ;
+        return gamesToInvestigate;
     }
-
-
 
 
     public void enrichGamesWithSurprises(Network network, List<Game> gameList) {
@@ -152,60 +151,60 @@ public class GoSurprise {
             .mapToObj(i -> gameList.get(i).actionHistory().getActionIndexList())
             .collect(Collectors.toList());
 
-        IntStream.range(0, numOfGames).forEach(g  -> {
+        IntStream.range(0, numOfGames).forEach(g -> {
             Game game = gameList.get(g);
             game.setDone(false);
             int length = actionList.get(g).size();
             game.setValues(new double[length]);
             game.setEntropies(new double[length]);
-            game.setSurprises( new double[length]);
+            game.setSurprises(new double[length]);
         });
 
         int t = 0;
-     //   try {    // TODO ... workaround for now
-            while(gameList.stream().filter(g -> !g.isDone()).count() > 0) {
+        //   try {    // TODO ... workaround for now
+        while (gameList.stream().filter(g -> !g.isDone()).count() > 0) {
 
-             //   for (int t = 0; t < length; t++) {
-                List<Game> gamesToEvaluate = new ArrayList<>();
-                for(int g = 0; g < numOfGames; g++) {
-                    Game game = gameList.get(g);
-                    if (!game.isDone()) {
-                        Game newGame = newGameList.get(g);
-                        newGame.apply(actionList.get(g).get(t));
-                        gamesToEvaluate.add(newGame);
-                    }
+            //   for (int t = 0; t < length; t++) {
+            List<Game> gamesToEvaluate = new ArrayList<>();
+            for (int g = 0; g < numOfGames; g++) {
+                Game game = gameList.get(g);
+                if (!game.isDone()) {
+                    Game newGame = newGameList.get(g);
+                    newGame.apply(actionList.get(g).get(t));
+                    gamesToEvaluate.add(newGame);
                 }
-                double[] vs = null;
-                if (network == null) {
-                    vs = inference.aiValue(gamesToEvaluate);
-                } else {
-                    vs = inference.aiValue(network, gamesToEvaluate);
-                }
-                int i = 0;
-                for (int g = 0; g < numOfGames; g++) {
-                    Game game = gameList.get(g);
-                    if (!game.isDone()) {
-                        double v = vs[i++];
-                        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                            v *= Math.pow(-1, t);
-                        }
-                        v = (v + 1d) / 2d;
-                        game.getValues()[t] = v;
-                        game.getEntropies()[t] = -v * Math.log(v) - (1.0 - v) * Math.log(1.0 - v);
-                        game.getEntropies()[t] /= maxEntropy;
-                        if (t > 0) {
-                            double d = game.getEntropies()[t] - game.getEntropies()[t - 1];
-                            game.getSurprises()[t] = d * d;
-                        }
-                        if (t+1 == actionList.get(g).size()) {
-                            game.setDone(true);
-                        }
-                    }
-                }
-                t++;
             }
+            double[] vs = null;
+            if (network == null) {
+                vs = inference.aiValue(gamesToEvaluate);
+            } else {
+                vs = inference.aiValue(network, gamesToEvaluate);
+            }
+            int i = 0;
+            for (int g = 0; g < numOfGames; g++) {
+                Game game = gameList.get(g);
+                if (!game.isDone()) {
+                    double v = vs[i++];
+                    if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                        v *= Math.pow(-1, t);
+                    }
+                    v = (v + 1d) / 2d;
+                    game.getValues()[t] = v;
+                    game.getEntropies()[t] = -v * Math.log(v) - (1.0 - v) * Math.log(1.0 - v);
+                    game.getEntropies()[t] /= maxEntropy;
+                    if (t > 0) {
+                        double d = game.getEntropies()[t] - game.getEntropies()[t - 1];
+                        game.getSurprises()[t] = d * d;
+                    }
+                    if (t + 1 == actionList.get(g).size()) {
+                        game.setDone(true);
+                    }
+                }
+            }
+            t++;
+        }
 
-        IntStream.range(0, numOfGames).forEach(g  -> {
+        IntStream.range(0, numOfGames).forEach(g -> {
             Game game = gameList.get(g);
             game.setValues(null);
             game.setEntropies(null);
@@ -239,7 +238,7 @@ public class GoSurprise {
 
     public void train(Integer epoch, Network network) {
         if (epoch < 40) return;
-        List<Game> gamesToInvestigate = getGamesToInvestigate(network,1000, 0.001d);
+        List<Game> gamesToInvestigate = getGamesToInvestigate(network, 1000, 0.001d);
         this.replayBuffer.removeGames(gamesToInvestigate);
 
         int numOfReplaysPerGame = 5;
@@ -264,9 +263,7 @@ public class GoSurprise {
         });
 
 
-
-
-        selfPlay.replayGamesToEliminateSurprise( network, true,  gamesToReplay);
+        selfPlay.replayGamesToEliminateSurprise(network,  gamesToReplay);
                 /*
            - remove the game from the memory
            - replay the game a number of N times and add them to memory
@@ -274,7 +271,6 @@ public class GoSurprise {
            - mark the actions before the surprise in such a way that they are not taken for learning mor than one game
 
          */
-
 
 
     }

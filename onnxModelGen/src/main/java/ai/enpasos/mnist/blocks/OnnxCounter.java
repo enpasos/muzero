@@ -3,8 +3,6 @@ package ai.enpasos.mnist.blocks;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
 public class OnnxCounter {
@@ -12,6 +10,6 @@ public class OnnxCounter {
     String prefix = "";
 
     public String count() {
-         return prefix + counter++;
+        return prefix + counter++;
     }
 }

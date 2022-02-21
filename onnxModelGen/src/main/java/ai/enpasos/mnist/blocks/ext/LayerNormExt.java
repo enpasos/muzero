@@ -20,10 +20,10 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 public class LayerNormExt extends LayerNormOpened implements OnnxIO {
 
-/*
- * Workaround at least to make inference work for onnx
- * see https://github.com/onnx/onnx/issues/2379
- */
+    /*
+     * Workaround at least to make inference work for onnx
+     * see https://github.com/onnx/onnx/issues/2379
+     */
     LayerNormExt(LayerNormExt.Builder builder) {
         super(builder);
     }
@@ -36,20 +36,19 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
         Shape inputShape = input.get(0).getShape();
-        Shape condensedShape = new Shape(inputShape.get(0),inputShape.get(1) * inputShape.get(2) * inputShape.get(3));
+        Shape condensedShape = new Shape(inputShape.get(0), inputShape.get(1) * inputShape.get(2) * inputShape.get(3));
         Shape fullyCondensedShape = new Shape(inputShape.get(0) * inputShape.get(1) * inputShape.get(2) * inputShape.get(3));
 
 
         OnnxBlock blockReshape = nodeReshape(counter, input, condensedShape);
-        OnnxBlock blockTranspose = nodeTranspose(counter,  blockReshape.getOutput());
+        OnnxBlock blockTranspose = nodeTranspose(counter, blockReshape.getOutput());
 
         OnnxBlock blockBatchNormalization = nodeBatchNormalization(counter, blockTranspose.getOutput());
-        OnnxBlock blockTranspose2 = nodeTranspose(counter,  blockBatchNormalization.getOutput());
+        OnnxBlock blockTranspose2 = nodeTranspose(counter, blockBatchNormalization.getOutput());
         OnnxBlock blockReshape2 = nodeReshape(counter, blockTranspose2.getOutput(), inputShape);
 
         OnnxBlock blockMul = nodeMul(counter, blockReshape2.getOutput());
         OnnxBlock blockAddBeta = nodeAddBeta(counter, blockMul.getOutput());
-
 
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
@@ -72,35 +71,35 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
     }
 
 
-  private OnnxBlock nodeReshape(OnnxCounter counter, List<OnnxTensor> input, Shape targetShape) {
-      List<OnnxTensor> output = combine(
-          List.of("T" + counter.count()),
-          List.of(targetShape)
-      );
-      String shapeName = "T" + counter.count();
-      return OnnxBlock.builder()
-          .input(input)
-          .output(output)
-          .valueInfos(createValueInfoProto(output))
-          .nodes(List.of(
-              NodeProto.newBuilder()
-                  .setName("Node" + counter.count())
-                  .setOpType("Reshape")
-                  .addInput(input.get(0).getName())
-                  .addInput(shapeName)
-                  .addOutput(output.get(0).getName())
-                  .build()
-          ))
-          .parameters(List.of(
-              TensorProto.newBuilder()
-                  .setName(shapeName)
-                  .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
-                  .addAllDims(List.of((long)targetShape.dimension()))
-                  .addAllInt64Data(convert(targetShape.getShape()))
-                  .build()
-          ))
-          .build();
-  }
+    private OnnxBlock nodeReshape(OnnxCounter counter, List<OnnxTensor> input, Shape targetShape) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(targetShape)
+        );
+        String shapeName = "T" + counter.count();
+        return OnnxBlock.builder()
+            .input(input)
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("Node" + counter.count())
+                    .setOpType("Reshape")
+                    .addInput(input.get(0).getName())
+                    .addInput(shapeName)
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(shapeName)
+                    .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
+                    .addAllDims(List.of((long) targetShape.dimension()))
+                    .addAllInt64Data(convert(targetShape.getShape()))
+                    .build()
+            ))
+            .build();
+    }
 
     private OnnxBlock nodeTranspose(OnnxCounter counter, List<OnnxTensor> input) {
         Shape inputShape = input.get(0).getShape();
@@ -172,25 +171,25 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
                     .setName(dummyRunningMean)
                     .setDataType(1)
                     .addAllDims(List.of(1L))
-                    .addAllFloatData(  List.of(0f))
+                    .addAllFloatData(List.of(0f))
                     .build(),
                 TensorProto.newBuilder()
                     .setName(dummyRunningVar)
                     .setDataType(1)
                     .addAllDims(List.of(1L))
-                    .addAllFloatData(  List.of(0f))
+                    .addAllFloatData(List.of(0f))
                     .build(),
                 TensorProto.newBuilder()
                     .setName(dummyGamma)
                     .setDataType(1)
                     .addAllDims(List.of(1L))
-                    .addAllFloatData(  List.of(1f))
+                    .addAllFloatData(List.of(1f))
                     .build(),
                 TensorProto.newBuilder()
                     .setName(dummyBeta)
                     .setDataType(1)
                     .addAllDims(List.of(1L))
-                    .addAllFloatData(  List.of(0f))
+                    .addAllFloatData(List.of(0f))
                     .build()
             ))
             .build();
@@ -198,12 +197,12 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
 
 
     private OnnxBlock nodeData(OnnxCounter ctx, NDArray data, Shape outputShape) { //}, onnxBlock onnxBlock, String outputName, Shape shape) {
-        List<OnnxTensor> output =  combine(List.of("T" + ctx.count()), List.of(outputShape));
+        List<OnnxTensor> output = combine(List.of("T" + ctx.count()), List.of(outputShape));
 
-      //  NDArray weight = this.parameters.get("weight").getArray().transpose();
+        //  NDArray weight = this.parameters.get("weight").getArray().transpose();
 
-        String parameterName1 = "P"+ ctx.count();
-        String parameterName2 = "P"+ ctx.count();
+        String parameterName1 = "P" + ctx.count();
+        String parameterName2 = "P" + ctx.count();
 
         return OnnxBlock.builder()
             .output(output)
@@ -273,6 +272,7 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
             .valueInfos(createValueInfoProto(output))
             .build();
     }
+
     private OnnxBlock nodeAddBeta(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),

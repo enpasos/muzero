@@ -11,9 +11,8 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.loss.Loss;
 import ai.djl.util.Pair;
-import ai.enpasos.mnist.blocks.MnistBlock;
-import ai.onnxruntime.*;
 import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.FloatBuffer;
@@ -26,15 +25,13 @@ import static ai.enpasos.mnist.blocks.OnnxIOExport.onnxExport;
 public
 class BlockTestHelper {
 
-    public enum Testdata {RANDOM, ZERO}
-
     public static boolean compareOnnxWithDJL(String modelPath, Block block, List<Shape> inputShapes, Testdata testdata) throws OrtException {
-        Pair<NDList, NDList> inputOutput =   inputOutputFromDJL(block, inputShapes, modelPath, testdata);
+        Pair<NDList, NDList> inputOutput = inputOutputFromDJL(block, inputShapes, modelPath, testdata);
         NDList input = inputOutput.getKey();
         NDList outputDJL = inputOutput.getValue();
         NDList outputOnnx = outputFromOnnx(modelPath, input);
 
-        boolean checkResult =  outputDJL.size() == outputOnnx.size();
+        boolean checkResult = outputDJL.size() == outputOnnx.size();
         for (int i = 0; i < outputDJL.size(); i++) {
             boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-03, 1e-03, false);
             if (!check) {
@@ -46,27 +43,26 @@ class BlockTestHelper {
         return checkResult;
     }
 
-
-    public static Pair<NDList, NDList> inputOutputFromDJL(Block block,List<Shape> inputShapes, String modelPath, Testdata testdata) {
+    public static Pair<NDList, NDList> inputOutputFromDJL(Block block, List<Shape> inputShapes, String modelPath, Testdata testdata) {
 
         NDList input = null;
         NDList outputDJL = null;
         try (Model model = Model.newInstance("mymodel", Device.cpu())) {
 
             model.setBlock(block);
-switch(testdata) {
-    case ZERO:
-        input = new NDList(inputShapes.stream()
-            .map(inputShape -> NDManager.newBaseManager().create(inputShape))
-            .collect(Collectors.toList()));
-        break;
-    case RANDOM:
-        input = new NDList(inputShapes.stream()
-           .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
+            switch (testdata) {
+                case ZERO:
+                    input = new NDList(inputShapes.stream()
+                        .map(inputShape -> NDManager.newBaseManager().create(inputShape))
+                        .collect(Collectors.toList()));
+                    break;
+                case RANDOM:
+                    input = new NDList(inputShapes.stream()
+                        .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
 
-            .collect(Collectors.toList()));
-        break;
-}
+                        .collect(Collectors.toList()));
+                    break;
+            }
 
 
             // no training here - loss function is a dummy
@@ -106,7 +102,7 @@ switch(testdata) {
                 }
 
                 List<Shape> outputShapes = session.getOutputInfo().values().stream()
-                    .map(info -> new Shape(((TensorInfo)info.getInfo()).getShape()))
+                    .map(info -> new Shape(((TensorInfo) info.getInfo()).getShape()))
                     .collect(Collectors.toList());
 
                 Map<String, ai.onnxruntime.OnnxTensor> inputMap = new TreeMap<>();
@@ -126,8 +122,7 @@ switch(testdata) {
 
                     outputOnnx = new NDList(ndArrays);
 
-                }
-                finally {
+                } finally {
                     inputMap.values().stream().forEach(t -> t.close());
                 }
 
@@ -135,6 +130,8 @@ switch(testdata) {
         }
         return outputOnnx;
     }
+
+    public enum Testdata {RANDOM, ZERO}
 
 
 }

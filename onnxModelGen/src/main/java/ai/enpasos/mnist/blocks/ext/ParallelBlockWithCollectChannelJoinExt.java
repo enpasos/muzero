@@ -2,7 +2,6 @@ package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.ParallelBlock;
 import ai.djl.util.Pair;
@@ -10,15 +9,11 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.onnx.AttributeProto;
-import ai.enpasos.onnx.NodeProto;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
-import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 public class ParallelBlockWithCollectChannelJoinExt extends ParallelBlock implements OnnxIO {
@@ -27,17 +22,17 @@ public class ParallelBlockWithCollectChannelJoinExt extends ParallelBlock implem
     public ParallelBlockWithCollectChannelJoinExt(List<Block> blocks) {
         super(
 
-                            list -> {
-                    List<NDArray> collectedList = list
-                            .stream()
-                            .map(NDList::head)
-                            .collect(Collectors.toList());
+            list -> {
+                List<NDArray> collectedList = list
+                    .stream()
+                    .map(NDList::head)
+                    .collect(Collectors.toList());
 
-                    return new NDList(collectedList);
-                }
+                return new NDList(collectedList);
+            }
 
 
-        , blocks);
+            , blocks);
     }
 
 
@@ -60,7 +55,6 @@ public class ParallelBlockWithCollectChannelJoinExt extends ParallelBlock implem
             childOutput = child.getOutput().get(0);
             output.add(childOutput);
         }
-
 
 
         onnxBlock.setOutput(output);

@@ -130,7 +130,6 @@ public class Ranking {
     }
 
 
-
     public int getElo(int playerEpoch) {
         RankingEntryDTO dto = getRankingEntryDTO(playerEpoch);
         return dto.getElo();
@@ -197,17 +196,17 @@ public class Ranking {
     private void interpolateElo(int low, int high) {
         var eloLow = getElo(low);
         var eloHigh = getElo(high);
-        double m = (double)(eloHigh - eloLow) / (double)(high - low);
+        double m = (double) (eloHigh - eloLow) / (double) (high - low);
         for (int x = low + 1; x < high; x++) {
-            setElo(x, (int)Math.round(eloLow + m * (x-low)));
+            setElo(x, (int) Math.round(eloLow + m * (x - low)));
         }
     }
 
     private int findNextPlayerWithElo(int low, int high) {
         if (
             getElo(low) == Integer.MIN_VALUE
-            || getElo(high) == Integer.MIN_VALUE
-        ) throw new MuZeroException("players " + low + " and "+ high + " are expected to have an elo.");
+                || getElo(high) == Integer.MIN_VALUE
+        ) throw new MuZeroException("players " + low + " and " + high + " are expected to have an elo.");
         for (int p = low + 1; p <= high; p++) {
             if (getElo(p) != Integer.MIN_VALUE) return p;
         }

@@ -40,9 +40,9 @@ public class GameState {
 
     public static GameState newGame(int boardSize) {
         return GameState.builder()
-                .nextPlayer(Player.BLACK_PLAYER)
-                .board(new GoBoard(boardSize))
-                .build();
+            .nextPlayer(Player.BLACK_PLAYER)
+            .board(new GoBoard(boardSize))
+            .build();
     }
 
     public boolean isOver() {
@@ -69,12 +69,12 @@ public class GameState {
         newAllPrevStates.add(Pair.of(nextPlayer, nextBoard.zobristHash()));
 
         return GameState.builder()
-                .board(nextBoard)
-                .nextPlayer(nextPlayer.other())
-                .previousState(this)
-                .lastMove(move)
-                .allPreviousStates(newAllPrevStates)
-                .build();
+            .board(nextBoard)
+            .nextPlayer(nextPlayer.other())
+            .previousState(this)
+            .lastMove(move)
+            .allPreviousStates(newAllPrevStates)
+            .build();
 
     }
 
@@ -110,9 +110,9 @@ public class GameState {
         if (move instanceof Pass || move instanceof Resign) return true;
         Play play = (Play) move;
         return board.getPlayer(play.getPoint()).isEmpty() &&
-                !isMoveSelfCapture(nextPlayer, move) &&
-                !doesMoveViolateKo(nextPlayer, move) &&
-                !doesMoveFillEye(nextPlayer, move);
+            !isMoveSelfCapture(nextPlayer, move) &&
+            !doesMoveViolateKo(nextPlayer, move) &&
+            !doesMoveFillEye(nextPlayer, move);
     }
 
 //    public Optional<GameResult> gameResult() {

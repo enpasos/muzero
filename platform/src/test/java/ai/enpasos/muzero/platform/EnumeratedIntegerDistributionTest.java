@@ -39,8 +39,8 @@ class EnumeratedIntegerDistributionTest {
         // Non-sorted singleton array with duplicates should be allowed.
         // Values with zero-probability do not extend the support.
         testDistribution = new EnumeratedIntegerDistribution(
-                new int[]{3, -1, 3, 7, -2, 8},
-                new double[]{0.2, 0.2, 0.3, 0.3, 0.0, 0.0});
+            new int[]{3, -1, 3, 7, -2, 8},
+            new double[]{0.2, 0.2, 0.3, 0.3, 0.0, 0.0});
     }
 
     /**

@@ -107,8 +107,14 @@ public class ReplayBuffer {
     }
 
     public static byte @NotNull [] encodeDTO(ReplayBufferDTO dto) {
-        String json = getGson().toJson(dto);
-        return json.getBytes(StandardCharsets.UTF_8);
+        try {
+            String json = getGson().toJson(dto);
+            return json.getBytes(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+
     }
 
     @PostConstruct
@@ -133,8 +139,8 @@ public class ReplayBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps, int tdSteps, NDManager ndManager) {
 
         return sampleGames().stream()
-                .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
-                .collect(Collectors.toList());
+            .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
+            .collect(Collectors.toList());
 
     }
 
@@ -147,27 +153,27 @@ public class ReplayBuffer {
 
 
         List<Game> gamesToTrain = games.stream()
-                .filter(g -> {
-                    if (g instanceof ZeroSumGame) {
-                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
-                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_A;
-                    } else {
-                        return true;
-                    }
-                })
-                .limit(this.batchSize / 2).collect(Collectors.toList());
+            .filter(g -> {
+                if (g instanceof ZeroSumGame) {
+                    Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
+                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_A;
+                } else {
+                    return true;
+                }
+            })
+            .limit(this.batchSize / 2).collect(Collectors.toList());
         games.removeAll(gamesToTrain);  // otherwise, draw games could be selected again
         gamesToTrain.addAll(games.stream()
-                .filter(g -> {
-                    if (g instanceof ZeroSumGame) {
-                        Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
-                        return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_B;
-                    } else {
-                        return true;
-                    }
-                })
-                .limit(this.batchSize / 2)
-                .collect(Collectors.toList()));
+            .filter(g -> {
+                if (g instanceof ZeroSumGame) {
+                    Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
+                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_B;
+                } else {
+                    return true;
+                }
+            })
+            .limit(this.batchSize / 2)
+            .collect(Collectors.toList()));
 
         return gamesToTrain;
     }
@@ -235,8 +241,8 @@ public class ReplayBuffer {
         }
         try (Stream<Path> walk = Files.walk(gamesPath)) {
             OptionalInt no = walk.filter(Files::isRegularFile)
-                    .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", "")))
-                    .max();
+                .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", "")))
+                .max();
             if (no.isPresent()) {
                 return no.getAsInt();
             } else {
@@ -297,8 +303,8 @@ public class ReplayBuffer {
 
 
     public void keepOnlyTheLatestGames(int n) {
-        buffer.games =  buffer.games.subList(Math.max( buffer.games.size() - n, 0),  buffer.games.size());
-        buffer.data =  buffer.data.subList(Math.max( buffer.data.size() - n, 0),  buffer.data.size());
+        buffer.games = buffer.games.subList(Math.max(buffer.games.size() - n, 0), buffer.games.size());
+        buffer.data = buffer.data.subList(Math.max(buffer.data.size() - n, 0), buffer.data.size());
     }
 
     public void sortGamesByLastValueError() {
@@ -312,8 +318,8 @@ public class ReplayBuffer {
         int max = this.getConfig().getWindowValueSelfconsistencySize();
         int size = this.getBuffer().getGames().size();
         if (size <= max) return;
-        this.getBuffer().setGames(this.getBuffer().getGames().subList(size-max, size));
-        this.getBuffer().setData(this.getBuffer().getData().subList(size-max, size));
+        this.getBuffer().setGames(this.getBuffer().getGames().subList(size - max, size));
+        this.getBuffer().setData(this.getBuffer().getData().subList(size - max, size));
     }
 
     public void removeGames(List<Game> games) {

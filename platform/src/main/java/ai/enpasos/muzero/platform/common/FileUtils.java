@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.platform.common;
 
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -16,14 +15,16 @@ public class FileUtils {
             throw new MuZeroException(e);
         }
     }
+
     public static void mkDir(String pathStr) {
         try {
-              org.apache.commons.io.FileUtils.forceMkdir(new File(pathStr));
+            org.apache.commons.io.FileUtils.forceMkdir(new File(pathStr));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new MuZeroException(e);
         }
     }
+
     public static void cp(String filePathStr, String targetDir) {
         try {
             org.apache.commons.io.FileUtils.copyFileToDirectory(new File(filePathStr), new File(targetDir));

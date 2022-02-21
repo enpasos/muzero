@@ -50,7 +50,7 @@ public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements Onn
 
         for (int i = 0; i < this.getChildren().size(); i++) {
             Pair<String, Block> p = this.getChildren().get(i);
-            OnnxIO onnxIO = (OnnxIO)p.getValue();
+            OnnxIO onnxIO = (OnnxIO) p.getValue();
             OnnxBlock child = onnxIO.getOnnxBlock(counter, input);
             onnxBlock.addChild(child);
             if (i == 0) { // the scaler
@@ -58,7 +58,7 @@ public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements Onn
 
                 OnnxTensor newOutput = OnnxTensor.builder()
                     .name("T" + counter.count())
-                    .shape(inputB.getShape().add(1,1))
+                    .shape(inputB.getShape().add(1, 1))
                     .build();
 
                 String shapeParam = "P" + counter.count();
@@ -72,9 +72,9 @@ public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements Onn
                             .setOpType("Reshape")
                             .addInput(inputB.getName())
                             .addInput(shapeParam)
-                            .addOutput(newOutput.getName() )
+                            .addOutput(newOutput.getName())
                             .build()
-                     ))
+                    ))
                     .parameters(List.of(
                         // shape
                         TensorProto.newBuilder()
@@ -86,7 +86,7 @@ public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements Onn
                     ))
                     .build();
                 onnxBlock.addChild(deflateBlock);
-             //   outputsToBeCombined.add(child.getOutput().get(0));
+                //   outputsToBeCombined.add(child.getOutput().get(0));
                 outputsToBeCombined.add(deflateBlock.getOutput().get(0));
                 //  if (child.getOutput().size() > 1) throw new RuntimeException("each output is assumed to be a single tensor here");
             } else {
@@ -114,7 +114,7 @@ public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements Onn
                     .setName("N" + counter.count())
                     .setOpType("Mul")
                     .addAllInput(getNames(outputsToBeCombined))
-                    .addOutput( output.get(0).getName() )
+                    .addOutput(output.get(0).getName())
                     .build()
 //                NodeProto.newBuilder()
 //                    .setName("N" + counter.count())
@@ -123,7 +123,7 @@ public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements Onn
 //                    .addOutput(output.get(0).getName())
 //                    .build()
             ))
-        //    .valueInfos(createValueInfoProto(combine(List.of(intermediate), List.of())))
+            //    .valueInfos(createValueInfoProto(combine(List.of(intermediate), List.of())))
             .valueInfos(createValueInfoProto(output))
             .build();
 

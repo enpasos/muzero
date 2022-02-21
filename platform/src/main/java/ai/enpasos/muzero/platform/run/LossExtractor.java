@@ -46,40 +46,40 @@ public class LossExtractor {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
                 IntStream.range(1, 1000).forEach(
-                        i -> {
-                            try {
-                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
-                                int epoch = getEpoch(model);
-                                int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-                                csvPrinter.printRecord(trainingSteps,
-                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
-                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
-                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
-                                );
-                            } catch (Exception ignored) {
-                                log.debug("player " + i + " model.load not successfull");
-                            }
+                    i -> {
+                        try {
+                            model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
+                            int epoch = getEpoch(model);
+                            int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+                            csvPrinter.printRecord(trainingSteps,
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
+                            );
+                        } catch (Exception ignored) {
+                            log.debug("player " + i + " model.load not successfull");
                         }
+                    }
                 );
             }
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
                 IntStream.range(1001, 2000).forEach(
-                        i -> {
-                            try {
-                                model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
-                                int epoch = getEpoch(model);
-                                int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-                                csvPrinter.printRecord(trainingSteps,
-                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
-                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
-                                        NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
-                                );
-                            } catch (Exception ignored) {
-                                log.debug("player " + i + " model.load not successfull");
-                            }
+                    i -> {
+                        try {
+                            model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
+                            int epoch = getEpoch(model);
+                            int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+                            csvPrinter.printRecord(trainingSteps,
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
+                            );
+                        } catch (Exception ignored) {
+                            log.debug("player " + i + " model.load not successfull");
                         }
+                    }
                 );
             }
         } catch (Exception e) {

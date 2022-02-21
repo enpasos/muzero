@@ -10,6 +10,7 @@ import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Parameter;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -61,37 +62,37 @@ public class LayerNorm extends AbstractBlock {
 
         // make gamma trainable if scale
         gamma =
-                addParameter(
-                        Parameter.builder()
-                                .setName("gamma")
-                                .setType(Parameter.Type.GAMMA)
-                                .optRequiresGrad(scale)
-                                .build());
+            addParameter(
+                Parameter.builder()
+                    .setName("gamma")
+                    .setType(Parameter.Type.GAMMA)
+                    .optRequiresGrad(scale)
+                    .build());
         // make beta trainable if center
         beta =
-                addParameter(
-                        Parameter.builder()
-                                .setName("beta")
-                                .setType(Parameter.Type.BETA)
-                                .optRequiresGrad(center)
-                                .build());
+            addParameter(
+                Parameter.builder()
+                    .setName("beta")
+                    .setType(Parameter.Type.BETA)
+                    .optRequiresGrad(center)
+                    .build());
     }
 
     /**
      * Applies Layer Normalization with average and variance for each input sample across the axis
      * dimensions.
      *
-     * @param input the input {@code NDArray} of shape (batchSize, inputChannel, *), * could be
-     *     empty, width, (height, width), (depth, height, width)
+     * @param input           the input {@code NDArray} of shape (batchSize, inputChannel, *), * could be
+     *                        empty, width, (height, width), (depth, height, width)
      * @param normalizedShape dimensions to calculate average and variance from
-     * @param gamma gamma weight {@code NDArray}
-     * @param beta beta weight {@code NDArray}
-     * @param eps a value added to the denominator for numerical stability
+     * @param gamma           gamma weight {@code NDArray}
+     * @param beta            beta weight {@code NDArray}
+     * @param eps             a value added to the denominator for numerical stability
      * @return the output {@code NDArray} of shape (batchSize, inputChannel, *), * could be empty,
-     *     width, (height, width), (depth, height, width)
+     * width, (height, width), (depth, height, width)
      */
     public static NDList layerNorm(
-            NDArray input, Shape normalizedShape, NDArray gamma, NDArray beta, float eps) {
+        NDArray input, Shape normalizedShape, NDArray gamma, NDArray beta, float eps) {
         NDArrayEx ex = input.getNDArrayInternal();
         return ex.layerNorm(input, normalizedShape, gamma, beta, eps);
     }
@@ -105,13 +106,15 @@ public class LayerNorm extends AbstractBlock {
         return new Builder();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected NDList forwardInternal(
-            ParameterStore parameterStore,
-            NDList inputs,
-            boolean training,
-            PairList<String, Object> params) {
+        ParameterStore parameterStore,
+        NDList inputs,
+        boolean training,
+        PairList<String, Object> params) {
         NDArray input = inputs.singletonOrThrow();
         Device device = input.getDevice();
         NDArray gammaArr = parameterStore.getValue(gamma, device, training);
@@ -120,43 +123,53 @@ public class LayerNorm extends AbstractBlock {
         return layerNorm(input, normalizedShape, gammaArr, betaArr, epsilon);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        return new Shape[] {inputShapes[0]};
+        return new Shape[]{inputShapes[0]};
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void beforeInitialize(Shape... inputShapes) {
         super.beforeInitialize(inputShapes);
         normalizedShape =
-                axis == null
-                        ? inputShapes[0].slice(1)
-                        : new Shape(
-                        Arrays.stream(axis)
-                                .mapToLong(dim -> inputShapes[0].get(dim))
-                                .toArray());
+            axis == null
+                ? inputShapes[0].slice(1)
+                : new Shape(
+                Arrays.stream(axis)
+                    .mapToLong(dim -> inputShapes[0].get(dim))
+                    .toArray());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void prepare(Shape[] inputShapes) {
         gamma.setShape(normalizedShape);
         beta.setShape(normalizedShape);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void saveMetadata(DataOutputStream os) throws IOException {
         saveInputShapes(os);
         os.write(normalizedShape.getEncoded());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadMetadata(byte loadVersion, DataInputStream is)
-            throws IOException, MalformedModelException {
+        throws IOException, MalformedModelException {
         if (loadVersion != version) {
             throw new MalformedModelException("Unsupported encoding version: " + loadVersion);
         }
@@ -164,7 +177,9 @@ public class LayerNorm extends AbstractBlock {
         normalizedShape = Shape.decode(is);
     }
 
-    /** The Builder to construct a {@link LayerNorm}. */
+    /**
+     * The Builder to construct a {@link LayerNorm}.
+     */
     public static final class Builder {
 
         private float epsilon = 1E-5f;
@@ -173,14 +188,15 @@ public class LayerNorm extends AbstractBlock {
         private boolean center = true;
         private int[] axis;
 
-        Builder() {}
+        Builder() {
+        }
 
         /**
          * List the axis over which the mean and variance will be calculated (alternative to
          * normalizedShape).
          *
          * @param axis input axis over which the mean and variance will be calculated (if null all
-         *     existing dimensions)
+         *             existing dimensions)
          * @return this Builder
          */
         public Builder axis(int... axis) {

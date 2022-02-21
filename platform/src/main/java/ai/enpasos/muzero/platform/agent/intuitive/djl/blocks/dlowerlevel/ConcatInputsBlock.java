@@ -33,17 +33,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static ai.enpasos.mnist.blocks.OnnxBlock.*;
+import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
+import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
 public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
 
-    public  ConcatInputsBlock() {
+    public ConcatInputsBlock() {
         super(MYVERSION);
     }
-
 
 
     /**
@@ -51,18 +51,18 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
      */
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-         return new NDList(NDArrays.concat(inputs, 1));
+        return new NDList(NDArrays.concat(inputs, 1));
     }
 
 
-        @Override
+    @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-            long size = 0;
-            for(int i = 0; i < inputShapes.length; i++) {
-                size += inputShapes[i].get(1);
-            }
-            Shape[] shapes = new Shape[1];
-            shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));
+        long size = 0;
+        for (int i = 0; i < inputShapes.length; i++) {
+            size += inputShapes[i].get(1);
+        }
+        Shape[] shapes = new Shape[1];
+        shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));
 
         return shapes;
 

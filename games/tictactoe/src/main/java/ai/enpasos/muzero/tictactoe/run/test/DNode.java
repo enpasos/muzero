@@ -22,8 +22,8 @@ import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.MCTS;
-import ai.enpasos.muzero.platform.agent.rational.MinMaxStats;
 import ai.enpasos.muzero.platform.agent.rational.Node;
+import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -157,31 +157,25 @@ public class DNode {
 
     // add AI Decisions on all descendant nodes
     // where 'player' is to play
-    public void addAIDecisions(@NotNull Network network, OneOfTwoPlayer player, boolean withMCTS, MCTS mcts) {
+    public void addAIDecisions(@NotNull Network network, OneOfTwoPlayer player, boolean withMCTS, SelfPlay selfPlay) {
         if (this.game.toPlay() != player) {   // jump over other players nodes down the tree
             for (DNode node : this.children) {
-                node.addAIDecisions(network, player, withMCTS, mcts);
+                node.addAIDecisions(network, player, withMCTS, selfPlay);
             }
         } else if (!this.children.isEmpty()) {
-            this.aiChosenChild = aiDecision(network, withMCTS, mcts);
-            Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS, mcts);
+            this.aiChosenChild = aiDecision(network, withMCTS, selfPlay);
+            Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS, selfPlay);
         }
     }
 
-    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS, MCTS mcts) {
+    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS, SelfPlay selfPlay) {
         NetworkIO networkOutput = network.initialInferenceDirect(game);
         aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         List<Action> legalActions = game.legalActions();
         if (withMCTS) {
-            Node root = new Node(network.getConfig(), 0);
-
-
-            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
-
-            MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
-
-            Action action = mcts.selectActionByMax(root, minMaxStats);
+            selfPlay.playOneActionFromCurrentState(network, game);
+            Action action = game.actionHistory().lastAction();
             actionIndexSelectedByNetwork = action.getIndex();
         } else {
             float maxValue = 0f;
@@ -240,8 +234,8 @@ public class DNode {
         return n.game.equals(n.getGame());
     }
 
-    public boolean isBadDecision(@NotNull Network network, boolean withMCTS, MCTS mcts) {
-        this.aiChosenChild = aiDecision(network, withMCTS, mcts);
+    public boolean isBadDecision(@NotNull Network network, boolean withMCTS, SelfPlay selfPlay) {
+        this.aiChosenChild = aiDecision(network, withMCTS, selfPlay);
         int chosenValue = -1 * Objects.requireNonNull(this.aiChosenChild).perfectValue;
         return chosenValue != perfectValue;
     }
@@ -256,13 +250,13 @@ public class DNode {
             if (this.game.toPlay() == player) {
                 // the player decides
                 this.setBestForceableValue(player, this.children.stream().
-                        max(Comparator.comparing(n -> n.getBestForceableValue(player)))
-                        .orElseThrow(MuZeroException::new).getBestForceableValue(player));
+                    max(Comparator.comparing(n -> n.getBestForceableValue(player)))
+                    .orElseThrow(MuZeroException::new).getBestForceableValue(player));
             } else {
                 // the opponent decides
                 this.setBestForceableValue(player, this.children.stream().
-                        min(Comparator.comparing(n -> n.getBestForceableValue(player)))
-                        .orElseThrow(MuZeroException::new).getBestForceableValue(player));
+                    min(Comparator.comparing(n -> n.getBestForceableValue(player)))
+                    .orElseThrow(MuZeroException::new).getBestForceableValue(player));
             }
         }
     }

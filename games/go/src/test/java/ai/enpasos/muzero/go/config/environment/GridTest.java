@@ -48,35 +48,35 @@ class GridTest {
 
         var black2String = simpleBlackString();
         var white6String = GoString.builder()
-                .player(WHITE_PLAYER)
-                .stones(new TreeSet<>(List.of(
-                        new Point(1, 1),
-                        new Point(1, 2),
-                        new Point(1, 3),
-                        new Point(2, 1),
-                        new Point(2, 4)
-                )))
-                .liberties(new TreeSet<>(List.of(
-                        new Point(2, 2),
-                        new Point(2, 3),
-                        new Point(2, 5),
-                        new Point(1, 5),
-                        new Point(3, 1),
-                        new Point(3, 4)
-                )))
-                .build();
+            .player(WHITE_PLAYER)
+            .stones(new TreeSet<>(List.of(
+                new Point(1, 1),
+                new Point(1, 2),
+                new Point(1, 3),
+                new Point(2, 1),
+                new Point(2, 4)
+            )))
+            .liberties(new TreeSet<>(List.of(
+                new Point(2, 2),
+                new Point(2, 3),
+                new Point(2, 5),
+                new Point(1, 5),
+                new Point(3, 1),
+                new Point(3, 4)
+            )))
+            .build();
 
         var white2String = GoString.builder()
-                .player(WHITE_PLAYER)
-                .stones(new TreeSet<>(List.of(
-                        new Point(3, 2),
-                        new Point(3, 3)
-                )))
-                .liberties(new TreeSet<>(List.of(
-                        new Point(4, 2),
-                        new Point(4, 3)
-                )))
-                .build();
+            .player(WHITE_PLAYER)
+            .stones(new TreeSet<>(List.of(
+                new Point(3, 2),
+                new Point(3, 3)
+            )))
+            .liberties(new TreeSet<>(List.of(
+                new Point(4, 2),
+                new Point(4, 3)
+            )))
+            .build();
 
         var mygrid = grid.updateStringWhenAddingStone(new Point(1, 2), white6String);
 
@@ -116,33 +116,33 @@ class GridTest {
 
     private GoString simpleBlackString() {
         return GoString.builder()
-                .player(BLACK_PLAYER)
-                .stones(new TreeSet<>(List.of(
-                        new Point(2, 2),
-                        new Point(2, 3)
-                )))
-                .liberties(new TreeSet<>(List.of(
-                        new Point(3, 2),
-                        new Point(3, 3)
-                )))
-                .build();
+            .player(BLACK_PLAYER)
+            .stones(new TreeSet<>(List.of(
+                new Point(2, 2),
+                new Point(2, 3)
+            )))
+            .liberties(new TreeSet<>(List.of(
+                new Point(3, 2),
+                new Point(3, 3)
+            )))
+            .build();
     }
 
     private GoString mediumWhiteString() {
         return GoString.builder()
-                .player(WHITE_PLAYER)
-                .stones(new TreeSet<>(List.of(
-                        new Point(1, 2),
-                        new Point(2, 2),
-                        new Point(3, 3),
-                        new Point(2, 3)
-                )))
-                .liberties(new TreeSet<>(List.of(
-                        new Point(1, 3),
-                        new Point(2, 4),
-                        new Point(4, 3)
-                )))
-                .build();
+            .player(WHITE_PLAYER)
+            .stones(new TreeSet<>(List.of(
+                new Point(1, 2),
+                new Point(2, 2),
+                new Point(3, 3),
+                new Point(2, 3)
+            )))
+            .liberties(new TreeSet<>(List.of(
+                new Point(1, 3),
+                new Point(2, 4),
+                new Point(4, 3)
+            )))
+            .build();
     }
 
     private Grid createGridWithStringAt22() {

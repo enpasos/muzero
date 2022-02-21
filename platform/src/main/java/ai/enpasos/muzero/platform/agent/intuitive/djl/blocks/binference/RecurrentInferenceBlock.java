@@ -37,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
@@ -47,19 +46,19 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     private final DynamicsBlock g;
     private final PredictionBlock f;
 
-    public DynamicsBlock getG() {
-        return g;
-    }
-    public PredictionBlock getF() {
-        return f;
-    }
-
     public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
         super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
         f = this.addChildBlock("Prediction", predictionBlock);
     }
 
+    public DynamicsBlock getG() {
+        return g;
+    }
+
+    public PredictionBlock getF() {
+        return f;
+    }
 
     /**
      * @param inputs First input for state, second for action
@@ -72,9 +71,7 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     }
 
 
-
-
-        @Override
+    @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
         Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
@@ -109,16 +106,16 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         int concatDim = 1;
         Shape stateShape = input.get(0).getShape();
         Shape actionShape = input.get(1).getShape();
-        Shape[] inputShapes = new Shape[] {stateShape, actionShape};
-     //   Shape hConcatOutputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
+        Shape[] inputShapes = new Shape[]{stateShape, actionShape};
+        //   Shape hConcatOutputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
         Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
 
-      //  List<OnnxTensor> hInput = combine(List.of("T" + counter.count()), Arrays.asList(inputShapes));
+        //  List<OnnxTensor> hInput = combine(List.of("T" + counter.count()), Arrays.asList(inputShapes));
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
-           // .valueInfos(createValueInfoProto(input))
+            // .valueInfos(createValueInfoProto(input))
 
             .build();
 
@@ -144,7 +141,7 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
-      //  onnxBlock.getValueInfos().addAll(createValueInfoProto(hInput));
+        //  onnxBlock.getValueInfos().addAll(createValueInfoProto(hInput));
 
         List<OnnxTensor> totalOutput = new ArrayList<>();
         totalOutput.addAll(gOutput);

@@ -104,12 +104,13 @@ public class MuZeroConfig {
     public double getKomi() {
         return getConf().komi;
     }
-    public double getMaxKomi() {
-        return getConf().maxKomi;
-    }
 
     public void setKomi(double komi) {
         getConf().setKomi(komi);
+    }
+
+    public double getMaxKomi() {
+        return getConf().maxKomi;
     }
 
     public String getModelName() {
@@ -180,6 +181,7 @@ public class MuZeroConfig {
     public int getWindowValueSelfconsistencySize() {
         return getConf().windowValueSelfconsistencySize;
     }
+
     public int getWindowSize() {
         return getConf().windowSize;
     }
@@ -200,7 +202,9 @@ public class MuZeroConfig {
         return getConf().discount;
     }
 
-    public int getSqueezeChannelRatio() { return getConf().squeezeChannelRatio; }
+    public int getSqueezeChannelRatio() {
+        return getConf().squeezeChannelRatio;
+    }
 
     public float getWeightDecay() {
         return getConf().weightDecay;
@@ -282,6 +286,10 @@ public class MuZeroConfig {
         return getConf().numEpisodes;
     }
 
+    public int getInitialGumbelM() {
+        return getConf().initialGumbelM;
+    }
+
     public int getNumSimulations() {
         return getConf().numSimulations;
     }
@@ -293,6 +301,16 @@ public class MuZeroConfig {
     public int getNumParallelGamesPlayed() {
         return getConf().numParallelGamesPlayed;
     }
+
+
+    public int getCVisit() {
+        return getConf().cVisit;
+    }
+
+    public double getCScale() {
+        return getConf().cScale;
+    }
+
 
     public int getVisitSoftmaxTemperatureThreshold() {
         return getConf().visitSoftmaxTemperatureThreshold;
@@ -354,6 +372,9 @@ public class MuZeroConfig {
         protected int numParallelGamesPlayed;
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
         int visitSoftmaxTemperatureThreshold;
+        int initialGumbelM;
+        int cVisit;
+        double cScale;
     }
 
 }

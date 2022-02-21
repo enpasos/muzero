@@ -56,14 +56,11 @@ public class ValueSelfconsistency {
     @Autowired
     ReplayBuffer replayBuffer;
 
-
     @Autowired
     SelfPlay selfPlay;
 
-
     @Autowired
     Inference inference;
-
 
     @SuppressWarnings("squid:S3740")
     public void run(boolean debug) {
@@ -85,7 +82,7 @@ public class ValueSelfconsistency {
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
-            for(List<Game> gameList : gameBatches) {
+            for (List<Game> gameList : gameBatches) {
                 resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, replayBuffer.getBuffer().getGames()));
             }
         }
@@ -105,12 +102,12 @@ public class ValueSelfconsistency {
         // TODO debug output
 
         if (debug) {
-            Game game = games.get(games.size()-1);
+            Game game = games.get(games.size() - 1);
             List<Pair> pairs = new ArrayList<>();
-            for(int i = 0; i < game.getGameDTO().getRootValuesFromInitialInference().size(); i++) {
+            for (int i = 0; i < game.getGameDTO().getRootValuesFromInitialInference().size(); i++) {
                 float v1 = game.getOriginalGameDTO().getRootValuesFromInitialInference().get(i);
                 float v2 = game.getGameDTO().getRootValuesFromInitialInference().get(i);
-                System.out.println(i + "; " + NumberFormat.getNumberInstance().format(v1)+ "; " + NumberFormat.getNumberInstance().format(v2)+ "; ");
+                System.out.println(i + "; " + NumberFormat.getNumberInstance().format(v1) + "; " + NumberFormat.getNumberInstance().format(v2) + "; ");
             }
         }
 
@@ -124,15 +121,12 @@ public class ValueSelfconsistency {
         );
 
 
-      //  replayBuffer.rebuildGames();
-
-
+        //  replayBuffer.rebuildGames();
 
 
 //        IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
 //            .mapToObj(i -> config.newGame())
 //            .collect(Collectors.toList());
-
 
 
 //        for (int i = 0; i < replayBuffer.getBuffer().getGames().size() ; i = i + config.getNumParallelGamesPlayed()) {

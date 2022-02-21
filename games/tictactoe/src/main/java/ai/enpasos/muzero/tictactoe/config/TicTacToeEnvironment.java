@@ -106,9 +106,9 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     public boolean checkIfPlayerHasWon(@NotNull OneOfTwoPlayer player, int[][] b) {
         int p = player.getValue();
         return horizontalCheck(b, p)
-                || verticalCheck(b, p)
-                || diagonalCheck(b, p)
-                || reverseDiagonalCheck(b, p);
+            || verticalCheck(b, p)
+            || diagonalCheck(b, p)
+            || reverseDiagonalCheck(b, p);
     }
 
     private boolean foundThreeStonesOnALine(int[][] b, int p, int y, int x, int signY, int signX) {

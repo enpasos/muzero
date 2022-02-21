@@ -51,7 +51,7 @@ public class Board {
         List<Jump> legalJumps = new ArrayList<>();
 
         holesOnTheBoard.forEach(
-                p1 -> addDirectLegalJumpsForAHole(p1, legalJumps)
+            p1 -> addDirectLegalJumpsForAHole(p1, legalJumps)
         );
 
         return legalJumps;
@@ -59,16 +59,16 @@ public class Board {
 
     private void addDirectLegalJumpsForAHole(Point hole, List<Jump> legalJumps) {
         Arrays.stream(Direction.values()).forEach(
-                direction -> {
-                    Point p2 = hole.pointIn(direction);
-                    Point p3 = p2.pointIn(direction);
-                    if (!inRange(p2) || !inRange(p3)) return;
+            direction -> {
+                Point p2 = hole.pointIn(direction);
+                Point p3 = p2.pointIn(direction);
+                if (!inRange(p2) || !inRange(p3)) return;
 
-                    if (!pegsOnTheBoard.contains(p2) || holesOnTheBoard.contains(p3)) return;
+                if (!pegsOnTheBoard.contains(p2) || holesOnTheBoard.contains(p3)) return;
 
-                    Jump jump = new Jump(p3, direction.reverse());
-                    legalJumps.add(jump);
-                }
+                Jump jump = new Jump(p3, direction.reverse());
+                legalJumps.add(jump);
+            }
         );
     }
 
@@ -135,21 +135,21 @@ public class Board {
 
     private boolean impossibleToReachSituation() {
         return !isThereAtLeastOnePegInCenterGroup()
-                || !conditionA()
-                || !conditionB()
-                || !conditionC()
-                || !conditionD()
-                || !conditionE()
-                || !conditionF();
+            || !conditionA()
+            || !conditionB()
+            || !conditionC()
+            || !conditionD()
+            || !conditionE()
+            || !conditionF();
     }
 
     private Set<Point> centerGroup() {
         return Set.of(
-                new Point(2, 4),
-                new Point(4, 2),
-                new Point(4, 4),
-                new Point(4, 6),
-                new Point(6, 4));
+            new Point(2, 4),
+            new Point(4, 2),
+            new Point(4, 4),
+            new Point(4, 6),
+            new Point(6, 4));
     }
 
     public boolean isThereAtLeastOnePegInCenterGroup() {
@@ -213,99 +213,99 @@ public class Board {
 
     private Set<Point> groupA() {
         return Set.of(
-                new Point(1, 3),
-                new Point(1, 5),
-                new Point(3, 1),
-                new Point(3, 3),
-                new Point(3, 5),
-                new Point(3, 7),
-                new Point(5, 1),
-                new Point(5, 3),
-                new Point(5, 5),
-                new Point(5, 7),
-                new Point(7, 3),
-                new Point(7, 5));
+            new Point(1, 3),
+            new Point(1, 5),
+            new Point(3, 1),
+            new Point(3, 3),
+            new Point(3, 5),
+            new Point(3, 7),
+            new Point(5, 1),
+            new Point(5, 3),
+            new Point(5, 5),
+            new Point(5, 7),
+            new Point(7, 3),
+            new Point(7, 5));
     }
 
     private Set<Point> circleA() {
         return Set.of(
-                new Point(3, 1),
-                new Point(3, 7),
-                new Point(5, 1),
-                new Point(5, 7));
+            new Point(3, 1),
+            new Point(3, 7),
+            new Point(5, 1),
+            new Point(5, 7));
     }
 
     private Set<Point> circleB() {
         return Set.of(
-                new Point(1, 3),
-                new Point(1, 5),
-                new Point(7, 3),
-                new Point(7, 5));
+            new Point(1, 3),
+            new Point(1, 5),
+            new Point(7, 3),
+            new Point(7, 5));
     }
 
     private Set<Point> circleC() {
         return Set.of(
-                new Point(1, 4),
-                new Point(4, 1),
-                new Point(4, 7),
-                new Point(7, 4));
+            new Point(1, 4),
+            new Point(4, 1),
+            new Point(4, 7),
+            new Point(7, 4));
     }
 
     private Set<Point> circleD() {
         return Set.of(
-                new Point(2, 3),
-                new Point(2, 5),
-                new Point(3, 2),
-                new Point(3, 4),
-                new Point(5, 2),
-                new Point(5, 4),
-                new Point(6, 3),
-                new Point(6, 5));
+            new Point(2, 3),
+            new Point(2, 5),
+            new Point(3, 2),
+            new Point(3, 4),
+            new Point(5, 2),
+            new Point(5, 4),
+            new Point(6, 3),
+            new Point(6, 5));
     }
 
     private Set<Point> circleE() {
         return Set.of(
-                new Point(2, 4),
-                new Point(6, 4));
+            new Point(2, 4),
+            new Point(6, 4));
     }
 
     private Set<Point> circleF() {
         return Set.of(
-                new Point(4, 2),
-                new Point(4, 6));
+            new Point(4, 2),
+            new Point(4, 6));
     }
 
     private Set<Point> groupB() {
         return Set.of(
-                new Point(1, 4),
-                new Point(3, 2),
-                new Point(3, 4),
-                new Point(3, 6),
-                new Point(5, 2),
-                new Point(5, 4),
-                new Point(5, 6),
-                new Point(7, 4));
+            new Point(1, 4),
+            new Point(3, 2),
+            new Point(3, 4),
+            new Point(3, 6),
+            new Point(5, 2),
+            new Point(5, 4),
+            new Point(5, 6),
+            new Point(7, 4));
     }
 
     private Set<Point> groupC() {
         return Set.of(
-                new Point(2, 3),
-                new Point(2, 5),
-                new Point(4, 1),
-                new Point(4, 3),
-                new Point(4, 5),
-                new Point(4, 7),
-                new Point(6, 3),
-                new Point(6, 5));
+            new Point(2, 3),
+            new Point(2, 5),
+            new Point(4, 1),
+            new Point(4, 3),
+            new Point(4, 5),
+            new Point(4, 7),
+            new Point(6, 3),
+            new Point(6, 5));
     }
 
     private Set<Point> groupD() {
         return Set.of(
-                new Point(2, 4),
-                new Point(4, 2),
-                new Point(4, 4),
-                new Point(4, 6),
-                new Point(6, 4));
+            new Point(2, 4),
+            new Point(4, 2),
+            new Point(4, 4),
+            new Point(4, 6),
+            new Point(6, 4));
     }
 
 

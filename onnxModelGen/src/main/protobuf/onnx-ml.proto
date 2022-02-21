@@ -421,7 +421,7 @@ message ModelProto {
 // See https://developers.google.com/protocol-buffers/docs/proto3#maps
 message StringStringEntryProto {
   string key = 1;
-  string value= 2;
+  string value = 2;
 };
 
 message TensorAnnotation {
@@ -779,8 +779,8 @@ message OperatorSetIdProto {
 
 // Operator/function status.
 enum OperatorStatus {
-    EXPERIMENTAL = 0;
-    STABLE = 1;
+  EXPERIMENTAL = 0;
+  STABLE = 1;
 }
 
 message FunctionProto {

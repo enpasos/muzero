@@ -80,10 +80,10 @@ public class ReplayBufferDTO {
 
     public ReplayBufferProto proto() {
         ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
-                .setVersion(1)
-                .setCounter((int) getCounter())
-                .setWindowSize(getWindowSize())
-                .setGameClassName(getGameClassName());
+            .setVersion(1)
+            .setCounter((int) getCounter())
+            .setWindowSize(getWindowSize())
+            .setGameClassName(getGameClassName());
 
         getData().stream().forEach(gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
 

@@ -24,6 +24,7 @@ import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.ActionHistory;
 import ai.enpasos.muzero.platform.agent.rational.Node;
 import ai.enpasos.muzero.platform.agent.rational.Player;
+import ai.enpasos.muzero.platform.agent.rational.gumbel.SearchManager;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -53,25 +54,22 @@ public abstract class Game {
     protected int actionSpaceSize;
     protected double discount;
     protected Environment environment;
-    private Random r;
-
-    private double[] surprises;
+    //protected List<Float> valuesFromCurrentInitialInference;
+    protected GameDTO originalGameDTO;
     double[] values;
     double[] entropies;
     boolean done;
     int tSurprise;
     int tTrainingStart;
-
+    SearchManager searchManager;
+    private Random r;
+    private double[] surprises;
     private float error;
-
-
-    //protected List<Float> valuesFromCurrentInitialInference;
-    protected GameDTO originalGameDTO;
-
+    private boolean debug;
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
-    //    valuesFromCurrentInitialInference = new ArrayList<>();
+        //    valuesFromCurrentInitialInference = new ArrayList<>();
         this.gameDTO = new GameDTO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
@@ -80,7 +78,7 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
-     //   valuesFromCurrentInitialInference = new ArrayList<>();
+        //   valuesFromCurrentInitialInference = new ArrayList<>();
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
@@ -102,7 +100,7 @@ public abstract class Game {
         this.error = 0;
         for (int i = 0; i < this.originalGameDTO.getRootValuesFromInitialInference().size(); i++) {
             double d = this.originalGameDTO.getRootValuesFromInitialInference().get(i)
-                     - this.getGameDTO().getRootValuesFromInitialInference().get(i);
+                - this.getGameDTO().getRootValuesFromInitialInference().get(i);
             this.error += d * d;
         }
         return this.error;
@@ -119,7 +117,6 @@ public abstract class Game {
         return copy;
     }
 
-
     public @Nullable Float getLastReward() {
         if (getGameDTO().getRewards().size() == 0) return null;
         return getGameDTO().getRewards().get(getGameDTO().getRewards().size() - 1);
@@ -129,12 +126,11 @@ public abstract class Game {
 
     public abstract List<Action> legalActions();
 
-
     public abstract List<Action> allActionsInActionSpace();
 
     public void apply(int @NotNull ... actionIndex) {
         Arrays.stream(actionIndex).forEach(
-                i -> apply(config.newAction(i))
+            i -> apply(config.newAction(i))
         );
     }
 
@@ -144,7 +140,6 @@ public abstract class Game {
         this.getGameDTO().getRewards().add(reward);
         this.getGameDTO().getActions().add(action.getIndex());
     }
-
 
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps) {
         List<Target> targets = new ArrayList<>();
@@ -167,11 +162,11 @@ public abstract class Game {
 
         float lastReward = getLastReward(currentIndex);
 
-        if (currentIndex < this.getGameDTO().getRootValues().size()) {
+        if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
             target.setValue((float) value);
             target.setReward(lastReward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getRootValues().size()) {
+        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
             // if we were running the network with reward head
@@ -192,6 +187,7 @@ public abstract class Game {
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         }
+
     }
 
     private float getLastReward(int currentIndex) {
@@ -244,17 +240,13 @@ public abstract class Game {
         return perspective;
     }
 
-
     public abstract Player toPlay();
-
 
     public @NotNull ActionHistory actionHistory() {
         return new ActionHistory(config, this.gameDTO.getActions(), actionSpaceSize);
     }
 
-
     public abstract String render();
-
 
     public abstract Observation getObservation(NDManager ndManager);
 
@@ -269,7 +261,6 @@ public abstract class Game {
         return actionList;
     }
 
-
     public boolean equals(Object other) {
         if (!(other instanceof Game)) return false;
         Game otherGame = (Game) other;
@@ -279,7 +270,6 @@ public abstract class Game {
     public int hashCode() {
         return this.getGameDTO().getActions().hashCode();
     }
-
 
     public abstract void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkIO, boolean b);
 
@@ -298,4 +288,8 @@ public abstract class Game {
     }
 
     public abstract void initEnvironment();
+
+    public void initSearchManager() {
+        searchManager = new SearchManager(config, this, debug);
+    }
 }

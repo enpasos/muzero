@@ -6,18 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 @Data
 @Builder
 public class TrainParams {
 
     @Builder.Default
-    BiConsumer<Integer, Model> afterTrainingHookIn = (epoch, model) -> {};
+    BiConsumer<Integer, Model> afterTrainingHookIn = (epoch, model) -> {
+    };
 
 
     @Builder.Default
-    BiConsumer<Integer, Network> afterSelfPlayHookIn = (epoch, network) -> {};
+    BiConsumer<Integer, Network> afterSelfPlayHookIn = (epoch, network) -> {
+    };
 
     @Builder.Default
     boolean freshBuffer = false;
@@ -30,12 +31,6 @@ public class TrainParams {
 
     @Builder.Default
     boolean randomFill = true;
-
-
-
-
-
-
 
 
 }

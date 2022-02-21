@@ -5,11 +5,11 @@ import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
+import ai.djl.nn.ParallelBlock;
 import ai.djl.util.Pair;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.djl.nn.ParallelBlock;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
@@ -18,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.mnist.blocks.OnnxBlock.*;
+import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
+import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 public class ParallelBlockWithConcatChannelJoinExt extends ParallelBlock implements OnnxIO {
@@ -63,11 +64,11 @@ public class ParallelBlockWithConcatChannelJoinExt extends ParallelBlock impleme
             output = combine(List.of("T" + counter.count()), List.of(
                 new Shape(inputShapeExample.get(0), size, inputShapeExample.get(2), inputShapeExample.get(3))
             ));
-    } else {
-        output = combine(List.of("T" + counter.count()), List.of(
-            new Shape(inputShapeExample.get(0), size)
-        ));
-    }
+        } else {
+            output = combine(List.of("T" + counter.count()), List.of(
+                new Shape(inputShapeExample.get(0), size)
+            ));
+        }
 
         OnnxBlock concatBlock = OnnxBlock.builder()
             .input(outputsToBeConcatenated)

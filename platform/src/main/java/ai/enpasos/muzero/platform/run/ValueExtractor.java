@@ -58,20 +58,20 @@ public class ValueExtractor {
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "vPlayerA", "actionIndex"))) {
             IntStream.range(0, actions.size() + 1).forEach(
-                    t -> {
-                        try {
-                            double valuePlayerA = inference.aiValue(actions.subList(0, t), config.getNetworkBaseDir());
-                            if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                                valuePlayerA *= Math.pow(-1, t);
-                            }
-                            csvPrinter.printRecord(t,
-                                    NumberFormat.getNumberInstance().format(valuePlayerA),
-                                    t == 0 ? -1 : actions.get(t - 1));
-
-                        } catch (Exception e) {
-                            // ignore
+                t -> {
+                    try {
+                        double valuePlayerA = inference.aiValue(actions.subList(0, t), config.getNetworkBaseDir());
+                        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                            valuePlayerA *= Math.pow(-1, t);
                         }
-                    });
+                        csvPrinter.printRecord(t,
+                            NumberFormat.getNumberInstance().format(valuePlayerA),
+                            t == 0 ? -1 : actions.get(t - 1));
+
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                });
 
         } catch (IOException e) {
             throw new MuZeroException(e);
@@ -86,9 +86,9 @@ public class ValueExtractor {
 
         replayBuffer.loadLatestState();
 
-     //   Game game = replayBuffer.getBuffer().getGames().get(1001);
+        //   Game game = replayBuffer.getBuffer().getGames().get(1001);
         Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
-      //  Game game = replayBuffer.getBuffer().getGames().get(1);
+        //  Game game = replayBuffer.getBuffer().getGames().get(1);
 
         List<Integer> actions = game.actionHistory().getActionIndexList();
         log.debug(actions.toString());

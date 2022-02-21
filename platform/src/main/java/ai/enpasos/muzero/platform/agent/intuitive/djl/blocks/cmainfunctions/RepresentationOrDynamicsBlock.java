@@ -43,22 +43,18 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
     public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int squeezeChannelRatio, int numHiddenStateChannels) {
 
 
+        this.add(Conv3x3LayerNormRelu.builder().channels(numChannels).build())
 
+            .add(ResidualTower.builder()
+                .numResiduals(numResiduals)
+                .numChannels(numChannels)
+                .squeezeChannelRatio(squeezeChannelRatio)
+                .build())
 
+            // compressing hidden state (not in muzero paper)
+            .add(Conv1x1LayerNormRelu.builder().channels(numHiddenStateChannels).build())
 
-
-            this.add(Conv3x3LayerNormRelu.builder().channels(numChannels).build())
-
-                .add(ResidualTower.builder()
-                        .numResiduals(numResiduals)
-                        .numChannels(numChannels)
-                        .squeezeChannelRatio(squeezeChannelRatio)
-                        .build())
-
-                // compressing hidden state (not in muzero paper)
-                .add(Conv1x1LayerNormRelu.builder().channels(numHiddenStateChannels).build())
-
-                .add(new RescaleBlockExt());
+            .add(new RescaleBlockExt());
 
     }
 

@@ -21,9 +21,8 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.*;
-import ai.djl.nn.convolutional.Conv2d;
-import ai.djl.nn.norm.LayerNorm;
+import ai.djl.nn.AbstractBlock;
+import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.*;
@@ -47,31 +46,31 @@ public class ResidualBlockV2 extends AbstractBlock implements OnnxIO {
         SequentialBlockExt identity;
 
         b1 = (SequentialBlockExt) new SequentialBlockExt()
-                .add(LayerNormExt.builder().build())
-                .add(ActivationExt.reluBlock())
-                .add(Conv2dExt.builder()
-                        .setFilters(numChannels)
-                        .setKernelShape(new Shape(3, 3))
-                        .optPadding(new Shape(1, 1))
-                        .optBias(false)
-                        .build())
-                .add(LayerNormExt.builder().build())
-                .add(ActivationExt.reluBlock())
-                .add(Conv2dExt.builder()
-                        .setFilters(numChannels)
-                        .setKernelShape(new Shape(3, 3))
-                        .optPadding(new Shape(1, 1))
-                        .optBias(false)
-                        .build())
-                .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+            .add(Conv2dExt.builder()
+                .setFilters(numChannels)
+                .setKernelShape(new Shape(3, 3))
+                .optPadding(new Shape(1, 1))
+                .optBias(false)
+                .build())
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+            .add(Conv2dExt.builder()
+                .setFilters(numChannels)
+                .setKernelShape(new Shape(3, 3))
+                .optPadding(new Shape(1, 1))
+                .optBias(false)
+                .build())
+            .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
         ;
 
         identity = (SequentialBlockExt) new SequentialBlockExt()
-                .add(BlocksExt.identityBlock());
+            .add(BlocksExt.identityBlock());
 
 
         block = addChildBlock("residualBlock", new ParallelBlockWithAddJoinExt(
-                Arrays.asList(b1, identity)));
+            Arrays.asList(b1, identity)));
     }
 
     @Override
@@ -105,6 +104,6 @@ public class ResidualBlockV2 extends AbstractBlock implements OnnxIO {
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-        return block.getOnnxBlock(counter,input);
+        return block.getOnnxBlock(counter, input);
     }
 }

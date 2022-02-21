@@ -34,7 +34,6 @@ import ai.enpasos.onnx.TensorProto;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
-import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 
@@ -71,7 +70,6 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
     }
 
 
-
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
@@ -85,8 +83,8 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
-            .output( blockDiv.getOutput())
-            .valueInfos(createValueInfoProto( blockDiv.getOutput()))
+            .output(blockDiv.getOutput())
+            .valueInfos(createValueInfoProto(blockDiv.getOutput()))
             .build();
 
         onnxBlock.addChild(blockReduceMin);
@@ -116,14 +114,15 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
                     .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("axes")
-                        .addAllInts(List.of(1L,2L,3L))
+                        .addAllInts(List.of(1L, 2L, 3L))
                         .build())
                     .addInput(input.get(0).getName())
                     .addOutput(output.get(0).getName())
                     .build())
             )
             .build();
-     }
+    }
+
     private OnnxBlock nodeReduceMax(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
@@ -139,7 +138,7 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
                     .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INTS)
                         .setName("axes")
-                        .addAllInts(List.of(1L,2L,3L))
+                        .addAllInts(List.of(1L, 2L, 3L))
                         .build())
                     .addInput(input.get(0).getName())
                     .addOutput(output.get(0).getName())
@@ -147,6 +146,7 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
             )
             .build();
     }
+
     private OnnxBlock nodeMax(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
@@ -196,6 +196,7 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
             .valueInfos(createValueInfoProto(output))
             .build();
     }
+
     private OnnxBlock nodeDiv(OnnxCounter counter, List<OnnxTensor> inputA, List<OnnxTensor> inputB) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),

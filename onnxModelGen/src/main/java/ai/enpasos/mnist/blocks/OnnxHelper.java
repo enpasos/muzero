@@ -24,33 +24,35 @@ public class OnnxHelper {
     public static List<Float> convert(NDArray ndArray) {
         float[] raw = ndArray.flatten().toFloatArray();
         return IntStream.range(0, raw.length)
-                .mapToObj(i -> raw[i])
-                .collect(Collectors.toList());
+            .mapToObj(i -> raw[i])
+            .collect(Collectors.toList());
     }
 
     public static List<Long> convert(long[] array) {
         return Arrays.asList(ArrayUtils.toObject(array));
     }
+
     public static List<Float> convert(float[] array) {
         return Arrays.asList(ArrayUtils.toObject(array));
     }
 
 
     public static List<ValueInfoProto> createValueInfoProto(List<OnnxTensor> output) {
-       return output.stream().map(t -> createValueInfoProto(t)).collect(Collectors.toList());
+        return output.stream().map(t -> createValueInfoProto(t)).collect(Collectors.toList());
 
     }
+
     public static ValueInfoProto createValueInfoProto(OnnxTensor output) {
         ValueInfoProto valueInfoProto = ValueInfoProto.newBuilder()
-                .setType(TypeProto.newBuilder()
-                        .setTensorType(TypeProto.Tensor.newBuilder()
-                                .setElemType(1) // float32
-                                .setShape(convert(output.getShape()))
+            .setType(TypeProto.newBuilder()
+                .setTensorType(TypeProto.Tensor.newBuilder()
+                    .setElemType(1) // float32
+                    .setShape(convert(output.getShape()))
 
-                                .build())
-                        .build())
-                .setName(output.getName())
-                .build();
+                    .build())
+                .build())
+            .setName(output.getName())
+            .build();
         return valueInfoProto;
     }
 }

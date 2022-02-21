@@ -44,14 +44,14 @@ public final class PoolExt {
      * @return the NDArray after applying max pooling
      */
     public static NDArray maxPool1d(
-            NDArray input, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        NDArray input, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for maxPool1d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 3,
-                "Expect input dimension is 3 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 3,
+            "Expect input dimension is 3 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 1 && stride.dimension() == 1 && padding.dimension() == 1,
-                "kernelShape, Stride and Padding dimensions for maxPool1d layer should be 1");
+            kernelShape.dimension() == 1 && stride.dimension() == 1 && padding.dimension() == 1,
+            "kernelShape, Stride and Padding dimensions for maxPool1d layer should be 1");
         return input.getNDArrayInternal().maxPool(kernelShape, stride, padding, ceilMode);
     }
 
@@ -67,14 +67,14 @@ public final class PoolExt {
      * @return the NDArray after applying max pooling
      */
     public static NDArray maxPool2d(
-            NDArray input, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        NDArray input, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for maxPool2d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 4,
-                "Expect input dimension is 4 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 4,
+            "Expect input dimension is 4 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 2 && stride.dimension() == 2 && padding.dimension() == 2,
-                "kernelShape, Stride and Padding dimensions for maxPool2d should be 2");
+            kernelShape.dimension() == 2 && stride.dimension() == 2 && padding.dimension() == 2,
+            "kernelShape, Stride and Padding dimensions for maxPool2d should be 2");
         return input.getNDArrayInternal().maxPool(kernelShape, stride, padding, ceilMode);
     }
 
@@ -90,14 +90,14 @@ public final class PoolExt {
      * @return the NDArray after applying max pooling
      */
     public static NDArray maxPool3d(
-            NDArray input, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        NDArray input, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for maxPool3d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 5,
-                "Expect input dimension is 5 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 5,
+            "Expect input dimension is 5 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 3 && stride.dimension() == 3 && padding.dimension() == 3,
-                "kernelShape, Stride and Pad dimensions for maxPool3d should be 3");
+            kernelShape.dimension() == 3 && stride.dimension() == 3 && padding.dimension() == 3,
+            "kernelShape, Stride and Pad dimensions for maxPool3d should be 3");
         return input.getNDArrayInternal().maxPool(kernelShape, stride, padding, ceilMode);
     }
 
@@ -109,8 +109,8 @@ public final class PoolExt {
      */
     public static NDArray globalMaxPool1d(NDArray input) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 3,
-                "Expect input dimension is 3 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 3,
+            "Expect input dimension is 3 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalMaxPool();
     }
 
@@ -122,8 +122,8 @@ public final class PoolExt {
      */
     public static NDArray globalMaxPool2d(NDArray input) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 4,
-                "Expect input dimension is 4 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 4,
+            "Expect input dimension is 4 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalMaxPool();
 //        NDArray intermediate = input.getNDArrayInternal().globalMaxPool();
 //        Shape newShape = intermediate.getShape().add(1, 1);  // to keep the dimensions
@@ -138,8 +138,8 @@ public final class PoolExt {
      */
     public static NDArray globalMaxPool3d(NDArray input) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 5,
-                "Expect input dimension is 5 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 5,
+            "Expect input dimension is 5 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalMaxPool();
     }
 
@@ -156,21 +156,21 @@ public final class PoolExt {
      * @return the NDArray after applying avg pooling
      */
     public static NDArray avgPool1d(
-            NDArray input,
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode,
-            boolean countIncludePad) {
+        NDArray input,
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode,
+        boolean countIncludePad) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for avgPool1d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 3,
-                "Expect input dimension is 3 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 3,
+            "Expect input dimension is 3 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 1 && stride.dimension() == 1 && padding.dimension() == 1,
-                "kernelShape, Stride and Padding dimensions for avgPool1d should be 1");
+            kernelShape.dimension() == 1 && stride.dimension() == 1 && padding.dimension() == 1,
+            "kernelShape, Stride and Padding dimensions for avgPool1d should be 1");
         return input.getNDArrayInternal()
-                .avgPool(kernelShape, stride, padding, ceilMode, countIncludePad);
+            .avgPool(kernelShape, stride, padding, ceilMode, countIncludePad);
     }
 
     /**
@@ -186,21 +186,21 @@ public final class PoolExt {
      * @return the NDArray after applying avg pooling
      */
     public static NDArray avgPool2d(
-            NDArray input,
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode,
-            boolean countIncludePad) {
+        NDArray input,
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode,
+        boolean countIncludePad) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for avgPool2d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 4,
-                "Expect input dimension is 4 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 4,
+            "Expect input dimension is 4 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 2 && stride.dimension() == 2 && padding.dimension() == 2,
-                "kernelShape, Stride and Padding dimensions for avgPool2d should be 2");
+            kernelShape.dimension() == 2 && stride.dimension() == 2 && padding.dimension() == 2,
+            "kernelShape, Stride and Padding dimensions for avgPool2d should be 2");
         return input.getNDArrayInternal()
-                .avgPool(kernelShape, stride, padding, ceilMode, countIncludePad);
+            .avgPool(kernelShape, stride, padding, ceilMode, countIncludePad);
     }
 
     /**
@@ -216,21 +216,21 @@ public final class PoolExt {
      * @return the NDArray after applying avg pooling
      */
     public static NDArray avgPool3d(
-            NDArray input,
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode,
-            boolean countIncludePad) {
+        NDArray input,
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode,
+        boolean countIncludePad) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for avgPool3d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 5,
-                "Expect input dimension is 5 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 5,
+            "Expect input dimension is 5 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 3 && stride.dimension() == 3 && padding.dimension() == 3,
-                "kernelShape, Stride and Padding dimensions for avgPool2d should be 3");
+            kernelShape.dimension() == 3 && stride.dimension() == 3 && padding.dimension() == 3,
+            "kernelShape, Stride and Padding dimensions for avgPool2d should be 3");
         return input.getNDArrayInternal()
-                .avgPool(kernelShape, stride, padding, ceilMode, countIncludePad);
+            .avgPool(kernelShape, stride, padding, ceilMode, countIncludePad);
     }
 
     /**
@@ -241,8 +241,8 @@ public final class PoolExt {
      */
     public static NDArray globalAvgPool1d(NDArray input) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 3,
-                "Expect input dimension is 3 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 3,
+            "Expect input dimension is 3 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalAvgPool();
     }
 
@@ -254,8 +254,8 @@ public final class PoolExt {
      */
     public static NDArray globalAvgPool2d(NDArray input) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 4,
-                "Expect input dimension is 4 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 4,
+            "Expect input dimension is 4 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalAvgPool();
 //        NDArray intermediate = input.getNDArrayInternal().globalAvgPool();
 //        Shape newShape = intermediate.getShape().add(1, 1);  // to keep the dimensions
@@ -270,8 +270,8 @@ public final class PoolExt {
      */
     public static NDArray globalAvgPool3d(NDArray input) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 5,
-                "Expect input dimension is 5 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 5,
+            "Expect input dimension is 5 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalAvgPool();
     }
 
@@ -288,19 +288,19 @@ public final class PoolExt {
      * @return the NDArray after applying lp pooling
      */
     public static NDArray lpPool1d(
-            NDArray input,
-            float normType,
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode) {
+        NDArray input,
+        float normType,
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for lpPool1d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 3,
-                "Expect input dimension is 3 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 3,
+            "Expect input dimension is 3 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 1 && stride.dimension() == 1 && padding.dimension() == 1,
-                "kernelShape, Stride and Padding dimensions for lpPool1d should be 1");
+            kernelShape.dimension() == 1 && stride.dimension() == 1 && padding.dimension() == 1,
+            "kernelShape, Stride and Padding dimensions for lpPool1d should be 1");
         return input.getNDArrayInternal().lpPool(normType, kernelShape, stride, padding, ceilMode);
     }
 
@@ -317,19 +317,19 @@ public final class PoolExt {
      * @return the NDArray after applying lp pooling
      */
     public static NDArray lpPool2d(
-            NDArray input,
-            float normType,
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode) {
+        NDArray input,
+        float normType,
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for lpPool2d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 4,
-                "Expect input dimension is 4 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 4,
+            "Expect input dimension is 4 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 2 && stride.dimension() == 2,
-                "kernelShape, Stride and Padding dimensions for lpPool2d should be 2");
+            kernelShape.dimension() == 2 && stride.dimension() == 2,
+            "kernelShape, Stride and Padding dimensions for lpPool2d should be 2");
         return input.getNDArrayInternal().lpPool(normType, kernelShape, stride, padding, ceilMode);
     }
 
@@ -346,19 +346,19 @@ public final class PoolExt {
      * @return the NDArray after applying lp pooling
      */
     public static NDArray lpPool3d(
-            NDArray input,
-            float normType,
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode) {
+        NDArray input,
+        float normType,
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode) {
         Objects.requireNonNull(kernelShape, "kernelShape cannot be null for lpPool3d");
         Preconditions.checkArgument(
-                input.getShape().dimension() == 5,
-                "Expect input dimension is 5 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 5,
+            "Expect input dimension is 5 but got " + input.getShape().dimension());
         Preconditions.checkArgument(
-                kernelShape.dimension() == 3 && stride.dimension() == 3 && padding.dimension() == 3,
-                "kernelShape, Stride and Padding dimensions for lpPool3d should be 1");
+            kernelShape.dimension() == 3 && stride.dimension() == 3 && padding.dimension() == 3,
+            "kernelShape, Stride and Padding dimensions for lpPool3d should be 1");
         return input.getNDArrayInternal().lpPool(normType, kernelShape, stride, padding, ceilMode);
     }
 
@@ -371,8 +371,8 @@ public final class PoolExt {
      */
     public static NDArray globalLpPool1d(NDArray input, float normType) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 3,
-                "Expect input dimension is 3 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 3,
+            "Expect input dimension is 3 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalLpPool(normType);
     }
 
@@ -385,8 +385,8 @@ public final class PoolExt {
      */
     public static NDArray globalLpPool2d(NDArray input, float normType) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 4,
-                "Expect input dimension is 4 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 4,
+            "Expect input dimension is 4 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalLpPool(normType);
     }
 
@@ -399,8 +399,8 @@ public final class PoolExt {
      */
     public static NDArray globalLpPool3d(NDArray input, float normType) {
         Preconditions.checkArgument(
-                input.getShape().dimension() == 5,
-                "Expect input dimension is 5 but got " + input.getShape().dimension());
+            input.getShape().dimension() == 5,
+            "Expect input dimension is 5 but got " + input.getShape().dimension());
         return input.getNDArrayInternal().globalLpPool(normType);
     }
 
@@ -417,9 +417,9 @@ public final class PoolExt {
      * Shape, boolean) maxPool1dBlock} activation function
      */
     public static Block maxPool1dBlock(
-            Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return LambdaBlockExt.singleton(MAX_POOLING,
-                array -> maxPool1d(array, kernelShape, stride, padding, ceilMode));
+            array -> maxPool1d(array, kernelShape, stride, padding, ceilMode));
     }
 
     /**
@@ -474,9 +474,9 @@ public final class PoolExt {
      * Shape, boolean) maxPool2dBlock} activation function
      */
     public static Block maxPool2dBlock(
-            Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return LambdaBlockExt.singleton(MAX_POOLING,
-                array -> maxPool2d(array, kernelShape, stride, padding, ceilMode));
+            array -> maxPool2d(array, kernelShape, stride, padding, ceilMode));
     }
 
     /**
@@ -531,9 +531,9 @@ public final class PoolExt {
      * Shape, boolean) maxPool3dBlock} activation function
      */
     public static Block maxPool3dBlock(
-            Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return LambdaBlockExt.singleton(MAX_POOLING,
-                array -> maxPool3d(array, kernelShape, stride, padding, ceilMode));
+            array -> maxPool3d(array, kernelShape, stride, padding, ceilMode));
     }
 
     /**
@@ -622,13 +622,13 @@ public final class PoolExt {
      * Shape, boolean, boolean) avgPool1dBlock} activation function
      */
     public static Block avgPool1dBlock(
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode,
-            boolean countIncludePad) {
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode,
+        boolean countIncludePad) {
         return LambdaBlockExt.singleton(MAX_POOLING,
-                array -> avgPool1d(array, kernelShape, stride, padding, ceilMode, countIncludePad));
+            array -> avgPool1d(array, kernelShape, stride, padding, ceilMode, countIncludePad));
     }
 
     /**
@@ -644,7 +644,7 @@ public final class PoolExt {
      * Shape, boolean, boolean) avgPool1dBlock } activation function
      */
     public static Block avgPool1dBlock(
-            Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return avgPool1dBlock(kernelShape, stride, padding, ceilMode, true);
     }
 
@@ -701,13 +701,13 @@ public final class PoolExt {
      * Shape, boolean, boolean) avgPool2dBlock} activation function
      */
     public static Block avgPool2dBlock(
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode,
-            boolean countIncludePad) {
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode,
+        boolean countIncludePad) {
         return LambdaBlockExt.singleton(MAX_POOLING,
-                array -> avgPool2d(array, kernelShape, stride, padding, ceilMode, countIncludePad));
+            array -> avgPool2d(array, kernelShape, stride, padding, ceilMode, countIncludePad));
     }
 
     /**
@@ -723,7 +723,7 @@ public final class PoolExt {
      * Shape, boolean, boolean) avgPool2dBlock} activation function
      */
     public static Block avgPool2dBlock(
-            Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return avgPool2dBlock(kernelShape, stride, padding, ceilMode, true);
     }
 
@@ -780,13 +780,13 @@ public final class PoolExt {
      * Shape, boolean, boolean) avgPool3dBlock} activation function
      */
     public static Block avgPool3dBlock(
-            Shape kernelShape,
-            Shape stride,
-            Shape padding,
-            boolean ceilMode,
-            boolean countIncludePad) {
+        Shape kernelShape,
+        Shape stride,
+        Shape padding,
+        boolean ceilMode,
+        boolean countIncludePad) {
         return LambdaBlockExt.singleton(MAX_POOLING,
-                array -> avgPool3d(array, kernelShape, stride, padding, ceilMode, countIncludePad));
+            array -> avgPool3d(array, kernelShape, stride, padding, ceilMode, countIncludePad));
     }
 
     /**
@@ -802,7 +802,7 @@ public final class PoolExt {
      * Shape, boolean, boolean) avgPool3dBlock} activation function
      */
     public static Block avgPool3dBlock(
-            Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return avgPool3dBlock(kernelShape, stride, padding, ceilMode, true);
     }
 
@@ -892,9 +892,9 @@ public final class PoolExt {
      * Shape, Shape, boolean) lpPool1dBlock} activation function
      */
     public static Block lpPool1dBlock(
-            float normType, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        float normType, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return LambdaBlockExt.singleton(NOT_IMPLEMENTED_YET,
-                array -> lpPool1d(array, normType, kernelShape, stride, padding, ceilMode));
+            array -> lpPool1d(array, normType, kernelShape, stride, padding, ceilMode));
     }
 
     /**
@@ -909,7 +909,7 @@ public final class PoolExt {
      * Shape, Shape, boolean) lpPool1dBlock} activation function
      */
     public static Block lpPool1dBlock(
-            float normType, Shape kernelShape, Shape stride, Shape padding) {
+        float normType, Shape kernelShape, Shape stride, Shape padding) {
         return lpPool1dBlock(normType, kernelShape, stride, padding, false);
     }
 
@@ -940,9 +940,9 @@ public final class PoolExt {
      * Shape, Shape, boolean) lpPool2dBlock} activation function
      */
     public static Block lpPool2dBlock(
-            float normType, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        float normType, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return LambdaBlockExt.singleton(NOT_IMPLEMENTED_YET,
-                array -> lpPool2d(array, normType, kernelShape, stride, padding, ceilMode));
+            array -> lpPool2d(array, normType, kernelShape, stride, padding, ceilMode));
     }
 
     /**
@@ -957,7 +957,7 @@ public final class PoolExt {
      * Shape, Shape, boolean) lpPool2dBlock} activation function
      */
     public static Block lpPool2dBlock(
-            float normType, Shape kernelShape, Shape stride, Shape padding) {
+        float normType, Shape kernelShape, Shape stride, Shape padding) {
         return lpPool2dBlock(normType, kernelShape, stride, padding, false);
     }
 
@@ -1002,9 +1002,9 @@ public final class PoolExt {
      * Shape, Shape, boolean) lpPool3dBlock} activation function
      */
     public static Block lpPool3dBlock(
-            float normType, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
+        float normType, Shape kernelShape, Shape stride, Shape padding, boolean ceilMode) {
         return LambdaBlockExt.singleton(NOT_IMPLEMENTED_YET,
-                array -> lpPool3d(array, normType, kernelShape, stride, padding, ceilMode));
+            array -> lpPool3d(array, normType, kernelShape, stride, padding, ceilMode));
     }
 
     /**
@@ -1019,7 +1019,7 @@ public final class PoolExt {
      * Shape, Shape, boolean) lpPool3dBlock} activation function
      */
     public static Block lpPool3dBlock(
-            float normType, Shape kernelShape, Shape stride, Shape padding) {
+        float normType, Shape kernelShape, Shape stride, Shape padding) {
         return lpPool3dBlock(normType, kernelShape, stride, padding, false);
     }
 

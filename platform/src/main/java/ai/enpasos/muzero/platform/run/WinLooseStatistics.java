@@ -50,15 +50,15 @@ public class WinLooseStatistics {
             replayBuffer.loadState(c);
 
             List<Optional<OneOfTwoPlayer>> winnerList = replayBuffer.getBuffer().getGames().stream()
-                    .map(g -> ((ZeroSumGame) g).whoWonTheGame())
-                    .collect(Collectors.toList());
+                .map(g -> ((ZeroSumGame) g).whoWonTheGame())
+                .collect(Collectors.toList());
 
             WinnerStatistics stats = WinnerStatistics.builder()
-                    .allGames(winnerList.size())
-                    .winPlayerACount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PLAYER_A).count())
-                    .winPlayerBCount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PLAYER_B).count())
-                    .drawCount(winnerList.stream().filter(Optional::isEmpty).count())
-                    .build();
+                .allGames(winnerList.size())
+                .winPlayerACount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PLAYER_A).count())
+                .winPlayerBCount(winnerList.stream().filter(o -> o.isPresent() && o.get() == OneOfTwoPlayer.PLAYER_B).count())
+                .drawCount(winnerList.stream().filter(Optional::isEmpty).count())
+                .build();
 
             log.info("A: " + stats.getWinPlayerACount() + ", B: " + stats.getWinPlayerBCount() + ", draw: " + stats.getDrawCount());
 

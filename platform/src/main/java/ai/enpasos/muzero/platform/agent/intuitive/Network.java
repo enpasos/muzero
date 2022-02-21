@@ -69,7 +69,7 @@ public class Network {
     private List<NDArray> actionSpaceOnDevice;
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
-        this(config, model,  modelPath,null);
+        this(config, model, modelPath, null);
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath, Map<String, ?> options) {
@@ -80,7 +80,7 @@ public class Network {
             MuZeroBlock block = new MuZeroBlock(config);
             model.setBlock(block);
             try {
-                model.load(modelPath,null, options);
+                model.load(modelPath, null, options);
             } catch (@NotNull IOException | MalformedModelException e) {
                 log.warn(e.getMessage());
             }
@@ -88,7 +88,7 @@ public class Network {
 
 
         String komiStrFromModel = model.getProperty("komi");
-        if(komiStrFromModel != null) {
+        if (komiStrFromModel != null) {
             log.info("komi = " + komiStrFromModel);
             this.config.setKomi(Double.parseDouble(komiStrFromModel));
         }

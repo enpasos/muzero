@@ -18,15 +18,15 @@ public class ActionAdapter {
         integerJumpMap = new HashMap<>();
         jumpIntegerMap = new HashMap<>();
         Arrays.stream(Direction.values()).forEach(
-                direction -> {
-                    for (int row = 1; row <= 7; row++) {
-                        for (int col = 1; col <= 7; col++) {
-                            Point p = new Point(row, col);
-                            Jump j = new Jump(p, direction);
-                            possibleJumps.add(j);
-                        }
+            direction -> {
+                for (int row = 1; row <= 7; row++) {
+                    for (int col = 1; col <= 7; col++) {
+                        Point p = new Point(row, col);
+                        Jump j = new Jump(p, direction);
+                        possibleJumps.add(j);
                     }
-                });
+                }
+            });
 
         int c = 0;
         for (Jump j : possibleJumps) {

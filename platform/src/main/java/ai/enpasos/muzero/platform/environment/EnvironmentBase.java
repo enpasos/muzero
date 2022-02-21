@@ -46,7 +46,8 @@ public class EnvironmentBase implements Environment {
 
     public static @NotNull String render(@NotNull MuZeroConfig config, String[][] values) {
 
-        String v = "\u2502";
+        String v = "|"; //"\u2502";
+
 
 
         boolean smallSpacing = values[0][0].length() <= 1;
@@ -56,7 +57,7 @@ public class EnvironmentBase implements Environment {
             sb.append(config.getBoardHeight() - j);
             sb.append(v);
             for (int i = 0; i < config.getBoardWidth(); i++) {
-                String value = values[j][i];
+                String value = values[config.getBoardHeight()-1-j][i];
                 if (" 0%".equals(value)) {
                     value = "   ";
                 }

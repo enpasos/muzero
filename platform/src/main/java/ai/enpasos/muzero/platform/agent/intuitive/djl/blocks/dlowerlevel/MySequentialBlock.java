@@ -18,7 +18,6 @@
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel;
 
 import ai.djl.nn.Block;
-import ai.djl.nn.SequentialBlock;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
 import org.jetbrains.annotations.NotNull;
 
