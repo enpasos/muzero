@@ -33,7 +33,7 @@ public class LinearExt extends LinearOpened implements OnnxIO {
      * @return a new builder
      */
     public static Builder builder() {
-        return new  Builder();
+        return new Builder();
     }
 
     @Override
@@ -113,12 +113,12 @@ public class LinearExt extends LinearOpened implements OnnxIO {
     }
 
     private OnnxBlock nodeW(OnnxCounter ctx, Shape outputShape) { //}, onnxBlock onnxBlock, String outputName, Shape shape) {
-        List<OnnxTensor> output =  combine(List.of("T" + ctx.count()), List.of(outputShape));
+        List<OnnxTensor> output = combine(List.of("T" + ctx.count()), List.of(outputShape));
 
         NDArray weight = this.parameters.get("weight").getArray().transpose();
 
-        String parameterName1 = "P"+ ctx.count();
-        String parameterName2 = "P"+ ctx.count();
+        String parameterName1 = "P" + ctx.count();
+        String parameterName2 = "P" + ctx.count();
 
         return OnnxBlock.builder()
             .output(output)
@@ -147,7 +147,7 @@ public class LinearExt extends LinearOpened implements OnnxIO {
                     .addAllDims(List.of(2L))
                     .addAllInt64Data(convert(outputShape.getShape()))
                     .build()
-                ))
+            ))
             .valueInfos(
                 createValueInfoProto(output)
             )
@@ -165,7 +165,7 @@ public class LinearExt extends LinearOpened implements OnnxIO {
             super();
         }
 
-         /**
+        /**
          * Returns the constructed {@code Linear}.
          *
          * @return the constructed {@code Linear}

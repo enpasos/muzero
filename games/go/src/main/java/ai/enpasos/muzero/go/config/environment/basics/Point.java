@@ -44,10 +44,10 @@ public class Point implements Comparable<Point> {
      */
     public List<Point> neighbors() {
         return List.of(
-                new Point(row - 1, col),
-                new Point(row + 1, col),
-                new Point(row, col - 1),
-                new Point(row, col + 1)
+            new Point(row - 1, col),
+            new Point(row + 1, col),
+            new Point(row, col - 1),
+            new Point(row, col + 1)
         );
     }
 
@@ -56,10 +56,10 @@ public class Point implements Comparable<Point> {
      */
     public List<Point> diagonals() {
         return List.of(
-                new Point(row - 1, col - 1),
-                new Point(row + 1, col + 1),
-                new Point(row - 1, col + 1),
-                new Point(row + 1, col - 1)
+            new Point(row - 1, col - 1),
+            new Point(row + 1, col + 1),
+            new Point(row - 1, col + 1),
+            new Point(row + 1, col - 1)
         );
     }
 

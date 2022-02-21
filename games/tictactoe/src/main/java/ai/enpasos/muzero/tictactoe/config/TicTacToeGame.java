@@ -114,12 +114,12 @@ public class TicTacToeGame extends ZeroSumGame {
         // workaround for
         //    NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
         float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];  // TODO check correct ordering
-        for(int i = 0;  i < data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
                 data[i][j] = currentPlayer.getActionValue();
             }
         }
-        NDArray boardColorToPlay = ndManager.create(data );
+        NDArray boardColorToPlay = ndManager.create(data);
 
         NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
 
@@ -152,24 +152,24 @@ public class TicTacToeGame extends ZeroSumGame {
             } else {
                 r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
             }
-            log.info("\nG A M E  O V E R");
+            log.debug("\nG A M E  O V E R");
         }
         return r;
     }
 
 
-    public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
+    public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] policyTargets) {
 
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
 
-        log.info("\nmcts suggestion:");
+        log.debug("\nmcts suggestion:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
-            values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
+            values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * policyTargets[i])) + "%";
         }
-        log.info(EnvironmentBase.render(config, values));
-        if (childVisits.length > boardSize) {
-            log.info(PASS + String.format("%2d", Math.round(100.0 * childVisits[boardSize])) + "%");
+        log.debug(EnvironmentBase.render(config, values));
+        if (policyTargets.length > boardSize) {
+            log.debug(PASS + String.format("%2d", Math.round(100.0 * policyTargets[boardSize])) + "%");
         }
     }
 
@@ -184,20 +184,20 @@ public class TicTacToeGame extends ZeroSumGame {
             double v = networkOutput.getValue();
             double p = (v + 1) / 2 * 100;
             int percent = (int) Math.round(p);
-            log.info("\nnetwork guess:");
+            log.debug("\nnetwork guess:");
             if (!gameOver) {
                 int boardSize = config.getBoardHeight() * config.getBoardWidth();
                 for (int i = 0; i < boardSize; i++) {
                     values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[i])) + "%";  // because softmax
                 }
-                log.info(EnvironmentBase.render(config, values));
+                log.debug(EnvironmentBase.render(config, values));
                 if (networkOutput.getPolicyValues().length > boardSize) {
-                    log.info(PASS + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
+                    log.debug(PASS + String.format("%2d", Math.round(100.0 * networkOutput.getPolicyValues()[boardSize])) + "%");
                 }
 
             }
             if (toPlay instanceof OneOfTwoPlayer)
-                log.info("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
+                log.debug("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
 
         }
     }
@@ -210,20 +210,21 @@ public class TicTacToeGame extends ZeroSumGame {
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
             float value = 0f;
-            if (node.getChildren().containsKey(a)) {
-                value = (float) node.getChildren().get(a).getPrior();
-            }
+            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().get().getPrior();
+//            if (node.getChildren().containsKey(a)) {
+//                value = (float) node.getChildren().get(a).getPrior();
+//            }
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)]
-                    = String.format("%2d", Math.round(100.0 * value)) + "%";
+                = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
         log.info(EnvironmentBase.render(config, values));
         if (boardSize < config.getActionSpaceSize()) {
             Action a = config.newAction(boardSize);
-            float value = 0f;
-            if (node.getChildren().containsKey(a)) {
-                value = (float) node.getChildren().get(a).getPrior();
-            }
+            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().get().getPrior();
+//            if (node.getChildren().containsKey(a)) {
+//                value = (float) node.getChildren().get(a).getPrior();
+//            }
             log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
         }
     }

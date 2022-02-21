@@ -19,17 +19,13 @@ import java.util.List;
 public class GoTrainingAndTest {
 
     @Autowired
-    private MuZeroConfig config;
-
-    @Autowired
     GoStartValueExtractor goStartValueExtractor;
-
-    @Autowired
-    private MuZero muZero;
-
     @Autowired
     ReplayBuffer replayBuffer;
-
+    @Autowired
+    private MuZeroConfig config;
+    @Autowired
+    private MuZero muZero;
     @Autowired
     private GoSurprise goSurprise;
 
@@ -46,9 +42,9 @@ public class GoTrainingAndTest {
     }
 
     private void adjustKomi(Integer epoch, Model model) {
-        if (epoch < 40 ) return;
+        if (epoch < 40) return;
         List<Pair<Integer, Double>> pairList = goStartValueExtractor.smoothing(goStartValueExtractor.valuesForTrainedNetworks(), 10);
-        Pair<Integer, Double> pair = pairList.get(pairList.size()-1);
+        Pair<Integer, Double> pair = pairList.get(pairList.size() - 1);
         double v = pair.getValue();
         double oldKomi = config.getKomi();
 //        String komiStrFromModel = model.getProperty("komi");
@@ -61,9 +57,9 @@ public class GoTrainingAndTest {
 //        }
         double newKomi = oldKomi;
         if (v > 0.1 && config.getKomi() < config.getMaxKomi()) {
-            newKomi +=   1d;
+            newKomi += 1d;
         } else if (v < -0.1) {
-            newKomi -=   1d;
+            newKomi -= 1d;
         }
         if (newKomi != oldKomi) {
             config.setKomi(newKomi);

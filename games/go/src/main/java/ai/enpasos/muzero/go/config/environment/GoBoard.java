@@ -165,29 +165,29 @@ public class GoBoard {
         if (neighborMap.get(point) != null) {
             for (Point neighbor : neighborMap.get(point)) {
                 grid.getString(neighbor).ifPresentOrElse(
-                        str -> {
-                            if (str.getPlayer() == player) {
-                                adjacentSameColor.add(str);
-                            } else {
-                                adjacentOppositeColor.add(str);
-                            }
-                        },
-                        () -> liberties.add(neighbor)
+                    str -> {
+                        if (str.getPlayer() == player) {
+                            adjacentSameColor.add(str);
+                        } else {
+                            adjacentOppositeColor.add(str);
+                        }
+                    },
+                    () -> liberties.add(neighbor)
                 );
             }
         }
 
         // 2. Merge any strings of the same color adjacent to the placed stone
         adjacentSameColor.add(
-                GoString.builder()
-                        .player(player)
-                        .stones(new TreeSet<>(List.of(point)))
-                        .liberties(liberties)
-                        .build());
+            GoString.builder()
+                .player(player)
+                .stones(new TreeSet<>(List.of(point)))
+                .liberties(liberties)
+                .build());
 
         GoString newString = adjacentSameColor.stream().reduce(
-                new GoString(player),
-                GoString::mergedWith);
+            new GoString(player),
+            GoString::mergedWith);
 
         var newGrid = grid.updateStringWhenAddingStone(point, newString);
 
@@ -231,12 +231,12 @@ public class GoBoard {
      */
     private int findNumNeighbors(Player player, Point point, NeighborMap nbrMap) {
         return (int) nbrMap.get(point).stream()
-                .filter(nbr -> {
-                    var str = grid.getString(nbr);
-                    return (str.isPresent() && str.get().getPlayer() == player)
-                            || (str.isEmpty() && isAncillaryEye(player, nbr));
-                })
-                .count();
+            .filter(nbr -> {
+                var str = grid.getString(nbr);
+                return (str.isPresent() && str.get().getPlayer() == player)
+                    || (str.isEmpty() && isAncillaryEye(player, nbr));
+            })
+            .count();
     }
 
 

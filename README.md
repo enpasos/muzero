@@ -20,10 +20,11 @@ in a separate module:
     * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one
       peg in the middle.
 
-We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/How#onnx). 
+We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/How#onnx).
 
-You can find out the inference time while running MuZero on your edge device: 
-* [TicTacToe](https://enpasos.ai/muzero/TicTacToe) 
+You can find out the inference time while running MuZero on your edge device:
+
+* [TicTacToe](https://enpasos.ai/muzero/TicTacToe)
 * [Go](https://enpasos.ai/muzero/Go)
 
 ## Build
@@ -35,7 +36,7 @@ You can find out the inference time while running MuZero on your edge device:
 ## Run integration test on tictactoc
 
 ``` 
-    java -jar games/tictactoe/target/tictactoe-0.3.0-SNAPSHOT-exec.jar  
+    java -jar games/tictactoe/target/tictactoe-0.4.0-SNAPSHOT-exec.jar  
 ```
 
 ## Further info

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.enpasos.muzero</groupId>
         <artifactId>muzero</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
+        <version>0.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.enpasos.muzero</groupId>
             <artifactId>onnxModelGen</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.4.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

@@ -26,9 +26,9 @@ public class PegSolitairOnnx {
         long a = config.getNumActionLayers();
         long o = config.getNumObservationLayers();
 
-        List<Shape> inputRepresentation = List.of(new Shape(1L,o,w,h));
-        List<Shape> inputPrediction = List.of(new Shape(1L,hs,w,h));
-        List<Shape> inputGeneration = List.of(new Shape(1L,hs,w,h), new Shape(1L, a,w,h));
+        List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
+        List<Shape> inputPrediction = List.of(new Shape(1L, hs, w, h));
+        List<Shape> inputGeneration = List.of(new Shape(1L, hs, w, h), new Shape(1L, a, w, h));
         onnxExport.run(inputRepresentation, inputPrediction, inputGeneration);
     }
 

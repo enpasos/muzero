@@ -26,9 +26,9 @@ public class GoBoardBoundsChecker {
 
     boolean isCorner(Point point) {
         return (point.getRow() == 1 && point.getCol() == 1) ||
-                (point.getRow() == size && point.getCol() == 1) ||
-                (point.getRow() == 1 && point.getCol() == size) ||
-                (point.getRow() == size && point.getCol() == size);
+            (point.getRow() == size && point.getCol() == 1) ||
+            (point.getRow() == 1 && point.getCol() == size) ||
+            (point.getRow() == size && point.getCol() == size);
     }
 
     boolean isEdge(Point point) {

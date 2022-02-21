@@ -24,10 +24,10 @@ class GoStringTest {
     void createSimpleString() {
         var stones = new TreeSet<>(List.of(new Point(2, 2)));
         var liberties = new TreeSet<>(List.of(
-                new Point(1, 2),
-                new Point(3, 2),
-                new Point(2, 1),
-                new Point(2, 3)
+            new Point(1, 2),
+            new Point(3, 2),
+            new Point(2, 1),
+            new Point(2, 3)
         ));
 
 
@@ -46,13 +46,13 @@ class GoStringTest {
     @Test
     void createStringWithOneEye() {
         var stones = new TreeSet<>(List.of(
-                new Point(2, 2),
-                new Point(2, 3),
-                new Point(2, 4),
-                new Point(3, 2),
-                new Point(3, 4),
-                new Point(4, 2),
-                new Point(4, 3)
+            new Point(2, 2),
+            new Point(2, 3),
+            new Point(2, 4),
+            new Point(3, 2),
+            new Point(3, 4),
+            new Point(4, 2),
+            new Point(4, 3)
         ));
 
         var liberties = new TreeSet<>(List.of(new Point(3, 3)));
@@ -65,11 +65,11 @@ class GoStringTest {
     @Test
     void addLibertyToString() {
         var stones = new TreeSet<>(List.of(
-                new Point(2, 2)
+            new Point(2, 2)
         ));
         var liberties = new TreeSet<>(List.of(
-                new Point(1, 2),
-                new Point(3, 2)
+            new Point(1, 2),
+            new Point(3, 2)
         ));
         var goString = new GoString(BLACK_PLAYER, stones, liberties);
         assertEquals(2, goString.numLiberties());
@@ -79,13 +79,13 @@ class GoStringTest {
     @Test
     void removeLibertyFromString() {
         var stones = new TreeSet<>(List.of(
-                new Point(2, 2)
+            new Point(2, 2)
         ));
         var liberties = new TreeSet<>(List.of(
-                new Point(1, 2),
-                new Point(3, 2),
-                new Point(2, 1),
-                new Point(2, 3)
+            new Point(1, 2),
+            new Point(3, 2),
+            new Point(2, 1),
+            new Point(2, 3)
         ));
         var goString = new GoString(BLACK_PLAYER, stones, liberties);
         assertEquals(4, goString.numLiberties());
@@ -99,30 +99,30 @@ class GoStringTest {
     @Test
     void mergeStrings() {
         var goString1 = GoString.builder()
-                .player(BLACK_PLAYER)
-                .stones(new TreeSet<>(List.of(
-                        new Point(2, 2)
-                )))
-                .liberties(new TreeSet<>(List.of(
-                        new Point(1, 2),
-                        new Point(2, 1),
-                        new Point(3, 2),
-                        new Point(2, 3)
-                )))
-                .build();
+            .player(BLACK_PLAYER)
+            .stones(new TreeSet<>(List.of(
+                new Point(2, 2)
+            )))
+            .liberties(new TreeSet<>(List.of(
+                new Point(1, 2),
+                new Point(2, 1),
+                new Point(3, 2),
+                new Point(2, 3)
+            )))
+            .build();
 
         var goString2 = GoString.builder()
-                .player(BLACK_PLAYER)
-                .stones(new TreeSet<>(List.of(
-                        new Point(2, 3)
-                )))
-                .liberties(new TreeSet<>(List.of(
-                        new Point(2, 2),
-                        new Point(2, 4),
-                        new Point(1, 3),
-                        new Point(3, 3)
-                )))
-                .build();
+            .player(BLACK_PLAYER)
+            .stones(new TreeSet<>(List.of(
+                new Point(2, 3)
+            )))
+            .liberties(new TreeSet<>(List.of(
+                new Point(2, 2),
+                new Point(2, 4),
+                new Point(1, 3),
+                new Point(3, 3)
+            )))
+            .build();
 
         assertEquals(4, goString1.numLiberties());
         assertEquals(4, goString2.numLiberties());

@@ -1,7 +1,6 @@
 package ai.enpasos.muzero.pegsolitair;
 
 import ai.enpasos.muzero.pegsolitair.run.*;
-import ai.enpasos.muzero.platform.agent.rational.RegularizedPolicyOptimization;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,6 @@ public class PegSolitair implements CommandLineRunner {
     @Autowired
     private PegSolitairOnnx onnx;
 
-    @Autowired
-    private RegularizedPolicyOptimization regularizedPolicyOptimization;
 
     public static void main(String[] args) {
         SpringApplication.run(PegSolitair.class, args);

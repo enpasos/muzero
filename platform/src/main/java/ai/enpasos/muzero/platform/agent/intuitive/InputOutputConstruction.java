@@ -50,9 +50,9 @@ public class InputOutputConstruction {
 
 
         Sample sample = Sample.builder()
-                .observation(observation)
-                .actionsList(actionsList)
-                .build();
+            .observation(observation)
+            .actionsList(actionsList)
+            .build();
         List<Sample> batch = new ArrayList<>();
         batch.add(sample);
 
@@ -101,14 +101,14 @@ public class InputOutputConstruction {
 
         List<NDArray> ndArrayList = config.getSymmetryType().getSymmetryFunction().apply(policyOutput3);
         List<NDArray> ndArrayList2 = ndArrayList.stream().map(
-                transformedA -> {
-                    NDArray a0 = transformedA.reshape(new Shape(transformedA.getShape().get(0), oldShape2.get(1)));
-                    if (!splitted.isEmpty()) {
-                        NDArray a1 = splitted.get(1);
-                        a0 = a0.concat(a1, 1);
-                    }
-                    return a0;
+            transformedA -> {
+                NDArray a0 = transformedA.reshape(new Shape(transformedA.getShape().get(0), oldShape2.get(1)));
+                if (!splitted.isEmpty()) {
+                    NDArray a1 = splitted.get(1);
+                    a0 = a0.concat(a1, 1);
                 }
+                return a0;
+            }
         ).collect(Collectors.toList());
 
 
@@ -122,8 +122,8 @@ public class InputOutputConstruction {
 
     private void addHiddenStateInput(@NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
         List<NDArray> o = batch.stream()
-                .map(sample -> sample.getObservation().getNDArray(ndManager))
-                .collect(Collectors.toList());
+            .map(sample -> sample.getObservation().getNDArray(ndManager))
+            .collect(Collectors.toList());
 
         inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
     }

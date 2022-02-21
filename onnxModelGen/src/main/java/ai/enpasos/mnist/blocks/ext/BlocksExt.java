@@ -2,12 +2,11 @@ package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.Blocks;
-import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.BATCH_FLATTEN;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.IDENTITY;
 
 /**
  * Utility class that provides some useful blocks.

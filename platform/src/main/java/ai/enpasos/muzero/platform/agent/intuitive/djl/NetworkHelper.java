@@ -62,6 +62,14 @@ public class NetworkHelper {
     @Autowired
     InputOutputConstruction inputOutputConstruction;
 
+    public static int getEpochFromModel(Model model) {
+        int epoch = 0;
+        String prop = model.getProperty("Epoch");
+        if (prop != null) {
+            epoch = Integer.parseInt(prop);
+        }
+        return epoch;
+    }
 
     public int getEpoch() {
 
@@ -80,19 +88,9 @@ public class NetworkHelper {
             }
 
 
-                epoch = getEpochFromModel(model);
+            epoch = getEpochFromModel(model);
 
 
-        }
-        return epoch;
-    }
-
-
-    public static int getEpochFromModel(Model model) {
-        int epoch = 0;
-        String prop = model.getProperty("Epoch");
-        if (prop != null) {
-            epoch = Integer.parseInt(prop);
         }
         return epoch;
     }
@@ -104,14 +102,14 @@ public class NetworkHelper {
         List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch);
 
         return new Batch(
-                nd,
-                new NDList(inputs),
-                new NDList(outputs),
-                (int) inputs.get(0).getShape().get(0),
-                null,
-                null,
-                0,
-                0);
+            nd,
+            new NDList(inputs),
+            new NDList(outputs),
+            (int) inputs.get(0).getShape().get(0),
+            null,
+            null,
+            0,
+            0);
     }
 
     public Shape @NotNull [] getInputShapes() {
@@ -162,15 +160,15 @@ public class NetworkHelper {
 
 
         return new DefaultTrainingConfig(loss)
-                .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupOptimizer())
-                .addTrainingListeners(new EpochTrainingListener(),
-                        new MemoryTrainingListener(outputDir),
-                        new MyEvaluatorTrainingListener(),
-                        new DivergenceCheckTrainingListener(),
-                        new MyLoggingTrainingListener(epoch),
-                        new TimeMeasureTrainingListener(outputDir),
-                        listener);
+            .optDevices(Engine.getInstance().getDevices(1))
+            .optOptimizer(setupOptimizer())
+            .addTrainingListeners(new EpochTrainingListener(),
+                new MemoryTrainingListener(outputDir),
+                new MyEvaluatorTrainingListener(),
+                new DivergenceCheckTrainingListener(),
+                new MyLoggingTrainingListener(epoch),
+                new TimeMeasureTrainingListener(outputDir),
+                listener);
     }
 
     private Optimizer setupOptimizer() {
@@ -178,10 +176,10 @@ public class NetworkHelper {
         Tracker learningRateTracker = Tracker.fixed(config.getLrInit());
 
         return Optimizer.adam()
-                .optLearningRateTracker(learningRateTracker)
-                .optWeightDecays(config.getWeightDecay())
-                .optClipGrad(10f)
-                .build();
+            .optLearningRateTracker(learningRateTracker)
+            .optWeightDecays(config.getWeightDecay())
+            .optClipGrad(10f)
+            .build();
     }
 
 

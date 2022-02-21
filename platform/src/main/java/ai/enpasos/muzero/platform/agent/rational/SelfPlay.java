@@ -42,7 +42,7 @@ public class SelfPlay {
     MuZeroConfig config;
 
     @Autowired
-    Episode episode;
+    EpisodeManager episode;
 
     @Autowired
     ReplayBuffer replayBuffer;
@@ -52,17 +52,34 @@ public class SelfPlay {
         if (render) {
             log.debug(episode.justOneOfTheGames().render());
         }
-        runEpisode(network, render, fastRuleLearning, explorationNoise);
+        runEpisode(network, render, fastRuleLearning );
         long duration = System.currentTimeMillis() - episode.getStart();
         log.info("duration game play [ms]: {}", duration);
         log.info("inference duration game play [ms]: {}", episode.getInferenceDuration().value);
         log.info("java duration game play [ms]: {}", (duration - episode.getInferenceDuration().value));
         return episode.getGamesDoneList();
     }
-    public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, boolean explorationNoise, List<Game> replayGames) {
+
+    public @NotNull  Game playGameFromCurrentState(Network network,  Game replayGame, boolean untilEnd) {
+        log.info("playGameFromCurrentState");
+        episode.init(List.of(replayGame));
+        runEpisode(network, false, false , untilEnd );
+        long duration = System.currentTimeMillis() - episode.getStart();
+        log.info("duration replay [ms]: {}", duration);
+        log.info("inference duration replay [ms]: {}", episode.getInferenceDuration().value);
+        log.info("java duration replay [ms]: {}", (duration - episode.getInferenceDuration().value));
+        return episode.getGameList().get(0);
+    }
+
+    public   void playOneActionFromCurrentState(Network network,  Game replayGame ) {
+        episode.init(List.of(replayGame));
+        episode.play(network, false, false );
+    }
+
+    public @NotNull List<Game> playGamesFromTheirCurrentState(Network network,  List<Game> replayGames) {
         log.info("playGamesFromTheirCurrentState");
         episode.init(replayGames);
-        runEpisode(network, false, false, explorationNoise);
+        runEpisode(network, false, false );
         long duration = System.currentTimeMillis() - episode.getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", episode.getInferenceDuration().value);
@@ -70,13 +87,20 @@ public class SelfPlay {
         return episode.getGamesDoneList();
     }
 
-    private void runEpisode(Network network, boolean render, boolean render1, boolean explorationNoise) {
+    private void runEpisode(Network network, boolean render, boolean fastRulesLearning ) {
+        runEpisode(network, render,fastRulesLearning, true);
+    }
+
+    private void runEpisode(Network network, boolean render, boolean fastRulesLearning,  boolean untilEnd ) {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.createAndSetHiddenStateNDManager(nDManager, true);
-            while (episode.notFinished()) {
-                episode.play(network, render, render1, explorationNoise);
+            int count = 1;
+            while (episode.notFinished() && (untilEnd || count == 1)) {
+                episode.play(network, render, fastRulesLearning );
+                log.info("episode run " + count + " for " + config.getNumParallelGamesPlayed() + " games finished.");
+                count++;
             }
         }
     }
@@ -108,13 +132,13 @@ public class SelfPlay {
     }
 
 
-    public void replayGamesToEliminateSurprise(Network network, boolean explorationNoise, List<Game> gamesToReplay) {
+    public void replayGamesToEliminateSurprise(Network network,  List<Game> gamesToReplay) {
         log.info("replayGamesToEliminateSurprise, {} games", gamesToReplay.size());
         List<List<Game>> gameBatches = ListUtils.partition(gamesToReplay, config.getNumParallelGamesPlayed());
 
         List<Game> resultGames = new ArrayList<>();
-        for(List<Game> gameList : gameBatches) {
-            resultGames.addAll(playGamesFromTheirCurrentState(network, explorationNoise, gameList));
+        for (List<Game> gameList : gameBatches) {
+            resultGames.addAll(playGamesFromTheirCurrentState(network,  gameList));
         }
         resultGames.forEach(replayBuffer::saveGame);
     }

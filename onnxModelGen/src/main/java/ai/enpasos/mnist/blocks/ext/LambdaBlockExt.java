@@ -41,14 +41,15 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
         return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
     }
 
-    private void addOutputToOnnxBlockAsInDJL(OnnxBlock onnxBlock,List<OnnxTensor> input, String outputName) {
+    private void addOutputToOnnxBlockAsInDJL(OnnxBlock onnxBlock, List<OnnxTensor> input, String outputName) {
         List<OnnxTensor> output = createOutput(List.of(outputName), input, this::getOutputShapes);
-         onnxBlock.setOutput(output);
-         onnxBlock.getValueInfos().add(createValueInfoProto(output).get(0));
+        onnxBlock.setOutput(output);
+        onnxBlock.getValueInfos().add(createValueInfoProto(output).get(0));
     }
-    private void addOutputToOnnxBlockAddingMissingDimensions(OnnxBlock onnxBlock,List<OnnxTensor> input, String outputName) {
-        Shape outputShape =   getOutputShapes(getShapes(input).toArray(new Shape[0]))[0];
-        List<OnnxTensor> output = combine(List.of(outputName),List.of(new Shape(outputShape.get(0), outputShape.get(1), (long)1, (long)1)));
+
+    private void addOutputToOnnxBlockAddingMissingDimensions(OnnxBlock onnxBlock, List<OnnxTensor> input, String outputName) {
+        Shape outputShape = getOutputShapes(getShapes(input).toArray(new Shape[0]))[0];
+        List<OnnxTensor> output = combine(List.of(outputName), List.of(new Shape(outputShape.get(0), outputShape.get(1), (long) 1, (long) 1)));
         onnxBlock.setOutput(output);
         onnxBlock.getValueInfos().add(createValueInfoProto(output).get(0));
     }
@@ -58,11 +59,11 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
 
         String outputName = "T" + ctx.count();
 
-     //   List<OnnxTensor> output = createOutput(List.of(outputName), input, this::getOutputShapes);
+        //   List<OnnxTensor> output = createOutput(List.of(outputName), input, this::getOutputShapes);
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
-         //   .output(output)
-          //  .valueInfos(createValueInfoProto(output))
+            //   .output(output)
+            //  .valueInfos(createValueInfoProto(output))
             .build();
 
         NodeProto.Builder nodeBuilder = NodeProto.newBuilder()
@@ -89,7 +90,7 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
                         .setName("strides")
                         .addAllInts(List.of(2L, 2L))
                         .build());
-                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case BATCH_FLATTEN:
                 String shapeName = "batchFlattenNodeShape" + ctx.count();
@@ -102,7 +103,7 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
                     .addAllDims(List.of(2L))
                     .addAllInt64Data(List.of(1L, size))
                     .build());
-                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
 //            case DEFLATE:
 //                String shapeName2 = "Shape" + ctx.count();
@@ -120,27 +121,27 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
 //                break;
             case RELU:
                 nodeBuilder.setOpType("Relu");
-                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case SIGMOID:
                 nodeBuilder.setOpType("Sigmoid");
-                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case TANH:
                 nodeBuilder.setOpType("Tanh");
-                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case GLOBAL_AVG_POOL_2d:
                 nodeBuilder.setOpType("GlobalAveragePool");
-                addOutputToOnnxBlockAddingMissingDimensions(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAddingMissingDimensions(onnxBlock, input, outputName);
                 break;
             case GLOBAL_MAX_POOL_2d:
                 nodeBuilder.setOpType("GlobalMaxPool");
-                addOutputToOnnxBlockAddingMissingDimensions(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAddingMissingDimensions(onnxBlock, input, outputName);
                 break;
             case IDENTITY:
                 nodeBuilder.setOpType("Identity");
-                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case NOT_IMPLEMENTED_YET:
             default:
@@ -151,5 +152,5 @@ public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
         return onnxBlock;
     }
 
-    public enum Type {IDENTITY, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d,GLOBAL_MAX_POOL_2d,  NOT_IMPLEMENTED_YET}
+    public enum Type {IDENTITY, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d, GLOBAL_MAX_POOL_2d, NOT_IMPLEMENTED_YET}
 }

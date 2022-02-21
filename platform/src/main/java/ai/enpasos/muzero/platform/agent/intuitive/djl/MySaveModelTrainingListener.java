@@ -58,7 +58,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
         this.step = step;
         if (outputDir == null) {
             throw new IllegalArgumentException(
-                    "Can not save checkpoint without specifying an output directory");
+                "Can not save checkpoint without specifying an output directory");
         }
         this.overrideModelName = overrideModelName;
     }

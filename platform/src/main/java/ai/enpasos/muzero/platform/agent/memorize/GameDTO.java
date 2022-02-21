@@ -50,7 +50,7 @@ public class GameDTO {
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
-          }
+    }
 
     public @NotNull String getActionHistoryAsString() {
         StringBuilder buf = new StringBuilder(this.getActions().size());
@@ -78,7 +78,7 @@ public class GameDTO {
         getPolicyTargets().stream().forEach(policyTarget -> {
             PolicyTargetProtos.Builder b = PolicyTargetProtos.newBuilder();
             IntStream.range(0, policyTarget.length).forEach(i ->
-                    b.addPolicyTarget(policyTarget[i])
+                b.addPolicyTarget(policyTarget[i])
             );
             gameBuilder.addPolicyTargets(b.build());
         });
@@ -99,14 +99,14 @@ public class GameDTO {
         if (p.getPolicyTargetsCount() > 0) {
             this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {
                         float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];
-                                int i = 0;
-                                for (Float f : policyTargetProtos.getPolicyTargetList()) {
-                                    result[i++] = f;
-                                }
-                                return result;
-                            }
-                    )
-                    .collect(Collectors.toList()));
+                        int i = 0;
+                        for (Float f : policyTargetProtos.getPolicyTargetList()) {
+                            result[i++] = f;
+                        }
+                        return result;
+                    }
+                )
+                .collect(Collectors.toList()));
         }
     }
 }

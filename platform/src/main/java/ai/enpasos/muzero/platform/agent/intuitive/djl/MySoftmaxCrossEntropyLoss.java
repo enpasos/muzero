@@ -67,7 +67,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      *                    false
      */
     public MySoftmaxCrossEntropyLoss(
-            String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit) {
+        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
@@ -90,9 +90,9 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         NDArray lab = label.singletonOrThrow();
         if (sparseLabel) {
             NDIndex pickIndex =
-                    new NDIndex()
-                            .addAllDim(Math.floorMod(classAxis, pred.getShape().dimension()))
-                            .addPickDim(lab);
+                new NDIndex()
+                    .addAllDim(Math.floorMod(classAxis, pred.getShape().dimension()))
+                    .addPickDim(lab);
             loss = pred.get(pickIndex).neg();
         } else {
             lab = lab.reshape(pred.getShape());

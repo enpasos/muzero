@@ -87,16 +87,16 @@ public class GameResult {
             }
         }
         return GameResult.builder()
-                .numBlackStones(numBlackStones)
-                .numWhiteStones(numWhiteStones)
-                .numBlackCaptures(goBoard.getBlackCaptures() + numBlackCaptures)
-                .numWhiteCaptures(goBoard.getWhiteCaptures() + numWhiteCaptures)
-                .numBlackTerritory(numBlackTerritory)
-                .numWhiteTerritory(numWhiteTerritory)
-                .numDame(numDame)
-                .komi(komi)
-                .wonByResignation(wonByResignation)
-                .build();
+            .numBlackStones(numBlackStones)
+            .numWhiteStones(numWhiteStones)
+            .numBlackCaptures(goBoard.getBlackCaptures() + numBlackCaptures)
+            .numWhiteCaptures(goBoard.getWhiteCaptures() + numWhiteCaptures)
+            .numBlackTerritory(numBlackTerritory)
+            .numWhiteTerritory(numWhiteTerritory)
+            .numDame(numDame)
+            .komi(komi)
+            .wonByResignation(wonByResignation)
+            .build();
     }
 
     /**
@@ -124,10 +124,10 @@ public class GameResult {
 
     public String toDebugString() {
         return format("Black: territory({0,number,#}) + stones({1,number,#}) = {2,number,#}\n",
-                numBlackTerritory, numBlackStones, blackPoints())
-                + format("White: territory({0,number,#}) + stones({1,number,#}) = {2,number,#}\n",
-                numWhiteTerritory, numWhiteStones, whitePoints())
-                + format("num dame = {0,number,#},  komi = {1,number,#.#}\n", numDame, komi);
+            numBlackTerritory, numBlackStones, blackPoints())
+            + format("White: territory({0,number,#}) + stones({1,number,#}) = {2,number,#}\n",
+            numWhiteTerritory, numWhiteStones, whitePoints())
+            + format("num dame = {0,number,#},  komi = {1,number,#.#}\n", numDame, komi);
     }
 
     @Override

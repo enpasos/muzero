@@ -24,7 +24,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-public class DynamicsBlock  extends MySequentialBlock implements OnnxIO {
+public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
 
 
     public DynamicsBlock() {
@@ -34,8 +34,8 @@ public class DynamicsBlock  extends MySequentialBlock implements OnnxIO {
     @Builder()
     public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config) {
         return (DynamicsBlock) new DynamicsBlock()
-              .add(new ConcatInputsBlock())
-             .add(new RepresentationOrDynamicsBlock(config));
+            .add(new ConcatInputsBlock())
+            .add(new RepresentationOrDynamicsBlock(config));
 
     }
 

@@ -78,12 +78,12 @@ public class TerritoryCalculator {
                     var groupNeighbors = collectRegion(point, goBoard, pointToType);
                     var neighbors = groupNeighbors.getRight();
                     var fillWith = (neighbors.size() == 1) ? // then all one color neighbors
-                            (neighbors.first() == BLACK_PLAYER ? BLACK_TERRITORY : WHITE_TERRITORY)
-                            : DAME;
+                        (neighbors.first() == BLACK_PLAYER ? BLACK_TERRITORY : WHITE_TERRITORY)
+                        : DAME;
                     var group = groupNeighbors.getLeft();
                     group.stream()
-                            .filter(p -> !pointToType.containsKey(p))
-                            .forEach(pos -> pointToType.put(pos, fillWith));
+                        .filter(p -> !pointToType.containsKey(p))
+                        .forEach(pos -> pointToType.put(pos, fillWith));
                 }
             }
         }
@@ -98,9 +98,9 @@ public class TerritoryCalculator {
      * If the region is bordered by only one player, then it is considered to be territory for that player.
      */
     private Pair<List<Point>, SortedSet<Player>> collectRegion(
-            Point startingPoint,
-            GoBoard board,
-            Map<Point, VertexType> statusMap) {
+        Point startingPoint,
+        GoBoard board,
+        Map<Point, VertexType> statusMap) {
 
         SortedSet<Player> visitedPlayers = new TreeSet<>();
         List<Point> visitedPoints = new ArrayList<>();

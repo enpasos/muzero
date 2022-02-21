@@ -57,8 +57,8 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     @Override
     public @NotNull List<Action> legalActions() {
         return state.getValidMoves().stream()
-                .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
-                .map(move -> translate(this.config, move)).collect(Collectors.toList());
+            .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
+            .map(move -> translate(this.config, move)).collect(Collectors.toList());
     }
 
 
@@ -135,7 +135,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         }
 
         String lastMoveStr = (state.getNextPlayer().other() == Player.BLACK_PLAYER ? "x" : "o")
-                + " move: " + lastMove;
+            + " move: " + lastMove;
 
         String status = "GAME RUNNING";
 

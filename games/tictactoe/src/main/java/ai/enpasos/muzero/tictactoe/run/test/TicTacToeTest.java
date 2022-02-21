@@ -23,6 +23,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.rational.MCTS;
+import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
@@ -48,7 +49,7 @@ public class TicTacToeTest {
     ReplayBuffer replayBuffer;
 
     @Autowired
-    MCTS mcts;
+    SelfPlay selfPlay;
 
 
     public boolean test() {
@@ -65,9 +66,9 @@ public class TicTacToeTest {
 
         Set<ZeroSumGame> bufferGameDTOs = replayBuffer.getBuffer().getData().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
         Set<ZeroSumGame> terminatedGameNotInBufferDTOs = gameTree.terminatedGameNodes.stream()
-                .map(DNode::getGame)
-                .filter(d -> !bufferGameDTOs.contains(d))
-                .collect(Collectors.toSet());
+            .map(DNode::getGame)
+            .filter(d -> !bufferGameDTOs.contains(d))
+            .collect(Collectors.toSet());
 
         log.info("terminatedGameDTOs           : " + gameTree.terminatedGameDTOs.size());
         log.info("bufferGameDTOs               : " + bufferGameDTOs.size());
@@ -83,15 +84,19 @@ public class TicTacToeTest {
 
 
         List<DNode> wonByPlayerAGameNodes = gameTree.terminatedGameNodes.stream()
-                .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
-                .collect(Collectors.toList());
+            .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
+            .collect(Collectors.toList());
         log.info("wonByPlayerAGameNodes: " + wonByPlayerAGameNodes.size());
 
         List<DNode> wonByPlayerBGameNodes = gameTree.terminatedGameNodes.stream()
-                .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B))
-                .collect(Collectors.toList());
+            .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B))
+            .collect(Collectors.toList());
 
         log.info("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
+
+
+        // TODO configurable
+        // config.setNumSimulations(100);
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
@@ -118,9 +123,9 @@ public class TicTacToeTest {
 
 
                 return gamesLostByPlayerA.isEmpty() &&
-                        gamesLostByPlayerB.isEmpty() &&
-                        gamesLostByPlayerA2.isEmpty() &&
-                        gamesLostByPlayerB2.isEmpty();
+                    gamesLostByPlayerB.isEmpty() &&
+                    gamesLostByPlayerA2.isEmpty() &&
+                    gamesLostByPlayerB2.isEmpty();
             }
 
         }
@@ -129,7 +134,7 @@ public class TicTacToeTest {
 
     private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
         gameTree.rootNode.clearAIDecisions();
-        gameTree.rootNode.addAIDecisions(network, player, withMCTS, mcts);
+        gameTree.rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
 
 
         gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
@@ -140,7 +145,7 @@ public class TicTacToeTest {
 
 
     private @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
-        rootNode.addAIDecisions(network, player, withMCTS, mcts);
+        rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
         List<DNode> gamesLostByPlayerA = new ArrayList<>();
         rootNode.collectGamesLost(player, gamesLostByPlayerA);
         log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayerA.size());

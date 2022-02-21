@@ -62,7 +62,7 @@ public class NeighborMap {
 
     static List<Point> inRange(int size, List<Point> points) {
         return points.stream().filter(
-                nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
+            nbr -> 1 <= nbr.getRow() && nbr.getRow() <= size && 1 <= nbr.getCol() && nbr.getCol() <= size
         ).collect(Collectors.toList());
     }
 
@@ -76,11 +76,11 @@ public class NeighborMap {
 
     int findNumTrueNeighbors(Player player, Point point, Grid grid) {
         return (int) this.map.get(point).stream().filter(
-                        neighbor -> {
-                            var str = grid.getString(neighbor);
-                            return str.isPresent() && str.get().getPlayer() == player;
-                        })
-                .count();
+                neighbor -> {
+                    var str = grid.getString(neighbor);
+                    return str.isPresent() && str.get().getPlayer() == player;
+                })
+            .count();
     }
 
 

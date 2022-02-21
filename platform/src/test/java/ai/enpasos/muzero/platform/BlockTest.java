@@ -93,7 +93,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-           new RepresentationOrDynamicsBlock(3, 128, 10, 5),
+            new RepresentationOrDynamicsBlock(3, 128, 10, 5),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);

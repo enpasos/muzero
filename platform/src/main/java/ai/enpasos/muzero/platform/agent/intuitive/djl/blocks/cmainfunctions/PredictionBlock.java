@@ -29,31 +29,31 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels(),config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
+        this(config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
     }
 
     public PredictionBlock(int numChannels, boolean isPlayerModeTWO_PLAYERS, int actionSpaceSize) {
 
 
         SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt()
-                .add(Conv1x1LayerNormRelu.builder().channels(1).build())
-                .add(BlocksExt.batchFlattenBlock())
-                .add(LinearExt.builder()
-                        .setUnits(numChannels) // config.getNumChannels())  // originally 256
-                        .build())
-                .add(ActivationExt.reluBlock())
-                .add(LinearExt.builder()
-                        .setUnits(1).build());
+            .add(Conv1x1LayerNormRelu.builder().channels(1).build())
+            .add(BlocksExt.batchFlattenBlock())
+            .add(LinearExt.builder()
+                .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                .build())
+            .add(ActivationExt.reluBlock())
+            .add(LinearExt.builder()
+                .setUnits(1).build());
         if (isPlayerModeTWO_PLAYERS) {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
         SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt()
-                .add(Conv1x1LayerNormRelu.builder().channels(2).build())
-                .add(BlocksExt.batchFlattenBlock())
-                .add(LinearExt.builder()
-                        .setUnits(actionSpaceSize)
-                        .build());
+            .add(Conv1x1LayerNormRelu.builder().channels(2).build())
+            .add(BlocksExt.batchFlattenBlock())
+            .add(LinearExt.builder()
+                .setUnits(actionSpaceSize)
+                .build());
 
 
         add(new ParallelBlockWithCollectChannelJoinExt(
@@ -65,7 +65,7 @@ public class PredictionBlock extends MySequentialBlock {
 //
 //                    return new NDList(concatenatedList);
 //                },
-            Arrays.asList(policyHead, valueHead))
+                Arrays.asList(policyHead, valueHead))
         );
     }
 

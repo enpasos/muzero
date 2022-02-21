@@ -1,12 +1,13 @@
 package ai.enpasos.muzero.platform.agent.rational.gumbel;
 
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.softmax;
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.add;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GumbelTest {
 
@@ -22,34 +23,37 @@ class GumbelTest {
 
     @Test
     void drawActionsTest() {
-        //double[] pis = {0.2, 0.7, 0.1};
+        double[] logits = {0.2, 0.7, 0.1};
+        double[] ps = softmax(logits);
         List<GumbelAction> actions = List.of(
             GumbelAction.builder()
                 .actionIndex(0)
-                .policyValue(0.2)
-                .q(0.1)
+                .logit(logits[0])
+                .policyValue(ps[0])
+                .qValue(0.1)
                 .build(),
             GumbelAction.builder()
                 .actionIndex(1)
-                .policyValue(0.7)
-                .q(0.2)
+                .logit(logits[1])
+                .policyValue(ps[1])
+                .qValue(0.2)
                 .build(),
             GumbelAction.builder()
                 .actionIndex(2)
-                .policyValue(0.1)
-                .q(0.3)
+                .logit(logits[2])
+                .policyValue(ps[2])
+                .qValue(0.3)
                 .build()
-         );
-
+        );
 
 
         assertEquals(2, Gumbel.drawGumbelActionsInitially(actions, 2).size());
-        assertEquals( 3, Gumbel.drawGumbelActionsInitially(actions, 3).size());
+        assertEquals(3, Gumbel.drawGumbelActionsInitially(actions, 3).size());
         assertEquals(1, Gumbel.drawGumbelActionsInitially(actions, 1).size());
         assertEquals(0, Gumbel.drawGumbelActionsInitially(actions, 0).size());
-        assertThrows(MuZeroException.class, () -> {
-            Gumbel.drawGumbelActionsInitially(actions, 4);
-        });
+//        assertThrows(MuZeroException.class, () -> {
+//            Gumbel.drawGumbelActionsInitially(actions, 4);
+//        });
         System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
         System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());
         System.out.println(Gumbel.drawGumbelActionsInitially(actions, 2).toString());

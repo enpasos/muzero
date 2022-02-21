@@ -31,8 +31,9 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeOnnx onnx;
 
-//    @Autowired
-//    private TicTacToeValueSelfconsistency valueSelfconsistency;
+    @Autowired
+    private TicTacToeValueExtractor valueExtractor;
+
 
     @Autowired
     private TicTacToeInference inference;
@@ -60,13 +61,11 @@ public class TicTacToe implements CommandLineRunner {
             case INFERENCE:
                 inference.run();
                 break;
-//            case VALUESELFCONSISTENCY:
-//                valueSelfconsistency.run();
-//                break;
             case RENDER:
                 throw new MuZeroException("RENDER not implemented yet.");
             case VALUE:
-                throw new MuZeroException("VALUE not implemented yet.");
+                valueExtractor.run();
+                break;
             case NONE:
             default:
                 return;

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.enpasos.muzero</groupId>
         <artifactId>games</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
+        <version>0.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>tictactoe</artifactId>
@@ -42,6 +42,10 @@
                 <exclusion>
                     <artifactId>log4j-to-slf4j</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-simple</artifactId>
+                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

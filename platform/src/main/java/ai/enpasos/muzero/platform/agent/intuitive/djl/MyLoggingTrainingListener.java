@@ -86,23 +86,23 @@ public class MyLoggingTrainingListener implements TrainingListener {
         if (metrics != null) {
             Loss loss = trainer.getLoss();
             String status =
-                    getEvaluatorsStatus(
-                            metrics,
-                            trainer.getEvaluators(),
-                            EvaluatorTrainingListener.TRAIN_EPOCH,
-                            Short.MAX_VALUE);
+                getEvaluatorsStatus(
+                    metrics,
+                    trainer.getEvaluators(),
+                    EvaluatorTrainingListener.TRAIN_EPOCH,
+                    Short.MAX_VALUE);
             logger.info("Train: {}", status);
 
             String metricName =
-                    EvaluatorTrainingListener.metricName(
-                            loss, EvaluatorTrainingListener.VALIDATE_EPOCH);
+                EvaluatorTrainingListener.metricName(
+                    loss, EvaluatorTrainingListener.VALIDATE_EPOCH);
             if (metrics.hasMetric(metricName)) {
                 status =
-                        getEvaluatorsStatus(
-                                metrics,
-                                trainer.getEvaluators(),
-                                EvaluatorTrainingListener.VALIDATE_EPOCH,
-                                Short.MAX_VALUE);
+                    getEvaluatorsStatus(
+                        metrics,
+                        trainer.getEvaluators(),
+                        EvaluatorTrainingListener.VALIDATE_EPOCH,
+                        Short.MAX_VALUE);
                 if (!status.isEmpty()) {
                     logger.info("Validate: {}", status);
                 }
@@ -123,11 +123,11 @@ public class MyLoggingTrainingListener implements TrainingListener {
 
         if (trainingProgressBar == null) {
             trainingProgressBar =
-                    new ProgressBar("Training", batchData.getBatch().getProgressTotal());
+                new ProgressBar("Training", batchData.getBatch().getProgressTotal());
         }
         trainingProgressBar.update(
-                batchData.getBatch().getProgress(),
-                getTrainingStatus(trainer, batchData.getBatch().getSize()));
+            batchData.getBatch().getProgress(),
+            getTrainingStatus(trainer, batchData.getBatch().getSize()));
     }
 
     private String getTrainingStatus(Trainer trainer, int batchSize) {
@@ -138,11 +138,11 @@ public class MyLoggingTrainingListener implements TrainingListener {
 
         StringBuilder sb = new StringBuilder();
         sb.append(
-                getEvaluatorsStatus(
-                        metrics,
-                        trainer.getEvaluators(),
-                        EvaluatorTrainingListener.TRAIN_PROGRESS,
-                        2));
+            getEvaluatorsStatus(
+                metrics,
+                trainer.getEvaluators(),
+                EvaluatorTrainingListener.TRAIN_PROGRESS,
+                2));
 
         if (metrics.hasMetric(Constants.METRICS_TRAIN)) {
             float batchTime = metrics.latestMetric(Constants.METRICS_TRAIN).getValue().longValue() / 1_000_000_000f;
@@ -162,7 +162,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
 
         if (validateProgressBar == null) {
             validateProgressBar =
-                    new ProgressBar("Validating", batchData.getBatch().getProgressTotal());
+                new ProgressBar("Validating", batchData.getBatch().getProgressTotal());
         }
         validateProgressBar.update(batchData.getBatch().getProgress());
     }
@@ -187,9 +187,9 @@ public class MyLoggingTrainingListener implements TrainingListener {
         String version = engine.getVersion();
         long loaded = System.nanoTime();
         logger.info(
-                String.format(
-                        "Load %s Engine Version %s in %.3f ms.",
-                        engineName, version, (loaded - init) / 1_000_000f));
+            String.format(
+                "Load %s Engine Version %s in %.3f ms.",
+                engineName, version, (loaded - init) / 1_000_000f));
     }
 
     /**
@@ -243,7 +243,7 @@ public class MyLoggingTrainingListener implements TrainingListener {
     }
 
     private String getEvaluatorsStatus(
-            Metrics metrics, List<Evaluator> toOutput, String stage, int limit) {
+        Metrics metrics, List<Evaluator> toOutput, String stage, int limit) {
         List<String> metricOutputs = new ArrayList<>(limit + 1);
         int count = 0;
         for (Evaluator evaluator : toOutput) {

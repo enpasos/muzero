@@ -30,7 +30,7 @@ public class Grid {
 
     private static Map<Point, GoString> replaceString(GoString newString, Map<Point, GoString> g) {
         newString.getStones().forEach(
-                point -> g.put(point, newString)
+            point -> g.put(point, newString)
         );
         return g;
     }
@@ -51,7 +51,7 @@ public class Grid {
         Map<Point, GoString> newGrid = new HashMap<>(pointGoStringMap);
 
         newString.getStones().forEach(
-                newStringPoint -> newGrid.put(newStringPoint, newString)
+            newStringPoint -> newGrid.put(newStringPoint, newString)
         );
 
 

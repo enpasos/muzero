@@ -24,54 +24,55 @@ import java.util.Arrays;
 
 
 public class MnistBlock extends SequentialBlockExt implements OnnxIO {
+    private MnistBlock() {
+    }
+
     public static MnistBlock newMnistBlock() {
         return (MnistBlock) new MnistBlock()
             .add(Conv2dExt.builder()
-                        .setFilters(8)
-                        .setKernelShape(new Shape(5, 5))
-                        .optBias(false)
-                        .optPadding(new Shape(2, 2))
-                        .build())
-                .add(LayerNormExt.builder().build())
-                .add(ActivationExt.reluBlock())
-                .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))   // 28 -> 14
-                .add(
-                    new ParallelBlockWithConcatChannelJoinExt(
-                        Arrays.asList(
-                            Conv2dExt.builder()
-                                .setFilters(16)
-                                .setKernelShape(new Shape(5, 5))
-                                .optBias(false)
-                                .optPadding(new Shape(2, 2))
-                                .build(),
-                            Conv2dExt.builder()
-                                .setFilters(16)
-                                .setKernelShape(new Shape(3, 3))
-                                .optBias(false)
-                                .optPadding(new Shape(1, 1))
-                                .build()
-                        ))
-                )
-                .add(new SqueezeExciteExt(32, 8))
-                .add(LayerNormExt.builder().build())
-                .add(ActivationExt.reluBlock())
-                .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7
-                .add(Conv2dExt.builder()
-                        .setFilters(32)
-                        .setKernelShape(new Shape(3, 3))
-                        .optBias(false)
-                        .optPadding(new Shape(1, 1))
-                        .build())
-                .add(LayerNormExt.builder().build())
-                .add(ActivationExt.reluBlock())
-                .add(new RescaleBlockExt())
-                .add(BlocksExt.batchFlattenBlock())
-                .add(LinearExt.builder()
-                        .setUnits(10)
-                        .optBias(true)
-                        .build());
+                .setFilters(8)
+                .setKernelShape(new Shape(5, 5))
+                .optBias(false)
+                .optPadding(new Shape(2, 2))
+                .build())
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+            .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))   // 28 -> 14
+            .add(
+                new ParallelBlockWithConcatChannelJoinExt(
+                    Arrays.asList(
+                        Conv2dExt.builder()
+                            .setFilters(16)
+                            .setKernelShape(new Shape(5, 5))
+                            .optBias(false)
+                            .optPadding(new Shape(2, 2))
+                            .build(),
+                        Conv2dExt.builder()
+                            .setFilters(16)
+                            .setKernelShape(new Shape(3, 3))
+                            .optBias(false)
+                            .optPadding(new Shape(1, 1))
+                            .build()
+                    ))
+            )
+            .add(new SqueezeExciteExt(32, 8))
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+            .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7
+            .add(Conv2dExt.builder()
+                .setFilters(32)
+                .setKernelShape(new Shape(3, 3))
+                .optBias(false)
+                .optPadding(new Shape(1, 1))
+                .build())
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+            .add(new RescaleBlockExt())
+            .add(BlocksExt.batchFlattenBlock())
+            .add(LinearExt.builder()
+                .setUnits(10)
+                .optBias(true)
+                .build());
     }
-
-    private MnistBlock() {}
 
 }

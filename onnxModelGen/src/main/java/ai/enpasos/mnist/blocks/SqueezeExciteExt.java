@@ -21,7 +21,8 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.*;
+import ai.djl.nn.AbstractBlock;
+import ai.djl.nn.SequentialBlock;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.ext.*;
@@ -37,33 +38,33 @@ public class SqueezeExciteExt extends AbstractBlock implements OnnxIO {
 
 
     public SqueezeExciteExt(int numChannels, int squeezeChannelRatio) {
-        super((byte)1);
+        super((byte) 1);
 
         SequentialBlock b1;
         SequentialBlock identity;
 
         ParallelBlockWithConcatChannelJoinExt globalBlock =
-                new ParallelBlockWithConcatChannelJoinExt(
-                        Arrays.asList(
-                                PoolExt.globalAvgPool2dBlock(),
-                                PoolExt.globalMaxPool2dBlock()));
+            new ParallelBlockWithConcatChannelJoinExt(
+                Arrays.asList(
+                    PoolExt.globalAvgPool2dBlock(),
+                    PoolExt.globalMaxPool2dBlock()));
 
         b1 = new SequentialBlockExt()
-                .add(globalBlock)
-                .add(BlocksExt.batchFlattenBlock())  // TODO intermediate workaround for mismatch DJL <-> ONNX
-                .add(LinearExt.builder()
-                        .setUnits(numChannels/squeezeChannelRatio)
-                        .build())
-                .add(ActivationExt.reluBlock())
-                .add(LinearExt.builder()
-                        .setUnits(numChannels)
-                        .build())
-                .add(ActivationExt.sigmoidBlock())
+            .add(globalBlock)
+            .add(BlocksExt.batchFlattenBlock())  // TODO intermediate workaround for mismatch DJL <-> ONNX
+            .add(LinearExt.builder()
+                .setUnits(numChannels / squeezeChannelRatio)
+                .build())
+            .add(ActivationExt.reluBlock())
+            .add(LinearExt.builder()
+                .setUnits(numChannels)
+                .build())
+            .add(ActivationExt.sigmoidBlock())
 
         ;
 
         identity = new SequentialBlockExt()
-                .add(BlocksExt.identityBlock());
+            .add(BlocksExt.identityBlock());
 
         block = addChildBlock("seBlock", new ParallelBlockWithScalerJoinExt(Arrays.asList(b1, identity)));
     }
@@ -74,7 +75,7 @@ public class SqueezeExciteExt extends AbstractBlock implements OnnxIO {
     }
 
     @Override
-    public NDList forward( ParameterStore parameterStore, NDList inputs, boolean training) {
+    public NDList forward(ParameterStore parameterStore, NDList inputs, boolean training) {
         return forward(parameterStore, inputs, training, null);
     }
 

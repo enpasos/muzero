@@ -61,12 +61,12 @@ public class GoElo {
     }
 
 
-    private void printRankingList( ) {
+    private void printRankingList() {
         RankingListDTO rankingList = ranking.getRankingList();
         rankingList.sortByEpoch();
         System.out.println("epoch;elo");
         rankingList.getRankings().stream().forEach(r ->
-            System.out.println(r.getEpochPlayer()+ ";" + r.getElo())
+            System.out.println(r.getEpochPlayer() + ";" + r.getElo())
         );
     }
 
@@ -76,7 +76,7 @@ public class GoElo {
 
         int challengerIndex = ThreadLocalRandom.current().nextInt(0, rankingList.getRankings().size() - 1);
         int a = rankingList.getRankings().get(challengerIndex).getEpochPlayer();
-        int b = rankingList.getRankings().get(challengerIndex+1).getEpochPlayer();
+        int b = rankingList.getRankings().get(challengerIndex + 1).getEpochPlayer();
 
         double resultPlayerA = battle(a, b, numGamesPerBattle);
         ranking.addBattle(a, b, resultPlayerA, numGamesPerBattle);

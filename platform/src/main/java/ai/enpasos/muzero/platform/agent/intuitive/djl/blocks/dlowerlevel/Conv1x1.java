@@ -33,11 +33,11 @@ public class Conv1x1 extends MySequentialBlock {
     public static @NotNull Conv1x1 newConv1x1(int channels) {
         Conv1x1 instance = new Conv1x1();
         instance.add(
-                Conv2d.builder()
-                        .setFilters(channels)
-                        .setKernelShape(new Shape(1, 1))
-                        .optBias(false)
-                        .build());
+            Conv2d.builder()
+                .setFilters(channels)
+                .setKernelShape(new Shape(1, 1))
+                .optBias(false)
+                .build());
         return instance;
     }
 

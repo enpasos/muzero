@@ -18,7 +18,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -28,14 +31,14 @@ public class DJLMNISTTest {
     public static void main(String[] args) throws Exception {
 
         testClassifications(
-                "./models/mnist.onnx",
-                "./onnxWithRuntime/data/mnist_png/testing/"
+            "./models/mnist.onnx",
+            "./onnxWithRuntime/data/mnist_png/testing/"
         );
 
     }
 
     private static void testClassifications(String modelPath, String dataPath) throws IOException, MalformedModelException {
-        Map<String,List<Image>> data = getData(dataPath);
+        Map<String, List<Image>> data = getData(dataPath);
 
 
         Model model = Model.newInstance("model", "OnnxRuntime");
@@ -64,30 +67,30 @@ public class DJLMNISTTest {
         }
     }
 
-    private static Map<String,List<Image>> getData(String dataPath) {
-        Map<String,List<Image>> data = new TreeMap<>();
+    private static Map<String, List<Image>> getData(String dataPath) {
+        Map<String, List<Image>> data = new TreeMap<>();
         try (Stream<Path> stream = Files.list(Paths.get(dataPath))) {
             stream.filter(file -> Files.isDirectory(file))
-                    .map(Path::getFileName)
-                    .forEach(dirname -> {
-                        List<Image> images = new ArrayList<>();
-                        data.put(dirname.toString(), images);
-                        try (Stream<Path> stream2 = Files.list(Paths.get(dataPath + dirname + "/"))) {
-                            stream2
-                                    .filter(file -> !Files.isDirectory(file))
-                                    .forEach(path -> {
-                                        try {
-                                            images.add(ImageFactory.getInstance().fromFile(path));
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            throw new RuntimeException(e);
-                                        }
-                                    });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            throw new RuntimeException(e);
-                        }
-                    });
+                .map(Path::getFileName)
+                .forEach(dirname -> {
+                    List<Image> images = new ArrayList<>();
+                    data.put(dirname.toString(), images);
+                    try (Stream<Path> stream2 = Files.list(Paths.get(dataPath + dirname + "/"))) {
+                        stream2
+                            .filter(file -> !Files.isDirectory(file))
+                            .forEach(path -> {
+                                try {
+                                    images.add(ImageFactory.getInstance().fromFile(path));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
+                });
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

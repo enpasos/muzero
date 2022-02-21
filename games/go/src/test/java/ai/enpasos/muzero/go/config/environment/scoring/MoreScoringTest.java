@@ -58,7 +58,6 @@ class MoreScoringTest {
     }
 
 
-
     // 5  X  O  O  O  .
     // 4  X  X  O  .  O
     // 3  X  X  X  O  O

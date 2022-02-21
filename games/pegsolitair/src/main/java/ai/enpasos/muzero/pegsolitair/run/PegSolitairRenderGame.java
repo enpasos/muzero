@@ -51,7 +51,7 @@ public class PegSolitairRenderGame {
 
         Game game = config.newGame();
         actions.forEach(
-                a -> renderGame.applyAction(game, a));
+            a -> renderGame.applyAction(game, a));
 
         renderGame.renderGame(game);
     }

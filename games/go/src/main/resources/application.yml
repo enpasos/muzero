@@ -57,6 +57,7 @@ muzero:
       lrInit: 0.0001
 
       # play
+      initialGumbelM: 16
       numberTrainingStepsOnStart: 1000
       rootDirichletAlpha: 0.1  #  in paper ... go19: 0.03, chess: 0.3, shogi: 0.15 ... looks like alpha * typical no legal moves is about 8-10  ?
       rootExplorationFraction: 0.25

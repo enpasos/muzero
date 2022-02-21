@@ -1,11 +1,7 @@
 package ai.enpasos.mnist.blocks.ext;
 
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDList;
 import ai.djl.nn.Block;
-import ai.djl.nn.core.Prelu;
-import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 
 import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
 
@@ -26,7 +22,6 @@ public final class ActivationExt {
 
     private ActivationExt() {
     }
-
 
 
     public static Block reluBlock() {

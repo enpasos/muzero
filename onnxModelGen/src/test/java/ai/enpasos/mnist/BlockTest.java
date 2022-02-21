@@ -1,13 +1,11 @@
 package ai.enpasos.mnist;
 
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.mnist.blocks.BlockTestHelper;
 import ai.enpasos.mnist.blocks.MnistBlock;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,9 +13,6 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.BlockTestHelper.Testdata.RANDOM;
 import static ai.enpasos.mnist.blocks.BlockTestHelper.Testdata.ZERO;
 import static ai.enpasos.mnist.blocks.BlockTestHelper.compareOnnxWithDJL;
-import static ai.enpasos.mnist.blocks.OnnxIOExport.onnxExport;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @Slf4j
@@ -60,7 +55,7 @@ class BlockTest {
     }
 
     @Test
-    void  mnistBlockRANDOM() throws Exception {
+    void mnistBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/MnistBlock.onnx",
             MnistBlock.newMnistBlock(),
@@ -73,16 +68,16 @@ class BlockTest {
     @Test
     void squeezeExciteZERO() throws Exception {
         boolean check =
-        compareOnnxWithDJL(
-            "./target/SqueezeExciteBlock.onnx",
-            new SqueezeExciteExt(128, 10),
-            List.of(new Shape(1, 128, 3, 3)),
-            ZERO);
+            compareOnnxWithDJL(
+                "./target/SqueezeExciteBlock.onnx",
+                new SqueezeExciteExt(128, 10),
+                List.of(new Shape(1, 128, 3, 3)),
+                ZERO);
         Assertions.assertTrue(check);
     }
 
     @Test
-    void  mnistBlockZERO() throws Exception {
+    void mnistBlockZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/MnistBlock.onnx",
             MnistBlock.newMnistBlock(),

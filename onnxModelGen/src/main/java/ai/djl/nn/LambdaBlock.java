@@ -7,6 +7,7 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.function.Function;
@@ -39,24 +40,28 @@ public class LambdaBlock extends AbstractBlock {
      * Creates a {@link LambdaBlock} for a singleton function.
      *
      * @param lambda a function accepting a singleton {@link NDList} and returning another sinleton
-     *     {@link NDList}
+     *               {@link NDList}
      * @return a new {@link LambdaBlock} for the function
      */
     public static LambdaBlock singleton(Function<NDArray, NDArray> lambda) {
         return new LambdaBlock(arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected NDList forwardInternal(
-            ParameterStore parameterStore,
-            NDList inputs,
-            boolean training,
-            PairList<String, Object> params) {
+        ParameterStore parameterStore,
+        NDList inputs,
+        boolean training,
+        PairList<String, Object> params) {
         return lambda.apply(inputs);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         try (NDManager manager = NDManager.newBaseManager()) {
@@ -73,10 +78,12 @@ public class LambdaBlock extends AbstractBlock {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadParameters(NDManager manager, DataInputStream is)
-            throws IOException, MalformedModelException {
+        throws IOException, MalformedModelException {
         byte version = is.readByte();
         if (version == VERSION) {
             readInputShapes(is);
@@ -85,7 +92,9 @@ public class LambdaBlock extends AbstractBlock {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "Lambda()";

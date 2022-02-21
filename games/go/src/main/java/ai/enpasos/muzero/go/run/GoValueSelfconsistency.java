@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 public class GoValueSelfconsistency {
 
     @Autowired
-ReplayBuffer replayBuffer;
+    ReplayBuffer replayBuffer;
 
     @Autowired
     ValueSelfconsistency valueSelfconsistency;
@@ -41,7 +41,6 @@ ReplayBuffer replayBuffer;
         valueSelfconsistency.run(true);
 
     }
-
 
 
 }

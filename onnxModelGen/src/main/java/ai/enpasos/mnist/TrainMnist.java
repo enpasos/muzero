@@ -88,7 +88,7 @@ public final class TrainMnist {
                 Shape inputShape = new Shape(1, 1, Mnist.IMAGE_HEIGHT, Mnist.IMAGE_WIDTH);
 
                 trainer.initialize(inputShape);
-                PairList<String,Shape> pList =  model.getBlock().describeInput();
+                PairList<String, Shape> pList = model.getBlock().describeInput();
 
                 EasyTrain.fit(trainer, arguments.getEpoch(), trainingSet, validateSet);
 
@@ -103,29 +103,29 @@ public final class TrainMnist {
         String outputDir = arguments.getOutputDir();
         SaveModelTrainingListener listener = new SaveModelTrainingListener(outputDir);
         listener.setSaveModelCallback(
-                trainer -> {
-                    TrainingResult result = trainer.getTrainingResult();
-                    Model model = trainer.getModel();
-                    float accuracy = result.getValidateEvaluation("Accuracy");
-                    model.setProperty("Accuracy", String.format("%.4f", accuracy));
-                    model.setProperty("Loss", String.format("%.4f", result.getValidateLoss()));
-                    log.info("Accuracy: " + String.format("%.4f", accuracy));
-                });
+            trainer -> {
+                TrainingResult result = trainer.getTrainingResult();
+                Model model = trainer.getModel();
+                float accuracy = result.getValidateEvaluation("Accuracy");
+                model.setProperty("Accuracy", String.format("%.4f", accuracy));
+                model.setProperty("Loss", String.format("%.4f", result.getValidateLoss()));
+                log.info("Accuracy: " + String.format("%.4f", accuracy));
+            });
         return new DefaultTrainingConfig(Loss.softmaxCrossEntropyLoss())
-                .addEvaluator(new Accuracy())
-                .optDevices(Engine.getInstance().getDevices(arguments.getMaxGpus()))
-                .addTrainingListeners(TrainingListener.Defaults.logging(outputDir))
-                .addTrainingListeners(listener);
+            .addEvaluator(new Accuracy())
+            .optDevices(Engine.getInstance().getDevices(arguments.getMaxGpus()))
+            .addTrainingListeners(TrainingListener.Defaults.logging(outputDir))
+            .addTrainingListeners(listener);
     }
 
     private static RandomAccessDataset getDataset(Dataset.Usage usage, Arguments arguments)
-            throws IOException {
+        throws IOException {
         Mnist mnist =
-                Mnist.builder()
-                        .optUsage(usage)
-                        .setSampling(arguments.getBatchSize(), true)
-                        .optLimit(arguments.getLimit())
-                        .build();
+            Mnist.builder()
+                .optUsage(usage)
+                .setSampling(arguments.getBatchSize(), true)
+                .optLimit(arguments.getLimit())
+                .build();
         mnist.prepare(new ProgressBar());
         return mnist;
     }
