@@ -73,14 +73,11 @@ class SearchManagerTest {
                 List<NetworkIO> networkOutput =  network.initialInferenceListDirect(List.of(game));
                 searchManager.expandRootNode(false, networkOutput.get(0));
                 searchManager.gumbelActionsStart();
-                // searchManager.search();
-
                 for (int i = 0; i < 1000; i++) {
                     System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
                     assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
                         (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations() ) );
                     searchManager.next();
-
                 }
             }
         } catch (MalformedModelException e) {
