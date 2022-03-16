@@ -124,7 +124,7 @@ public class EpisodeManager {
         keepTrackOfOpenGames();
     }
 
-    public void play(Network network, boolean render, boolean fastRuleLearning ) {
+    public void play(Network network, boolean render, boolean fastRuleLearning) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
         shortCutForGamesWithoutAnOption(render);
@@ -155,7 +155,7 @@ public class EpisodeManager {
             do {
                 List<List<Node>> searchPathList = new ArrayList<>();
                 IntStream.range(0, nGames).forEach(i -> {
-                    searchPathList.add(searchManagers.get(i).search() );
+                    searchPathList.add(searchManagers.get(i).search());
                 });
 
                 if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
@@ -199,13 +199,13 @@ public class EpisodeManager {
             policyTarget[action.getIndex()] = 1f;
 
             game.getGameDTO().getPolicyTargets().add(policyTarget);
-            if (game.getSearchManager()!= null) {
+            if (game.getSearchManager() != null) {
                 Node root = game.getSearchManager().getRoot();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
             }
 
-            if (render && game.isDebug() ) {
-                game.renderMCTSSuggestion(config,  policyTarget);
+            if (render && game.isDebug()) {
+                game.renderMCTSSuggestion(config, policyTarget);
                 log.debug("\n" + game.render());
             }
 

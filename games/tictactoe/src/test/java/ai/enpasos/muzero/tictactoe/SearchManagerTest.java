@@ -70,13 +70,13 @@ class SearchManagerTest {
                 List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
                 network.setActionSpaceOnDevice(actionSpaceOnDevice);
                 network.createAndSetHiddenStateNDManager(nDManager, true);
-                List<NetworkIO> networkOutput =  network.initialInferenceListDirect(List.of(game));
+                List<NetworkIO> networkOutput = network.initialInferenceListDirect(List.of(game));
                 searchManager.expandRootNode(false, networkOutput.get(0));
                 searchManager.gumbelActionsStart();
                 for (int i = 0; i < 1000; i++) {
                     System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
                     assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
-                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations() ) );
+                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
                     searchManager.next();
                 }
             }

@@ -12,8 +12,10 @@ import java.util.stream.IntStream;
 
 public class Gumbel {
 
+    private Gumbel() {
+    }
 
-    public static List<Integer> drawGumbelActionsInitially(double[] policyValues, int n) {
+    public static List<Integer> drawGumbelActions(double[] policyValues, int n) {
         List<GumbelAction> gumbelActions = getGumbelActions(policyValues);
         int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
         double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
@@ -29,15 +31,6 @@ public class Gumbel {
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
-    public static List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
-        List<Integer> selectedActions = drawActions(actions, add(logits, g), n);
-        return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
-    }
-
-
     public static List<GumbelAction> getGumbelActions(double[] policyValues) {
         return IntStream.range(0, policyValues.length).mapToObj(i -> {
             GumbelAction a = GumbelAction.builder()
@@ -48,7 +41,6 @@ public class Gumbel {
             return a;
         }).collect(Collectors.toList());
     }
-
 
     public static List<Integer> drawActions(int[] actions, double[] x, int n) {
         // if (n < x.length) throw new MuZeroException("n should not be larger than the number of actions");
