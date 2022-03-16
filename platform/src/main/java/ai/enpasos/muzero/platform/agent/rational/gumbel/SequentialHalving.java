@@ -71,7 +71,7 @@ public class SequentialHalving {
 
         int[] result = new int[phases];
         for (int p = 0; p < phases; p++) {
-            int na = (int) ((double) budget / phases /  m);
+            int na = (int) ((double) budget / phases / (double) m);
             if (p < phases - 1) {
                 result[p] = na;
                 remainingBudget -= na * m;
