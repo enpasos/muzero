@@ -44,7 +44,7 @@ public class MuZeroBlock extends AbstractBlock {
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
-    private MuZeroConfig config;
+    private final MuZeroConfig config;
 
 
     public MuZeroBlock(MuZeroConfig config) {

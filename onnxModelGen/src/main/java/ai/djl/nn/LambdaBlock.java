@@ -24,7 +24,7 @@ public class LambdaBlock extends AbstractBlock {
 
     private static final byte VERSION = 2;
 
-    private Function<NDList, NDList> lambda;
+    private final Function<NDList, NDList> lambda;
 
     /**
      * Creates a LambdaBlock that can apply the specified function.

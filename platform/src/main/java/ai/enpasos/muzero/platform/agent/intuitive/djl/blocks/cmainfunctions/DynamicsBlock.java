@@ -28,6 +28,7 @@ public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
 
 
     public DynamicsBlock() {
+        super();
     }
 
 

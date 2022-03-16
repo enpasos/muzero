@@ -114,14 +114,11 @@ public class Node {
         double vMix = getVmix();
 
         double vMixFinal = vMix;
-      //  System.out.println("******getCompletedQValues******");
         return IntStream.range(0, children.size()).mapToDouble(i -> {
             Node child = children.get(i);
             if (child.getVisitCount() > 0) {
-             //   System.out.println("child.qValue():" +  child.qValue());
                 return child.qValue();
             } else {
-             //   System.out.println("vMixFinal:" +  vMixFinal);
                 return vMixFinal;
             }
         })
@@ -139,14 +136,7 @@ public class Node {
 
         double[] completedQs = getCompletedQValues(minMaxStats);
 
-//        int[] actions = getChildren().stream().mapToInt(node -> {
-//            return node.getAction().getIndex();
-//        }).toArray();
         double[] raw = add(logits, sigmas(completedQs, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-
-        // to debug
-        // IntStream.range(0,raw.length).forEach(i -> getChildren().get(i).pseudoLogit = raw[i]);
-
 
         double[] improvedPolicy = softmax(raw);
 

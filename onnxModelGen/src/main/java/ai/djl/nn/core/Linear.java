@@ -40,7 +40,7 @@ public class Linear extends AbstractBlock {
 
     private Shape inputShape;
 
-    private Parameter weight;
+    private final Parameter weight;
     private Parameter bias;
 
     Linear(Builder builder) {

@@ -20,8 +20,7 @@ package ai.enpasos.muzero.platform.agent.intuitive;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.agent.rational.MCTS;
+import ai.enpasos.muzero.platform.agent.rational.*;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
@@ -46,6 +45,14 @@ public class Inference {
 
     @Autowired
     MCTS mcts;
+
+
+    @Autowired
+    EpisodeManager episode;
+
+
+    @Autowired
+    SelfPlay selfPlay;
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir) {
         return aiDecision(actions, withMCTS, networkDir, DeviceType.CPU);
@@ -99,8 +106,6 @@ public class Inference {
 
     public double aiStartValue(int epoch) {
         double valueByNetwork;
-        //config.setNetworkBaseDir(networkDir);
-        //config.setInferenceDeviceType(DeviceType.CPU);
         Game game = config.newGame();
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
             Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
@@ -156,39 +161,6 @@ public class Inference {
 
     private Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
         return aiDecision(network, withMCTS, List.of(game)).get(0);
-//        NetworkIO networkOutput = network.initialInferenceDirect(game);
-//        double aiValue = networkOutput.getValue();
-//        int actionIndexSelectedByNetwork;
-//        List<Action> legalActions = game.legalActions();
-//        if (!withMCTS) {
-//
-//            float[] policyValues = networkOutput.getPolicyValues();
-//            List<Pair<Action, Double>> distributionInput =
-//                    IntStream.range(0, game.getConfig().getActionSpaceSize())
-//                            .filter(i -> {
-//                                Action action = game.getConfig().newAction(i);
-//                                return legalActions.contains(action);
-//                            })
-//                            .mapToObj(i -> {
-//                                Action action = game.getConfig().newAction(i);
-//                                double v = policyValues[i];
-//                                return new Pair<>(action, v);
-//                            }).collect(Collectors.toList());
-//
-//            Action action = mcts.selectActionByMaxFromDistribution(distributionInput);
-//            actionIndexSelectedByNetwork = action.getIndex();
-//
-//        } else {
-//            Node root = new Node(network.getConfig(), 0);
-//
-//            mcts.expandNode(root, game.toPlay(), legalActions, networkOutput, false);
-//
-//            MinMaxStats minMaxStats = mcts.run(root, game.actionHistory(), network, null);
-//            Action action = mcts.selectActionByMax(root, minMaxStats);
-//            actionIndexSelectedByNetwork = action.getIndex();
-//
-//        }
-//        return Pair.create(aiValue, actionIndexSelectedByNetwork);
     }
 
 
@@ -203,7 +175,6 @@ public class Inference {
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);
                 List<Action> legalActions = game.legalActions();
-                // TODO
                 float[] policyValues = networkOutputList.get(g).getPolicyValues();
                 List<Pair<Action, Double>> distributionInput =
                     IntStream.range(0, game.getConfig().getActionSpaceSize())
@@ -224,27 +195,23 @@ public class Inference {
             }
 
         }
-//        else {
-//            List<Node> rootNodes = IntStream.range(0, games.size())
-//                .mapToObj(i -> new Node(config, 0, true))
-//                .collect(Collectors.toList());
-//
-//            for (int g = 0; g < games.size(); g++) {
-//                Game game = games.get(g);
-//                List<Action> legalActions = game.legalActions();
-//                Node root = new Node(network.getConfig(), 0);
-//                mcts.expandNode(rootNodes.get(g), game.toPlay(), legalActions, networkOutputList.get(g), false);
-//            }
-//            List<Action> actions = mcts.runParallel(rootNodes,
-//                games.stream().map(Game::actionHistory).collect(Collectors.toList()),
-//                network, null, config.getNumSimulations()).getSecond();
-//            for (int g = 0; g < games.size(); g++) {
-//                Action action = actions.get(g);
-//                actionIndexSelectedByNetwork = action.getIndex();
-//                double aiValue = networkOutputList.get(0).getValue();
-//                result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
-//            }
-//        }
+        else {
+            // TODO: needs to be tested
+            List<Node> rootNodes = IntStream.range(0, games.size())
+                .mapToObj(i -> new Node(config, 0, true))
+                .collect(Collectors.toList());
+
+            episode.init(games);
+            episode.play(network, false, false );
+            List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
+
+            for (int g = 0; g < games.size(); g++) {
+                Action action = actions.get(g);
+                actionIndexSelectedByNetwork = action.getIndex();
+                double aiValue = networkOutputList.get(0).getValue();
+                result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
+            }
+        }
         return result;
     }
 

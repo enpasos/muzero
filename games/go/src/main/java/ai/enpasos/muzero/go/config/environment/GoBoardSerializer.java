@@ -24,11 +24,7 @@ public class GoBoardSerializer {
             for (int j = 1; j <= board.getSize(); j++) {
                 var player = board.getPlayer(new Point(i, j));
                 String symbol;
-                if (player.isPresent()) {
-                    symbol = player.get() == BLACK_PLAYER ? " X " : " O ";
-                } else {
-                    symbol = " . ";
-                }
+                symbol = player.map(value -> value == BLACK_PLAYER ? " X " : " O ").orElse(" . ");
                 s.append(symbol);
             }
             s.append("\n");
