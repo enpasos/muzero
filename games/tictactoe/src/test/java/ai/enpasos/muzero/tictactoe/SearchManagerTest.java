@@ -28,6 +28,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlo
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.gumbel.SearchManager;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ class SearchManagerTest {
     MuZeroConfig config;
 
     @Test
+    @Disabled
     void searchManagerTest() {
         config.setNetworkBaseDir("../../memory/tictactoe/networks");
         Game game = config.newGame();
