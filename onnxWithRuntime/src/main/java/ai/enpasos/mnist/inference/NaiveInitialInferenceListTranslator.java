@@ -36,27 +36,7 @@ import java.util.stream.IntStream;
 
 public class NaiveInitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
-        NDArray hiddenStates;
-        //    NDArray s = list.get(0);
-        //     if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
-        //      hiddenStates = s;
-//            SubModel submodel = (SubModel) ctx.getModel();
-//            hiddenStates.attach(submodel.getHiddenStateNDManager());
-//        } else {
-//            hiddenStates = s.toDevice(Device.cpu(), false);
-//            NDManager hiddenStateNDManager = hiddenStates.getManager();
-//            SubModel submodel = (SubModel) ctx.getModel();
-//            hiddenStates.attach(submodel.getHiddenStateNDManager());
-//            hiddenStateNDManager.close();
-//            s.close();
-//        }
 
-
-        NetworkIO outputA = NetworkIO.builder()
-            //  .hiddenState(hiddenStates)
-            .build();
-
-// TODO Hiddenstate output is missing
         NDArray p = list.get(0).softmax(1);
         int actionSpaceSize = (int) p.getShape().get(1);
         NDArray v = list.get(1);
@@ -81,10 +61,6 @@ public class NaiveInitialInferenceListTranslator implements Translator<List<Game
             .collect(Collectors.toList());
 
 
-//        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
-//            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-//        }
-        //  hiddenStates.close();
         return networkIOs;
     }
 

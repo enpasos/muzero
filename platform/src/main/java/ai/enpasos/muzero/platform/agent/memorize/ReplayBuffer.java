@@ -277,7 +277,6 @@ public class ReplayBuffer {
                     byte[] raw = zis.readAllBytes();
 
                     ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
-                    //this.buffer = new ReplayBufferDTO();
                     this.buffer.deproto(proto);
                     rebuildGames();
                     this.buffer.setWindowSize(config.getWindowSize());
@@ -323,7 +322,7 @@ public class ReplayBuffer {
     }
 
     public void removeGames(List<Game> games) {
-        games.stream().forEach(game -> this.removeGame(game));
+        games.stream().forEach(this::removeGame);
     }
 
     public void removeGame(Game game) {

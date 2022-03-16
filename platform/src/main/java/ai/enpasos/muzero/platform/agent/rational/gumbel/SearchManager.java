@@ -103,9 +103,6 @@ public class SearchManager {
         double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
         double[] raw = add(logits, g);
 
-        // to debug
-        // IntStream.range(0, this.root.getChildren().size()).forEach(i -> this.root.getChildren().get(i).setPseudoLogit(raw[i]));
-
         List<Integer> selectedActions = drawActions(actions, raw, n);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
@@ -113,7 +110,6 @@ public class SearchManager {
     public void gumbelActionsOnPhaseChange() {
 
         List<GumbelAction> gumbelActions = rootChildrenCandidates.stream().map(node -> {
-            //   node.initGumbelAction(node.getAction().getIndex(), node.getPrior());
             return node.getGumbelAction();
         }).collect(Collectors.toList());
 
@@ -138,15 +134,10 @@ public class SearchManager {
             .map(v -> minMaxStats.normalize(v))
             .toArray();
 
-
-        //   double[] qs = gumbelActions.stream().mapToDouble(a -> a.getNode().qValue()).toArray();
-
-        // TODO check if max befor or after gumbelAction reduction
-        // int maxActionVisitCount = gumbelActions.stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
         double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
 
         double[] raw = add(add(logits, g), sigmas);
-        // to debug
+
         IntStream.range(0, rootChildrenCandidates.size()).forEach(i -> rootChildrenCandidates.get(i).setPseudoLogit(raw[i]));
 
         List<Integer> selectedActions = drawActions(actions, raw, m);
@@ -238,7 +229,7 @@ public class SearchManager {
             if (debug)
                 log.trace("searchPath[" + i + "]: " + nodeValueSumBefore + "/" + nodeVisitCountBefore + "->" + node.getValueSum() + "/" + node.getVisitCount());
 
-            value = node.getReward() + discount * value; // TODO check signs when using reward
+            value = node.getReward() + discount * value;
             minMaxStats.update(value);
         }
     }

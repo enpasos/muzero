@@ -36,11 +36,11 @@ public class OnnxBlock {
     }
 
     public static List<Shape> getShapes(List<OnnxTensor> tensors) {
-        return tensors.stream().map(i -> i.getShape()).collect(Collectors.toList());
+        return tensors.stream().map(OnnxTensor::getShape).collect(Collectors.toList());
     }
 
     public static List<String> getNames(List<OnnxTensor> tensors) {
-        return tensors.stream().map(i -> i.getName()).collect(Collectors.toList());
+        return tensors.stream().map(OnnxTensor::getName).collect(Collectors.toList());
     }
 
     public static List<OnnxTensor> combine(List<String> outputNames, List<Shape> outputShapes) {

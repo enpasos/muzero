@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("java:S110")
 public class RepresentationBlock extends RepresentationOrDynamicsBlock {
 
     public RepresentationBlock(@NotNull MuZeroConfig config) {

@@ -20,7 +20,7 @@ import java.util.function.Function;
 import static ai.enpasos.mnist.blocks.OnnxBlock.*;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
-
+@SuppressWarnings("all")
 public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
 
     private final Type type;

@@ -31,6 +31,7 @@ import java.util.Collections;
  *
  * <p>The Linear block should be constructed using {@link Linear.Builder}.
  */
+@SuppressWarnings("all")
 public class Linear extends AbstractBlock {
 
     private static final byte VERSION = 4;

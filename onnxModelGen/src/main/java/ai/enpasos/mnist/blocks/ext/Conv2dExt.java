@@ -20,6 +20,7 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
+@SuppressWarnings("all")
 public class Conv2dExt extends Conv2dOpened implements OnnxIO {
 
     Conv2dExt(Builder builder) {

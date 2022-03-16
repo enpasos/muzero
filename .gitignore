@@ -8,7 +8,6 @@
 **/target/**
 **/logs/**
 **/memory/**
-**/pretrained/**
 
 /onnxWithRuntime/data
 /onnxWithRuntime/build

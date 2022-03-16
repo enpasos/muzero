@@ -17,16 +17,16 @@ public class Gumbel {
 
     public static List<Integer> drawGumbelActions(double[] policyValues, int n) {
         List<GumbelAction> gumbelActions = getGumbelActions(policyValues);
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
+        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         return drawActions(actions, add(logits, g), n);
     }
 
     public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int n) {
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
+        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         List<Integer> selectedActions = drawActions(actions, add(logits, g), n);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
@@ -43,15 +43,14 @@ public class Gumbel {
     }
 
     public static List<Integer> drawActions(int[] actions, double[] x, int n) {
-        // if (n < x.length) throw new MuZeroException("n should not be larger than the number of actions");
         List<Integer> result = new ArrayList<>();
 
-        List<Pair> gPlusLogits = IntStream.range(0, x.length).mapToObj(
-            i -> new Pair(i, x[i])
+        List<Pair<Integer, Double>> gPlusLogits = IntStream.range(0, x.length).mapToObj(
+            i -> new Pair<Integer, Double>(i, x[i])
         ).collect(Collectors.toList());
 
         IntStream.range(0, n).forEach(i -> {
-            Pair<Integer, Double> max = gPlusLogits.stream().max((a, b) -> Double.compare((Double) a.getValue(), (Double) b.getValue())).get();
+            Pair<Integer, Double> max = gPlusLogits.stream().max((a, b) -> Double.compare( a.getValue(),  b.getValue())).get();
             result.add(actions[max.getKey()]);
             gPlusLogits.remove(max);
         });

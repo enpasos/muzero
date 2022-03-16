@@ -103,35 +103,14 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        int concatDim = 1;
         Shape stateShape = input.get(0).getShape();
         Shape actionShape = input.get(1).getShape();
         Shape[] inputShapes = new Shape[]{stateShape, actionShape};
-        //   Shape hConcatOutputShapes = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
-        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
-
-        //  List<OnnxTensor> hInput = combine(List.of("T" + counter.count()), Arrays.asList(inputShapes));
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
-            // .valueInfos(createValueInfoProto(input))
-
             .build();
-
-//        onnxBlock.getNodes().add(
-//                NodeProto.newBuilder()
-//                    .setName("N" + counter.count())
-//                    .setOpType("Concat")
-//                    .addAttribute(AttributeProto.newBuilder()
-//                        .setType(AttributeProto.AttributeType.INT)
-//                        .setName("axis")
-//                        .setI(concatDim)
-//                        .build())
-//                    .addAllInput(getNames(input))
-//                    .addOutput(hInput.get(0).getName())
-//                    .build()
-//        );
 
         OnnxBlock gOnnx = g.getOnnxBlock(counter, input);
         onnxBlock.addChild(gOnnx);
@@ -141,7 +120,6 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
-        //  onnxBlock.getValueInfos().addAll(createValueInfoProto(hInput));
 
         List<OnnxTensor> totalOutput = new ArrayList<>();
         totalOutput.addAll(gOutput);

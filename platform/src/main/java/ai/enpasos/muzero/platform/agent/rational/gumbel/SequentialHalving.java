@@ -10,6 +10,8 @@ import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.*;
 
 public class SequentialHalving {
 
+    private SequentialHalving() {}
+
     public static int getM(int n) {
         return Math.min(n, 16);
     }
@@ -64,7 +66,6 @@ public class SequentialHalving {
     }
 
     public static int[] extraPhaseVisitsToUpdateQPerPhase(int budget, int m) {
-        // if (! isPowerOfTwo(m)) throw new MuZeroException("m must be a power of 2");
         int remainingBudget = budget;
         int phases = (int) log2(m);
 
