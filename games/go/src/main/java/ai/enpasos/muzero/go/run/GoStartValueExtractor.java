@@ -106,7 +106,7 @@ public class GoStartValueExtractor {
 
     public String csvString(List<Pair<Integer, Double>> values) {
         StringWriter stringWriter = new StringWriter();
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("epoch", "vStart"))) {
+        try (CSVPrinter csvPrinter =   new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("epoch", "vStart").build())) {
             values.stream().forEach(
                 pair -> {
                     try {

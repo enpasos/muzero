@@ -83,6 +83,7 @@ class BlockTestHelper {
         return new Pair<>(input, outputDJL);
     }
 
+    @SuppressWarnings({"java:S2095", "java:S2093"})
     public static NDList outputFromOnnx(String modelPath, NDList input) throws OrtException {
         NDList outputOnnx;
         try (OrtEnvironment env = OrtEnvironment.getEnvironment();

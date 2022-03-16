@@ -56,7 +56,7 @@ public class ValueExtractor {
         StringWriter stringWriter = new StringWriter();
 
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "vPlayerA", "actionIndex"))) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "vPlayerA", "actionIndex").build())) {
             IntStream.range(0, actions.size() + 1).forEach(
                 t -> {
                     try {

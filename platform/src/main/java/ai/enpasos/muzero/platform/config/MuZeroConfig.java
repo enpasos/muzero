@@ -307,6 +307,10 @@ public class MuZeroConfig {
         return getConf().cVisit;
     }
 
+    public void setCVisit(int cVisit) {
+        getConf().setCVisit(cVisit);
+    }
+
     public double getCScale() {
         return getConf().cScale;
     }

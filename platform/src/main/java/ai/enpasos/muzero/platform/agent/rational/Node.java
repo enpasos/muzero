@@ -193,13 +193,6 @@ public class Node {
                 )
             );
         }
-//        for (Node a : children) {
-//            policyMap.put(a.getAction(), new Pair(
-//                    networkOutput.getPolicyValues()[a.getAction().getIndex()],
-//                    networkOutput.getLogits()[a.getAction().getIndex()]
-//                )
-//            );
-//        }
 
         double policySum = policyMap.values().stream()
             .mapToDouble(p -> p.getFirst().doubleValue())

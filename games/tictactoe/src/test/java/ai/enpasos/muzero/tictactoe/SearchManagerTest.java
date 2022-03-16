@@ -56,6 +56,9 @@ class SearchManagerTest {
     @Test
     void searchManagerTest() {
         config.setNetworkBaseDir("./pretrained");
+        int n = 200;
+        config.setNumSimulations(n);
+        config.setCVisit(16);
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         game.initSearchManager();
@@ -72,10 +75,10 @@ class SearchManagerTest {
                 List<NetworkIO> networkOutput = network.initialInferenceListDirect(List.of(game));
                 searchManager.expandRootNode(false, networkOutput.get(0));
                 searchManager.gumbelActionsStart();
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 2*n; i++) {
                     System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
-//                    assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
-//                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
+                    assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
+                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
                     searchManager.next();
                 }
             }
