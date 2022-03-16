@@ -108,7 +108,7 @@ class BlockTestHelper {
                     .collect(Collectors.toList());
 
                 Map<String, ai.onnxruntime.OnnxTensor> inputMap = new TreeMap<>();
-                try(NDManager ndManager = NDManager.newBaseManager()) {
+                try {
 
                     for (int i = 0; i < input.size(); i++) {
                         inputMap.put("Input" + i, ai.onnxruntime.OnnxTensor.createTensor(env, FloatBuffer.wrap(input.get(i).toFloatArray()), input.get(i).getShape().getShape()));
@@ -119,7 +119,7 @@ class BlockTestHelper {
                     List<NDArray> ndArrays = new ArrayList<>();
                     for (int i = 0; i < output.size(); i++) {
                         ai.onnxruntime.OnnxTensor t = (OnnxTensor) output.get(i);
-                        ndArrays.add( ndManager.create(t.getFloatBuffer().array(), outputShapes.get(i)));
+                        ndArrays.add(NDManager.newBaseManager().create(t.getFloatBuffer().array(), outputShapes.get(i)));
                     }
 
                     outputOnnx = new NDList(ndArrays);
