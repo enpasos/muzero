@@ -179,34 +179,29 @@ public class Node {
 
         setToPlay(toPlay);
 
+        if (networkOutput == null)
+            throw new MuZeroException("networkOutput must not be null");
         setValueFromInitialInference(networkOutput.getValue());
         setHiddenState(networkOutput.getHiddenState());
         setReward(networkOutput.getReward());
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
-            policyMap.put(config.newAction(i), new Pair(
+            policyMap.put(config.newAction(i), new Pair<>(
                     networkOutput.getPolicyValues()[i],
                     networkOutput.getLogits()[i]
                 )
             );
         }
-//        for (Node a : children) {
-//            policyMap.put(a.getAction(), new Pair(
-//                    networkOutput.getPolicyValues()[a.getAction().getIndex()],
-//                    networkOutput.getLogits()[a.getAction().getIndex()]
-//                )
-//            );
-//        }
 
         double policySum = policyMap.values().stream()
             .mapToDouble(p -> p.getFirst().doubleValue())
             .sum();
         for (Map.Entry<Action, Pair<Float, Float>> e : policyMap.entrySet()) {
-            Action action = e.getKey();
+            Action action2 = e.getKey();
             Float p = e.getValue().getFirst();
-            Float logit = e.getValue().getSecond();
-            getChildren().add(Node.builder().parent(this).action(action).config(config).prior(p / policySum).logit(logit).build());
+            Float logit2 = e.getValue().getSecond();
+            getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
         }
 
 
@@ -221,19 +216,22 @@ public class Node {
 
         setToPlay(toPlay);
         if (!fastRuleLearning) {
+            if (networkOutput == null) {
+                throw new MuZeroException("networkOutput must not be null here");
+            }
             setValueFromInitialInference(networkOutput.getValue());
             setHiddenState(networkOutput.getHiddenState());
             setReward(networkOutput.getReward());
         }
         if (fastRuleLearning) {
             double p = 1d / actions.size();
-            for (Action action : actions) {
-                getChildren().add(Node.builder().parent(this).action(action).config(config).prior(p).build());
+            for (Action action2 : actions) {
+                getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p).build());
             }
         } else {
             Map<Action, Pair<Float, Float>> policy = actions.stream()
                 .collect(Collectors.toMap(a -> a, a ->
-                        new Pair(
+                        new Pair<Float, Float>(
                             networkOutput.getPolicyValues()[a.getIndex()],
                             networkOutput.getLogits()[a.getIndex()])
                     )
@@ -244,10 +242,10 @@ public class Node {
                 .mapToDouble(p -> p.getFirst().doubleValue())
                 .sum();
             for (Map.Entry<Action, Pair<Float, Float>> e : policy.entrySet()) {
-                Action action = e.getKey();
+                Action action2 = e.getKey();
                 Float p = e.getValue().getFirst();
-                Float logit = e.getValue().getSecond();
-                getChildren().add(Node.builder().parent(this).action(action).config(config).prior(p / policySum).logit(logit).build());
+                Float logit2 = e.getValue().getSecond();
+                getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
             }
 
         }

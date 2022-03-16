@@ -70,7 +70,6 @@ public class GoSurprise {
     @SuppressWarnings("squid:S3740")
     public void run() {
         replayBuffer.loadLatestState();
-        //      replayBuffer.keepOnlyTheLatestGames(10);
         List<Game> gamesToInvestigate = getGamesToInvestigate(10, 0.1d);
 
 
@@ -80,10 +79,6 @@ public class GoSurprise {
         Game game = gamesToInvestigate.get(gamesToInvestigate.size() - 1);
         log.info("a game's surprises: ");
         log.info("" + nf.format(game.getTSurprise()));
-        //  System.out.println(csvString(game.getSurprises()));
-
-
-        // getMoreExperience(gamesToInvestigate);
 
     }
 
@@ -92,9 +87,6 @@ public class GoSurprise {
     }
 
     private List<Game> getGamesToInvestigate(Network network, int numGames, double fraction) {
-
-//        replayBuffer.loadLatestState();
-//        replayBuffer.keepOnlyTheLatestGames(numGames);
 
         int bufferSize = replayBuffer.getBuffer().getGames().size();
         List<Game> games = replayBuffer.getBuffer().getGames().subList(Math.max(bufferSize - numGames, 0), bufferSize);
@@ -115,9 +107,6 @@ public class GoSurprise {
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(6);
         nf.setMaximumFractionDigits(6);
-        //    allValues.stream().forEach(v -> System.out.println(nf.format(v)));
-        //  log.info("last game's surprises: ");
-        //  System.out.println(csvString(games.get(games.size() - 1).getSurprises()));
 
         // value of the numGames-th highest value
         double quantil = allValues.get((int) (allValues.size() * (1d - fraction)));
@@ -138,7 +127,7 @@ public class GoSurprise {
         return gamesToInvestigate;
     }
 
-
+@SuppressWarnings("java:S3776")
     public void enrichGamesWithSurprises(Network network, List<Game> gameList) {
         int numOfGames = gameList.size();
 
@@ -161,10 +150,8 @@ public class GoSurprise {
         });
 
         int t = 0;
-        //   try {    // TODO ... workaround for now
         while (gameList.stream().anyMatch(g -> !g.isDone())) {
 
-            //   for (int t = 0; t < length; t++) {
             List<Game> gamesToEvaluate = new ArrayList<>();
             for (int g = 0; g < numOfGames; g++) {
                 Game game = gameList.get(g);

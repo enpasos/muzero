@@ -35,6 +35,7 @@ import java.util.stream.IntStream;
 
 
 public class NaiveInitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
+    @SuppressWarnings("java:S1172")
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
 
         NDArray p = list.get(0).softmax(1);

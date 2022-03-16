@@ -81,6 +81,7 @@ public class OnnxIOExport {
     }
 
 
+    @SuppressWarnings("java:S112")
     private static void save(ModelProto modelProto, String fileName) {
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
             byte[] data = modelProto.toByteArray();

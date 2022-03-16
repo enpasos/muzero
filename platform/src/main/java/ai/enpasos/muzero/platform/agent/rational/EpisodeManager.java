@@ -43,23 +43,8 @@ public class EpisodeManager {
 
     public static Action getRandomAction(Node root) {
         List<Node> children = root.getChildren();
-        if (children.size() == 0) {
-            int i = 42;
-        }
         int index = randomStreamBase.nextInt(0, children.size() - 1);
         return children.get(index).getAction();
-    }
-
-
-    private static double @NotNull [] numpyRandomDirichlet(double alpha, int dims) {
-
-        double[] alphas = new double[dims];
-        Arrays.fill(alphas, alpha);
-        DirichletGen dg = new DirichletGen(randomStreamBase, alphas);
-        double[] p = new double[dims];
-
-        dg.nextPoint(p);
-        return p;
     }
 
     public static double[] softmax(double[] raw) {
@@ -140,7 +125,6 @@ public class EpisodeManager {
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
-            //   List<Node> rootList = initRootNodes();
             networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
@@ -184,7 +168,7 @@ public class EpisodeManager {
 
     private void shortCutForGamesWithoutAnOption(boolean render) {
         List<Game> gamesWithOnlyOneAllowedAction = this.gameList.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
-        if (gamesWithOnlyOneAllowedAction.size() == 0) return;
+        if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
 
         this.gameList.removeAll(gamesWithOnlyOneAllowedAction);

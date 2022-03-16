@@ -37,34 +37,34 @@ public class DJLMNISTTest {
 
     }
 
+    @SuppressWarnings({"java:S2095", "java:S112"})
     private static void testClassifications(String modelPath, String dataPath) throws IOException, MalformedModelException {
         Map<String, List<Image>> data = getData(dataPath);
 
+        try (Model model = Model.newInstance("model", "OnnxRuntime")) {
+            try (InputStream is = Files.newInputStream(Paths.get(modelPath))) {
+                model.load(is);
+                var predictor = model.newPredictor(getImageClassificationsTranslator());
 
-        Model model = Model.newInstance("model", "OnnxRuntime");
-        try (InputStream is = Files.newInputStream(Paths.get(modelPath))) {
-            model.load(is);
-            var predictor = model.newPredictor(getImageClassificationsTranslator());
-
-            int[] errors_total = {0, 0};
-            data.forEach((label, images) -> images.forEach(image -> {
-                try {
-                    var classifications = predictor.predict(image);
-                    if (!classifications.best().getClassName().equals(label.toString())) {
-                        errors_total[0]++;
+                int[] errorsTotal = {0, 0};
+                data.forEach((label, images) -> images.forEach(image -> {
+                    try {
+                        var classifications = predictor.predict(image);
+                        if (!classifications.best().getClassName().equals(label)) {
+                            errorsTotal[0]++;
+                        }
+                        errorsTotal[1]++;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
-                    errors_total[1]++;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
-                }
-            }));
+                }));
 
-            log.info("{} wrong classified images in {} non trained testimages", errors_total[0], errors_total[1]);
-
+                log.info("{} wrong classified images in {} non trained testimages", errorsTotal[0], errorsTotal[1]);
+            }
         }
     }
-
+@SuppressWarnings("java:S112")
     private static Map<String, List<Image>> getData(String dataPath) {
         Map<String, List<Image>> data = new TreeMap<>();
         try (Stream<Path> stream = Files.list(Paths.get(dataPath))) {

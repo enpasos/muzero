@@ -40,10 +40,8 @@ public class GoValueExtractor {
     ReplayBuffer replayBuffer;
 
 
-    @SuppressWarnings("squid:S3740")
+    @SuppressWarnings("squid:S125")
     public void run() {
-
-        //  config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
         List<Integer> actionIndexList = valueExtractor.getActionList();
 

@@ -250,19 +250,6 @@ public class SearchManager {
             float[] policyTarget = policyTargets.get(policyTargets.size() - 1);
             game.renderMCTSSuggestion(config, policyTarget);
             log.debug("\n" + game.render());
-
-            int maxI = -1;
-            float maxV = Float.MIN_VALUE;
-            for (int i = 0; i < policyTarget.length; i++) {
-                float p = policyTarget[i];
-                if (p > maxV) {
-                    maxI = i;
-                    maxV = p;
-                }
-            }
-            if (action.getIndex() != maxI && policyTarget[action.getIndex()] < 0.02f) {
-                int i = 42;
-            }
         }
 
 

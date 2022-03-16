@@ -29,7 +29,7 @@ public class OnnxBlock {
     @Builder.Default
     List<TensorProto> parameters = new ArrayList<>();
 
-
+    @SuppressWarnings("java:S4276")
     public static List<OnnxTensor> createOutput(List<String> outputNames, List<OnnxTensor> input, Function<Shape[], Shape[]> shapeConverter) {
         List<Shape> outputShapes = List.of(shapeConverter.apply(getShapes(input).toArray(new Shape[0])));
         return combine(outputNames, outputShapes);

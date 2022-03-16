@@ -52,7 +52,6 @@ public class GoArena {
     // 1f player1 wins, -1f player2 wins - no draw here
     private double[] play(boolean startingPlayerA, String playerA, String playerB, int n) {
         List<Game> gameList = IntStream.range(0, n).mapToObj(i -> config.newGame()).collect(Collectors.toList());
-        // Game game = config.newGame();
         List<Game> runningGames = new ArrayList<>(gameList);
         String currentPlayer = startingPlayerA ? playerA : playerB;
         while (!runningGames.isEmpty()) {
@@ -61,13 +60,11 @@ public class GoArena {
             currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         }
         currentPlayer = changePlayer(currentPlayer, playerA, playerB);
-        String currentPlayerFinal = currentPlayer;
         return gameList.stream()
             .mapToDouble(game -> (startingPlayerA ? 1f : -1f)
                 * (game.actionHistory().getActionIndexList().size() % 2 == 0 ? -1f : 1f)
                 * game.getLastReward())
             .toArray();
-        // return (currentPlayer.equals(ARENA_NETWORK_1) ? 1f : -1f) * game.getLastReward();
     }
 
     private void move(List<Game> games, String player) {
