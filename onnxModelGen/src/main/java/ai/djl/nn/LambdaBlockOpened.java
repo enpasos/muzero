@@ -20,6 +20,7 @@ import java.util.function.Function;
  * in converting activation functions, identity blocks, and more. For example, identity block can be
  * created as {@code new LambdaBlock(x -> x)}.
  */
+@SuppressWarnings("all")
 public class LambdaBlockOpened extends AbstractBlock {
 
     private static final byte VERSION = 2;

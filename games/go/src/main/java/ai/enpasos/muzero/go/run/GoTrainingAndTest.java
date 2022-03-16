@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+
 
 @Slf4j
 @Component
@@ -31,12 +33,10 @@ public class GoTrainingAndTest {
 
     public void run() {
 
-        // rmDir(config.getOutputDir());
+        rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
-            .afterTrainingHookIn((epoch, model) -> {
-                adjustKomi(epoch, model);
-            })
+            .afterTrainingHookIn(this::adjustKomi)
             .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }

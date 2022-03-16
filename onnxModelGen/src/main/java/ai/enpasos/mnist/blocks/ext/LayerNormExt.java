@@ -18,6 +18,7 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
+@SuppressWarnings("all")
 public class LayerNormExt extends LayerNormOpened implements OnnxIO {
 
     /*

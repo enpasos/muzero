@@ -23,7 +23,6 @@ class InferenceTest {
     Inference inference;
 
     @Test
-    @Disabled
     void aiDecisionTicTacToeSlow() {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true, "./pretrained");

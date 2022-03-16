@@ -21,6 +21,7 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
+@SuppressWarnings("all")
 public class ParallelBlockWithScalerJoinExt extends ParallelBlock implements OnnxIO {
 
 

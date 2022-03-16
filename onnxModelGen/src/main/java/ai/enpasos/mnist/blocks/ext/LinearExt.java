@@ -20,6 +20,7 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
+@SuppressWarnings("all")
 public class LinearExt extends LinearOpened implements OnnxIO {
 
 

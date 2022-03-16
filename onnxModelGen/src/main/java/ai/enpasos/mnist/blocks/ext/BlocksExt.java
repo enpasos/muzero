@@ -11,6 +11,7 @@ import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.IDENTITY;
 /**
  * Utility class that provides some useful blocks.
  */
+@SuppressWarnings("all")
 public final class BlocksExt {
 
     private BlocksExt() {

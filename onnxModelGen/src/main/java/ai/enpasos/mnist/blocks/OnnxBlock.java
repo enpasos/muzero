@@ -29,18 +29,18 @@ public class OnnxBlock {
     @Builder.Default
     List<TensorProto> parameters = new ArrayList<>();
 
-
+    @SuppressWarnings("java:S4276")
     public static List<OnnxTensor> createOutput(List<String> outputNames, List<OnnxTensor> input, Function<Shape[], Shape[]> shapeConverter) {
         List<Shape> outputShapes = List.of(shapeConverter.apply(getShapes(input).toArray(new Shape[0])));
         return combine(outputNames, outputShapes);
     }
 
     public static List<Shape> getShapes(List<OnnxTensor> tensors) {
-        return tensors.stream().map(i -> i.getShape()).collect(Collectors.toList());
+        return tensors.stream().map(OnnxTensor::getShape).collect(Collectors.toList());
     }
 
     public static List<String> getNames(List<OnnxTensor> tensors) {
-        return tensors.stream().map(i -> i.getName()).collect(Collectors.toList());
+        return tensors.stream().map(OnnxTensor::getName).collect(Collectors.toList());
     }
 
     public static List<OnnxTensor> combine(List<String> outputNames, List<Shape> outputShapes) {

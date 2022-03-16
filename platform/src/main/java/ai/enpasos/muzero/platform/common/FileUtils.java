@@ -7,6 +7,7 @@ import java.io.IOException;
 
 @Slf4j
 public class FileUtils {
+    private FileUtils() {}
     public static void rmDir(String pathStr) {
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(new File(pathStr));

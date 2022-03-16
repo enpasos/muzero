@@ -203,7 +203,7 @@ public class GoGame extends ZeroSumGame {
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
-            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().get().getPrior();
+            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
             values[GoAction.getRow(config, i)][GoAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
@@ -211,7 +211,7 @@ public class GoGame extends ZeroSumGame {
         log.debug(EnvironmentBase.render(config, values));
         if (boardSize < config.getActionSpaceSize()) {
             Action a = config.newAction(boardSize);
-            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().get().getPrior();
+            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
             log.debug(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
         }
     }

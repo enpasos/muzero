@@ -111,9 +111,7 @@ public class TicTacToeGame extends ZeroSumGame {
         NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
         NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
 
-        // workaround for
-        //    NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
-        float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];  // TODO check correct ordering
+        float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
                 data[i][j] = currentPlayer.getActionValue();
@@ -210,10 +208,7 @@ public class TicTacToeGame extends ZeroSumGame {
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
             float value = 0f;
-            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().get().getPrior();
-//            if (node.getChildren().containsKey(a)) {
-//                value = (float) node.getChildren().get(a).getPrior();
-//            }
+            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
@@ -221,10 +216,7 @@ public class TicTacToeGame extends ZeroSumGame {
         log.info(EnvironmentBase.render(config, values));
         if (boardSize < config.getActionSpaceSize()) {
             Action a = config.newAction(boardSize);
-            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().get().getPrior();
-//            if (node.getChildren().containsKey(a)) {
-//                value = (float) node.getChildren().get(a).getPrior();
-//            }
+            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
             log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
         }
     }

@@ -3,10 +3,11 @@
 ## About
 
 We have implemented [MuZero](https://deepmind.com/blog/article/muzero-mastering-go-chess-shogi-and-atari-without-rules)
-with [DJL](https://djl.ai/) (pure Java code running on top of PyTorch native) following 
+with [DJL](https://djl.ai/) (pure Java code running on top of PyTorch native) following
 DeepMind's [MuZero paper](https://www.nature.com/articles/s41586-020-03051-4) with network improvements as suggested in
 DeepMind's [MuZero Unplugged paper](https://arxiv.org/abs/2104.06294) and the replacement of the maximizing over an
-upper confidence bound by DeepMind's [Policy improvement by planning with Gumbel](https://openreview.net/forum?id=bERaNdoegnO).
+upper confidence bound by
+DeepMind's [Policy improvement by planning with Gumbel](https://openreview.net/forum?id=bERaNdoegnO).
 
 All the common logic is encapsulated in a platform module, while each game with its specific environment is implemented
 in a separate module:

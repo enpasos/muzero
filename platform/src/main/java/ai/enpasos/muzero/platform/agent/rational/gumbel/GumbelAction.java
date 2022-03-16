@@ -18,7 +18,7 @@ public class GumbelAction {
     double gumbelValue;
     double logit;
     double qValue;
-
+    int visitCount;
 
     public double getQValue() {
         if (node != null) {
@@ -33,9 +33,6 @@ public class GumbelAction {
         }
         return logit;
     }
-
-
-    int visitCount;
 
     public void initGumbelValue() {
         gumbelValue = drawGumble();

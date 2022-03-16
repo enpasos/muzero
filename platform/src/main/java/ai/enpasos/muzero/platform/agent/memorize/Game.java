@@ -54,7 +54,6 @@ public abstract class Game {
     protected int actionSpaceSize;
     protected double discount;
     protected Environment environment;
-    //protected List<Float> valuesFromCurrentInitialInference;
     protected GameDTO originalGameDTO;
     double[] values;
     double[] entropies;
@@ -69,7 +68,6 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
-        //    valuesFromCurrentInitialInference = new ArrayList<>();
         this.gameDTO = new GameDTO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
@@ -78,7 +76,6 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
-        //   valuesFromCurrentInitialInference = new ArrayList<>();
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();

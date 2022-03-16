@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,12 +118,11 @@ public class Ranking {
     }
 
     private void addPlayersToRanking(List<String> players) {
-        players.stream().forEach(p -> {
+        players.stream().forEach(p ->
             this.rankingList.rankings.add(RankingEntryDTO.builder()
                 .epochPlayer(Integer.parseInt(p))
-                .build());
-        });
-
+                .build())
+        );
     }
 
     public void clear() {
@@ -140,8 +140,8 @@ public class Ranking {
         dto.setElo(elo);
     }
 
-    private RankingEntryDTO getRankingEntryDTO(int playerEpoch) {
-        return this.rankingList.rankings.stream().filter(r -> r.epochPlayer == playerEpoch).findFirst().get();
+    private  RankingEntryDTO  getRankingEntryDTO(int playerEpoch) {
+       return this.rankingList.rankings.stream().filter(r -> r.epochPlayer == playerEpoch).findFirst().orElseThrow();
     }
 
     public void addBattle(int a, int b, double resultPlayerA, int numGamesPerBattle) {

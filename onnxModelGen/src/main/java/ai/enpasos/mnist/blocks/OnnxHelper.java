@@ -13,11 +13,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class OnnxHelper {
+
+    private OnnxHelper() {}
+
     public static TensorShapeProto convert(Shape shapes) {
         TensorShapeProto.Builder builder = TensorShapeProto.newBuilder();
-        Arrays.stream(shapes.getShape()).forEach(shape -> {
-            builder.addDim(TensorShapeProto.Dimension.newBuilder().setDimValue(shape).build());
-        });
+        Arrays.stream(shapes.getShape()).forEach(shape ->
+            builder.addDim(TensorShapeProto.Dimension.newBuilder().setDimValue(shape).build())
+        );
         return builder.build();
     }
 
@@ -38,7 +41,7 @@ public class OnnxHelper {
 
 
     public static List<ValueInfoProto> createValueInfoProto(List<OnnxTensor> output) {
-        return output.stream().map(t -> createValueInfoProto(t)).collect(Collectors.toList());
+        return output.stream().map(OnnxHelper::createValueInfoProto).collect(Collectors.toList());
 
     }
 

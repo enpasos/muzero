@@ -25,7 +25,6 @@ public class GoElo {
     GoArena goArena;
 
     public void run() {
-//        ranking.clear();
 
         var numOfBattles = 10;
         var numGamesPerBattle = 100;
@@ -60,7 +59,7 @@ public class GoElo {
         ranking.fillMissingRankingsByLinearInterpolation();
     }
 
-
+@SuppressWarnings("java:S106")
     private void printRankingList() {
         RankingListDTO rankingList = ranking.getRankingList();
         rankingList.sortByEpoch();

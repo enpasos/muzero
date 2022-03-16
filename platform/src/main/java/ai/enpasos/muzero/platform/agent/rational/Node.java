@@ -71,13 +71,6 @@ public class Node {
 
     }
 
-    public void setVisitCount(int visitCount) {
-        this.visitCount = visitCount;
-        if (this.getGumbelAction() != null) {
-            this.getGumbelAction().setVisitCount(visitCount);
-        }
-    }
-
     public Node(MuZeroConfig config, double prior) {
         this.config = config;
         this.visitCount = 0;
@@ -89,19 +82,26 @@ public class Node {
         this.valueFromInitialInference = 100000f;  // to produce a high error if not changed
     }
 
+    public void setVisitCount(int visitCount) {
+        this.visitCount = visitCount;
+        if (this.getGumbelAction() != null) {
+            this.getGumbelAction().setVisitCount(visitCount);
+        }
+    }
+
     public double getVmix() {
 
         // this is in the perspective of the player to play
         double vHat = this.getValueFromNetwork();
 
-         if (this.getVisitCount() == 0) return vHat;
+        if (this.getVisitCount() == 0) return vHat;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
             .mapToDouble(node -> node.getPrior() * node.qValue()).sum();
         double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(node -> node.getPrior()).sum();
+            .mapToDouble(Node::getPrior).sum();
         int d = this.getChildren().stream()
-            .mapToInt(node -> node.getVisitCount()).sum();
+            .mapToInt(Node::getVisitCount).sum();
 
         if (d == 0d) return vHat; // no visits on the children
         double vmix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
@@ -115,23 +115,21 @@ public class Node {
 
         double vMixFinal = vMix;
         return IntStream.range(0, children.size()).mapToDouble(i -> {
-            Node child = children.get(i);
-            if (child.getVisitCount() > 0) {
-                return child.qValue();
-            } else {
-                return vMixFinal;
-            }
-        })
-         .map(v -> minMaxStats.normalize(v))
-        .toArray();
+                Node child = children.get(i);
+                if (child.getVisitCount() > 0) {
+                    return child.qValue();
+                } else {
+                    return vMixFinal;
+                }
+            })
+            .map(minMaxStats::normalize)
+            .toArray();
 
     }
 
     public void updateImprovedPolicyValueOnChildren(MinMaxStats minMaxStats) {
-        int maxActionVisitCount = getChildren().stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
-        double[]  logits = getChildren().stream().mapToDouble(node -> {
-                return node.getLogit();
-            }).toArray();
+        int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+        double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
 
 
         double[] completedQs = getCompletedQValues(minMaxStats);
@@ -140,7 +138,7 @@ public class Node {
 
         double[] improvedPolicy = softmax(raw);
 
-        IntStream.range(0,improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
+        IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
 
     }
 
@@ -159,7 +157,6 @@ public class Node {
     }
 
 
-
     public double qValue() {
         double value = value();
         if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
@@ -176,41 +173,35 @@ public class Node {
     }
 
 
-
     public void expand(Player toPlay, NetworkIO networkOutput) {
         if (networkOutput != null)
             setValueFromNetwork(networkOutput.getValue());
 
         setToPlay(toPlay);
 
+        if (networkOutput == null)
+            throw new MuZeroException("networkOutput must not be null");
         setValueFromInitialInference(networkOutput.getValue());
         setHiddenState(networkOutput.getHiddenState());
         setReward(networkOutput.getReward());
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
-            policyMap.put(config.newAction(i), new Pair(
+            policyMap.put(config.newAction(i), new Pair<>(
                     networkOutput.getPolicyValues()[i],
                     networkOutput.getLogits()[i]
                 )
             );
         }
-//        for (Node a : children) {
-//            policyMap.put(a.getAction(), new Pair(
-//                    networkOutput.getPolicyValues()[a.getAction().getIndex()],
-//                    networkOutput.getLogits()[a.getAction().getIndex()]
-//                )
-//            );
-//        }
 
         double policySum = policyMap.values().stream()
             .mapToDouble(p -> p.getFirst().doubleValue())
             .sum();
         for (Map.Entry<Action, Pair<Float, Float>> e : policyMap.entrySet()) {
-            Action action = e.getKey();
+            Action action2 = e.getKey();
             Float p = e.getValue().getFirst();
-            Float logit = e.getValue().getSecond();
-            getChildren().add(Node.builder().parent(this).action(action).config(config).prior(p / policySum).logit(logit).build());
+            Float logit2 = e.getValue().getSecond();
+            getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
         }
 
 
@@ -225,19 +216,22 @@ public class Node {
 
         setToPlay(toPlay);
         if (!fastRuleLearning) {
+            if (networkOutput == null) {
+                throw new MuZeroException("networkOutput must not be null here");
+            }
             setValueFromInitialInference(networkOutput.getValue());
             setHiddenState(networkOutput.getHiddenState());
             setReward(networkOutput.getReward());
         }
         if (fastRuleLearning) {
             double p = 1d / actions.size();
-            for (Action action : actions) {
-                getChildren().add(Node.builder().parent(this).action(action).config(config).prior(p).build());
+            for (Action action2 : actions) {
+                getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p).build());
             }
         } else {
             Map<Action, Pair<Float, Float>> policy = actions.stream()
                 .collect(Collectors.toMap(a -> a, a ->
-                        new Pair(
+                        new Pair<Float, Float>(
                             networkOutput.getPolicyValues()[a.getIndex()],
                             networkOutput.getLogits()[a.getIndex()])
                     )
@@ -248,10 +242,10 @@ public class Node {
                 .mapToDouble(p -> p.getFirst().doubleValue())
                 .sum();
             for (Map.Entry<Action, Pair<Float, Float>> e : policy.entrySet()) {
-                Action action = e.getKey();
+                Action action2 = e.getKey();
                 Float p = e.getValue().getFirst();
-                Float logit = e.getValue().getSecond();
-                getChildren().add(Node.builder().parent(this).action(action).config(config).prior(p / policySum).logit(logit).build());
+                Float logit2 = e.getValue().getSecond();
+                getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
             }
 
         }
@@ -262,10 +256,10 @@ public class Node {
     }
 
 
-    public Node selectChild( MinMaxStats  minMaxStats) {
-        updateImprovedPolicyValueOnChildren( minMaxStats);
-        int nSum = this.getChildren().stream().mapToInt(node -> node.getVisitCount()).sum();
-        this.getChildren().stream().forEach(n ->  n.improvedPolicyValue2 = n.comparisonValue(nSum));
+    public Node selectChild(MinMaxStats minMaxStats) {
+        updateImprovedPolicyValueOnChildren(minMaxStats);
+        int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
+        this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
         return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
     }
 }

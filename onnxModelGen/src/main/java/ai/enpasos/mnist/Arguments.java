@@ -20,6 +20,7 @@ import org.apache.commons.cli.*;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+@SuppressWarnings("all")
 public class Arguments {
 
     protected int epoch;
