@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
-@SuppressWarnings("squid:S106")
+@SuppressWarnings("all")
 @Component
 public class ValueSelfconsistency {
     @Autowired

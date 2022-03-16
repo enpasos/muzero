@@ -103,11 +103,6 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-        Shape stateShape = input.get(0).getShape();
-        Shape actionShape = input.get(1).getShape();
-        Shape[] inputShapes = new Shape[]{stateShape, actionShape};
-        Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
-
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .build();

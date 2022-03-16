@@ -23,6 +23,7 @@ import java.util.List;
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.*", excludeFilters = {
     @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = TicTacToe.class)})
+@SuppressWarnings("all")
 public class DJLTicTacToeTest implements CommandLineRunner {
 
 
@@ -50,7 +51,7 @@ public class DJLTicTacToeTest implements CommandLineRunner {
             try {
                 Game game = conf.newGame();
                 var result = predictor.predict(List.of(game));
-                int i = 42;
+
 
             } catch (Exception e) {
                 e.printStackTrace();

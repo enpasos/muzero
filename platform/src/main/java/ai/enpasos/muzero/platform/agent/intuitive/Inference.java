@@ -162,7 +162,7 @@ public class Inference {
         return aiDecision(network, withMCTS, List.of(game)).get(0);
     }
 
-
+    @SuppressWarnings("java:S1135")
     private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, List<Game> games) {
         List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
 

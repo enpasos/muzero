@@ -76,7 +76,8 @@ public class GoStartValueExtractor {
                 count++;
                 sum += values.get(k - i).getValue();
             }
-            smoothedValues.add(new Pair<>(values.get(k).getKey(), sum / (double) count));
+            if (count == 0)  throw new MuZeroException("count should not be zero");
+            smoothedValues.add(new Pair<>(values.get(k).getKey(), sum /  count));
         }
         return smoothedValues;
     }

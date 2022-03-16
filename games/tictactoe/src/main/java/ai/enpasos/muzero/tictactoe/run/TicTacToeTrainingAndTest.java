@@ -28,9 +28,7 @@ public class TicTacToeTrainingAndTest {
     public void run() {
         rmDir(config.getOutputDir());
 
-        //  muZero.train(true, 1, false, false);
         muZero.train(TrainParams.builder()
-            // .freshBuffer(true)
             .render(true)
             .build());
 

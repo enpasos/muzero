@@ -54,13 +54,10 @@ class SearchManagerTest {
     MuZeroConfig config;
 
     @Test
-    @Disabled
     void searchManagerTest() {
-        config.setNetworkBaseDir("../../memory/tictactoe/networks");
+        config.setNetworkBaseDir("./pretrained");
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
-
-
         game.initSearchManager();
         SearchManager searchManager = game.getSearchManager();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
