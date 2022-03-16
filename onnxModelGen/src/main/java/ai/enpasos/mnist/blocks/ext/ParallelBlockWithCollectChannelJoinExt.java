@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
+@SuppressWarnings("all")
 public class ParallelBlockWithCollectChannelJoinExt extends ParallelBlock implements OnnxIO {
 
 

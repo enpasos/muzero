@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
-@SuppressWarnings("squid:S106")
+@SuppressWarnings("all")
 @Component
 public class ValueSelfconsistency {
     @Autowired
@@ -72,7 +72,7 @@ public class ValueSelfconsistency {
 
         List<Game> games = replayBuffer.getBuffer().getGames();
 
-        games.stream().forEach(g -> g.beforeReplay());
+        games.stream().forEach(Game::beforeReplay);
 
 
         List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
@@ -90,7 +90,7 @@ public class ValueSelfconsistency {
 
         this.replayBuffer.getBuffer().setGames(games);
         this.replayBuffer.getBuffer().setData(
-            games.stream().map(g -> g.getGameDTO()).collect(Collectors.toList())
+            games.stream().map(Game::getGameDTO).collect(Collectors.toList())
         );
 
         for (int g = 0; g < games.size(); g++) {
@@ -115,9 +115,9 @@ public class ValueSelfconsistency {
 
         this.replayBuffer.removeHighLastValueErrorGames();
 
-        games.stream().forEach(g -> g.afterReplay());
+        games.stream().forEach(Game::afterReplay);
         this.replayBuffer.getBuffer().setData(
-            games.stream().map(g -> g.getGameDTO()).collect(Collectors.toList())
+            games.stream().map(Game::getGameDTO).collect(Collectors.toList())
         );
 
 

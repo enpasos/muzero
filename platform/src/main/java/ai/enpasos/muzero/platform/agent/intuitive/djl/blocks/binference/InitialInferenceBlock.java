@@ -107,17 +107,11 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
         int concatDim = 1;
         Shape inputShape = input.get(0).getShape();
-        Shape[] gOutputShapes = h.getOutputShapes(new Shape[]{inputShape});
-        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
 
         List<OnnxTensor> concatOutput = combine(List.of("T" + counter.count()), List.of(inputShape));
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
-            //  .valueInfos(createValueInfoProto(input))
-//            .nodes(List.of(
-//
-//            ))
             .build();
 
         onnxBlock.getNodes().add(

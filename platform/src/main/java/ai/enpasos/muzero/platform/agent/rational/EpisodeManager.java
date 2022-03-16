@@ -43,29 +43,14 @@ public class EpisodeManager {
 
     public static Action getRandomAction(Node root) {
         List<Node> children = root.getChildren();
-        if (children.size() == 0) {
-            int i = 42;
-        }
         int index = randomStreamBase.nextInt(0, children.size() - 1);
         return children.get(index).getAction();
-    }
-
-
-    private static double @NotNull [] numpyRandomDirichlet(double alpha, int dims) {
-
-        double[] alphas = new double[dims];
-        Arrays.fill(alphas, alpha);
-        DirichletGen dg = new DirichletGen(randomStreamBase, alphas);
-        double[] p = new double[dims];
-
-        dg.nextPoint(p);
-        return p;
     }
 
     public static double[] softmax(double[] raw) {
         double max = Arrays.stream(raw).max().getAsDouble();
         raw = Arrays.stream(raw).map(x -> x - max).toArray();
-        double[] vs = Arrays.stream(raw).map(v -> Math.exp(v)).toArray();
+        double[] vs = Arrays.stream(raw).map(Math::exp).toArray();
         double sum = Arrays.stream(vs).sum();
         return Arrays.stream(vs).map(v -> v / sum).toArray();
     }
@@ -124,7 +109,7 @@ public class EpisodeManager {
         keepTrackOfOpenGames();
     }
 
-    public void play(Network network, boolean render, boolean fastRuleLearning ) {
+    public void play(Network network, boolean render, boolean fastRuleLearning) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
         shortCutForGamesWithoutAnOption(render);
@@ -140,7 +125,6 @@ public class EpisodeManager {
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
-            //   List<Node> rootList = initRootNodes();
             networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
@@ -154,9 +138,7 @@ public class EpisodeManager {
         if (!fastRuleLearning) {
             do {
                 List<List<Node>> searchPathList = new ArrayList<>();
-                IntStream.range(0, nGames).forEach(i -> {
-                    searchPathList.add(searchManagers.get(i).search() );
-                });
+                IntStream.range(0, nGames).forEach(i -> searchPathList.add(searchManagers.get(i).search()));
 
                 if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
                 List<NetworkIO> networkOutputList = mcts.recurrentInference(network, searchPathList);
@@ -186,7 +168,7 @@ public class EpisodeManager {
 
     private void shortCutForGamesWithoutAnOption(boolean render) {
         List<Game> gamesWithOnlyOneAllowedAction = this.gameList.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
-        if (gamesWithOnlyOneAllowedAction.size() == 0) return;
+        if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
 
         this.gameList.removeAll(gamesWithOnlyOneAllowedAction);
@@ -199,13 +181,13 @@ public class EpisodeManager {
             policyTarget[action.getIndex()] = 1f;
 
             game.getGameDTO().getPolicyTargets().add(policyTarget);
-            if (game.getSearchManager()!= null) {
+            if (game.getSearchManager() != null) {
                 Node root = game.getSearchManager().getRoot();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
             }
 
-            if (render && game.isDebug() ) {
-                game.renderMCTSSuggestion(config,  policyTarget);
+            if (render && game.isDebug()) {
+                game.renderMCTSSuggestion(config, policyTarget);
                 log.debug("\n" + game.render());
             }
 

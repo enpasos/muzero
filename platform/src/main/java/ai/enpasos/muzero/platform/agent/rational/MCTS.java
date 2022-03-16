@@ -65,18 +65,12 @@ public class MCTS {
     }
 
 
-    private void clean(@NotNull List<Node> rootList) {
-        rootList.forEach(
-            this::clean
-        );
-    }
-
     private void clean(@NotNull Node node) {
         if (node.getHiddenState() != null) {
             node.getHiddenState().close();
             node.setHiddenState(null);
         }
-        node.getChildren().forEach(n -> clean(n));
+        node.getChildren().forEach(this::clean);
     }
 
     private @NotNull String searchPathToString(@NotNull List<Node> searchPath, boolean withValue, MinMaxStats minMaxStats) {
@@ -87,9 +81,8 @@ public class MCTS {
                     buf.append(", ")
                         .append(n.getAction().getIndex());
                     if (withValue) {
-                        buf.append("(")
-                            // .append(n.valueScore(minMaxStats, config))
-                            .append(n.qValue() + "")
+                        // .append(n.valueScore(minMaxStats, config))
+                        buf.append("(").append(n.qValue())
                             .append(")");
                     }
                 } else {

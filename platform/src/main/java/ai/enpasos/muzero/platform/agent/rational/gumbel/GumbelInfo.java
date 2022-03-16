@@ -22,7 +22,6 @@ public class GumbelInfo {
     boolean finished = false;
 
 
-
     public void next() {
         if (finished && m == 1) return;
         if (phase == this.extraVisitsPerPhase.length - 1

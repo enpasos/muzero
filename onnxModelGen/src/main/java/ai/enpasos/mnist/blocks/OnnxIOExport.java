@@ -16,6 +16,7 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 
 public class OnnxIOExport {
 
+    private OnnxIOExport() {}
 
     public static void onnxExport(Model model, List<Shape> inputShapes, String fileName, String namePrefix) {
         onnxExport((OnnxIO) model.getBlock(), inputShapes, fileName, namePrefix);
@@ -80,6 +81,7 @@ public class OnnxIOExport {
     }
 
 
+    @SuppressWarnings("java:S112")
     private static void save(ModelProto modelProto, String fileName) {
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
             byte[] data = modelProto.toByteArray();

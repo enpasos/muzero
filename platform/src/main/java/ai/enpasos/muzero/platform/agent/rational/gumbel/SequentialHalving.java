@@ -4,12 +4,13 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.*;
 
 public class SequentialHalving {
+
+    private SequentialHalving() {}
 
     public static int getM(int n) {
         return Math.min(n, 16);
@@ -22,7 +23,7 @@ public class SequentialHalving {
     }
 
     public static GumbelAction selectAction(int n, int m, List<GumbelAction> gumbelActions, int cVisit, double cScale) {
-        gumbelActions = drawGumbelActionsInitially(gumbelActions, m);
+        gumbelActions = Gumbel.drawGumbelActions(gumbelActions, m);
         int[] extraPhaseVisitsToUpdateQPerPhase = extraPhaseVisitsToUpdateQPerPhase(n, m);
         for (int p = 0; p < extraPhaseVisitsToUpdateQPerPhase.length; p++) {
             int extraPhaseVisitsToUpdateQ = extraPhaseVisitsToUpdateQPerPhase[p];
@@ -40,11 +41,11 @@ public class SequentialHalving {
     }
 
     public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale) {
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
-        double[] qs = gumbelActions.stream().mapToDouble(a -> a.getQValue()).toArray();
-        int maxActionVisitCount = gumbelActions.stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
+        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
+        double[] qs = gumbelActions.stream().mapToDouble(GumbelAction::getQValue).toArray();
+        int maxActionVisitCount = gumbelActions.stream().mapToInt(GumbelAction::getVisitCount).max().getAsInt();
         double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
         List<Integer> selectedActions = drawActions(actions, add(add(logits, g), sigmas), m);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
@@ -65,13 +66,12 @@ public class SequentialHalving {
     }
 
     public static int[] extraPhaseVisitsToUpdateQPerPhase(int budget, int m) {
-        // if (! isPowerOfTwo(m)) throw new MuZeroException("m must be a power of 2");
         int remainingBudget = budget;
         int phases = (int) log2(m);
 
         int[] result = new int[phases];
         for (int p = 0; p < phases; p++) {
-            int na = (int) ((double) budget / phases / (double) m);
+            int na = (int) ((double) budget / phases /  m);
             if (p < phases - 1) {
                 result[p] = na;
                 remainingBudget -= na * m;

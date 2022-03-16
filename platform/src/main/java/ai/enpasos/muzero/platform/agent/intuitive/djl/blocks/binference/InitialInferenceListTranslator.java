@@ -80,13 +80,13 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             .mapToObj(i ->
             {
                 float[] ps = new float[actionSpaceSize];
-                float[] logits_ = new float[actionSpaceSize];
-                System.arraycopy(logitsArray, i * actionSpaceSize, logits_, 0, actionSpaceSize);
+                float[] logits2 = new float[actionSpaceSize];
+                System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
                 return NetworkIO.builder()
                     .value(vArray[i])
                     .policyValues(ps)
-                    .logits(logits_)
+                    .logits(logits2)
                     .build();
 
             })

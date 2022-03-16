@@ -36,7 +36,7 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
-
+@SuppressWarnings("all")
 public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
 
 

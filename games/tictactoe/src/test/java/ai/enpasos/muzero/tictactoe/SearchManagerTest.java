@@ -54,13 +54,10 @@ class SearchManagerTest {
     MuZeroConfig config;
 
     @Test
-    @Disabled
     void searchManagerTest() {
-        config.setNetworkBaseDir("../../memory/tictactoe/networks");
+        config.setNetworkBaseDir("./pretrained");
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
-
-
         game.initSearchManager();
         SearchManager searchManager = game.getSearchManager();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
@@ -72,19 +69,17 @@ class SearchManagerTest {
                 List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
                 network.setActionSpaceOnDevice(actionSpaceOnDevice);
                 network.createAndSetHiddenStateNDManager(nDManager, true);
-                List<NetworkIO> networkOutput =  network.initialInferenceListDirect(List.of(game));
+                List<NetworkIO> networkOutput = network.initialInferenceListDirect(List.of(game));
                 searchManager.expandRootNode(false, networkOutput.get(0));
                 searchManager.gumbelActionsStart();
                 for (int i = 0; i < 1000; i++) {
                     System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
                     assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
-                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations() ) );
+                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
                     searchManager.next();
                 }
             }
-        } catch (MalformedModelException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (MalformedModelException | IOException e) {
             e.printStackTrace();
         }
 

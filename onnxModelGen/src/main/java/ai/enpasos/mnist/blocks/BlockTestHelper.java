@@ -43,6 +43,7 @@ class BlockTestHelper {
         return checkResult;
     }
 
+    @SuppressWarnings({"java:S1141", "java:S1301"})
     public static Pair<NDList, NDList> inputOutputFromDJL(Block block, List<Shape> inputShapes, String modelPath, Testdata testdata) {
 
         NDList input = null;
@@ -69,6 +70,7 @@ class BlockTestHelper {
             try (Trainer trainer = model.newTrainer(new DefaultTrainingConfig(Loss.l2Loss()))) {
                 outputDJL = trainer.forward(input).toDevice(Device.cpu(), true);
             } catch (Exception e) {
+                // ignore
             }
 
             onnxExport(model, inputShapes, modelPath, "");
@@ -106,7 +108,7 @@ class BlockTestHelper {
                     .collect(Collectors.toList());
 
                 Map<String, ai.onnxruntime.OnnxTensor> inputMap = new TreeMap<>();
-                try {
+                try(NDManager ndManager = NDManager.newBaseManager()) {
 
                     for (int i = 0; i < input.size(); i++) {
                         inputMap.put("Input" + i, ai.onnxruntime.OnnxTensor.createTensor(env, FloatBuffer.wrap(input.get(i).toFloatArray()), input.get(i).getShape().getShape()));
@@ -117,13 +119,13 @@ class BlockTestHelper {
                     List<NDArray> ndArrays = new ArrayList<>();
                     for (int i = 0; i < output.size(); i++) {
                         ai.onnxruntime.OnnxTensor t = (OnnxTensor) output.get(i);
-                        ndArrays.add(NDManager.newBaseManager().create(t.getFloatBuffer().array(), outputShapes.get(i)));
+                        ndArrays.add( ndManager.create(t.getFloatBuffer().array(), outputShapes.get(i)));
                     }
 
                     outputOnnx = new NDList(ndArrays);
 
                 } finally {
-                    inputMap.values().stream().forEach(t -> t.close());
+                    inputMap.values().stream().forEach(OnnxTensor::close);
                 }
 
             }

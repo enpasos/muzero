@@ -43,16 +43,16 @@ import java.util.Arrays;
  * Empirically, we show that layer normalization can substantially reduce the training time compared
  * with previously published techniques."
  */
+@SuppressWarnings("all")
 public class LayerNorm extends AbstractBlock {
 
     private final float epsilon;
-    private Shape normalizedShape;
-
     private final boolean center;
     private final boolean scale;
     private final int[] axis;
     private final Parameter gamma;
     private final Parameter beta;
+    private Shape normalizedShape;
 
     LayerNorm(Builder builder) {
         epsilon = builder.epsilon;

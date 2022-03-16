@@ -1,6 +1,7 @@
 package ai.enpasos.mnist.inference;
 
 import ai.djl.ndarray.types.Shape;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.onnxruntime.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +23,6 @@ public class TicTacToeMicrosoftRT {
 
         resultA.get(0).setName("InputF_0");
         List<JvmData> result2 = runFunction("./models/prediction.onnx", resultA);
-        // log.info(result2.toString());
         log.info(Arrays.toString(softmax(result2.get(0).getData())));
         log.info(Arrays.toString(result2.get(1).getData()));
     }
@@ -38,6 +38,7 @@ public class TicTacToeMicrosoftRT {
 
         float[] output = new float[input.length];
         for (int i = 0; i < output.length; i++) {
+            if (sum == 0) throw new MuZeroException("sum should not be zero");
             output[i] = (float) (tmp[i] / sum);
         }
         return output;
@@ -58,7 +59,7 @@ public class TicTacToeMicrosoftRT {
                     OrtSession.Result output = session.run(map);
                     return convert(output);
                 } finally {
-                    map.values().stream().forEach(t -> t.close());
+                    map.values().stream().forEach(OnnxTensor::close);
                 }
             }
         }

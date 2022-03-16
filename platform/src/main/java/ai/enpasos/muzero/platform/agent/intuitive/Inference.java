@@ -62,7 +62,6 @@ public class Inference {
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
 
         int[] actionIndexesSelectedByNetwork;
-        // config.setNetworkBaseDir(networkDir);
 
         try (Model model = Model.newInstance(config.getModelName())) {
 
@@ -73,7 +72,7 @@ public class Inference {
                 network.setHiddenStateNDManager(nDManager);
 
                 actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, games).stream()
-                    .mapToInt(i -> i.getSecond()).toArray();
+                    .mapToInt(Pair::getSecond).toArray();
 
             }
 
@@ -146,7 +145,7 @@ public class Inference {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             network.setHiddenStateNDManager(nDManager);
             List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            valueByNetwork = networkOutputs.stream().mapToDouble(o -> o.getValue()).toArray();
+            valueByNetwork = networkOutputs.stream().mapToDouble(NetworkIO::getValue).toArray();
         }
         return valueByNetwork;
     }
@@ -163,7 +162,7 @@ public class Inference {
         return aiDecision(network, withMCTS, List.of(game)).get(0);
     }
 
-
+    @SuppressWarnings("java:S1135")
     private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, List<Game> games) {
         List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
 
@@ -194,15 +193,11 @@ public class Inference {
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
 
-        }
-        else {
+        } else {
             // TODO: needs to be tested
-            List<Node> rootNodes = IntStream.range(0, games.size())
-                .mapToObj(i -> new Node(config, 0, true))
-                .collect(Collectors.toList());
 
             episode.init(games);
-            episode.play(network, false, false );
+            episode.play(network, false, false);
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {

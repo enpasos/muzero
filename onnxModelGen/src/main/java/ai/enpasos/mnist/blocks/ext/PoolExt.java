@@ -27,6 +27,7 @@ import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
  * @see <a href="https://d2l.djl.ai/chapter_convolutional-neural-networks/pooling.html">The D2L
  * chapter on pooling</a>
  */
+@SuppressWarnings("all")
 public final class PoolExt {
 
     private PoolExt() {
