@@ -4,7 +4,6 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.*;
@@ -22,7 +21,7 @@ public class SequentialHalving {
     }
 
     public static GumbelAction selectAction(int n, int m, List<GumbelAction> gumbelActions, int cVisit, double cScale) {
-        gumbelActions = drawGumbelActionsInitially(gumbelActions, m);
+        gumbelActions = Gumbel.drawGumbelActions(gumbelActions, m);
         int[] extraPhaseVisitsToUpdateQPerPhase = extraPhaseVisitsToUpdateQPerPhase(n, m);
         for (int p = 0; p < extraPhaseVisitsToUpdateQPerPhase.length; p++) {
             int extraPhaseVisitsToUpdateQ = extraPhaseVisitsToUpdateQPerPhase[p];

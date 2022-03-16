@@ -194,15 +194,14 @@ public class Inference {
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
 
-        }
-        else {
+        } else {
             // TODO: needs to be tested
             List<Node> rootNodes = IntStream.range(0, games.size())
                 .mapToObj(i -> new Node(config, 0, true))
                 .collect(Collectors.toList());
 
             episode.init(games);
-            episode.play(network, false, false );
+            episode.play(network, false, false);
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {

@@ -263,7 +263,7 @@ public class GoSurprise {
         });
 
 
-        selfPlay.replayGamesToEliminateSurprise(network,  gamesToReplay);
+        selfPlay.replayGamesToEliminateSurprise(network, gamesToReplay);
                 /*
            - remove the game from the memory
            - replay the game a number of N times and add them to memory

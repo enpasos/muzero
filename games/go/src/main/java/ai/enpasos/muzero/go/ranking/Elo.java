@@ -4,7 +4,8 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 
 public class Elo {
 
-    private Elo() {}
+    private Elo() {
+    }
 
     /**
      * (from https://europeangodatabase.eu/EGD/EGF_rating_system.php)

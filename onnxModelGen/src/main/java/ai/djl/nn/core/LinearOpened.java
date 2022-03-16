@@ -34,13 +34,10 @@ import java.util.Collections;
 public class LinearOpened extends AbstractBlock {
 
     private static final byte VERSION = 4;
-
+    private final Parameter weight;
     private long units;
     private long inputFeatures;
-
     private Shape inputShape;
-
-    private final Parameter weight;
     private Parameter bias;
 
     protected LinearOpened(Builder builder) {

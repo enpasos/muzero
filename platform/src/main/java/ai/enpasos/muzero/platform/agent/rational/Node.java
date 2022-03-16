@@ -71,13 +71,6 @@ public class Node {
 
     }
 
-    public void setVisitCount(int visitCount) {
-        this.visitCount = visitCount;
-        if (this.getGumbelAction() != null) {
-            this.getGumbelAction().setVisitCount(visitCount);
-        }
-    }
-
     public Node(MuZeroConfig config, double prior) {
         this.config = config;
         this.visitCount = 0;
@@ -89,12 +82,19 @@ public class Node {
         this.valueFromInitialInference = 100000f;  // to produce a high error if not changed
     }
 
+    public void setVisitCount(int visitCount) {
+        this.visitCount = visitCount;
+        if (this.getGumbelAction() != null) {
+            this.getGumbelAction().setVisitCount(visitCount);
+        }
+    }
+
     public double getVmix() {
 
         // this is in the perspective of the player to play
         double vHat = this.getValueFromNetwork();
 
-         if (this.getVisitCount() == 0) return vHat;
+        if (this.getVisitCount() == 0) return vHat;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
             .mapToDouble(node -> node.getPrior() * node.qValue()).sum();
@@ -115,23 +115,23 @@ public class Node {
 
         double vMixFinal = vMix;
         return IntStream.range(0, children.size()).mapToDouble(i -> {
-            Node child = children.get(i);
-            if (child.getVisitCount() > 0) {
-                return child.qValue();
-            } else {
-                return vMixFinal;
-            }
-        })
-         .map(v -> minMaxStats.normalize(v))
-        .toArray();
+                Node child = children.get(i);
+                if (child.getVisitCount() > 0) {
+                    return child.qValue();
+                } else {
+                    return vMixFinal;
+                }
+            })
+            .map(v -> minMaxStats.normalize(v))
+            .toArray();
 
     }
 
     public void updateImprovedPolicyValueOnChildren(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
-        double[]  logits = getChildren().stream().mapToDouble(node -> {
-                return node.getLogit();
-            }).toArray();
+        double[] logits = getChildren().stream().mapToDouble(node -> {
+            return node.getLogit();
+        }).toArray();
 
 
         double[] completedQs = getCompletedQValues(minMaxStats);
@@ -140,7 +140,7 @@ public class Node {
 
         double[] improvedPolicy = softmax(raw);
 
-        IntStream.range(0,improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
+        IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
 
     }
 
@@ -159,7 +159,6 @@ public class Node {
     }
 
 
-
     public double qValue() {
         double value = value();
         if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
@@ -174,7 +173,6 @@ public class Node {
         // is from perspective of the player to play at the root node for this node (not the parent)
         return this.getValueSum() / this.visitCount;
     }
-
 
 
     public void expand(Player toPlay, NetworkIO networkOutput) {
@@ -262,10 +260,10 @@ public class Node {
     }
 
 
-    public Node selectChild( MinMaxStats  minMaxStats) {
-        updateImprovedPolicyValueOnChildren( minMaxStats);
+    public Node selectChild(MinMaxStats minMaxStats) {
+        updateImprovedPolicyValueOnChildren(minMaxStats);
         int nSum = this.getChildren().stream().mapToInt(node -> node.getVisitCount()).sum();
-        this.getChildren().stream().forEach(n ->  n.improvedPolicyValue2 = n.comparisonValue(nSum));
+        this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
         return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
     }
 }

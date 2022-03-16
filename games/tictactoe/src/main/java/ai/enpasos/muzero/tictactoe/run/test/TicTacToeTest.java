@@ -95,7 +95,6 @@ public class TicTacToeTest {
         log.info("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
 
 
-
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
             Network network = new Network(config, model);

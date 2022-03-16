@@ -55,7 +55,7 @@ public class EnvironmentBase implements Environment {
             sb.append(config.getBoardHeight() - j);
             sb.append(v);
             for (int i = 0; i < config.getBoardWidth(); i++) {
-                String value = values[config.getBoardHeight()-1-j][i];
+                String value = values[config.getBoardHeight() - 1 - j][i];
                 if (" 0%".equals(value)) {
                     value = "   ";
                 }
