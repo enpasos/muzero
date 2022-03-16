@@ -20,10 +20,12 @@ package ai.enpasos.muzero.platform.environment;
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class EnvironmentZeroSumBase extends EnvironmentBase {
 

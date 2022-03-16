@@ -65,7 +65,7 @@ public class EpisodeManager {
     public static double[] softmax(double[] raw) {
         double max = Arrays.stream(raw).max().getAsDouble();
         raw = Arrays.stream(raw).map(x -> x - max).toArray();
-        double[] vs = Arrays.stream(raw).map(v -> Math.exp(v)).toArray();
+        double[] vs = Arrays.stream(raw).map(Math::exp).toArray();
         double sum = Arrays.stream(vs).sum();
         return Arrays.stream(vs).map(v -> v / sum).toArray();
     }
@@ -154,9 +154,7 @@ public class EpisodeManager {
         if (!fastRuleLearning) {
             do {
                 List<List<Node>> searchPathList = new ArrayList<>();
-                IntStream.range(0, nGames).forEach(i -> {
-                    searchPathList.add(searchManagers.get(i).search());
-                });
+                IntStream.range(0, nGames).forEach(i -> searchPathList.add(searchManagers.get(i).search()));
 
                 if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
                 List<NetworkIO> networkOutputList = mcts.recurrentInference(network, searchPathList);

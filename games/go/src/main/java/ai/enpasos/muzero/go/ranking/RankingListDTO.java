@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -17,10 +18,10 @@ public class RankingListDTO {
     List<RankingEntryDTO> rankings = new ArrayList<>();
 
     public void sortByElo() {
-        rankings.sort((RankingEntryDTO r1, RankingEntryDTO r2) -> Integer.compare(r1.getElo(), r2.getElo()));
+        rankings.sort(Comparator.comparingInt(RankingEntryDTO::getElo));
     }
 
     public void sortByEpoch() {
-        rankings.sort((RankingEntryDTO r1, RankingEntryDTO r2) -> Integer.compare(r1.epochPlayer, r2.epochPlayer));
+        rankings.sort(Comparator.comparingInt((RankingEntryDTO r) -> r.epochPlayer));
     }
 }

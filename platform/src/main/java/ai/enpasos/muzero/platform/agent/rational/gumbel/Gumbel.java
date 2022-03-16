@@ -5,6 +5,7 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -46,11 +47,11 @@ public class Gumbel {
         List<Integer> result = new ArrayList<>();
 
         List<Pair<Integer, Double>> gPlusLogits = IntStream.range(0, x.length).mapToObj(
-            i -> new Pair<Integer, Double>(i, x[i])
+            i -> new Pair<>(i, x[i])
         ).collect(Collectors.toList());
 
         IntStream.range(0, n).forEach(i -> {
-            Pair<Integer, Double> max = gPlusLogits.stream().max((a, b) -> Double.compare( a.getValue(),  b.getValue())).get();
+            Pair<Integer, Double> max = gPlusLogits.stream().max(Comparator.comparingDouble(Pair::getValue)).get();
             result.add(actions[max.getKey()]);
             gPlusLogits.remove(max);
         });

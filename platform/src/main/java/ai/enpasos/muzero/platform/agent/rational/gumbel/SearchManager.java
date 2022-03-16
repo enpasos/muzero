@@ -98,9 +98,9 @@ public class SearchManager {
     }
 
     public List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
+        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         double[] raw = add(logits, g);
 
         List<Integer> selectedActions = drawActions(actions, raw, n);
@@ -109,12 +109,10 @@ public class SearchManager {
 
     public void gumbelActionsOnPhaseChange() {
 
-        List<GumbelAction> gumbelActions = rootChildrenCandidates.stream().map(node -> {
-            return node.getGumbelAction();
-        }).collect(Collectors.toList());
+        List<GumbelAction> gumbelActions = rootChildrenCandidates.stream().map(Node::getGumbelAction).collect(Collectors.toList());
 
 
-        int maxActionVisitCount = rootChildrenCandidates.stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
+        int maxActionVisitCount = rootChildrenCandidates.stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
         // drawing m actions out of the candidate actions (from root) for each parallel played game
         gumbelActions = drawGumbelActions(gumbelActions, gumbelInfo.getM(), config.getCVisit(), config.getCScale(), maxActionVisitCount);
@@ -126,11 +124,11 @@ public class SearchManager {
     }
 
     public List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale, int maxActionVisitCount) {
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
+        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         double[] qs = gumbelActions.stream()
-            .mapToDouble(a -> a.getQValue())
+            .mapToDouble(GumbelAction::getQValue)
             .map(v -> minMaxStats.normalize(v))
             .toArray();
 
@@ -279,17 +277,13 @@ public class SearchManager {
             policyTarget[this.getSelectedAction().getIndex()] = 1f;
         } else {
 
-            double[] logits = root.getChildren().stream().mapToDouble(node -> {
-                return node.getGumbelAction().getLogit();
-            }).toArray();
+            double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
 
             double[] completedQs = root.getCompletedQValues(minMaxStats);
 
-            int[] actions = root.getChildren().stream().mapToInt(node -> {
-                return node.getAction().getIndex();
-            }).toArray();
+            int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
-            int maxActionVisitCount = root.getChildren().stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
+            int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
             double[] raw = add(logits, sigmas(completedQs, maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);

@@ -99,9 +99,9 @@ public class Node {
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
             .mapToDouble(node -> node.getPrior() * node.qValue()).sum();
         double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(node -> node.getPrior()).sum();
+            .mapToDouble(Node::getPrior).sum();
         int d = this.getChildren().stream()
-            .mapToInt(node -> node.getVisitCount()).sum();
+            .mapToInt(Node::getVisitCount).sum();
 
         if (d == 0d) return vHat; // no visits on the children
         double vmix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
@@ -122,16 +122,14 @@ public class Node {
                     return vMixFinal;
                 }
             })
-            .map(v -> minMaxStats.normalize(v))
+            .map(minMaxStats::normalize)
             .toArray();
 
     }
 
     public void updateImprovedPolicyValueOnChildren(MinMaxStats minMaxStats) {
-        int maxActionVisitCount = getChildren().stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
-        double[] logits = getChildren().stream().mapToDouble(node -> {
-            return node.getLogit();
-        }).toArray();
+        int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+        double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
 
 
         double[] completedQs = getCompletedQValues(minMaxStats);
@@ -262,7 +260,7 @@ public class Node {
 
     public Node selectChild(MinMaxStats minMaxStats) {
         updateImprovedPolicyValueOnChildren(minMaxStats);
-        int nSum = this.getChildren().stream().mapToInt(node -> node.getVisitCount()).sum();
+        int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
         this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
         return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
     }

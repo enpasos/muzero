@@ -53,8 +53,7 @@ public class GoArena {
     private double[] play(boolean startingPlayerA, String playerA, String playerB, int n) {
         List<Game> gameList = IntStream.range(0, n).mapToObj(i -> config.newGame()).collect(Collectors.toList());
         // Game game = config.newGame();
-        List<Game> runningGames = new ArrayList<>();
-        runningGames.addAll(gameList);
+        List<Game> runningGames = new ArrayList<>(gameList);
         String currentPlayer = startingPlayerA ? playerA : playerB;
         while (!runningGames.isEmpty()) {
             move(runningGames, currentPlayer);

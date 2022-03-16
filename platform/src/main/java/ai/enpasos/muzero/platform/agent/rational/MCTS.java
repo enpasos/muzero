@@ -81,9 +81,8 @@ public class MCTS {
                     buf.append(", ")
                         .append(n.getAction().getIndex());
                     if (withValue) {
-                        buf.append("(")
-                            // .append(n.valueScore(minMaxStats, config))
-                            .append(n.qValue() + "")
+                        // .append(n.valueScore(minMaxStats, config))
+                        buf.append("(").append(n.qValue())
                             .append(")");
                     }
                 } else {
