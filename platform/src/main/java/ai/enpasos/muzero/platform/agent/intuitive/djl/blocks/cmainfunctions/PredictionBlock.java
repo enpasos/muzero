@@ -32,7 +32,7 @@ public class PredictionBlock extends MySequentialBlock {
         this(config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWO_PLAYERS, int actionSpaceSize) {
+    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize) {
 
 
         SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt()
@@ -44,7 +44,7 @@ public class PredictionBlock extends MySequentialBlock {
             .add(ActivationExt.reluBlock())
             .add(LinearExt.builder()
                 .setUnits(1).build());
-        if (isPlayerModeTWO_PLAYERS) {
+        if (isPlayerModeTWOPLAYERS) {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
@@ -57,14 +57,6 @@ public class PredictionBlock extends MySequentialBlock {
 
 
         add(new ParallelBlockWithCollectChannelJoinExt(
-//                list -> {
-//                    List<NDArray> concatenatedList = list
-//                            .stream()
-//                            .map(NDList::head)
-//                            .collect(Collectors.toList());
-//
-//                    return new NDList(concatenatedList);
-//                },
                 Arrays.asList(policyHead, valueHead))
         );
     }

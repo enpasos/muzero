@@ -40,6 +40,7 @@ import ai.djl.util.Preconditions;
  *
  * @see Convolution
  */
+@SuppressWarnings("all")
 public class Conv2dOpened extends Convolution {
 
     private static final LayoutType[] EXPECTED_LAYOUT = {

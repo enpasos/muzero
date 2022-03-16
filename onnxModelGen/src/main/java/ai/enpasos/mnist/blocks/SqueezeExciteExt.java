@@ -37,6 +37,7 @@ public class SqueezeExciteExt extends AbstractBlock implements OnnxIO {
     public final ParallelBlockWithScalerJoinExt block;
 
 
+    @SuppressWarnings("java:S1135")
     public SqueezeExciteExt(int numChannels, int squeezeChannelRatio) {
         super((byte) 1);
 

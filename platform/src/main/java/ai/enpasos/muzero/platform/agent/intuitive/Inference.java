@@ -62,7 +62,6 @@ public class Inference {
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
 
         int[] actionIndexesSelectedByNetwork;
-        // config.setNetworkBaseDir(networkDir);
 
         try (Model model = Model.newInstance(config.getModelName())) {
 
@@ -73,7 +72,7 @@ public class Inference {
                 network.setHiddenStateNDManager(nDManager);
 
                 actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, games).stream()
-                    .mapToInt(i -> i.getSecond()).toArray();
+                    .mapToInt(Pair::getSecond).toArray();
 
             }
 
@@ -146,7 +145,7 @@ public class Inference {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             network.setHiddenStateNDManager(nDManager);
             List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            valueByNetwork = networkOutputs.stream().mapToDouble(o -> o.getValue()).toArray();
+            valueByNetwork = networkOutputs.stream().mapToDouble(NetworkIO::getValue).toArray();
         }
         return valueByNetwork;
     }
@@ -196,9 +195,6 @@ public class Inference {
 
         } else {
             // TODO: needs to be tested
-            List<Node> rootNodes = IntStream.range(0, games.size())
-                .mapToObj(i -> new Node(config, 0, true))
-                .collect(Collectors.toList());
 
             episode.init(games);
             episode.play(network, false, false);
