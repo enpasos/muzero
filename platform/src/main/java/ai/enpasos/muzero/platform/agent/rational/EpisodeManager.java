@@ -138,22 +138,26 @@ public class EpisodeManager {
         if (!fastRuleLearning) {
             do {
                 List<List<Node>> searchPathList = new ArrayList<>();
-                IntStream.range(0, nGames).forEach(i -> searchPathList.add(searchManagers.get(i).search()));
+                List<SearchManager> searchManagersLocal =
+                    searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());
+
+                IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
 
                 if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
                 List<NetworkIO> networkOutputList = mcts.recurrentInference(network, searchPathList);
                 if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
 
-                IntStream.range(0, nGames).forEach(i -> {
-                    searchManagers.get(i).expandAndBackpropagate(networkOutputList.get(i));
-                    searchManagers.get(i).next();
+                IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
+                    SearchManager sm = searchManagersLocal.get(i);
+                    sm.expandAndBackpropagate(networkOutputList.get(i));
+                    sm.next();
                 });
 
                 // if there is an equal number of simulations in each game
                 // the loop can be replaced by an explicit loop over the number of simulations
                 // if the simulations are different per game the loop needs to be adjust
                 // as the simulations would go on even for the game where simulation is over
-            } while (searchManagers.stream().allMatch(sm -> !sm.isSimulationsFinished()));
+            } while (searchManagers.stream().anyMatch(sm -> !sm.isSimulationsFinished()));
 
         }
         IntStream.range(0, nGames).forEach(i ->

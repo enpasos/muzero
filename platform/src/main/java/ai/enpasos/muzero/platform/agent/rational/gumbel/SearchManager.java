@@ -23,6 +23,7 @@ import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.getRandom
 import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.softmax;
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.add;
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.drawActions;
+import static ai.enpasos.muzero.platform.agent.rational.gumbel.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.extraPhaseVisitsToUpdateQPerPhase;
 import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.sigmas;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
@@ -51,28 +52,14 @@ public class SearchManager {
         this.root = new Node(config, 0, true);
         this.game = game;
         this.minMaxStats = new MinMaxStats(config.getKnownBounds());
-        initGumbelInfo(config, game);
-    }
 
-    private void initGumbelInfo(MuZeroConfig config, Game game) {
         int n = config.getNumSimulations();
         int m = Math.min(n, config.getInitialGumbelM());
         int k = game.legalActions().size();
-        if (k >= 2) {
-            while (m > k) {
-                m /= 2;
-            }
-        } else {
-            throw new MuZeroException("k < 2 needs to be handled");
-        }
-        gumbelInfo = GumbelInfo.builder()
-            .k(k)
-            .n(n)
-            .m(m)
-            .extraVisitsPerPhase(extraPhaseVisitsToUpdateQPerPhase(n, m))
-            .build();
+        this.gumbelInfo = initGumbelInfo(n, m, k);
         if (debug) log.trace(gumbelInfo.toString());
     }
+
 
     public void expandRootNode(boolean fastRuleLearning, NetworkIO networkOutput) {
         List<Action> legalActions = this.game.legalActions();
@@ -240,6 +227,9 @@ public class SearchManager {
             action = getRandomAction(root);
         } else {
             action = selectedAction;
+        }
+        if (action == null) {
+            throw new MuZeroException("action must not be null");
         }
         game.apply(action);
         storeSearchStatistics(game, root, fastRuleLearning);

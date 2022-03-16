@@ -1,7 +1,10 @@
 package ai.enpasos.muzero.platform.agent.rational.gumbel;
 
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Builder;
 import lombok.Data;
+
+import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.extraPhaseVisitsToUpdateQPerPhase;
 
 @Data
 @Builder
@@ -20,6 +23,25 @@ public class GumbelInfo {
 
     @Builder.Default
     boolean finished = false;
+
+
+    public static GumbelInfo initGumbelInfo(int n, int m, int k) {
+
+        if (k >= 2) {
+            while (m > k) {
+                m /= 2;
+            }
+        } else {
+            throw new MuZeroException("k < 2 needs to be handled");
+        }
+        return GumbelInfo.builder()
+            .k(k)
+            .n(n)
+            .m(m)
+            .extraVisitsPerPhase(extraPhaseVisitsToUpdateQPerPhase(n, m))
+            .build();
+
+    }
 
 
     public void next() {
