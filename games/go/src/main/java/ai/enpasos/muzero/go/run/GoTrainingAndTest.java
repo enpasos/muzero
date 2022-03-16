@@ -34,9 +34,7 @@ public class GoTrainingAndTest {
         // rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
-            .afterTrainingHookIn((epoch, model) -> {
-                adjustKomi(epoch, model);
-            })
+            .afterTrainingHookIn(this::adjustKomi)
             .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }

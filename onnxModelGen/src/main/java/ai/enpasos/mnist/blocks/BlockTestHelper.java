@@ -123,7 +123,7 @@ class BlockTestHelper {
                     outputOnnx = new NDList(ndArrays);
 
                 } finally {
-                    inputMap.values().stream().forEach(t -> t.close());
+                    inputMap.values().stream().forEach(OnnxTensor::close);
                 }
 
             }

@@ -58,7 +58,7 @@ public class TicTacToeMicrosoftRT {
                     OrtSession.Result output = session.run(map);
                     return convert(output);
                 } finally {
-                    map.values().stream().forEach(t -> t.close());
+                    map.values().stream().forEach(OnnxTensor::close);
                 }
             }
         }

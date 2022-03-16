@@ -41,11 +41,11 @@ public class SequentialHalving {
     }
 
     public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale) {
-        int[] actions = gumbelActions.stream().mapToInt(a -> a.getActionIndex()).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(a -> a.getGumbelValue()).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()).toArray();
-        double[] qs = gumbelActions.stream().mapToDouble(a -> a.getQValue()).toArray();
-        int maxActionVisitCount = gumbelActions.stream().mapToInt(a -> a.getVisitCount()).max().getAsInt();
+        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
+        double[] qs = gumbelActions.stream().mapToDouble(GumbelAction::getQValue).toArray();
+        int maxActionVisitCount = gumbelActions.stream().mapToInt(GumbelAction::getVisitCount).max().getAsInt();
         double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
         List<Integer> selectedActions = drawActions(actions, add(add(logits, g), sigmas), m);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());

@@ -82,9 +82,7 @@ class SearchManagerTest {
                     searchManager.next();
                 }
             }
-        } catch (MalformedModelException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (MalformedModelException | IOException e) {
             e.printStackTrace();
         }
 

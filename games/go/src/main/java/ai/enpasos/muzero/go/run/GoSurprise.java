@@ -105,7 +105,7 @@ public class GoSurprise {
         double surpriseMax = games.stream().mapToDouble(g -> Arrays.stream(g.getSurprises()).max().getAsDouble())
             .max().getAsDouble();
         List<Double> allValues = new ArrayList<>();
-        games.stream().forEach(g -> Arrays.stream(g.getSurprises()).forEach(v -> allValues.add(v)));
+        games.stream().forEach(g -> Arrays.stream(g.getSurprises()).forEach(allValues::add));
         Collections.sort(allValues);
 
 
@@ -162,7 +162,7 @@ public class GoSurprise {
 
         int t = 0;
         //   try {    // TODO ... workaround for now
-        while (gameList.stream().filter(g -> !g.isDone()).count() > 0) {
+        while (gameList.stream().anyMatch(g -> !g.isDone())) {
 
             //   for (int t = 0; t < length; t++) {
             List<Game> gamesToEvaluate = new ArrayList<>();
@@ -252,9 +252,7 @@ public class GoSurprise {
                 int replayStart = game.getTSurprise() - 3 + i;
                 if (replayStart < 0) return;
                 newGame.setTTrainingStart(replayStart);
-                IntStream.range(0, replayStart).forEach(t -> {
-                    newGame.apply(actions.get(t));
-                });
+                IntStream.range(0, replayStart).forEach(t -> newGame.apply(actions.get(t)));
                 if (!newGame.terminal()) {
                     gamesToReplay.add(newGame);
                 }
