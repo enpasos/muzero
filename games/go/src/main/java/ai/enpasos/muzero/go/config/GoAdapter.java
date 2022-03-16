@@ -28,12 +28,17 @@ public class GoAdapter {
     }
 
     public static Move translate(MuZeroConfig config, Action action) {
-        if (0 <= action.getIndex() && action.getIndex() < config.getActionSpaceSize() - 1) {
-            return Play.apply(((GoAction) action).getRow() + 1, ((GoAction) action).getCol() + 1);
-        } else if (action.getIndex() == config.getActionSpaceSize() - 1) {
-            return new Pass();
-        } else {
-            throw new MuZeroException(Constants.THIS_SHOULD_NOT_HAPPEN);
+        try {
+            if (0 <= action.getIndex() && action.getIndex() < config.getActionSpaceSize() - 1) {
+                return Play.apply(((GoAction) action).getRow() + 1, ((GoAction) action).getCol() + 1);
+            } else if (action.getIndex() == config.getActionSpaceSize() - 1) {
+                return new Pass();
+            } else {
+                throw new MuZeroException(Constants.THIS_SHOULD_NOT_HAPPEN);
+            }
+        } catch( Exception e) {
+            e.printStackTrace();
+            throw new MuZeroException("needs to be fixed", e);
         }
     }
 
