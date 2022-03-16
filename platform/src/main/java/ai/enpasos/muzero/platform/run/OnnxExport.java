@@ -43,7 +43,7 @@ public class OnnxExport {
     public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration) {
          StringWriter stringWriter = new StringWriter();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss").build())) {
             FileUtils.forceMkdir(new File(config.getOutputDir() + "onnx"));
             try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
                 Network network = new Network(config, model);

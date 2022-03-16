@@ -205,7 +205,7 @@ public class GoSurprise {
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumFractionDigits(4);
         nf.setMaximumFractionDigits(4);
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("t", "surprise"))) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "surprise").build())) {
             IntStream.range(0, surprises.length).forEach(
                 i -> {
                     double s = surprises[i];

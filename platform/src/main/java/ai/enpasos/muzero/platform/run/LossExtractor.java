@@ -41,7 +41,7 @@ public class LossExtractor {
 
         StringWriter stringWriter = new StringWriter();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.withDelimiter(';').withHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss"))) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss").build())) {
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
