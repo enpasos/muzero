@@ -61,9 +61,9 @@ muzero:
 
       # Gumbel MuZero parameters
       initialGumbelM: 4
-      cVisit: 15  # 50 in paper
+      cVisit: 10  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 20
-      windowSize: 20000
+      numSimulations: 15
+      windowSize: 10000
       numberOfTrainingSteps: 2500
