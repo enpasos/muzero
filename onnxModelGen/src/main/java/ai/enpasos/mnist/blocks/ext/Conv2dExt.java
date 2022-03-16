@@ -111,11 +111,13 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
             return this;
         }
 
+
         /**
          * Builds a {@link Conv2d} block.
          *
          * @return the {@link Conv2d} block
          */
+        @Override
         public Conv2dExt build() {
             validate();
             return new Conv2dExt(this);

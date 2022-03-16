@@ -46,9 +46,7 @@ public class EnvironmentBase implements Environment {
 
     public static @NotNull String render(@NotNull MuZeroConfig config, String[][] values) {
 
-        String v = "|"; //"\u2502";
-
-
+        String v = "|";
 
         boolean smallSpacing = values[0][0].length() <= 1;
         StringBuilder sb = new StringBuilder();

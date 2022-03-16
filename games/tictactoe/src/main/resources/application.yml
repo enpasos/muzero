@@ -64,6 +64,6 @@ muzero:
       cVisit: 15  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 15
+      numSimulations: 20
       windowSize: 20000
       numberOfTrainingSteps: 2500

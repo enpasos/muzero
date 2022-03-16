@@ -48,9 +48,6 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoOnnx onnx;
 
-//    @Autowired
-//    private GoValueSelfconsistency valueSelfconsistency;
-
 
     @Autowired
     private GoElo elo;
@@ -90,9 +87,6 @@ public class Go implements CommandLineRunner {
             case SURPRISE:
                 goSurprise.run();
                 break;
-//            case VALUESELFCONSISTENCY:
-//                valueSelfconsistency.run();
-//                break;
             case NONE:
             default:
                 return;

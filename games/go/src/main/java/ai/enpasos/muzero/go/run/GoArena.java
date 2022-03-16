@@ -26,9 +26,6 @@ public class GoArena {
 
     @Autowired
     Inference inference;
-//    static final String ARENA = "./games/go/arena/";
-//    static final String ARENA_NETWORK_1 = ARENA + "network1/";
-//    static final String ARENA_NETWORK_2 = ARENA + "network2/";
 
 
     public void run() {

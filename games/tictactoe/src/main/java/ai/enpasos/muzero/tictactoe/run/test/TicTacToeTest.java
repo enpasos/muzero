@@ -95,8 +95,6 @@ public class TicTacToeTest {
         log.info("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
 
 
-        // TODO configurable
-        // config.setNumSimulations(100);
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 

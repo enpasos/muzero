@@ -45,14 +45,14 @@ import java.util.Arrays;
  */
 public class LayerNorm extends AbstractBlock {
 
-    private float epsilon;
+    private final float epsilon;
     private Shape normalizedShape;
 
-    private boolean center;
-    private boolean scale;
-    private int[] axis;
-    private Parameter gamma;
-    private Parameter beta;
+    private final boolean center;
+    private final boolean scale;
+    private final int[] axis;
+    private final Parameter gamma;
+    private final Parameter beta;
 
     LayerNorm(Builder builder) {
         epsilon = builder.epsilon;

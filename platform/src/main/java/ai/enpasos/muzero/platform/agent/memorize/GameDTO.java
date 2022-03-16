@@ -90,11 +90,8 @@ public class GameDTO {
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
         this.setLastValueError(p.getLastValueError());
-        try {
-            this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
-        } catch (Exception e) {
+        this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
 
-        }
 
         if (p.getPolicyTargetsCount() > 0) {
             this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {

@@ -26,7 +26,6 @@ public class PegSolitairTrainingAndTest {
 
         rmDir(config.getOutputDir());
 
-        // muZero.train(false, 1, true, true);
         muZero.train(TrainParams.builder()
             .render(true)
             .build());

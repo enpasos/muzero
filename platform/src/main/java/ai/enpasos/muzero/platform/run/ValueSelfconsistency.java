@@ -181,7 +181,7 @@ public class ValueSelfconsistency {
             throw new MuZeroException(e);
         }
 
-        System.out.println(stringWriter.toString());
+        System.out.println(stringWriter);
     }
 //    public List<List<Pair<Double, Double>>> getValuesOriginalAndNew(List<Game> games) {
 //

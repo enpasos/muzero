@@ -47,14 +47,6 @@ public class GoTrainingAndTest {
         Pair<Integer, Double> pair = pairList.get(pairList.size() - 1);
         double v = pair.getValue();
         double oldKomi = config.getKomi();
-//        String komiStrFromModel = model.getProperty("komi");
-//        if(komiStrFromModel != null) {
-//            try {
-//                oldKomi = Double.parseDouble(komiStrFromModel);
-//            } catch (Exception e) {
-//                log.info("old komi could not be retrieved from model therefore it is taken from configuration");
-//            }
-//        }
         double newKomi = oldKomi;
         if (v > 0.1 && config.getKomi() < config.getMaxKomi()) {
             newKomi += 1d;

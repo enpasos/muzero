@@ -26,9 +26,9 @@ public enum OneOfTwoPlayer implements Player {
 
     PLAYER_A(-1, Constants.CHAR_PLAYER_A, 0f), PLAYER_B(1, Constants.CHAR_PLAYER_B, 1f);
 
-    private int value;
-    private char symbol;
-    private float actionValue;
+    private final int value;
+    private final char symbol;
+    private final float actionValue;
 
     OneOfTwoPlayer(int value, char symbol, float actionValue) {
         this.value = value;
