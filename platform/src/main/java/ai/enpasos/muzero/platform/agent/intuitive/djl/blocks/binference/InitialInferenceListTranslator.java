@@ -30,6 +30,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.ValueHeadType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,14 +44,14 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
         NDArray hiddenStates;
         NDArray s = list.get(0);
+        SubModel submodel = (SubModel) ctx.getModel();
+        MuZeroConfig config = submodel.getConfig();
         if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
             hiddenStates = s;
-            SubModel submodel = (SubModel) ctx.getModel();
             hiddenStates.attach(submodel.getHiddenStateNDManager());
         } else {
             hiddenStates = s.toDevice(Device.cpu(), false);
             NDManager hiddenStateNDManager = hiddenStates.getManager();
-            SubModel submodel = (SubModel) ctx.getModel();
             hiddenStates.attach(submodel.getHiddenStateNDManager());
             hiddenStateNDManager.close();
             s.close();
@@ -66,13 +67,22 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         NDArray p = logits.softmax(1);
 
         int actionSpaceSize = (int) logits.getShape().get(1);
-        NDArray v = list.get(2);
+
 
         float[] logitsArray = logits.toFloatArray();
 
         float[] pArray = p.toFloatArray();
+
+        NDArray v = list.get(2);
         float[] vArray = v.toFloatArray();
 
+        NDArray vp = null;
+        float[]  vpArray = null;
+        if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
+            vp =  v.softmax(1);
+            vpArray = vp.toFloatArray();
+        }
+        final float[]  vpArrayFinal = vpArray;
 
         int n = (int) v.getShape().get(0);
 
@@ -80,14 +90,27 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             .mapToObj(i ->
             {
                 float[] ps = new float[actionSpaceSize];
+
                 float[] logits2 = new float[actionSpaceSize];
                 System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
-                return NetworkIO.builder()
-                    .value(vArray[i])
-                    .policyValues(ps)
-                    .logits(logits2)
-                    .build();
+                if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
+                    float[] vps = new float[3];
+                    System.arraycopy(vpArrayFinal, i * 3, vps, 0, 3);
+                    return NetworkIO.builder()
+                        .value(- vps[0] + vps[2])
+                        .valueDistribution(vps)
+                        .policyValues(ps)
+                        .logits(logits2)
+                        .build();
+                } else {
+                    return NetworkIO.builder()
+                        .value(vArray[i])
+                        .policyValues(ps)
+                        .logits(logits2)
+                        .build();
+                }
+
 
             })
             .collect(Collectors.toList());

@@ -40,6 +40,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,23 +139,35 @@ public class NetworkHelper {
         int k = 0;
 
         // policy
-        log.info("k={}: SoftmaxCrossEntropyLoss", k);
+        log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
         loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
         k++;
+
         // value
-        log.info("k={}: L2Loss", k);
-        loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + 0, config.getValueLossWeight()), k));
+        if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
+            log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
+            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_value_" + 0, 1.0f, 1, false, true), k));
+        } else { // EXPECTED
+            log.info("k={}: Value L2Loss", k);
+            loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + 0, config.getValueLossWeight()), k));
+        }
         k++;
 
 
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
-            log.info("k={}: SoftmaxCrossEntropyLoss", k);
+            log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
             loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
             // value
-            log.info("k={}: L2Loss", k);
-            loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + i, config.getValueLossWeight() * gradientScale), k));
+            // value
+            if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
+                log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
+                loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_value_" + i, gradientScale, 1, false, true), k));
+            } else { // EXPECTED
+                log.info("k={}: Value L2Loss", k);
+                loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + i, config.getValueLossWeight() * gradientScale), k));
+            }
             k++;
         }
 

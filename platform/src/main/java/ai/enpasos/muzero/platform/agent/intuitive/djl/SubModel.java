@@ -22,6 +22,7 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.nn.Block;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +36,14 @@ public class SubModel extends BaseModel {
     public static final String LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL = "load not implemented on SubModel (use Model)";
     private NDManager hiddenStateNDManager;
     private Model model;
+    private MuZeroConfig config;
 
-
-    public SubModel(String modelName, @NotNull Model model, Block block) {
+    public SubModel(String modelName, @NotNull Model model, Block block, MuZeroConfig config) {
         super(modelName);
         super.manager = model.getNDManager();
         this.setModel(model);
         super.setBlock(block);
+        this.config = config;
     }
 
     @Override
@@ -95,5 +97,9 @@ public class SubModel extends BaseModel {
 
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager) {
         this.hiddenStateNDManager = hiddenStateNDManager;
+    }
+
+    public MuZeroConfig getConfig() {
+        return config;
     }
 }

@@ -28,6 +28,7 @@ import ai.enpasos.muzero.platform.agent.rational.gumbel.SearchManager;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
+import ai.enpasos.muzero.platform.config.ValueHeadType;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -160,7 +161,7 @@ public abstract class Game {
         float lastReward = getLastReward(currentIndex);
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-            target.setValue((float) value);
+            setValueOnTarget( target, value);
             target.setReward(lastReward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
@@ -172,19 +173,28 @@ public abstract class Game {
             // we need use this node to keep the reward value
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-            target.setValue((float) value);  // this is not really the value, it is taking the role of the reward here
+
+            setValueOnTarget( target, value); // this is not really the value, it is taking the role of the reward here
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-            target.setValue(config.isAbsorbingStateDropToZero() ? 0f : (float) value);
+            setValueOnTarget( target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         }
 
+    }
+
+    private void setValueOnTarget(Target target, double value) {
+//        if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
+//            target.set
+//        } else { // EXPECTED
+            target.setValue((float) value);
+      //  }
     }
 
     private float getLastReward(int currentIndex) {

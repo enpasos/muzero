@@ -6,6 +6,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.Pred
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationOrDynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualBlockV2;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
+import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -104,7 +105,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./target/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9),
+            new PredictionBlock(128, true, 9, ValueHeadType.EXPECTED),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -125,7 +126,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./target/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9),
+            new PredictionBlock(128, true, 9, ValueHeadType.EXPECTED),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

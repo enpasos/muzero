@@ -97,13 +97,12 @@ public class Network {
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
         DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
 
+        representation = new SubModel("representation", model, representationBlock, config);
+        prediction = new SubModel("prediction", model, predictionBlock, config);
+        dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
 
-        representation = new SubModel("representation", model, representationBlock);
-        prediction = new SubModel("prediction", model, predictionBlock);
-        dynamics = new SubModel("dynamics", model, dynamicsBlock);
-
-        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock));
-        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock));
+        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
+        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
