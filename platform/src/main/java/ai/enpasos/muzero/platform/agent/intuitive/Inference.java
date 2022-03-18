@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -115,22 +116,28 @@ public class Inference {
         }
         return valueByNetwork;
     }
-
+    public double aiEntropy(List<Integer> actions, String networkDir) {
+        double valueByNetwork;
+        config.setNetworkBaseDir(networkDir);
+        config.setInferenceDeviceType(DeviceType.CPU);
+        Game game = getGame(actions);
+        return aiEntropy(List.of(game))[0];
+    }
     public double aiValue(List<Integer> actions, String networkDir) {
         double valueByNetwork;
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
         Game game = getGame(actions);
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+       return aiValue(List.of(game))[0];
+    }
+    public double[] aiEntropy(List<Game> games) {
+        double[] valueByNetwork;
+        try (Model model = Model.newInstance(config.getModelName())) {
             Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-                network.setHiddenStateNDManager(nDManager);
-                valueByNetwork = aiDecision(network, false, game).getFirst();
-            }
+            valueByNetwork = aiEntropy(network, games);
         }
         return valueByNetwork;
     }
-
     public double[] aiValue(List<Game> games) {
         double[] valueByNetwork;
         try (Model model = Model.newInstance(config.getModelName())) {
@@ -149,7 +156,21 @@ public class Inference {
         }
         return valueByNetwork;
     }
-
+    public double[] aiEntropy(Network network, List<Game> games) {
+        double[] entropyByNetwork;
+        try (NDManager nDManager = network.getNDManager().newSubManager()) {
+            network.setHiddenStateNDManager(nDManager);
+            List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
+            entropyByNetwork = networkOutputs.stream().mapToDouble(io -> entropy(toDouble(io.getValueDistribution()))).toArray();
+        }
+        return entropyByNetwork;
+    }
+    public static double[] toDouble(float[] ps) {
+        return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
+    }
+    public static double entropy(double[] ps) {
+        return Arrays.stream(ps).reduce(0d, (e, p) -> e - p * Math.log(p));
+    }
 
     public Game getGame(List<Integer> actions) {
         Game game = config.newGame();
