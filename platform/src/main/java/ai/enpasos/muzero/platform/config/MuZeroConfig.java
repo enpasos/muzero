@@ -128,6 +128,11 @@ public class MuZeroConfig {
     public PlayerMode getPlayerMode() {
         return getConf().playerMode;
     }
+    public ValueHeadType getValueHeadType() {
+        return getConf().valueHeadType;
+    }
+
+
 
     public boolean isNetworkWithRewardHead() {
         return getConf().networkWithRewardHead;
@@ -336,6 +341,7 @@ public class MuZeroConfig {
         protected String gameClassName;
         protected String actionClassName;
         protected PlayerMode playerMode;
+        protected ValueHeadType valueHeadType;
         protected boolean networkWithRewardHead;
         protected SymmetryType symmetryType;
         protected String networkBaseDir;

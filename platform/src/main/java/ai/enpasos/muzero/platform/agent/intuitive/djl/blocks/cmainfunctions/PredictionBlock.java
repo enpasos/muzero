@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv1x1
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
+import ai.enpasos.muzero.platform.config.ValueHeadType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -29,11 +30,10 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
+        this(config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize(), config.getValueHeadType());
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize) {
-
+    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
 
         SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt()
             .add(Conv1x1LayerNormRelu.builder().channels(1).build())
@@ -41,11 +41,18 @@ public class PredictionBlock extends MySequentialBlock {
             .add(LinearExt.builder()
                 .setUnits(numChannels) // config.getNumChannels())  // originally 256
                 .build())
-            .add(ActivationExt.reluBlock())
-            .add(LinearExt.builder()
+            .add(ActivationExt.reluBlock());
+
+        if (valueHeadType == ValueHeadType.DISTRIBUTION) {
+            // win, draw, loose
+            valueHead.add(LinearExt.builder()
+                .setUnits(3).build());
+        } else { // default is EXPECTED
+            valueHead.add(LinearExt.builder()
                 .setUnits(1).build());
-        if (isPlayerModeTWOPLAYERS) {
-            valueHead.add(ActivationExt.tanhBlock());
+            if (isPlayerModeTWOPLAYERS) {
+                valueHead.add(ActivationExt.tanhBlock());
+            }
         }
 
         SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt()

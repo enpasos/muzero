@@ -36,6 +36,7 @@ import java.util.List;
 public class NetworkIO {
     private float[] logits;
     private float[] policyValues;
+    private float[] valueDistribution;
     private double value;
 
     private double reward;
