@@ -24,11 +24,10 @@ import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.ActionHistory;
 import ai.enpasos.muzero.platform.agent.rational.Node;
 import ai.enpasos.muzero.platform.agent.rational.Player;
-import ai.enpasos.muzero.platform.agent.rational.gumbel.SearchManager;
+import ai.enpasos.muzero.platform.agent.rational.GumbelSearch;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.config.ValueHeadType;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -61,7 +60,7 @@ public abstract class Game {
     boolean done;
     int tSurprise;
     int tTrainingStart;
-    SearchManager searchManager;
+    GumbelSearch searchManager;
     private Random r;
     private double[] surprises;
     private float error;
@@ -293,6 +292,6 @@ public abstract class Game {
     public abstract void initEnvironment();
 
     public void initSearchManager() {
-        searchManager = new SearchManager(config, this, debug);
+        searchManager = new GumbelSearch(config, this, debug);
     }
 }

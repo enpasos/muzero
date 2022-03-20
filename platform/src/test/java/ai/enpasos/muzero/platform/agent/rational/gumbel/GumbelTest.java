@@ -1,11 +1,13 @@
 package ai.enpasos.muzero.platform.agent.rational.gumbel;
 
+import ai.enpasos.muzero.platform.agent.rational.GumbelAction;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.softmax;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.add;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.drawGumbelActions;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -47,19 +49,19 @@ class GumbelTest {
         );
 
 
-        assertEquals(2, Gumbel.drawGumbelActions(actions, 2).size());
-        assertEquals(3, Gumbel.drawGumbelActions(actions, 3).size());
-        assertEquals(1, Gumbel.drawGumbelActions(actions, 1).size());
-        assertEquals(0, Gumbel.drawGumbelActions(actions, 0).size());
+        assertEquals(2, drawGumbelActions(actions, 2).size());
+        assertEquals(3, drawGumbelActions(actions, 3).size());
+        assertEquals(1, drawGumbelActions(actions, 1).size());
+        assertEquals(0, drawGumbelActions(actions, 0).size());
 //        assertThrows(MuZeroException.class, () -> {
-//            Gumbel.drawGumbelActionsInitially(actions, 4);
+//            GumbelFunctions.drawGumbelActionsInitially(actions, 4);
 //        });
-        System.out.println(Gumbel.drawGumbelActions(actions, 2).toString());
-        System.out.println(Gumbel.drawGumbelActions(actions, 2).toString());
-        System.out.println(Gumbel.drawGumbelActions(actions, 2).toString());
-        System.out.println(Gumbel.drawGumbelActions(actions, 2).toString());
-        System.out.println(Gumbel.drawGumbelActions(actions, 2).toString());
-        System.out.println(Gumbel.drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
     }
 
 

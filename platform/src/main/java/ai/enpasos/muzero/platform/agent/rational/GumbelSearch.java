@@ -1,11 +1,7 @@
-package ai.enpasos.muzero.platform.agent.rational.gumbel;
+package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.agent.rational.MinMaxStats;
-import ai.enpasos.muzero.platform.agent.rational.Node;
-import ai.enpasos.muzero.platform.agent.rational.Player;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -14,18 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.getRandomAction;
-import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.softmax;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.add;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.drawActions;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.GumbelInfo.initGumbelInfo;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.extraPhaseVisitsToUpdateQPerPhase;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.sigmas;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
 /**
@@ -33,7 +24,7 @@ import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
  */
 @Data
 @Slf4j
-public class SearchManager {
+public class GumbelSearch {
     Node root;
 
     GumbelInfo gumbelInfo;
@@ -46,7 +37,7 @@ public class SearchManager {
     boolean debug;
     private List<Node> rootChildrenCandidates;
 
-    public SearchManager(MuZeroConfig config, Game game, boolean debug) {
+    public GumbelSearch(MuZeroConfig config, Game game, boolean debug) {
         this.debug = debug;
         this.config = config;
         this.root = new Node(config, 0, true);
@@ -224,7 +215,7 @@ public class SearchManager {
         Action action;
 
         if (fastRuleLearning) {
-            action = getRandomAction(root);
+            action = root.getRandomAction();
         } else {
             action = selectedAction;
         }

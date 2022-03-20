@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.rational.gumbel;
 
+import ai.enpasos.muzero.platform.agent.rational.GumbelInfo;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

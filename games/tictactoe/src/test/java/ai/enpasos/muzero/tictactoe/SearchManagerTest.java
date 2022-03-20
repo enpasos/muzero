@@ -26,9 +26,8 @@ import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.gumbel.SearchManager;
+import ai.enpasos.muzero.platform.agent.rational.GumbelSearch;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +61,7 @@ class SearchManagerTest {
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         game.initSearchManager();
-        SearchManager searchManager = game.getSearchManager();
+        GumbelSearch searchManager = game.getSearchManager();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             MuZeroBlock block = new MuZeroBlock(config);
             model.setBlock(block);
