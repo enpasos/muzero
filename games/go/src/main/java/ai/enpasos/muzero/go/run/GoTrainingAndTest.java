@@ -33,7 +33,7 @@ public class GoTrainingAndTest {
 
     public void run() {
 
-        rmDir(config.getOutputDir());
+       // rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
             .afterTrainingHookIn(this::adjustKomi)
@@ -42,7 +42,7 @@ public class GoTrainingAndTest {
     }
 
     private void adjustKomi(Integer epoch, Model model) {
-        if (epoch < 40) return;
+        if (epoch < 20) return;
         List<Pair<Integer, Double>> pairList = goStartValueExtractor.smoothing(goStartValueExtractor.valuesForTrainedNetworks(), 10);
         Pair<Integer, Double> pair = pairList.get(pairList.size() - 1);
         double v = pair.getValue();

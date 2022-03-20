@@ -190,11 +190,7 @@ public abstract class Game {
     }
 
     private void setValueOnTarget(Target target, double value) {
-//        if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-//            target.set
-//        } else { // EXPECTED
             target.setValue((float) value);
-      //  }
     }
 
     private float getLastReward(int currentIndex) {

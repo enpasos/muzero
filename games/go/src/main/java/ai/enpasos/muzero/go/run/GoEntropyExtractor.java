@@ -15,8 +15,9 @@
  *
  */
 
-package ai.enpasos.muzero.tictactoe.run;
+package ai.enpasos.muzero.go.run;
 
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.EntropyExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,20 +29,32 @@ import java.util.List;
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class TicTacToeEntropyExtractor {
+public class GoEntropyExtractor {
     @Autowired
     MuZeroConfig config;
 
     @Autowired
     EntropyExtractor entropyExtractor;
 
-    public void run() {
+    @Autowired
+    ReplayBuffer replayBuffer;
 
-        config.setNetworkBaseDir(config.getOutputDir() + "/networks");
+
+    @SuppressWarnings("squid:S125")
+    public void run() {
 
         List<Integer> actionIndexList = entropyExtractor.getActionList();
 
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
+
+//        replayBuffer.loadLatestState();
+//
+//        List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
+//                .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
+//                .collect(Collectors.toList());
+//
+//        pairs.forEach(p -> System.out.println(p.getKey() + "; " + p.getValue()));
+
     }
 
 }
