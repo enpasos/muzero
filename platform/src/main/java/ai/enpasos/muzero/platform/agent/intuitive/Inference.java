@@ -117,14 +117,12 @@ public class Inference {
         return valueByNetwork;
     }
     public double aiEntropy(List<Integer> actions, String networkDir) {
-        double valueByNetwork;
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
         Game game = getGame(actions);
         return aiEntropy(List.of(game))[0];
     }
     public double aiValue(List<Integer> actions, String networkDir) {
-        double valueByNetwork;
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
         Game game = getGame(actions);

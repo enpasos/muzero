@@ -54,6 +54,7 @@ import java.util.List;
 @Component
 public class NetworkHelper {
 
+    public static final String LOSS_VALUE = "loss_value_";
     @Autowired
     MuZeroConfig config;
 
@@ -144,12 +145,13 @@ public class NetworkHelper {
         k++;
 
         // value
+
         if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
             log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_value_" + 0, 1.0f, 1, false, true), k));
+            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + 0, 1.0f, 1, false, true), k));
         } else { // EXPECTED
             log.info("k={}: Value L2Loss", k);
-            loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + 0, config.getValueLossWeight()), k));
+            loss.addLoss(new IndexLoss(new L2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
         }
         k++;
 
@@ -163,10 +165,10 @@ public class NetworkHelper {
             // value
             if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
                 log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-                loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_value_" + i, gradientScale, 1, false, true), k));
+                loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + i, gradientScale, 1, false, true), k));
             } else { // EXPECTED
                 log.info("k={}: Value L2Loss", k);
-                loss.addLoss(new IndexLoss(new L2Loss("loss_value_" + i, config.getValueLossWeight() * gradientScale), k));
+                loss.addLoss(new IndexLoss(new L2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             }
             k++;
         }
