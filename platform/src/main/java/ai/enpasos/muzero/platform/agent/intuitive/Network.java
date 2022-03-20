@@ -38,6 +38,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.Pred
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationBlock;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.rational.Node;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -219,6 +220,20 @@ public class Network {
     @SuppressWarnings("squid:S125")
     public void debugDump() {
         //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
+    }
+
+    @Nullable
+    public  List<NetworkIO> recurrentInference(List<List<Node>> searchPathList) {
+        List<Action> lastActions = searchPathList.stream().map(nodes -> nodes.get(nodes.size() - 1).getAction()).collect(Collectors.toList());
+        List<NDArray> actionList = lastActions.stream().map(action ->
+             getActionSpaceOnDevice().get(action.getIndex())
+        ).collect(Collectors.toList());
+
+        List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
+            Node parent = searchPath.get(searchPath.size() - 2);
+            return parent.getHiddenState();
+        }).collect(Collectors.toList());
+        return  recurrentInferenceListDirect(hiddenStateList, actionList);
     }
 
 }

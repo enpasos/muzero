@@ -30,12 +30,12 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static java.util.Map.entry;
 
 @Component
@@ -44,12 +44,6 @@ public class Inference {
     @Autowired
     MuZeroConfig config;
 
-    @Autowired
-    MCTS mcts;
-
-
-    @Autowired
-    EpisodeManager episode;
 
 
     @Autowired
@@ -163,12 +157,7 @@ public class Inference {
         }
         return entropyByNetwork;
     }
-    public static double[] toDouble(float[] ps) {
-        return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
-    }
-    public static double entropy(double[] ps) {
-        return Arrays.stream(ps).reduce(0d, (e, p) -> e - p * Math.log(p));
-    }
+
 
     public Game getGame(List<Integer> actions) {
         Game game = config.newGame();
@@ -206,7 +195,7 @@ public class Inference {
                             return new Pair<>(action, v);
                         }).collect(Collectors.toList());
 
-                Action action = mcts.selectActionByMaxFromDistribution(distributionInput);
+                Action action =  selectActionByMaxFromDistribution(distributionInput);
                 actionIndexSelectedByNetwork = action.getIndex();
                 double aiValue = networkOutputList.get(g).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
@@ -215,8 +204,8 @@ public class Inference {
         } else {
             // TODO: needs to be tested
 
-            episode.init(games);
-            episode.play(network, false, false);
+            selfPlay.init(games);
+            selfPlay.play(network, false, false);
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {

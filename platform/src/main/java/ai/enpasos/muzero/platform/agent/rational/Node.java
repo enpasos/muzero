@@ -18,8 +18,8 @@
 package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.djl.ndarray.NDArray;
+import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.rational.gumbel.GumbelAction;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -28,14 +28,16 @@ import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.rational.EpisodeManager.softmax;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.add;
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.sigmas;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 
 @Data
 @Builder
@@ -140,6 +142,13 @@ public class Node {
 
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
 
+    }
+
+
+
+    public Action getRandomAction() {
+        int index = ThreadLocalRandom.current().nextInt(0, children.size() - 1);
+        return children.get(index).getAction();
     }
 
     public void initGumbelAction(int actionIndex, double policyValue) {

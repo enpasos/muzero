@@ -1,11 +1,11 @@
-package ai.enpasos.muzero.platform.agent.rational.gumbel;
+package ai.enpasos.muzero.platform.agent.rational;
 
-import ai.enpasos.muzero.platform.agent.rational.Node;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.Gumbel.drawGumble;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.drawGumble;
+
 
 @Data
 @Builder

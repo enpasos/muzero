@@ -1,20 +1,21 @@
-package ai.enpasos.muzero.platform.agent.rational.gumbel;
-
+package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Gumbel {
+import static ai.enpasos.muzero.platform.common.Functions.log2;
 
-    private Gumbel() {
-    }
+public class GumbelFunctions {
+
+    private GumbelFunctions() {}
 
     public static List<Integer> drawGumbelActions(double[] policyValues, int n) {
         List<GumbelAction> gumbelActions = getGumbelActions(policyValues);
@@ -80,5 +81,25 @@ public class Gumbel {
         return -Math.log(-Math.log(r));
     }
 
+    public static double[] sigmas(double[] qs, double maxActionVisitCount, int cVisit, double cScale) {
+        return Arrays.stream(qs).map(q -> (cVisit + maxActionVisitCount) * cScale * q).toArray();
+    }
 
+    public static int[] extraPhaseVisitsToUpdateQPerPhase(int budget, int m) {
+        int remainingBudget = budget;
+        int phases = (int) log2(m);
+
+        int[] result = new int[phases];
+        for (int p = 0; p < phases; p++) {
+            int na = (int) ((double) budget / phases /   m);
+            if (p < phases - 1) {
+                result[p] = na;
+                remainingBudget -= na * m;
+            } else {
+                result[p] = remainingBudget / m;
+            }
+            m /= 2;
+        }
+        return result;
+    }
 }

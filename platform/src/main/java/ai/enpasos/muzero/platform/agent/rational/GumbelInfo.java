@@ -1,10 +1,10 @@
-package ai.enpasos.muzero.platform.agent.rational.gumbel;
+package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Builder;
 import lombok.Data;
 
-import static ai.enpasos.muzero.platform.agent.rational.gumbel.SequentialHalving.extraPhaseVisitsToUpdateQPerPhase;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.extraPhaseVisitsToUpdateQPerPhase;
 
 @Data
 @Builder
