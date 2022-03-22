@@ -4,7 +4,7 @@ logging:
 
 muzero:
   activeGame: TICTACTOE
-  run: train
+  run: train2
   games:
     TICTACTOE:
       modelName: MuZero-TicTacToe
@@ -67,4 +67,5 @@ muzero:
 
       numSimulations: 18
       windowSize: 10000
-      numberOfTrainingSteps: 2000
+      numberOfTrainingSteps: 4100
+      numPurePolicyPlays: 3

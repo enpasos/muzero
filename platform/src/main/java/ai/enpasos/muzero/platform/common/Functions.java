@@ -1,7 +1,11 @@
 package ai.enpasos.muzero.platform.common;
 
 import ai.enpasos.muzero.platform.agent.rational.Action;
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,5 +41,18 @@ public class Functions {
     public static double log2(int n) {
         return Math.log(n) / Math.log(2);
     }
+
+
+    public static Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
+        EnumeratedDistribution<Action> distribution;
+        try {
+            distribution = new EnumeratedDistribution<>(rng, distributionInput);
+        } catch (Exception e) {
+            throw new MuZeroException(e);
+        }
+        return distribution.sample();
+    }
+
+    private static  RandomGenerator rng = new Well19937c();
 
 }

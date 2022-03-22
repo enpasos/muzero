@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
@@ -70,9 +71,9 @@ public class MuZero {
     @Autowired
     NetworkHelper networkHelper;
 
-    public void playOnDeepThinking(Network network, boolean render) {
+    public void play(Network network, boolean render, boolean justInitialInferencePolicy) {
 
-        selfPlay.playMultipleEpisodes(network, render, false, true);
+        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
     }
 
     public void initialFillingBuffer(Network network) {
@@ -80,7 +81,7 @@ public class MuZero {
         int windowSize = config.getWindowSize();
         while (replayBuffer.getBuffer().getData().size() < windowSize) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(network, false, true, true);
+            selfPlay.playMultipleEpisodes(network, false, true, false);
             replayBuffer.saveState();
         }
     }
@@ -146,7 +147,9 @@ public class MuZero {
 
             int i = 0;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
-                playGames(params.render, network, trainingStep);
+                if (!params.freshBuffer) {
+                    playGames(params.render, network, trainingStep);
+                }
                 params.getAfterSelfPlayHookIn().accept(epoch, network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
 
@@ -158,6 +161,47 @@ public class MuZero {
         }
     }
 
+
+    public void train2(TrainParams params) {
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+            Network network = new Network(config, model);
+
+            init(params.freshBuffer, params.randomFill, network);
+          //  init2(network);
+
+            int epoch = networkHelper.getEpoch();
+            int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+
+            trainingStep = trainNetwork(0, model, djlConfig);
+
+            int i = 0;
+            while (trainingStep < config.getNumberOfTrainingSteps()) {
+                replayBuffer.init();
+                IntStream.range(0, config.getNumPurePolicyPlays()).forEach( j ->
+                    play(network, false, true)
+                );
+
+                if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
+                    log.info("last training step = {}", trainingStep);
+                    log.info("numSimulations: " + config.getNumSimulations());
+                    network.debugDump();
+                    play(network, params.render, false);
+                    replayBuffer.saveState();
+                }
+
+                params.getAfterSelfPlayHookIn().accept(epoch, network);
+                trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
+
+                if (i % 5 == 0) {
+                    params.getAfterTrainingHookIn().accept(epoch, model);
+                }
+                i++;
+            }
+        }
+    }
+
+
     @NotNull
     private void init(boolean freshBuffer, boolean randomFill, Network network) {
         createNetworkModelIfNotExisting();
@@ -165,7 +209,7 @@ public class MuZero {
         if (freshBuffer) {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
-                playOnDeepThinking(network, false);
+                play(network, false, true);
                 replayBuffer.saveState();
             }
         } else {
@@ -173,10 +217,24 @@ public class MuZero {
             if (randomFill) {
                 initialFillingBuffer(network);
             } else {
-                playOnDeepThinking(network, false);
+                play(network, false, false);
                 replayBuffer.saveState();
             }
         }
+    }
+
+    @NotNull
+    private void init2( Network network) {
+        createNetworkModelIfNotExisting();
+
+        replayBuffer.init();
+//        replayBuffer.loadLatestState();
+//        while (!replayBuffer.getBuffer().isBufferFilled()) {
+//            network.debugDump();
+//            play(network, false, true);
+//            replayBuffer.saveState();
+//        }
+
     }
 
     private int trainNetwork(int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
@@ -255,7 +313,7 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
-            playOnDeepThinking(network, render);
+            play(network, render, false);
             replayBuffer.saveState();
         }
     }

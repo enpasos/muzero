@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
+import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
@@ -223,7 +224,7 @@ public class GumbelSearch {
             throw new MuZeroException("action must not be null");
         }
         game.apply(action);
-        storeSearchStatistics(game, root, fastRuleLearning);
+        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
 
 
         if (render && debug) {
@@ -236,35 +237,5 @@ public class GumbelSearch {
 
     }
 
-    public void storeSearchStatistics(Game game, @NotNull Node root, boolean fastRuleLearning) {
-
-        float[] policyTarget = new float[config.getActionSpaceSize()];
-        if (fastRuleLearning) {
-            root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());
-        } else if (root.getChildren().size() == 1) {
-            policyTarget[this.getSelectedAction().getIndex()] = 1f;
-        } else {
-
-            double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
-
-            double[] completedQs = root.getCompletedQValues(minMaxStats);
-
-            int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
-
-            int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-            double[] raw = add(logits, sigmas(completedQs, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-
-            double[] improvedPolicy = softmax(raw);
-
-            for (int i = 0; i < raw.length; i++) {
-                int action = actions[i];
-                double v = improvedPolicy[i];
-                root.getChildren().get(i).setImprovedPolicyValue(v);  // for debugging
-                policyTarget[action] = (float) v;
-            }
-        }
-        game.getGameDTO().getPolicyTargets().add(policyTarget);
-        game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
-    }
 
 }
