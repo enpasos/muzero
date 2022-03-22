@@ -56,7 +56,7 @@ class ProtobufferTest {
         muZero.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            List<Game> games = selfPlay.playGame(network, false, true, true);
+            List<Game> games = selfPlay.playGame(network, false, true , false);
             replayBuffer.init();
             games.forEach(replayBuffer::saveGame);
 

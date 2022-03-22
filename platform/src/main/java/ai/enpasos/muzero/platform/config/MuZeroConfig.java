@@ -325,6 +325,11 @@ public class MuZeroConfig {
         return getConf().visitSoftmaxTemperatureThreshold;
     }
 
+
+    public int getNumPurePolicyPlays() {
+        return getConf().numPurePolicyPlays;
+    }
+
     public FileType getGameBufferWritingFormat() {
         return getConf().gameBufferWritingFormat;
     }
@@ -385,6 +390,7 @@ public class MuZeroConfig {
         int initialGumbelM;
         int cVisit;
         double cScale;
+        int numPurePolicyPlays;
     }
 
 }

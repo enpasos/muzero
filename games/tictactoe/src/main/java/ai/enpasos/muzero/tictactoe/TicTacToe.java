@@ -23,6 +23,13 @@ public class TicTacToe implements CommandLineRunner {
 
 
     @Autowired
+    private TicTacToeTrainingAndTest2 trainingAndTest2;
+
+    @Autowired
+    private TicTacToePolicyOnly policyOnly;
+
+
+    @Autowired
     private TicTacToeTestComponent test;
     @Autowired
     private MuZeroConfig conf;
@@ -50,6 +57,13 @@ public class TicTacToe implements CommandLineRunner {
         switch (conf.getRun()) {
             case TRAIN:
                 trainingAndTest.run();
+                break;
+
+            case TRAIN2:
+                trainingAndTest2.run();
+                break;
+            case POLICYONLY:
+                policyOnly.run();
                 break;
             case TEST:
                 test.run();
