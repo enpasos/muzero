@@ -33,7 +33,7 @@ public class GoTrainingAndTest2 {
 
     public void run() {
 
-        rmDir(config.getOutputDir());
+        // rmDir(config.getOutputDir());
 
         muZero.train2(TrainParams.builder()
             .afterTrainingHookIn(this::adjustKomi)

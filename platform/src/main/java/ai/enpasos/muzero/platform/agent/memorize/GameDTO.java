@@ -42,6 +42,7 @@ public class GameDTO {
     private List<float[]> policyTargets;
     private List<Float> rootValues;
     private List<Float> rootValuesFromInitialInference;
+    private List<Float> entropies;
     private float lastValueError;
 
     public GameDTO() {
@@ -49,6 +50,7 @@ public class GameDTO {
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
+        this.entropies = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
     }
 
@@ -73,6 +75,7 @@ public class GameDTO {
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
+        gameBuilder.addAllEntropies(getEntropies());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
         getPolicyTargets().stream().forEach(policyTarget -> {
@@ -89,6 +92,7 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
+        this.setEntropies(p.getEntropiesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
 

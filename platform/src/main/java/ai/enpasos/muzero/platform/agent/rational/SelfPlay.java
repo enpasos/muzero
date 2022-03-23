@@ -41,8 +41,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 
 
 @Slf4j
@@ -99,6 +98,7 @@ public class SelfPlay {
             Node root = rootList.get(g);
 
             root.setValueFromInitialInference(networkOutput.get(g).getValue());
+            game.getGameDTO().getEntropies().add((float)entropy(toDouble(networkOutput.get(g).getValueDistribution())));
 
             int nActionsReplayed = game.actionHistory().getActionIndexList().size();
             int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
