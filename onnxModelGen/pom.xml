@@ -16,7 +16,7 @@
 
 
     <properties>
-        <djl.version>0.16.0-SNAPSHOT</djl.version>
+        <djl.version>0.17.0-SNAPSHOT</djl.version>
         <pytorch.version>1.10.0-SNAPSHOT</pytorch.version>
         <lombok.version>1.18.22</lombok.version>
         <slf4j.version>1.7.36</slf4j.version>
