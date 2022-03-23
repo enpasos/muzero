@@ -91,7 +91,7 @@ public class SelfPlay {
 
         List<Node> rootList = initRootNodes();
 
-        List<NetworkIO> networkOutput = initialInference(network, false, false, indexOfJustOneOfTheGames);
+        List<NetworkIO> networkOutput = initialInference(network,getGameList(), false, false, indexOfJustOneOfTheGames);
 
         IntStream.range(0, gameList.size()).forEach(g ->
         {
@@ -119,64 +119,67 @@ public class SelfPlay {
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
-        shortCutForGamesWithoutAnOption(render);
+        List<Game> gamesToApplyAction = new ArrayList<>();
+        gamesToApplyAction.addAll(this.gameList);
 
-        int nGames = this.gameList.size();
-        if (nGames == 0) return;
+        shortCutForGamesWithoutAnOption( gamesToApplyAction, render);
 
-        List<NetworkIO> networkOutput = null;
-        if (!fastRuleLearning) {
-            networkOutput = initialInference(network, render, fastRuleLearning, indexOfJustOneOfTheGames);
+        int nGames = gamesToApplyAction.size();
+        if (nGames != 0) {
+
+            List<NetworkIO> networkOutput = null;
+            if (!fastRuleLearning) {
+                networkOutput = initialInference(network, gamesToApplyAction, render, fastRuleLearning, indexOfJustOneOfTheGames);
+            }
+            List<NetworkIO> networkOutputFinal = networkOutput;
+
+
+            if (justInitialInferencePolicy) {
+                playAfterJustWithInitialInference(fastRuleLearning, nGames, networkOutputFinal);
+                return;
+            }
+
+            List<GumbelSearch> searchManagers = gamesToApplyAction.stream().map(game -> {
+                game.initSearchManager();
+                return game.getSearchManager();
+            }).collect(Collectors.toList());
+
+            IntStream.range(0, nGames).forEach(i -> {
+                GumbelSearch sm = searchManagers.get(i);
+                sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutputFinal.get(i));
+                sm.gumbelActionsStart();
+
+            });
+            if (!fastRuleLearning) {
+                do {
+                    List<List<Node>> searchPathList = new ArrayList<>();
+                    List<GumbelSearch> searchManagersLocal =
+                        searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());
+
+                    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
+
+                    if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
+                    List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
+                    if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
+
+                    IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
+                        GumbelSearch sm = searchManagersLocal.get(i);
+                        sm.expandAndBackpropagate(networkOutputList.get(i));
+                        sm.next();
+                    });
+
+                    // if there is an equal number of simulations in each game
+                    // the loop can be replaced by an explicit loop over the number of simulations
+                    // if the simulations are different per game the loop needs to be adjust
+                    // as the simulations would go on even for the game where simulation is over
+                } while (searchManagers.stream().anyMatch(sm -> !sm.isSimulationsFinished()));
+
+            }
+            IntStream.range(0, nGames).forEach(i ->
+                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning)
+            );
+
         }
-        List<NetworkIO> networkOutputFinal = networkOutput;
-
-
-        if (justInitialInferencePolicy) {
-            playAfterJustWithInitialInference(fastRuleLearning, nGames, networkOutputFinal);
-            return;
-        }
-
-        List<GumbelSearch> searchManagers = this.gameList.stream().map(game -> {
-            game.initSearchManager();
-            return game.getSearchManager();
-        }).collect(Collectors.toList());
-
-        IntStream.range(0, nGames).forEach(i -> {
-            GumbelSearch sm = searchManagers.get(i);
-            sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutputFinal.get(i));
-            sm.gumbelActionsStart();
-
-        });
-        if (!fastRuleLearning) {
-            do {
-                List<List<Node>> searchPathList = new ArrayList<>();
-                List<GumbelSearch> searchManagersLocal =
-                    searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());
-
-                IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
-
-                if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
-                List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
-                if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
-
-                IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
-                    GumbelSearch sm = searchManagersLocal.get(i);
-                    sm.expandAndBackpropagate(networkOutputList.get(i));
-                    sm.next();
-                });
-
-                // if there is an equal number of simulations in each game
-                // the loop can be replaced by an explicit loop over the number of simulations
-                // if the simulations are different per game the loop needs to be adjust
-                // as the simulations would go on even for the game where simulation is over
-            } while (searchManagers.stream().anyMatch(sm -> !sm.isSimulationsFinished()));
-
-        }
-        IntStream.range(0, nGames).forEach(i ->
-            searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning)
-        );
-
-
         renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
 
         keepTrackOfOpenGames();
@@ -208,12 +211,12 @@ public class SelfPlay {
         return;
     }
 
-    private void shortCutForGamesWithoutAnOption(boolean render) {
+    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render) {
         List<Game> gamesWithOnlyOneAllowedAction = this.gameList.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
 
-        this.gameList.removeAll(gamesWithOnlyOneAllowedAction);
+        gamesToApplyAction.removeAll(gamesWithOnlyOneAllowedAction);
 
         gamesWithOnlyOneAllowedAction.stream().forEach(game -> {
             Action action = game.legalActions().get(0);
@@ -235,7 +238,6 @@ public class SelfPlay {
 
         });
 
-        this.gamesDoneList.addAll(gamesWithOnlyOneAllowedAction);
 
     }
 
@@ -256,9 +258,9 @@ public class SelfPlay {
     }
 
     @Nullable
-    private List<NetworkIO> initialInference(Network network, boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames) {
+    private List<NetworkIO> initialInference(Network network, List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames) {
         inferenceDuration.value -= System.currentTimeMillis();
-        List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gameList);
+        List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gamesToApplyAction);
         inferenceDuration.value += System.currentTimeMillis();
 
         if (render && indexOfJustOneOfTheGames != -1) {
