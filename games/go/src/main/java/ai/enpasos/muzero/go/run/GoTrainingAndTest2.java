@@ -18,7 +18,7 @@ import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 
 @Slf4j
 @Component
-public class GoTrainingAndTest {
+public class GoTrainingAndTest2 {
 
     @Autowired
     GoStartValueExtractor goStartValueExtractor;
@@ -35,7 +35,7 @@ public class GoTrainingAndTest {
 
         rmDir(config.getOutputDir());
 
-        muZero.train(TrainParams.builder()
+        muZero.train2(TrainParams.builder()
             .afterTrainingHookIn(this::adjustKomi)
             .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
