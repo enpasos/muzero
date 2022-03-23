@@ -73,7 +73,7 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 50
-      windowSize: 10000  # 40000
+      windowSize: 40000  # 40000
       numberOfTrainingSteps: 300000
 
     GO_9:
