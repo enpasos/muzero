@@ -1,6 +1,13 @@
 logging:
-  level.root: WARN
-  level.ai.enpasos: INFO
+  file:
+    path: logs
+    name: muzero.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: WARN
+    ai.enpasos: INFO
 
 muzero:
   activeGame: GO_5
