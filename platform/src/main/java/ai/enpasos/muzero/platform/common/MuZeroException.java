@@ -1,6 +1,8 @@
 package ai.enpasos.muzero.platform.common;
 
-public class MuZeroException extends RuntimeException {
+import java.util.function.Supplier;
+
+public class MuZeroException extends RuntimeException   {
     public MuZeroException() {
         super();
     }
@@ -16,4 +18,6 @@ public class MuZeroException extends RuntimeException {
     public MuZeroException(Throwable cause) {
         super(cause);
     }
+
+
 }

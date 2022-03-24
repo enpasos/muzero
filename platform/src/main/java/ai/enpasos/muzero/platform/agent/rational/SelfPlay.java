@@ -135,8 +135,15 @@ public class SelfPlay {
 
 
             if (justInitialInferencePolicy) {
-                playAfterJustWithInitialInference(fastRuleLearning, nGames, networkOutputFinal);
+                playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
                 return;
+            }
+
+            if (!fastRuleLearning) {
+                IntStream.range(0, nGames).forEach(g -> {
+                    Game game = gamesToApplyAction.get(g);
+                    game.getGameDTO().getEntropies().add((float) entropy(toDouble(networkOutputFinal.get(g).getValueDistribution())));
+                });
             }
 
             List<GumbelSearch> searchManagers = gamesToApplyAction.stream().map(game -> {
@@ -185,10 +192,10 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
-    private void playAfterJustWithInitialInference(boolean fastRuleLearning, int nGames, List<NetworkIO> networkOutputFinal) {
+    private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
         List<Node> roots =  new ArrayList<>();
-        IntStream.range(0, nGames).forEach(i -> {
-            Game game = this.gameList.get(i);
+        IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
+            Game game = gamesToApplyAction.get(i);
             List<Action> legalActions = game.legalActions();
             Node root = new Node(config, 0, true);
             roots.add(root);
@@ -212,7 +219,7 @@ public class SelfPlay {
     }
 
     private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render) {
-        List<Game> gamesWithOnlyOneAllowedAction = this.gameList.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
+        List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
 
@@ -331,7 +338,7 @@ public class SelfPlay {
     }
 
     public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, List<Game> replayGames) {
-        log.info("playGamesFromTheirCurrentState");
+        log.info("play " + replayGames.size() + " GamesFromTheirCurrentState");
         init(replayGames);
         runEpisode(network, false, false, false);
         long duration = System.currentTimeMillis() - getStart();

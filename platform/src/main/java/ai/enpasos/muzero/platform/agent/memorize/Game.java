@@ -108,7 +108,16 @@ public abstract class Game {
         copy.setGameDTO(this.gameDTO.copy());
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
-        copy.setEnvironment(this.getEnvironment());
+        copy.setActionSpaceSize(this.getActionSpaceSize());
+        copy.replayToPosition(copy.getGameDTO().getActions().size());
+        return copy;
+    }
+
+    public @NotNull Game copy(int toPosition) {
+        Game copy = getConfig().newGame();
+        copy.setGameDTO(this.gameDTO.copy(toPosition));
+        copy.setConfig(this.getConfig());
+        copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         copy.replayToPosition(copy.getGameDTO().getActions().size());
         return copy;
