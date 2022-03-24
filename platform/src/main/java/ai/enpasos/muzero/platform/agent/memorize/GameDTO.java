@@ -60,6 +60,15 @@ public class GameDTO {
         return buf.toString();
     }
 
+    public GameDTO copy(int toPosition) {
+        GameDTO copy = new GameDTO();
+        copy.rewards.addAll(this.rewards.subList(0, toPosition));
+        copy.actions.addAll(this.actions.subList(0, toPosition));
+        this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+        if (this.rootValues.size() >= toPosition)
+            copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
+        return copy;
+    }
     public GameDTO copy() {
         GameDTO copy = new GameDTO();
         copy.rewards.addAll(this.rewards);
@@ -68,7 +77,6 @@ public class GameDTO {
         copy.rootValues.addAll(this.rootValues);
         return copy;
     }
-
     public GameProto proto() {
         GameProto.Builder gameBuilder = GameProto.newBuilder();
         gameBuilder.setLastValueError(this.lastValueError);

@@ -1,9 +1,8 @@
 logging:
   file:
-    path: logs
-    name: muzero.log
+    name: logs/muzero-go.log
   pattern:
-    console: "%d %-5level %logger : %msg%n"
+    console: "%d %-5level %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: WARN

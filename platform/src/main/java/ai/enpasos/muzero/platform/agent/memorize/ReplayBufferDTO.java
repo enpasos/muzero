@@ -34,6 +34,7 @@ import java.util.List;
 @SuppressWarnings("squid:S2065")
 public class ReplayBufferDTO {
 
+    // TODO remove the duplication of GameDTO in data and games
     List<GameDTO> data = new ArrayList<>();
     transient List<Game> games = new ArrayList<>();
     private String gameClassName;

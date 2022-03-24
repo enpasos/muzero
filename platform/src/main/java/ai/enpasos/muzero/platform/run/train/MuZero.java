@@ -30,6 +30,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -44,6 +45,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -62,6 +65,9 @@ public class MuZero {
 
     @Autowired
     ReplayBuffer replayBuffer;
+
+    @Autowired
+    SurpriseHandler surpriseHandler;
 
 
     @Autowired
@@ -149,6 +155,7 @@ public class MuZero {
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
+                    surpriseHandler.surpriseHandling(network);
                 }
                 params.getAfterSelfPlayHookIn().accept(epoch, network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
@@ -160,6 +167,8 @@ public class MuZero {
             }
         }
     }
+
+
 
 
     public void train2(TrainParams params) {
