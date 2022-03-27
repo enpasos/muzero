@@ -145,11 +145,13 @@ public class GoSurprise {
             game.setDone(false);
             int length = actionList.get(g).size();
             game.setValues(new double[length]);
-            game.setEntropies(new double[length]);
+            //game.getGameDTO().setEntropies(new double[length]);
             game.setSurprises(new double[length]);
+            game.getGameDTO().getEntropies().clear();
         });
 
         int t = 0;
+
         while (gameList.stream().anyMatch(g -> !g.isDone())) {
 
             List<Game> gamesToEvaluate = new ArrayList<>();
@@ -177,10 +179,11 @@ public class GoSurprise {
                     }
                     v = (v + 1d) / 2d;
                     game.getValues()[t] = v;
-                    game.getEntropies()[t] = -v * Math.log(v) - (1.0 - v) * Math.log(1.0 - v);
-                    game.getEntropies()[t] /= maxEntropy;
+                    double entropy = -v * Math.log(v) - (1.0 - v) * Math.log(1.0 - v);
+                    entropy /= maxEntropy;
+                    game.getGameDTO().getEntropies().add((float)entropy);
                     if (t > 0) {
-                        double d = game.getEntropies()[t] - game.getEntropies()[t - 1];
+                        double d = game.getGameDTO().getEntropies().get(t) -  game.getGameDTO().getEntropies().get(t-1);
                         game.getSurprises()[t] = d * d;
                     }
                     if (t + 1 == actionList.get(g).size()) {
@@ -194,7 +197,7 @@ public class GoSurprise {
         IntStream.range(0, numOfGames).forEach(g -> {
             Game game = gameList.get(g);
             game.setValues(null);
-            game.setEntropies(null);
+            //game.setEntropies(null);
 
         });
     }

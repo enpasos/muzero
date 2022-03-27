@@ -56,7 +56,10 @@ public abstract class Game {
     protected Environment environment;
     protected GameDTO originalGameDTO;
     double[] values;
-    double[] entropies;
+    //double[] entropies;
+    double surpriseMean;
+    double surpriseMax;
+
     boolean done;
     int tSurprise;
     int tTrainingStart;
