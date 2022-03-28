@@ -42,11 +42,17 @@ public class GoTrainingAndTest {
     }
 
     private void adjustKomi(Integer epoch, Model model) {
-        if (epoch < 20) return;
+        log.info("entered  adjustKomi");
+        double oldKomi = config.getKomi();
+        log.info("oldKomi: " + oldKomi);
+        if (epoch < 20) {
+            log.info("leaving  adjustKomi without change because epoch " + epoch + " < 20 ");
+            return;
+        }
         List<Pair<Integer, Double>> pairList = goStartValueExtractor.smoothing(goStartValueExtractor.valuesForTrainedNetworks(), 10);
         Pair<Integer, Double> pair = pairList.get(pairList.size() - 1);
         double v = pair.getValue();
-        double oldKomi = config.getKomi();
+
         double newKomi = oldKomi;
         if (v > 0.1 && config.getKomi() < config.getMaxKomi()) {
             newKomi += 1d;
