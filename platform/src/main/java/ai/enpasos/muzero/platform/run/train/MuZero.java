@@ -157,11 +157,11 @@ public class MuZero {
                     playGames(params.render, network, trainingStep);
                     surpriseHandler.surpriseHandling(network);
                 }
-                params.getAfterSelfPlayHookIn().accept(epoch, network);
+                params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
 
                 if (i % 5 == 0) {
-                    params.getAfterTrainingHookIn().accept(epoch, model);
+                    params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
                 }
                 i++;
             }
