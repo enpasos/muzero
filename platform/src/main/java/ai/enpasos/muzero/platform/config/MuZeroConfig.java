@@ -307,6 +307,7 @@ public class MuZeroConfig {
         return getConf().numParallelGamesPlayed;
     }
 
+    public boolean isSurpriseHandlingOn() { return getConf().isSurpriseHandlingOn(); }
 
     public int getCVisit() {
         return getConf().cVisit;
@@ -340,6 +341,7 @@ public class MuZeroConfig {
 
     @Data
     public static class Conf {
+        protected boolean surpriseHandlingOn;
         protected double komi;
         protected double maxKomi = Double.MAX_VALUE;
         protected String modelName;

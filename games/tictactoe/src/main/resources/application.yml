@@ -1,6 +1,13 @@
 logging:
-  level.root: WARN
-  level.ai.enpasos: DEBUG
+  file:
+    name: logs/muzero-tictactoe.log
+  pattern:
+    console: "%d %-5level %logger{0} : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: WARN
+    ai.enpasos: DEBUG
+
 
 muzero:
   activeGame: TICTACTOE
@@ -69,5 +76,5 @@ muzero:
       windowSize: 10000
 
       numberOfTrainingSteps: 2000
-      # numberOfTrainingSteps: 4100
-      # numPurePolicyPlays: 3
+
+      surpriseHandlingOn: true
