@@ -81,6 +81,7 @@ muzero:
       numSimulations: 30
       windowSize: 40000  # 40000
       numberOfTrainingSteps: 300000
+      surpriseHandlingOn: true
 
     GO_9:
       modelName: MuZero-Go-9
@@ -152,3 +153,4 @@ muzero:
       numSimulations: 50
       windowSize: 40000
       numberOfTrainingSteps: 300000
+      surpriseHandlingOn: true

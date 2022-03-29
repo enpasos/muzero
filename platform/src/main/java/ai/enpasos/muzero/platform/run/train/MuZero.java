@@ -155,7 +155,9 @@ public class MuZero {
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
-                    surpriseHandler.surpriseHandling(network);
+                    if (config.isSurpriseHandlingOn()) {
+                        surpriseHandler.surpriseHandling(network);
+                    }
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
