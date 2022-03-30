@@ -17,13 +17,6 @@ public class GumbelFunctions {
 
     private GumbelFunctions() {}
 
-    public static List<Integer> drawGumbelActions(double[] policyValues, int n) {
-        List<GumbelAction> gumbelActions = getGumbelActions(policyValues);
-        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
-        double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
-        return drawActions(actions, add(logits, g), n);
-    }
 
     public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int n) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();

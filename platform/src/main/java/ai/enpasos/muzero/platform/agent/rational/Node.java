@@ -112,9 +112,7 @@ public class Node {
     }
 
     public double[] getCompletedQValues(MinMaxStats minMaxStats) {
-
         double vMix = getVmix();
-
         double vMixFinal = vMix;
         return IntStream.range(0, children.size()).mapToDouble(i -> {
                 Node child = children.get(i);
@@ -126,22 +124,15 @@ public class Node {
             })
             .map(minMaxStats::normalize)
             .toArray();
-
     }
 
     public void updateImprovedPolicyValueOnChildren(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
-
-
         double[] completedQs = getCompletedQValues(minMaxStats);
-
         double[] raw = add(logits, sigmas(completedQs, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-
         double[] improvedPolicy = softmax(raw);
-
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
-
     }
 
 
