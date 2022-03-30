@@ -130,14 +130,14 @@ public class GumbelSearch {
         return rootChild.getSearchPath();
     }
 
-    public List<Node> search() {
+    public List<Node> search(double temperature) {
         Node rootChild = getCurrentRootChild();
         rootChild.setSearchPath(new ArrayList<>());
         rootChild.getSearchPath().add(root);
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-            node = node.selectChild(minMaxStats);
+            node = node.selectChild(minMaxStats, temperature);
             rootChild.getSearchPath().add(node);
         }
         return rootChild.getSearchPath();

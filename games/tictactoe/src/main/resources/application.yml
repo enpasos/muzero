@@ -23,7 +23,9 @@ muzero:
       withRewardHead: false
       numObservationLayers: 3
       numActionLayers: 1
-      numChannels: 128
+      numChannels: 256
+      numBottleneckChannels: 128
+      broadcastEveryN: 4
       squeezeChannelRatio: 16  # on squeeze and excitation (SE) block
       numHiddenStateChannels: 5
       numResiduals: 8
@@ -69,12 +71,13 @@ muzero:
 
       # Gumbel MuZero parameters
       initialGumbelM: 4
-      cVisit: 10  # 50 in paper
+      cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 18
       windowSize: 10000
 
-      numberOfTrainingSteps: 2000
+      numberOfTrainingSteps: 3000
 
-      surpriseHandlingOn: true
+      surpriseHandlingOn: true  # false in paper
+      innerSelectionTemperature: 0.5  # 0.0 in paper -> max
