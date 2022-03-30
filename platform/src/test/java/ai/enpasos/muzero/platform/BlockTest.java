@@ -4,6 +4,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationOrDynamicsBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.BottleneckResidualBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualBlockV2;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.ValueHeadType;
@@ -43,13 +44,25 @@ class BlockTest {
     }
 
     @Test
+    void bottleneckResidualRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+            "./target/BottleneckResidualBlock.onnx",
+            new BottleneckResidualBlock(128, 64),
+            List.of(new Shape(1, 128, 3, 3)),
+            RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
     void residualTowerRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/ResidualTowerBlock.onnx",
             ResidualTower.builder()
-                .numResiduals(3)
+                .numResiduals(8)
                 .numChannels(128)
+                .numBottleneckChannels(64)
                 .squeezeChannelRatio(10)
+                .broadcastEveryN(8)
                 .build(),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
@@ -81,9 +94,11 @@ class BlockTest {
         boolean check = compareOnnxWithDJL(
             "./target/ResidualTowerBlock.onnx",
             ResidualTower.builder()
-                .numResiduals(3)
+                .numResiduals(8)
                 .numChannels(128)
+                .numBottleneckChannels(64)
                 .squeezeChannelRatio(10)
+                .broadcastEveryN(8)
                 .build(),
             List.of(new Shape(1, 128, 3, 3)),
             ZERO);
@@ -94,7 +109,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3, 128, 10, 5),
+            new RepresentationOrDynamicsBlock(3, 128,64,  10, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -115,7 +130,7 @@ class BlockTest {
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3, 128, 10, 5),
+            new RepresentationOrDynamicsBlock(3, 128,64,  10, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

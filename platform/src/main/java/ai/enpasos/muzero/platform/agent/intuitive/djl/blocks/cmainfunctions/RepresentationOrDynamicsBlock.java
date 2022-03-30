@@ -33,11 +33,11 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumResiduals(), config.getNumChannels(), config.getSqueezeChannelRatio(), config.getNumHiddenStateChannels());
+        this(config.getNumResiduals(), config.getNumChannels(),config.getNumBottleneckChannels(),  config.getSqueezeChannelRatio(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
     }
 
 
-    public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int squeezeChannelRatio, int numHiddenStateChannels) {
+    public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int numBottleneckChannels, int squeezeChannelRatio, int numHiddenStateChannels, int broadcastEveryN) {
 
 
         this.add(Conv3x3.builder().channels(numChannels).build())
@@ -45,6 +45,8 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
             .add(ResidualTower.builder()
                 .numResiduals(numResiduals)
                 .numChannels(numChannels)
+                .numBottleneckChannels(numBottleneckChannels)
+                .broadcastEveryN(broadcastEveryN)
                 .squeezeChannelRatio(squeezeChannelRatio)
                 .build())
 

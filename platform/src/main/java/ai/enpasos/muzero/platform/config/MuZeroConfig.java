@@ -166,6 +166,9 @@ public class MuZeroConfig {
     public int getNumChannels() {
         return getConf().numChannels;
     }
+    public int getNumBottleneckChannels() {
+        return getConf().numBottleneckChannels;
+    }
 
     public int getNumHiddenStateChannels() {
         return getConf().numHiddenStateChannels;
@@ -275,6 +278,8 @@ public class MuZeroConfig {
         return getConf().inferenceDeviceType;
     }
 
+    public double getInnerSelectionTemperature() {return getConf().innerSelectionTemperature;}
+
     public void setInferenceDeviceType(DeviceType deviceType) {
         getConf().setInferenceDeviceType(deviceType);
     }
@@ -306,6 +311,11 @@ public class MuZeroConfig {
     public int getNumParallelGamesPlayed() {
         return getConf().numParallelGamesPlayed;
     }
+    public int getBroadcastEveryN() {
+        return getConf().broadcastEveryN;
+    }
+
+
 
     public boolean isSurpriseHandlingOn() { return getConf().isSurpriseHandlingOn(); }
 
@@ -356,6 +366,8 @@ public class MuZeroConfig {
         protected int numObservationLayers;
         protected int numActionLayers;
         protected int numChannels;
+        protected int broadcastEveryN;
+        protected int numBottleneckChannels;
         protected int numHiddenStateChannels;
         protected int numResiduals;
         protected int squeezeChannelRatio;
@@ -393,6 +405,7 @@ public class MuZeroConfig {
         int cVisit;
         double cScale;
         int numPurePolicyPlays;
+        double innerSelectionTemperature;
     }
 
 }

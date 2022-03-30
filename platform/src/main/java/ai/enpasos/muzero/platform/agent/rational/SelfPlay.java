@@ -163,7 +163,7 @@ public class SelfPlay {
                     List<GumbelSearch> searchManagersLocal =
                         searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());
 
-                    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
+                    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search(config.getInnerSelectionTemperature())));
 
                     if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
                     List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
