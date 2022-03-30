@@ -18,10 +18,7 @@
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv3x3LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +40,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
     public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int squeezeChannelRatio, int numHiddenStateChannels) {
 
 
-        this.add(Conv3x3LayerNormRelu.builder().channels(numChannels).build())
+        this.add(Conv3x3.builder().channels(numChannels).build())
 
             .add(ResidualTower.builder()
                 .numResiduals(numResiduals)
