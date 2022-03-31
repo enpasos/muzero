@@ -31,6 +31,7 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,10 +44,12 @@ import java.util.stream.IntStream;
  * A single episode of interaction with the environment.
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class Game {
 
     protected boolean purelyRandom;
 
+    @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
 
     protected MuZeroConfig config;

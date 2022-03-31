@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -58,6 +59,7 @@ public class ReplayBufferDTO {
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
+        removeGame(game); // do not keep old copies with the same action history
         while (isBufferFilled()) {
             GameDTO toBeRemoved = data.get(0);
             Game gameToBeRemoved = config.newGame();
@@ -71,6 +73,14 @@ public class ReplayBufferDTO {
         }
         games.add(game);
         counter++;
+        game.getGameDTO().setCount(counter);
+
+        List<Game> toRemove = games.stream()
+            .filter(g -> counter - g.getGameDTO().getCount() > config.getMaxGameLiveTime())
+            .collect(Collectors.toList());
+        toRemove.stream().forEach(g ->removeGame(g));
+
+
     }
 
 

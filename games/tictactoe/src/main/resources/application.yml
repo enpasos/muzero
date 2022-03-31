@@ -28,7 +28,7 @@ muzero:
       broadcastEveryN: 4
       squeezeChannelRatio: 16  # on squeeze and excitation (SE) block
       numHiddenStateChannels: 5
-      numResiduals: 8
+      numResiduals: 10
 
       numberOfTrainingStepsPerEpoch: 40
 
@@ -41,13 +41,13 @@ muzero:
       valueLossWeight: 1.0
       lrInit: 0.0001
       absorbingStateDropToZero: false # faster for integration test
-      visitSoftmaxTemperatureThreshold: 30
+#      visitSoftmaxTemperatureThreshold: 30
       numberTrainingStepsOnStart: 0
-      rootDirichletAlpha: 2
-      rootExplorationFraction: 0.25
+#      rootDirichletAlpha: 2
+#      rootExplorationFraction: 0.25
       knownBoundsType: BOARD_GAME
-      pbCInit: 1.25
-      pbCBase: 19652
+#      pbCInit: 1.25
+#      pbCBase: 19652
       inferenceDeviceType: GPU
       outputDir: ./memory/tictactoe/
       numEpisodes: 1
@@ -75,9 +75,13 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 18
-      windowSize: 10000
 
-      numberOfTrainingSteps: 3000
+      windowSize: 1000
+      maxGameLiveTime: 10000
 
-      surpriseHandlingOn: true  # false in paper
-      innerSelectionTemperature: 0.5  # 0.0 in paper -> max
+      numberOfTrainingSteps: 2000
+
+
+      # off
+      surpriseHandlingOn: false  # false in paper
+      innerSelectionTemperature: 0.0  # 0.0 in paper -> max

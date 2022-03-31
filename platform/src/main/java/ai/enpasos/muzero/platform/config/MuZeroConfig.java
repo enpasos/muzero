@@ -322,6 +322,10 @@ public class MuZeroConfig {
     public int getCVisit() {
         return getConf().cVisit;
     }
+    public long getMaxGameLiveTime() {
+        return getConf().maxGameLiveTime;
+    }
+
 
     public void setCVisit(int cVisit) {
         getConf().setCVisit(cVisit);
@@ -400,6 +404,7 @@ public class MuZeroConfig {
         protected int numSimulations;
         protected int numParallelGamesPlayed;
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
+        protected long maxGameLiveTime;
         int visitSoftmaxTemperatureThreshold;
         int initialGumbelM;
         int cVisit;

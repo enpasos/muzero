@@ -44,6 +44,7 @@ public class GameDTO {
     private List<Float> rootValuesFromInitialInference;
     private List<Float> entropies;
     private float lastValueError;
+    private long count;
 
     public GameDTO() {
         this.actions = new ArrayList<>();
@@ -80,6 +81,7 @@ public class GameDTO {
     public GameProto proto() {
         GameProto.Builder gameBuilder = GameProto.newBuilder();
         gameBuilder.setLastValueError(this.lastValueError);
+        gameBuilder.setCount(this.count);
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
@@ -103,6 +105,7 @@ public class GameDTO {
         this.setEntropies(p.getEntropiesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
+        this.setCount(p.getCount());
 
 
         if (p.getPolicyTargetsCount() > 0) {
