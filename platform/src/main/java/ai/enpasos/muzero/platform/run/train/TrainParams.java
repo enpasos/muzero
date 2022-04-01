@@ -10,6 +10,8 @@ import java.util.function.BiConsumer;
 @Data
 @Builder
 public class TrainParams {
+    @Builder.Default
+    public boolean withoutFill = false;
 
     @Builder.Default
     BiConsumer<Integer, Model> afterTrainingHookIn = (epoch, model) -> {

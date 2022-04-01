@@ -145,7 +145,7 @@ public class MuZero {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-            init(params.freshBuffer, params.randomFill, network);
+            init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
             int epoch = networkHelper.getEpoch();
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
@@ -177,7 +177,7 @@ public class MuZero {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-            init(params.freshBuffer, params.randomFill, network);
+            init(params.freshBuffer, params.randomFill, network,  params.withoutFill);
           //  init2(network);
 
             int epoch = networkHelper.getEpoch();
@@ -214,7 +214,7 @@ public class MuZero {
 
 
     @NotNull
-    private void init(boolean freshBuffer, boolean randomFill, Network network) {
+    private void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
         createNetworkModelIfNotExisting();
         replayBuffer.init();
         if (freshBuffer) {
@@ -225,6 +225,7 @@ public class MuZero {
             }
         } else {
             replayBuffer.loadLatestState();
+            if (withoutFill) return;
             if (randomFill) {
                 initialFillingBuffer(network);
             } else {
