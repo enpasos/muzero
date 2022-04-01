@@ -75,13 +75,13 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 18
-
-      windowSize: 1000
+      windowSize: 5000
       maxGameLiveTime: 10000
 
-      numberOfTrainingSteps: 2000
+      numberOfTrainingSteps: 2500
 
 
       # off
-      surpriseHandlingOn: false  # false in paper
+      surpriseHandlingOn: false # false in paper
       innerSelectionTemperature: 0.0  # 0.0 in paper -> max
+      actionSelectionTemperature: 0.0

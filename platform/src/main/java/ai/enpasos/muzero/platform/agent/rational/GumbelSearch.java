@@ -82,7 +82,7 @@ public class GumbelSearch {
         double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         double[] raw = add(logits, g);
 
-        List<Integer> selectedActions = drawActions(actions, raw, n);
+        List<Integer> selectedActions = drawActions(actions, raw, n, config.getActionSelectionTemperature());
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
@@ -117,7 +117,7 @@ public class GumbelSearch {
 
         IntStream.range(0, rootChildrenCandidates.size()).forEach(i -> rootChildrenCandidates.get(i).setPseudoLogit(raw[i]));
 
-        List<Integer> selectedActions = drawActions(actions, raw, m);
+        List<Integer> selectedActions = drawActions(actions, raw, m, config.getActionSelectionTemperature());
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 

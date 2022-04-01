@@ -279,6 +279,7 @@ public class MuZeroConfig {
     }
 
     public double getInnerSelectionTemperature() {return getConf().innerSelectionTemperature;}
+    public double getActionSelectionTemperature() {return getConf().actionSelectionTemperature;}
 
     public void setInferenceDeviceType(DeviceType deviceType) {
         getConf().setInferenceDeviceType(deviceType);
@@ -411,6 +412,7 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
         double innerSelectionTemperature;
+        double actionSelectionTemperature;
     }
 
 }
