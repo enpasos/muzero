@@ -70,13 +70,13 @@ muzero:
 
 
       # Gumbel MuZero parameters
-      initialGumbelM: 4
-      cVisit: 20  # 50 in paper
+      initialGumbelM: 8
+      cVisit: 15  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 18
       windowSize: 5000
-      maxGameLiveTime: 10000
+      maxGameLiveTime: 15000
 
       numberOfTrainingSteps: 2500
 
