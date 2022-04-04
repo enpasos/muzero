@@ -85,7 +85,8 @@ public class MuZero {
     public void initialFillingBuffer(Network network) {
 
         int windowSize = config.getWindowSize();
-        while (replayBuffer.getBuffer().getData().size() < windowSize) {
+        long startCounter = replayBuffer.getBuffer().getCounter();
+        while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(replayBuffer.getBuffer().getData().size() + " of " + windowSize);
             selfPlay.playMultipleEpisodes(network, false, true, false);
             replayBuffer.saveState();
