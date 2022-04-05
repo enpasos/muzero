@@ -26,12 +26,12 @@ public class ResidualTower extends MySequentialBlock {
     }
 
     @Builder()
-    public static @NotNull ResidualTower newResidualTower(int numResiduals, int numChannels, int numBottleneckChannels, int squeezeChannelRatio, int broadcastEveryN) {
+    public static @NotNull ResidualTower newResidualTower(int height, int width,int numResiduals, int numChannels, int numBottleneckChannels, int squeezeChannelRatio, int broadcastEveryN) {
         ResidualTower instance = new ResidualTower();
         for (int i = 0; i < numResiduals; i++) {
            // instance.add(new ResidualBlockV2(numChannels, squeezeChannelRatio));
             if (i % broadcastEveryN == broadcastEveryN-1 ) {
-                instance.add(new BroadcastResidualBlock(numChannels, numBottleneckChannels));
+                instance.add(new BroadcastResidualBlock(  height,  width,numChannels, numBottleneckChannels));
             } else {
                 instance.add(new BottleneckResidualBlock(numChannels, numBottleneckChannels));
             }

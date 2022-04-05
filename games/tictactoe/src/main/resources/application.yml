@@ -74,7 +74,7 @@ muzero:
       cVisit: 15  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 18
+      numSimulations: 30
       windowSize: 10000
       maxGameLiveTime: 10000
 
