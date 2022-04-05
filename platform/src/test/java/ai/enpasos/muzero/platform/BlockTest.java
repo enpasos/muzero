@@ -10,6 +10,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Residua
 import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -109,7 +110,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3, 128,64,  10, 5, 8),
+            new RepresentationOrDynamicsBlock(3,3, 3, 128,64,  10, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -130,7 +131,7 @@ class BlockTest {
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3, 128,64,  10, 5, 8),
+            new RepresentationOrDynamicsBlock(3,3,3, 128,64,  10, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

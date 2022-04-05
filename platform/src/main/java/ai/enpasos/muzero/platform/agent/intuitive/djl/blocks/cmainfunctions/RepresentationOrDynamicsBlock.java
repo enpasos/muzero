@@ -33,11 +33,11 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumResiduals(), config.getNumChannels(),config.getNumBottleneckChannels(),  config.getSqueezeChannelRatio(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
+        this(config.getBoardHeight(), config.getBoardWidth(),  config.getNumResiduals(), config.getNumChannels(),config.getNumBottleneckChannels(),  config.getSqueezeChannelRatio(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
     }
 
 
-    public RepresentationOrDynamicsBlock(int numResiduals, int numChannels, int numBottleneckChannels, int squeezeChannelRatio, int numHiddenStateChannels, int broadcastEveryN) {
+    public RepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int squeezeChannelRatio, int numHiddenStateChannels, int broadcastEveryN) {
 
 
         this.add(Conv3x3.builder().channels(numChannels).build())
@@ -48,6 +48,8 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
                 .numBottleneckChannels(numBottleneckChannels)
                 .broadcastEveryN(broadcastEveryN)
                 .squeezeChannelRatio(squeezeChannelRatio)
+                .height(height)
+                .width(width)
                 .build())
 
             // compressing hidden state (not in muzero paper)

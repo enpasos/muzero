@@ -39,7 +39,7 @@ public class BroadcastResidualBlock extends AbstractBlock implements OnnxIO {
 
     public final ParallelBlockWithAddJoinExt block;
 
-    public BroadcastResidualBlock(int numChannels, int squeezeChannelRatio) {
+    public BroadcastResidualBlock(int height, int width, int numChannels, int squeezeChannelRatio) {
         super(MYVERSION);
 
         SequentialBlockExt b1;
@@ -50,7 +50,11 @@ public class BroadcastResidualBlock extends AbstractBlock implements OnnxIO {
             .add(ActivationExt.reluBlock())
             .add(Conv1x1.builder().channels(numChannels).build())
 
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+
             .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
+         //   .add(BroadcastBlock.builder().setUnits(height * width).build()  ) // Squeeze-and-Excitation Networks
 
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
