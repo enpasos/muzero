@@ -53,8 +53,8 @@ public class BroadcastResidualBlock extends AbstractBlock implements OnnxIO {
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
 
-            .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
-         //   .add(BroadcastBlock.builder().setUnits(height * width).build()  ) // Squeeze-and-Excitation Networks
+          //  .add(new SqueezeExciteExt(numChannels, squeezeChannelRatio))   // Squeeze-and-Excitation Networks
+            .add(BroadcastBlock.builder().setUnits(height * width).build()  ) // Squeeze-and-Excitation Networks
 
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())

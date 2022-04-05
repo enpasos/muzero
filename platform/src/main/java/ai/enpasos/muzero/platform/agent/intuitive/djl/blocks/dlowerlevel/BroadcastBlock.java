@@ -15,6 +15,7 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.NodeProto;
 import ai.enpasos.onnx.TensorProto;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
         NDArray current = inputs.head();
 
         Shape origShape = current.getShape();
-        Shape shape2 = new Shape(origShape.get(0) * origShape.get(1), origShape.get(2) * origShape.get(3));
+        Shape shape2 = getShape(origShape);
         NDArray current2 = current.reshape(shape2);
         NDArray current3 = super.forwardInternal(parameterStore, new NDList(current2), training, params).head();
         NDArray current4 = current3.reshape(origShape);
@@ -58,11 +59,26 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
         return new NDList(current4);
     }
 
+    @NotNull
+    private Shape getShape(Shape origShape) {
+        return new Shape(origShape.get(0) * origShape.get(1), origShape.get(2) * origShape.get(3));
+    }
+
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         return inputs;
     }
 
+    @Override
+    protected void beforeInitialize(Shape... inputShapes) {
+        super.beforeInitialize(new Shape[]{getShape(inputShapes[0])});
+
+    }
+
+    @Override
+    public void prepare(Shape[] inputShapes) {
+        super.prepare(new Shape[]{getShape(inputShapes[0])});
+    }
 
 
     @Override
