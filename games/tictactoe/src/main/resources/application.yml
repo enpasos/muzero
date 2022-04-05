@@ -74,7 +74,7 @@ muzero:
       windowSize: 10000
       maxGameLiveTime: 10000
 
-      numberOfTrainingSteps: 3000
+      numberOfTrainingSteps: 3500
 
       numResiduals: 6
       broadcastEveryN: 4

@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform;
 
 import ai.djl.ndarray.types.Shape;
+import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationOrDynamicsBlock;
@@ -23,7 +24,15 @@ import static ai.enpasos.mnist.blocks.BlockTestHelper.compareOnnxWithDJL;
 @Slf4j
 class BlockTest {
 
-
+    @Test
+    void broadcastBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+            "./target/BroadcastBlock.onnx",
+            BroadcastBlock.builder().setUnits(3*3).build(),
+            List.of(new Shape(1, 128, 3, 3)),
+            RANDOM);
+        Assertions.assertTrue(check);
+    }
     @Test
     void squeezeExciteRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
@@ -64,9 +73,21 @@ class BlockTest {
                 .numBottleneckChannels(64)
                 .squeezeChannelRatio(10)
                 .broadcastEveryN(8)
+                .height(3)
+                .width(3)
                 .build(),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
+    void broadcastBlockZERO() throws Exception {
+        boolean check = compareOnnxWithDJL(
+            "./target/BroadcastBlock.onnx",
+            BroadcastBlock.builder().setUnits(3*3).build(),
+            List.of(new Shape(1, 128, 3, 3)),
+            ZERO);
         Assertions.assertTrue(check);
     }
 
@@ -100,6 +121,8 @@ class BlockTest {
                 .numBottleneckChannels(64)
                 .squeezeChannelRatio(10)
                 .broadcastEveryN(8)
+                .width(3)
+                .height(3)
                 .build(),
             List.of(new Shape(1, 128, 3, 3)),
             ZERO);
