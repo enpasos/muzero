@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel;
+package ai.enpasos.mnist.blocks;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
@@ -9,13 +9,8 @@ import ai.djl.nn.core.LinearOpened;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.djl.util.Preconditions;
-import ai.enpasos.mnist.blocks.OnnxBlock;
-import ai.enpasos.mnist.blocks.OnnxCounter;
-import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.onnx.NodeProto;
 import ai.enpasos.onnx.TensorProto;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -59,7 +54,7 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
         return new NDList(current4);
     }
 
-    @NotNull
+
     private Shape getShape(Shape origShape) {
         return new Shape(origShape.get(0) * origShape.get(1), origShape.get(2) * origShape.get(3));
     }
@@ -82,31 +77,77 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
 
 
     @Override
-    // TODO
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
+     //   List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
 
-        List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
 
-        Shape outputShape = output.get(0).getShape();
 
-        long inputDim = input.get(0).getShape().get(1);
-        long outputDim = outputShape.get(1);
+        Shape inputShape = input.get(0).getShape();
+
+        Shape outputShape = inputShape;
+
+
+        Shape condensedShape = new Shape(inputShape.get(0) * inputShape.get(1), inputShape.get(2) * inputShape.get(3));
+
+
+
+
+        long inputDim = condensedShape.get(1);
+        long outputDim = condensedShape.get(1);
+
+
+        OnnxBlock blockReshapeA = nodeReshape(counter, input, condensedShape);
 
         OnnxBlock blockW = nodeW(counter, new Shape(new long[]{inputDim, outputDim}));
-        OnnxBlock blockMult = nodeMult(counter, input.get(0), blockW.getOutput().get(0));
+        OnnxBlock blockMult = nodeMult(counter, blockReshapeA.getOutput().get(0), blockW.getOutput().get(0));
         OnnxBlock blockB = nodeB(counter, blockMult.getOutput());
+        OnnxBlock blockReshapeB = nodeReshape(counter, blockB.getOutput(), inputShape);
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
-            .output(blockB.getOutput())
+            .valueInfos(createValueInfoProto(input))
+            .output(blockReshapeB.getOutput())
+            //.valueInfos(createValueInfoProto(blockReshapeB.getOutput()))
             .build();
 
-        onnxBlock.addChild(blockW);
+        onnxBlock.addChild(blockReshapeA);
         onnxBlock.addChild(blockMult);
         onnxBlock.addChild(blockB);
+        onnxBlock.addChild(blockW);
+        onnxBlock.addChild(blockReshapeB);
 
         return onnxBlock;
+    }
+
+    private OnnxBlock nodeReshape(OnnxCounter counter, List<OnnxTensor> input, Shape targetShape) {
+        List<OnnxTensor> output = combine(
+            List.of("T" + counter.count()),
+            List.of(targetShape)
+        );
+        String shapeName = "T" + counter.count();
+        return OnnxBlock.builder()
+            .input(input)
+            .output(output)
+            .valueInfos(createValueInfoProto(output))
+            .nodes(List.of(
+                NodeProto.newBuilder()
+                    .setName("Node" + counter.count())
+                    .setOpType("Reshape")
+                    .addInput(input.get(0).getName())
+                    .addInput(shapeName)
+                    .addOutput(output.get(0).getName())
+                    .build()
+            ))
+            .parameters(List.of(
+                TensorProto.newBuilder()
+                    .setName(shapeName)
+                    .setDataType(TensorProto.INT64_DATA_FIELD_NUMBER)
+                    .addAllDims(List.of((long) targetShape.dimension()))
+                    .addAllInt64Data(convert(targetShape.getShape()))
+                    .build()
+            ))
+            .build();
     }
 
     private OnnxBlock nodeB(OnnxCounter counter, List<OnnxTensor> input) {
@@ -194,9 +235,9 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
                     .addAllInt64Data(convert(outputShape.getShape()))
                     .build()
             ))
-            .valueInfos(
-                createValueInfoProto(output)
-            )
+//            .valueInfos(
+//                createValueInfoProto(output)
+//            )
             .build();
 
     }
