@@ -33,7 +33,7 @@ class BlockTestHelper {
 
         boolean checkResult = outputDJL.size() == outputOnnx.size();
         for (int i = 0; i < outputDJL.size(); i++) {
-            boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-03, 1e-03, false);
+            boolean check = outputDJL.get(i).allClose(outputOnnx.get(i), 1e-02, 1e-02, false);
             if (!check) {
                 log.error("DJL ... " + Arrays.toString(outputDJL.get(i).toFloatArray()));
                 log.error("Onnx ... " + Arrays.toString(outputOnnx.get(i).toFloatArray()));
