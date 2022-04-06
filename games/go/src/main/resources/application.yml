@@ -79,9 +79,15 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 30
-      windowSize: 40000  # 40000
       numberOfTrainingSteps: 300000
       surpriseHandlingOn: true
+
+
+      broadcastEveryN: 8
+      numBottleneckChannels: 64
+      windowSize: 40000
+      maxGameLiveTime: 40000
+
 
     GO_9:
       modelName: MuZero-Go-9
@@ -151,6 +157,11 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 50
-      windowSize: 40000
       numberOfTrainingSteps: 300000
       surpriseHandlingOn: true
+
+
+      broadcastEveryN: 8
+      numBottleneckChannels: 64
+      windowSize: 40000
+      maxGameLiveTime: 40000
