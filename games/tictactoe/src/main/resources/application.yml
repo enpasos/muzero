@@ -84,4 +84,4 @@ muzero:
       # off
       surpriseHandlingOn: false # false in paper
       innerSelectionTemperature: 0.0  # 0.0 in paper -> max
-      actionSelectionTemperature: 1
+      actionSelectionTemperature: 1 # 0.0 in paper -> max
