@@ -266,6 +266,9 @@ public class MuZeroConfig {
         return getConf().knownBoundsType;
     }
 
+    public double getGumbelScale() {
+        return getConf().gumbelScale;
+    }
     public double getPbCInit() {
         return getConf().pbCInit;
     }
@@ -408,6 +411,7 @@ public class MuZeroConfig {
         protected long maxGameLiveTime;
         int visitSoftmaxTemperatureThreshold;
         int initialGumbelM;
+        double gumbelScale = 1;
         int cVisit;
         double cScale;
         int numPurePolicyPlays;

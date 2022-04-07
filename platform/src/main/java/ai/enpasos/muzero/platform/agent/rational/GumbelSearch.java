@@ -63,7 +63,7 @@ public class GumbelSearch {
 
     public void gumbelActionsStart() {
         List<GumbelAction> gumbelActions = root.getChildren().stream().map(node -> {
-            node.initGumbelAction(node.getAction().getIndex(), node.getPrior());
+            node.initGumbelAction(node.getAction().getIndex(), node.getPrior(), config.getGumbelScale());
             return node.getGumbelAction();
         }).collect(Collectors.toList());
 
