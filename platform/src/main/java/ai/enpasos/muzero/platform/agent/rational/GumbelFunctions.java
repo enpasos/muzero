@@ -26,13 +26,13 @@ public class GumbelFunctions {
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
-    public static List<GumbelAction> getGumbelActions(double[] policyValues, double gumbelScale) {
+    public static List<GumbelAction> getGumbelActions(double[] policyValues) {
         return IntStream.range(0, policyValues.length).mapToObj(i -> {
             GumbelAction a = GumbelAction.builder()
                 .actionIndex(i)
                 .policyValue(policyValues[i])
                 .build();
-            a.initGumbelValue(gumbelScale);
+            a.initGumbelValue();
             return a;
         }).collect(Collectors.toList());
     }
@@ -98,16 +98,16 @@ public class GumbelFunctions {
         ).toArray();
     }
 
-    static double[] drawGumble(int k, double gumbelScale) {
-        return IntStream.range(0, k).mapToDouble(i -> drawGumble(gumbelScale)).toArray();
+    static double[] drawGumble(int k ) {
+        return IntStream.range(0, k).mapToDouble(i -> drawGumble( )).toArray();
     }
 
-    static double drawGumble(double gumbelScale) {
+    static double drawGumble( ) {
         double r = 0d;
         while (r == 0d) {
             r = ThreadLocalRandom.current().nextDouble();
         }
-        return -gumbelScale*Math.log(-Math.log(r));
+        return - Math.log(-Math.log(r));
     }
 
     public static double[] sigmas(double[] qs, double maxActionVisitCount, int cVisit, double cScale) {

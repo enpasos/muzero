@@ -37,13 +37,10 @@ muzero:
       valueLossWeight: 1.0
       lrInit: 0.0001
       absorbingStateDropToZero: false # faster for integration test
-#      visitSoftmaxTemperatureThreshold: 30
+
       numberTrainingStepsOnStart: 0
-#      rootDirichletAlpha: 2
-#      rootExplorationFraction: 0.25
       knownBoundsType: BOARD_GAME
-#      pbCInit: 1.25
-#      pbCBase: 19652
+
       inferenceDeviceType: GPU
       outputDir: ./memory/tictactoe/
       numEpisodes: 1
@@ -81,7 +78,6 @@ muzero:
       numBottleneckChannels: 128
 
       surpriseHandlingOn: false # false in paper
-      innerSelectionTemperature: 0.0  # 0.0 in paper -> max    # seems to be not a good idea
-      actionSelectionTemperature: 1.0 # 0.0 in paper -> max
 
-      # gumbelScale: 2 # seems to be not a good idea
+      gumbelSoftmaxTemperature: 1.0 # 0.0 in paper -> max
+

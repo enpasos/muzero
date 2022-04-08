@@ -63,7 +63,7 @@ public class GumbelSearch {
 
     public void gumbelActionsStart() {
         List<GumbelAction> gumbelActions = root.getChildren().stream().map(node -> {
-            node.initGumbelAction(node.getAction().getIndex(), node.getPrior(), config.getGumbelScale());
+            node.initGumbelAction(node.getAction().getIndex(), node.getPrior());
             return node.getGumbelAction();
         }).collect(Collectors.toList());
 
@@ -82,7 +82,7 @@ public class GumbelSearch {
         double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         double[] raw = add(logits, g);
 
-        List<Integer> selectedActions = drawActions(actions, raw, n, config.getActionSelectionTemperature());
+        List<Integer> selectedActions = drawActions(actions, raw, n, config.getGumbelSoftmaxTemperature());
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
@@ -117,7 +117,7 @@ public class GumbelSearch {
 
         IntStream.range(0, rootChildrenCandidates.size()).forEach(i -> rootChildrenCandidates.get(i).setPseudoLogit(raw[i]));
 
-        List<Integer> selectedActions = drawActions(actions, raw, m, config.getActionSelectionTemperature());
+        List<Integer> selectedActions = drawActions(actions, raw, m, config.getGumbelSoftmaxTemperature());
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
@@ -130,14 +130,14 @@ public class GumbelSearch {
         return rootChild.getSearchPath();
     }
 
-    public List<Node> search(double temperature) {
+    public List<Node> search( ) {
         Node rootChild = getCurrentRootChild();
         rootChild.setSearchPath(new ArrayList<>());
         rootChild.getSearchPath().add(root);
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-            node = node.selectChild(minMaxStats, temperature);
+            node = node.selectChild(minMaxStats );
             rootChild.getSearchPath().add(node);
         }
         return rootChild.getSearchPath();
