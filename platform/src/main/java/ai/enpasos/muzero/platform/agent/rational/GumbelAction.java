@@ -34,8 +34,8 @@ public class GumbelAction {
         return logit;
     }
 
-    public void initGumbelValue(double gumbelScale) {
-        gumbelValue = drawGumble(gumbelScale);
+    public void initGumbelValue( ) {
+        gumbelValue = drawGumble( );
     }
 
 }

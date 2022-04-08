@@ -59,13 +59,9 @@ muzero:
 
       # play
       numberTrainingStepsOnStart: 0
-      rootDirichletAlpha: 0.3
-      rootExplorationFraction: 0.25
-      visitSoftmaxTemperatureThreshold: 30
+
       knownBoundsType: NONE
-      # play - PUCB params from paper
-      pbCInit: 1.25
-      pbCBase: 19652
+
 
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 

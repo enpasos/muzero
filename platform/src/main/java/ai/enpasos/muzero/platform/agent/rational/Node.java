@@ -143,13 +143,13 @@ public class Node {
         return children.get(index).getAction();
     }
 
-    public void initGumbelAction(int actionIndex, double policyValue, double gumbelScale) {
+    public void initGumbelAction(int actionIndex, double policyValue) {
         gumbelAction = GumbelAction.builder()
             .policyValue(policyValue)
             .logit(this.logit)
             .actionIndex(actionIndex)
             .build();
-        gumbelAction.initGumbelValue(gumbelScale);
+        gumbelAction.initGumbelValue();
         gumbelAction.setNode(this);
     }
 
@@ -257,30 +257,12 @@ public class Node {
     }
 
 
-    public Node selectChild(MinMaxStats minMaxStats, double temperature) {
+    public Node selectChild(MinMaxStats minMaxStats) {
 
         updateImprovedPolicyValueOnChildren(minMaxStats);
         int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
         this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
-        if (temperature == 0d) {
-            return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
-        } else {
-            this.getChildren().stream().forEach(node -> node.setImprovedPolicyValue3(
-                Math.exp(node.getImprovedPolicyValue2()/temperature)
-            ));
-            double sum = this.getChildren().stream().mapToDouble(Node::getImprovedPolicyValue3).sum();
-            this.getChildren().stream().forEach(node -> node.setImprovedPolicyValue3(
-                 node.getImprovedPolicyValue3()/sum
-            ));
-            double rand = ThreadLocalRandom.current().nextDouble();
-            double s = 0d;
-            for (Node node : this.getChildren()) {
-                s += node.getImprovedPolicyValue3();
-                if (s > rand) {
-                    return node;
-                }
-            }
-            throw new MuZeroException("problem in drawing from discrete probability distribution");
-        }
+        return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
+
     }
 }

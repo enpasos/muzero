@@ -46,9 +46,7 @@ public class MuZeroConfig {
         }
     }
 
-    public BiFunction<Integer, Integer, Double> visitSoftmaxTemperatureFunction() {
-        return (numMoves, trainingSteps) -> (numMoves < getVisitSoftmaxTemperatureThreshold()) ? 1.0 : 0.0;
-    }
+
 
     public KnownBounds getKnownBounds() {
         if (this.getKnownBoundsType() == BOARD_GAME) {
@@ -254,13 +252,7 @@ public class MuZeroConfig {
         return getConf().numberTrainingStepsOnStart;
     }
 
-    public double getRootDirichletAlpha() {
-        return getConf().rootDirichletAlpha;
-    }
 
-    public double getRootExplorationFraction() {
-        return getConf().rootExplorationFraction;
-    }
 
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
@@ -269,20 +261,13 @@ public class MuZeroConfig {
     public double getGumbelScale() {
         return getConf().gumbelScale;
     }
-    public double getPbCInit() {
-        return getConf().pbCInit;
-    }
-
-    public double getPbCBase() {
-        return getConf().pbCBase;
-    }
 
     public DeviceType getInferenceDeviceType() {
         return getConf().inferenceDeviceType;
     }
 
-    public double getInnerSelectionTemperature() {return getConf().innerSelectionTemperature;}
-    public double getActionSelectionTemperature() {return getConf().actionSelectionTemperature;}
+    // https://arxiv.org/pdf/1611.01144.pdf
+    public double getGumbelSoftmaxTemperature() {return getConf().gumbelSoftmaxTemperature;}
 
     public void setInferenceDeviceType(DeviceType deviceType) {
         getConf().setInferenceDeviceType(deviceType);
@@ -340,9 +325,6 @@ public class MuZeroConfig {
     }
 
 
-    public int getVisitSoftmaxTemperatureThreshold() {
-        return getConf().visitSoftmaxTemperatureThreshold;
-    }
 
 
     public int getNumPurePolicyPlays() {
@@ -397,11 +379,8 @@ public class MuZeroConfig {
         protected int boardWidth;
         protected int actionSpaceSize;
         protected int numberTrainingStepsOnStart;
-        protected double rootDirichletAlpha;
-        protected double rootExplorationFraction;
         protected KnownBoundsType knownBoundsType;
-        protected double pbCInit;
-        protected double pbCBase;
+
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
         protected int numEpisodes;
@@ -409,14 +388,13 @@ public class MuZeroConfig {
         protected int numParallelGamesPlayed;
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
         protected long maxGameLiveTime;
-        int visitSoftmaxTemperatureThreshold;
+
         int initialGumbelM;
         double gumbelScale = 1;
         int cVisit;
         double cScale;
         int numPurePolicyPlays;
-        double innerSelectionTemperature;
-        double actionSelectionTemperature;
+        double gumbelSoftmaxTemperature;
     }
 
 }
