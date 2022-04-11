@@ -30,10 +30,10 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize(), config.getValueHeadType());
+        this(config.getValues().length, config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize(), config.getValueHeadType());
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
+    public PredictionBlock(int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
 
         SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt()
             .add(Conv1x1LayerNormRelu.builder().channels(1).build())
@@ -44,9 +44,8 @@ public class PredictionBlock extends MySequentialBlock {
             .add(ActivationExt.reluBlock());
 
         if (valueHeadType == ValueHeadType.DISTRIBUTION) {
-            // win, draw, loose
             valueHead.add(LinearExt.builder()
-                .setUnits(3).build());
+                .setUnits(numCategories).build());
         } else { // default is EXPECTED
             valueHead.add(LinearExt.builder()
                 .setUnits(1).build());

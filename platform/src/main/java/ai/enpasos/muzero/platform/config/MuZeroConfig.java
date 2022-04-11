@@ -175,6 +175,9 @@ public class MuZeroConfig {
     public int getNumResiduals() {
         return getConf().numResiduals;
     }
+    public double[] getValues() {
+        return getConf().values;
+    }
 
     public int getNumberOfTrainingSteps() {
         return getConf().numberOfTrainingSteps;
@@ -395,6 +398,8 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
         double gumbelSoftmaxTemperature;
+
+        double[] values;
     }
 
 }

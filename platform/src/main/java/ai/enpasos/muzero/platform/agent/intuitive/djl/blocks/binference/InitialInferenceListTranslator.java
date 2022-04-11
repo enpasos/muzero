@@ -30,6 +30,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.ValueConverter;
 import ai.enpasos.muzero.platform.config.ValueHeadType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -95,10 +96,11 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
                 if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-                    float[] vps = new float[3];
-                    System.arraycopy(vpArrayFinal, i * 3, vps, 0, 3);
+                    int l = config.getValues().length;
+                    float[] vps = new float[l];
+                    System.arraycopy(vpArrayFinal, i * l, vps, 0, l);
                     return NetworkIO.builder()
-                        .value(- vps[0] + vps[2])
+                        .value(ValueConverter.expectedValue(config, vps))
                         .valueDistribution(vps)
                         .policyValues(ps)
                         .logits(logits2)
