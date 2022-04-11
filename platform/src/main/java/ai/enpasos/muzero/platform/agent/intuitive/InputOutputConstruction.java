@@ -27,6 +27,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.memorize.Target;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.ValueConverter;
 import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -165,16 +166,17 @@ public class InputOutputConstruction {
                 Target target = targets.get(k);
                 log.trace("valuetarget: {}", target.getValue());
                 if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-                    NDArray valueOutput = nd.zeros(new Shape(3));
-                    // loose 0, draw 1, win 2
-                    int index = 0;
-                    if (target.getValue() == 1f) {
-                        index = 2;
-                    } else if (target.getValue() == 0f) {
-                        index = 1;
-                    } else if (target.getValue() == -1f) {
-                        index = 0;
-                    }
+                    NDArray valueOutput = nd.zeros(new Shape(config.getValues().length));
+                    int index = ValueConverter.valueToClassIndex(config.getValues(), target.getValue());
+//                    // loose 0, draw 1, win 2
+//                    int index = 0;
+//                    if (target.getValue() == 1f) {
+//                        index = 2;
+//                    } else if (target.getValue() == 0f) {
+//                        index = 1;
+//                    } else if (target.getValue() == -1f) {
+//                        index = 0;
+//                    }
                     valueOutput.setScalar(new NDIndex(index), 1);
                     valueList.add(valueOutput);
                 } else {

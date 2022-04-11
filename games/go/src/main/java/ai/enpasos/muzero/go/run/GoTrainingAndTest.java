@@ -32,11 +32,10 @@ public class GoTrainingAndTest {
     private GoSurprise goSurprise;
 
     public void run() {
-
         rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
-            .afterTrainingHookIn(this::adjustKomi)
+           // .afterTrainingHookIn(this::adjustKomi)
             .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }
