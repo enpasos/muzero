@@ -71,13 +71,13 @@ muzero:
 
 
       # Gumbel MuZero parameters
-      initialGumbelM: 16
+      initialGumbelM: 8
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 30
+      numSimulations: 50
       numberOfTrainingSteps: 300000
-      surpriseHandlingOn: true
+      surpriseHandlingOn: false
 
 
       broadcastEveryN: 8
