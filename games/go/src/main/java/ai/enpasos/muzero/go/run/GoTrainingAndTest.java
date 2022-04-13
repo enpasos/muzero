@@ -32,39 +32,40 @@ public class GoTrainingAndTest {
     private GoSurprise goSurprise;
 
     public void run() {
-        rmDir(config.getOutputDir());
+     //   rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
            // .afterTrainingHookIn(this::adjustKomi)
+                        .withoutFill(true)
             .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }
 
-    private void adjustKomi(Integer epoch, Model model) {
-        log.info("entered  adjustKomi");
-        double oldKomi = config.getKomi();
-        log.info("oldKomi: " + oldKomi);
-        if (epoch < 20) {
-            log.info("leaving  adjustKomi without change because epoch " + epoch + " < 20 ");
-            return;
-        }
-        List<Pair<Integer, Double>> pairList = goStartValueExtractor.smoothing(goStartValueExtractor.valuesForTrainedNetworks(), 10);
-        Pair<Integer, Double> pair = pairList.get(pairList.size() - 1);
-        double v = pair.getValue();
-
-        double newKomi = oldKomi;
-        if (v > 0.1 && config.getKomi() < config.getMaxKomi()) {
-            newKomi += 1d;
-        } else if (v < -0.1) {
-            newKomi -= 1d;
-        }
-        if (newKomi != oldKomi) {
-            config.setKomi(newKomi);
-            log.info("komi changed: " + oldKomi + " -> " + newKomi);
-            model.setProperty("komi", newKomi + "");
-            this.replayBuffer.rebuildGames();
-        }
-    }
+//    private void adjustKomi(Integer epoch, Model model) {
+//        log.info("entered  adjustKomi");
+//        double oldKomi = config.getKomi();
+//        log.info("oldKomi: " + oldKomi);
+//        if (epoch < 20) {
+//            log.info("leaving  adjustKomi without change because epoch " + epoch + " < 20 ");
+//            return;
+//        }
+//        List<Pair<Integer, Double>> pairList = goStartValueExtractor.smoothing(goStartValueExtractor.valuesForTrainedNetworks(), 10);
+//        Pair<Integer, Double> pair = pairList.get(pairList.size() - 1);
+//        double v = pair.getValue();
+//
+//        double newKomi = oldKomi;
+//        if (v > 0.1 && config.getKomi() < config.getMaxKomi()) {
+//            newKomi += 1d;
+//        } else if (v < -0.1) {
+//            newKomi -= 1d;
+//        }
+//        if (newKomi != oldKomi) {
+//            config.setKomi(newKomi);
+//            log.info("komi changed: " + oldKomi + " -> " + newKomi);
+//            model.setProperty("komi", newKomi + "");
+//            this.replayBuffer.rebuildGames();
+//        }
+//    }
 
 
 }
