@@ -37,7 +37,7 @@ public class GoTrainingAndTest {
         muZero.train(TrainParams.builder()
            // .afterTrainingHookIn(this::adjustKomi)
                         .withoutFill(true)
-            .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
+          //  .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }
 
