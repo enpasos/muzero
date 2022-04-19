@@ -85,6 +85,8 @@ muzero:
       windowSize: 40000
       maxGameLiveTime: 40000
 
+      gumbelSoftmaxTemperature: 1.0
+
 
     GO_9:
       modelName: MuZero-Go-9
