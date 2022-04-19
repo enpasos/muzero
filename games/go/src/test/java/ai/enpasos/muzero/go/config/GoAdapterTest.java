@@ -15,6 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
@@ -34,9 +39,32 @@ class GoAdapterTest {
         assertNotNull(ndArray);
     }
 
+
+
     @Test
-    void translateSomeAction() {
-        Action action = GoAdapter.translate(config, new Play(new Point(1, 2)));
+    void someTest() {
+        Action action = new GoAction(config, 3);
+        NDArray ndArray = action.encode(NDManager.newBaseManager());
+        System.out.println(Arrays.toString(ndArray.toFloatArray()));
+
+        List<Float> actionList = new ArrayList<>();
+        int s = config.getActionSpaceSize();
+        for (int i = 0; i < s-1; i++) {
+            if (i == action.getIndex()) {
+                actionList.add(1f);
+            } else {
+                actionList.add(0f);
+            }
+        }
+        double[] a2 =  actionList.stream().mapToDouble(f -> f).toArray();
+        System.out.println(Arrays.toString(a2));
+
+        assertEquals(Arrays.toString(ndArray.toFloatArray()), Arrays.toString(a2));
+    }
+
+    @Test
+    void translatePassAction() {
+        Action action = GoAdapter.translate(config, new Pass());
         NDArray ndArray = action.encode(NDManager.newBaseManager());
         assertNotNull(ndArray);
     }

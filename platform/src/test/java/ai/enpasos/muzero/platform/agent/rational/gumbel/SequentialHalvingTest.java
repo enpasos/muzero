@@ -15,7 +15,12 @@ class SequentialHalvingTest {
         assertArrayEquals(expected, extraPhaseVisitsToUpdateQ);
     }
 
-
+    @Test
+    void extraPhaseVisitsToUpdateQTest2() {
+        int[] extraPhaseVisitsToUpdateQ = extraPhaseVisitsToUpdateQPerPhase(50, 8);
+        int[] expected = {2, 4, 9};
+        assertArrayEquals(expected, extraPhaseVisitsToUpdateQ);
+    }
 
 //    @Test
 //    void selectActionTest2() {
