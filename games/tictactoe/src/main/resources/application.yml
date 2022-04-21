@@ -40,6 +40,7 @@ muzero:
       absorbingStateDropToZero: false # faster for integration test
 
       numberTrainingStepsOnStart: 0
+
       knownBoundsType: BOARD_GAME
 
       inferenceDeviceType: GPU
@@ -80,5 +81,7 @@ muzero:
 
       surpriseHandlingOn: false # false in paper
 
-      gumbelSoftmaxTemperature: 1.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> equal distribution
+      gumbelSoftmaxTemperature: 0.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> equal distribution
 
+      rootDirichletAlpha: 2
+      rootExplorationFraction: 0.25

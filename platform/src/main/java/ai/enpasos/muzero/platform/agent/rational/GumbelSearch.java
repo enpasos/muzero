@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
+import static ai.enpasos.muzero.platform.common.Functions.numpyRandomDirichlet;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
@@ -235,6 +236,14 @@ public class GumbelSearch {
         }
 
 
+    }
+
+
+    public void addExplorationNoise(  ) {
+        double fraction = config.getRootExplorationFraction();
+        if (fraction != 0d) {
+             root.addExplorationNoise(fraction, config.getRootDirichletAlpha());
+        }
     }
 
 

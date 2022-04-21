@@ -37,6 +37,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
+import static ai.enpasos.muzero.platform.common.Functions.numpyRandomDirichlet;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 
 @Data
@@ -90,6 +91,18 @@ public class Node {
         if (this.getGumbelAction() != null) {
             this.getGumbelAction().setVisitCount(visitCount);
         }
+    }
+
+    public  void addExplorationNoise(double rootExplorationFraction, double rootDirichletAlpha ) {
+        double[] noise = numpyRandomDirichlet(rootDirichletAlpha,  getChildren().size());
+        IntStream.range(0,  getChildren().size()).forEach(i -> {
+            Node child =  getChildren().get(i);
+            child.setPrior((1 - rootExplorationFraction) * child.getPrior() + rootExplorationFraction * noise[i]);
+        });
+        double logitMax = getChildren().stream().mapToDouble(n -> n.logit).max().orElseThrow(MuZeroException::new);
+        getChildren().stream().forEach(child -> {
+            child.setLogit(Math.exp(child.getPrior()-logitMax));
+        });
     }
 
     public double getVmix() {

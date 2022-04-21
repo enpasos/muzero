@@ -255,7 +255,13 @@ public class MuZeroConfig {
         return getConf().numberTrainingStepsOnStart;
     }
 
+    public double getRootDirichletAlpha() {
+        return getConf().rootDirichletAlpha;
+    }
 
+    public double getRootExplorationFraction() {
+        return getConf().rootExplorationFraction;
+    }
 
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
@@ -382,6 +388,8 @@ public class MuZeroConfig {
         protected int boardWidth;
         protected int actionSpaceSize;
         protected int numberTrainingStepsOnStart;
+        protected double rootDirichletAlpha;
+        protected double rootExplorationFraction;
         protected KnownBoundsType knownBoundsType;
 
         protected DeviceType inferenceDeviceType;

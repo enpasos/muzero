@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import umontreal.ssj.randvarmulti.DirichletGen;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -116,6 +117,9 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
+
+
+
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
@@ -154,6 +158,7 @@ public class SelfPlay {
             IntStream.range(0, nGames).forEach(i -> {
                 GumbelSearch sm = searchManagers.get(i);
                 sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutputFinal.get(i));
+                sm.addExplorationNoise();
                 sm.gumbelActionsStart();
 
             });
