@@ -62,7 +62,7 @@ muzero:
       lrInit: 0.0001
 
       # play
-      numberTrainingStepsOnStart: 1000
+      numberTrainingStepsOnStart: 0
 
       knownBoundsType: BOARD_GAME
 
@@ -85,8 +85,7 @@ muzero:
       windowSize: 40000
       maxGameLiveTime: 40000
 
-      gumbelSoftmaxTemperature: 1.0
-
+      gumbelSoftmaxTemperature: 1.0 # default 0.0
 
     GO_9:
       modelName: MuZero-Go-9
@@ -162,3 +161,5 @@ muzero:
       numBottleneckChannels: 64
       windowSize: 40000
       maxGameLiveTime: 40000
+
+      gumbelSoftmaxTemperature: 1.0 # default 0.0

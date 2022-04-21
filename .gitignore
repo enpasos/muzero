@@ -14,3 +14,5 @@
 /mymodel
 /games/go/arena/
 /savedModel/
+/.gradle/
+/gradle/wrapper/
