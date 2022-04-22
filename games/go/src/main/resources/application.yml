@@ -77,7 +77,6 @@ muzero:
 
       numSimulations: 50
       numberOfTrainingSteps: 300000
-      surpriseHandlingOn: false
 
 
       broadcastEveryN: 8
@@ -85,7 +84,12 @@ muzero:
       windowSize: 40000
       maxGameLiveTime: 40000
 
-      gumbelSoftmaxTemperature: 1.0
+      surpriseHandlingOn: false # false in paper
+      extraValueTrainingOn: true # false in paper
+
+      gumbelSoftmaxTemperature: 1.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
+
+
 
 
     GO_9:
@@ -155,10 +159,15 @@ muzero:
 
       numSimulations: 50
       numberOfTrainingSteps: 300000
-      surpriseHandlingOn: true
 
 
       broadcastEveryN: 8
       numBottleneckChannels: 64
       windowSize: 40000
       maxGameLiveTime: 40000
+
+      surpriseHandlingOn: false # false in paper
+      extraValueTrainingOn: true # false in paper
+
+      gumbelSoftmaxTemperature: 1.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
+
