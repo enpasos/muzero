@@ -156,6 +156,17 @@ public class MuZero {
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
+
+                    if (config.isSurpriseHandlingOn()) {
+                        double temp = config.getGumbelSoftmaxTemperature();
+                        int sims = config.getNumSimulations();
+                        config.setNumSimulations(0);
+                        config.setGumbelSoftmaxTemperature(0);
+                        playGames(params.render, network, trainingStep);
+                        config.setNumSimulations(sims);
+                        config.setGumbelSoftmaxTemperature(temp);
+                    }
+
                     if (config.isSurpriseHandlingOn()) {
                         surpriseHandler.surpriseHandling(network);
                     }
@@ -326,7 +337,8 @@ public class MuZero {
             log.info("last training step = {}", trainingStep);
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
-            play(network, render, false);
+            boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
+            play(network, render, justInitialInferencePolicy);
             replayBuffer.saveState();
         }
     }

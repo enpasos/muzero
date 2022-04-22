@@ -271,7 +271,7 @@ public class MuZeroConfig {
 
     // https://arxiv.org/pdf/1611.01144.pdf
     public double getGumbelSoftmaxTemperature() {return getConf().gumbelSoftmaxTemperature;}
-
+    public void setGumbelSoftmaxTemperature(double gumbelSoftmaxTemerature) { getConf().gumbelSoftmaxTemperature = gumbelSoftmaxTemerature;}
     public void setInferenceDeviceType(DeviceType deviceType) {
         getConf().setInferenceDeviceType(deviceType);
     }
@@ -308,7 +308,7 @@ public class MuZeroConfig {
     }
 
 
-
+    public boolean isExtraValueTrainingOn() { return getConf().isExtraValueTrainingOn(); }
     public boolean isSurpriseHandlingOn() { return getConf().isSurpriseHandlingOn(); }
 
     public int getCVisit() {
@@ -345,6 +345,7 @@ public class MuZeroConfig {
     @Data
     public static class Conf {
         protected boolean surpriseHandlingOn;
+        protected boolean extraValueTrainingOn;
         protected double komi;
         protected double maxKomi = Double.MAX_VALUE;
         protected String modelName;
