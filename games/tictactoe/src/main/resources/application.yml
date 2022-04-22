@@ -40,6 +40,7 @@ muzero:
       absorbingStateDropToZero: false # faster for integration test
 
       numberTrainingStepsOnStart: 0
+
       knownBoundsType: BOARD_GAME
 
       inferenceDeviceType: GPU
