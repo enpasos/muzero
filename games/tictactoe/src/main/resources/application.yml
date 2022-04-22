@@ -81,7 +81,7 @@ muzero:
 
       surpriseHandlingOn: false # false in paper
 
-      gumbelSoftmaxTemperature: 0.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> equal distribution
+      gumbelSoftmaxTemperature: 5.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> equal distribution
 
-      rootDirichletAlpha: 2
-      rootExplorationFraction: 0.25
+      rootDirichletAlpha: 1
+      rootExplorationFraction: 0.0  # in MuZero paper 0.25, in Gumbel MuZero paper 0.0
