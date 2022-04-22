@@ -1,6 +1,5 @@
 logging:
-  file:
-    name: logs/muzero-tictactoe.log
+  file.name: logs/muzero-tictactoe.log
   pattern:
     console: "%d %-5level %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
