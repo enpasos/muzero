@@ -157,7 +157,7 @@ public class MuZero {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
 
-                    if (config.isSurpriseHandlingOn()) {
+                    if (config.isExtraValueTrainingOn()) {
                         double temp = config.getGumbelSoftmaxTemperature();
                         int sims = config.getNumSimulations();
                         config.setNumSimulations(0);
