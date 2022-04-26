@@ -56,7 +56,8 @@ public class Node {
     private NDArray hiddenState;
     private double reward;
     private double multiplierLambda;
-    private double valueSum;
+   // private double valueSum;
+    private double vmix;
     private Action action;
     private int visitCount;
     @Builder.Default
@@ -78,7 +79,7 @@ public class Node {
         this.config = config;
         this.visitCount = 0;
         this.prior = prior;
-        this.valueSum = 0;
+   //     this.valueSum = 0;
         this.children = new ArrayList<>();
         hiddenState = null;
         reward = 0.0;
@@ -92,12 +93,12 @@ public class Node {
         }
     }
 
-    public double getVmix() {
+    public void calculateVmix() {
 
         // this is in the perspective of the player to play
         double vHat = this.getValueFromNetwork();
 
-        if (this.getVisitCount() == 0) return vHat;
+        if (this.getVisitCount() == 0) return; // vHat;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
             .mapToDouble(node -> node.getPrior() * node.qValue()).sum();
@@ -106,10 +107,11 @@ public class Node {
         int d = this.getChildren().stream()
             .mapToInt(Node::getVisitCount).sum();
 
-        if (d == 0d) return vHat; // no visits on the children
-        double vmix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
-        return vmix;
-
+        if (d == 0d)  {
+            vmix = vHat;
+        } else{
+            vmix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
+        }
     }
 
     public double[] getCompletedQValues(MinMaxStats minMaxStats) {
@@ -159,7 +161,7 @@ public class Node {
 
 
     public double qValue() {
-        double value = value();
+        double value = this.getVmix();
         if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
             return -value;
         } else {
@@ -167,11 +169,11 @@ public class Node {
         }
     }
 
-    public double value() {
-        if (visitCount == 0) return 0.0;
-        // is from perspective of the player to play at the root node for this node (not the parent)
-        return this.getValueSum() / this.visitCount;
-    }
+//    public double value() {
+//        if (visitCount == 0) return 0.0;
+//        // is from perspective of the player to play at the root node for this node (not the parent)
+//        return this.getValueSum() / this.visitCount;
+//    }
 
 
     public void expand(Player toPlay, NetworkIO networkOutput) {
