@@ -195,16 +195,19 @@ public class GumbelSearch {
 
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
-            double nodeValueSumBefore = node.getValueSum();
+       //     double nodeValueSumBefore = node.getValueSum();
             int nodeVisitCountBefore = node.getVisitCount();
-            if (node.getToPlay() == toPlay) {
-                node.setValueSum(nodeValueSumBefore + value);
-            } else {
-                node.setValueSum(nodeValueSumBefore - value);
-            }
+            node.calculateVmix();
+//            if (node.getToPlay() == toPlay) {
+//                node.setValueSum(nodeValueSumBefore + value);
+//            } else {
+//                node.setValueSum(nodeValueSumBefore - value);
+//            }
+
+        //    node.getVmix();
             node.setVisitCount(nodeVisitCountBefore + 1);
-            if (debug)
-                log.trace("searchPath[" + i + "]: " + nodeValueSumBefore + "/" + nodeVisitCountBefore + "->" + node.getValueSum() + "/" + node.getVisitCount());
+//            if (debug)
+//                log.trace("searchPath[" + i + "]: " + nodeValueSumBefore + "/" + nodeVisitCountBefore + "->" + node.getValueSum() + "/" + node.getVisitCount());
 
             value = node.getReward() + discount * value;
             minMaxStats.update(value);
