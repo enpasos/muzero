@@ -22,7 +22,7 @@ public class GumbelAction {
 
     public double getQValue() {
         if (node != null) {
-            return node.qValue();
+            return node.getQValue();
         }
         return qValue;
     }

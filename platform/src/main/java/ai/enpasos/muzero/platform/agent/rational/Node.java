@@ -52,6 +52,9 @@ public class Node {
     private double pseudoLogit;
     private double prior;
     private double valueFromNetwork;
+   // private double completedQValues;
+    private double qValue;
+    private double improvedValue;
     private double valueFromInitialInference;
     private NDArray hiddenState;
     private double reward;
@@ -101,7 +104,7 @@ public class Node {
         if (this.getVisitCount() == 0) return; // vHat;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(node -> node.getPrior() * node.qValue()).sum();
+            .mapToDouble(node -> node.getPrior() * node.getQValue()).sum();
         double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
             .mapToDouble(Node::getPrior).sum();
         int d = this.getChildren().stream()
@@ -120,7 +123,7 @@ public class Node {
         return IntStream.range(0, children.size()).mapToDouble(i -> {
                 Node child = children.get(i);
                 if (child.getVisitCount() > 0) {
-                    return child.qValue();
+                    return child.getQValue();
                 } else {
                     return vMixFinal;
                 }
@@ -160,14 +163,14 @@ public class Node {
     }
 
 
-    public double qValue() {
-        double value = this.getVmix();
-        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-            return -value;
-        } else {
-            return value;
-        }
-    }
+//    public double qValue() {
+//        double value = this.getVmix();
+//        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+//            return -value;
+//        } else {
+//            return value;
+//        }
+//    }
 
 //    public double value() {
 //        if (visitCount == 0) return 0.0;

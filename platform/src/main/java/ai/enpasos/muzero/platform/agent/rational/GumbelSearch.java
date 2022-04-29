@@ -4,6 +4,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -196,8 +197,7 @@ public class GumbelSearch {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
        //     double nodeValueSumBefore = node.getValueSum();
-            int nodeVisitCountBefore = node.getVisitCount();
-            node.setVisitCount(nodeVisitCountBefore + 1);
+            node.setVisitCount(node.getVisitCount() + 1);
             node.calculateVmix();
 //            if (node.getToPlay() == toPlay) {
 //                node.setValueSum(nodeValueSumBefore + value);
@@ -205,13 +205,14 @@ public class GumbelSearch {
 //                node.setValueSum(nodeValueSumBefore - value);
 //            }
 
-        //    node.getVmix();
 
-//            if (debug)
-//                log.trace("searchPath[" + i + "]: " + nodeValueSumBefore + "/" + nodeVisitCountBefore + "->" + node.getValueSum() + "/" + node.getVisitCount());
+            double qValue = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS? -1: 1) * discount * node.getVmix();
 
-            value = node.getReward() + discount * value;
-            minMaxStats.update(value);
+
+            node.setQValue(qValue);
+
+            minMaxStats.update(qValue);
+
         }
     }
 
