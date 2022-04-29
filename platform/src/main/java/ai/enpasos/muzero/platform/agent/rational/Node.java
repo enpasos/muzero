@@ -95,15 +95,14 @@ public class Node {
 
     public void calculateVmix() {
 
-        // this is in the perspective of the player to play
-        double vHat = this.getValueFromNetwork();
+        double vHat = this.getImprovedValue();
         vmix = vHat;
-        if (this.getVisitCount() == 0) return; // vHat;
+        if (this.getVisitCount() == 0) return;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(node -> node.getPrior() * node.getQValue()).sum();
+            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getQValue()).sum();
         double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(Node::getPrior).sum();
+            .mapToDouble(Node::getImprovedPolicyValue).sum();
         int d = this.getChildren().stream()
             .mapToInt(Node::getVisitCount).sum();
 
