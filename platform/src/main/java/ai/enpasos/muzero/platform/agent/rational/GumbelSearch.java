@@ -194,16 +194,21 @@ public class GumbelSearch {
             log.trace("player at node: " + searchPath.get(searchPath.size() - 1).getToPlay());
         }
 
+
+        boolean start = true;
+
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
-       //     double nodeValueSumBefore = node.getValueSum();
             node.setVisitCount(node.getVisitCount() + 1);
-            node.calculateVmix();
-//            if (node.getToPlay() == toPlay) {
-//                node.setValueSum(nodeValueSumBefore + value);
-//            } else {
-//                node.setValueSum(nodeValueSumBefore - value);
-//            }
+            if (start ) {
+                node.setValueFromNetwork(value);
+                node.setImprovedValue(node.getValueFromNetwork());
+                start = false;
+            } else {
+                node.calculateVmix();
+                node.calculateImprovedPolicy(minMaxStats);
+                node.calculateImprovedValue();
+            }
 
 
             double qValue = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS? -1: 1) * discount * node.getVmix();
