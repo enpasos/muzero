@@ -97,7 +97,7 @@ public class Node {
 
         // this is in the perspective of the player to play
         double vHat = this.getValueFromNetwork();
-
+        vmix = vHat;
         if (this.getVisitCount() == 0) return; // vHat;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
