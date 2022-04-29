@@ -197,6 +197,7 @@ public class GumbelSearch {
             Node node = searchPath.get(i);
        //     double nodeValueSumBefore = node.getValueSum();
             int nodeVisitCountBefore = node.getVisitCount();
+            node.setVisitCount(nodeVisitCountBefore + 1);
             node.calculateVmix();
 //            if (node.getToPlay() == toPlay) {
 //                node.setValueSum(nodeValueSumBefore + value);
@@ -205,7 +206,7 @@ public class GumbelSearch {
 //            }
 
         //    node.getVmix();
-            node.setVisitCount(nodeVisitCountBefore + 1);
+
 //            if (debug)
 //                log.trace("searchPath[" + i + "]: " + nodeValueSumBefore + "/" + nodeVisitCountBefore + "->" + node.getValueSum() + "/" + node.getVisitCount());
 
