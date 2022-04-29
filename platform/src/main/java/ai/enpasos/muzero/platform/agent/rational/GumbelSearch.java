@@ -203,6 +203,7 @@ public class GumbelSearch {
             if (start ) {
                 node.setValueFromNetwork(value);
                 node.setImprovedValue(node.getValueFromNetwork());
+                node.setImprovedPolicyValue(node.getPrior());
                 start = false;
             } else {
                 node.calculateVmix();
