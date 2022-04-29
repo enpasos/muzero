@@ -95,14 +95,14 @@ public class Node {
 
     public void calculateVmix() {
 
-        double vHat = this.getImprovedValue();
+        double vHat = this.getValueFromNetwork();
         vmix = vHat;
         if (this.getVisitCount() == 0) return;
 
         double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getQValue()).sum();
+            .mapToDouble(node -> node.getPrior() * node.getQValue()).sum();
         double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-            .mapToDouble(Node::getImprovedPolicyValue).sum();
+            .mapToDouble(Node::getPrior).sum();
         int d = this.getChildren().stream()
             .mapToInt(Node::getVisitCount).sum();
 
