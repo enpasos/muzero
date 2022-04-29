@@ -18,17 +18,14 @@
 package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -132,7 +129,7 @@ public class Node {
             .toArray();
     }
 
-    public void updateImprovedPolicyValueOnChildren(MinMaxStats minMaxStats) {
+    public void calculateImprovedPolicy(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
         double[] completedQs = getCompletedQValues(minMaxStats);
@@ -264,10 +261,18 @@ public class Node {
 
     public Node selectChild(MinMaxStats minMaxStats) {
 
-        updateImprovedPolicyValueOnChildren(minMaxStats);
+        calculateImprovedPolicy(minMaxStats);
         int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
         this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
         return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
 
     }
+
+    public void calculateImprovedValue() {
+        this.improvedValue = this.getChildren().stream()
+            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getImprovedValue())
+            .sum();
+    }
+
+
 }
