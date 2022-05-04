@@ -40,6 +40,8 @@ public class TicTacToe implements CommandLineRunner {
 
     @Autowired
     private TicTacToeValueExtractor valueExtractor;
+    @Autowired
+    private TicTacToeValuesExtractor valuesExtractor;
 
     @Autowired
     private TicTacToeEntropyExtractor entropyExtractor;
@@ -81,6 +83,9 @@ public class TicTacToe implements CommandLineRunner {
                 throw new MuZeroException("RENDER not implemented yet.");
             case VALUE:
                 valueExtractor.run();
+                break;
+            case VALUES:
+                valuesExtractor.run();
                 break;
             case ENTROPY:
                 entropyExtractor.run();

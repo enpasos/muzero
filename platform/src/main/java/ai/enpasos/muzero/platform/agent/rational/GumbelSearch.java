@@ -251,4 +251,23 @@ public class GumbelSearch {
     }
 
 
+    public void drawCandidateAndAddValue() {
+        List<GumbelAction> gumbelActions = rootChildrenCandidates.stream().map(Node::getGumbelAction).collect(Collectors.toList());
+
+
+        int maxActionVisitCount = rootChildrenCandidates.stream().mapToInt(Node::getVisitCount).max().getAsInt();
+
+        // drawing 1 action out of the candidate actions (from root) for each parallel played game
+
+        GumbelAction gumbelAction = drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
+        List<Float> values = this.game.getGameDTO().getValues().get(this.game.getGameDTO().getValues().size() - 1);
+        values.add((float)gumbelAction.getNode().getQValue());
+    }
+
+    public void drawCandidateAndAddValueStart() {
+        List<Float> vs = new ArrayList<>();
+        float v = (float)this.root.getValueFromNetwork();
+        vs.add(v);
+        this.game.getGameDTO().getValues().add(vs);
+    }
 }

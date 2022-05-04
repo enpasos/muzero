@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.ValueProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,6 +41,8 @@ public class GameDTO {
 
     private List<Float> rewards;
     private List<float[]> policyTargets;
+
+    private List<List<Float>> values;
     private List<Float> rootValues;
     private List<Float> rootValuesFromInitialInference;
     private List<Float> entropies;
@@ -53,6 +56,7 @@ public class GameDTO {
         this.rootValues = new ArrayList<>();
         this.entropies = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
+        this.values = new ArrayList<>();
     }
 
     public @NotNull String getActionHistoryAsString() {
@@ -66,6 +70,7 @@ public class GameDTO {
         copy.rewards.addAll(this.rewards.subList(0, toPosition));
         copy.actions.addAll(this.actions.subList(0, toPosition));
         this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+        this.values.subList(0, toPosition).forEach(pT -> copy.values.add(List.copyOf(pT)));
         if (this.rootValues.size() >= toPosition)
             copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
         return copy;
@@ -75,6 +80,7 @@ public class GameDTO {
         copy.rewards.addAll(this.rewards);
         copy.actions.addAll(this.actions);
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+        this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
         copy.rootValues.addAll(this.rootValues);
         return copy;
     }
@@ -94,6 +100,11 @@ public class GameDTO {
                 b.addPolicyTarget(policyTarget[i])
             );
             gameBuilder.addPolicyTargets(b.build());
+        });
+        getValues().stream().forEach(v -> {
+            ValueProtos.Builder b = ValueProtos.newBuilder();
+            b.addAllValue(v);
+            gameBuilder.addValues(b.build());
         });
         return gameBuilder.build();
     }
@@ -120,5 +131,15 @@ public class GameDTO {
                 )
                 .collect(Collectors.toList()));
         }
+        if (p.getValuesCount() > 0) {
+            List<List<Float>> vs = p.getValuesList().stream().map(
+                valueProtos -> {
+                    //valueProtos.getValueList();
+                    return List.copyOf(valueProtos.getValueList());
+                })
+                .collect(Collectors.toList());
+            this.setValues(vs);
+        }
+        int i = 42;
     }
 }
