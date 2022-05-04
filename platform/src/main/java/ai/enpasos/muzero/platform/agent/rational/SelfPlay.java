@@ -155,6 +155,7 @@ public class SelfPlay {
                 GumbelSearch sm = searchManagers.get(i);
                 sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutputFinal.get(i));
                 sm.gumbelActionsStart();
+                sm.drawCandidateAndAddValueStart();
 
             });
             if (!fastRuleLearning) {
@@ -173,7 +174,10 @@ public class SelfPlay {
                         GumbelSearch sm = searchManagersLocal.get(i);
                         sm.expandAndBackpropagate(networkOutputList.get(i));
                         sm.next();
+                        sm.drawCandidateAndAddValue();
                     });
+
+
 
                     // if there is an equal number of simulations in each game
                     // the loop can be replaced by an explicit loop over the number of simulations

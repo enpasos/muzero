@@ -46,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -278,6 +279,11 @@ public class ReplayBuffer {
 
                     ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
                     this.buffer.deproto(proto);
+//                    IntStream.range(0,this.buffer.getData().size()).forEach(i -> {
+//                         GameDTO dto = this.buffer.getData().get(i);
+//                        System.out.println(i + ": "+ dto.getValues().size());
+//                        }
+//                    );
                     rebuildGames();
                     this.buffer.setWindowSize(config.getWindowSize());
                 }

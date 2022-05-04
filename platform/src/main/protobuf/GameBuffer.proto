@@ -18,6 +18,7 @@ message GameProto {
   repeated int32 actions = 1;
   repeated float rewards = 2;
   repeated PolicyTargetProtos policy_targets = 3;
+  repeated ValueProtos values = 9;
   repeated float root_values = 4;
   repeated float entropies = 7;
   int64 count = 8;
@@ -26,4 +27,8 @@ message GameProto {
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;
+}
+
+message ValueProtos {
+  repeated float value = 1;
 }
