@@ -164,12 +164,6 @@ public class Node {
         return this.getValueSum() / this.visitCount;
     }
 
-//    public double value() {
-//        if (visitCount == 0) return 0.0;
-//        // is from perspective of the player to play at the root node for this node (not the parent)
-//        return this.getValueSum() / this.visitCount;
-//    }
-
 
     public void expand(Player toPlay, NetworkIO networkOutput) {
         if (networkOutput != null)
