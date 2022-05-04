@@ -50,13 +50,13 @@ public class Node {
     private double prior;
     private double valueFromNetwork;
    // private double completedQValues;
-    private double qValue;
+    //private double qValue;
     private double improvedValue;
     private double valueFromInitialInference;
     private NDArray hiddenState;
     private double reward;
     private double multiplierLambda;
-   // private double valueSum;
+    private double valueSum;
     private double vmix;
     private Action action;
     private int visitCount;
@@ -159,14 +159,10 @@ public class Node {
     }
 
 
-//    public double qValue() {
-//        double value = this.getVmix();
-//        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-//            return -value;
-//        } else {
-//            return value;
-//        }
-//    }
+    public double getQValue() {
+        if (visitCount == 0) return 0.0;
+        return this.getValueSum() / this.visitCount;
+    }
 
 //    public double value() {
 //        if (visitCount == 0) return 0.0;

@@ -200,6 +200,7 @@ public class GumbelSearch {
         for (int i = searchPath.size() - 1; i >= 0; i--) {
             Node node = searchPath.get(i);
             node.setVisitCount(node.getVisitCount() + 1);
+
             if (start ) {
                 node.setValueFromNetwork(value);
                 node.setImprovedValue(node.getValueFromNetwork());
@@ -211,13 +212,14 @@ public class GumbelSearch {
                 node.calculateImprovedValue();
             }
 
+            value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS? -1: 1) * discount * value;
 
-            double qValue = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS? -1: 1) * discount * node.getVmix();
+            node.setValueSum(node.getValueSum() + value);
+        //    node.setQValue(value);
+
+            minMaxStats.update(value);
 
 
-            node.setQValue(qValue);
-
-            minMaxStats.update(qValue);
 
         }
     }
