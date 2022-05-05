@@ -58,9 +58,9 @@ public class SurpriseHandler {
 
     }
     private void surpriseEvaluation(Game game) {
-        if (game.getGameDTO().getEntropies().size() == 0) return;
+        if (game.getGameDTO().getSurprises().size() == 0) return;
 
-        double e[] = game.getGameDTO().getEntropies().stream().mapToDouble(eF -> (double)eF).toArray();
+        double e[] = game.getGameDTO().getSurprises().stream().mapToDouble(eF -> (double)eF).toArray();
         double eMean[] =  new double[e.length];
         IntStream.range(2, e.length).forEach(i -> {
             // eMean[i] = (e[i-1] + 2*e[i] + e[i+1])/4d;
@@ -85,7 +85,7 @@ public class SurpriseHandler {
     }
 
     private void surpriseSeedsPerGame(Game game, List<Game> gameSeeds, int maxNumber) {
-        if (game.getGameDTO().getEntropies().size() == 0) return;
+        if (game.getGameDTO().getSurprises().size() == 0) return;
         if (gameSeeds.size() > maxNumber) return;
 //        double e[] = game.getGameDTO().getEntropies().stream().mapToDouble(eF -> (double)eF).toArray();
 //        double eMean[] =  new double[e.length];

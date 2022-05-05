@@ -147,7 +147,7 @@ public class GoSurprise {
             game.setValues(new double[length]);
             //game.getGameDTO().setEntropies(new double[length]);
             game.setSurprises(new double[length]);
-            game.getGameDTO().getEntropies().clear();
+            game.getGameDTO().getSurprises().clear();
         });
 
         int t = 0;
@@ -181,9 +181,9 @@ public class GoSurprise {
                     game.getValues()[t] = v;
                     double entropy = -v * Math.log(v) - (1.0 - v) * Math.log(1.0 - v);
                     entropy /= maxEntropy;
-                    game.getGameDTO().getEntropies().add((float)entropy);
+                    game.getGameDTO().getSurprises().add((float)entropy);
                     if (t > 0) {
-                        double d = game.getGameDTO().getEntropies().get(t) -  game.getGameDTO().getEntropies().get(t-1);
+                        double d = game.getGameDTO().getSurprises().get(t) -  game.getGameDTO().getSurprises().get(t-1);
                         game.getSurprises()[t] = d * d;
                     }
                     if (t + 1 == actionList.get(g).size()) {

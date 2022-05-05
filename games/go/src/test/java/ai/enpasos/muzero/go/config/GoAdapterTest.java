@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -67,5 +66,6 @@ class GoAdapterTest {
         Action action = GoAdapter.translate(config, new Pass());
         NDArray ndArray = action.encode(NDManager.newBaseManager());
         assertNotNull(ndArray);
+        assertArrayEquals(ndArray.toFloatArray(), new float[config.getBoardWidth()*config.getBoardHeight()]);
     }
 }

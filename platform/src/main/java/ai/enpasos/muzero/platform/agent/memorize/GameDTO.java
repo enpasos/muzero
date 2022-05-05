@@ -40,12 +40,13 @@ public class GameDTO {
     private List<Integer> actions;
 
     private List<Float> rewards;
+    private List<Float> surprises;
     private List<float[]> policyTargets;
 
     private List<List<Float>> values;
     private List<Float> rootValues;
     private List<Float> rootValuesFromInitialInference;
-    private List<Float> entropies;
+   // private List<Float> entropies;
     private float lastValueError;
     private long count;
 
@@ -54,7 +55,8 @@ public class GameDTO {
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
-        this.entropies = new ArrayList<>();
+       // this.entropies = new ArrayList<>();
+        this.surprises = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.values = new ArrayList<>();
     }
@@ -91,7 +93,8 @@ public class GameDTO {
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
-        gameBuilder.addAllEntropies(getEntropies());
+      //  gameBuilder.addAllEntropies(getEntropies());
+        gameBuilder.addAllSurprises(getSurprises());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
         getPolicyTargets().stream().forEach(policyTarget -> {
@@ -101,11 +104,12 @@ public class GameDTO {
             );
             gameBuilder.addPolicyTargets(b.build());
         });
-        getValues().stream().forEach(v -> {
-            ValueProtos.Builder b = ValueProtos.newBuilder();
-            b.addAllValue(v);
-            gameBuilder.addValues(b.build());
-        });
+        // TODO value saving switched of for now because of performance problem
+//        getValues().stream().forEach(v -> {
+//            ValueProtos.Builder b = ValueProtos.newBuilder();
+//            b.addAllValue(v);
+//            gameBuilder.addValues(b.build());
+//        });
         return gameBuilder.build();
     }
 
@@ -113,7 +117,8 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
-        this.setEntropies(p.getEntropiesList());
+     //   this.setEntropies(p.getEntropiesList());
+        this.setSurprises(p.getSurprisesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setCount(p.getCount());
