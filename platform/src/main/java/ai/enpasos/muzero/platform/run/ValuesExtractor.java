@@ -53,7 +53,7 @@ public class ValuesExtractor {
 
     public String listValuesForTrainedNetworks(Game game) {
 
-List<List<Float>> values = game.getGameDTO().getValues();
+        List<List<Float>> values = game.getGameDTO().getValues();
         StringWriter stringWriter = new StringWriter();
 
 
@@ -63,20 +63,42 @@ List<List<Float>> values = game.getGameDTO().getValues();
                 for(int tau =0; tau < values2.size(); tau++) {
                     float value = values2.get(tau);
                             try {
-                                double factor = 1d;
-                                if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                                    factor *= Math.pow(-1, t + tau);
-                                }
                                 double valuePlayer = value;
-                                valuePlayer *= factor;
+                                if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                                    valuePlayer *= Math.pow(-1, t);
+                                }
                                 csvPrinter.printRecord(t, tau,
                                     NumberFormat.getNumberInstance().format(valuePlayer));
-
                             } catch (Exception e) {
                                 // ignore
                             }
                         }
                 }
+
+        } catch (IOException e) {
+            throw new MuZeroException(e);
+        }
+
+        stringWriter.append("\n");
+        stringWriter.append("\n");
+
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t",   "vPlayerA").build())) {
+            for(int t =0; t < values.size(); t++)  {
+                List<Float> values2 = values.get(t);
+                int tau =0;
+                    float value = values2.get(tau);
+                    try {
+                        double valuePlayer = value;
+                        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                            valuePlayer *= Math.pow(-1, t);
+                        }
+                        csvPrinter.printRecord(t,
+                            NumberFormat.getNumberInstance().format(valuePlayer));
+                    } catch (Exception e) {
+                        // ignore
+                    }
+
+            }
 
         } catch (IOException e) {
             throw new MuZeroException(e);

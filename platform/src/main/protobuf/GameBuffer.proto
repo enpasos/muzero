@@ -21,6 +21,7 @@ message GameProto {
   repeated ValueProtos values = 9;
   repeated float root_values = 4;
   repeated float entropies = 7;
+  repeated float surprises = 10;
   int64 count = 8;
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;

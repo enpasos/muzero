@@ -97,8 +97,15 @@ public class SelfPlay {
             Game game = gameList.get(g);
             Node root = rootList.get(g);
 
-            root.setValueFromInitialInference(networkOutput.get(g).getValue());
-            game.getGameDTO().getEntropies().add((float)entropy(toDouble(networkOutput.get(g).getValueDistribution())));
+            double value = networkOutput.get(g).getValue();
+            root.setValueFromInitialInference(value);
+            double valueBefore = 0;
+            int size = game.getGameDTO().getRootValuesFromInitialInference().size();
+            if (size > 0) {
+                valueBefore = game.getGameDTO().getRootValuesFromInitialInference().get(size - 1);
+            }
+            double deltaValue = value - valueBefore;
+            game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
 
             int nActionsReplayed = game.actionHistory().getActionIndexList().size();
             int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
@@ -139,12 +146,12 @@ public class SelfPlay {
                 return;
             }
 
-            if (!fastRuleLearning) {
-                IntStream.range(0, nGames).forEach(g -> {
-                    Game game = gamesToApplyAction.get(g);
-                    game.getGameDTO().getEntropies().add((float) entropy(toDouble(networkOutputFinal.get(g).getValueDistribution())));
-                });
-            }
+//            if (!fastRuleLearning) {
+//                IntStream.range(0, nGames).forEach(g -> {
+//                    Game game = gamesToApplyAction.get(g);
+//                    game.getGameDTO().getEntropies().add((float) entropy(toDouble(networkOutputFinal.get(g).getValueDistribution())));
+//                });
+//            }
 
             List<GumbelSearch> searchManagers = gamesToApplyAction.stream().map(game -> {
                 game.initSearchManager();
