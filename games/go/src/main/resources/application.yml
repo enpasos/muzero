@@ -43,8 +43,7 @@ muzero:
       numActionLayers: 1
       numChannels: 128     # 256 in the paper
       numHiddenStateChannels: 19 # squeezing the hidden state from c to observationLayers + 2
-      numResiduals: 16
-    //  squeezeChannelRatio: 10  # on squeeze and excitation (SE) block
+      numResiduals: 16 # on squeeze and excitation (SE) block
 
       # network training
       symmetryType: SQUARE
