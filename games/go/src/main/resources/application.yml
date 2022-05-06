@@ -62,7 +62,7 @@ muzero:
       # play
       numberTrainingStepsOnStart: 0
 
-      knownBoundsType: NONE
+      knownBoundsType: FROM_VALUES
 
 
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
@@ -144,7 +144,7 @@ muzero:
       # play
       numberTrainingStepsOnRandomPlay: 0
 
-      knownBoundsType: NONE
+      knownBoundsType: FROM_VALUES
 
 
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
