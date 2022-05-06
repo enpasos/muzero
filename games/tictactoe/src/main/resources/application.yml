@@ -78,8 +78,8 @@ muzero:
       numChannels: 256
       numBottleneckChannels: 128
 
-      surpriseHandlingOn: false # false in paper
-      extraValueTrainingOn: false # false in paper
+      surpriseHandlingOn: true # false in paper
+      extraValueTrainingOn: true # false in paper
 
       gumbelSoftmaxTemperature: 1.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
 

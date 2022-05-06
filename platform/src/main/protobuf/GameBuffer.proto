@@ -23,6 +23,10 @@ message GameProto {
   repeated float entropies = 7;
   repeated float surprises = 10;
   int64 count = 8;
+  bool surprised = 11;
+  int64 tSurprise = 12;
+  int64 tStateA = 13;
+  int64 tStateB = 14;
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;
 }

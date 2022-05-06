@@ -35,6 +35,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.Surprise;
 import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -66,8 +67,11 @@ public class MuZero {
     @Autowired
     ReplayBuffer replayBuffer;
 
+//    @Autowired
+//    SurpriseHandler surpriseHandler;
+
     @Autowired
-    SurpriseHandler surpriseHandler;
+    Surprise surprise;
 
 
     @Autowired
@@ -157,6 +161,11 @@ public class MuZero {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
 
+                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
+                        surprise.handleOldSurprises(network);
+                        surprise.markSurprise();
+                    }
+
                     if (config.isExtraValueTrainingOn()) {
                         double temp = config.getGumbelSoftmaxTemperature();
                         int sims = config.getNumSimulations();
@@ -167,9 +176,8 @@ public class MuZero {
                         config.setGumbelSoftmaxTemperature(temp);
                     }
 
-                    if (config.isSurpriseHandlingOn()) {
-                        surpriseHandler.surpriseHandling(network);
-                    }
+
+
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
