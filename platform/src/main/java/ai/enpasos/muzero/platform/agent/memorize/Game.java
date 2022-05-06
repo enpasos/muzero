@@ -64,11 +64,11 @@ public abstract class Game {
     double surpriseMax;
 
     boolean done;
-    int tSurprise;
-    int tTrainingStart;
+  //  int tSurprise;
+    //int tTrainingStart;
     GumbelSearch searchManager;
     private Random r;
-    private double[] surprises;
+  //  private double[] surprises;
     private float error;
     private boolean debug;
 

@@ -47,8 +47,10 @@ public class Go implements CommandLineRunner {
     private GoWinLooseStatistics winLooseStatistics;
 
     @Autowired
-    private GoSurprise goSurprise;
+    private GoSurpriseExtractor goSurpriseExtractor;
 
+    @Autowired
+    private GoSurprise goSurprise;
     @Autowired
     private GoOnnx onnx;
 
@@ -94,6 +96,9 @@ public class Go implements CommandLineRunner {
                 break;
             case ELO:
                 elo.run();
+                break;
+            case SURPRISEEXTRACT:
+                goSurpriseExtractor.run();
                 break;
             case SURPRISE:
                 goSurprise.run();
