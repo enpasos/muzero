@@ -36,7 +36,11 @@ public class GoTrainingAndTest {
 
         muZero.train(TrainParams.builder()
            // .afterTrainingHookIn(this::adjustKomi)
+<<<<<<< HEAD
               //          .withoutFill(true)
+=======
+                    //    .withoutFill(true)
+>>>>>>> 38f261d81c440ba7f55dba9b628ca6072c34676e
           //  .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }

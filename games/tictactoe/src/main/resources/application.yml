@@ -40,7 +40,7 @@ muzero:
 
       numberTrainingStepsOnStart: 0
 
-      knownBoundsType: BOARD_GAME
+      knownBoundsType: MINUSONE_ONE
 
       inferenceDeviceType: GPU
       outputDir: ./memory/tictactoe/
