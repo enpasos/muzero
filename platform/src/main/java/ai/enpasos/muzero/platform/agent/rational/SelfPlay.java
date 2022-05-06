@@ -428,7 +428,7 @@ public class SelfPlay {
 
             double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
 
-            double[] completedQs = root.getCompletedQValues(minMaxStats);
+            double[] completedQs = root.getCompletedQValuesNormalized(minMaxStats);
 
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
