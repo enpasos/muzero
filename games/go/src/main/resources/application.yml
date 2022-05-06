@@ -28,7 +28,7 @@ muzero:
       gameClassName: ai.enpasos.muzero.go.config.GoGame
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
-      valueHeadType: DISTRIBUTION  # EXPECTED
+      valueHeadType: EXPECTED # DISTRIBUTION
       networkWithRewardHead: false
       withRewardHead: false
       absorbingStateDropToZero: false
@@ -62,7 +62,7 @@ muzero:
       # play
       numberTrainingStepsOnStart: 0
 
-      knownBoundsType: BOARD_GAME
+      knownBoundsType: NONE
 
 
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
@@ -144,7 +144,7 @@ muzero:
       # play
       numberTrainingStepsOnRandomPlay: 0
 
-      knownBoundsType: BOARD_GAME
+      knownBoundsType: NONE
 
 
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
