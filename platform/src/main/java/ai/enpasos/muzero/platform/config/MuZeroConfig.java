@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
+import static ai.enpasos.muzero.platform.config.KnownBoundsType.FROM_VALUES;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
 
 @Component
@@ -50,6 +51,9 @@ public class MuZeroConfig {
     public KnownBounds getKnownBounds() {
         if (this.getKnownBoundsType() == MINUSONE_ONE) {
             return new KnownBounds(-1d, 1d);
+        }
+        if (this.getKnownBoundsType() == FROM_VALUES) {
+            return new KnownBounds(this.getValues()[0], this.getValues()[this.getValues().length-1]);
         }
         return new KnownBounds();
     }
