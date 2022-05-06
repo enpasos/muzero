@@ -144,7 +144,7 @@ muzero:
       # play
       numberTrainingStepsOnRandomPlay: 0
 
-      knownBoundsType: MINUSONE_ONE
+      knownBoundsType: NONE
 
 
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
