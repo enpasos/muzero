@@ -17,7 +17,7 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      valueHeadType: DISTRIBUTION  # EXPECTED
+      valueHeadType: EXPECTED # DISTRIBUTION
       networkWithRewardHead: false
       withRewardHead: false
       values: [-1,0,1]
@@ -78,7 +78,7 @@ muzero:
       numChannels: 256
       numBottleneckChannels: 128
 
-      surpriseHandlingOn: true # false in paper
+      surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: true # false in paper
 
       gumbelSoftmaxTemperature: 1.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
