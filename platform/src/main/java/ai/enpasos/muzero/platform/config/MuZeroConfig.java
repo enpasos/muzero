@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
-import java.util.function.BiFunction;
 
-import static ai.enpasos.muzero.platform.config.KnownBoundsType.BOARD_GAME;
+import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
 
 @Component
 @ConfigurationProperties("muzero")
@@ -49,7 +48,7 @@ public class MuZeroConfig {
 
 
     public KnownBounds getKnownBounds() {
-        if (this.getKnownBoundsType() == BOARD_GAME) {
+        if (this.getKnownBoundsType() == MINUSONE_ONE) {
             return new KnownBounds(-1d, 1d);
         }
         return new KnownBounds();
