@@ -428,12 +428,12 @@ public class SelfPlay {
 
             double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
 
-            double[] completedQs = root.getCompletedQValuesNormalized(minMaxStats);
+            double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
 
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
             int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-            double[] raw = add(logits, sigmas(completedQs, maxActionVisitCount, config.getCVisit(), config.getCScale()));
+            double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
 
