@@ -19,7 +19,6 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -35,12 +34,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.stream.IntStream;
 
 
 @Slf4j
 @Component
-public class ValuesExtractor {
+public class SurpriseExtractor {
 
     @Autowired
     MuZeroConfig config;
@@ -53,46 +51,23 @@ public class ValuesExtractor {
 
     public String listValuesForTrainedNetworks(Game game) {
 
-        List<List<Float>> values = game.getGameDTO().getValues();
+        List< Float> values = game.getGameDTO().getRootValuesFromInitialInference();
         StringWriter stringWriter = new StringWriter();
 
+List<Float> surprises = game.getGameDTO().getSurprises();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "tau", "vPlayerA").build())) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t",   "surprise", "vPlayerA").build())) {
             for(int t =0; t < values.size(); t++)  {
-                    List<Float> values2 = values.get(t);
-                for(int tau =0; tau < values2.size(); tau++) {
-                    float value = values2.get(tau);
-                            try {
-                                double valuePlayer = value;
-                                if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                                    valuePlayer *= Math.pow(-1, t);
-                                }
-                                csvPrinter.printRecord(t, tau,
-                                    NumberFormat.getNumberInstance().format(valuePlayer));
-                            } catch (Exception e) {
-                                // ignore
-                            }
-                        }
-                }
 
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-
-        stringWriter.append("\n");
-        stringWriter.append("\n");
-
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t",   "vPlayerA").build())) {
-            for(int t =0; t < values.size(); t++)  {
-                List<Float> values2 = values.get(t);
-                int tau =0;
-                    float value = values2.get(tau);
+                    float value = values.get(t);
+                    float surprise = surprises.get(t);
                     try {
                         double valuePlayer = value;
                         if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                             valuePlayer *= Math.pow(-1, t);
                         }
                         csvPrinter.printRecord(t,
+                            NumberFormat.getNumberInstance().format(surprise),
                             NumberFormat.getNumberInstance().format(valuePlayer));
                     } catch (Exception e) {
                         // ignore

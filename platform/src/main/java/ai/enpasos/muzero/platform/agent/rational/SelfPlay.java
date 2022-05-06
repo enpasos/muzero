@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -90,15 +91,15 @@ public class SelfPlay {
 
         List<Node> rootList = initRootNodes();
 
-        List<NetworkIO> networkOutput = initialInference(network,getGameList(), false, false, indexOfJustOneOfTheGames);
+        List<NetworkIO> networkOutputFinal = initialInference(network, getGameList(), false, false, indexOfJustOneOfTheGames);
 
         IntStream.range(0, gameList.size()).forEach(g ->
         {
             Game game = gameList.get(g);
             Node root = rootList.get(g);
-
-            root.setValueFromInitialInference(networkOutput.get(g).getValue());
-            game.getGameDTO().getEntropies().add((float)entropy(toDouble(networkOutput.get(g).getValueDistribution())));
+            double value = networkOutputFinal.get(g).getValue();
+            root.setValueFromInitialInference(value);
+            calculateSurprise(value, game);
 
             int nActionsReplayed = game.actionHistory().getActionIndexList().size();
             int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
@@ -116,13 +117,23 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
+    private void calculateSurprise(double value, Game game) {
+        double valueBefore = 0;
+        int pos = game.getGameDTO().getSurprises().size() - 1;
+        if (game.getGameDTO().getRootValuesFromInitialInference().size() > pos && pos >= 0) {
+            valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
+        }
+        double deltaValue = value - valueBefore;
+        game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
+    }
+
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
         List<Game> gamesToApplyAction = new ArrayList<>();
         gamesToApplyAction.addAll(this.gameList);
 
-        shortCutForGamesWithoutAnOption( gamesToApplyAction, render);
+        shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
 
         int nGames = gamesToApplyAction.size();
         if (nGames != 0) {
@@ -142,7 +153,8 @@ public class SelfPlay {
             if (!fastRuleLearning) {
                 IntStream.range(0, nGames).forEach(g -> {
                     Game game = gamesToApplyAction.get(g);
-                    game.getGameDTO().getEntropies().add((float) entropy(toDouble(networkOutputFinal.get(g).getValueDistribution())));
+                    double value = networkOutputFinal.get(g).getValue();
+                    calculateSurprise(value, game);
                 });
             }
 
@@ -164,7 +176,7 @@ public class SelfPlay {
                     List<GumbelSearch> searchManagersLocal =
                         searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());
 
-                    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search( )));
+                    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
 
                     if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
                     List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
@@ -176,7 +188,6 @@ public class SelfPlay {
                         sm.next();
                         sm.drawCandidateAndAddValue();
                     });
-
 
 
                     // if there is an equal number of simulations in each game
@@ -197,7 +208,7 @@ public class SelfPlay {
     }
 
     private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
-        List<Node> roots =  new ArrayList<>();
+        List<Node> roots = new ArrayList<>();
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
             Game game = gamesToApplyAction.get(i);
             List<Action> legalActions = game.legalActions();
@@ -207,15 +218,15 @@ public class SelfPlay {
 
             List<Pair<Action, Double>> distributionInput =
                 root.getChildren().stream().map(node -> {
-                    Pair<Action, Double> obj =  new Pair(node.getAction(), (Double) node.getPrior());
-                    return obj;
+                        Pair<Action, Double> obj = new Pair(node.getAction(), (Double) node.getPrior());
+                        return obj;
                     }
                 ).collect(Collectors.toList());
 
             Action action = selectActionByDrawingFromDistribution(distributionInput);
 
             game.apply(action);
-            storeSearchStatistics(game, root, true, config, null,  new MinMaxStats(config.getKnownBounds()));
+            storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
         });
 
         keepTrackOfOpenGames();
@@ -239,7 +250,10 @@ public class SelfPlay {
             game.getGameDTO().getPolicyTargets().add(policyTarget);
             if (game.getSearchManager() != null) {
                 Node root = game.getSearchManager().getRoot();
-                game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
+                float value = (float) root.getValueFromInitialInference();
+                game.getGameDTO().getRootValuesFromInitialInference().add(value);
+                calculateSurprise(value, game);
+
             }
 
             if (render && game.isDebug()) {
@@ -299,11 +313,6 @@ public class SelfPlay {
     }
 
 
-
-
-
-
-
     private static void clean(@NotNull Node node) {
         if (node.getHiddenState() != null) {
             node.getHiddenState().close();
@@ -312,8 +321,8 @@ public class SelfPlay {
         node.getChildren().forEach(SelfPlay::clean);
     }
 
-    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy ) {
-         init();
+    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+        init();
         if (render) {
             log.debug(justOneOfTheGames().render());
         }
@@ -386,10 +395,10 @@ public class SelfPlay {
     }
 
 
-    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy ) {
+    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         IntStream.range(0, config.getNumEpisodes()).forEach(i ->
         {
-            List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy );
+            List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
             games.forEach(replayBuffer::saveGame);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);

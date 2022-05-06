@@ -160,7 +160,11 @@ public class Node {
 
 
     public double getQValue() {
-        if (visitCount == 0) return 0.0;
+        if (visitCount == 0) {
+            if(this.isRoot()) return 0.0;
+            // then complete
+            return this.parent.getVmix();
+        }
         return this.getValueSum() / this.visitCount;
     }
 

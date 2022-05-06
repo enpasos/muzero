@@ -40,23 +40,31 @@ public class GameDTO {
     private List<Integer> actions;
 
     private List<Float> rewards;
+    private List<Float> surprises;
     private List<float[]> policyTargets;
 
     private List<List<Float>> values;
     private List<Float> rootValues;
     private List<Float> rootValuesFromInitialInference;
-    private List<Float> entropies;
+    // private List<Float> entropies;
     private float lastValueError;
     private long count;
+
+    private boolean surprised;
+    private long tSurprise;
+    private long tStateA;
+    private long tStateB;
 
     public GameDTO() {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
-        this.entropies = new ArrayList<>();
+        // this.entropies = new ArrayList<>();
+        this.surprises = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.values = new ArrayList<>();
+        this.surprised = false;
     }
 
     public @NotNull String getActionHistoryAsString() {
@@ -68,30 +76,47 @@ public class GameDTO {
     public GameDTO copy(int toPosition) {
         GameDTO copy = new GameDTO();
         copy.rewards.addAll(this.rewards.subList(0, toPosition));
+        copy.surprised = this.surprised;
+        copy.tSurprise = this.tSurprise;
+        copy.tStateA = this.tStateA;
+        copy.tStateB = this.tStateB;
+        copy.surprises.addAll(this.surprises.subList(0, toPosition));
         copy.actions.addAll(this.actions.subList(0, toPosition));
         this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
-        this.values.subList(0, toPosition).forEach(pT -> copy.values.add(List.copyOf(pT)));
+        //this.values.subList(0, toPosition).forEach(pT -> copy.values.add(List.copyOf(pT)));
         if (this.rootValues.size() >= toPosition)
             copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
         return copy;
     }
+
     public GameDTO copy() {
         GameDTO copy = new GameDTO();
         copy.rewards.addAll(this.rewards);
+        copy.surprised = this.surprised;
+        copy.tSurprise = this.tSurprise;
+        copy.tStateA = this.tStateA;
+        copy.tStateB = this.tStateB;
+        copy.surprises.addAll(this.surprises);
         copy.actions.addAll(this.actions);
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
         copy.rootValues.addAll(this.rootValues);
         return copy;
     }
+
     public GameProto proto() {
         GameProto.Builder gameBuilder = GameProto.newBuilder();
         gameBuilder.setLastValueError(this.lastValueError);
         gameBuilder.setCount(this.count);
+        gameBuilder.setSurprised(this.surprised);
+        gameBuilder.setTSurprise(this.tSurprise);
+        gameBuilder.setTStateA(this.tStateA);
+        gameBuilder.setTStateB(this.tStateB);
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
-        gameBuilder.addAllEntropies(getEntropies());
+        //  gameBuilder.addAllEntropies(getEntropies());
+        gameBuilder.addAllSurprises(getSurprises());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
         getPolicyTargets().stream().forEach(policyTarget -> {
@@ -101,19 +126,25 @@ public class GameDTO {
             );
             gameBuilder.addPolicyTargets(b.build());
         });
-        getValues().stream().forEach(v -> {
-            ValueProtos.Builder b = ValueProtos.newBuilder();
-            b.addAllValue(v);
-            gameBuilder.addValues(b.build());
-        });
+        // TODO value saving switched of for now because of performance problem
+//        getValues().stream().forEach(v -> {
+//            ValueProtos.Builder b = ValueProtos.newBuilder();
+//            b.addAllValue(v);
+//            gameBuilder.addValues(b.build());
+//        });
         return gameBuilder.build();
     }
 
     public void deproto(GameProto p) {
+        this.setSurprised(p.getSurprised());
+        this.setTSurprise(p.getTSurprise());
+        this.setTStateA(p.getTStateA());
+        this.setTStateB(p.getTStateB());
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
-        this.setEntropies(p.getEntropiesList());
+        //   this.setEntropies(p.getEntropiesList());
+        this.setSurprises(p.getSurprisesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setCount(p.getCount());
@@ -133,13 +164,14 @@ public class GameDTO {
         }
         if (p.getValuesCount() > 0) {
             List<List<Float>> vs = p.getValuesList().stream().map(
-                valueProtos -> {
-                    //valueProtos.getValueList();
-                    return List.copyOf(valueProtos.getValueList());
-                })
+                    valueProtos -> {
+                        //valueProtos.getValueList();
+                        return List.copyOf(valueProtos.getValueList());
+                    })
                 .collect(Collectors.toList());
             this.setValues(vs);
         }
         int i = 42;
     }
 }
+

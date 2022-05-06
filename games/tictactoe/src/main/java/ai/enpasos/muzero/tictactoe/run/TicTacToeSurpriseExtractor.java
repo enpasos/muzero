@@ -15,13 +15,12 @@
  *
  */
 
-package ai.enpasos.muzero.go.run;
+package ai.enpasos.muzero.tictactoe.run;
 
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.SurpriseExtractor;
 import ai.enpasos.muzero.platform.run.ValueExtractor;
-import ai.enpasos.muzero.platform.run.ValuesExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,34 +30,20 @@ import java.util.List;
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class GoValuesExtractor {
+public class TicTacToeSurpriseExtractor {
     @Autowired
     MuZeroConfig config;
 
     @Autowired
-    ValuesExtractor valuesExtractor;
-
-
-    @Autowired
-    ValueExtractor valueExtractor;
-
-    @Autowired
-    ReplayBuffer replayBuffer;
-
+    SurpriseExtractor surpriseExtractor;
 
     @SuppressWarnings("squid:S125")
     public void run() {
 
-        Game game = valuesExtractor.getGame();
+        Game game = surpriseExtractor.getGame();
 
-        System.out.println(valuesExtractor.listValuesForTrainedNetworks(game));
-
-//        System.out.println();
-//        System.out.println();
-//
-//        List<Integer> actions = game.actionHistory().getActionIndexList();
-//
-//        System.out.println(valueExtractor.listValuesForTrainedNetworks(actions));
+        System.out.println(surpriseExtractor.listValuesForTrainedNetworks(game));
 
     }
+
 }

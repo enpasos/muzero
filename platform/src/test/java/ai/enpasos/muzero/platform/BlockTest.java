@@ -71,7 +71,6 @@ class BlockTest {
                 .numResiduals(8)
                 .numChannels(128)
                 .numBottleneckChannels(64)
-                .squeezeChannelRatio(10)
                 .broadcastEveryN(8)
                 .height(3)
                 .width(3)
@@ -119,7 +118,6 @@ class BlockTest {
                 .numResiduals(8)
                 .numChannels(128)
                 .numBottleneckChannels(64)
-                .squeezeChannelRatio(10)
                 .broadcastEveryN(8)
                 .width(3)
                 .height(3)
@@ -133,7 +131,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3,3, 3, 128,64,  10, 5, 8),
+            new RepresentationOrDynamicsBlock(3,3, 3, 128,64,   5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -154,7 +152,7 @@ class BlockTest {
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3,3,3, 128,64,  10, 5, 8),
+            new RepresentationOrDynamicsBlock(3,3,3, 128,64,  5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
