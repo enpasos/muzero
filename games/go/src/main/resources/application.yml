@@ -62,7 +62,7 @@ muzero:
       lrInit: 0.0001
 
       # play
-      numberTrainingStepsOnStart: 1000
+      numberTrainingStepsOnStart: 0
 
       knownBoundsType: BOARD_GAME
 
