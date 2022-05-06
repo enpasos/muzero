@@ -17,7 +17,7 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      valueHeadType: EXPECTED # DISTRIBUTION
+      valueHeadType: DISTRIBUTION # EXPECTED
       networkWithRewardHead: false
       withRewardHead: false
       values: [-1,0,1]
