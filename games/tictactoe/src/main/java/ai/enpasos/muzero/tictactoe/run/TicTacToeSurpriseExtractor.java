@@ -15,46 +15,34 @@
  *
  */
 
-package ai.enpasos.muzero.go.run;
+package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.go.ranking.Ranking;
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.run.Surprise;
+import ai.enpasos.muzero.platform.run.SurpriseExtractor;
+import ai.enpasos.muzero.platform.run.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class GoSurprise {
+public class TicTacToeSurpriseExtractor {
     @Autowired
-    Surprise surprise;
+    MuZeroConfig config;
 
+    @Autowired
+    SurpriseExtractor surpriseExtractor;
 
-
-
+    @SuppressWarnings("squid:S125")
     public void run() {
-        surprise.run();
+
+        Game game = surpriseExtractor.getGame();
+
+        System.out.println(surpriseExtractor.listValuesForTrainedNetworks(game));
 
     }
 

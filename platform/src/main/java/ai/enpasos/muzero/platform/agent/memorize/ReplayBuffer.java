@@ -91,8 +91,18 @@ public class ReplayBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-        int numActions = game.getGameDTO().getActions().size();
-        return ThreadLocalRandom.current().nextInt(game.getTTrainingStart(), numActions + 1);  // one more positions than actions
+        GameDTO dto = game.getGameDTO();
+        int numActions = dto.getActions().size();
+
+
+        // TODO make 10 configurable
+        int enhanceFactor = 10;
+        int n = (int) (enhanceFactor * (dto.getTStateB()-dto.getTStateA()) + numActions - dto.getTStateB());
+        int rawpos = ThreadLocalRandom.current().nextInt(0, n + 1);
+        if (rawpos < numActions - dto.getTStateB()) return rawpos;
+        rawpos -= numActions - dto.getTStateB();
+        return rawpos /= enhanceFactor;
+
     }
 
     public static @NotNull ReplayBufferDTO decodeDTO(byte @NotNull [] bytes) {

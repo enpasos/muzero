@@ -60,72 +60,46 @@ public class SurpriseHandler {
     private void surpriseEvaluation(Game game) {
         if (game.getGameDTO().getSurprises().size() == 0) return;
 
-        double e[] = game.getGameDTO().getSurprises().stream().mapToDouble(eF -> (double)eF).toArray();
-        double eMean[] =  new double[e.length];
-        IntStream.range(2, e.length).forEach(i -> {
-            // eMean[i] = (e[i-1] + 2*e[i] + e[i+1])/4d;
-            eMean[i] = (e[i-1] + e[i-2])/2d;
-        });
-        eMean[0] = e[0];
-        eMean[1] = e[0];
+        double surprise[] = game.getGameDTO().getSurprises().stream().mapToDouble(eF -> (double)eF).toArray();
 
-        double surprise[] =  new double[e.length];
-        IntStream.range(0, e.length).forEach(i -> {
-            double d = e[i] - eMean[i];
-            surprise[i] = d * d;
-        });
         double surpriseMean = Arrays.stream(surprise).average().orElseThrow(MuZeroException::new);
         double surpriseMax = Arrays.stream(surprise).max().orElseThrow(MuZeroException::new);
 
         game.setSurpriseMax(surpriseMax);
         game.setSurpriseMean(surpriseMean);
-        game.setSurprises(surprise);
 
 
     }
 
     private void surpriseSeedsPerGame(Game game, List<Game> gameSeeds, int maxNumber) {
-        if (game.getGameDTO().getSurprises().size() == 0) return;
-        if (gameSeeds.size() > maxNumber) return;
-//        double e[] = game.getGameDTO().getEntropies().stream().mapToDouble(eF -> (double)eF).toArray();
-//        double eMean[] =  new double[e.length];
-//        IntStream.range(2, e.length).forEach(i -> {
-//           // eMean[i] = (e[i-1] + 2*e[i] + e[i+1])/4d;
-//            eMean[i] = (e[i-1] + e[i-2])/2d;
+//        if (game.getGameDTO().getSurprises().size() == 0) return;
+//        if (gameSeeds.size() > maxNumber) return;
+//
+//        double surprises[] =  game.getGameDTO().getSurprises();
+//
+//        boolean[] unexpectedSurpriseMarker = new boolean[surprises.length];
+//
+//        boolean firstCluster = false;
+//        for(int i = surprises.length-1; i >= 0; i--)  {
+//            // "3 sigma"
+//            unexpectedSurpriseMarker[i] = surprises[i] > 9*game.getSurpriseMax();
+//            // TODO configurable ... only one cluster is useful if there is only a reward source at the end of the game
+//            // more generally there can me many clusters relevant
+//            if (firstCluster && !unexpectedSurpriseMarker[i]) break;
+//            if (unexpectedSurpriseMarker[i]) {
+//                firstCluster = true;
+//            }
+//        }
+//
+//        // start new game branch for each surprise marker - 2
+//        IntStream.range(0, surprises.length).forEach(i -> {
+//            if (unexpectedSurpriseMarker[i]) {
+//                Game newGame = game.copy(i);
+//                newGame.setTTrainingStart(i);
+//                gameSeeds.add(newGame);
+//            }
 //        });
-//        eMean[0] = e[0];
-//        eMean[1] = e[0];
-
-        double surprises[] =  game.getSurprises();
-//        IntStream.range(0, e.length).forEach(i -> {
-//            double d = e[i] - eMean[i];
-//            surprises[i] = d * d;
-//        });
-//        double eVar = Arrays.stream(surprises).average().orElseThrow(MuZeroException::new);
-
-        boolean[] unexpectedSurpriseMarker = new boolean[surprises.length];
-
-        boolean firstCluster = false;
-        for(int i = surprises.length-1; i >= 0; i--)  {
-            // "3 sigma"
-            unexpectedSurpriseMarker[i] = surprises[i] > 9*game.getSurpriseMax();
-            // TODO configurable ... only one cluster is useful if there is only a reward source at the end of the game
-            // more generally there can me many clusters relevant
-            if (firstCluster && !unexpectedSurpriseMarker[i]) break;
-            if (unexpectedSurpriseMarker[i]) {
-                firstCluster = true;
-            }
-        }
-
-        // start new game branch for each surprise marker - 2
-        IntStream.range(0, surprises.length).forEach(i -> {
-            if (unexpectedSurpriseMarker[i]) {
-                Game newGame = game.copy(i);
-                newGame.setTTrainingStart(i);
-                gameSeeds.add(newGame);
-            }
-        });
-        game.setSurprises(null);
+//        game.setSurprises(null);
 
     }
 
