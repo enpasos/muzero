@@ -82,7 +82,7 @@ muzero:
       windowSize: 40000
       maxGameLiveTime: 40000
 
-      surpriseHandlingOn: false # false in paper
+      surpriseHandlingOn: true # false in paper
       extraValueTrainingOn: false # false in paper
 
       gumbelSoftmaxTemperature: 0.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed

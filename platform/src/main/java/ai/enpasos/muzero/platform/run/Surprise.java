@@ -34,8 +34,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,8 +58,8 @@ public class Surprise {
     @SuppressWarnings("squid:S3740")
     public void run() {
         replayBuffer.loadLatestState();
-        List<Game> games =  getRelevantGames(1000);
-        double quantil = this.getQuantil(games, 1000);
+        List<Game> games =  getGamesWithSurpriseData();
+        double quantil = this.getThreshold(games);
         List<Game> gamesToInvestigate = getGamesWithSurprisesAboveQuantil( games,  quantil);
 
 
@@ -100,9 +99,9 @@ public class Surprise {
 
     public void markSurprise() {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
-        List<Game> games =  getRelevantGames(n);
-        double quantil = this.getQuantil(games, n);
-        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveQuantil( games,  quantil);
+        List<Game> games =  getGamesWithSurpriseData();
+        double quantil = this.getThreshold(games);
+        getGamesWithSurprisesAboveQuantil( games,  quantil);
     }
 
 
@@ -112,36 +111,53 @@ public class Surprise {
 //    }
 
 
-    private List<Game> getRelevantGames(int numGames) {
+    private List<Game> getGamesWithSurpriseData( ) {
+     //   private List<Game> getRelevantGames(int numGames) {
        // int bufferSize = replayBuffer.getBuffer().getGames().size();
         List<Game> games = replayBuffer.getBuffer().getGames().stream()
             .filter(game -> !game.getGameDTO().getSurprises().isEmpty())
             .collect(Collectors.toList());
 
-        return games.subList(Math.max(games.size() - numGames, 0), games.size());
+        return games;
+       // return games.subList(Math.max(games.size() - numGames, 0), games.size());
 
 
     }
 
-    private double getQuantil(List<Game> games, int numHighestValues) {
+    private double getThreshold(List<Game> games) {
+
+        List<Double> surprises_ = new ArrayList<>();
+        games.stream().forEach(g -> g.getGameDTO().getSurprises().stream().forEach(v -> surprises_.add((double)v)));
+        double[] surprises = surprises_.stream().mapToDouble(x -> x).toArray();
+        double surpriseMean = Arrays.stream(surprises).average().orElseThrow(MuZeroException::new);
+        double surpriseMax = Arrays.stream(surprises).max().orElseThrow(MuZeroException::new);
+        double  squaredSum = Arrays.stream(surprises).map(x -> {
+                var y = x - surpriseMean;
+                return y * y;
+            }).sum();
+        long count = Arrays.stream(surprises).count();
+        double variance =  squaredSum / count;
+        double stddeviation = Math.sqrt(variance);
+
+        double threshold = surpriseMean + 3 * stddeviation;
 
 
-        double surpriseMean = games.stream().mapToDouble(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).average().getAsDouble())
-            .average().getAsDouble();
-        double surpriseMax = games.stream().mapToDouble(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble())
-            .max().getAsDouble();
-        List<Double> allValues = new ArrayList<>();
-        games.stream().forEach(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).forEach(allValues::add));
-        Collections.sort(allValues);
-        Collections.reverse(allValues);
-
-        double quantil = allValues.get(numHighestValues);
+//        double surpriseMean = games.stream().mapToDouble(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).average().getAsDouble())
+//            .average().getAsDouble();
+//        double surpriseMax = games.stream().mapToDouble(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble())
+//            .max().getAsDouble();
+//        List<Double> allValues = new ArrayList<>();
+//        games.stream().forEach(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).forEach(allValues::add));
+//        Collections.sort(allValues);
+//        Collections.reverse(allValues);
+//
+//        double quantil = allValues.get(numHighestValues);
 
         log.info("surprisesMean: " + surpriseMean);
         log.info("surprisesMax: " + surpriseMax);
-        log.info("surprisesQuantil: " + quantil);
+        log.info("surprisesThreshold: " + threshold);
 
-        return quantil;
+        return threshold;
     }
     private List<Game> getGamesWithSurprisesAboveQuantil(List<Game> games, double quantil) {
 
