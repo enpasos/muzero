@@ -15,7 +15,7 @@
 
         <properties>
             <djl.version>0.17.0-SNAPSHOT</djl.version>
-            <pytorch.version>1.10.0-SNAPSHOT</pytorch.version>
+            <pytorch.version>1.11.0-SNAPSHOT</pytorch.version>
             <junit.version>5.6.0</junit.version>
             <lombok.version>1.18.22</lombok.version>
             <log4j2.version>2.14.1</log4j2.version>
@@ -131,9 +131,15 @@
             <artifactId>pytorch-model-zoo</artifactId>
             <version>${djl.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>ai.djl.pytorch</groupId>
             <artifactId>pytorch-native-auto</artifactId>
+            <version>${pytorch.version}</version>
+        </dependency-->
+
+        <dependency>
+            <groupId>ai.djl.pytorch</groupId>
+            <artifactId>pytorch-native-cu113</artifactId>
             <version>${pytorch.version}</version>
         </dependency>
 
