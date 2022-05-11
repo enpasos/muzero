@@ -118,13 +118,13 @@ public class SelfPlay {
     }
 
     private void calculateSurprise(double value, Game game) {
-        double valueBefore = 0;
         int pos = game.getGameDTO().getSurprises().size() - 1;
         if (game.getGameDTO().getRootValuesFromInitialInference().size() > pos && pos >= 0) {
-            valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
+            double valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
+            double deltaValue = value - valueBefore;
+            game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
         }
-        double deltaValue = value - valueBefore;
-        game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
+
     }
 
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
