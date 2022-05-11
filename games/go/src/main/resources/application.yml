@@ -41,9 +41,8 @@ muzero:
       # network sizing
       numObservationLayers: 17  # 8 history * 2 player + 1 color of next player
       numActionLayers: 1
-      numChannels: 128     # 256 in the paper
       numHiddenStateChannels: 19 # squeezing the hidden state from c to observationLayers + 2
-      numResiduals: 16 # on squeeze and excitation (SE) block
+
 
       # network training
       symmetryType: SQUARE
@@ -60,7 +59,7 @@ muzero:
       lrInit: 0.0001
 
       # play
-      numberTrainingStepsOnStart: 0
+      numberTrainingStepsOnStart: 2000
 
       knownBoundsType: FROM_VALUES
 
@@ -73,12 +72,14 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 50
-      numberOfTrainingSteps: 300000
+      numSimulations: 20
+      numberOfTrainingSteps: 1000000
 
+      numChannels: 256     # 256 in the paper
+      numBottleneckChannels: 128
+      numResiduals: 8
+      broadcastEveryN: 3
 
-      broadcastEveryN: 8
-      numBottleneckChannels: 64
       windowSize: 40000
       maxGameLiveTime: 40000
 
