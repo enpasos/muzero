@@ -135,6 +135,8 @@ public class NetworkHelper {
         listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
 
+        config.getValueSpan();
+
         float gradientScale = 1f / config.getNumUnrollSteps();
 
         int k = 0;

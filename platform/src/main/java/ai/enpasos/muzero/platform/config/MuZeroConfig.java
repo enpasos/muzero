@@ -182,6 +182,11 @@ public class MuZeroConfig {
         return getConf().values;
     }
 
+    public double getValueSpan() {
+        double[] vs = getConf().getValues();
+        return vs[vs.length-1] - vs[0];
+    }
+
     public int getNumberOfTrainingSteps() {
         return getConf().numberOfTrainingSteps;
     }
