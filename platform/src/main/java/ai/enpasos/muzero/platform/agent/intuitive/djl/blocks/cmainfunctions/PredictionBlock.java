@@ -49,6 +49,8 @@ public class PredictionBlock extends MySequentialBlock {
         } else { // default is EXPECTED
             valueHead.add(LinearExt.builder()
                 .setUnits(1).build());
+
+
             if (isPlayerModeTWOPLAYERS) {
                 valueHead.add(ActivationExt.tanhBlock());
             }

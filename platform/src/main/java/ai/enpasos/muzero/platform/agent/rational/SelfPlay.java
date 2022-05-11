@@ -123,6 +123,8 @@ public class SelfPlay {
             double valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
             double deltaValue = value - valueBefore;
             game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
+        } else {
+            game.getGameDTO().getSurprises().add(0f);
         }
 
     }

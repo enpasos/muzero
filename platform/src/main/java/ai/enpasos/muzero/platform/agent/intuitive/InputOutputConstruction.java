@@ -180,8 +180,9 @@ public class InputOutputConstruction {
                     valueOutput.setScalar(new NDIndex(index), 1);
                     valueList.add(valueOutput);
                 } else {
+                    double scale =  2.0 / config.getValueSpan();
                     NDArray valueOutput = nd.zeros(new Shape(1));
-                    valueOutput.setScalar(new NDIndex(0), target.getValue());
+                    valueOutput.setScalar(new NDIndex(0), target.getValue() * scale);
                     valueList.add(valueOutput);
                 }
                 log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));

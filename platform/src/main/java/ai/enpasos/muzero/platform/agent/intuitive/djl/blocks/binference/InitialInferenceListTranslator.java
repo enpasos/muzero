@@ -106,8 +106,9 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                         .logits(logits2)
                         .build();
                 } else {
+                    double scale = config.getValueSpan()/2.0;
                     return NetworkIO.builder()
-                        .value(vArray[i])
+                        .value(scale * vArray[i])
                         .policyValues(ps)
                         .logits(logits2)
                         .build();
