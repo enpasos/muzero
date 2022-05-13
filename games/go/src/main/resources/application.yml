@@ -54,7 +54,6 @@ muzero:
       discount: 1.0
       # loss details
       weightDecay: 0.0001
-      valueLossWeight: 1.0
       # network training - adam optimizer
       lrInit: 0.0001
 
@@ -72,7 +71,7 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 20
+      numSimulations: 50
       numberOfTrainingSteps: 1000000
 
       numChannels: 256     # 256 in the paper
@@ -88,7 +87,7 @@ muzero:
 
       gumbelSoftmaxTemperature: 0.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
 
-
+      valueLossWeight: 10.0
 
 
     GO_9:
