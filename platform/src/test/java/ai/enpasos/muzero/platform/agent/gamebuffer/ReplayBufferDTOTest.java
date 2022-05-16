@@ -1,6 +1,8 @@
 package ai.enpasos.muzero.platform.agent.gamebuffer;
 
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBufferDTO;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,11 @@ class ReplayBufferDTOTest {
         log.info(Arrays.toString(buffer2.getData().get(0).getPolicyTargets().get(1)));
         assertTrue(Arrays.equals(buffer.getData().get(0).getPolicyTargets().get(0), buffer2.getData().get(0).getPolicyTargets().get(0)));
         assertTrue(Arrays.equals(buffer.getData().get(0).getPolicyTargets().get(1), buffer2.getData().get(0).getPolicyTargets().get(1)));
+        assertEquals( buffer.getData().get(0).getRewards().get(0), buffer2.getData().get(0).getRewards().get(0));
+        assertEquals( buffer.getData().get(0).getRewards().get(1), buffer2.getData().get(0).getRewards().get(1));
+        assertEquals( buffer.getData().get(0).getActions().get(0), buffer2.getData().get(0).getActions().get(0));
+        assertEquals( buffer.getData().get(0).getActions().get(1), buffer2.getData().get(0).getActions().get(1));
+        assertTrue( buffer.equals(buffer2) );
     }
 
 }
