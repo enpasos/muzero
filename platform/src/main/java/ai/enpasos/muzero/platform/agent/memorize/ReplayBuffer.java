@@ -239,6 +239,7 @@ public class ReplayBuffer {
     public void loadLatestState() {
         int c = getLatestBufferNo();
         loadState(c);
+        rebuildGames();
     }
 
     public int getLatestBufferNo() {
