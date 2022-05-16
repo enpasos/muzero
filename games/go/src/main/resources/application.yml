@@ -87,7 +87,7 @@ muzero:
 
       gumbelSoftmaxTemperature: 0.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
 
-      valueLossWeight: 10.0
+      valueLossWeight: 5.0
 
 
     GO_9:
