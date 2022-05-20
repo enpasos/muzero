@@ -93,14 +93,16 @@ public class ReplayBuffer {
     public static int samplePosition(@NotNull Game game) {
         GameDTO dto = game.getGameDTO();
         int numActions = dto.getActions().size();
+        long delta = dto.getTStateB()-dto.getTStateA();
+        if (delta < 0)  delta = 0L;
 
-
-        // TODO make 10 configurable
-        int enhanceFactor = 10;
-        int n = (int) (enhanceFactor * (dto.getTStateB()-dto.getTStateA()) + numActions - dto.getTStateB());
-        int rawpos = ThreadLocalRandom.current().nextInt(0, n + 1);
-        if (rawpos < numActions - dto.getTStateB()) return rawpos;
-        rawpos -= numActions - dto.getTStateB();
+        // TODO make enhanceFactor configurable
+        int enhanceFactor = 1;
+        long numNormalActions = numActions - (dto.getTStateA() + delta);
+        int n = (int) (enhanceFactor * (delta) + numNormalActions);
+        int rawpos = ThreadLocalRandom.current().nextInt(0, n );
+        if (rawpos < numNormalActions) return (int)(rawpos + dto.getTStateA() + delta);
+        rawpos -= numNormalActions;
         return rawpos /= enhanceFactor;
 
     }

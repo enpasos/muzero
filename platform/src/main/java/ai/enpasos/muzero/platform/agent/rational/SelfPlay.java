@@ -102,19 +102,21 @@ public class SelfPlay {
             calculateSurprise(value, game);
 
             int nActionsReplayed = game.actionHistory().getActionIndexList().size();
-            int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
+            if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
+                int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
 
-            try {
-                game.apply(actionIndex);
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                throw new MuZeroException(e);
+                try {
+                    game.apply(actionIndex);
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                    throw new MuZeroException(e);
+                }
+                game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
             }
-            game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
 
         });
 
-        keepTrackOfOpenGames();
+        keepTrackOfOpenGamesReplay();
     }
 
     private void calculateSurprise(double value, Game game) {
@@ -135,10 +137,9 @@ public class SelfPlay {
         List<Game> gamesToApplyAction = new ArrayList<>();
         gamesToApplyAction.addAll(this.gameList);
 
-        shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+     //   shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
 
-        int nGames = gamesToApplyAction.size();
-        if (nGames != 0) {
+
 
             List<NetworkIO> networkOutput = null;
             if (!fastRuleLearning) {
@@ -153,12 +154,18 @@ public class SelfPlay {
             }
 
             if (!fastRuleLearning) {
-                IntStream.range(0, nGames).forEach(g -> {
+                IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
                     Game game = gamesToApplyAction.get(g);
                     double value = networkOutputFinal.get(g).getValue();
+                    game.getGameDTO().getRootValuesFromInitialInference().add((float)value);
                     calculateSurprise(value, game);
                 });
             }
+
+            shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+
+        int nGames = gamesToApplyAction.size();
+        if (nGames != 0) {
 
             List<GumbelSearch> searchManagers = gamesToApplyAction.stream().map(game -> {
                 game.initSearchManager();
@@ -250,13 +257,15 @@ public class SelfPlay {
             policyTarget[action.getIndex()] = 1f;
 
             game.getGameDTO().getPolicyTargets().add(policyTarget);
-            if (game.getSearchManager() != null) {
-                Node root = game.getSearchManager().getRoot();
-                float value = (float) root.getValueFromInitialInference();
-                game.getGameDTO().getRootValuesFromInitialInference().add(value);
-                calculateSurprise(value, game);
+//            if (game.getSearchManager() != null) {
+//                Node root = game.getSearchManager().getRoot();
+//                float value = (float) root.getValueFromInitialInference();
+//                game.getGameDTO().getRootValuesFromInitialInference().add(value);
+//                calculateSurprise(value, game);
+//
+//            }
 
-            }
+
 
             if (render && game.isDebug()) {
                 game.renderMCTSSuggestion(config, policyTarget);
@@ -278,6 +287,15 @@ public class SelfPlay {
     private void keepTrackOfOpenGames() {
         List<Game> newGameDoneList = gameList.stream()
             .filter(game -> game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves())
+            .collect(Collectors.toList());
+
+        gamesDoneList.addAll(newGameDoneList);
+        gameList.removeAll(newGameDoneList);
+    }
+
+    private void keepTrackOfOpenGamesReplay() {
+        List<Game> newGameDoneList = gameList.stream()
+            .filter(game -> game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size())
             .collect(Collectors.toList());
 
         gamesDoneList.addAll(newGameDoneList);
@@ -375,7 +393,7 @@ public class SelfPlay {
             int count = 1;
             while (notFinished() && (untilEnd || count == 1)) {
                 play(network, render, fastRulesLearning, justInitialInferencePolicy);
-                log.info("mcts run " + count + " for " + config.getNumParallelGamesPlayed() + " games finished.");
+                log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
                 count++;
             }
         }
@@ -389,6 +407,7 @@ public class SelfPlay {
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.createAndSetHiddenStateNDManager(nDManager, true);
             while (notFinished()) {
+                //log.trace("justReplayWithInitialInference");
                 justReplayWithInitialInference(network);
             }
         }
@@ -416,7 +435,11 @@ public class SelfPlay {
         for (List<Game> games : gameBatches) {
             resultGames.addAll(playGamesFromTheirCurrentState(network, games));
         }
+        log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
+        log.info("resultGames size: " + resultGames.size());
         resultGames.forEach(replayBuffer::saveGame);
+        log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
+
     }
 
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
@@ -447,7 +470,7 @@ public class SelfPlay {
             }
         }
         game.getGameDTO().getPolicyTargets().add(policyTarget);
-        game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
+     //   game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
     }
 
 }

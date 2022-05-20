@@ -26,6 +26,8 @@ class ReplayBufferDTOTest {
         g.setRewards(List.of(3f, 4f));
         g.setActions(List.of(5, 6));
         g.setPolicyTargets(List.of(new float[]{7f, 8f}, new float[]{209f, 210f}));
+        g.setTStateA(1);
+        g.setTStateB(2);
         buffer.getData().add(g);
         ReplayBufferProto proto = buffer.proto();
         byte[] raw = proto.toByteArray();

@@ -80,7 +80,7 @@ muzero:
       broadcastEveryN: 3
 
       windowSize: 40000
-      maxGameLiveTime: 40000
+      maxGameLiveTime: 10000000
 
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper

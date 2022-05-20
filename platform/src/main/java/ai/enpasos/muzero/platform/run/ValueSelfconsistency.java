@@ -72,7 +72,7 @@ public class ValueSelfconsistency {
 
         List<Game> games = replayBuffer.getBuffer().getGames();
 
-        games.stream().forEach(Game::beforeReplay);
+        games.stream().forEach(Game::beforeReplayWithoutChangingActionHistory);
 
 
         List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());

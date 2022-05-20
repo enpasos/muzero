@@ -20,9 +20,11 @@ package ai.enpasos.muzero.platform.agent.memorize;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ValueProtos;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.stream.IntStream;
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Slf4j
 public class GameDTO {
 
     @EqualsAndHashCode.Include
@@ -80,17 +83,24 @@ public class GameDTO {
         copy.tSurprise = this.tSurprise;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
+        copy.count = this.count;
         copy.surprises.addAll(this.surprises.subList(0, toPosition));
         copy.actions.addAll(this.actions.subList(0, toPosition));
+        if (this.policyTargets.size() < toPosition) {
+            int k = 42; // should not happen
+        }
         this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         //this.values.subList(0, toPosition).forEach(pT -> copy.values.add(List.copyOf(pT)));
         if (this.rootValues.size() >= toPosition)
             copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
+        if (this.rootValuesFromInitialInference.size() >= toPosition)
+            copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference.subList(0, toPosition));
         return copy;
     }
 
     public GameDTO copy() {
         GameDTO copy = new GameDTO();
+        copy.count = this.count;
         copy.rewards.addAll(this.rewards);
         copy.surprised = this.surprised;
         copy.tSurprise = this.tSurprise;
@@ -101,6 +111,7 @@ public class GameDTO {
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
         copy.rootValues.addAll(this.rootValues);
+        copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference);
         return copy;
     }
 
@@ -173,5 +184,22 @@ public class GameDTO {
         }
         int i = 42;
     }
+
+
+
+//    public void removeTimeSteps(int backInTime) {
+//        IntStream.range(0, backInTime).forEach(i -> {
+//            this.getSurprises().remove(this.getSurprises().size()-1);
+//            this.getPolicyTargets().remove(this.getPolicyTargets().size()-1);
+//            this.getRewards().remove(this.getRewards().size()-1);
+//            this.getActions().remove(this.getActions().size()-1);
+//            if(this.getValues() != null && !this.getValues().isEmpty())
+//                this.getValues().remove(this.getValues().size()-1);
+//            if (this.getRootValues() != null && !this.getRootValues().isEmpty())
+//                this.getRootValues().remove(this.getRootValues().size()-1);
+//            if (this.getRootValuesFromInitialInference() != null && !this.getRootValuesFromInitialInference().isEmpty())
+//                this.getRootValuesFromInitialInference().remove(this.getRootValuesFromInitialInference().size()-1);
+//        });
+//    }
 }
 

@@ -17,6 +17,10 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoTrainingAndTest trainingAndTest;
 
+
+    @Autowired
+    private GoTrainFastAndTest trainFastAndTest;
+
     @Autowired
     private MuZeroConfig conf;
 
@@ -66,6 +70,9 @@ public class Go implements CommandLineRunner {
     @Override
     public void run(String... args) {
         switch (conf.getRun()) {
+            case TRAINFAST:
+                trainFastAndTest.run();
+                break;
             case TRAIN:
                 trainingAndTest.run();
                 break;
@@ -81,7 +88,6 @@ public class Go implements CommandLineRunner {
             case VALUE:
                 valueExtractor.run();
                 break;
-
             case VALUES:
                 valuesExtractor.run();
                 break;
