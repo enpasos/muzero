@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +34,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -60,8 +58,8 @@ public class Surprise {
     public void run() {
         replayBuffer.loadLatestState();
         List<Game> games =  getRelevantGames(1000);
-        double quantil = this.getQuantil(games, 1000);
-        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveQuantil( games,  quantil);
+        double quantil = this.getSurpriseThreshold(games);
+        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  1000, 1000);
 
 
 
@@ -76,12 +74,14 @@ public class Surprise {
 
 
     public void handleOldSurprises(Network network) {
-
+        int sizeBefore = replayBuffer.getBuffer().getData().size();
         List<Game> allGames = replayBuffer.getBuffer().getGames();
 
         List<Game> gamesWithOldSurprise = allGames.stream().filter(game -> game.getGameDTO().isSurprised()).collect(Collectors.toList());
 
         List<Game> gameSeeds = new ArrayList<>();
+
+       // Set<Game> gameSeedsSet = new HashSet<>();
 
         gamesWithOldSurprise.forEach(game -> {
             Game newGame = game.copy((int)game.getGameDTO().getTStateA());
@@ -89,20 +89,34 @@ public class Surprise {
             newGame.getGameDTO().setTSurprise(0);
             newGame.getGameDTO().setSurprised(false);
             gameSeeds.add(newGame);
+          //  gameSeedsSet.add(newGame);
         });
+   //     log.info("gameSeedsList size: " + gameSeeds.size());
+      //  log.info("gameSeedsSet size: " + gameSeedsSet.size());
         replayBuffer.removeGames(gamesWithOldSurprise);
+  //      log.info("replayBuffer size (after replayBuffer.removeGames): " + replayBuffer.getBuffer().getData().size());
 
         selfPlay.replayGamesToEliminateSurprise(network, gameSeeds);
-
+        int sizeAfter = replayBuffer.getBuffer().getData().size();
+//        if (sizeBefore != sizeAfter) {
+//            String message = "buffer size should not be changed by handleOldSurprises, but it changes from " + sizeBefore + " to " + sizeAfter;
+//            log.error(message);
+//            throw new MuZeroException(message);
+//        }
     }
 
-
+    public void markSurprise(int backInTime) {
+        //int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
+        List<Game> games = this.replayBuffer.getBuffer().getGames();
+        double quantil = this.getSurpriseThreshold(games);
+        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  quantil, backInTime);
+    }
 
     public void markSurprise() {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<Game> games =  getRelevantGames(n);
-        double quantil = this.getQuantil(games, n);
-        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveQuantil( games,  quantil);
+        double quantil = this.getSurpriseThreshold(games);
+        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  quantil, 1000);
     }
 
 
@@ -123,46 +137,66 @@ public class Surprise {
 
     }
 
-    private double getQuantil(List<Game> games, int numHighestValues) {
 
+    public double getSurpriseThreshold(List<Game> games ) {
+         List<Double> relevantSurprises = new ArrayList<>();
+        games.stream().forEach(g -> {
+            int t = g.getGameDTO().getActions().size() - 1;
+            IntStream.range(0, t).forEach(i -> relevantSurprises.add(Double.valueOf(g.getGameDTO().getSurprises().get(i))));
+        });
+//         games.stream().forEach(g -> {
+//            int t = g.getGameDTO().getActions().size() - 1;
+//            IntStream.range(t-backInTime, t).forEach(i -> relevantSurprises.add(Double.valueOf(g.getGameDTO().getSurprises().get(i))));
+//        });
+        Collections.sort(relevantSurprises);
+        Collections.reverse(relevantSurprises);
 
-        double surpriseMean = games.stream().mapToDouble(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).average().getAsDouble())
-            .average().getAsDouble();
-        double surpriseMax = games.stream().mapToDouble(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble())
-            .max().getAsDouble();
-        List<Double> allValues = new ArrayList<>();
-        games.stream().forEach(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).forEach(allValues::add));
-        Collections.sort(allValues);
-        Collections.reverse(allValues);
+        double surpriseMean = relevantSurprises.stream().mapToDouble(x -> x).average().orElseThrow(MuZeroException::new);
+        double surpriseMax = relevantSurprises.stream().mapToDouble(x -> x).max().orElseThrow(MuZeroException::new);
 
-        double quantil = allValues.get(numHighestValues);
+        double variance =  relevantSurprises.stream().mapToDouble(x -> {
+              var delta = x-surpriseMean;
+              return delta * delta;
+          }).sum() / relevantSurprises.size();
 
+        double stddev = Math.sqrt(variance);
+        double surpriseThreshold = surpriseMean + 3 * stddev;
+
+        log.info("surprisesCount: " + relevantSurprises.size());
         log.info("surprisesMean: " + surpriseMean);
+        log.info("surprisesThreshold: " + surpriseThreshold);
         log.info("surprisesMax: " + surpriseMax);
-        log.info("surprisesQuantil: " + quantil);
 
-        return quantil;
+        return surpriseThreshold;
     }
-    private List<Game> getGamesWithSurprisesAboveQuantil(List<Game> games, double quantil) {
+
+
+
+
+
+
+//
+   public List<Game> getGamesWithSurprisesAboveThreshold(List<Game> games, double surpriseThreshold, int backInTime) {
 
 
         List<Game> gamesToInvestigate = games.stream()
-            .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= quantil).collect(Collectors.toList());
+            .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
 
         gamesToInvestigate.stream().forEach(game -> {
-            for (int t = game.getGameDTO().getSurprises().size() - 1; t >= 0; t--) {
+            for (int t = game.getGameDTO().getSurprises().size() - 1; t >= game.getGameDTO().getSurprises().size() - 1 - backInTime; t--) {
                 GameDTO dto = game.getGameDTO();
                 double s = dto.getSurprises().get(t);
-                if (s >= quantil) {
+                if (s >= surpriseThreshold) {
                     dto.setTSurprise(t);
-                    dto.setTStateA(Math.max(0,t-3));
-                    dto.setTStateB(Math.min(game.getGameDTO().getSurprises().size()-1, t+1));
+                   // dto.setTStateA(Math.max(0,t-3));
+                  //  dto.setTStateB(Math.min(game.getGameDTO().getSurprises().size()-1, t+1));
                     dto.setSurprised(true);
                     break;
                 }
             }
         });
+        log.info("no of games with surprise above threshold: " + gamesToInvestigate.size());
         return gamesToInvestigate;
     }
 
@@ -186,6 +220,27 @@ public class Surprise {
             throw new MuZeroException(e);
         }
         return stringWriter.toString();
+    }
+
+    public void measureValueAndSurprise(Network network, List<Game> games ) {
+        games.stream().forEach(game -> game.beforeReplayWithoutChangingActionHistory( ));
+        mearsureValueAndSurpriseMain(network, games);
+    }
+
+    private void mearsureValueAndSurpriseMain(Network network, List<Game> games) {
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+        List<Game> resultGames = new ArrayList<>();
+        int i = 1;
+        for (List<Game> gameList : gameBatches) {
+            log.info("justReplayGamesWithInitialInference " + i++ + " of "+ gameBatches.size());
+            resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, gameList));
+        }
+        games.stream().forEach(Game::afterReplay);
+    }
+
+    public void measureValueAndSurprise(Network network, List<Game> games, int backInTime) {
+        games.stream().forEach(game -> game.beforeReplayWithoutChangingActionHistory(backInTime));
+        mearsureValueAndSurpriseMain(network, games);
     }
 
 

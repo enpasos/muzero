@@ -32,6 +32,7 @@ import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,7 @@ import java.util.stream.IntStream;
  */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Slf4j
 public abstract class Game {
 
     protected boolean purelyRandom;
@@ -119,14 +121,27 @@ public abstract class Game {
         return copy;
     }
 
-    public @NotNull Game copy(int toPosition) {
+
+    public @NotNull Game copy(int numberOfActions) {
         Game copy = getConfig().newGame();
-        copy.setGameDTO(this.gameDTO.copy(toPosition));
+        copy.setGameDTO(this.gameDTO.copy(numberOfActions));
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         copy.replayToPosition(copy.getGameDTO().getActions().size());
         return copy;
+    }
+
+
+    public void checkAssumptions() {
+        assertTrue(this.getGameDTO().getPolicyTargets().size() == this.getGameDTO().getActions().size(), "policyTargets.size() == actions.size()");
+        assertTrue(this.getGameDTO().getSurprises().size() == this.getGameDTO().getActions().size(), "surprises.size() == actions.size()");
+    }
+
+    protected void assertTrue(boolean b, String s) {
+        if (true) return;
+        log.error(s);
+        throw new MuZeroException("assertion violated: " + s);
     }
 
     public @Nullable Float getLastReward() {
@@ -294,14 +309,26 @@ public abstract class Game {
 
     public abstract void renderMCTSSuggestion(MuZeroConfig config, float[] childVisits);
 
-    public void beforeReplay() {
+    public void beforeReplayWithoutChangingActionHistory( ) {
         this.originalGameDTO = this.gameDTO;
-        this.gameDTO = new GameDTO();
+        this.gameDTO = this.gameDTO.copy();
+        this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.initEnvironment();
+        this.replayToPosition( getGameDTO().getActions().size());
     }
 
+    public void beforeReplayWithoutChangingActionHistory(int backInTime) {
+        this.originalGameDTO = this.gameDTO;
+        this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
+        this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
+     //   this.gameDTO.removeTimeSteps(backInTime);
+        this.initEnvironment();
+        this.replayToPosition( getGameDTO().getActions().size());
+    }
+
+
     public void afterReplay() {
-        this.gameDTO = this.originalGameDTO;
+      //  this.gameDTO = this.originalGameDTO;
     }
 
     public abstract void initEnvironment();

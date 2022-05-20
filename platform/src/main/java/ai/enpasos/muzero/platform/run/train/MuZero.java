@@ -176,8 +176,6 @@ public class MuZero {
                         config.setGumbelSoftmaxTemperature(temp);
                     }
 
-
-
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
@@ -190,51 +188,7 @@ public class MuZero {
         }
     }
 
-
-
-
-    public void train2(TrainParams params) {
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            Network network = new Network(config, model);
-
-            init(params.freshBuffer, params.randomFill, network,  params.withoutFill);
-          //  init2(network);
-
-            int epoch = networkHelper.getEpoch();
-            int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
-
-            trainingStep = trainNetwork(0, model, djlConfig);
-
-            int i = 0;
-            while (trainingStep < config.getNumberOfTrainingSteps()) {
-                replayBuffer.init();
-                IntStream.range(0, config.getNumPurePolicyPlays()).forEach( j ->
-                    play(network, false, true)
-                );
-
-                if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
-                    log.info("last training step = {}", trainingStep);
-                    log.info("numSimulations: " + config.getNumSimulations());
-                    network.debugDump();
-                    play(network, params.render, false);
-                    replayBuffer.saveState();
-                }
-
-                params.getAfterSelfPlayHookIn().accept(epoch, network);
-                trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-
-                if (i % 5 == 0) {
-                    params.getAfterTrainingHookIn().accept(epoch, model);
-                }
-                i++;
-            }
-        }
-    }
-
-
-    @NotNull
-    private void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
+    @NotNull void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
         createNetworkModelIfNotExisting();
         replayBuffer.init();
         if (freshBuffer) {
@@ -269,7 +223,7 @@ public class MuZero {
 
     }
 
-    private int trainNetwork(int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
+    int trainNetwork(int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = getEpochFromModel(model);
