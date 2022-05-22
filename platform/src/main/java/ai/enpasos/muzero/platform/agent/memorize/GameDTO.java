@@ -77,6 +77,7 @@ public class GameDTO {
     }
 
     public GameDTO copy(int toPosition) {
+        toPosition = Math.max(1, toPosition);
         GameDTO copy = new GameDTO();
         copy.rewards.addAll(this.rewards.subList(0, toPosition));
         copy.surprised = this.surprised;

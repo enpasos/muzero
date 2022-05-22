@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -59,7 +60,7 @@ public class Surprise {
         replayBuffer.loadLatestState();
         List<Game> games =  getRelevantGames(1000);
         double quantil = this.getSurpriseThreshold(games);
-        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  1000, 1000);
+        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  1000, 1000).getLeft();
 
 
 
@@ -109,14 +110,14 @@ public class Surprise {
         //int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<Game> games = this.replayBuffer.getBuffer().getGames();
         double quantil = this.getSurpriseThreshold(games);
-        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  quantil, backInTime);
+        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  quantil, backInTime).getLeft();
     }
 
     public void markSurprise() {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<Game> games =  getRelevantGames(n);
         double quantil = this.getSurpriseThreshold(games);
-        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  quantil, 1000);
+        List<Game> gamesToInvestigate = getGamesWithSurprisesAboveThreshold( games,  quantil, 1000).getLeft();
     }
 
 
@@ -176,28 +177,40 @@ public class Surprise {
 
 
 //
-   public List<Game> getGamesWithSurprisesAboveThreshold(List<Game> games, double surpriseThreshold, int backInTime) {
+   public Pair<List<Game>, List<Game>> getGamesWithSurprisesAboveThreshold(List<Game> games, double surpriseThreshold, int backInTime) {
 
+
+        games.stream().forEach(game -> {
+               GameDTO dto = game.getGameDTO();
+               dto.setSurprised(false);
+        });
 
         List<Game> gamesToInvestigate = games.stream()
             .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
 
-        gamesToInvestigate.stream().forEach(game -> {
+       gamesToInvestigate.stream().forEach(game -> {
+           GameDTO dto = game.getGameDTO();
+
+       });
+       log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size());
+
+       List<Game> gamesToInvestigateHere = new ArrayList<>();
+
+       gamesToInvestigate.stream().forEach(game -> {
             for (int t = game.getGameDTO().getSurprises().size() - 1; t >= game.getGameDTO().getSurprises().size() - 1 - backInTime; t--) {
                 GameDTO dto = game.getGameDTO();
                 double s = dto.getSurprises().get(t);
                 if (s >= surpriseThreshold) {
                     dto.setTSurprise(t);
-                   // dto.setTStateA(Math.max(0,t-3));
-                  //  dto.setTStateB(Math.min(game.getGameDTO().getSurprises().size()-1, t+1));
                     dto.setSurprised(true);
+                    gamesToInvestigateHere.add(game);
                     break;
                 }
             }
         });
-        log.info("no of games with surprise above threshold: " + gamesToInvestigate.size());
-        return gamesToInvestigate;
+        log.info("no of games with surprise above threshold for backInTime=" + backInTime + ": " + gamesToInvestigateHere.size());
+        return Pair.of(gamesToInvestigateHere, gamesToInvestigate);
     }
 
     public String csvString(double[] surprises) {
