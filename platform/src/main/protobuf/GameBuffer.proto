@@ -29,6 +29,7 @@ message GameProto {
   int64 tStateB = 14;
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;
+  string networkName = 15;
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;

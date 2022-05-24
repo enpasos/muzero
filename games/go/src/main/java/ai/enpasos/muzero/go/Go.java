@@ -27,8 +27,6 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoLossExtractor lossExtractor;
 
-    @Autowired
-    private GoWinLooseStatistics goWinLooseStatistics;
 
     @Autowired
     private GoArena arena;
@@ -47,8 +45,6 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoStartValueExtractor startValueExtractor;
 
-    @Autowired
-    private GoWinLooseStatistics winLooseStatistics;
 
     @Autowired
     private GoSurpriseExtractor goSurpriseExtractor;
@@ -96,9 +92,6 @@ public class Go implements CommandLineRunner {
                 break;
             case STARTVALUES:
                 startValueExtractor.run();
-                break;
-            case WINLOOSE:
-                winLooseStatistics.run();
                 break;
             case ELO:
                 elo.run();

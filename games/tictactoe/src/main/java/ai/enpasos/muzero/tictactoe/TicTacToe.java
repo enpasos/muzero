@@ -18,8 +18,6 @@ import org.springframework.context.annotation.ComponentScan;
 public class TicTacToe implements CommandLineRunner {
 
     @Autowired
-    TicTacToeWinLooseStatistics goWinLooseStatistics;
-    @Autowired
     private TicTacToeTrainingAndTest trainingAndTest;
     @Autowired
     private TicTacToeSurpriseExtractor surpriseExtractor;

@@ -64,6 +64,9 @@ public class NetworkHelper {
     @Autowired
     InputOutputConstruction inputOutputConstruction;
 
+    @Autowired
+    MySaveModelTrainingListener mySaveModelTrainingListener;
+
     public static int getEpochFromModel(Model model) {
         int epoch = 0;
         String prop = model.getProperty("Epoch");
@@ -131,7 +134,8 @@ public class NetworkHelper {
 
     public DefaultTrainingConfig setupTrainingConfig(int epoch) {
         String outputDir = config.getNetworkBaseDir();
-        MySaveModelTrainingListener listener = new MySaveModelTrainingListener(outputDir);
+        MySaveModelTrainingListener listener = mySaveModelTrainingListener;
+        mySaveModelTrainingListener.setOutputDir(outputDir);
         listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
 

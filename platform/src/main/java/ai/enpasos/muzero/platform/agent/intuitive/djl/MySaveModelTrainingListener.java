@@ -22,23 +22,36 @@ import ai.djl.Model;
 import ai.djl.training.Trainer;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
+import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
  * A {@link TrainingListener} that saves a model checkpoint after each player.
  */
+@Component
+@Data
 public class MySaveModelTrainingListener extends TrainingListenerAdapter {
+
+    @Autowired
+    ReplayBuffer replayBuffer;
 
     private static final Logger logger = LoggerFactory.getLogger(MySaveModelTrainingListener.class);
 
-    private final String outputDir;
-    private final int step;
+    private String outputDir;
+    private int step;
     private String overrideModelName;
     private Consumer<Trainer> onSaveModel;
     private int epoch;
@@ -51,7 +64,9 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     public MySaveModelTrainingListener(String outputDir) {
         this(outputDir, null, -1);
     }
-
+    public MySaveModelTrainingListener() {
+        this("outputDir", null, -1);
+    }
 
     public MySaveModelTrainingListener(String outputDir, String overrideModelName, int step) {
         this.outputDir = outputDir;
@@ -128,7 +143,14 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
             if (onSaveModel != null) {
                 onSaveModel.accept(trainer);
             }
-            model.save(Paths.get(outputDir), modelName);
+
+            String epochValue = model.getProperty("Epoch");
+            Path modelPath = Paths.get(outputDir);
+            int epoch = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
+            String fileName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
+            replayBuffer.setCurrentNetworkName(fileName);
+
+            model.save(modelPath, modelName);
         } catch (IOException e) {
             logger.error("Failed to save checkpoint", e);
         }

@@ -183,6 +183,9 @@ public class Surprise {
         games.stream().forEach(game -> {
                GameDTO dto = game.getGameDTO();
                dto.setSurprised(false);
+                dto.setTStateA(0);
+                dto.setTStateB(0);
+                dto.setTSurprise(0);
         });
 
         List<Game> gamesToInvestigate = games.stream()

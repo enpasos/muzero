@@ -62,6 +62,9 @@ public class ReplayBuffer {
     private int batchSize;
     private ReplayBufferDTO buffer;
 
+
+    private String currentNetworkName = "NONE";
+
     @Autowired
     private MuZeroConfig config;
 
@@ -141,7 +144,7 @@ public class ReplayBuffer {
     }
 
     public void saveGame(@NotNull Game game) {
-
+        game.getGameDTO().setNetworkName(this.currentNetworkName);
         buffer.saveGame(game, config);
 
     }
@@ -192,15 +195,22 @@ public class ReplayBuffer {
     }
 
     public void saveState() {
-        String filename = "buffer" + buffer.getCounter();
-        String pathname = config.getGamesBasedir() + File.separator + filename + ".zip";
 
+
+        //System.out.println("networkName: " + this.currentNetworkName);
+
+        ReplayBufferDTO dto = this.buffer.copyEnvelope();
+        dto.setData(this.getBuffer().getData().stream().filter(g-> g.networkName.equals(this.currentNetworkName) ).collect(Collectors.toList()));
+
+
+        String filename = this.currentNetworkName  ;
+        String pathname = config.getGamesBasedir() + File.separator + filename + "_jsonbuf.zip";
 
         byte[] input;
 
         if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
             log.info("saving ... " + pathname);
-            input = encodeDTO(this.buffer);
+            input = encodeDTO(dto);
             try (FileOutputStream baos = new FileOutputStream(pathname)) {
                 try (ZipOutputStream zos = new ZipOutputStream(baos)) {
                     ZipEntry entry = new ZipEntry(filename + ".json");
@@ -216,8 +226,8 @@ public class ReplayBuffer {
 
 
         if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
-            ReplayBufferProto proto = buffer.proto();
-            pathname = config.getGamesBasedir() + File.separator + filename + "proto.zip";
+            ReplayBufferProto proto = dto.proto();
+            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf.zip";
             log.info("saving ... " + pathname);
             input = proto.toByteArray();
 
@@ -239,11 +249,38 @@ public class ReplayBuffer {
     }
 
     public void loadLatestState() {
-        int c = getLatestBufferNo();
-        loadState(c);
-        rebuildGames();
+        List<Path> paths = getBufferNames();
+        List<Game> games = new ArrayList<>();
+        for(Path path : paths) {
+            loadState(path);
+            rebuildGames();
+            games.addAll(this.buffer.getGames());
+        }
+        games.forEach(this::saveGame);
     }
 
+
+    public List<Path> getBufferNames() {
+        List<Path> paths = new ArrayList<>();
+        Path gamesPath = Paths.get(config.getGamesBasedir());
+        if (Files.notExists(gamesPath)) {
+            try {
+                Files.createFile(Files.createDirectories(gamesPath));
+            } catch (IOException e) {
+                log.warn(e.getMessage());
+            }
+        }
+        try (Stream<Path> walk = Files.walk(gamesPath)) {
+            paths = walk.filter(Files::isRegularFile)
+                .map(path ->  path)
+                .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            throw new MuZeroException(e);
+        }
+        Collections.sort(paths);
+        return paths;
+    }
     public int getLatestBufferNo() {
         Path gamesPath = Paths.get(config.getGamesBasedir());
         if (Files.notExists(gamesPath)) {
@@ -268,42 +305,39 @@ public class ReplayBuffer {
 
     }
 
-    public void loadState(int c) {
+    public void loadState(Path path) {
         init();
-        String pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + ".zip";
 
+            // String pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + ".zip";
+            String pathname = path.toString();
 
-        try (FileInputStream fis = new FileInputStream(pathname)) {
-            try (ZipInputStream zis = new ZipInputStream(fis)) {
-                log.info("loading ... " + pathname);
-                zis.getNextEntry();
-                byte[] raw = zis.readAllBytes();
-                this.buffer = decodeDTO(raw);
-                rebuildGames();
-                this.buffer.setWindowSize(config.getWindowSize());
-            }
-        } catch (Exception e) {
-            pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + "proto.zip";
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
                     log.info("loading ... " + pathname);
                     zis.getNextEntry();
                     byte[] raw = zis.readAllBytes();
-
-                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
-                    this.buffer.deproto(proto);
-//                    IntStream.range(0,this.buffer.getData().size()).forEach(i -> {
-//                         GameDTO dto = this.buffer.getData().get(i);
-//                        System.out.println(i + ": "+ dto.getValues().size());
-//                        }
-//                    );
+                    this.buffer = decodeDTO(raw);
                     rebuildGames();
                     this.buffer.setWindowSize(config.getWindowSize());
                 }
-            } catch (Exception e2) {
-                log.warn(e2.getMessage());
+            } catch (Exception e) {
+                // pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + "proto.zip";
+                try (FileInputStream fis = new FileInputStream(pathname)) {
+                    try (ZipInputStream zis = new ZipInputStream(fis)) {
+                        log.info("loading ... " + pathname);
+                        zis.getNextEntry();
+                        byte[] raw = zis.readAllBytes();
+
+                        ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
+                        this.buffer.deproto(proto);
+                        rebuildGames();
+                        this.buffer.setWindowSize(config.getWindowSize());
+                    }
+                } catch (Exception e2) {
+                    log.warn(e2.getMessage());
+                }
             }
-        }
+
 
     }
 

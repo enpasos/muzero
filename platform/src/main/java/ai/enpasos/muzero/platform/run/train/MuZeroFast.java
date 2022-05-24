@@ -89,21 +89,28 @@ public class MuZeroFast {
 
             List<Game> games = this.replayBuffer.getBuffer().getGames();
 
-            log.info("start surprise.measureValueAndSurprise");
-            surprise.measureValueAndSurprise(network, games);
-            replayBuffer.saveState();
-            log.info("end surprise.measureValueAndSurprise");
 
-            double surpriseThreshold = surprise.getSurpriseThreshold(games);
 
           //  long surpriseNum = games.stream().mapToLong(g -> g.getGameDTO().getSurprises().size()).sum();
 
             List<Game> gamesWithSurprisesAboveQuantilHere = null;
             List<Game> gamesWithSurprisesAboveQuantil = null;
             int loop = 0;
+
+
             do {
                 log.info("*>*>*>* looping " + loop++);
                 int backInTime = 1;
+
+
+                log.info("start surprise.measureValueAndSurprise");
+                surprise.measureValueAndSurprise(network, games);
+                replayBuffer.saveState();
+                log.info("end surprise.measureValueAndSurprise");
+
+
+
+                double surpriseThreshold = Math.max(100, surprise.getSurpriseThreshold(games));
 
                 Pair<List<Game>, List<Game>> gameListPair = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
                 gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
@@ -124,7 +131,10 @@ public class MuZeroFast {
                             gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
                             gamesWithSurprisesAboveQuantil = gameListPair.getRight();
                         }
+
+                        muzero.playGames(params.render, network, trainingStep);
                         trainingStep =  muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
+
                         surprise.measureValueAndSurprise(network, gamesWithSurprisesAboveQuantilHere, backInTime);
 
                         gameListPair = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
@@ -142,12 +152,9 @@ public class MuZeroFast {
                     }
                 }
 
-                log.info("start surprise.measureValueAndSurprise");
-                surprise.measureValueAndSurprise(network, games);
-                replayBuffer.saveState();
-                log.info("end surprise.measureValueAndSurprise");
 
-            } while (gamesWithSurprisesAboveQuantil.size() > games.size() * 0.001);
+
+            } while (gamesWithSurprisesAboveQuantil.size() > 0);
 
 
         }

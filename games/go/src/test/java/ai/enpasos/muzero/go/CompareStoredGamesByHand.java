@@ -33,13 +33,13 @@ class CompareStoredGamesByHand {
     @Test
     @Disabled
     void go() {
-       replayBuffer.loadState(984872);
-       ReplayBufferDTO dtoSmall = replayBuffer.getBuffer();
-
-        replayBuffer.loadState(965764);
-        ReplayBufferDTO dtoLarge = replayBuffer.getBuffer();
-
-        int i = 42;
+//       replayBuffer.loadState(984872);
+//       ReplayBufferDTO dtoSmall = replayBuffer.getBuffer();
+//
+//        replayBuffer.loadState(965764);
+//        ReplayBufferDTO dtoLarge = replayBuffer.getBuffer();
+//
+//        int i = 42;
 
     }
 
