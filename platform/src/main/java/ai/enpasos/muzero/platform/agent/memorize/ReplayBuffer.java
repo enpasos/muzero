@@ -256,6 +256,7 @@ public class ReplayBuffer {
             rebuildGames();
             games.addAll(this.buffer.getGames());
         }
+        init();
         games.forEach(this::saveGame);
     }
 
