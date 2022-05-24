@@ -60,7 +60,7 @@ muzero:
       batchSize: 256
 
       numParallelGamesPlayed: 1000
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
       # Gumbel MuZero parameters
       initialGumbelM: 4

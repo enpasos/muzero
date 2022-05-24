@@ -39,6 +39,8 @@ import java.util.stream.IntStream;
 @Slf4j
 public class GameDTO {
 
+    String networkName = "NONE";
+
     @EqualsAndHashCode.Include
     private List<Integer> actions;
 
@@ -79,6 +81,7 @@ public class GameDTO {
     public GameDTO copy(int toPosition) {
         toPosition = Math.max(1, toPosition);
         GameDTO copy = new GameDTO();
+        copy.networkName = this.networkName;
         copy.rewards.addAll(this.rewards.subList(0, toPosition));
         copy.surprised = this.surprised;
         copy.tSurprise = this.tSurprise;
@@ -101,6 +104,7 @@ public class GameDTO {
 
     public GameDTO copy() {
         GameDTO copy = new GameDTO();
+        copy.networkName = this.networkName;
         copy.count = this.count;
         copy.rewards.addAll(this.rewards);
         copy.surprised = this.surprised;
@@ -118,6 +122,7 @@ public class GameDTO {
 
     public GameProto proto() {
         GameProto.Builder gameBuilder = GameProto.newBuilder();
+        gameBuilder.setNetworkName(this.networkName);
         gameBuilder.setLastValueError(this.lastValueError);
         gameBuilder.setCount(this.count);
         gameBuilder.setSurprised(this.surprised);
@@ -148,6 +153,7 @@ public class GameDTO {
     }
 
     public void deproto(GameProto p) {
+        this.setNetworkName(p.getNetworkName());
         this.setSurprised(p.getSurprised());
         this.setTSurprise(p.getTSurprise());
         this.setTStateA(p.getTStateA());
@@ -183,24 +189,9 @@ public class GameDTO {
                 .collect(Collectors.toList());
             this.setValues(vs);
         }
-        int i = 42;
     }
 
 
 
-//    public void removeTimeSteps(int backInTime) {
-//        IntStream.range(0, backInTime).forEach(i -> {
-//            this.getSurprises().remove(this.getSurprises().size()-1);
-//            this.getPolicyTargets().remove(this.getPolicyTargets().size()-1);
-//            this.getRewards().remove(this.getRewards().size()-1);
-//            this.getActions().remove(this.getActions().size()-1);
-//            if(this.getValues() != null && !this.getValues().isEmpty())
-//                this.getValues().remove(this.getValues().size()-1);
-//            if (this.getRootValues() != null && !this.getRootValues().isEmpty())
-//                this.getRootValues().remove(this.getRootValues().size()-1);
-//            if (this.getRootValuesFromInitialInference() != null && !this.getRootValuesFromInitialInference().isEmpty())
-//                this.getRootValuesFromInitialInference().remove(this.getRootValuesFromInitialInference().size()-1);
-//        });
-//    }
 }
 

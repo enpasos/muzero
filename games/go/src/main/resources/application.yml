@@ -71,21 +71,21 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 50
+      numSimulations: 100
       numberOfTrainingSteps: 1000000
 
       numChannels: 256     # 256 in the paper
       numBottleneckChannels: 128
       numResiduals: 8
-      broadcastEveryN: 3
+      broadcastEveryN: 3  # broadcasting block in every 8th layer
 
-      windowSize: 40000
+      windowSize: 100000
       maxGameLiveTime: 10000000
 
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
 
-      gumbelSoftmaxTemperature: 0.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
+      gumbelSoftmaxTemperature: 1.0 # 0.0 -> max/gumble trick to draw as in paper; infinite -> random distributed
 
       valueLossWeight: 5.0
 

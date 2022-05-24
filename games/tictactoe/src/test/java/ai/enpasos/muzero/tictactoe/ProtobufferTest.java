@@ -61,7 +61,7 @@ class ProtobufferTest {
             games.forEach(replayBuffer::saveGame);
             List<Game> gamesOld = replayBuffer.getBuffer().getGames();
             replayBuffer.saveState();
-            replayBuffer.loadState(replayBuffer.getLatestBufferNo());
+            replayBuffer.loadLatestState() ;
             replayBuffer.rebuildGames();
 
             IntStream.range(0, gamesOld.size()).forEach(i -> {

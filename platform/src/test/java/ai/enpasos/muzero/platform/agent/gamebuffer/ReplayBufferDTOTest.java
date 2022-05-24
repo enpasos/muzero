@@ -28,6 +28,7 @@ class ReplayBufferDTOTest {
         g.setPolicyTargets(List.of(new float[]{7f, 8f}, new float[]{209f, 210f}));
         g.setTStateA(1);
         g.setTStateB(2);
+        g.setNetworkName("networkName");
         buffer.getData().add(g);
         ReplayBufferProto proto = buffer.proto();
         byte[] raw = proto.toByteArray();

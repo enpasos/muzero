@@ -48,6 +48,14 @@ public class ReplayBufferDTO {
         this.gameClassName = gameClassName;
     }
 
+    public ReplayBufferDTO copyEnvelope() {
+        ReplayBufferDTO copy = new ReplayBufferDTO();
+        copy.windowSize = this.windowSize;
+        copy.counter = this.counter;
+        copy.gameClassName = this.gameClassName;
+        return copy;
+    }
+
     public boolean isBufferFilled() {
         return data.size() >= windowSize;
     }
@@ -100,6 +108,18 @@ public class ReplayBufferDTO {
 
         return bufferBuilder.build();
     }
+
+//    public static ReplayBufferProto proto(ReplayBufferDTO dto) {
+//        ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
+//            .setVersion(1)
+//            .setCounter((int)dto.getCounter())
+//            .setWindowSize(dto.getWindowSize())
+//            .setGameClassName(dto.getGameClassName());
+//
+//        dto.getData().stream().forEach(gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
+//
+//        return bufferBuilder.build();
+//    }
 
     public void deproto(ReplayBufferProto proto) {
 
