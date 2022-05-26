@@ -114,7 +114,9 @@ public class MuZero {
 
     private void loadOrCreateModelParameters(int epoch, Model model) {
         try {
-            model.load(Paths.get(config.getNetworkBaseDir()));
+            String outputDir = config.getNetworkBaseDir();
+            model.load(Paths.get(outputDir));
+            replayBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
             createNetworkModel(epoch, model);
         }
