@@ -143,12 +143,8 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
             if (onSaveModel != null) {
                 onSaveModel.accept(trainer);
             }
-
-            String epochValue = model.getProperty("Epoch");
-            Path modelPath = Paths.get(outputDir);
-            int epoch = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
-            String fileName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
-            replayBuffer.setCurrentNetworkName(fileName);
+             Path modelPath = Paths.get(outputDir);
+            replayBuffer.createNetworkNameFromModel(model, modelName, outputDir);
 
             model.save(modelPath, modelName);
         } catch (IOException e) {

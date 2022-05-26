@@ -18,7 +18,9 @@
 package ai.enpasos.muzero.platform.agent.memorize;
 
 
+import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
+import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
 import ai.enpasos.muzero.platform.common.Constants;
@@ -64,6 +66,19 @@ public class ReplayBuffer {
 
 
     private String currentNetworkName = "NONE";
+
+
+    public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
+        String epochValue = model.getProperty("Epoch");
+        Path modelPath = Paths.get(outputDir);
+        int epoch = 0;
+        try {
+            epoch = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
+        } catch (IOException e) {
+            throw new MuZeroException(e);
+        }
+        this.currentNetworkName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
+    }
 
     @Autowired
     private MuZeroConfig config;
