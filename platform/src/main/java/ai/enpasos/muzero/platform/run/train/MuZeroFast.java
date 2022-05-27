@@ -110,7 +110,8 @@ public class MuZeroFast {
 
 
 
-                double surpriseThreshold = Math.max(100, surprise.getSurpriseThreshold(games));
+            //    double surpriseThreshold = Math.max(100, surprise.getSurpriseThreshold(games));
+                double surpriseThreshold =  surprise.getSurpriseThreshold(games) ;
 
                 Pair<List<Game>, List<Game>> gameListPair = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
                 gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
