@@ -21,6 +21,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.enpasos.mnist.blocks.ext.Conv2dExt;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExtWorkaround;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
