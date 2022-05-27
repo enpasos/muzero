@@ -81,5 +81,5 @@ muzero:
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
 
-      temperature: 2.0 # 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
+      temperature: 2.0  # 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
 
