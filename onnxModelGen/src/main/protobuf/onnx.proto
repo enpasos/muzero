@@ -473,13 +473,8 @@ message GraphProto {
   // which means, tensor 'a_scale' and tensor 'a_zero_point' are scale and zero point of tensor 'a' in the model.
   repeated TensorAnnotation quantization_annotation = 14;
 
-  // DO NOT USE the following fields, they were deprecated from earlier versions.
-  // repeated string input = 3;
-  // repeated string output = 4;
-  // optional int64 ir_version = 6;
-  // optional int64 producer_version = 7;
-  // optional string producer_tag = 8;
-  // optional string domain = 9;
+  reserved 3, 4, 6 to 9;
+  reserved "ir_version", "producer_version", "producer_tag", "domain";
 }
 
 // Tensors
@@ -661,7 +656,7 @@ message TensorShapeProto {
     // Standard denotation can optionally be used to denote tensor
     // dimensions with standard semantic descriptions to ensure
     // that operations are applied to the correct axis of a tensor.
-    // Refer to https://github.com/onnx/onnx/blob/master/docs/DimensionDenotation.md#denotation-definition
+    // Refer to https://github.com/onnx/onnx/blob/main/docs/DimensionDenotation.md#denotation-definition
     // for pre-defined dimension denotations.
     string denotation = 3;
   };
@@ -742,7 +737,7 @@ message TypeProto {
 
   // An optional denotation can be used to denote the whole
   // type with a standard semantic description as to what is
-  // stored inside. Refer to https://github.com/onnx/onnx/blob/master/docs/TypeDenotation.md#type-denotation-definition
+  // stored inside. Refer to https://github.com/onnx/onnx/blob/main/docs/TypeDenotation.md#type-denotation-definition
   // for pre-defined type denotations.
   string denotation = 6;
 }
@@ -819,4 +814,3 @@ message FunctionProto {
 
 // For using protobuf-lite
 option optimize_for = LITE_RUNTIME;
-
