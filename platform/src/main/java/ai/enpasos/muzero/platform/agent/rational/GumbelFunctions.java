@@ -18,11 +18,11 @@ public class GumbelFunctions {
     private GumbelFunctions() {}
 
 
-    public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int n) {
+    public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int n, double temperature) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
-        List<Integer> selectedActions = drawActions(actions, add(logits, g), n,   0);
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()/temperature).toArray();
+        List<Integer> selectedActions = drawActions(actions, add(logits, g), n);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
@@ -37,7 +37,7 @@ public class GumbelFunctions {
         }).collect(Collectors.toList());
     }
 
-    public static List<Integer> drawActions(int[] actions, double[] x, int n, double temperature) {
+    public static List<Integer> drawActions(int[] actions, double[] x, int n) {
         List<Integer> result = new ArrayList<>();
 
         List<Pair<Integer, Double>> gPlusLogits = IntStream.range(0, x.length).mapToObj(
@@ -46,25 +46,25 @@ public class GumbelFunctions {
 
         IntStream.range(0, n).forEach(i -> {
             Pair<Integer, Double> selected = null;
-            if (temperature == 0.0d) {
+            //if (temperature == 0.0d) {
                 selected = gPlusLogits.stream().max(Comparator.comparingDouble(Pair::getValue)).get();
-            } else {
-               double[] vs =  gPlusLogits.stream().mapToDouble(p -> Math.exp(p.getValue()/temperature)).toArray();
-               double sum =  Arrays.stream(vs).sum();
-               double[] ps =  Arrays.stream(vs).map(v -> v/sum).toArray();
-                double rand = ThreadLocalRandom.current().nextDouble();
-                double s = 0d;
-                for (int k = 0; k < ps.length; k++) {
-                    double p = ps[k];
-                    s += p;
-                    if (s > rand) {
-                        selected = gPlusLogits.get(k);
-                        break;
-                    }
-                }
-                if (selected == null)
-                    throw new MuZeroException("problem in drawing from discrete probability distribution");
-            }
+//            } else {
+//               double[] vs =  gPlusLogits.stream().mapToDouble(p -> Math.exp(p.getValue()/temperature)).toArray();
+//               double sum =  Arrays.stream(vs).sum();
+//               double[] ps =  Arrays.stream(vs).map(v -> v/sum).toArray();
+//                double rand = ThreadLocalRandom.current().nextDouble();
+//                double s = 0d;
+//                for (int k = 0; k < ps.length; k++) {
+//                    double p = ps[k];
+//                    s += p;
+//                    if (s > rand) {
+//                        selected = gPlusLogits.get(k);
+//                        break;
+//                    }
+//                }
+//                if (selected == null)
+//                    throw new MuZeroException("problem in drawing from discrete probability distribution");
+//            }
             result.add(actions[selected.getKey()]);
             gPlusLogits.remove(selected);
         });

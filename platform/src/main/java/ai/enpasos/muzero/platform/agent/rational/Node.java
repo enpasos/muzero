@@ -130,7 +130,7 @@ public class Node {
 
     public void calculateImprovedPolicy(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-        double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
+        double[] logits = getChildren().stream().mapToDouble(node -> node.getLogit()/config.getTemperature()).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
         double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw);
@@ -248,7 +248,7 @@ public class Node {
     }
 
     public double comparisonValue(int nSum) {
-        return improvedPolicyValue - visitCount / (1.0 + nSum);
+        return improvedPolicyValue  - visitCount / (1.0 + nSum);
     }
 
 
