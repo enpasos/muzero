@@ -3,6 +3,7 @@ package ai.enpasos.mnist;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.MnistBlock;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExtWorkaround;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +23,7 @@ class BlockTest {
     void layerNorm2ZERO() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/LayerNorm.onnx",
+                "./target/LayerNorm2.onnx",
                 LayerNormExt.builder().build(),
                 List.of(new Shape(1, 128, 3, 3)),
                 ZERO
@@ -35,7 +36,7 @@ class BlockTest {
     void layerNorm2RANDOM() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/LayerNorm.onnx",
+                "./target/LayerNorm2.onnx",
                 LayerNormExt.builder().build(),
                 List.of(new Shape(1, 128, 3, 3)),
                 RANDOM

@@ -19,9 +19,13 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class LayerNormExt2 extends LayerNormOpened implements OnnxIO {
+public class LayerNormExtWorkaround extends LayerNormOpened implements OnnxIO {
 
-    LayerNormExt2(LayerNormExt2.Builder builder) {
+    /*
+     * Workaround at least to make inference work for onnx
+     * see https://github.com/onnx/onnx/issues/2379
+     */
+    LayerNormExtWorkaround(LayerNormExtWorkaround.Builder builder) {
         super(builder);
     }
 
@@ -311,8 +315,8 @@ public class LayerNormExt2 extends LayerNormOpened implements OnnxIO {
             super();
         }
 
-        public LayerNormExt2 build() {
-            return new LayerNormExt2(this);
+        public LayerNormExtWorkaround build() {
+            return new LayerNormExtWorkaround(this);
         }
     }
 }
