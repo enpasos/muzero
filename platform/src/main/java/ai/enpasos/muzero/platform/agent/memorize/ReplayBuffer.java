@@ -102,7 +102,6 @@ public class ReplayBuffer {
         }
 
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
-
         sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps));
 
         return sample;
@@ -113,15 +112,14 @@ public class ReplayBuffer {
         int numActions = dto.getActions().size();
         long delta = dto.getTStateB()-dto.getTStateA();
         if (delta < 0)  delta = 0L;
-
-        // TODO make enhanceFactor configurable
         int enhanceFactor = 1;
         long numNormalActions = numActions - (dto.getTStateA() + delta);
         int n = (int) (enhanceFactor * (delta) + numNormalActions);
         int rawpos = ThreadLocalRandom.current().nextInt(0, n );
         if (rawpos < numNormalActions) return (int)(rawpos + dto.getTStateA() + delta);
         rawpos -= numNormalActions;
-        return rawpos /= enhanceFactor;
+        rawpos /= enhanceFactor;
+        return rawpos;
 
     }
 
@@ -211,9 +209,6 @@ public class ReplayBuffer {
 
     public void saveState() {
 
-
-        //System.out.println("networkName: " + this.currentNetworkName);
-
         ReplayBufferDTO dto = this.buffer.copyEnvelope();
         dto.setData(this.getBuffer().getData().stream().filter(g-> g.networkName.equals(this.currentNetworkName) ).collect(Collectors.toList()));
 
@@ -268,7 +263,12 @@ public class ReplayBuffer {
         List<GameDTO> dtos = new ArrayList<>();
         for(Path path : paths) {
             loadState(path);
-           // rebuildGames();
+            String networkName = path.getFileName().toString();
+            int index = networkName.indexOf("_");
+            final String networkNameFinal = networkName.substring(0, index);
+            this.buffer.getData().forEach(gameDTO ->
+                gameDTO.setNetworkName(networkNameFinal)
+         );
             dtos.addAll(this.buffer.getData());
         }
         init();
@@ -325,7 +325,6 @@ public class ReplayBuffer {
     public void loadState(Path path) {
         init();
 
-            // String pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + ".zip";
             String pathname = path.toString();
 
             try (FileInputStream fis = new FileInputStream(pathname)) {
@@ -338,7 +337,6 @@ public class ReplayBuffer {
                     this.buffer.setWindowSize(config.getWindowSize());
                 }
             } catch (Exception e) {
-                // pathname = config.getGamesBasedir() + Constants.BUFFER_DIR + c + "proto.zip";
                 try (FileInputStream fis = new FileInputStream(pathname)) {
                     try (ZipInputStream zis = new ZipInputStream(fis)) {
                         log.info("loading ... " + pathname);
