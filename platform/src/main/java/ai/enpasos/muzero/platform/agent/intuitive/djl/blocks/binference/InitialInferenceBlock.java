@@ -47,7 +47,6 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
-
     private final RepresentationBlock h;
     private final PredictionBlock f;
 
