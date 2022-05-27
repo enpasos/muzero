@@ -265,14 +265,15 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        List<Game> games = new ArrayList<>();
+        List<GameDTO> dtos = new ArrayList<>();
         for(Path path : paths) {
             loadState(path);
-            rebuildGames();
-            games.addAll(this.buffer.getGames());
+           // rebuildGames();
+            dtos.addAll(this.buffer.getData());
         }
         init();
-        games.forEach(this::saveGame);
+        this.buffer.setData(dtos);
+        rebuildGames();
     }
 
 
