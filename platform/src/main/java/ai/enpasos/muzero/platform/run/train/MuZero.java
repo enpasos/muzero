@@ -169,13 +169,13 @@ public class MuZero {
                     }
 
                     if (config.isExtraValueTrainingOn()) {
-                        double temp = config.getGumbelSoftmaxTemperature();
+                        double temp = config.getTemperature();
                         int sims = config.getNumSimulations();
                         config.setNumSimulations(0);
-                        config.setGumbelSoftmaxTemperature(0);
+                        config.setTemperature(1);
                         playGames(params.render, network, trainingStep);
                         config.setNumSimulations(sims);
-                        config.setGumbelSoftmaxTemperature(temp);
+                        config.setTemperature(temp);
                     }
 
                 }
