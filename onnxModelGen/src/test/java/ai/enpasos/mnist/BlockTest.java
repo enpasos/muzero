@@ -17,6 +17,31 @@ import static ai.enpasos.mnist.blocks.BlockTestHelper.compareOnnxWithDJL;
 
 @Slf4j
 class BlockTest {
+
+    @Test
+    void layerNorm2ZERO() throws Exception {
+        boolean check =
+            compareOnnxWithDJL(
+                "./target/LayerNorm.onnx",
+                LayerNormExt.builder().build(),
+                List.of(new Shape(1, 128, 3, 3)),
+                ZERO
+            );
+        Assertions.assertTrue(check);
+    }
+
+
+    @Test
+    void layerNorm2RANDOM() throws Exception {
+        boolean check =
+            compareOnnxWithDJL(
+                "./target/LayerNorm.onnx",
+                LayerNormExt.builder().build(),
+                List.of(new Shape(1, 128, 3, 3)),
+                RANDOM
+            );
+        Assertions.assertTrue(check);
+    }
     @Test
     void layerNormZERO() throws Exception {
         boolean check =
