@@ -80,10 +80,10 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()/config.getTemperature()).toArray();
         double[] raw = add(logits, g);
 
-        List<Integer> selectedActions = drawActions(actions, raw, n, config.getGumbelSoftmaxTemperature());
+        List<Integer> selectedActions = drawActions(actions, raw, n);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
@@ -106,7 +106,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale, int maxActionVisitCount) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()/config.getTemperature()).toArray();
         double[] qs = gumbelActions.stream()
             .mapToDouble(GumbelAction::getQValue)
             .map(v -> minMaxStats.normalize(v))
@@ -118,7 +118,7 @@ public class GumbelSearch {
 
         IntStream.range(0, rootChildrenCandidates.size()).forEach(i -> rootChildrenCandidates.get(i).setPseudoLogit(raw[i]));
 
-        List<Integer> selectedActions = drawActions(actions, raw, m, config.getGumbelSoftmaxTemperature());
+        List<Integer> selectedActions = drawActions(actions, raw, m);
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 

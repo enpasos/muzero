@@ -276,8 +276,10 @@ public class MuZeroConfig {
     }
 
     // https://arxiv.org/pdf/1611.01144.pdf
-    public double getGumbelSoftmaxTemperature() {return getConf().gumbelSoftmaxTemperature;}
-    public void setGumbelSoftmaxTemperature(double gumbelSoftmaxTemerature) { getConf().gumbelSoftmaxTemperature = gumbelSoftmaxTemerature;}
+
+
+    public double getTemperature() {return getConf().temperature;}
+    public void setTemperature(double temperature) { getConf().temperature = temperature;}
     public void setInferenceDeviceType(DeviceType deviceType) {
         getConf().setInferenceDeviceType(deviceType);
     }
@@ -403,7 +405,8 @@ public class MuZeroConfig {
         int cVisit;
         double cScale;
         int numPurePolicyPlays;
-        double gumbelSoftmaxTemperature;
+
+        double temperature = 1;
 
         double[] values;
     }
