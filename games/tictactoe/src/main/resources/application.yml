@@ -68,8 +68,8 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numSimulations: 20
-      windowSize: 10000
-      maxGameLiveTime: 20000
+      windowSize: 10000 # or 20000
+      maxGameLiveTime: 20000  # or 40000
 
       numberOfTrainingSteps: 4000
 
