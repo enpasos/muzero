@@ -36,7 +36,7 @@ public class SubModel extends BaseModel {
     public static final String LOAD_NOT_IMPLEMENTED_ON_SUB_MODEL_USE_MODEL = "load not implemented on SubModel (use Model)";
     private NDManager hiddenStateNDManager;
     private Model model;
-    private MuZeroConfig config;
+    private final MuZeroConfig config;
 
     public SubModel(String modelName, @NotNull Model model, Block block, MuZeroConfig config) {
         super(modelName);

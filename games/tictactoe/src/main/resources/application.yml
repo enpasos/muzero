@@ -20,7 +20,7 @@ muzero:
       valueHeadType: EXPECTED # DISTRIBUTION
       networkWithRewardHead: false
       withRewardHead: false
-      values: [-1,0,1]
+      values: [ -1,0,1 ]
       numObservationLayers: 3
       numActionLayers: 1
       squeezeChannelRatio: 16  # on squeeze and excitation (SE) block

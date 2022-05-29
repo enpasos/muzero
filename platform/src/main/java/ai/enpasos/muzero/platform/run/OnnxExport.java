@@ -3,10 +3,8 @@ package ai.enpasos.muzero.platform.run;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.binference.InitialInferenceBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.binference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -41,7 +39,7 @@ public class OnnxExport {
 
     @SuppressWarnings("squid:S106")
     public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration) {
-         StringWriter stringWriter = new StringWriter();
+        StringWriter stringWriter = new StringWriter();
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss").build())) {
             FileUtils.forceMkdir(new File(config.getOutputDir() + "onnx"));

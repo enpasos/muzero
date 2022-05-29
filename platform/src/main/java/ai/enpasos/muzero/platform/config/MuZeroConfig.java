@@ -47,13 +47,12 @@ public class MuZeroConfig {
     }
 
 
-
     public KnownBounds getKnownBounds() {
         if (this.getKnownBoundsType() == MINUSONE_ONE) {
             return new KnownBounds(-1d, 1d);
         }
         if (this.getKnownBoundsType() == FROM_VALUES) {
-            return new KnownBounds(this.getValues()[0], this.getValues()[this.getValues().length-1]);
+            return new KnownBounds(this.getValues()[0], this.getValues()[this.getValues().length - 1]);
         }
         return new KnownBounds();
     }
@@ -129,10 +128,10 @@ public class MuZeroConfig {
     public PlayerMode getPlayerMode() {
         return getConf().playerMode;
     }
+
     public ValueHeadType getValueHeadType() {
         return getConf().valueHeadType;
     }
-
 
 
     public boolean isNetworkWithRewardHead() {
@@ -167,6 +166,7 @@ public class MuZeroConfig {
     public int getNumChannels() {
         return getConf().numChannels;
     }
+
     public int getNumBottleneckChannels() {
         return getConf().numBottleneckChannels;
     }
@@ -178,13 +178,14 @@ public class MuZeroConfig {
     public int getNumResiduals() {
         return getConf().numResiduals;
     }
+
     public double[] getValues() {
         return getConf().values;
     }
 
     public double getValueSpan() {
         double[] vs = getConf().getValues();
-        return vs[vs.length-1] - vs[0];
+        return vs[vs.length - 1] - vs[0];
     }
 
     public int getNumberOfTrainingSteps() {
@@ -218,7 +219,6 @@ public class MuZeroConfig {
     public float getDiscount() {
         return getConf().discount;
     }
-
 
 
     public float getWeightDecay() {
@@ -262,7 +262,6 @@ public class MuZeroConfig {
     }
 
 
-
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
     }
@@ -277,11 +276,16 @@ public class MuZeroConfig {
 
     // https://arxiv.org/pdf/1611.01144.pdf
 
-
-    public double getTemperature() {return getConf().temperature;}
-    public void setTemperature(double temperature) { getConf().temperature = temperature;}
     public void setInferenceDeviceType(DeviceType deviceType) {
         getConf().setInferenceDeviceType(deviceType);
+    }
+
+    public double getTemperature() {
+        return getConf().temperature;
+    }
+
+    public void setTemperature(double temperature) {
+        getConf().temperature = temperature;
     }
 
     public String getOutputDir() {
@@ -311,31 +315,35 @@ public class MuZeroConfig {
     public int getNumParallelGamesPlayed() {
         return getConf().numParallelGamesPlayed;
     }
+
     public int getBroadcastEveryN() {
         return getConf().broadcastEveryN;
     }
 
 
-    public boolean isExtraValueTrainingOn() { return getConf().isExtraValueTrainingOn(); }
-    public boolean isSurpriseHandlingOn() { return getConf().isSurpriseHandlingOn(); }
+    public boolean isExtraValueTrainingOn() {
+        return getConf().isExtraValueTrainingOn();
+    }
+
+    public boolean isSurpriseHandlingOn() {
+        return getConf().isSurpriseHandlingOn();
+    }
 
     public int getCVisit() {
         return getConf().cVisit;
     }
-    public long getMaxGameLiveTime() {
-        return getConf().maxGameLiveTime;
-    }
-
 
     public void setCVisit(int cVisit) {
         getConf().setCVisit(cVisit);
     }
 
+    public long getMaxGameLiveTime() {
+        return getConf().maxGameLiveTime;
+    }
+
     public double getCScale() {
         return getConf().cScale;
     }
-
-
 
 
     public int getNumPurePolicyPlays() {

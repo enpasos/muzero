@@ -15,7 +15,6 @@ import ai.enpasos.onnx.TensorProto;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
-import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
@@ -79,8 +78,7 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
-     //   List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
-
+        //   List<OnnxTensor> output = createOutput(List.of("T" + counter.count()), input, this::getOutputShapes);
 
 
         Shape inputShape = input.get(0).getShape();
@@ -89,8 +87,6 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
 
 
         Shape condensedShape = new Shape(inputShape.get(0) * inputShape.get(1), inputShape.get(2) * inputShape.get(3));
-
-
 
 
         long inputDim = condensedShape.get(1);
@@ -260,7 +256,7 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
          *                                  set
          */
         public BroadcastBlock build() {
-             Preconditions.checkArgument(units > 0, "You must specify unit");
+            Preconditions.checkArgument(units > 0, "You must specify unit");
             return new BroadcastBlock(this);
         }
     }

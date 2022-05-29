@@ -64,7 +64,8 @@ public class DJLMNISTTest {
             }
         }
     }
-@SuppressWarnings("java:S112")
+
+    @SuppressWarnings("java:S112")
     private static Map<String, List<Image>> getData(String dataPath) {
         Map<String, List<Image>> data = new TreeMap<>();
         try (Stream<Path> stream = Files.list(Paths.get(dataPath))) {

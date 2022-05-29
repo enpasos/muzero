@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
+@SuppressWarnings("java:S110")
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
@@ -65,7 +66,7 @@ public class PredictionBlock extends MySequentialBlock {
 
 
         add(new ParallelBlockWithCollectChannelJoinExt(
-                Arrays.asList(policyHead, valueHead))
+            Arrays.asList(policyHead, valueHead))
         );
     }
 

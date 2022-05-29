@@ -21,7 +21,7 @@ import static java.text.MessageFormat.format;
  * all stones that can be captured are captured. There is no cost to filling in your own territory as
  * long as you do not fill in either of your last 2 eyes.
  * <p>
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @Data
 @Builder
