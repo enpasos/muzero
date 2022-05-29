@@ -25,6 +25,8 @@ public class GoTrainingAndTest {
     @Autowired
     private GoSurprise goSurprise;
 
+
+    @SuppressWarnings("squid:S125")
     public void run() {
         //   rmDir(config.getOutputDir());
 
