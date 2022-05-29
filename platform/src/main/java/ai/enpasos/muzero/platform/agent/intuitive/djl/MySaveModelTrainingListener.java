@@ -22,11 +22,9 @@ import ai.djl.Model;
 import ai.djl.training.Trainer;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
-import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
@@ -45,11 +42,9 @@ import java.util.function.Consumer;
 @Data
 public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
+    private static final Logger logger = LoggerFactory.getLogger(MySaveModelTrainingListener.class);
     @Autowired
     ReplayBuffer replayBuffer;
-
-    private static final Logger logger = LoggerFactory.getLogger(MySaveModelTrainingListener.class);
-
     private String outputDir;
     private int step;
     private String overrideModelName;
@@ -64,6 +59,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     public MySaveModelTrainingListener(String outputDir) {
         this(outputDir, null, -1);
     }
+
     public MySaveModelTrainingListener() {
         this("outputDir", null, -1);
     }
@@ -143,7 +139,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
             if (onSaveModel != null) {
                 onSaveModel.accept(trainer);
             }
-             Path modelPath = Paths.get(outputDir);
+            Path modelPath = Paths.get(outputDir);
             replayBuffer.createNetworkNameFromModel(model, modelName, outputDir);
 
             model.save(modelPath, modelName);

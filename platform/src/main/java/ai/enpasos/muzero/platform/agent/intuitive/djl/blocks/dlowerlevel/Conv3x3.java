@@ -23,6 +23,7 @@ import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 
+@SuppressWarnings("java:S110")
 public class Conv3x3 extends MySequentialBlock {
 
 
@@ -33,12 +34,12 @@ public class Conv3x3 extends MySequentialBlock {
     public static @NotNull Conv3x3 newConv3x3(int channels) {
         Conv3x3 instance = new Conv3x3();
         instance.add(
-                Conv2dExt.builder()
-                    .setFilters(channels)
-                    .setKernelShape(new Shape(3, 3))
-                    .optBias(false)
-                    .optPadding(new Shape(1, 1))   // needed to keep in shape
-                    .build());
+            Conv2dExt.builder()
+                .setFilters(channels)
+                .setKernelShape(new Shape(3, 3))
+                .optBias(false)
+                .optPadding(new Shape(1, 1))   // needed to keep in shape
+                .build());
         return instance;
     }
 

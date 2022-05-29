@@ -19,38 +19,20 @@ package ai.enpasos.muzero.platform.run.train;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.djl.metric.Metric;
-import ai.djl.metric.Metrics;
-import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
-import ai.djl.training.EasyTrain;
-import ai.djl.training.Trainer;
-import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.Surprise;
-import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
-
-import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
-import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 
 @Slf4j
 @Component
@@ -76,7 +58,6 @@ public class MuZeroFast {
     NetworkHelper networkHelper;
 
 
-
     public void train(TrainParams params) {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
@@ -89,9 +70,6 @@ public class MuZeroFast {
 
             List<Game> games = this.replayBuffer.getBuffer().getGames();
 
-
-
-          //  long surpriseNum = games.stream().mapToLong(g -> g.getGameDTO().getSurprises().size()).sum();
 
             List<Game> gamesWithSurprisesAboveQuantilHere = null;
             List<Game> gamesWithSurprisesAboveQuantil = null;
@@ -108,33 +86,28 @@ public class MuZeroFast {
                 replayBuffer.saveState();
                 log.info("end surprise.measureValueAndSurprise");
 
-
-
-            //    double surpriseThreshold = Math.max(100, surprise.getSurpriseThreshold(games));
-                double surpriseThreshold =  surprise.getSurpriseThreshold(games) ;
+                double surpriseThreshold = surprise.getSurpriseThreshold(games);
 
                 Pair<List<Game>, List<Game>> gameListPair = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
                 gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
                 gamesWithSurprisesAboveQuantil = gameListPair.getRight();
 
                 for (; gamesWithSurprisesAboveQuantil.size() > games.size() * 0.001; backInTime++) {
-                    //  for (; backInTime < 50 && !gamesWithSurprisesAboveQuantil.isEmpty(); backInTime++) {
                     log.info("<<< backInTime: " + backInTime);
                     markTStateA(backInTime);
 
                     int n = 1;
-                   // surpriseNum / 1000d * 3d
-                    for (int i = 0; i < n && gamesWithSurprisesAboveQuantilHere.size() > 0; i++) {
+                    for (int i = 0; i < n && !gamesWithSurprisesAboveQuantilHere.isEmpty(); i++) {
                         log.info("iteration: " + i + " of " + n);
                         if (!(i == 0 && backInTime == 1)) {
                             gameListPair =
-                            surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
+                                surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
                             gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
                             gamesWithSurprisesAboveQuantil = gameListPair.getRight();
                         }
 
                         muzero.playGames(params.render, network, trainingStep);
-                        trainingStep =  muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
+                        trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
                         surprise.measureValueAndSurprise(network, gamesWithSurprisesAboveQuantilHere, backInTime);
 
@@ -144,25 +117,22 @@ public class MuZeroFast {
 
 
                         replayBuffer.saveState();
-                        // log.info("replayBuffer size (before handleOldSurprises): " + replayBuffer.getBuffer().getData().size());
-                        checkAssumptionsForGames();
+                        //checkAssumptionsForGames();
                         surprise.handleOldSurprises(network);
-                        checkAssumptionsForGames();
-                        //  log.info("replayBuffer size (after handleOldSurprises): " + replayBuffer.getBuffer().getData().size());
+                        //checkAssumptionsForGames();
                         replayBuffer.saveState();
                     }
                 }
 
 
-
-            } while (gamesWithSurprisesAboveQuantil.size() > 0);
+            } while (!gamesWithSurprisesAboveQuantil.isEmpty());
 
 
         }
     }
 
     private void checkAssumptionsForGames() {
-        this.replayBuffer.getBuffer().getGames().stream().forEach(game -> game.checkAssumptions());
+        this.replayBuffer.getBuffer().getGames().forEach(Game::checkAssumptions);
     }
 
     private void markTStateA(int backInTime) {
@@ -171,7 +141,6 @@ public class MuZeroFast {
             gameDTO.setTStateA(t);
         });
     }
-
 
 
 }

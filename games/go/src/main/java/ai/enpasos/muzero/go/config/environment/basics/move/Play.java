@@ -21,7 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @Data
 @AllArgsConstructor

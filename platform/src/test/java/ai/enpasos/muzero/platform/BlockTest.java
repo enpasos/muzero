@@ -11,7 +11,6 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Residua
 import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,11 +27,12 @@ class BlockTest {
     void broadcastBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/BroadcastBlock.onnx",
-            BroadcastBlock.builder().setUnits(3*3).build(),
+            BroadcastBlock.builder().setUnits(3 * 3).build(),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
     }
+
     @Test
     void squeezeExciteRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
@@ -84,7 +84,7 @@ class BlockTest {
     void broadcastBlockZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/BroadcastBlock.onnx",
-            BroadcastBlock.builder().setUnits(3*3).build(),
+            BroadcastBlock.builder().setUnits(3 * 3).build(),
             List.of(new Shape(1, 128, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -131,7 +131,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3,3, 3, 128,64,   5, 8),
+            new RepresentationOrDynamicsBlock(3, 3, 3, 128, 64, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -142,7 +142,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./target/PredictionBlock.onnx",
-            new PredictionBlock(3,128, true, 9, ValueHeadType.EXPECTED),
+            new PredictionBlock(3, 128, true, 9, ValueHeadType.EXPECTED),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -152,7 +152,7 @@ class BlockTest {
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./target/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(3,3,3, 128,64,  5, 8),
+            new RepresentationOrDynamicsBlock(3, 3, 3, 128, 64, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
@@ -163,7 +163,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./target/PredictionBlock.onnx",
-            new PredictionBlock(3,128, true, 9, ValueHeadType.EXPECTED),
+            new PredictionBlock(3, 128, true, 9, ValueHeadType.EXPECTED),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

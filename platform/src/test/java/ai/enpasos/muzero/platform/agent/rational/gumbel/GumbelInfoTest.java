@@ -3,7 +3,7 @@ package ai.enpasos.muzero.platform.agent.rational.gumbel;
 import ai.enpasos.muzero.platform.agent.rational.GumbelInfo;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GumbelInfoTest {
 
@@ -30,11 +30,11 @@ class GumbelInfoTest {
     }
 
     private int usedSimulationsNum(int n, int m, int k) {
-        GumbelInfo gumbelInfo =  GumbelInfo.initGumbelInfo(n, m, k);
+        GumbelInfo gumbelInfo = GumbelInfo.initGumbelInfo(n, m, k);
         int sum = 0;
         for (int i = 0; i < gumbelInfo.getExtraVisitsPerPhase().length; i++) {
             int v = gumbelInfo.getExtraVisitsPerPhase()[i];
-            sum += m *v;
+            sum += m * v;
             m /= 2;
         }
         return sum;

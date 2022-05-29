@@ -36,7 +36,7 @@ public class GoAdapter {
             } else {
                 throw new MuZeroException(Constants.THIS_SHOULD_NOT_HAPPEN);
             }
-        } catch( Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new MuZeroException("needs to be fixed", e);
         }

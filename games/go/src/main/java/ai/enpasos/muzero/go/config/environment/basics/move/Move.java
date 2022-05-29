@@ -21,7 +21,7 @@ package ai.enpasos.muzero.go.config.environment.basics.move;
 /**
  * Go move interface. A move can either be playing a point on the board, passing or resigning
  * <p>
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 public interface Move {
 

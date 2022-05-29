@@ -14,7 +14,8 @@ import java.util.stream.IntStream;
 
 public class OnnxHelper {
 
-    private OnnxHelper() {}
+    private OnnxHelper() {
+    }
 
     public static TensorShapeProto convert(Shape shapes) {
         TensorShapeProto.Builder builder = TensorShapeProto.newBuilder();

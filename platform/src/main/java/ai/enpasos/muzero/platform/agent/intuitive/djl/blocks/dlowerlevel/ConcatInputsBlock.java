@@ -58,8 +58,8 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         long size = 0;
-        for (int i = 0; i < inputShapes.length; i++) {
-            size += inputShapes[i].get(1);
+        for (Shape inputShape : inputShapes) {
+            size += inputShape.get(1);
         }
         Shape[] shapes = new Shape[1];
         shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));

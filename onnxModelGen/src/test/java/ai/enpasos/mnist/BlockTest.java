@@ -3,7 +3,6 @@ package ai.enpasos.mnist;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.MnistBlock;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
-import ai.enpasos.mnist.blocks.ext.LayerNormExtWorkaround;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -43,6 +42,7 @@ class BlockTest {
             );
         Assertions.assertTrue(check);
     }
+
     @Test
     void layerNormZERO() throws Exception {
         boolean check =

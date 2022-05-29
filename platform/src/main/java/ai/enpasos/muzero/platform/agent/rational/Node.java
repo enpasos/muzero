@@ -49,8 +49,6 @@ public class Node {
     private double pseudoLogit;
     private double prior;
     private double valueFromNetwork;
-   // private double completedQValues;
-    //private double qValue;
     private double improvedValue;
     private double valueFromInitialInference;
     private NDArray hiddenState;
@@ -79,7 +77,6 @@ public class Node {
         this.config = config;
         this.visitCount = 0;
         this.prior = prior;
-   //     this.valueSum = 0;
         this.children = new ArrayList<>();
         hiddenState = null;
         reward = 0.0;
@@ -106,22 +103,20 @@ public class Node {
         int d = this.getChildren().stream()
             .mapToInt(Node::getVisitCount).sum();
 
-        if (d == 0d)  {
+        if (d == 0d) {
             vmix = vHat;
-        } else{
+        } else {
             vmix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
         }
     }
 
     public double[] getCompletedQValuesNormalized(MinMaxStats minMaxStats) {
-        double vMix = getVmix();
-        double vMixFinal = vMix;
-        return IntStream.range(0, children.size()).mapToDouble(i -> {
-                Node child = children.get(i);
+        return children.stream().mapToDouble(node -> {
+                Node child = node;
                 if (child.getVisitCount() > 0) {
                     return child.getQValue();
                 } else {
-                    return vMixFinal;
+                    return getVmix();
                 }
             })
             .map(minMaxStats::normalize)
@@ -130,13 +125,12 @@ public class Node {
 
     public void calculateImprovedPolicy(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-        double[] logits = getChildren().stream().mapToDouble(node -> node.getLogit()/config.getTemperature()).toArray();
+        double[] logits = getChildren().stream().mapToDouble(node -> node.getLogit() / config.getTemperature()).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
         double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw);
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
     }
-
 
 
     public Action getRandomAction() {
@@ -161,7 +155,7 @@ public class Node {
 
     public double getQValue() {
         if (visitCount == 0) {
-            if(this.isRoot()) return 0.0;
+            if (this.isRoot()) return 0.0;
             // then complete
             return this.parent.getVmix();
         }
@@ -227,7 +221,7 @@ public class Node {
         } else {
             Map<Action, Pair<Float, Float>> policy = actions.stream()
                 .collect(Collectors.toMap(a -> a, a ->
-                        new Pair<Float, Float>(
+                        new Pair<>(
                             networkOutput.getPolicyValues()[a.getIndex()],
                             networkOutput.getLogits()[a.getIndex()])
                     )
@@ -248,7 +242,7 @@ public class Node {
     }
 
     public double comparisonValue(int nSum) {
-        return improvedPolicyValue  - visitCount / (1.0 + nSum);
+        return improvedPolicyValue - visitCount / (1.0 + nSum);
     }
 
 
@@ -256,7 +250,7 @@ public class Node {
 
         calculateImprovedPolicy(minMaxStats);
         int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
-        this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
+        this.getChildren().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
         return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
 
     }

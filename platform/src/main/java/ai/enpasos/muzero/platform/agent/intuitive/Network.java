@@ -223,17 +223,17 @@ public class Network {
     }
 
     @Nullable
-    public  List<NetworkIO> recurrentInference(List<List<Node>> searchPathList) {
+    public List<NetworkIO> recurrentInference(List<List<Node>> searchPathList) {
         List<Action> lastActions = searchPathList.stream().map(nodes -> nodes.get(nodes.size() - 1).getAction()).collect(Collectors.toList());
         List<NDArray> actionList = lastActions.stream().map(action ->
-             getActionSpaceOnDevice().get(action.getIndex())
+            getActionSpaceOnDevice().get(action.getIndex())
         ).collect(Collectors.toList());
 
         List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
             Node parent = searchPath.get(searchPath.size() - 2);
             return parent.getHiddenState();
         }).collect(Collectors.toList());
-        return  recurrentInferenceListDirect(hiddenStateList, actionList);
+        return recurrentInferenceListDirect(hiddenStateList, actionList);
     }
 
 }

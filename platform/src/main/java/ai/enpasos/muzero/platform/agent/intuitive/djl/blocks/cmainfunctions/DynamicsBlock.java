@@ -24,6 +24,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("java:S110")
 public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
 
 

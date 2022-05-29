@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -113,9 +114,7 @@ public class TicTacToeGame extends ZeroSumGame {
 
         float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
         for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[i].length; j++) {
-                data[i][j] = currentPlayer.getActionValue();
-            }
+            Arrays.fill(data[i], currentPlayer.getActionValue());
         }
         NDArray boardColorToPlay = ndManager.create(data);
 
