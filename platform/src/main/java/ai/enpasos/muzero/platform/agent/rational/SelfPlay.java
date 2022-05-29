@@ -171,6 +171,7 @@ public class SelfPlay {
 
     }
 
+    @SuppressWarnings("squid:S3776")
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
@@ -252,6 +253,8 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
+
+    @SuppressWarnings("squid:S3740")
     private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
         List<Node> roots = new ArrayList<>();
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
@@ -262,9 +265,8 @@ public class SelfPlay {
             root.expandRootNode(game.toPlay(), legalActions, networkOutputFinal.get(i), fastRuleLearning);
 
             List<Pair<Action, Double>> distributionInput =
-                root.getChildren().stream().map(node -> {
-                    return (Pair<Action, Double>) new Pair(node.getAction(), (Double) node.getPrior());
-                    }
+                root.getChildren().stream().map(node ->
+                    (Pair<Action, Double>) new Pair(node.getAction(), node.getPrior())
                 ).collect(Collectors.toList());
 
             Action action = selectActionByDrawingFromDistribution(distributionInput);
