@@ -49,6 +49,8 @@ public class SurpriseExtractor {
     @Autowired
     Inference inference;
 
+
+    @SuppressWarnings("squid:S1141")
     public String listValuesForTrainedNetworks(Game game) {
 
         List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();

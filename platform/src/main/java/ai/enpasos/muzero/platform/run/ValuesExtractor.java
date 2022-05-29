@@ -49,6 +49,7 @@ public class ValuesExtractor {
     @Autowired
     Inference inference;
 
+    @SuppressWarnings({"squid:S1141", "squid:S3776"})
     public String listValuesForTrainedNetworks(Game game) {
 
         List<List<Float>> values = game.getGameDTO().getValues();
