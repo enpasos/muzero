@@ -18,12 +18,12 @@
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel;
 
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.convolutional.Conv2d;
 import ai.enpasos.mnist.blocks.ext.Conv2dExt;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 
+@SuppressWarnings("java:S110")
 public class Conv1x1 extends MySequentialBlock {
 
 

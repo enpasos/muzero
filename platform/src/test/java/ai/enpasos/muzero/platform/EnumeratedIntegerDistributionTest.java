@@ -35,7 +35,7 @@ class EnumeratedIntegerDistributionTest {
     /**
      * Creates the default distribution object used for testing.
      */
-    public EnumeratedIntegerDistributionTest() throws Exception {
+    public EnumeratedIntegerDistributionTest() {
         // Non-sorted singleton array with duplicates should be allowed.
         // Values with zero-probability do not extend the support.
         testDistribution = new EnumeratedIntegerDistribution(

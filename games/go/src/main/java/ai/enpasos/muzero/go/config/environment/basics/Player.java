@@ -17,7 +17,7 @@
 package ai.enpasos.muzero.go.config.environment.basics;
 
 /**
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 public enum Player {
     WHITE_PLAYER, BLACK_PLAYER;

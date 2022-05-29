@@ -20,11 +20,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
-import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.agent.rational.ActionHistory;
-import ai.enpasos.muzero.platform.agent.rational.Node;
-import ai.enpasos.muzero.platform.agent.rational.Player;
-import ai.enpasos.muzero.platform.agent.rational.GumbelSearch;
+import ai.enpasos.muzero.platform.agent.rational.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -61,16 +57,12 @@ public abstract class Game {
     protected Environment environment;
     protected GameDTO originalGameDTO;
     double[] values;
-    //double[] entropies;
     double surpriseMean;
     double surpriseMax;
 
     boolean done;
-  //  int tSurprise;
-    //int tTrainingStart;
     GumbelSearch searchManager;
     private Random r;
-  //  private double[] surprises;
     private float error;
     private boolean debug;
 
@@ -139,7 +131,7 @@ public abstract class Game {
     }
 
     protected void assertTrue(boolean b, String s) {
-        if (true) return;
+        if (b) return;
         log.error(s);
         throw new MuZeroException("assertion violated: " + s);
     }
@@ -190,7 +182,7 @@ public abstract class Game {
         float lastReward = getLastReward(currentIndex);
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-            setValueOnTarget( target, value);
+            setValueOnTarget(target, value);
             target.setReward(lastReward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
@@ -203,13 +195,13 @@ public abstract class Game {
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-            setValueOnTarget( target, value); // this is not really the value, it is taking the role of the reward here
+            setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-            setValueOnTarget( target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
+            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
@@ -219,7 +211,7 @@ public abstract class Game {
     }
 
     private void setValueOnTarget(Target target, double value) {
-            target.setValue((float) value);
+        target.setValue((float) value);
     }
 
     private float getLastReward(int currentIndex) {
@@ -309,26 +301,24 @@ public abstract class Game {
 
     public abstract void renderMCTSSuggestion(MuZeroConfig config, float[] childVisits);
 
-    public void beforeReplayWithoutChangingActionHistory( ) {
+    public void beforeReplayWithoutChangingActionHistory() {
         this.originalGameDTO = this.gameDTO;
         this.gameDTO = this.gameDTO.copy();
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.initEnvironment();
-        this.replayToPosition( getGameDTO().getActions().size());
+        this.replayToPosition(getGameDTO().getActions().size());
     }
 
     public void beforeReplayWithoutChangingActionHistory(int backInTime) {
         this.originalGameDTO = this.gameDTO;
         this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
-     //   this.gameDTO.removeTimeSteps(backInTime);
         this.initEnvironment();
-        this.replayToPosition( getGameDTO().getActions().size());
+        this.replayToPosition(getGameDTO().getActions().size());
     }
 
 
     public void afterReplay() {
-      //  this.gameDTO = this.originalGameDTO;
     }
 
     public abstract void initEnvironment();

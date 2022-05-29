@@ -30,7 +30,6 @@ import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -46,10 +45,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
@@ -66,9 +62,6 @@ public class MuZero {
 
     @Autowired
     ReplayBuffer replayBuffer;
-
-//    @Autowired
-//    SurpriseHandler surpriseHandler;
 
     @Autowired
     Surprise surprise;
@@ -212,16 +205,10 @@ public class MuZero {
     }
 
     @NotNull
-    private void init2( Network network) {
+    private void init2(Network network) {
         createNetworkModelIfNotExisting();
 
         replayBuffer.init();
-//        replayBuffer.loadLatestState();
-//        while (!replayBuffer.getBuffer().isBufferFilled()) {
-//            network.debugDump();
-//            play(network, false, true);
-//            replayBuffer.saveState();
-//        }
 
     }
 
@@ -256,7 +243,7 @@ public class MuZero {
 
                 // mean loss
                 List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-                double meanLoss = ms.stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new);
+                double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);
                 model.setProperty("MeanLoss", Double.toString(meanLoss));
                 log.info("MeanLoss: " + meanLoss);
 
@@ -264,11 +251,11 @@ public class MuZero {
                 // loss
                 double meanValueLoss = metrics.getMetricNames().stream()
                     .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
-                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                     .sum();
                 meanValueLoss += metrics.getMetricNames().stream()
                     .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
-                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                     .sum();
                 model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
                 log.info("MeanValueLoss: " + meanValueLoss);
@@ -276,11 +263,11 @@ public class MuZero {
                 // mean policy loss
                 double meanPolicyLoss = metrics.getMetricNames().stream()
                     .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
-                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                     .sum();
                 meanPolicyLoss += metrics.getMetricNames().stream()
                     .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
-                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(m -> m.getValue().doubleValue()).average().orElseThrow(MuZeroException::new))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                     .sum();
                 model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
                 log.info("MeanPolicyLoss: " + meanPolicyLoss);

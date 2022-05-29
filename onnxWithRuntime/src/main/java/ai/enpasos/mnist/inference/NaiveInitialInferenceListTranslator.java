@@ -48,7 +48,8 @@ public class NaiveInitialInferenceListTranslator implements Translator<List<Game
 
         int n = (int) v.getShape().get(0);
 
-        List<NetworkIO> networkIOs = IntStream.range(0, n)
+
+        return IntStream.range(0, n)
             .mapToObj(i ->
             {
                 float[] ps = new float[actionSpaceSize];
@@ -60,9 +61,6 @@ public class NaiveInitialInferenceListTranslator implements Translator<List<Game
 
             })
             .collect(Collectors.toList());
-
-
-        return networkIOs;
     }
 
     @Override

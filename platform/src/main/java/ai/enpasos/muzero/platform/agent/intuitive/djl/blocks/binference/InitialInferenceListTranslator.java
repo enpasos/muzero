@@ -78,12 +78,12 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         float[] vArray = v.toFloatArray();
 
         NDArray vp = null;
-        float[]  vpArray = null;
+        float[] vpArray = null;
         if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-            vp =  v.softmax(1);
+            vp = v.softmax(1);
             vpArray = vp.toFloatArray();
         }
-        final float[]  vpArrayFinal = vpArray;
+        final float[] vpArrayFinal = vpArray;
 
         int n = (int) v.getShape().get(0);
 
@@ -106,7 +106,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                         .logits(logits2)
                         .build();
                 } else {
-                    double scale = config.getValueSpan()/2.0;
+                    double scale = config.getValueSpan() / 2.0;
                     return NetworkIO.builder()
                         .value(scale * vArray[i])
                         .policyValues(ps)

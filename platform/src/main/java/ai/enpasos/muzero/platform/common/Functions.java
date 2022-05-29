@@ -5,7 +5,6 @@ import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,7 +14,10 @@ import java.util.stream.IntStream;
 
 public class Functions {
 
-    private Functions() {}
+    private static final RandomGenerator rng = new Well19937c();
+
+    private Functions() {
+    }
 
     public static double[] softmax(double[] raw) {
         double max = Arrays.stream(raw).max().getAsDouble();
@@ -28,6 +30,7 @@ public class Functions {
     public static double[] toDouble(float[] ps) {
         return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
     }
+
     public static double entropy(double[] ps) {
         return Arrays.stream(ps).reduce(0d, (e, p) -> e - p * Math.log(p));
     }
@@ -38,10 +41,10 @@ public class Functions {
             .max(Comparator.comparing(Pair::getSecond))
             .orElseThrow(MuZeroException::new).getKey();
     }
+
     public static double log2(int n) {
         return Math.log(n) / Math.log(2);
     }
-
 
     public static Action selectActionByDrawingFromDistribution(List<Pair<Action, Double>> distributionInput) {
         EnumeratedDistribution<Action> distribution;
@@ -52,7 +55,5 @@ public class Functions {
         }
         return distribution.sample();
     }
-
-    private static  RandomGenerator rng = new Well19937c();
 
 }

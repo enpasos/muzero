@@ -20,17 +20,18 @@ package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("java:S110")
 public class ResidualTower extends MySequentialBlock {
 
     private ResidualTower() {
     }
 
     @Builder()
-    public static @NotNull ResidualTower newResidualTower(int height, int width,int numResiduals, int numChannels, int numBottleneckChannels,   int broadcastEveryN) {
+    public static @NotNull ResidualTower newResidualTower(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN) {
         ResidualTower instance = new ResidualTower();
         for (int i = 0; i < numResiduals; i++) {
-            if (i % broadcastEveryN == broadcastEveryN-1 ) {
-                instance.add(new BroadcastResidualBlock(  height,  width,numChannels, numBottleneckChannels));
+            if (i % broadcastEveryN == broadcastEveryN - 1) {
+                instance.add(new BroadcastResidualBlock(height, width, numChannels));
             } else {
                 instance.add(new BottleneckResidualBlock(numChannels, numBottleneckChannels));
             }

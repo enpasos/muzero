@@ -50,15 +50,14 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
     }
 
 
-
     private OnnxBlock nodeLayerNormalization(OnnxCounter counter, List<OnnxTensor> input) {
         List<OnnxTensor> output = combine(
             List.of("T" + counter.count()),
             List.of(input.get(0).getShape())
         );
 
-        String scale= "T" + counter.count();
-        String bias= "T" + counter.count();
+        String scale = "T" + counter.count();
+        String bias = "T" + counter.count();
 
         String betaName = "beta" + counter.count();
         NDArray beta = this.parameters.get("beta").getArray();

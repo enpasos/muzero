@@ -74,7 +74,7 @@ class SearchManagerTest {
                 List<NetworkIO> networkOutput = network.initialInferenceListDirect(List.of(game));
                 searchManager.expandRootNode(false, networkOutput.get(0));
                 searchManager.gumbelActionsStart();
-                for (int i = 0; i < 2*n; i++) {
+                for (int i = 0; i < 2 * n; i++) {
                     System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
                     assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
                         (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));

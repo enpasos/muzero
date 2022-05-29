@@ -30,7 +30,7 @@ public class TicTacToeTrainingAndTest {
 
         muZero.train(TrainParams.builder()
             .render(true)
-        //   .withoutFill(true)
+            //   .withoutFill(true)
             .build());
 
 

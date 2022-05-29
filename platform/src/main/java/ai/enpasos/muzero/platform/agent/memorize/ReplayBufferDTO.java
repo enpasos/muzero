@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("squid:S2065")
 public class ReplayBufferDTO {
 
-    // TODO remove the duplication of GameDTO in data and games
     List<GameDTO> data = new ArrayList<>();
     transient List<Game> games = new ArrayList<>();
     private String gameClassName;
@@ -86,7 +85,7 @@ public class ReplayBufferDTO {
         List<Game> toRemove = games.stream()
             .filter(g -> counter - g.getGameDTO().getCount() > config.getMaxGameLiveTime())
             .collect(Collectors.toList());
-        toRemove.stream().forEach(g ->removeGame(g));
+        toRemove.forEach(this::removeGame);
 
 
     }
@@ -104,22 +103,10 @@ public class ReplayBufferDTO {
             .setWindowSize(getWindowSize())
             .setGameClassName(getGameClassName());
 
-        getData().stream().forEach(gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
+        getData().forEach(gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
 
         return bufferBuilder.build();
     }
-
-//    public static ReplayBufferProto proto(ReplayBufferDTO dto) {
-//        ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
-//            .setVersion(1)
-//            .setCounter((int)dto.getCounter())
-//            .setWindowSize(dto.getWindowSize())
-//            .setGameClassName(dto.getGameClassName());
-//
-//        dto.getData().stream().forEach(gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
-//
-//        return bufferBuilder.build();
-//    }
 
     public void deproto(ReplayBufferProto proto) {
 
@@ -127,7 +114,7 @@ public class ReplayBufferDTO {
         this.setCounter(proto.getCounter());
         this.setWindowSize(proto.getWindowSize());
 
-        proto.getGameProtosList().stream().forEach(p -> {
+        proto.getGameProtosList().forEach(p -> {
             GameDTO gameDTO = new GameDTO();
             gameDTO.deproto(p);
             this.getData().add(gameDTO);

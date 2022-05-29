@@ -6,7 +6,7 @@ import ai.enpasos.muzero.go.config.environment.basics.Point;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 
 /**
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 public class GoBoardSerializer {
 
