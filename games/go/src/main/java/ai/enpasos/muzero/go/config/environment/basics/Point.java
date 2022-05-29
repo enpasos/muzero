@@ -26,7 +26,7 @@ import java.util.List;
  * A point as modelled here is not aware of the boards boarders.
  * Therefore, it could be constructed off board. And so do the neighbours of a point.
  * <p>
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @Data
 public class Point implements Comparable<Point> {

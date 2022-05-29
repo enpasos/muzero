@@ -20,7 +20,8 @@ package ai.enpasos.muzero.platform.agent.intuitive;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.*;
+import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
@@ -43,7 +44,6 @@ public class Inference {
 
     @Autowired
     MuZeroConfig config;
-
 
 
     @Autowired
@@ -110,18 +110,21 @@ public class Inference {
         }
         return valueByNetwork;
     }
+
     public double aiEntropy(List<Integer> actions, String networkDir) {
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
         Game game = getGame(actions);
         return aiEntropy(List.of(game))[0];
     }
+
     public double aiValue(List<Integer> actions, String networkDir) {
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
         Game game = getGame(actions);
-       return aiValue(List.of(game))[0];
+        return aiValue(List.of(game))[0];
     }
+
     public double[] aiEntropy(List<Game> games) {
         double[] valueByNetwork;
         try (Model model = Model.newInstance(config.getModelName())) {
@@ -130,6 +133,7 @@ public class Inference {
         }
         return valueByNetwork;
     }
+
     public double[] aiValue(List<Game> games) {
         double[] valueByNetwork;
         try (Model model = Model.newInstance(config.getModelName())) {
@@ -148,6 +152,7 @@ public class Inference {
         }
         return valueByNetwork;
     }
+
     public double[] aiEntropy(Network network, List<Game> games) {
         double[] entropyByNetwork;
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
@@ -195,7 +200,7 @@ public class Inference {
                             return new Pair<>(action, v);
                         }).collect(Collectors.toList());
 
-                Action action =  selectActionByMaxFromDistribution(distributionInput);
+                Action action = selectActionByMaxFromDistribution(distributionInput);
                 actionIndexSelectedByNetwork = action.getIndex();
                 double aiValue = networkOutputList.get(g).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));

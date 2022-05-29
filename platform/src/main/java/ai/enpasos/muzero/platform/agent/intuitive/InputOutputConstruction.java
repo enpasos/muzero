@@ -168,19 +168,10 @@ public class InputOutputConstruction {
                 if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
                     NDArray valueOutput = nd.zeros(new Shape(config.getValues().length));
                     int index = ValueConverter.valueToClassIndex(config.getValues(), target.getValue());
-//                    // loose 0, draw 1, win 2
-//                    int index = 0;
-//                    if (target.getValue() == 1f) {
-//                        index = 2;
-//                    } else if (target.getValue() == 0f) {
-//                        index = 1;
-//                    } else if (target.getValue() == -1f) {
-//                        index = 0;
-//                    }
                     valueOutput.setScalar(new NDIndex(index), 1);
                     valueList.add(valueOutput);
                 } else {
-                    double scale =  2.0 / config.getValueSpan();
+                    double scale = 2.0 / config.getValueSpan();
                     NDArray valueOutput = nd.zeros(new Shape(1));
                     valueOutput.setScalar(new NDIndex(0), target.getValue() * scale);
                     valueList.add(valueOutput);

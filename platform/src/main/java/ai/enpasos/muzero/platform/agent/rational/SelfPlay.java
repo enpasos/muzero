@@ -36,13 +36,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.*;
+import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 
 
 @Slf4j
@@ -62,6 +65,43 @@ public class SelfPlay {
     private List<Game> gameList;
     private List<Game> gamesDoneList;
 
+    private static void clean(@NotNull Node node) {
+        if (node.getHiddenState() != null) {
+            node.getHiddenState().close();
+            node.setHiddenState(null);
+        }
+        node.getChildren().forEach(SelfPlay::clean);
+    }
+
+    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
+
+        float[] policyTarget = new float[config.getActionSpaceSize()];
+        if (justPriorValues) {
+            root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());
+        } else if (root.getChildren().size() == 1) {
+            policyTarget[selectedAction.getIndex()] = 1f;
+        } else {
+
+            double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
+
+            double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
+
+            int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
+
+            int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+            double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
+
+            double[] improvedPolicy = softmax(raw);
+
+            for (int i = 0; i < raw.length; i++) {
+                int action = actions[i];
+                double v = improvedPolicy[i];
+                root.getChildren().get(i).setImprovedPolicyValue(v);  // for debugging
+                policyTarget[action] = (float) v;
+            }
+        }
+        game.getGameDTO().getPolicyTargets().add(policyTarget);
+    }
 
     @PostConstruct
     public void postConstruct() {
@@ -134,35 +174,31 @@ public class SelfPlay {
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
-        List<Game> gamesToApplyAction = new ArrayList<>();
-        gamesToApplyAction.addAll(this.gameList);
-
-     //   shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+        List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
 
 
+        List<NetworkIO> networkOutput = null;
+        if (!fastRuleLearning) {
+            networkOutput = initialInference(network, gamesToApplyAction, render, fastRuleLearning, indexOfJustOneOfTheGames);
+        }
+        List<NetworkIO> networkOutputFinal = networkOutput;
 
-            List<NetworkIO> networkOutput = null;
-            if (!fastRuleLearning) {
-                networkOutput = initialInference(network, gamesToApplyAction, render, fastRuleLearning, indexOfJustOneOfTheGames);
-            }
-            List<NetworkIO> networkOutputFinal = networkOutput;
 
+        if (justInitialInferencePolicy) {
+            playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
+            return;
+        }
 
-            if (justInitialInferencePolicy) {
-                playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
-                return;
-            }
+        if (!fastRuleLearning) {
+            IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
+                Game game = gamesToApplyAction.get(g);
+                double value = networkOutputFinal.get(g).getValue();
+                game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+                calculateSurprise(value, game);
+            });
+        }
 
-            if (!fastRuleLearning) {
-                IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
-                    Game game = gamesToApplyAction.get(g);
-                    double value = networkOutputFinal.get(g).getValue();
-                    game.getGameDTO().getRootValuesFromInitialInference().add((float)value);
-                    calculateSurprise(value, game);
-                });
-            }
-
-            shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+        shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
 
         int nGames = gamesToApplyAction.size();
         if (nGames != 0) {
@@ -227,8 +263,7 @@ public class SelfPlay {
 
             List<Pair<Action, Double>> distributionInput =
                 root.getChildren().stream().map(node -> {
-                        Pair<Action, Double> obj = new Pair(node.getAction(), (Double) node.getPrior());
-                        return obj;
+                    return (Pair<Action, Double>) new Pair(node.getAction(), (Double) node.getPrior());
                     }
                 ).collect(Collectors.toList());
 
@@ -239,7 +274,6 @@ public class SelfPlay {
         });
 
         keepTrackOfOpenGames();
-        return;
     }
 
     private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render) {
@@ -249,7 +283,7 @@ public class SelfPlay {
 
         gamesToApplyAction.removeAll(gamesWithOnlyOneAllowedAction);
 
-        gamesWithOnlyOneAllowedAction.stream().forEach(game -> {
+        gamesWithOnlyOneAllowedAction.forEach(game -> {
             Action action = game.legalActions().get(0);
             game.apply(action);
 
@@ -257,14 +291,6 @@ public class SelfPlay {
             policyTarget[action.getIndex()] = 1f;
 
             game.getGameDTO().getPolicyTargets().add(policyTarget);
-//            if (game.getSearchManager() != null) {
-//                Node root = game.getSearchManager().getRoot();
-//                float value = (float) root.getValueFromInitialInference();
-//                game.getGameDTO().getRootValuesFromInitialInference().add(value);
-//                calculateSurprise(value, game);
-//
-//            }
-
 
 
             if (render && game.isDebug()) {
@@ -314,7 +340,6 @@ public class SelfPlay {
         return networkOutput;
     }
 
-
     @NotNull
     public List<Node> initRootNodes() {
         // At the root of the search tree we use the representation function to
@@ -330,15 +355,6 @@ public class SelfPlay {
 
     public boolean notFinished() {
         return !gameList.isEmpty();
-    }
-
-
-    private static void clean(@NotNull Node node) {
-        if (node.getHiddenState() != null) {
-            node.getHiddenState().close();
-            node.setHiddenState(null);
-        }
-        node.getChildren().forEach(SelfPlay::clean);
     }
 
     public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
@@ -407,14 +423,12 @@ public class SelfPlay {
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.createAndSetHiddenStateNDManager(nDManager, true);
             while (notFinished()) {
-                //log.trace("justReplayWithInitialInference");
                 justReplayWithInitialInference(network);
             }
         }
 
         return getGamesDoneList();
     }
-
 
     public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         IntStream.range(0, config.getNumEpisodes()).forEach(i ->
@@ -425,7 +439,6 @@ public class SelfPlay {
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
         });
     }
-
 
     public void replayGamesToEliminateSurprise(Network network, List<Game> gamesToReplay) {
         log.info("replayGamesToEliminateSurprise, {} games", gamesToReplay.size());
@@ -440,37 +453,6 @@ public class SelfPlay {
         resultGames.forEach(replayBuffer::saveGame);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
 
-    }
-
-    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
-
-        float[] policyTarget = new float[config.getActionSpaceSize()];
-        if (justPriorValues) {
-            root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());
-        } else if (root.getChildren().size() == 1) {
-            policyTarget[selectedAction.getIndex()] = 1f;
-        } else {
-
-            double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
-
-            double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
-
-            int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
-
-            int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-            double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-
-            double[] improvedPolicy = softmax(raw);
-
-            for (int i = 0; i < raw.length; i++) {
-                int action = actions[i];
-                double v = improvedPolicy[i];
-                root.getChildren().get(i).setImprovedPolicyValue(v);  // for debugging
-                policyTarget[action] = (float) v;
-            }
-        }
-        game.getGameDTO().getPolicyTargets().add(policyTarget);
-     //   game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
     }
 
 }

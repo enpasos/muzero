@@ -8,7 +8,6 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
 /**
@@ -80,7 +78,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()/config.getTemperature()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperature()).toArray();
         double[] raw = add(logits, g);
 
         List<Integer> selectedActions = drawActions(actions, raw, n);
@@ -106,7 +104,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale, int maxActionVisitCount) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()/config.getTemperature()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperature()).toArray();
         double[] qs = gumbelActions.stream()
             .mapToDouble(GumbelAction::getQValue)
             .map(v -> minMaxStats.normalize(v))
@@ -131,14 +129,14 @@ public class GumbelSearch {
         return rootChild.getSearchPath();
     }
 
-    public List<Node> search( ) {
+    public List<Node> search() {
         Node rootChild = getCurrentRootChild();
         rootChild.setSearchPath(new ArrayList<>());
         rootChild.getSearchPath().add(root);
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-            node = node.selectChild(minMaxStats );
+            node = node.selectChild(minMaxStats);
             rootChild.getSearchPath().add(node);
         }
         return rootChild.getSearchPath();
@@ -201,7 +199,7 @@ public class GumbelSearch {
             Node node = searchPath.get(i);
             node.setVisitCount(node.getVisitCount() + 1);
 
-            if (start ) {
+            if (start) {
                 node.setValueFromNetwork(value);
                 node.setImprovedValue(node.getValueFromNetwork());
                 node.setImprovedPolicyValue(node.getPrior());
@@ -212,13 +210,11 @@ public class GumbelSearch {
                 node.calculateImprovedValue();
             }
 
-            value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS? -1: 1) * discount * value;
+            value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
             node.setValueSum(node.getValueSum() + value);
-        //    node.setQValue(value);
 
             minMaxStats.update(value);
-
 
 
         }
@@ -261,12 +257,12 @@ public class GumbelSearch {
 
         GumbelAction gumbelAction = drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
         List<Float> values = this.game.getGameDTO().getValues().get(this.game.getGameDTO().getValues().size() - 1);
-        values.add((float)gumbelAction.getNode().getQValue());
+        values.add((float) gumbelAction.getNode().getQValue());
     }
 
     public void drawCandidateAndAddValueStart() {
         List<Float> vs = new ArrayList<>();
-        float v = (float)this.root.getValueFromNetwork();
+        float v = (float) this.root.getValueFromNetwork();
         vs.add(v);
         this.game.getGameDTO().getValues().add(vs);
     }

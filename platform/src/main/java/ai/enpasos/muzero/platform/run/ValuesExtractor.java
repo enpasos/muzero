@@ -19,7 +19,6 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -35,7 +34,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -58,22 +56,22 @@ public class ValuesExtractor {
 
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "tau", "vPlayerA").build())) {
-            for(int t =0; t < values.size(); t++)  {
-                    List<Float> values2 = values.get(t);
-                for(int tau =0; tau < values2.size(); tau++) {
+            for (int t = 0; t < values.size(); t++) {
+                List<Float> values2 = values.get(t);
+                for (int tau = 0; tau < values2.size(); tau++) {
                     float value = values2.get(tau);
-                            try {
-                                double valuePlayer = value;
-                                if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                                    valuePlayer *= Math.pow(-1, t);
-                                }
-                                csvPrinter.printRecord(t, tau,
-                                    NumberFormat.getNumberInstance().format(valuePlayer));
-                            } catch (Exception e) {
-                                // ignore
-                            }
+                    try {
+                        double valuePlayer = value;
+                        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                            valuePlayer *= Math.pow(-1, t);
                         }
+                        csvPrinter.printRecord(t, tau,
+                            NumberFormat.getNumberInstance().format(valuePlayer));
+                    } catch (Exception e) {
+                        // ignore
+                    }
                 }
+            }
 
         } catch (IOException e) {
             throw new MuZeroException(e);
@@ -82,21 +80,21 @@ public class ValuesExtractor {
         stringWriter.append("\n");
         stringWriter.append("\n");
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t",   "vPlayerA").build())) {
-            for(int t =0; t < values.size(); t++)  {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "vPlayerA").build())) {
+            for (int t = 0; t < values.size(); t++) {
                 List<Float> values2 = values.get(t);
-                int tau =0;
-                    float value = values2.get(tau);
-                    try {
-                        double valuePlayer = value;
-                        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                            valuePlayer *= Math.pow(-1, t);
-                        }
-                        csvPrinter.printRecord(t,
-                            NumberFormat.getNumberInstance().format(valuePlayer));
-                    } catch (Exception e) {
-                        // ignore
+                int tau = 0;
+                float value = values2.get(tau);
+                try {
+                    double valuePlayer = value;
+                    if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                        valuePlayer *= Math.pow(-1, t);
                     }
+                    csvPrinter.printRecord(t,
+                        NumberFormat.getNumberInstance().format(valuePlayer));
+                } catch (Exception e) {
+                    // ignore
+                }
 
             }
 
@@ -109,24 +107,9 @@ public class ValuesExtractor {
 
     @NotNull
     public Game getGame() {
-
-
         replayBuffer.loadLatestState();
-
-
-
-    //    replayBuffer.getBuffer().getGames().forEach(g -> System.out.println(g.getGameDTO().getValues().size()));
-
-
-
-
-        //   GameDTO dto = replayBuffer.getBuffer().getData().get(replayBuffer.getBuffer().getData().size() - 1);
-       Game game =  replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
-
-
-       return game;
-
-
+        Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
+        return game;
     }
 
 }

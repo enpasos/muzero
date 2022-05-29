@@ -34,7 +34,7 @@ import java.util.*;
  * Main Go board class. Represents the board on which Go moves can be played.
  * Internally, a grid keeps track of the strings at each vertex.
  * <p>
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @Data
 @Builder

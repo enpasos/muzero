@@ -18,10 +18,14 @@
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.*;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv3x3;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("java:S110")
 public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
@@ -33,11 +37,11 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-        this(config.getBoardHeight(), config.getBoardWidth(),  config.getNumResiduals(), config.getNumChannels(),config.getNumBottleneckChannels(),   config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
+        this(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
     }
 
 
-    public RepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels,  int numHiddenStateChannels, int broadcastEveryN) {
+    public RepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int numHiddenStateChannels, int broadcastEveryN) {
 
 
         this.add(Conv3x3.builder().channels(numChannels).build())

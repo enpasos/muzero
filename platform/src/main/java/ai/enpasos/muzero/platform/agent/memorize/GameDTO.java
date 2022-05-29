@@ -19,8 +19,6 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
-import ai.enpasos.muzero.platform.agent.memory.protobuf.ValueProtos;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -51,7 +49,6 @@ public class GameDTO {
     private List<List<Float>> values;
     private List<Float> rootValues;
     private List<Float> rootValuesFromInitialInference;
-    // private List<Float> entropies;
     private float lastValueError;
     private long count;
 
@@ -65,7 +62,6 @@ public class GameDTO {
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
-        // this.entropies = new ArrayList<>();
         this.surprises = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.values = new ArrayList<>();
@@ -90,11 +86,7 @@ public class GameDTO {
         copy.count = this.count;
         copy.surprises.addAll(this.surprises.subList(0, toPosition));
         copy.actions.addAll(this.actions.subList(0, toPosition));
-        if (this.policyTargets.size() < toPosition) {
-            int k = 42; // should not happen
-        }
         this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
-        //this.values.subList(0, toPosition).forEach(pT -> copy.values.add(List.copyOf(pT)));
         if (this.rootValues.size() >= toPosition)
             copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
         if (this.rootValuesFromInitialInference.size() >= toPosition)
@@ -132,23 +124,16 @@ public class GameDTO {
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
-        //  gameBuilder.addAllEntropies(getEntropies());
         gameBuilder.addAllSurprises(getSurprises());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
-        getPolicyTargets().stream().forEach(policyTarget -> {
+        getPolicyTargets().forEach(policyTarget -> {
             PolicyTargetProtos.Builder b = PolicyTargetProtos.newBuilder();
             IntStream.range(0, policyTarget.length).forEach(i ->
                 b.addPolicyTarget(policyTarget[i])
             );
             gameBuilder.addPolicyTargets(b.build());
         });
-        // TODO value saving switched of for now because of performance problem
-//        getValues().stream().forEach(v -> {
-//            ValueProtos.Builder b = ValueProtos.newBuilder();
-//            b.addAllValue(v);
-//            gameBuilder.addValues(b.build());
-//        });
         return gameBuilder.build();
     }
 
@@ -161,7 +146,6 @@ public class GameDTO {
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
-        //   this.setEntropies(p.getEntropiesList());
         this.setSurprises(p.getSurprisesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
@@ -182,15 +166,13 @@ public class GameDTO {
         }
         if (p.getValuesCount() > 0) {
             List<List<Float>> vs = p.getValuesList().stream().map(
-                    valueProtos -> {
-                        //valueProtos.getValueList();
-                        return List.copyOf(valueProtos.getValueList());
-                    })
+                    valueProtos ->
+                         List.copyOf(valueProtos.getValueList())
+                     )
                 .collect(Collectors.toList());
             this.setValues(vs);
         }
     }
-
 
 
 }

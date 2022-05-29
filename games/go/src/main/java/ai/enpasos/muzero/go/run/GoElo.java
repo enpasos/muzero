@@ -59,7 +59,7 @@ public class GoElo {
         ranking.fillMissingRankingsByLinearInterpolation();
     }
 
-@SuppressWarnings("java:S106")
+    @SuppressWarnings("java:S106")
     private void printRankingList() {
         RankingListDTO rankingList = ranking.getRankingList();
         rankingList.sortByEpoch();

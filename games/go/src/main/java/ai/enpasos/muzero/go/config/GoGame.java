@@ -86,12 +86,12 @@ public class GoGame extends ZeroSumGame {
         }
     }
 
-
+@Override
     public void checkAssumptions() {
         super.checkAssumptions();
-        assertTrue(((GoEnvironment)this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,
+        assertTrue(((GoEnvironment) this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,
             "environment history does not have the right size");
-     }
+    }
 
 
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {

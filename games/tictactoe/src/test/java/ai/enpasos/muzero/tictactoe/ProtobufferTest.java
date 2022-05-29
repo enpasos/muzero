@@ -56,17 +56,15 @@ class ProtobufferTest {
         muZero.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            List<Game> games = selfPlay.playGame(network, false, true , false);
+            List<Game> games = selfPlay.playGame(network, false, true, false);
             replayBuffer.init();
             games.forEach(replayBuffer::saveGame);
             List<Game> gamesOld = replayBuffer.getBuffer().getGames();
             replayBuffer.saveState();
-            replayBuffer.loadLatestState() ;
+            replayBuffer.loadLatestState();
             replayBuffer.rebuildGames();
 
-            IntStream.range(0, gamesOld.size()).forEach(i -> {
-                assertEquals(gamesOld.get(i), replayBuffer.getBuffer().getGames().get(i), "games should be the same");
-            });
+            IntStream.range(0, gamesOld.size()).forEach(i -> assertEquals(gamesOld.get(i), replayBuffer.getBuffer().getGames().get(i), "games should be the same"));
         }
     }
 }

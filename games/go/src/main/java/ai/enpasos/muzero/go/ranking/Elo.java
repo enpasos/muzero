@@ -30,18 +30,15 @@ public class Elo {
             throw new MuZeroException("elo is expected to be -3300 or above");
         if (oldRPlayer == -3300) return -3300;
 
-        double r = oldRPlayer;
-        double r2 = oldROpponent;
-        double sa = averagePointsOfPlayer;
-        double con = Math.pow((3300d - r) / 200d, 1.6d);
+        double con = Math.pow((3300d -  oldRPlayer) / 200d, 1.6d);
         double se;
         if (oldROpponent == -3300) {
             se = 1d;
         } else {
-            se = 1d / (1d + Math.exp(beta(r2) - beta(r)));
+            se = 1d / (1d + Math.exp(beta(oldROpponent) - beta(oldRPlayer)));
         }
-        double bonus = Math.log(1d + Math.exp((2300d - r) / 80d)) / 5d;
-        int elo = (int) Math.round(r + con * (sa - se) + bonus);
+        double bonus = Math.log(1d + Math.exp((2300d - oldRPlayer) / 80d)) / 5d;
+        int elo = (int) Math.round(  oldRPlayer + con * (averagePointsOfPlayer - se) + bonus);
         if (elo < -3300) {
             elo = -3300;
         }

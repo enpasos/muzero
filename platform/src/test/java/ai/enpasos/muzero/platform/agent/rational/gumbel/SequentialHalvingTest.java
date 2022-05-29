@@ -3,7 +3,7 @@ package ai.enpasos.muzero.platform.agent.rational.gumbel;
 import org.junit.jupiter.api.Test;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.extraPhaseVisitsToUpdateQPerPhase;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class SequentialHalvingTest {
 

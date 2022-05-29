@@ -76,8 +76,8 @@ public class GoStartValueExtractor {
                 count++;
                 sum += values.get(k - i).getValue();
             }
-            if (count == 0)  throw new MuZeroException("count should not be zero");
-            smoothedValues.add(new Pair<>(values.get(k).getKey(), sum /  count));
+            if (count == 0) throw new MuZeroException("count should not be zero");
+            smoothedValues.add(new Pair<>(values.get(k).getKey(), sum / count));
         }
         return smoothedValues;
     }
@@ -106,8 +106,8 @@ public class GoStartValueExtractor {
 
     public String csvString(List<Pair<Integer, Double>> values) {
         StringWriter stringWriter = new StringWriter();
-        try (CSVPrinter csvPrinter =   new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("epoch", "vStart").build())) {
-            values.stream().forEach(
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("epoch", "vStart").build())) {
+            values.forEach(
                 pair -> {
                     try {
                         csvPrinter.printRecord(pair.getKey(),
