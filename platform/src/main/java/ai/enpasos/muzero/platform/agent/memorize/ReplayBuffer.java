@@ -155,6 +155,14 @@ public class ReplayBuffer {
 
     public void init() {
         this.batchSize = config.getBatchSize();
+        if (this.buffer != null) {
+            this.buffer.getData().clear();
+            this.buffer.games.stream().forEach(g -> {
+                g.setGameDTO(null);
+                g.setOriginalGameDTO(null);
+            });
+            this.buffer.games.clear();
+        }
         this.buffer = new ReplayBufferDTO(config.getWindowSize(), config.getGameClassName());
     }
 
@@ -244,7 +252,6 @@ public class ReplayBuffer {
             input = proto.toByteArray();
 
             try (FileOutputStream baos = new FileOutputStream(pathname)) {
-
                 try (ZipOutputStream zos = new ZipOutputStream(baos)) {
                     ZipEntry entry = new ZipEntry(filename + ".dat");
                     entry.setSize(input.length);
@@ -257,7 +264,7 @@ public class ReplayBuffer {
             }
         }
 
-
+        dto.getData().clear();
     }
 
     public void loadLatestState() {
