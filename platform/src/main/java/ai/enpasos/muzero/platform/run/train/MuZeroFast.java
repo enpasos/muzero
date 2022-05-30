@@ -78,7 +78,7 @@ public class MuZeroFast {
 
             do {
                 log.info("*>*>*>* looping " + loop++);
-                int backInTime = 1;
+                int backInTime = 11;
 
 
                 log.info("start surprise.measureValueAndSurprise");

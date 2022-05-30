@@ -203,6 +203,7 @@ public class Surprise {
     public void measureValueAndSurprise(Network network, List<Game> games) {
         games.forEach(Game::beforeReplayWithoutChangingActionHistory);
         mearsureValueAndSurpriseMain(network, games);
+        games.forEach(Game::afterReplay);
     }
 
     private void mearsureValueAndSurpriseMain(Network network, List<Game> games) {
@@ -213,12 +214,13 @@ public class Surprise {
             log.info("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
             resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, gameList));
         }
-        games.forEach(Game::afterReplay);
+
     }
 
     public void measureValueAndSurprise(Network network, List<Game> games, int backInTime) {
         games.forEach(game -> game.beforeReplayWithoutChangingActionHistory(backInTime));
         mearsureValueAndSurpriseMain(network, games);
+        games.forEach(Game::afterReplay);
     }
 
 
