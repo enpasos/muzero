@@ -8,7 +8,9 @@ import java.util.stream.IntStream;
 
 public class ValueConverter {
 
-    private ValueConverter() {}
+    private ValueConverter() {
+    }
+
     public static int valueToClassIndex(MuZeroConfig config, double value) {
         return valueToClassIndex(config.getValues(), value);
     }

@@ -86,7 +86,7 @@ public class GoGame extends ZeroSumGame {
         }
     }
 
-@Override
+    @Override
     public void checkAssumptions() {
         super.checkAssumptions();
         assertTrue(((GoEnvironment) this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,

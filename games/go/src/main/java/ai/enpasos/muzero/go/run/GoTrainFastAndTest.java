@@ -3,7 +3,7 @@ package ai.enpasos.muzero.go.run;
 
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.train.MuZeroFast;
+import ai.enpasos.muzero.platform.run.train.MuZeroFast2;
 import ai.enpasos.muzero.platform.run.train.TrainParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class GoTrainFastAndTest {
     @Autowired
     private MuZeroConfig config;
     @Autowired
-    private MuZeroFast muZeroFast;
+    private MuZeroFast2 muZeroFast;
     @Autowired
     private GoSurprise goSurprise;
 

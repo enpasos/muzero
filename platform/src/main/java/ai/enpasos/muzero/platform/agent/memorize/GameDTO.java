@@ -35,7 +35,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Slf4j
-public class GameDTO {
+public class GameDTO implements Comparable<GameDTO> {
 
     String networkName = "NONE";
 
@@ -167,13 +167,17 @@ public class GameDTO {
         if (p.getValuesCount() > 0) {
             List<List<Float>> vs = p.getValuesList().stream().map(
                     valueProtos ->
-                         List.copyOf(valueProtos.getValueList())
-                     )
+                        List.copyOf(valueProtos.getValueList())
+                )
                 .collect(Collectors.toList());
             this.setValues(vs);
         }
     }
 
 
+    @Override
+    public int compareTo(@NotNull GameDTO o) {
+        return Long.compare(this.getCount(), o.getCount());
+    }
 }
 
