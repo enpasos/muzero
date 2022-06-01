@@ -78,7 +78,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperature()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperatureRoot()).toArray();
         double[] raw = add(logits, g);
 
         List<Integer> selectedActions = drawActions(actions, raw, n);
@@ -104,7 +104,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale, int maxActionVisitCount) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperature()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperatureNonRoot()).toArray();
         double[] qs = gumbelActions.stream()
             .mapToDouble(GumbelAction::getQValue)
             .map(v -> minMaxStats.normalize(v))

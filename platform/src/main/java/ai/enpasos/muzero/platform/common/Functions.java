@@ -5,6 +5,10 @@ import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
+import org.jetbrains.annotations.NotNull;
+import umontreal.ssj.randvarmulti.DirichletGen;
+import umontreal.ssj.rng.MRG32k3a;
+import umontreal.ssj.rng.RandomStream;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,8 +19,20 @@ import java.util.stream.IntStream;
 public class Functions {
 
     private static final RandomGenerator rng = new Well19937c();
+    private static final RandomStream randomStreamBase = new MRG32k3a("rnd");
 
     private Functions() {
+    }
+
+    public static double @NotNull [] numpyRandomDirichlet(double alpha, int dims) {
+
+        double[] alphas = new double[dims];
+        Arrays.fill(alphas, alpha);
+        DirichletGen dg = new DirichletGen(randomStreamBase, alphas);
+        double[] p = new double[dims];
+
+        dg.nextPoint(p);
+        return p;
     }
 
     public static double[] softmax(double[] raw) {
