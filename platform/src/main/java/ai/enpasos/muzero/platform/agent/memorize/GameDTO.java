@@ -35,7 +35,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Slf4j
-public class GameDTO {
+public class GameDTO implements Comparable<GameDTO> {
 
     String networkName = "NONE";
 
@@ -175,5 +175,9 @@ public class GameDTO {
     }
 
 
+    @Override
+    public int compareTo(@NotNull GameDTO o) {
+        return Long.compare(this.getCount(), o.getCount());
+    }
 }
 
