@@ -167,8 +167,8 @@ public class GameDTO {
         if (p.getValuesCount() > 0) {
             List<List<Float>> vs = p.getValuesList().stream().map(
                     valueProtos ->
-                         List.copyOf(valueProtos.getValueList())
-                     )
+                        List.copyOf(valueProtos.getValueList())
+                )
                 .collect(Collectors.toList());
             this.setValues(vs);
         }

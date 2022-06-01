@@ -319,7 +319,7 @@ public abstract class Game {
 
 
     public void afterReplay() {
-         this.setOriginalGameDTO(null);
+        this.setOriginalGameDTO(null);
     }
 
     public abstract void initEnvironment();

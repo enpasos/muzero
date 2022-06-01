@@ -60,7 +60,7 @@ public class Surprise {
     public void run() {
         replayBuffer.loadLatestState();
         List<Game> games = getRelevantGames(1000);
-         getGamesWithSurprisesAboveThreshold(games, 1000, 1000).getLeft();
+        getGamesWithSurprisesAboveThresholdBackInTime(games, 1000, 1000).getLeft();
 
 
     }
@@ -90,14 +90,14 @@ public class Surprise {
     public void markSurprise(int backInTime) {
         List<Game> games = this.replayBuffer.getBuffer().getGames();
         double quantil = this.getSurpriseThreshold(games);
-         getGamesWithSurprisesAboveThreshold(games, quantil, backInTime).getLeft();
+        getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, backInTime).getLeft();
     }
 
     public void markSurprise() {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<Game> games = getRelevantGames(n);
         double quantil = this.getSurpriseThreshold(games);
-         getGamesWithSurprisesAboveThreshold(games, quantil, 1000).getLeft();
+        getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, 1000).getLeft();
     }
 
 
@@ -141,8 +141,7 @@ public class Surprise {
     }
 
 
-    //
-    public Pair<List<Game>, List<Game>> getGamesWithSurprisesAboveThreshold(List<Game> games, double surpriseThreshold, int backInTime) {
+    public List<Game> getGamesWithSurprisesAboveThreshold(List<Game> games, double surpriseThreshold) {
 
 
         games.forEach(game -> {
@@ -156,6 +155,38 @@ public class Surprise {
         List<Game> gamesToInvestigate = games.stream()
             .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
+
+        log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size());
+
+
+        gamesToInvestigate.forEach(game -> {
+            for (int t = game.getGameDTO().getSurprises().size() - 1; t >= 0; t--) {
+                GameDTO dto = game.getGameDTO();
+                double s = dto.getSurprises().get(t);
+                if (s >= surpriseThreshold) {
+                    dto.setTSurprise(t);
+                    dto.setSurprised(true);
+                    break;
+                }
+            }
+        });
+        return gamesToInvestigate;
+    }
+
+    //
+    public Pair<List<Game>, List<Game>> getGamesWithSurprisesAboveThresholdBackInTime(List<Game> games, double surpriseThreshold, int backInTime) {
+
+
+        games.forEach(game -> {
+            GameDTO dto = game.getGameDTO();
+            dto.setSurprised(false);
+            dto.setTStateA(0);
+            dto.setTStateB(0);
+            dto.setTSurprise(0);
+        });
+
+        List<Game> gamesToInvestigate = games.stream()
+            .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
 
         log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size());

@@ -280,12 +280,21 @@ public class MuZeroConfig {
         getConf().setInferenceDeviceType(deviceType);
     }
 
-    public double getTemperature() {
-        return getConf().temperature;
+    public double getTemperatureRoot() {
+        return getConf().temperatureRoot;
     }
 
-    public void setTemperature(double temperature) {
-        getConf().temperature = temperature;
+    public void setTemperatureRoot(double temperature) {
+        getConf().temperatureRoot = temperature;
+    }
+
+
+    public double getTemperatureNonRoot() {
+        return getConf().temperatureNonRoot;
+    }
+
+    public void setTemperatureNonRoot(double temperature) {
+        getConf().temperatureNonRoot = temperature;
     }
 
     public String getOutputDir() {
@@ -414,7 +423,8 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
 
-        double temperature = 1;
+        double temperatureRoot = 1;
+        double temperatureNonRoot = 1;
 
         double[] values;
     }
