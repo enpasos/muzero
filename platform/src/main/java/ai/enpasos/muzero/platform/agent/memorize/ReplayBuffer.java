@@ -65,24 +65,8 @@ public class ReplayBuffer {
 
 
     private String currentNetworkName = "NONE";
-
-
-    public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
-        String epochValue = model.getProperty("Epoch");
-        Path modelPath = Paths.get(outputDir);
-        int epoch = 0;
-        try {
-            epoch = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-        this.currentNetworkName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
-    }
-
-
     @Autowired
     private MuZeroConfig config;
-
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
@@ -111,16 +95,21 @@ public class ReplayBuffer {
     public static int samplePosition(@NotNull Game game) {
         GameDTO dto = game.getGameDTO();
         int numActions = dto.getActions().size();
-        long delta = dto.getTStateB()-dto.getTStateA();
-        if (delta < 0)  delta = 0L;
+        long delta = dto.getTStateB() - dto.getTStateA();
+        if (delta < 0) delta = 0L;
         int enhanceFactor = 1;
         long numNormalActions = numActions - (dto.getTStateA() + delta);
         int n = (int) (enhanceFactor * (delta) + numNormalActions);
-        int rawpos = ThreadLocalRandom.current().nextInt(0, n );
-        if (rawpos < numNormalActions) return (int)(rawpos + dto.getTStateA() + delta);
-        rawpos -= numNormalActions;
-        rawpos /= enhanceFactor;
-        return rawpos;
+        int rawpos = ThreadLocalRandom.current().nextInt(0, n);
+        int gamePos = 0;
+        if (rawpos < numNormalActions) {
+            gamePos = (int) (rawpos + dto.getTStateA() + delta);
+        } else {
+            rawpos -= numNormalActions;
+            rawpos /= enhanceFactor;
+            gamePos = rawpos;
+        }
+        return gamePos;
     }
 
     public static @NotNull ReplayBufferDTO decodeDTO(byte @NotNull [] bytes) {
@@ -146,7 +135,17 @@ public class ReplayBuffer {
 
     }
 
-
+    public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
+        String epochValue = model.getProperty("Epoch");
+        Path modelPath = Paths.get(outputDir);
+        int epoch = 0;
+        try {
+            epoch = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
+        } catch (IOException e) {
+            throw new MuZeroException(e);
+        }
+        this.currentNetworkName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
+    }
 
     @PostConstruct
     public void postConstruct() {
@@ -269,13 +268,21 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        List<GameDTO> dtos = new ArrayList<>();
-        for(Path path : paths) {
+        Set<GameDTO> dtos = new TreeSet<>();
+        for (Path path : paths) {
             loadState(path);
+            log.info("buffer gameDTOs size: " + dtos.size());
+            dtos.removeAll(this.buffer.getData());
+            log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
             dtos.addAll(this.buffer.getData());
+            log.info("after addAll, buffer gameDTOs size: " + dtos.size());
         }
         init();
-        this.buffer.setData(dtos);
+        this.buffer.getData().clear();
+        this.buffer.getData().addAll(dtos);
+        while (this.buffer.getData().size() > config.getWindowSize()) {
+            this.buffer.getData().remove(0);
+        }
         rebuildGames();
     }
 

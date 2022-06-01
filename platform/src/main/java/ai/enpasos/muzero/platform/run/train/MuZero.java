@@ -162,13 +162,13 @@ public class MuZero {
                     }
 
                     if (config.isExtraValueTrainingOn()) {
-                        double temp = config.getTemperature();
+                        double temp = config.getTemperatureRoot();
                         int sims = config.getNumSimulations();
                         config.setNumSimulations(0);
-                        config.setTemperature(1);
+                        config.setTemperatureRoot(1);
                         playGames(params.render, network, trainingStep);
                         config.setNumSimulations(sims);
-                        config.setTemperature(temp);
+                        config.setTemperatureRoot(temp);
                     }
 
                 }

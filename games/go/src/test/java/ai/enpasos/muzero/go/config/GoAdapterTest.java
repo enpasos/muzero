@@ -63,6 +63,6 @@ class GoAdapterTest {
         Action action = GoAdapter.translate(config, new Pass());
         NDArray ndArray = action.encode(NDManager.newBaseManager());
         assertNotNull(ndArray);
-        assertArrayEquals( new float[config.getBoardWidth() * config.getBoardHeight()], ndArray.toFloatArray());
+        assertArrayEquals(new float[config.getBoardWidth() * config.getBoardHeight()], ndArray.toFloatArray());
     }
 }

@@ -53,7 +53,7 @@ public class BroadcastResidualBlock extends AbstractBlock implements OnnxIO {
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
 
-            .add(BroadcastBlock.builder().setUnits((long)height * width).build())
+            .add(BroadcastBlock.builder().setUnits((long) height * width).build())
 
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())

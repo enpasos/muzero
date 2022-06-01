@@ -88,7 +88,7 @@ public class MuZeroFast {
 
                 double surpriseThreshold = surprise.getSurpriseThreshold(games);
 
-                Pair<List<Game>, List<Game>> gameListPair = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
+                Pair<List<Game>, List<Game>> gameListPair = surprise.getGamesWithSurprisesAboveThresholdBackInTime(games, surpriseThreshold, backInTime);
                 gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
                 gamesWithSurprisesAboveQuantil = gameListPair.getRight();
 
@@ -101,7 +101,7 @@ public class MuZeroFast {
                         log.info("iteration: " + i + " of " + n);
                         if (!(i == 0 && backInTime == 1)) {
                             gameListPair =
-                                surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
+                                surprise.getGamesWithSurprisesAboveThresholdBackInTime(games, surpriseThreshold, backInTime);
                             gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
                             gamesWithSurprisesAboveQuantil = gameListPair.getRight();
                         }
@@ -111,15 +111,15 @@ public class MuZeroFast {
 
                         surprise.measureValueAndSurprise(network, gamesWithSurprisesAboveQuantilHere, backInTime);
 
-                        gameListPair = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold, backInTime);
+                        gameListPair = surprise.getGamesWithSurprisesAboveThresholdBackInTime(games, surpriseThreshold, backInTime);
                         gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
                         gamesWithSurprisesAboveQuantil = gameListPair.getRight();
 
 
                         replayBuffer.saveState();
-                        //checkAssumptionsForGames();
+                        checkAssumptionsForGames();
                         surprise.handleOldSurprises(network);
-                        //checkAssumptionsForGames();
+                        checkAssumptionsForGames();
                         replayBuffer.saveState();
                     }
                 }
