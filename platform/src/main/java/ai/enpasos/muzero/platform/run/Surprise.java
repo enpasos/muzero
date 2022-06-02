@@ -156,7 +156,7 @@ public class Surprise {
             .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
 
-        log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size());
+        log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size() + " / " + games.size());
 
 
         gamesToInvestigate.forEach(game -> {
@@ -189,7 +189,7 @@ public class Surprise {
             .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
 
-        log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size());
+        log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size() + " / " + games.size());
 
         List<Game> gamesToInvestigateHere = new ArrayList<>();
 
@@ -205,7 +205,7 @@ public class Surprise {
                 }
             }
         });
-        log.info("no of games with surprise above threshold for backInTime=" + backInTime + ": " + gamesToInvestigateHere.size());
+        log.info("no of games with surprise above threshold for backInTime=" + backInTime + ": " + gamesToInvestigateHere.size() + " / " + games.size());
         return Pair.of(gamesToInvestigateHere, gamesToInvestigate);
     }
 
