@@ -28,6 +28,7 @@ import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.Surprise;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -85,40 +86,30 @@ public class MuZeroFast2 {
                 replayBuffer.saveState();
                 log.info("end surprise.measureValueAndSurprise");
 
-                // 1. find surprise threshold as 3*sigma surprise
+                log.info(loop + " >>> 1. find surprise threshold as 3*sigma surprise");
                 surpriseThreshold = surprise.getSurpriseThreshold(games);
 
 
-                // 2. for each game with a surprise beyond threshold, mark the surprise beyond threshold that is the latest time
-                List<Game> gamesWithSurprise = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold);
+                log.info(loop + " >>> 2. for each game with a surprise beyond threshold, mark the surprise beyond threshold that is the latest time");
 
-                // 3. Train all games (but not on timesteps before t-2)
-                games.stream().forEach(game -> {
-                    game.getGameDTO().setSurprised(false);
-                    game.getGameDTO().setTStateA(0);
-                    game.getGameDTO().setTStateB(0);
-                });
-                gamesWithSurprise.stream().forEach(game -> {
-                    game.getGameDTO().setSurprised(true);
-                    long t = game.getGameDTO().getTSurprise();
-                    long t0 = Math.max(t - 3, 0);
-                    game.getGameDTO().setTStateA(t0);
-                    game.getGameDTO().setTStateB(t0);
-                });
+                List<Game> gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
+                log.info(loop + " >>> 3. Train all games (but not on timesteps before t-2)");
+
+
                 trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
-                // 4. Reevaluate surprises on all games
+
+                log.info(loop + " >>> 4. Reevaluate surprises on all games");
                 log.info("start surprise.measureValueAndSurprise");
                 surprise.measureValueAndSurprise(network, games);
                 replayBuffer.saveState();
+                gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
                 log.info("end surprise.measureValueAndSurprise");
 
-                // 5. Replay the 1000 games with the highest marked surprise according to convolution for gameplay. Higher temperature and higher simulationNum at hotspot
-                surprise.handleOldSurprises(network);
+                log.info(loop + " >>> 5. Replay the 1000 games with the highest marked surprise according to convolution for gameplay. Higher temperature and higher simulationNum at hotspot");
                 gamesWithSurprise.sort(Comparator.comparing(
                     game -> game.getGameDTO().getSurprises().get((int) game.getGameDTO().getTSurprise())
                 ));
-
                 Collections.reverse(gamesWithSurprise);
                 List<Game> gamesToReplay = gamesWithSurprise.stream().limit(1000).collect(Collectors.toList());
                 games.stream().forEach(game ->
@@ -128,16 +119,35 @@ public class MuZeroFast2 {
                 gamesToReplay.stream().forEach(game ->
                     game.getGameDTO().setSurprised(true)
                 );
+                surprise.handleOldSurprises(network);
+                log.info(loop + " >>> 6. Play 1000 new games from start with normal temperature and simulationNum.");
 
-
-                //6. Play 1000 new games from start with normal temperature and simulationNum.
                 muzero.playGames(params.render, network, trainingStep);
-
 
             } while (surpriseThreshold > 10);
 
 
         }
+    }
+
+    @NotNull
+    private List<Game> identifyGamesWithSurprise(List<Game> games, double surpriseThreshold) {
+        List<Game> gamesWithSurprise = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold);
+
+
+        games.stream().forEach(game -> {
+            game.getGameDTO().setSurprised(false);
+            game.getGameDTO().setTStateA(0);
+            game.getGameDTO().setTStateB(0);
+        });
+        gamesWithSurprise.stream().forEach(game -> {
+            game.getGameDTO().setSurprised(true);
+            long t = game.getGameDTO().getTSurprise();
+            long t0 = Math.max(t - 3, 0);
+            game.getGameDTO().setTStateA(t0);
+            game.getGameDTO().setTStateB(t0);
+        });
+        return gamesWithSurprise;
     }
 
 
