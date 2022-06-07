@@ -242,7 +242,7 @@ public class Surprise {
         List<Game> resultGames = new ArrayList<>();
         int i = 1;
         for (List<Game> gameList : gameBatches) {
-            log.info("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
+            log.debug("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
             resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, gameList));
         }
 
