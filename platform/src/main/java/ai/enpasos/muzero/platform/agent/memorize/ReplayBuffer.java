@@ -336,10 +336,9 @@ public class ReplayBuffer {
         init();
 
         String pathname = path.toString();
-
+        log.info("loading ... " + pathname);
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (ZipInputStream zis = new ZipInputStream(fis)) {
-                log.info("loading ... " + pathname);
                 zis.getNextEntry();
                 byte[] raw = zis.readAllBytes();
                 this.buffer = decodeDTO(raw);
@@ -349,7 +348,6 @@ public class ReplayBuffer {
         } catch (Exception e) {
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
-                    log.info("loading ... " + pathname);
                     zis.getNextEntry();
                     byte[] raw = zis.readAllBytes();
 
