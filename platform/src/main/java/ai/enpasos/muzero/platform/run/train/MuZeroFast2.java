@@ -103,6 +103,7 @@ public class MuZeroFast2 {
                 log.info("start surprise.measureValueAndSurprise");
                 surprise.measureValueAndSurprise(network, games);
                 replayBuffer.saveState();
+
                 gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
                 log.info("end surprise.measureValueAndSurprise");
 
@@ -120,9 +121,11 @@ public class MuZeroFast2 {
                     game.getGameDTO().setSurprised(true)
                 );
                 surprise.handleOldSurprises(network);
-                log.info(loop + " >>> 6. Play 1000 new games from start with normal temperature and simulationNum.");
 
+
+                log.info(loop + " >>> 6. Play 1000 new games from start with normal temperature and simulationNum. And train all games.");
                 muzero.playGames(params.render, network, trainingStep);
+                trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
             } while (surpriseThreshold > 10);
 
