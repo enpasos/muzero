@@ -280,6 +280,7 @@ public class ReplayBuffer {
             List<GameDTO> replacedGames = this.buffer.getData().stream().filter(gameDTO -> gameDTO.getReplacedGameWithActions().size() > 0)
                 .map(gameDTO -> new GameDTO(gameDTO.getReplacedGameWithActions()))
                 .collect(Collectors.toList());
+            log.info("remove replaced games: " + replacedGames.size());
             dtos.removeAll(replacedGames);
         }
         init();
