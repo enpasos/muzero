@@ -216,10 +216,59 @@ public class ReplayBuffer {
         return gamesToTrain;
     }
 
+//    public void saveStateOld() {
+//
+//        ReplayBufferDTO dto = this.buffer.copyEnvelope();
+//        dto.setData(this.getBuffer().getData().stream().filter(g -> g.networkName.equals(this.currentNetworkName)).collect(Collectors.toList()));
+//
+//
+//        String filename = this.currentNetworkName;
+//        String pathname = config.getGamesBasedir() + File.separator + filename + "_jsonbuf.zip";
+//
+//        byte[] input;
+//
+//        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
+//            log.info("saving ... " + pathname);
+//            input = encodeDTO(dto);
+//            try (FileOutputStream baos = new FileOutputStream(pathname)) {
+//                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+//                    ZipEntry entry = new ZipEntry(filename + ".json");
+//                    entry.setSize(input.length);
+//                    zos.putNextEntry(entry);
+//                    zos.write(input);
+//                    zos.closeEntry();
+//                }
+//            } catch (Exception e) {
+//                throw new MuZeroException(e);
+//            }
+//        }
+//
+//
+//        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
+//            ReplayBufferProto proto = dto.proto();
+//            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf.zip";
+//            log.info("saving ... " + pathname);
+//            input = proto.toByteArray();
+//
+//            try (FileOutputStream baos = new FileOutputStream(pathname)) {
+//                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+//                    ZipEntry entry = new ZipEntry(filename + ".dat");
+//                    entry.setSize(input.length);
+//                    zos.putNextEntry(entry);
+//                    zos.write(input);
+//                    zos.closeEntry();
+//                }
+//            } catch (Exception e) {
+//                throw new MuZeroException(e);
+//            }
+//        }
+//
+//        dto.getData().clear();
+//    }
+
     public void saveState() {
 
-        ReplayBufferDTO dto = this.buffer.copyEnvelope();
-        dto.setData(this.getBuffer().getData().stream().filter(g -> g.networkName.equals(this.currentNetworkName)).collect(Collectors.toList()));
+        ReplayBufferDTO dto = this.buffer;
 
 
         String filename = this.currentNetworkName;
@@ -246,7 +295,7 @@ public class ReplayBuffer {
 
         if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
             ReplayBufferProto proto = dto.proto();
-            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf.zip";
+            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf2.zip";
             log.info("saving ... " + pathname);
             input = proto.toByteArray();
 
@@ -268,29 +317,37 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        Set<GameDTO> dtos = new TreeSet<>();
-        for (Path path : paths) {
-            loadState(path);
-            log.info("buffer gameDTOs size: " + dtos.size());
-            dtos.removeAll(this.buffer.getData());
-            log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
-            dtos.addAll(this.buffer.getData());
-            log.info("after addAll, buffer gameDTOs size: " + dtos.size());
-
-            List<GameDTO> replacedGames = this.buffer.getData().stream().filter(gameDTO -> gameDTO.getReplacedGameWithActions().size() > 0)
-                .map(gameDTO -> new GameDTO(gameDTO.getReplacedGameWithActions()))
-                .collect(Collectors.toList());
-            log.info("remove replaced games: " + replacedGames.size());
-            dtos.removeAll(replacedGames);
-        }
-        init();
-        this.buffer.getData().clear();
-        this.buffer.getData().addAll(dtos);
-        while (this.buffer.getData().size() > config.getWindowSize()) {
-            this.buffer.getData().remove(0);
-        }
+        Path path = paths.get(paths.size() - 1);
+        loadState(path);
         rebuildGames();
     }
+
+//    public void loadLatestStateOld() {
+//        List<Path> paths = getBufferNames();
+//        Set<GameDTO> dtos = new TreeSet<>();
+//        for (Path path : paths) {
+//            loadState(path);
+//            log.info("buffer gameDTOs size: " + dtos.size());
+//            dtos.removeAll(this.buffer.getData());
+//            log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
+//            dtos.addAll(this.buffer.getData());
+//            log.info("after addAll, buffer gameDTOs size: " + dtos.size());
+//
+//            List<GameDTO> replacedGames = this.buffer.getData().stream().filter(gameDTO -> gameDTO.getReplacedGameWithActions().size() > 0)
+//                .map(gameDTO -> new GameDTO(gameDTO.getReplacedGameWithActions()))
+//                .collect(Collectors.toList());
+//            log.info("remove replaced games: " + replacedGames.size());
+//            dtos.removeAll(replacedGames);
+//        }
+//        init();
+//        this.buffer.getData().clear();
+//        this.buffer.getData().addAll(dtos);
+//        while (this.buffer.getData().size() > config.getWindowSize()) {
+//            this.buffer.getData().remove(0);
+//        }
+//        rebuildGames();
+//        saveState2();
+//    }
 
     public void loadGamesOfLastNetwork() {
         List<Path> paths = getBufferNames();
@@ -362,9 +419,7 @@ public class ReplayBuffer {
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
                     zis.getNextEntry();
-                    byte[] raw = zis.readAllBytes();
-
-                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
+                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(zis);
                     this.buffer.deproto(proto);
                     rebuildGames();
                     this.buffer.setWindowSize(config.getWindowSize());
