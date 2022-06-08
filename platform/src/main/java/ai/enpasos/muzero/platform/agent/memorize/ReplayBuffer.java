@@ -295,7 +295,7 @@ public class ReplayBuffer {
 
         if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
             ReplayBufferProto proto = dto.proto();
-            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf2.zip";
+            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf.zip";
             log.info("saving ... " + pathname);
             input = proto.toByteArray();
 
