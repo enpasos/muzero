@@ -30,6 +30,7 @@ message GameProto {
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;
   string networkName = 15;
+  repeated int32 replacedGameWithActions = 16;
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;
