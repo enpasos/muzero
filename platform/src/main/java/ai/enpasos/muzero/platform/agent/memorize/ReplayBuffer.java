@@ -276,6 +276,11 @@ public class ReplayBuffer {
             log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
             dtos.addAll(this.buffer.getData());
             log.info("after addAll, buffer gameDTOs size: " + dtos.size());
+
+            List<GameDTO> replacedGames = this.buffer.getData().stream().filter(gameDTO -> gameDTO.getReplacedGameWithActions().size() > 0)
+                .map(gameDTO -> new GameDTO(gameDTO.getReplacedGameWithActions()))
+                .collect(Collectors.toList());
+            dtos.removeAll(replacedGames);
         }
         init();
         this.buffer.getData().clear();
@@ -286,6 +291,13 @@ public class ReplayBuffer {
         rebuildGames();
     }
 
+    public void loadGamesOfLastNetwork() {
+        List<Path> paths = getBufferNames();
+        Set<GameDTO> dtos = new TreeSet<>();
+        Path path = paths.get(paths.size() - 1);
+        loadState(path);
+        rebuildGames();
+    }
 
     public List<Path> getBufferNames() {
         List<Path> paths = new ArrayList<>();
