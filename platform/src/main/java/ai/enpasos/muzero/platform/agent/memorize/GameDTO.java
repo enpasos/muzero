@@ -42,7 +42,6 @@ public class GameDTO implements Comparable<GameDTO> {
     @EqualsAndHashCode.Include
     private List<Integer> actions;
 
-    private List<Integer> replacedGameWithActions;
 
 
     private List<Float> rewards;
@@ -68,7 +67,6 @@ public class GameDTO implements Comparable<GameDTO> {
 
     public GameDTO() {
         this.actions = new ArrayList<>();
-        this.replacedGameWithActions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
         this.rootValues = new ArrayList<>();
@@ -96,7 +94,6 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.count = this.count;
         copy.surprises.addAll(this.surprises.subList(0, toPosition));
         copy.actions.addAll(this.actions.subList(0, toPosition));
-        copy.replacedGameWithActions.addAll(this.replacedGameWithActions);
         this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         if (this.rootValues.size() >= toPosition)
             copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
@@ -114,7 +111,6 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tSurprise = this.tSurprise;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
-        copy.replacedGameWithActions.addAll(this.replacedGameWithActions);
         copy.surprises.addAll(this.surprises);
         copy.actions.addAll(this.actions);
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
@@ -133,7 +129,6 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTSurprise(this.tSurprise);
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
-        gameBuilder.addAllReplacedGameWithActions(getReplacedGameWithActions());
         gameBuilder.addAllActions(getActions());
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
@@ -156,7 +151,6 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTSurprise(p.getTSurprise());
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
-        this.setReplacedGameWithActions(p.getReplacedGameWithActionsList());
         this.setActions(p.getActionsList());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
