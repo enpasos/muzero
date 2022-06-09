@@ -155,7 +155,7 @@ public class ReplayBuffer {
     public void init() {
         this.batchSize = config.getBatchSize();
         if (this.buffer != null) {
-            this.buffer.getData().clear();
+            //this.buffer.getdata().clear();
             this.buffer.games.stream().forEach(g -> {
                 g.setGameDTO(null);
                 g.setOriginalGameDTO(null);
@@ -216,55 +216,6 @@ public class ReplayBuffer {
         return gamesToTrain;
     }
 
-//    public void saveStateOld() {
-//
-//        ReplayBufferDTO dto = this.buffer.copyEnvelope();
-//        dto.setData(this.getBuffer().getData().stream().filter(g -> g.networkName.equals(this.currentNetworkName)).collect(Collectors.toList()));
-//
-//
-//        String filename = this.currentNetworkName;
-//        String pathname = config.getGamesBasedir() + File.separator + filename + "_jsonbuf.zip";
-//
-//        byte[] input;
-//
-//        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
-//            log.info("saving ... " + pathname);
-//            input = encodeDTO(dto);
-//            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-//                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-//                    ZipEntry entry = new ZipEntry(filename + ".json");
-//                    entry.setSize(input.length);
-//                    zos.putNextEntry(entry);
-//                    zos.write(input);
-//                    zos.closeEntry();
-//                }
-//            } catch (Exception e) {
-//                throw new MuZeroException(e);
-//            }
-//        }
-//
-//
-//        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
-//            ReplayBufferProto proto = dto.proto();
-//            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf.zip";
-//            log.info("saving ... " + pathname);
-//            input = proto.toByteArray();
-//
-//            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-//                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-//                    ZipEntry entry = new ZipEntry(filename + ".dat");
-//                    entry.setSize(input.length);
-//                    zos.putNextEntry(entry);
-//                    zos.write(input);
-//                    zos.closeEntry();
-//                }
-//            } catch (Exception e) {
-//                throw new MuZeroException(e);
-//            }
-//        }
-//
-//        dto.getData().clear();
-//    }
 
     public void saveState() {
 
@@ -312,50 +263,18 @@ public class ReplayBuffer {
             }
         }
 
-        dto.getData().clear();
     }
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        Path path = paths.get(paths.size() - 1);
-        loadState(path);
-        rebuildGames();
+        if (paths.size() > 0) {
+            Path path = paths.get(paths.size() - 1);
+            loadState(path);
+        }
     }
 
-//    public void loadLatestStateOld() {
-//        List<Path> paths = getBufferNames();
-//        Set<GameDTO> dtos = new TreeSet<>();
-//        for (Path path : paths) {
-//            loadState(path);
-//            log.info("buffer gameDTOs size: " + dtos.size());
-//            dtos.removeAll(this.buffer.getData());
-//            log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
-//            dtos.addAll(this.buffer.getData());
-//            log.info("after addAll, buffer gameDTOs size: " + dtos.size());
-//
-//            List<GameDTO> replacedGames = this.buffer.getData().stream().filter(gameDTO -> gameDTO.getReplacedGameWithActions().size() > 0)
-//                .map(gameDTO -> new GameDTO(gameDTO.getReplacedGameWithActions()))
-//                .collect(Collectors.toList());
-//            log.info("remove replaced games: " + replacedGames.size());
-//            dtos.removeAll(replacedGames);
-//        }
-//        init();
-//        this.buffer.getData().clear();
-//        this.buffer.getData().addAll(dtos);
-//        while (this.buffer.getData().size() > config.getWindowSize()) {
-//            this.buffer.getData().remove(0);
-//        }
-//        rebuildGames();
-//        saveState2();
-//    }
 
-    public void loadGamesOfLastNetwork() {
-        List<Path> paths = getBufferNames();
-        Set<GameDTO> dtos = new TreeSet<>();
-        Path path = paths.get(paths.size() - 1);
-        loadState(path);
-        rebuildGames();
-    }
+
 
     public List<Path> getBufferNames() {
         List<Path> paths = new ArrayList<>();
@@ -433,28 +352,20 @@ public class ReplayBuffer {
     }
 
     public void rebuildGames() {
-        buffer.games = new ArrayList<>();
-        for (GameDTO gameDTO : buffer.getData()) {
-            Game game = this.config.newGame();
-            game.setGameDTO(gameDTO);
-            if (!game.terminal()) {
-                game.replayToPosition(game.actionHistory().getActionIndexList().size());
-            }
-            buffer.games.add(game);
-        }
+        this.buffer.rebuildGames(this.config);
     }
 
 
     public void keepOnlyTheLatestGames(int n) {
         buffer.games = buffer.games.subList(Math.max(buffer.games.size() - n, 0), buffer.games.size());
-        buffer.data = buffer.data.subList(Math.max(buffer.data.size() - n, 0), buffer.data.size());
+        //  buffer.setdata(buffer.getdata().subList(Math.max(buffer.getdata().size() - n, 0), buffer.getdata().size()));
     }
 
     public void sortGamesByLastValueError() {
         this.getBuffer().getGames().sort(
             (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
-        this.getBuffer().getData().sort(
-            (GameDTO g1, GameDTO g2) -> Float.compare(g2.getLastValueError(), g1.getLastValueError()));
+//        this.getBuffer().getdata().sort(
+//            (GameDTO g1, GameDTO g2) -> Float.compare(g2.getLastValueError(), g1.getLastValueError()));
     }
 
     public void removeHighLastValueErrorGames() {
@@ -462,7 +373,7 @@ public class ReplayBuffer {
         int size = this.getBuffer().getGames().size();
         if (size <= max) return;
         this.getBuffer().setGames(this.getBuffer().getGames().subList(size - max, size));
-        this.getBuffer().setData(this.getBuffer().getData().subList(size - max, size));
+        // this.getBuffer().setdata(this.getBuffer().getdata().subList(size - max, size));
     }
 
     public void removeGames(List<Game> games) {

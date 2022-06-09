@@ -89,13 +89,13 @@ public class ValueSelfconsistency {
         games = resultGames;
 
         this.replayBuffer.getBuffer().setGames(games);
-        this.replayBuffer.getBuffer().setData(
-            games.stream().map(Game::getGameDTO).collect(Collectors.toList())
-        );
+//        this.replayBuffer.getBuffer().setdata(
+//            games.stream().map(Game::getGameDTO).collect(Collectors.toList())
+//        );
 
         for (int g = 0; g < games.size(); g++) {
             float error = games.get(g).calculateSquaredDistanceBetweenOriginalAndCurrentValue();
-            replayBuffer.getBuffer().getData().get(g).setLastValueError(error);
+            replayBuffer.getBuffer().getGames().get(g).getGameDTO().setLastValueError(error);
         }
         //games.stream().forEach(g -> g.calculateSquaredDistanceBetweenOriginalAndCurrentValue());
 
@@ -116,9 +116,9 @@ public class ValueSelfconsistency {
         this.replayBuffer.removeHighLastValueErrorGames();
 
         games.stream().forEach(Game::afterReplay);
-        this.replayBuffer.getBuffer().setData(
-            games.stream().map(Game::getGameDTO).collect(Collectors.toList())
-        );
+//        this.replayBuffer.getBuffer().setdata(
+//            games.stream().map(Game::getGameDTO).collect(Collectors.toList())
+//        );
 
 
         //  replayBuffer.rebuildGames();

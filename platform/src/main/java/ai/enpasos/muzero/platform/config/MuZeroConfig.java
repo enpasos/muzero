@@ -87,6 +87,7 @@ public class MuZeroConfig {
         return getOutputDir() + "games";
     }
 
+
     public Device getInferenceDevice() {
         switch (this.getInferenceDeviceType()) {
             case CPU:
