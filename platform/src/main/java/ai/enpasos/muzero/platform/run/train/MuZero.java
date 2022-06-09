@@ -84,7 +84,7 @@ public class MuZero {
         int windowSize = config.getWindowSize();
         long startCounter = replayBuffer.getBuffer().getCounter();
         while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
-            log.info(replayBuffer.getBuffer().getData().size() + " of " + windowSize);
+            log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
             selfPlay.playMultipleEpisodes(network, false, true, false);
             replayBuffer.saveState();
         }
@@ -183,7 +183,8 @@ public class MuZero {
         }
     }
 
-    @NotNull void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
+    @NotNull
+    public void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
         createNetworkModelIfNotExisting();
         replayBuffer.init();
         if (freshBuffer) {

@@ -20,9 +20,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -35,7 +33,13 @@ import java.util.stream.Collectors;
 @SuppressWarnings("squid:S2065")
 public class ReplayBufferDTO {
 
-    List<GameDTO> data = new ArrayList<>();
+    private List<GameDTO> initialGameDTOList = new ArrayList<>();
+
+    public List<GameDTO> getDTOListFromGames() {
+        return games.stream().map(game -> game.getGameDTO()).collect(Collectors.toList());
+    }
+
+
     transient List<Game> games = new ArrayList<>();
     private String gameClassName;
     private long counter;
@@ -56,25 +60,25 @@ public class ReplayBufferDTO {
     }
 
     public boolean isBufferFilled() {
-        return data.size() >= windowSize;
+        return games.size() >= windowSize;
     }
 
 
     public void removeGame(Game game) {
         games.remove(game);
-        data.remove(game.getGameDTO());
+        //data.remove(game.getGameDTO());
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
         removeGame(game); // do not keep old copies with the same action history
         while (isBufferFilled()) {
-            GameDTO toBeRemoved = data.get(0);
+            GameDTO toBeRemoved = games.get(0).getGameDTO();
             Game gameToBeRemoved = config.newGame();
             gameToBeRemoved.setGameDTO(toBeRemoved);
             games.remove(gameToBeRemoved);
-            data.remove(0);
+            // data.remove(0);
         }
-        data.add(game.getGameDTO());
+        //   data.add(game.getGameDTO());
         if (!game.terminal()) {
             game.replayToPosition(game.actionHistory().getActionIndexList().size());
         }
@@ -90,10 +94,23 @@ public class ReplayBufferDTO {
 
     }
 
-
-    public void clear() {
-        data.clear();
+    public void rebuildGames(MuZeroConfig config) {
+        games = new ArrayList<>();
+        for (GameDTO gameDTO : getInitialGameDTOList()) {
+            Game game = config.newGame();
+            game.setGameDTO(gameDTO);
+            if (!game.terminal()) {
+                game.replayToPosition(game.actionHistory().getActionIndexList().size());
+            }
+            games.add(game);
+        }
+        getInitialGameDTOList().clear();
     }
+
+
+//    public void clear() {
+//        data.clear();
+//    }
 
 
     public ReplayBufferProto proto() {
@@ -103,7 +120,7 @@ public class ReplayBufferDTO {
             .setWindowSize(getWindowSize())
             .setGameClassName(getGameClassName());
 
-        getData().forEach(gameDTO -> bufferBuilder.addGameProtos(gameDTO.proto()));
+        games.forEach(game -> bufferBuilder.addGameProtos(game.getGameDTO().proto()));
 
         return bufferBuilder.build();
     }
@@ -117,7 +134,9 @@ public class ReplayBufferDTO {
         proto.getGameProtosList().forEach(p -> {
             GameDTO gameDTO = new GameDTO();
             gameDTO.deproto(p);
-            this.getData().add(gameDTO);
+            this.getInitialGameDTOList().add(gameDTO);
         });
     }
+
+
 }

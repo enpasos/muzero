@@ -133,13 +133,24 @@ public class SelfPlay {
 
         List<NetworkIO> networkOutputFinal = initialInference(network, getGameList(), false, false, indexOfJustOneOfTheGames);
 
+
         IntStream.range(0, gameList.size()).forEach(g ->
         {
             Game game = gameList.get(g);
             Node root = rootList.get(g);
             double value = networkOutputFinal.get(g).getValue();
             root.setValueFromInitialInference(value);
+            game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
             calculateSurprise(value, game);
+
+        });
+
+        keepTrackOfOpenGamesReplay();
+
+        IntStream.range(0, gameList.size()).forEach(g ->
+        {
+            Game game = gameList.get(g);
+            Node root = rootList.get(g);
 
             int nActionsReplayed = game.actionHistory().getActionIndexList().size();
             if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
@@ -151,12 +162,12 @@ public class SelfPlay {
                     log.error(e.getMessage(), e);
                     throw new MuZeroException(e);
                 }
-                game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInitialInference());
+
             }
 
         });
 
-        keepTrackOfOpenGamesReplay();
+
     }
 
     private void calculateSurprise(double value, Game game) {
@@ -450,10 +461,10 @@ public class SelfPlay {
         for (List<Game> games : gameBatches) {
             resultGames.addAll(playGamesFromTheirCurrentState(network, games));
         }
-        log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
+        log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());
         resultGames.forEach(replayBuffer::saveGame);
-        log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
+        log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
 
     }
 

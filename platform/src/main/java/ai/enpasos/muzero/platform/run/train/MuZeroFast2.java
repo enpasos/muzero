@@ -99,13 +99,6 @@ public class MuZeroFast2 {
                 trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
 
-//                log.info(loop + " >>> 4. Reevaluate surprises on all games");
-//                log.info("start surprise.measureValueAndSurprise");
-//                surprise.measureValueAndSurprise(network, games);
-//                replayBuffer.saveState();
-//
-//                gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
-//                log.info("end surprise.measureValueAndSurprise");
 
                 log.info(loop + " >>> 5. Replay the 1000 games with the highest marked surprise according to convolution for gameplay. Higher temperature and higher simulationNum at hotspot");
                 gamesWithSurprise.sort(Comparator.comparing(
@@ -132,6 +125,7 @@ public class MuZeroFast2 {
 
         }
     }
+
 
     @NotNull
     private List<Game> identifyGamesWithSurprise(List<Game> games, double surpriseThreshold) {

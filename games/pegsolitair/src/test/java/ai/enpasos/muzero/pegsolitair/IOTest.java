@@ -63,9 +63,9 @@ class IOTest {
         replayBuffer.loadLatestState();
         dto2 = replayBuffer.getBuffer();
 
-        log.info(Arrays.toString(dto1.getData().get(0).getPolicyTargets().get(0)));
-        log.info(Arrays.toString(dto2.getData().get(0).getPolicyTargets().get(0)));
-        assertTrue(Arrays.equals(dto1.getData().get(0).getPolicyTargets().get(0), dto2.getData().get(0).getPolicyTargets().get(0)));
+        log.info(Arrays.toString(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
+        log.info(Arrays.toString(dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
+        assertTrue(Arrays.equals(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0), dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
 
 
     }
