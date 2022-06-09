@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -78,6 +79,8 @@ public class MuZeroFast2 {
 
             double surpriseThreshold = Double.MAX_VALUE;
 
+            List<Game> gamesWithSurprise = new ArrayList<>();
+
             do {
                 log.info("*>*>*>* looping " + loop++);
 
@@ -92,7 +95,7 @@ public class MuZeroFast2 {
 
                 log.info(loop + " >>> 2. for each game with a surprise beyond threshold, mark the surprise beyond threshold that is the latest time");
 
-                List<Game> gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
+                gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
                 log.info(loop + " >>> 3. Train all games (but not on timesteps before t-2)");
 
 
@@ -120,7 +123,7 @@ public class MuZeroFast2 {
                 muzero.playGames(params.render, network, trainingStep);
                 trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
-            } while (surpriseThreshold > 10);
+            } while (!gamesWithSurprise.isEmpty());
 
 
         }
