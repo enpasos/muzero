@@ -85,6 +85,7 @@ class GoMeasureValueAndSurpriseTest {
             //        assertFalse(Arrays.equals(dtoBefore.getRootValuesFromInitialInference().toArray(), dtoAfter.getRootValuesFromInitialInference().toArray()));
             int i = 42;
 
+            assertEquals(dtoAfter.getPolicyTargets().size(), dtoAfter.getPolicyTargets().size());
 
         }
 

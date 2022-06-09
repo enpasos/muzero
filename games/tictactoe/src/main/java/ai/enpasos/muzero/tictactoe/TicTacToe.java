@@ -19,6 +19,8 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeTrainingAndTest trainingAndTest;
     @Autowired
+    private TicTacToeTrainFastAndTest trainFastAndTest;
+    @Autowired
     private TicTacToeSurpriseExtractor surpriseExtractor;
 
 
@@ -54,6 +56,9 @@ public class TicTacToe implements CommandLineRunner {
     @Override
     public void run(String... args) {
         switch (conf.getRun()) {
+            case TRAINFAST:
+                trainFastAndTest.run();
+                break;
             case TRAIN:
                 trainingAndTest.run();
                 break;
