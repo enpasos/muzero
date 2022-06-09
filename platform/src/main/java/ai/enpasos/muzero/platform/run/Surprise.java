@@ -80,6 +80,7 @@ public class Surprise {
             newGame.getGameDTO().setTSurprise(0);
             newGame.getGameDTO().setSurprised(false);
             newGame.getGameDTO().setNetworkName(replayBuffer.getCurrentNetworkName());
+            newGame.getGameDTO().setReplacedGameWithActions(game.getGameDTO().getActions());
             gameSeeds.add(newGame);
         });
         replayBuffer.removeGames(gamesWithOldSurprise);

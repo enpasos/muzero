@@ -277,8 +277,20 @@ public class ReplayBuffer {
     public void loadGamesOfLastNetwork() {
         List<Path> paths = getBufferNames();
         Set<GameDTO> dtos = new TreeSet<>();
-        Path path = paths.get(paths.size() - 1);
-        loadState(path);
+        for (Path path : paths) {
+            loadState(path);
+            log.info("buffer gameDTOs size: " + dtos.size());
+            dtos.removeAll(this.buffer.getData());
+            log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
+            dtos.addAll(this.buffer.getData());
+            log.info("after addAll, buffer gameDTOs size: " + dtos.size());
+        }
+        init();
+        this.buffer.getData().clear();
+        this.buffer.getData().addAll(dtos);
+        while (this.buffer.getData().size() > config.getWindowSize()) {
+            this.buffer.getData().remove(0);
+        }
         rebuildGames();
     }
 

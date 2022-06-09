@@ -83,7 +83,7 @@ public class MuZeroFast2 {
 
                 log.info("start surprise.measureValueAndSurprise");
                 surprise.measureValueAndSurprise(network, games);
-                replayBuffer.saveState();
+
                 log.info("end surprise.measureValueAndSurprise");
 
                 log.info(loop + " >>> 1. find surprise threshold as 3*sigma surprise");
