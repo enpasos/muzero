@@ -88,7 +88,7 @@ public class SurpriseExtractor {
     public Game getGame() {
 
 
-        replayBuffer.loadGamesOfLastNetwork();
+        replayBuffer.loadLatestState();
 
 
         return replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);

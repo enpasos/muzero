@@ -63,7 +63,7 @@ public class TicTacToeTest {
         GameTree gameTree = new GameTree(config);
 
 
-        Set<ZeroSumGame> bufferGameDTOs = replayBuffer.getBuffer().getData().stream().map(d -> new TicTacToeGame(config, d)).collect(Collectors.toSet());
+        Set<ZeroSumGame> bufferGameDTOs = replayBuffer.getBuffer().getGames().stream().map(d -> new TicTacToeGame(config, d.getGameDTO())).collect(Collectors.toSet());
         Set<ZeroSumGame> terminatedGameNotInBufferDTOs = gameTree.terminatedGameNodes.stream()
             .map(DNode::getGame)
             .filter(d -> !bufferGameDTOs.contains(d))
