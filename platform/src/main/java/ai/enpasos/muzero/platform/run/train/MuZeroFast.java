@@ -23,6 +23,7 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -136,7 +137,8 @@ public class MuZeroFast {
     }
 
     private void markTStateA(int backInTime) {
-        this.replayBuffer.getBuffer().getData().forEach(gameDTO -> {
+        this.replayBuffer.getBuffer().getGames().forEach(game -> {
+            GameDTO gameDTO = game.getGameDTO();
             int t = Math.max(0, gameDTO.getActions().size() - 1 - backInTime);
             gameDTO.setTStateA(t);
         });

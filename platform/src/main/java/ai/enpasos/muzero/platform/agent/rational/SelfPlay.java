@@ -450,10 +450,10 @@ public class SelfPlay {
         for (List<Game> games : gameBatches) {
             resultGames.addAll(playGamesFromTheirCurrentState(network, games));
         }
-        log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
+        log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());
         resultGames.forEach(replayBuffer::saveGame);
-        log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getData().size());
+        log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
 
     }
 
