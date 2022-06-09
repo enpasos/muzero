@@ -303,10 +303,10 @@ public abstract class Game {
 
     public void beforeReplayWithoutChangingActionHistory() {
         this.originalGameDTO = this.gameDTO;
-        this.gameDTO = this.gameDTO.copy();
+        this.gameDTO = this.gameDTO.copyWithoutActions();
       //  this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.initEnvironment();
-        this.replayToPosition(getGameDTO().getActions().size());
+        //this.replayToPosition(getGameDTO().getActions().size());
     }
 
     public void beforeReplayWithoutChangingActionHistory(int backInTime) {

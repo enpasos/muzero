@@ -7,6 +7,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.Surprise;
@@ -19,13 +20,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -57,22 +55,35 @@ class GoMeasureValueAndSurpriseTest {
             Network network = new Network(config, model);
             muzero.init(false, false, network, true);
 
-//
             int epoch = networkHelper.getEpoch();
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
-            List<Game> games = this.replayBuffer.getBuffer().getGames();
+            List<Game> games = this.replayBuffer.getBuffer().getGames().subList(0, 1);
 
+            Game game = games.get(0);
+            GameDTO dtoBefore = game.getGameDTO().copy();
 
-            int loop = 0;
-
-            double surpriseThreshold = Double.MAX_VALUE;
-
-            //log.info("*>*>*>* looping " + loop++);
 
             log.info("start surprise.measureValueAndSurprise");
             surprise.measureValueAndSurprise(network, games);
+
+            GameDTO dtoAfter = game.getGameDTO();
+
+            assertArrayEquals(dtoBefore.getActions().toArray(new Integer[0]), dtoAfter.getActions().toArray(new Integer[0]));
+
+// one more states than actions ...
+            assertEquals(dtoAfter.getActions().size() + 1, dtoAfter.getSurprises().size());
+            assertEquals(dtoAfter.getActions().size() + 1, dtoAfter.getRootValuesFromInitialInference().size());
+
+            // TODO fix stored games under pretrained
+            //         assertEquals(dtoBefore.getSurprises().size(), dtoAfter.getSurprises().size());
+            //         assertFalse(Arrays.equals(dtoBefore.getSurprises().toArray(), dtoAfter.getSurprises().toArray()));
+
+
+            //      assertEquals(dtoBefore.getRootValuesFromInitialInference().size(), dtoAfter.getRootValuesFromInitialInference().size());
+            //        assertFalse(Arrays.equals(dtoBefore.getRootValuesFromInitialInference().toArray(), dtoAfter.getRootValuesFromInitialInference().toArray()));
+            int i = 42;
 
 
         }

@@ -96,7 +96,7 @@ public class ReplayBufferDTO {
 
     public void rebuildGames(MuZeroConfig config) {
         games = new ArrayList<>();
-        for (GameDTO gameDTO : getDTOListFromGames()) {
+        for (GameDTO gameDTO : getInitialGameDTOList()) {
             Game game = config.newGame();
             game.setGameDTO(gameDTO);
             if (!game.terminal()) {
@@ -104,6 +104,7 @@ public class ReplayBufferDTO {
             }
             games.add(game);
         }
+        getInitialGameDTOList().clear();
     }
 
 
