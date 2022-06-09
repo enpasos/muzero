@@ -304,7 +304,7 @@ public abstract class Game {
     public void beforeReplayWithoutChangingActionHistory() {
         this.originalGameDTO = this.gameDTO;
         this.gameDTO = this.gameDTO.copy();
-        this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
+      //  this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.initEnvironment();
         this.replayToPosition(getGameDTO().getActions().size());
     }

@@ -1,7 +1,6 @@
 package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Disabled
 class GoInferenceTest {
 
     @Autowired
