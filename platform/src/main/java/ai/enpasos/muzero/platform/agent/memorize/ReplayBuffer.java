@@ -216,10 +216,10 @@ public class ReplayBuffer {
         return gamesToTrain;
     }
 
+
     public void saveState() {
 
-        ReplayBufferDTO dto = this.buffer.copyEnvelope();
-        dto.setData(this.getBuffer().getData().stream().filter(g -> g.networkName.equals(this.currentNetworkName)).collect(Collectors.toList()));
+        ReplayBufferDTO dto = this.buffer;
 
 
         String filename = this.currentNetworkName;
@@ -268,24 +268,19 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        Set<GameDTO> dtos = new TreeSet<>();
-        for (Path path : paths) {
-            loadState(path);
-            log.info("buffer gameDTOs size: " + dtos.size());
-            dtos.removeAll(this.buffer.getData());
-            log.info("after removeAll, buffer gameDTOs size: " + dtos.size());
-            dtos.addAll(this.buffer.getData());
-            log.info("after addAll, buffer gameDTOs size: " + dtos.size());
-        }
-        init();
-        this.buffer.getData().clear();
-        this.buffer.getData().addAll(dtos);
-        while (this.buffer.getData().size() > config.getWindowSize()) {
-            this.buffer.getData().remove(0);
-        }
-        rebuildGames();
+        Path path = paths.get(paths.size() - 1);
+        loadState(path);
+        // rebuildGames();
     }
 
+
+    public void loadGamesOfLastNetwork() {
+        List<Path> paths = getBufferNames();
+        Set<GameDTO> dtos = new TreeSet<>();
+        Path path = paths.get(paths.size() - 1);
+        loadState(path);
+        rebuildGames();
+    }
 
     public List<Path> getBufferNames() {
         List<Path> paths = new ArrayList<>();
@@ -349,9 +344,7 @@ public class ReplayBuffer {
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
                     zis.getNextEntry();
-                    byte[] raw = zis.readAllBytes();
-
-                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(raw);
+                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(zis);
                     this.buffer.deproto(proto);
                     rebuildGames();
                     this.buffer.setWindowSize(config.getWindowSize());

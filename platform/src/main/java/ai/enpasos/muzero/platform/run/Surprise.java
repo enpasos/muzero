@@ -234,11 +234,11 @@ public class Surprise {
 
     public void measureValueAndSurprise(Network network, List<Game> games) {
         games.forEach(Game::beforeReplayWithoutChangingActionHistory);
-        mearsureValueAndSurpriseMain(network, games);
+        measureValueAndSurpriseMain(network, games);
         games.forEach(Game::afterReplay);
     }
 
-    private void mearsureValueAndSurpriseMain(Network network, List<Game> games) {
+    private void measureValueAndSurpriseMain(Network network, List<Game> games) {
         List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
         List<Game> resultGames = new ArrayList<>();
         int i = 1;
@@ -251,7 +251,7 @@ public class Surprise {
 
     public void measureValueAndSurprise(Network network, List<Game> games, int backInTime) {
         games.forEach(game -> game.beforeReplayWithoutChangingActionHistory(backInTime));
-        mearsureValueAndSurpriseMain(network, games);
+        measureValueAndSurpriseMain(network, games);
         games.forEach(Game::afterReplay);
     }
 

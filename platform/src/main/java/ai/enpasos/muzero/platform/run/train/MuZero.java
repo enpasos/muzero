@@ -183,7 +183,8 @@ public class MuZero {
         }
     }
 
-    @NotNull void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
+    @NotNull
+    public void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
         createNetworkModelIfNotExisting();
         replayBuffer.init();
         if (freshBuffer) {

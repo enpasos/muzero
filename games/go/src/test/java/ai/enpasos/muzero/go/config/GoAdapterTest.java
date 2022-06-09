@@ -5,7 +5,6 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Disabled
 class GoAdapterTest {
 
 
