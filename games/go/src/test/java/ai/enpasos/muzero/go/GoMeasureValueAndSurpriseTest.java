@@ -73,7 +73,6 @@ class GoMeasureValueAndSurpriseTest {
 
             log.info("start surprise.measureValueAndSurprise");
             surprise.measureValueAndSurprise(network, games);
-            int i = 42;
 
 
         }
