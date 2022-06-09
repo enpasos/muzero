@@ -30,14 +30,12 @@ public class TicTacToeTrainingAndTest {
 
         muZero.train(TrainParams.builder()
             .render(true)
-            //   .withoutFill(true)
+             //  .withoutFill(true)
             .build());
-
 
         boolean passed = ticTacToeTest.test();
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");
         log.info(message);
-
     }
 
 

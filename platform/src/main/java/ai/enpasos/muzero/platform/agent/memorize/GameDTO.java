@@ -102,6 +102,13 @@ public class GameDTO implements Comparable<GameDTO> {
         return copy;
     }
 
+    public GameDTO copyWithoutActions() {
+        GameDTO copy = new GameDTO();
+        copy.networkName = this.networkName;
+        copy.count = this.count;
+        return copy;
+    }
+
     public GameDTO copy() {
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;

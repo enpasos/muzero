@@ -267,7 +267,7 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        if (paths.size() > 1) {
+        if (paths.size() > 0) {
             Path path = paths.get(paths.size() - 1);
             loadState(path);
         }
