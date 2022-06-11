@@ -75,16 +75,26 @@ public class Surprise {
 
 
         gamesWithOldSurprise.forEach(game -> {
+            if (game.getGameDTO().getActions().equals(List.of(4, 3, 8, 0, 6, 7, 2))) {
+                int i = 42;
+            }
             Game newGame = game.copy((int) game.getGameDTO().getTStateA());
             newGame.getGameDTO().setTStateB(newGame.getGameDTO().getTStateA());
             newGame.getGameDTO().setTSurprise(0);
             newGame.getGameDTO().setSurprised(false);
             newGame.getGameDTO().setNetworkName(replayBuffer.getCurrentNetworkName());
             gameSeeds.add(newGame);
+
+            game.getGameDTO().setTStateA(game.getGameDTO().getTSurprise());
+            game.getGameDTO().setTStateB(game.getGameDTO().getTSurprise());
+            if (game.getGameDTO().getActions().size() == game.getGameDTO().getTSurprise()) {
+                replayBuffer.removeGame(game);
+            }
         });
-        replayBuffer.removeGames(gamesWithOldSurprise);
 
         selfPlay.replayGamesToEliminateSurprise(network, gameSeeds);
+
+        replayBuffer.saveState();
 
     }
 

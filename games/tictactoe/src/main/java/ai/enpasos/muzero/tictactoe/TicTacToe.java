@@ -3,6 +3,7 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.ActionExtractor;
 import ai.enpasos.muzero.tictactoe.run.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,8 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeSurpriseExtractor surpriseExtractor;
 
-
     @Autowired
     private TicTacToePolicyOnly policyOnly;
-
 
     @Autowired
     private TicTacToeTestComponent test;
@@ -36,6 +35,8 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeLossExtractor goLossExtractor;
     @Autowired
     private TicTacToeOnnx onnx;
+    @Autowired
+    private ActionExtractor actionExtractor;
 
     @Autowired
     private TicTacToeValueExtractor valueExtractor;
@@ -56,6 +57,9 @@ public class TicTacToe implements CommandLineRunner {
     @Override
     public void run(String... args) {
         switch (conf.getRun()) {
+            case ACTIONS:
+                actionExtractor.run();
+                break;
             case TRAINFAST:
                 trainFastAndTest.run();
                 break;
