@@ -58,6 +58,7 @@ public class GumbelSearch {
             simulationsFinished = true;
         }
         root.expandRootNode(this.game.toPlay(), legalActions, networkOutput, fastRuleLearning);
+
     }
 
     public void gumbelActionsStart() {
@@ -266,4 +267,10 @@ public class GumbelSearch {
         vs.add(v);
         this.game.getGameDTO().getValues().add(vs);
     }
+
+    public void addExplorationNoise() {
+        root.addExplorationNoise(config);
+    }
+
+
 }
