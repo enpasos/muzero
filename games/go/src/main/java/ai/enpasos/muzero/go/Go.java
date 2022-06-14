@@ -2,6 +2,7 @@ package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.go.run.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.ActionExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -20,6 +21,10 @@ public class Go implements CommandLineRunner {
 
     @Autowired
     private GoTrainFastAndTest trainFastAndTest;
+
+
+    @Autowired
+    private ActionExtractor actionExtractor;
 
     @Autowired
     private MuZeroConfig conf;
@@ -66,6 +71,10 @@ public class Go implements CommandLineRunner {
     @Override
     public void run(String... args) {
         switch (conf.getRun()) {
+
+            case ACTIONS:
+                actionExtractor.run();
+                break;
             case TRAINFAST:
                 trainFastAndTest.run();
                 break;

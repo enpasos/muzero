@@ -37,7 +37,7 @@ public class TicTacToeSurpriseExtractor {
     @SuppressWarnings("squid:S125")
     public void run() {
 
-        Game game = surpriseExtractor.getGame();
+        Game game = surpriseExtractor.getGame(44);
 
         System.out.println(surpriseExtractor.listValuesForTrainedNetworks(game));
 

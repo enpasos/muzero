@@ -68,8 +68,7 @@ muzero:
 
       numSimulations: 30
 
-
-      numberOfTrainingSteps: 5000
+      numberOfTrainingSteps: 4000
 
       numResiduals: 8
       broadcastEveryN: 4

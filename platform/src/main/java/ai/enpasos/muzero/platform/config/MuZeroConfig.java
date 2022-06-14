@@ -266,6 +266,13 @@ public class MuZeroConfig {
         return getConf().surpriseCheckInterval;
     }
 
+    public double getRootDirichletAlpha() {
+        return getConf().rootDirichletAlpha;
+    }
+
+    public double getRootExplorationFraction() {
+        return getConf().rootExplorationFraction;
+    }
 
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
@@ -415,7 +422,8 @@ public class MuZeroConfig {
 
         protected int surpriseCheckInterval;
         protected KnownBoundsType knownBoundsType;
-
+        protected double rootDirichletAlpha;
+        protected double rootExplorationFraction;
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
         protected int numEpisodes;
