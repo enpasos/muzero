@@ -100,6 +100,9 @@ public class ReplayBuffer {
         int enhanceFactor = 1;
         long numNormalActions = numActions - (dto.getTStateA() + delta);
         int n = (int) (enhanceFactor * (delta) + numNormalActions);
+        if (n <= 0) {
+            int i = 42;
+        }
         int rawpos = ThreadLocalRandom.current().nextInt(0, n);
         int gamePos = 0;
         if (rawpos < numNormalActions) {
@@ -177,6 +180,7 @@ public class ReplayBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps, int tdSteps, NDManager ndManager) {
 
         return sampleGames().stream()
+            .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
             .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
             .collect(Collectors.toList());
 

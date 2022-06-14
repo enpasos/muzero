@@ -43,7 +43,6 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Integer> actions;
 
 
-
     private List<Float> rewards;
     private List<Float> surprises;
     private List<float[]> policyTargets;
@@ -53,6 +52,8 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Float> rootValuesFromInitialInference;
     private float lastValueError;
     private long count;
+
+    private long nextSurpriseCheck;
 
     private boolean surprised;
     private long tSurprise;
@@ -92,6 +93,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.count = this.count;
+        copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.surprises.addAll(this.surprises.subList(0, toPosition));
         copy.actions.addAll(this.actions.subList(0, toPosition));
         this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
@@ -106,6 +108,7 @@ public class GameDTO implements Comparable<GameDTO> {
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;
         copy.count = this.count;
+        copy.nextSurpriseCheck = this.nextSurpriseCheck;
         return copy;
     }
 
@@ -113,6 +116,7 @@ public class GameDTO implements Comparable<GameDTO> {
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;
         copy.count = this.count;
+        copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.rewards.addAll(this.rewards);
         copy.surprised = this.surprised;
         copy.tSurprise = this.tSurprise;
@@ -132,6 +136,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setNetworkName(this.networkName);
         gameBuilder.setLastValueError(this.lastValueError);
         gameBuilder.setCount(this.count);
+        gameBuilder.setNextSurpriseCheck(this.nextSurpriseCheck);
         gameBuilder.setSurprised(this.surprised);
         gameBuilder.setTSurprise(this.tSurprise);
         gameBuilder.setTStateA(this.tStateA);
@@ -165,6 +170,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setCount(p.getCount());
+        this.setNextSurpriseCheck(p.getNextSurpriseCheck());
 
 
         if (p.getPolicyTargetsCount() > 0) {
