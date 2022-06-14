@@ -79,7 +79,7 @@ muzero:
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
 
-      temperatureRoot: 1.0  # 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
+      temperatureRoot: 1.0  # obsolete .... 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
 
       valueLossWeight: 1.0
 
