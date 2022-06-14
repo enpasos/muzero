@@ -82,7 +82,7 @@ muzero:
 
       valueLossWeight: 1.0
 
-      rootDirichletAlpha: 1
+      rootDirichletAlpha: 1.0
       rootExplorationFraction: 0.25
 
       windowSize: 10000 # or 20000
