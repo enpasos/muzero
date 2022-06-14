@@ -96,4 +96,16 @@ public class SurpriseExtractor {
 
     }
 
+    @NotNull
+    public Game getGame(int no) {
+
+
+        replayBuffer.loadLatestState();
+
+
+        return replayBuffer.getBuffer().getGames().get(no);
+
+
+    }
+
 }
