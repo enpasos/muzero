@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
+import ai.enpasos.muzero.platform.common.Functions;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
@@ -263,4 +264,18 @@ public class Node {
     }
 
 
+    // prior maybe not perfect therefore some part of numsim and some fallback to random distribution is invested
+    // even for gumbel muzero
+    public void addExplorationNoise(MuZeroConfig config) {
+        if (!this.isRoot()) throw new MuZeroException("functionality not prepared to add noise at non root");
+
+        int numOfAllowedActions = this.children.size();
+        double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
+        double frac = config.getRootExplorationFraction();
+        for (int i = 0; i < this.children.size(); i++) {
+            Node node = children.get(i);
+            node.setPrior(node.getPrior() * (1d - frac) + noise[i] * frac);
+            node.setLogit(Math.log(node.getPrior()));
+        }
+    }
 }
