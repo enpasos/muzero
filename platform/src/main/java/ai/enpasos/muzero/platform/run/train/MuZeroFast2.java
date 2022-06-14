@@ -95,7 +95,7 @@ public class MuZeroFast2 {
 
                 log.info(loop + " >>> 2. for each game with a surprise beyond threshold, mark the surprise beyond threshold that is the latest time");
 
-                gamesWithSurprise = identifyGamesWithSurprise(games, surpriseThreshold);
+                gamesWithSurprise = muzero.identifyGamesWithSurprise(games, surpriseThreshold, -3);
                 log.info(loop + " >>> 3. Train all games (but not on timesteps before t-2)");
 
 
@@ -130,25 +130,7 @@ public class MuZeroFast2 {
     }
 
 
-    @NotNull
-    private List<Game> identifyGamesWithSurprise(List<Game> games, double surpriseThreshold) {
-        List<Game> gamesWithSurprise = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold);
 
-
-        games.stream().forEach(game -> {
-            game.getGameDTO().setSurprised(false);
-            game.getGameDTO().setTStateA(0);
-            game.getGameDTO().setTStateB(0);
-        });
-        gamesWithSurprise.stream().forEach(game -> {
-            game.getGameDTO().setSurprised(true);
-            long t = game.getGameDTO().getTSurprise();
-            long t0 = Math.max(t - 3, 0);
-            game.getGameDTO().setTStateA(t0);
-            game.getGameDTO().setTStateB(t0);
-        });
-        return gamesWithSurprise;
-    }
 
 
 }

@@ -30,6 +30,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -46,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
@@ -156,6 +158,10 @@ public class MuZero {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
 
+                    if (trainingStep > 1000) {
+                        surpriseCheck(network);
+                    }
+
                     if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
                         surprise.handleOldSurprises(network);
                         surprise.markSurprise();
@@ -181,6 +187,36 @@ public class MuZero {
                 i++;
             }
         }
+    }
+
+    private void surpriseCheck(Network network) {
+        List<Game> gamesForThreshold = this.replayBuffer.getBuffer().getGames().stream()
+            .filter(game -> game.getGameDTO().getSurprises().size() > 0).collect(Collectors.toList());
+        double surpriseThreshold = surprise.getSurpriseThreshold(gamesForThreshold);
+        log.info("surpriseThreshold: " + surpriseThreshold);
+        long c = this.replayBuffer.getBuffer().getCounter();
+        List<Game> gamesToCheck = this.replayBuffer.getBuffer().getGames().stream()
+            .filter(game -> {
+                    long nextCheck = game.getGameDTO().getNextSurpriseCheck();
+                    if (nextCheck == 0) {
+                        game.getGameDTO().setNextSurpriseCheck(this.config.getSurpriseCheckInterval());
+                        nextCheck = game.getGameDTO().getNextSurpriseCheck();
+                    }
+                    return nextCheck < c;
+                }
+            ).collect(Collectors.toList());
+
+        log.info("start surprise.measureValueAndSurprise of " + gamesToCheck.size() + " games");
+        surprise.measureValueAndSurprise(network, gamesToCheck);
+        log.info("end surprise.measureValueAndSurprise");
+
+        gamesToCheck.stream().forEach(game -> {
+            game.getGameDTO().setNextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck() + config.getSurpriseCheckInterval());
+        });
+
+
+        identifyGamesWithSurprise(this.replayBuffer.getBuffer().getGames(), surpriseThreshold, 0);
+
     }
 
     @NotNull
@@ -238,7 +274,6 @@ public class MuZero {
                         EasyTrain.trainBatch(trainer, batch);
                         trainer.step();
                     }
-
                 }
                 Metrics metrics = trainer.getMetrics();
 
@@ -293,6 +328,26 @@ public class MuZero {
             play(network, render, justInitialInferencePolicy);
             replayBuffer.saveState();
         }
+    }
+
+    @NotNull
+    public List<Game> identifyGamesWithSurprise(List<Game> games, double surpriseThreshold, int offset) {
+        List<Game> gamesWithSurprise = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold);
+
+
+        games.stream().forEach(game -> {
+            game.getGameDTO().setSurprised(false);
+            game.getGameDTO().setTStateA(0);
+            game.getGameDTO().setTStateB(0);
+        });
+        gamesWithSurprise.stream().forEach(game -> {
+            game.getGameDTO().setSurprised(true);
+            long t = game.getGameDTO().getTSurprise();
+            long t0 = Math.max(t + offset, 0);
+            game.getGameDTO().setTStateA(t0);
+            game.getGameDTO().setTStateB(t0);
+        });
+        return gamesWithSurprise;
     }
 
 }
