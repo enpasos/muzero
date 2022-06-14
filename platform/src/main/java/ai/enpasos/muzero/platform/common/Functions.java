@@ -25,7 +25,9 @@ public class Functions {
     }
 
     public static double @NotNull [] numpyRandomDirichlet(double alpha, int dims) {
-
+if (alpha <= 0) {
+    int i = 42;
+}
         double[] alphas = new double[dims];
         Arrays.fill(alphas, alpha);
         DirichletGen dg = new DirichletGen(randomStreamBase, alphas);

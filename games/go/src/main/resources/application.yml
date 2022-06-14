@@ -79,8 +79,6 @@ muzero:
       numResiduals: 8
       broadcastEveryN: 3  # broadcasting block in every 8th layer
 
-      windowSize: 100000
-      maxGameLiveTime: 10000000
 
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
@@ -88,6 +86,13 @@ muzero:
       temperatureRoot: 1.0  # 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
 
       valueLossWeight: 5.0
+
+      rootDirichletAlpha: 1.0
+      rootExplorationFraction: 0.0
+
+      windowSize: 50000 # or 20000
+      maxGameLiveTime: 10000000  # or 40000
+      surpriseCheckInterval: 50000
 
 
     GO_9:
@@ -161,11 +166,16 @@ muzero:
 
       broadcastEveryN: 8
       numBottleneckChannels: 64
-      windowSize: 40000
-      maxGameLiveTime: 40000
+
 
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
 
-      temperatureRoot: 2.0  # 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
+      temperatureRoot: 1.0  # 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
 
+      rootDirichletAlpha: 1.0
+      rootExplorationFraction: 0.0
+
+      windowSize: 50000 # or 20000
+      maxGameLiveTime: 10000000  # or 40000
+      surpriseCheckInterval: 50000
