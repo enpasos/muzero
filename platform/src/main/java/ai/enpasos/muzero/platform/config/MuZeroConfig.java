@@ -262,6 +262,10 @@ public class MuZeroConfig {
         return getConf().numberTrainingStepsOnStart;
     }
 
+    public int getSurpriseCheckInterval() {
+        return getConf().surpriseCheckInterval;
+    }
+
 
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
@@ -408,6 +412,8 @@ public class MuZeroConfig {
         protected int boardWidth;
         protected int actionSpaceSize;
         protected int numberTrainingStepsOnStart;
+
+        protected int surpriseCheckInterval;
         protected KnownBoundsType knownBoundsType;
 
         protected DeviceType inferenceDeviceType;
