@@ -158,9 +158,9 @@ public class MuZero {
                 if (!params.freshBuffer) {
                     playGames(params.render, network, trainingStep);
 
-                    if (trainingStep > 1000) {
-                        surpriseCheck(network);
-                    }
+                    //  if (trainingStep > 1000) {
+//                        surpriseCheck(network);
+                    //   }
 
                     if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
                         surprise.handleOldSurprises(network);
@@ -180,6 +180,7 @@ public class MuZero {
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
+                surpriseCheck(network);
 
                 if (i % 5 == 0) {
                     params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
@@ -191,7 +192,8 @@ public class MuZero {
 
     private void surpriseCheck(Network network) {
         List<Game> gamesForThreshold = this.replayBuffer.getBuffer().getGames().stream()
-            .filter(game -> game.getGameDTO().getSurprises().size() > 0).collect(Collectors.toList());
+            .filter(game -> game.getGameDTO().getSurprises().size() > 0)
+            .filter(game -> game.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
         double surpriseThreshold = surprise.getSurpriseThreshold(gamesForThreshold);
         log.info("surpriseThreshold: " + surpriseThreshold);
         long c = this.replayBuffer.getBuffer().getCounter();
