@@ -131,6 +131,7 @@ public class Surprise {
         });
         Collections.sort(relevantSurprises);
         Collections.reverse(relevantSurprises);
+        if (relevantSurprises.size() == 0) return Double.MAX_VALUE;
 
         double surpriseMean = relevantSurprises.stream().mapToDouble(x -> x).average().orElseThrow(MuZeroException::new);
         double surpriseMax = relevantSurprises.stream().mapToDouble(x -> x).max().orElseThrow(MuZeroException::new);
@@ -164,8 +165,10 @@ public class Surprise {
         });
 
         List<Game> gamesToInvestigate = games.stream()
+            .filter(g -> g.getGameDTO().getSurprises().size() > 0)
             .filter(g -> g.getGameDTO().getSurprises().stream().mapToDouble(x -> x).max().getAsDouble() >= surpriseThreshold).collect(Collectors.toList());
 
+        if (gamesToInvestigate.size() == 0) return new ArrayList<>();
 
         log.info("no of total games with surprise above threshold: " + gamesToInvestigate.size() + " / " + games.size());
 

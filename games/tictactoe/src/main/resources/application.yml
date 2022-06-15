@@ -68,7 +68,7 @@ muzero:
 
       numSimulations: 30
 
-      numberOfTrainingSteps: 4000
+      numberOfTrainingSteps: 10000
 
       numResiduals: 8
       broadcastEveryN: 4
@@ -85,6 +85,6 @@ muzero:
       rootDirichletAlpha: 1.0
       rootExplorationFraction: 0.25
 
-      windowSize: 10000 # or 20000
-      maxGameLiveTime: 100000  # or 40000
+      windowSize: 10000
+      maxGameLiveTime: 1000000
       surpriseCheckInterval: 10000
