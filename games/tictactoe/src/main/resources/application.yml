@@ -68,7 +68,6 @@ muzero:
 
       numSimulations: 30
 
-      numberOfTrainingSteps: 10000
 
       numResiduals: 8
       broadcastEveryN: 4
@@ -88,3 +87,5 @@ muzero:
       windowSize: 10000
       maxGameLiveTime: 1000000
       surpriseCheckInterval: 10000
+
+      numberOfTrainingSteps: 10000
