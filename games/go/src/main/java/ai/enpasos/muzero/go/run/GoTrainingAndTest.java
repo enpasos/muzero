@@ -30,11 +30,11 @@ public class GoTrainingAndTest {
 
     @SuppressWarnings("squid:S125")
     public void run() {
-           rmDir(config.getOutputDir());
+         //  rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
             // .afterTrainingHookIn(this::adjustKomi)
-          //  .withoutFill(true)
+            .withoutFill(true)
             //  .afterSelfPlayHookIn((epoch, network) -> goSurprise.train(epoch, network))
             .build());
     }

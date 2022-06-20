@@ -94,6 +94,9 @@ public class Surprise {
 
         selfPlay.replayGamesToEliminateSurprise(network, gameSeeds);
 
+        gamesWithOldSurprise.clear();
+        gameSeeds.clear();
+
         replayBuffer.saveState();
 
     }
@@ -109,6 +112,7 @@ public class Surprise {
         List<Game> games = getRelevantGames(n);
         double quantil = this.getSurpriseThreshold(games);
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, 1000).getLeft();
+        games.clear();
     }
 
 
@@ -117,9 +121,9 @@ public class Surprise {
             .filter(game -> !game.getGameDTO().getSurprises().isEmpty())
             .collect(Collectors.toList());
 
-        return games.subList(Math.max(games.size() - numGames, 0), games.size());
-
-
+        List<Game> result = games.subList(Math.max(games.size() - numGames, 0), games.size());
+        games.clear();
+        return result;
     }
 
 
