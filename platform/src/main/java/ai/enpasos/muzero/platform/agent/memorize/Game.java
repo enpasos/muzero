@@ -185,6 +185,7 @@ public abstract class Game {
             setValueOnTarget(target, value);
             target.setReward(lastReward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            target.setLegal(this.getGameDTO().getLegalTargets().get(currentIndex));
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -200,12 +201,17 @@ public abstract class Game {
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
+
+            target.setLegal(new int[this.actionSpaceSize]);
+
         } else {
             setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
+
+            target.setLegal(new int[this.actionSpaceSize]);
         }
 
     }
@@ -305,6 +311,7 @@ public abstract class Game {
         this.originalGameDTO = this.gameDTO;
         this.gameDTO = this.gameDTO.copyWithoutActions();
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
+        this.gameDTO.setLegalTargets(this.originalGameDTO.getLegalTargets());
         this.initEnvironment();
         //this.replayToPosition(getGameDTO().getActions().size());
     }
@@ -326,5 +333,13 @@ public abstract class Game {
 
     public void initSearchManager() {
         searchManager = new GumbelSearch(config, this, debug);
+    }
+
+    public void storeLegalActionsWithGameStatistics(List<Action> legalActions) {
+        int[] legalActionArray = new int[this.config.getActionSpaceSize()];
+        for (Action a : legalActions) {
+            legalActionArray[a.getIndex()] = 1;
+        }
+        this.getGameDTO().getLegalTargets().add(legalActionArray);
     }
 }

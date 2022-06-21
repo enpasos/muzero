@@ -24,4 +24,5 @@ public class Target {
     private float value;
     private float reward;
     private float[] policy;
+    private int[] legal;
 }

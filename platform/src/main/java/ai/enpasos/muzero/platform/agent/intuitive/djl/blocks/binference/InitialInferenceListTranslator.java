@@ -63,7 +63,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             .build();
 
 
-        NDArray logits = list.get(1);
+        NDArray logits = list.get(2);  // not 1
 
         NDArray p = logits.softmax(1);
 
@@ -74,7 +74,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
         float[] pArray = p.toFloatArray();
 
-        NDArray v = list.get(2);
+        NDArray v = list.get(3);  // not 2
         float[] vArray = v.toFloatArray();
 
         NDArray vp = null;

@@ -41,7 +41,7 @@ public class LossExtractor {
 
         StringWriter stringWriter = new StringWriter();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss").build())) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "legalLoss", "policyLoss").build())) {
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
@@ -54,6 +54,7 @@ public class LossExtractor {
                             csvPrinter.printRecord(trainingSteps,
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLegalLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
                             );
                         } catch (Exception ignored) {

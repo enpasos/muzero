@@ -162,10 +162,10 @@ public class MuZero {
 //                        surpriseCheck(network);
                     //   }
 
-                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
-                        surprise.handleOldSurprises(network);
-                        surprise.markSurprise();
-                    }
+//                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
+//                        surprise.handleOldSurprises(network);
+//                        surprise.markSurprise();
+//                    }
 
                     if (config.isExtraValueTrainingOn()) {
                         double temp = config.getTemperatureRoot();
@@ -180,7 +180,10 @@ public class MuZero {
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-                surpriseCheck(network);
+
+                if (config.isSurpriseHandlingOn()) {
+                    surpriseCheck(network);
+                }
 
                 if (i % 5 == 0) {
                     params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
@@ -309,6 +312,19 @@ public class MuZero {
                     .sum();
                 model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
                 log.info("MeanPolicyLoss: " + meanPolicyLoss);
+
+
+                // mean legal loss
+                double meanLegalLoss = metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("legal_0"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                meanLegalLoss += metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("legal_0") && name.contains("legal"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                model.setProperty("MeanLegalLoss", Double.toString(meanLegalLoss));
+                log.info("MeanLegalLoss: " + meanLegalLoss);
 
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
 

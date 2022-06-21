@@ -75,6 +75,7 @@ public class MuZeroBlock extends AbstractBlock {
         NDList predictionResult = predictionBlock.forward(parameterStore, representationResult, training, params);
         combinedResult.add(predictionResult.get(0));
         combinedResult.add(predictionResult.get(1));
+        combinedResult.add(predictionResult.get(2));
 
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
@@ -91,6 +92,7 @@ public class MuZeroBlock extends AbstractBlock {
 
             combinedResult.add(predictionResult.get(0));
             combinedResult.add(predictionResult.get(1));
+            combinedResult.add(predictionResult.get(2));
 
         }
         return combinedResult;

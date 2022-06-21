@@ -50,8 +50,6 @@ public class PredictionBlock extends MySequentialBlock {
         } else { // default is EXPECTED
             valueHead.add(LinearExt.builder()
                 .setUnits(1).build());
-
-
             if (isPlayerModeTWOPLAYERS) {
                 valueHead.add(ActivationExt.tanhBlock());
             }
@@ -64,9 +62,16 @@ public class PredictionBlock extends MySequentialBlock {
                 .setUnits(actionSpaceSize)
                 .build());
 
+        SequentialBlockExt legalHead = (SequentialBlockExt) new SequentialBlockExt()
+            .add(Conv1x1LayerNormRelu.builder().channels(2).build())
+            .add(BlocksExt.batchFlattenBlock())
+            .add(LinearExt.builder()
+                .setUnits(actionSpaceSize)
+                .build())
+            .add(ActivationExt.sigmoidBlock());
 
         add(new ParallelBlockWithCollectChannelJoinExt(
-            Arrays.asList(policyHead, valueHead))
+            Arrays.asList(legalHead, policyHead, valueHead))
         );
     }
 

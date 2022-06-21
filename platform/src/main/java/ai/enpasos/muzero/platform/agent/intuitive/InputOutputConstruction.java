@@ -158,6 +158,7 @@ public class InputOutputConstruction {
         List<NDArray> outputs = new ArrayList<>();
         for (int k = 0; k <= numUnrollSteps; k++) {
             List<NDArray> policyList = new ArrayList<>();
+            List<NDArray> legalList = new ArrayList<>();
             List<NDArray> valueList = new ArrayList<>();
             int b = 0;
             for (Sample s : batch) {
@@ -179,11 +180,14 @@ public class InputOutputConstruction {
                 log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
                 NDArray c = nd.create(target.getPolicy());
                 policyList.add(c);
-
+                NDArray d = nd.create(target.getLegal());
+                legalList.add(d);
                 b++;
             }
+            NDArray legalOutput2 = NDArrays.stack(new NDList(legalList));
             NDArray policyOutput2 = NDArrays.stack(new NDList(policyList));
             NDArray valueOutput2 = NDArrays.stack(new NDList(valueList));
+            outputs.add(symmetryEnhancerPolicy(legalOutput2));
             outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
         }

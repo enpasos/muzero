@@ -197,10 +197,13 @@ public class SelfPlay {
         List<NetworkIO> networkOutputFinal = networkOutput;
 
 
+        storeLegalActionsWithGameStatistics(gamesToApplyAction);
+
         if (justInitialInferencePolicy) {
             playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
             return;
         }
+
 
         if (!fastRuleLearning) {
             IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
@@ -272,7 +275,10 @@ public class SelfPlay {
         List<Node> roots = new ArrayList<>();
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
             Game game = gamesToApplyAction.get(i);
+
             List<Action> legalActions = game.legalActions();
+//            game.storeLegalActionsWithGameStatistics(legalActions);
+
             Node root = new Node(config, 0, true);
             roots.add(root);
             root.expandRootNode(game.toPlay(), legalActions, networkOutputFinal.get(i), fastRuleLearning);
@@ -290,6 +296,16 @@ public class SelfPlay {
 
         keepTrackOfOpenGames();
     }
+
+    @SuppressWarnings("squid:S3740")
+    private void storeLegalActionsWithGameStatistics(List<Game> gamesToApplyAction) {
+        IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
+            Game game = gamesToApplyAction.get(i);
+            List<Action> legalActions = game.legalActions();
+            game.storeLegalActionsWithGameStatistics(legalActions);
+        });
+    }
+
 
     private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render) {
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
