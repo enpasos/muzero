@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.rational.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -153,6 +154,10 @@ public abstract class Game {
         );
     }
 
+    public boolean isTooOld(MuZeroConfig config, long counter) {
+        return counter - getGameDTO().getCount() > config.getMaxGameLiveTime();
+    }
+
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
 
@@ -160,18 +165,19 @@ public abstract class Game {
         this.getGameDTO().getActions().add(action.getIndex());
     }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps, long counter) {
         List<Target> targets = new ArrayList<>();
 
+        boolean trainValueAndPolicy = !this.isTooOld(config, counter);
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(stateIndex, tdSteps, currentIndex, target);
+            fillTarget(stateIndex, tdSteps, currentIndex, target, trainValueAndPolicy);
             targets.add(target);
         });
         return targets;
     }
 
-    private void fillTarget(int stateIndex, int tdSteps, int currentIndex, Target target) {
+    private void fillTarget(int stateIndex, int tdSteps, int currentIndex, Target target, boolean trainValueAndPolicy) {
         int perspective = getPerspective(stateIndex, currentIndex);
 
         int bootstrapIndex = currentIndex + tdSteps;
@@ -182,9 +188,16 @@ public abstract class Game {
         float lastReward = getLastReward(currentIndex);
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-            setValueOnTarget(target, value);
-            target.setReward(lastReward);
-            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            if (trainValueAndPolicy) {
+                setValueOnTarget(target, value);
+                target.setReward(lastReward);
+                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            } else {
+                setValueOnTarget(target, MyL2Loss.NULL_VALUE);
+                target.setReward(MyL2Loss.NULL_VALUE);
+                target.setPolicy(new float[this.actionSpaceSize]);
+            }
+
             target.setLegal(this.getGameDTO().getLegalTargets().get(currentIndex));
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
@@ -195,18 +208,28 @@ public abstract class Game {
             // we need use this node to keep the reward value
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
+            if (trainValueAndPolicy) {
+                setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
+                target.setReward(lastReward);
+            } else {
+                setValueOnTarget(target, MyL2Loss.NULL_VALUE); // this is not really the value, it is taking the role of the reward here
+                target.setReward(MyL2Loss.NULL_VALUE);
+            }
 
-            setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
-            target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
+            Arrays.fill(target.getPolicy(), 0f); // 0f works as a NULL value here
 
-            target.setLegal(new int[this.actionSpaceSize]);
+            target.setLegal(new int[this.actionSpaceSize]);  // no NULL values needed
 
         } else {
-            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
-            target.setReward(lastReward);
+            if (trainValueAndPolicy) {
+                setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? 0f : (float) value); // this is not really the value, it is taking the role of the reward here
+                target.setReward(lastReward);
+            } else {
+                setValueOnTarget(target, MyL2Loss.NULL_VALUE); // this is not really the value, it is taking the role of the reward here
+                target.setReward(MyL2Loss.NULL_VALUE);
+            }
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);

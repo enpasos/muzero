@@ -82,10 +82,10 @@ muzero:
       valueLossWeight: 1.0
 
       rootDirichletAlpha: 1.0
-      rootExplorationFraction: 0.25
+      rootExplorationFraction: 0.0
 
-      windowSize: 10000
-      maxGameLiveTime: 1000000
+      windowSize: 3000
+      maxGameLiveTime: 10000
       surpriseCheckInterval: 10000
 
       numberOfTrainingSteps: 10000

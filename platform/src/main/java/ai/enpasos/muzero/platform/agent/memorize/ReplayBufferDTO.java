@@ -86,13 +86,14 @@ public class ReplayBufferDTO {
         counter++;
         game.getGameDTO().setCount(counter);
 
-        List<Game> toRemove = games.stream()
-            .filter(g -> counter - g.getGameDTO().getCount() > config.getMaxGameLiveTime())
-            .collect(Collectors.toList());
-        toRemove.forEach(this::removeGame);
+//        List<Game> toRemove = games.stream()
+//            .filter(g ->  isTooOld(config, g))
+//            .collect(Collectors.toList());
+//        toRemove.forEach(this::removeGame);
 
 
     }
+
 
     public void rebuildGames(MuZeroConfig config) {
         games = new ArrayList<>();
