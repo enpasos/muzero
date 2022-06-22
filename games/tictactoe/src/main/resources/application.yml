@@ -84,8 +84,9 @@ muzero:
       rootDirichletAlpha: 1.0
       rootExplorationFraction: 0.0
 
-      windowSize: 3000
-      maxGameLiveTime: 10000
+      windowSize: 10000
+      maxGameLiveTime: 100000
+
       surpriseCheckInterval: 10000
 
       numberOfTrainingSteps: 10000

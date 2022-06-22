@@ -22,17 +22,11 @@ public class ParallelBlockWithCollectChannelJoinExt extends ParallelBlock implem
 
     public ParallelBlockWithCollectChannelJoinExt(List<Block> blocks) {
         super(
-
             list -> {
-                List<NDArray> collectedList = list
-                    .stream()
-                    .map(NDList::head)
-                    .collect(Collectors.toList());
-
+                List<NDArray> collectedList = new ArrayList<>();
+                list.stream().forEach(ndArrays -> collectedList.addAll(ndArrays));
                 return new NDList(collectedList);
             }
-
-
             , blocks);
     }
 

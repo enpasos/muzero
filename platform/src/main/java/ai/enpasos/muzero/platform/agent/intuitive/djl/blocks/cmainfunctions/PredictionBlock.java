@@ -70,8 +70,31 @@ public class PredictionBlock extends MySequentialBlock {
                 .build())
             .add(ActivationExt.sigmoidBlock());
 
+//        SequentialBlockExt policyHeadPolicy = (SequentialBlockExt) new SequentialBlockExt()
+//
+//            .add(LinearExt.builder()
+//                .setUnits(actionSpaceSize)
+//                .build());
+//
+//        SequentialBlockExt policyHeadLegal = (SequentialBlockExt) new SequentialBlockExt()
+//
+//            .add(LinearExt.builder()
+//                .setUnits(actionSpaceSize)
+//                .build())
+//            .add(ActivationExt.sigmoidBlock());
+//
+//
+//        SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt()
+//            .add(Conv1x1LayerNormRelu.builder().channels(2).build())
+//            .add(BlocksExt.batchFlattenBlock())
+//            .add(new ParallelBlockWithCollectChannelJoinExt(
+//            Arrays.asList( policyHeadLegal, policyHeadPolicy))
+//        );
+
+
         add(new ParallelBlockWithCollectChannelJoinExt(
-            Arrays.asList(legalHead, policyHead, valueHead))
+                Arrays.asList(legalHead, policyHead, valueHead))
+            //Arrays.asList( policyHead, valueHead))
         );
     }
 
