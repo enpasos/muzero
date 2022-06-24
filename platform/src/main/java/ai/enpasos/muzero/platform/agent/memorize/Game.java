@@ -47,6 +47,8 @@ public abstract class Game {
 
     protected boolean purelyRandom;
 
+    boolean playedMoreThanOnce;
+
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
 

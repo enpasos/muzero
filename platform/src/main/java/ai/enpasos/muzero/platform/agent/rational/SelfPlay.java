@@ -455,9 +455,9 @@ public class SelfPlay {
         });
     }
 
-    public void replayGamesToEliminateSurprise(Network network, List<Game> gamesToReplay) {
-        log.info("replayGamesToEliminateSurprise, {} games", gamesToReplay.size());
-        List<List<Game>> gameBatches = ListUtils.partition(gamesToReplay, config.getNumParallelGamesPlayed());
+    public void replayGamesFromSeeds(Network network, List<Game> gameSeeds) {
+        log.info("replayGamesFromSeeds, {} games", gameSeeds.size());
+        List<List<Game>> gameBatches = ListUtils.partition(gameSeeds, config.getNumParallelGamesPlayed());
 
         List<Game> resultGames = new ArrayList<>();
         for (List<Game> games : gameBatches) {
@@ -467,7 +467,9 @@ public class SelfPlay {
         log.info("resultGames size: " + resultGames.size());
         resultGames.forEach(replayBuffer::saveGame);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
-
+        resultGames.clear();
+        //   List<Game> resultGames2 = resultGames.stream().filter(g->g.getGameDTO().getTStateA() < 3).collect(Collectors.toList());
+        //    int i = 42;
     }
 
 }

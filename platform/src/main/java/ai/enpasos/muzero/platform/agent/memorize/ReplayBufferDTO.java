@@ -70,7 +70,10 @@ public class ReplayBufferDTO {
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
-        removeGame(game); // do not keep old copies with the same action history
+        if (games.indexOf(game) != -1) {
+            removeGame(game); // do not keep old copies with the same action history
+            game.setPlayedMoreThanOnce(true);
+        }
         while (isBufferFilled()) {
             GameDTO toBeRemoved = games.get(0).getGameDTO();
             Game gameToBeRemoved = config.newGame();
