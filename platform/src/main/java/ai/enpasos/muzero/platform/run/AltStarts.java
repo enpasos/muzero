@@ -60,7 +60,7 @@ public class AltStarts {
     }
 
     private Game alternativeGameStart(Game game) {
-        double pThreshold = 0.01d;
+        double pThreshold = config.getBadActionProbabilityThreshold();
 
         Game tmpGame = config.newGame();
         List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();

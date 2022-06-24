@@ -91,3 +91,5 @@ muzero:
       surpriseCheckInterval: 10000
 
       numberOfTrainingSteps: 30000
+
+      badActionProbabilityThreshold: 0.2
