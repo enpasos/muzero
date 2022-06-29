@@ -13,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,24 +31,68 @@ public class AltStarts {
     SelfPlay selfPlay;
 
     public void playGames(Network network, int trainingStep) {
-        List<Game> games = replayBuffer.getBuffer().getGames().stream().filter(g -> g.isPlayedMoreThanOnce()).collect(Collectors.toList());
-        if (games.isEmpty()) return;
+        double pThreshold = config.getBadActionProbabilityThreshold();
+        List<Game> normalGames = replayBuffer.getBuffer().getGames().stream().filter(g -> g.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
 
-        List<Game> gameSeeds = games.stream().map(game -> alternativeGameStart(game)).filter(g -> g != null).collect(Collectors.toList());
+        final List<Game> gameSeeds = new ArrayList<>();
+        normalGames.stream().forEach(game -> {
+            //  for (int t = 0; t < game.getGameDTO().getActions().size() - 1; t++) {
+            List<StartOption> options = new ArrayList<>();
+            Game tmpGame = config.newGame();
+           // for (int t = 0; t < game.getGameDTO().getActions().size() - 1; t++) {
+             for (int t = 0; t < Math.min(4, game.getGameDTO().getActions().size() - 1); t++) {
 
-        selfPlay.replayGamesFromSeeds(network, gameSeeds);
+                Integer action = game.getGameDTO().getActions().get(t);
+                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(t);
+                int[] legalActionsArray = tmpGame.legalActions().stream().mapToInt(a -> a.getIndex()).toArray();
+                for (int a = 0; a < policyTarget.length; a++) {
+                    // if the action is legal and value of policyTarget is smaller than pThreshold
+                    if (ArrayUtils.contains(legalActionsArray, a) && policyTarget[a] < pThreshold) {
+                        options.add(new StartOption(t, a));
+                    }
+                }
+                tmpGame.apply(action);
+            }
+            options.stream().forEach(startOption -> {
+                Game seed = game.copy(startOption.t);
+                try {
+                    seed.apply(startOption.actionIndex);
+                } catch (Exception e) {
+                    int i= 42;
+                }
+
+                seed.getGameDTO().setTStateA(seed.getGameDTO().getActions().size());
+                seed.getGameDTO().setTStateB(seed.getGameDTO().getActions().size());
+                // dummy copy for the applied action
+
+                //  seed.getGameDTO().getSurprises().add(game.getGameDTO().getSurprises().get(startOption.t + 1));
+                seed.getGameDTO().getPolicyTargets().add(game.getGameDTO().getPolicyTargets().get(startOption.t + 1));
+                //   seed.getGameDTO().getValues().add(game.getGameDTO().getValues().get(startOption.t + 1));
+                seed.getGameDTO().getRootValuesFromInitialInference().add(game.getGameDTO().getRootValuesFromInitialInference().get(startOption.t + 1));
+                gameSeeds.add(seed);
+            });
+
+        });
+
+        int n = (int) (config.getNumEpisodes() * config.getNumParallelGamesPlayed() * config.getVariableStartFraction());
+        List<Game> gameSeeds2 = null;
+        Collections.shuffle(gameSeeds);
+        if (n <  gameSeeds.size()) {
+            gameSeeds2 = gameSeeds.subList(0, n);
+        } else {
+            gameSeeds2 = gameSeeds;
+        }
+        if (gameSeeds2.isEmpty()) return;
+
+        selfPlay.replayGamesFromSeeds(network, gameSeeds2);
 
         gameSeeds.clear();
-        games.clear();
+//        gameSeeds2.clear();
+        normalGames.clear();
 
         replayBuffer.saveState();
     }
 
-    public void reset() {
-        this.replayBuffer.getBuffer().getGames().stream().forEach(game -> {
-            game.setPlayedMoreThanOnce(false);
-        });
-    }
 
     @Data
     @AllArgsConstructor
@@ -59,45 +101,5 @@ public class AltStarts {
         int actionIndex;
     }
 
-    private Game alternativeGameStart(Game game) {
-        double pThreshold = config.getBadActionProbabilityThreshold();
 
-        Game tmpGame = config.newGame();
-        List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();
-
-        List<StartOption> options = new ArrayList<>();
-
-        for (int t = 0; t < game.getGameDTO().getActions().size() - 1; t++) {
-            float[] policyTarget = policyTargets.get(t);
-            int[] legalActionsArray = tmpGame.legalActions().stream().mapToInt(a -> a.getIndex()).toArray();
-            for (int a = 0; a < policyTarget.length; a++) {
-                // if the action is legal and value of policyTarget is smaller than pThreshold
-                if (ArrayUtils.contains(legalActionsArray, a) && policyTarget[a] < pThreshold) {
-                    options.add(new StartOption(t, a));
-                }
-            }
-            tmpGame.apply(game.getGameDTO().getActions().get(t));
-        }
-        if (options.size() == 0) {
-            return null;
-        }
-
-        // select random option with random from thread local
-        StartOption startOption = options.get(ThreadLocalRandom.current().nextInt(options.size()));
-
-        Game seed = null;
-        //      try {
-        seed = game.copy(startOption.t);
-        seed.apply(startOption.actionIndex);
-        seed.getGameDTO().setTStateA(seed.getGameDTO().getActions().size());
-        seed.getGameDTO().setTStateB(seed.getGameDTO().getActions().size());
-        // dummy copy for the applied action
-
-        //  seed.getGameDTO().getSurprises().add(game.getGameDTO().getSurprises().get(startOption.t + 1));
-        seed.getGameDTO().getPolicyTargets().add(game.getGameDTO().getPolicyTargets().get(startOption.t + 1));
-        //   seed.getGameDTO().getValues().add(game.getGameDTO().getValues().get(startOption.t + 1));
-        seed.getGameDTO().getRootValuesFromInitialInference().add(game.getGameDTO().getRootValuesFromInitialInference().get(startOption.t + 1));
-
-        return seed;
-    }
 }
