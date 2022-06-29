@@ -92,4 +92,5 @@ muzero:
 
       numberOfTrainingSteps: 10000
 
-      badActionProbabilityThreshold: 0.2
+      badActionProbabilityThreshold: 0.01
+      variableStartFraction: 1.0

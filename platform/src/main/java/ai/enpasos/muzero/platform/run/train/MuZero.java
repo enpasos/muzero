@@ -166,7 +166,7 @@ public class MuZero {
 
                     playGames(params.render, network, trainingStep);
 
-                    // altStarts.playGames(network, trainingStep);
+                    altStarts.playGames(network, trainingStep);
 
                     //  if (trainingStep > 1000) {
 //                        surpriseCheck(network);

@@ -279,6 +279,10 @@ public class MuZeroConfig {
         return getConf().rootExplorationFraction;
     }
 
+    public double getVariableStartFraction() {
+        return getConf().variableStartFraction;
+    }
+
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
     }
@@ -430,6 +434,8 @@ public class MuZeroConfig {
         protected KnownBoundsType knownBoundsType;
         protected double rootDirichletAlpha;
         protected double rootExplorationFraction;
+
+        protected double variableStartFraction;
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
         protected int numEpisodes;
