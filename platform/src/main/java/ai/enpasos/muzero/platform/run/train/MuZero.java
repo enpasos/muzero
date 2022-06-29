@@ -35,6 +35,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.AltStarts;
 import ai.enpasos.muzero.platform.run.Surprise;
 import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +68,9 @@ public class MuZero {
 
     @Autowired
     Surprise surprise;
+
+    @Autowired
+    AltStarts altStarts;
 
 
     @Autowired
@@ -156,16 +160,24 @@ public class MuZero {
             int i = 0;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
+
+
+                   // altStarts.reset();
+
                     playGames(params.render, network, trainingStep);
+
+                    // altStarts.playGames(network, trainingStep);
 
                     //  if (trainingStep > 1000) {
 //                        surpriseCheck(network);
                     //   }
 
-                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
-                        surprise.handleOldSurprises(network);
-                        surprise.markSurprise();
-                    }
+//                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
+//                        surprise.handleOldSurprises(network);
+//                        surprise.markSurprise();
+//                    }
+
+                    log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                     if (config.isExtraValueTrainingOn()) {
                         double temp = config.getTemperatureRoot();
@@ -180,7 +192,9 @@ public class MuZero {
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-                surpriseCheck(network);
+                if (config.isSurpriseHandlingOn()) {
+                    surpriseCheck(network);
+                }
 
                 if (i % 5 == 0) {
                     params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);

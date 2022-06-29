@@ -74,7 +74,7 @@ muzero:
       numChannels: 256
       numBottleneckChannels: 128
 
-      surpriseHandlingOn: false # false in paper
+
       extraValueTrainingOn: false # false in paper
 
       temperatureRoot: 1.0  # obsolete .... 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
@@ -82,10 +82,14 @@ muzero:
       valueLossWeight: 1.0
 
       rootDirichletAlpha: 1.0
-      rootExplorationFraction: 0.25
+      rootExplorationFraction: 0.0
 
       windowSize: 10000
-      maxGameLiveTime: 1000000
+      maxGameLiveTime: 25000
+
+      surpriseHandlingOn: false # false in paper
       surpriseCheckInterval: 10000
 
       numberOfTrainingSteps: 10000
+
+      badActionProbabilityThreshold: 0.2
