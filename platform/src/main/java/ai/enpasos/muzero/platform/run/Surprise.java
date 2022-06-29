@@ -92,7 +92,7 @@ public class Surprise {
             }
         });
 
-        selfPlay.replayGamesToEliminateSurprise(network, gameSeeds);
+        selfPlay.replayGamesFromSeeds(network, gameSeeds);
 
         gamesWithOldSurprise.clear();
         gameSeeds.clear();
