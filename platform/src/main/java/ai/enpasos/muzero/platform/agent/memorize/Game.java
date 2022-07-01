@@ -68,6 +68,8 @@ public abstract class Game {
     private float error;
     private boolean debug;
 
+    private boolean actionApplied;
+
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
         this.gameDTO = new GameDTO();

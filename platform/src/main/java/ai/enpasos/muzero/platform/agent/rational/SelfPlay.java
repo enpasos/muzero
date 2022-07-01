@@ -39,6 +39,7 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -172,7 +173,8 @@ public class SelfPlay {
 
     private void calculateSurprise(double value, Game game) {
         int pos = game.getGameDTO().getSurprises().size() - 1;
-        if (game.getGameDTO().getRootValuesFromInitialInference().size() > pos && pos >= 0) {
+        boolean notUnexpectedSurprise = (pos == game.getGameDTO().getTStateA()-1L);
+        if (game.getGameDTO().getRootValuesFromInitialInference().size() > pos && pos >= 0 && !notUnexpectedSurprise) {
             double valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
             double deltaValue = value - valueBefore;
             game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
@@ -184,11 +186,11 @@ public class SelfPlay {
 
 
     @SuppressWarnings("squid:S3776")
-    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
         List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
-
+        gamesToApplyAction.forEach(game -> game.setActionApplied(false));
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
@@ -212,6 +214,10 @@ public class SelfPlay {
         }
 
         shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+        if (withRandomActions) {
+            shortCutForRandomAction(gamesToApplyAction, render);
+        }
+
 
         int nGames = gamesToApplyAction.size();
         if (nGames != 0) {
@@ -295,27 +301,50 @@ public class SelfPlay {
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
-
-        gamesToApplyAction.removeAll(gamesWithOnlyOneAllowedAction);
-
         gamesWithOnlyOneAllowedAction.forEach(game -> {
             Action action = game.legalActions().get(0);
             game.apply(action);
-
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
-
             game.getGameDTO().getPolicyTargets().add(policyTarget);
-
-
             if (render && game.isDebug()) {
                 game.renderMCTSSuggestion(config, policyTarget);
                 log.debug("\n" + game.render());
             }
-
+            game.setActionApplied(true);
         });
 
+        gamesToApplyAction.removeIf(game -> game.isActionApplied());
+    }
 
+    private void shortCutForRandomAction(List<Game> gamesToApplyAction, boolean render) {
+
+        float p = config.getRandomActionProbability();
+
+        List<Game> gamesWithRandomActionHere = gamesToApplyAction.stream().filter(game -> ThreadLocalRandom.current().nextDouble() <= p).collect(Collectors.toList());
+        if (gamesWithRandomActionHere.isEmpty()) return;
+
+        if (gamesWithRandomActionHere.get(0).getGameDTO().getActions().size() == 1) {
+            int i = 42;
+        }
+
+        gamesWithRandomActionHere.forEach(game -> {
+            int numLegalActions = game.legalActions().size();
+            Action action = game.legalActions().get(ThreadLocalRandom.current().nextInt(numLegalActions));
+            game.apply(action);
+            float[] policyTarget = new float[config.getActionSpaceSize()];
+            policyTarget[action.getIndex()] = 1f;
+            game.getGameDTO().getPolicyTargets().add(policyTarget);
+            game.getGameDTO().setTStateA(game.getGameDTO().getActions().size());
+            game.getGameDTO().setTStateB(game.getGameDTO().getActions().size());
+            if (render && game.isDebug()) {
+                game.renderMCTSSuggestion(config, policyTarget);
+                log.debug("\n" + game.render());
+            }
+            game.setActionApplied(true);
+        });
+
+        gamesToApplyAction.removeIf(game -> game.isActionApplied());
     }
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
@@ -372,12 +401,12 @@ public class SelfPlay {
         return !gameList.isEmpty();
     }
 
-    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         init();
         if (render) {
             log.debug(justOneOfTheGames().render());
         }
-        runEpisode(network, render, fastRuleLearning, justInitialInferencePolicy);
+        runEpisode(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration game play [ms]: {}", duration);
         log.info("inference duration game play [ms]: {}", getInferenceDuration().value);
@@ -388,7 +417,7 @@ public class SelfPlay {
     public @NotNull Game playGameFromCurrentState(Network network, Game replayGame, boolean untilEnd) {
         log.info("playGameFromCurrentState");
         init(List.of(replayGame));
-        runEpisode(network, false, false, untilEnd);
+        runEpisode(network, false, false, untilEnd, false);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -396,15 +425,15 @@ public class SelfPlay {
         return getGameList().get(0);
     }
 
-    public void playOneActionFromCurrentState(Network network, Game replayGame) {
+    public void playOneActionFromCurrentState(Network network, Game replayGame, boolean withRandomActions) {
         init(List.of(replayGame));
-        play(network, false, false, false);
+        play(network, false, false, false, withRandomActions);
     }
 
-    public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, List<Game> replayGames) {
+    public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, List<Game> replayGames, boolean withRandomActions) {
         log.info("play " + replayGames.size() + " GamesFromTheirCurrentState");
         init(replayGames);
-        runEpisode(network, false, false, false);
+        runEpisode(network, false, false, false, withRandomActions);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -412,18 +441,18 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy) {
-        runEpisode(network, render, fastRulesLearning, true, justInitialInferencePolicy);
+    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+        runEpisode(network, render, fastRulesLearning, true, justInitialInferencePolicy, withRandomActions);
     }
 
-    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean untilEnd, boolean justInitialInferencePolicy) {
+    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean untilEnd, boolean justInitialInferencePolicy, boolean withRandomActions) {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.createAndSetHiddenStateNDManager(nDManager, true);
             int count = 1;
             while (notFinished() && (untilEnd || count == 1)) {
-                play(network, render, fastRulesLearning, justInitialInferencePolicy);
+                play(network, render, fastRulesLearning, justInitialInferencePolicy, withRandomActions);
                 log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
                 count++;
             }
@@ -445,10 +474,10 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         IntStream.range(0, config.getNumEpisodes()).forEach(i ->
         {
-            List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
+            List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
             games.forEach(replayBuffer::saveGame);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
@@ -461,7 +490,7 @@ public class SelfPlay {
 
         List<Game> resultGames = new ArrayList<>();
         for (List<Game> games : gameBatches) {
-            resultGames.addAll(playGamesFromTheirCurrentState(network, games));
+            resultGames.addAll(playGamesFromTheirCurrentState(network, games, false));
         }
         log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());

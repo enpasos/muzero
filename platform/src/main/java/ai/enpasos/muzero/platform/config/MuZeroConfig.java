@@ -238,6 +238,10 @@ public class MuZeroConfig {
         return getConf().badActionProbabilityThreshold;
     }
 
+    public float getRandomActionProbability() {
+        return getConf().randomActionProbability;
+    }
+
 
     public boolean isAbsorbingStateDropToZero() {
         return getConf().absorbingStateDropToZero;
@@ -422,6 +426,8 @@ public class MuZeroConfig {
         protected float valueLossWeight;
         protected float lrInit;
         protected float badActionProbabilityThreshold;
+
+        protected float randomActionProbability;
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;

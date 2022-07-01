@@ -40,7 +40,7 @@ public class AltStarts {
             List<StartOption> options = new ArrayList<>();
             Game tmpGame = config.newGame();
            // for (int t = 0; t < game.getGameDTO().getActions().size() - 1; t++) {
-             for (int t = 0; t < Math.min(4, game.getGameDTO().getActions().size() - 1); t++) {
+             for (int t = 0; t < Math.min(2, game.getGameDTO().getActions().size() - 1); t++) {
 
                 Integer action = game.getGameDTO().getActions().get(t);
                 float[] policyTarget = game.getGameDTO().getPolicyTargets().get(t);
@@ -64,9 +64,10 @@ public class AltStarts {
                 seed.getGameDTO().setTStateA(seed.getGameDTO().getActions().size());
                 seed.getGameDTO().setTStateB(seed.getGameDTO().getActions().size());
                 // dummy copy for the applied action
-
-                //  seed.getGameDTO().getSurprises().add(game.getGameDTO().getSurprises().get(startOption.t + 1));
+               // seed.getGameDTO().getSurprises().add(0f );  // a dummy
+                seed.getGameDTO().getSurprises().add(game.getGameDTO().getSurprises().get(startOption.t + 1));
                 seed.getGameDTO().getPolicyTargets().add(game.getGameDTO().getPolicyTargets().get(startOption.t + 1));
+
                 //   seed.getGameDTO().getValues().add(game.getGameDTO().getValues().get(startOption.t + 1));
                 seed.getGameDTO().getRootValuesFromInitialInference().add(game.getGameDTO().getRootValuesFromInitialInference().get(startOption.t + 1));
                 gameSeeds.add(seed);
@@ -75,6 +76,7 @@ public class AltStarts {
         });
 
         int n = (int) (config.getNumEpisodes() * config.getNumParallelGamesPlayed() * config.getVariableStartFraction());
+        if (n == 0) return;
         List<Game> gameSeeds2 = null;
         Collections.shuffle(gameSeeds);
         if (n <  gameSeeds.size()) {

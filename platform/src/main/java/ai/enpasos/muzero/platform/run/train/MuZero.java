@@ -80,9 +80,9 @@ public class MuZero {
     @Autowired
     NetworkHelper networkHelper;
 
-    public void play(Network network, boolean render, boolean justInitialInferencePolicy) {
+    public void play(Network network, boolean render, boolean justInitialInferencePolicy, boolean withRandomActions) {
 
-        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
+        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy, withRandomActions);
     }
 
     public void initialFillingBuffer(Network network) {
@@ -91,7 +91,7 @@ public class MuZero {
         long startCounter = replayBuffer.getBuffer().getCounter();
         while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(network, false, true, false);
+            selfPlay.playMultipleEpisodes(network, false, true, false, false);
             replayBuffer.saveState();
         }
     }
@@ -168,6 +168,8 @@ public class MuZero {
 
                     altStarts.playGames(network, trainingStep);
 
+                    surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
+
                     //  if (trainingStep > 1000) {
 //                        surpriseCheck(network);
                     //   }
@@ -208,7 +210,7 @@ public class MuZero {
         List<Game> gamesForThreshold = this.replayBuffer.getBuffer().getGames().stream()
             .filter(game -> game.getGameDTO().getSurprises().size() > 0)
             .filter(game -> game.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
-        double surpriseThreshold = surprise.getSurpriseThreshold(gamesForThreshold);
+        double surpriseThreshold = surprise.getSurpriseThresholdAndShowSurpriseStatistics(gamesForThreshold);
         log.info("surpriseThreshold: " + surpriseThreshold);
         long c = this.replayBuffer.getBuffer().getCounter();
         List<Game> gamesToCheck = this.replayBuffer.getBuffer().getGames().stream()
@@ -242,7 +244,7 @@ public class MuZero {
         if (freshBuffer) {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
-                play(network, false, true);
+                play(network, false, true, false);
                 replayBuffer.saveState();
             }
         } else {
@@ -251,7 +253,7 @@ public class MuZero {
             if (randomFill) {
                 initialFillingBuffer(network);
             } else {
-                play(network, false, false);
+                play(network, false, false, false);
                 replayBuffer.saveState();
             }
         }
@@ -341,7 +343,7 @@ public class MuZero {
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
             boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
-            play(network, render, justInitialInferencePolicy);
+            play(network, render, justInitialInferencePolicy, true);
             replayBuffer.saveState();
         }
     }

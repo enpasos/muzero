@@ -210,7 +210,7 @@ public class Inference {
             // TODO: needs to be tested
 
             selfPlay.init(games);
-            selfPlay.play(network, false, false, false);
+            selfPlay.play(network, false, false, false, false);
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {
