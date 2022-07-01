@@ -108,4 +108,36 @@ public class SurpriseExtractor {
 
     }
 
+    @NotNull
+    public Game getGameWithHighestSurprise() {
+
+        replayBuffer.loadLatestState();
+        List<Game> games = replayBuffer.getBuffer().getGames();
+
+        // return the game with the highest surprise
+        replayBuffer.getBuffer().getGames().stream().forEach(game -> {
+                float max = Float.MIN_VALUE;
+                for (float v : game.getGameDTO().getSurprises()) {
+                    if (v > max) {
+                        max = v;
+                    }
+                }
+                game.setSurpriseMax((double) max);
+            }
+        );
+        return replayBuffer.getBuffer().getGames().stream().max((g1, g2) -> {
+            return (int) (g1.getSurpriseMax() - g2.getSurpriseMax());
+        }).get();
+
+    }
+
+    public static float arrayMax(float[] arr) {
+        float max = Float.NEGATIVE_INFINITY;
+
+        for(float cur: arr)
+            max = (float) Math.max(max, cur);
+        return max;
+    }
+
+
 }

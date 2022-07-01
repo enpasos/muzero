@@ -62,7 +62,7 @@ muzero:
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
       # Gumbel MuZero parameters
-      initialGumbelM: 4
+      initialGumbelM: 8
       cVisit: 10  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
@@ -84,13 +84,13 @@ muzero:
       rootDirichletAlpha: 1.0
       rootExplorationFraction: 0.0
 
-      windowSize: 10000
-      maxGameLiveTime: 25000
+      windowSize: 25000
+      #  maxGameLiveTime: 25000
 
       surpriseHandlingOn: false # false in paper
       surpriseCheckInterval: 10000
 
-      numberOfTrainingSteps: 10000
+      numberOfTrainingSteps: 50000
 
       badActionProbabilityThreshold: 0.01
       variableStartFraction: 1.0

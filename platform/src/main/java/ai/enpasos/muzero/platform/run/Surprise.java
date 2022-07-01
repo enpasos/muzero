@@ -103,14 +103,14 @@ public class Surprise {
 
     public void markSurprise(int backInTime) {
         List<Game> games = this.replayBuffer.getBuffer().getGames();
-        double quantil = this.getSurpriseThreshold(games);
+        double quantil = this.getSurpriseThresholdAndShowSurpriseStatistics(games);
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, backInTime).getLeft();
     }
 
     public void markSurprise() {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<Game> games = getRelevantGames(n);
-        double quantil = this.getSurpriseThreshold(games);
+        double quantil = this.getSurpriseThresholdAndShowSurpriseStatistics(games);
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, 1000).getLeft();
         games.clear();
     }
@@ -127,7 +127,7 @@ public class Surprise {
     }
 
 
-    public double getSurpriseThreshold(List<Game> games) {
+    public double getSurpriseThresholdAndShowSurpriseStatistics(List<Game> games) {
         List<Double> relevantSurprises = new ArrayList<>();
         games.forEach(g -> {
             int t = g.getGameDTO().getActions().size() - 1;
