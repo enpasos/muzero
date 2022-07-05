@@ -35,6 +35,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.run.AltStarts;
 import ai.enpasos.muzero.platform.run.Surprise;
 import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,9 @@ public class MuZero {
     @Autowired
     Surprise surprise;
 
+    @Autowired
+    AltStarts altStarts;
+
 
     @Autowired
     ValueSelfconsistency valueSelfconsistency;
@@ -76,9 +80,9 @@ public class MuZero {
     @Autowired
     NetworkHelper networkHelper;
 
-    public void play(Network network, boolean render, boolean justInitialInferencePolicy) {
+    public void play(Network network, boolean render, boolean justInitialInferencePolicy, boolean withRandomActions) {
 
-        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
+        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy, withRandomActions);
     }
 
     public void initialFillingBuffer(Network network) {
@@ -87,7 +91,7 @@ public class MuZero {
         long startCounter = replayBuffer.getBuffer().getCounter();
         while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(network, false, true, false);
+            selfPlay.playMultipleEpisodes(network, false, true, false, false);
             replayBuffer.saveState();
         }
     }
@@ -156,31 +160,43 @@ public class MuZero {
             int i = 0;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
+
+
+                   // altStarts.reset();
+
                     playGames(params.render, network, trainingStep);
+
+                    altStarts.playGames(network, trainingStep);
+
+                    surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
                     //  if (trainingStep > 1000) {
 //                        surpriseCheck(network);
                     //   }
 
-                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
-                        surprise.handleOldSurprises(network);
-                        surprise.markSurprise();
-                    }
+//                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
+//                        surprise.handleOldSurprises(network);
+//                        surprise.markSurprise();
+//                    }
+
+                    log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                     if (config.isExtraValueTrainingOn()) {
-                        double temp = config.getTemperatureRoot();
+                     //   double temp = config.getTemperatureRoot();
                         int sims = config.getNumSimulations();
                         config.setNumSimulations(0);
-                        config.setTemperatureRoot(1);
+                      //  config.setTemperatureRoot(1);
                         playGames(params.render, network, trainingStep);
                         config.setNumSimulations(sims);
-                        config.setTemperatureRoot(temp);
+                       // config.setTemperatureRoot(temp);
                     }
 
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);
-                surpriseCheck(network);
+                if (config.isSurpriseHandlingOn()) {
+                    surpriseCheck(network);
+                }
 
                 if (i % 5 == 0) {
                     params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
@@ -194,7 +210,7 @@ public class MuZero {
         List<Game> gamesForThreshold = this.replayBuffer.getBuffer().getGames().stream()
             .filter(game -> game.getGameDTO().getSurprises().size() > 0)
             .filter(game -> game.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
-        double surpriseThreshold = surprise.getSurpriseThreshold(gamesForThreshold);
+        double surpriseThreshold = surprise.getSurpriseThresholdAndShowSurpriseStatistics(gamesForThreshold);
         log.info("surpriseThreshold: " + surpriseThreshold);
         long c = this.replayBuffer.getBuffer().getCounter();
         List<Game> gamesToCheck = this.replayBuffer.getBuffer().getGames().stream()
@@ -228,7 +244,7 @@ public class MuZero {
         if (freshBuffer) {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
-                play(network, false, true);
+                play(network, false, true, false);
                 replayBuffer.saveState();
             }
         } else {
@@ -237,7 +253,7 @@ public class MuZero {
             if (randomFill) {
                 initialFillingBuffer(network);
             } else {
-                play(network, false, false);
+                play(network, false, false, false);
                 replayBuffer.saveState();
             }
         }
@@ -327,7 +343,7 @@ public class MuZero {
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
             boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
-            play(network, render, justInitialInferencePolicy);
+            play(network, render, justInitialInferencePolicy, true);
             replayBuffer.saveState();
         }
     }
