@@ -234,6 +234,15 @@ public class MuZeroConfig {
         return getConf().lrInit;
     }
 
+    public float getBadActionProbabilityThreshold() {
+        return getConf().badActionProbabilityThreshold;
+    }
+
+    public float getRandomActionProbability() {
+        return getConf().randomActionProbability;
+    }
+
+
     public boolean isAbsorbingStateDropToZero() {
         return getConf().absorbingStateDropToZero;
     }
@@ -274,6 +283,10 @@ public class MuZeroConfig {
         return getConf().rootExplorationFraction;
     }
 
+    public double getVariableStartFraction() {
+        return getConf().variableStartFraction;
+    }
+
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
     }
@@ -301,13 +314,13 @@ public class MuZeroConfig {
     }
 
 
-    public double getTemperatureNonRoot() {
-        return getConf().temperatureNonRoot;
-    }
-
-    public void setTemperatureNonRoot(double temperature) {
-        getConf().temperatureNonRoot = temperature;
-    }
+//    public double getTemperatureNonRoot() {
+//        return getConf().temperatureNonRoot;
+//    }
+//
+//    public void setTemperatureNonRoot(double temperature) {
+//        getConf().temperatureNonRoot = temperature;
+//    }
 
     public String getOutputDir() {
         return getConf().outputDir;
@@ -412,6 +425,9 @@ public class MuZeroConfig {
         protected float weightDecay;
         protected float valueLossWeight;
         protected float lrInit;
+        protected float badActionProbabilityThreshold;
+
+        protected float randomActionProbability;
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;
@@ -424,6 +440,8 @@ public class MuZeroConfig {
         protected KnownBoundsType knownBoundsType;
         protected double rootDirichletAlpha;
         protected double rootExplorationFraction;
+
+        protected double variableStartFraction;
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
         protected int numEpisodes;
@@ -439,7 +457,7 @@ public class MuZeroConfig {
         int numPurePolicyPlays;
 
         double temperatureRoot = 1;
-        double temperatureNonRoot = 1;
+        //double temperatureNonRoot = 1;
 
         double[] values;
     }

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 public class Functions {
@@ -25,9 +26,7 @@ public class Functions {
     }
 
     public static double @NotNull [] numpyRandomDirichlet(double alpha, int dims) {
-if (alpha <= 0) {
-    int i = 42;
-}
+
         double[] alphas = new double[dims];
         Arrays.fill(alphas, alpha);
         DirichletGen dg = new DirichletGen(randomStreamBase, alphas);
@@ -38,8 +37,12 @@ if (alpha <= 0) {
     }
 
     public static double[] softmax(double[] raw) {
+        return softmax(raw, 1.0);
+    }
+
+    public static double[] softmax(double[] raw, double temperature) {
         double max = Arrays.stream(raw).max().getAsDouble();
-        raw = Arrays.stream(raw).map(x -> x - max).toArray();
+        raw = Arrays.stream(raw).map(x -> (x - max)/temperature).toArray();
         double[] vs = Arrays.stream(raw).map(Math::exp).toArray();
         double sum = Arrays.stream(vs).sum();
         return Arrays.stream(vs).map(v -> v / sum).toArray();
@@ -72,6 +75,18 @@ if (alpha <= 0) {
             throw new MuZeroException(e);
         }
         return distribution.sample();
+    }
+
+    public static int draw(double[] ps) {
+        double rand = ThreadLocalRandom.current().nextDouble();
+        double s = 0d;
+        for (int i = 0; i < ps.length; i++) {
+            s += ps[i];
+            if (s >= rand) {
+                return i;
+            }
+        }
+        throw new MuZeroException("problem in drawing from discrete probability distribution");
     }
 
 }

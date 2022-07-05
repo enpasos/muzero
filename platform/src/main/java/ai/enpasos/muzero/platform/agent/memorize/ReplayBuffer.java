@@ -112,6 +112,9 @@ public class ReplayBuffer {
             rawpos /= enhanceFactor;
             gamePos = rawpos;
         }
+        if (dto.getTStateA() > 0 && gamePos < dto.getTStateA()) {
+            throw new MuZeroException("gamePos < dto.getTStateA()");
+        }
         return gamePos;
     }
 

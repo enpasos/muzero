@@ -66,7 +66,7 @@ muzero:
       cVisit: 10  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 30
+      numSimulations: 20
 
 
       numResiduals: 8
@@ -74,18 +74,29 @@ muzero:
       numChannels: 256
       numBottleneckChannels: 128
 
-      surpriseHandlingOn: false # false in paper
-      extraValueTrainingOn: false # false in paper
 
-      temperatureRoot: 1.0  # obsolete .... 1.0 -> trust in logits as in paper; infinite -> random distributed = no trust in logits
+      # extraValueTrainingOn: false # false in paper
+
+      temperatureRoot: 2.0
 
       valueLossWeight: 1.0
 
       rootDirichletAlpha: 1.0
       rootExplorationFraction: 0.25
 
-      windowSize: 10000
-      maxGameLiveTime: 1000000
-      surpriseCheckInterval: 10000
+      windowSize: 1000
+      #  maxGameLiveTime: 25000
 
-      numberOfTrainingSteps: 10000
+      # surpriseHandlingOn: false # false in paper
+      # surpriseCheckInterval: 10000
+
+      numberOfTrainingSteps: 2000
+
+      # badActionProbabilityThreshold: 0.01
+      # variableStartFraction: 1.0
+
+
+
+      # randomActionProbability: 0.0
+
+

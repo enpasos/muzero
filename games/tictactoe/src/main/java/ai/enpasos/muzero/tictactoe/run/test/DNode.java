@@ -172,7 +172,7 @@ public class DNode {
         int actionIndexSelectedByNetwork = -1;
         List<Action> legalActions = game.legalActions();
         if (withMCTS) {
-            selfPlay.playOneActionFromCurrentState(network, game);
+            selfPlay.playOneActionFromCurrentState(network, game, false);
             Action action = game.actionHistory().lastAction();
             actionIndexSelectedByNetwork = action.getIndex();
         } else {

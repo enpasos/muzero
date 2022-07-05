@@ -87,7 +87,7 @@ public class MuZeroFast {
                 replayBuffer.saveState();
                 log.info("end surprise.measureValueAndSurprise");
 
-                double surpriseThreshold = surprise.getSurpriseThreshold(games);
+                double surpriseThreshold = surprise.getSurpriseThresholdAndShowSurpriseStatistics(games);
 
                 Pair<List<Game>, List<Game>> gameListPair = surprise.getGamesWithSurprisesAboveThresholdBackInTime(games, surpriseThreshold, backInTime);
                 gamesWithSurprisesAboveQuantilHere = gameListPair.getLeft();
