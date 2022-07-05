@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
@@ -37,14 +39,14 @@ public class TicTacToeSurpriseExtractor {
     @SuppressWarnings("squid:S125")
     public void run() {
 
-      //  Game game = surpriseExtractor.getGame(4);
-        Game game = surpriseExtractor.getGameWithHighestSurprise();
+        // Optional<Game> game = surpriseExtractor.getGame(4);
+        //  Optional<Game> game = surpriseExtractor.getGameWithHighestSurprise();
 
 
-
-
-
-        System.out.println(surpriseExtractor.listValuesForTrainedNetworks(game));
+        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 1, 7, 3, 8, 6, 2);
+        game.ifPresent(g -> {
+            System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g));
+        });
 
     }
 

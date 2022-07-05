@@ -314,13 +314,13 @@ public class MuZeroConfig {
     }
 
 
-    public double getTemperatureNonRoot() {
-        return getConf().temperatureNonRoot;
-    }
-
-    public void setTemperatureNonRoot(double temperature) {
-        getConf().temperatureNonRoot = temperature;
-    }
+//    public double getTemperatureNonRoot() {
+//        return getConf().temperatureNonRoot;
+//    }
+//
+//    public void setTemperatureNonRoot(double temperature) {
+//        getConf().temperatureNonRoot = temperature;
+//    }
 
     public String getOutputDir() {
         return getConf().outputDir;
@@ -457,7 +457,7 @@ public class MuZeroConfig {
         int numPurePolicyPlays;
 
         double temperatureRoot = 1;
-        double temperatureNonRoot = 1;
+        //double temperatureNonRoot = 1;
 
         double[] values;
     }

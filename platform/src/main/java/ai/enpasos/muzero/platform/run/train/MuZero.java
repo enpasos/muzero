@@ -182,13 +182,13 @@ public class MuZero {
                     log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                     if (config.isExtraValueTrainingOn()) {
-                        double temp = config.getTemperatureRoot();
+                     //   double temp = config.getTemperatureRoot();
                         int sims = config.getNumSimulations();
                         config.setNumSimulations(0);
-                        config.setTemperatureRoot(1);
+                      //  config.setTemperatureRoot(1);
                         playGames(params.render, network, trainingStep);
                         config.setNumSimulations(sims);
-                        config.setTemperatureRoot(temp);
+                       // config.setTemperatureRoot(temp);
                     }
 
                 }

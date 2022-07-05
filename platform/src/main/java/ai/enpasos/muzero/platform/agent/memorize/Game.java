@@ -157,6 +157,12 @@ public abstract class Game {
         );
     }
 
+    public void apply(List<Integer> actions) {
+        actions.stream().forEach(
+            i -> apply(config.newAction(i))
+        );
+    }
+
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
 

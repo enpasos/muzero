@@ -93,11 +93,13 @@ public class SelfPlay {
             double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
+            double[] improvedPolicyWithTemperature = softmax(raw, config.getTemperatureRoot());
 
             for (int i = 0; i < raw.length; i++) {
                 int action = actions[i];
                 double v = improvedPolicy[i];
-                root.getChildren().get(i).setImprovedPolicyValue(v);  // for debugging
+                double vWithTemperature = improvedPolicyWithTemperature[i];
+                root.getChildren().get(i).setImprovedPolicyValue(vWithTemperature);  // for debugging
                 policyTarget[action] = (float) v;
             }
         }
@@ -355,21 +357,21 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGames() {
+        gameList.stream().forEach(game -> game.setDone(game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves()));
         List<Game> newGameDoneList = gameList.stream()
-            .filter(game -> game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves())
+            .filter(Game::isDone)
             .collect(Collectors.toList());
-
         gamesDoneList.addAll(newGameDoneList);
-        gameList.removeAll(newGameDoneList);
+        gameList.removeIf(Game::isDone);
     }
 
     private void keepTrackOfOpenGamesReplay() {
+        gameList.stream().forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
         List<Game> newGameDoneList = gameList.stream()
-            .filter(game -> game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size())
+            .filter(Game::isDone)
             .collect(Collectors.toList());
-
         gamesDoneList.addAll(newGameDoneList);
-        gameList.removeAll(newGameDoneList);
+        gameList.removeIf(Game::isDone);
     }
 
     @Nullable
