@@ -92,7 +92,7 @@ public class Surprise {
             }
         });
 
-        selfPlay.replayGamesToEliminateSurprise(network, gameSeeds);
+        selfPlay.replayGamesFromSeeds(network, gameSeeds);
 
         gamesWithOldSurprise.clear();
         gameSeeds.clear();
@@ -103,14 +103,14 @@ public class Surprise {
 
     public void markSurprise(int backInTime) {
         List<Game> games = this.replayBuffer.getBuffer().getGames();
-        double quantil = this.getSurpriseThreshold(games);
+        double quantil = this.getSurpriseThresholdAndShowSurpriseStatistics(games);
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, backInTime).getLeft();
     }
 
     public void markSurprise() {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<Game> games = getRelevantGames(n);
-        double quantil = this.getSurpriseThreshold(games);
+        double quantil = this.getSurpriseThresholdAndShowSurpriseStatistics(games);
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, 1000).getLeft();
         games.clear();
     }
@@ -127,10 +127,10 @@ public class Surprise {
     }
 
 
-    public double getSurpriseThreshold(List<Game> games) {
+    public double getSurpriseThresholdAndShowSurpriseStatistics(List<Game> games) {
         List<Double> relevantSurprises = new ArrayList<>();
         games.forEach(g -> {
-            int t = g.getGameDTO().getActions().size() - 1;
+            int t = g.getGameDTO().getSurprises().size() - 1;
             IntStream.range(0, t).forEach(i -> relevantSurprises.add(Double.valueOf(g.getGameDTO().getSurprises().get(i))));
         });
         Collections.sort(relevantSurprises);

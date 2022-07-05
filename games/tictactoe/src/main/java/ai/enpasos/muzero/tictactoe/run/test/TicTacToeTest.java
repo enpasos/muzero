@@ -53,6 +53,8 @@ public class TicTacToeTest {
 
     public boolean test() {
 
+        config.setTemperatureRoot(0.0);
+
 
         replayBuffer.init();
 
@@ -128,6 +130,12 @@ public class TicTacToeTest {
 
     }
 
+    private void printActions(List<DNode> nodes) {
+        nodes.forEach(n -> {
+            log.info("{}", n.getGame().getGameDTO().getActions());
+        });
+    }
+
     private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
         gameTree.rootNode.clearAIDecisions();
         gameTree.rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
@@ -135,6 +143,8 @@ public class TicTacToeTest {
 
         gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
         log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
+
+        printActions(gamesLostByPlayer);
 
 
     }

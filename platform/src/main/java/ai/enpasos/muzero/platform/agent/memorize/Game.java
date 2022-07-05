@@ -47,6 +47,8 @@ public abstract class Game {
 
     protected boolean purelyRandom;
 
+    boolean playedMoreThanOnce;
+
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
 
@@ -65,6 +67,8 @@ public abstract class Game {
     private Random r;
     private float error;
     private boolean debug;
+
+    private boolean actionApplied;
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
@@ -149,6 +153,12 @@ public abstract class Game {
 
     public void apply(int @NotNull ... actionIndex) {
         Arrays.stream(actionIndex).forEach(
+            i -> apply(config.newAction(i))
+        );
+    }
+
+    public void apply(List<Integer> actions) {
+        actions.stream().forEach(
             i -> apply(config.newAction(i))
         );
     }

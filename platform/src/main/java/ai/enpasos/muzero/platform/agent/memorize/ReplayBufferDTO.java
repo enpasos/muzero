@@ -70,15 +70,17 @@ public class ReplayBufferDTO {
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
-        removeGame(game); // do not keep old copies with the same action history
+        //if (games.indexOf(game) != -1) {
+        // games.remove(game);  // do not keep old copies with the same action history
+        //  game.setPlayedMoreThanOnce(true);
+        //}
         while (isBufferFilled()) {
-            GameDTO toBeRemoved = games.get(0).getGameDTO();
-            Game gameToBeRemoved = config.newGame();
-            gameToBeRemoved.setGameDTO(toBeRemoved);
-            games.remove(gameToBeRemoved);
-            // data.remove(0);
+            games.remove(0);
+//            GameDTO toBeRemoved = games.get(0).getGameDTO();
+//            Game gameToBeRemoved = config.newGame();
+//            gameToBeRemoved.setGameDTO(toBeRemoved);
+//            games.remove(gameToBeRemoved);
         }
-        //   data.add(game.getGameDTO());
         if (!game.terminal()) {
             game.replayToPosition(game.actionHistory().getActionIndexList().size());
         }
@@ -86,10 +88,10 @@ public class ReplayBufferDTO {
         counter++;
         game.getGameDTO().setCount(counter);
 
-        List<Game> toRemove = games.stream()
-            .filter(g -> counter - g.getGameDTO().getCount() > config.getMaxGameLiveTime())
-            .collect(Collectors.toList());
-        toRemove.forEach(this::removeGame);
+//        List<Game> toRemove = games.stream()
+//            .filter(g -> counter - g.getGameDTO().getCount() > config.getMaxGameLiveTime())
+//            .collect(Collectors.toList());
+//        toRemove.forEach(this::removeGame);
 
 
     }
