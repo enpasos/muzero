@@ -81,8 +81,8 @@ muzero:
 
       valueLossWeight: 1.0
 
-      # rootDirichletAlpha: 1.0
-      # rootExplorationFraction: 0.0
+      rootDirichletAlpha: 1.0
+      rootExplorationFraction: 0.25
 
       windowSize: 1000
       #  maxGameLiveTime: 25000
@@ -97,8 +97,6 @@ muzero:
 
 
 
-      randomActionProbability: 0.0
+      # randomActionProbability: 0.0
 
 
-      rootDirichletAlpha: 1.0
-      rootExplorationFraction: 0.0
