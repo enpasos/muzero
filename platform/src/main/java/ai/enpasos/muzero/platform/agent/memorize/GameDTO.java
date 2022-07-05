@@ -84,23 +84,25 @@ public class GameDTO implements Comparable<GameDTO> {
     }
 
     public GameDTO copy(int toPosition) {
-        toPosition = Math.max(1, toPosition);
+        // toPosition = Math.max(1, toPosition);
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;
-        copy.rewards.addAll(this.rewards.subList(0, toPosition));
         copy.surprised = this.surprised;
         copy.tSurprise = this.tSurprise;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.count = this.count;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
-        copy.surprises.addAll(this.surprises.subList(0, toPosition));
-        copy.actions.addAll(this.actions.subList(0, toPosition));
-        this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
-        if (this.rootValues.size() >= toPosition)
-            copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
-        if (this.rootValuesFromInitialInference.size() >= toPosition)
-            copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference.subList(0, toPosition));
+        if (toPosition > 0) {
+            copy.rewards.addAll(this.rewards.subList(0, toPosition));
+            copy.surprises.addAll(this.surprises.subList(0, toPosition));
+            copy.actions.addAll(this.actions.subList(0, toPosition));
+            this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+            if (this.rootValues.size() >= toPosition)
+                copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
+            if (this.rootValuesFromInitialInference.size() >= toPosition)
+                copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference.subList(0, toPosition));
+        }
         return copy;
     }
 

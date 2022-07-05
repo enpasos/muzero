@@ -17,7 +17,10 @@
 
 package ai.enpasos.muzero.platform.run;
 
+import ai.djl.Device;
+import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
+import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -33,7 +36,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -48,6 +54,8 @@ public class SurpriseExtractor {
 
     @Autowired
     Inference inference;
+    @Autowired
+    Surprise surprise;
 
 
     @SuppressWarnings("squid:S1141")
@@ -98,14 +106,69 @@ public class SurpriseExtractor {
 
     @NotNull
     public Game getGame(int no) {
-
-
         replayBuffer.loadLatestState();
-
-
-        return replayBuffer.getBuffer().getGames().get(no);
-
+        return Optional.of(replayBuffer.getBuffer().getGames().get(no))
+            .orElseThrow(() -> new MuZeroException("Game no " + no + " not found"));
 
     }
 
+    @NotNull
+    public Optional<Game> getGameWithHighestSurprise() {
+
+        replayBuffer.loadLatestState();
+        List<Game> games = replayBuffer.getBuffer().getGames();
+
+        // return the game with the highest surprise
+        replayBuffer.getBuffer().getGames().stream().forEach(game -> {
+                float max = Float.MIN_VALUE;
+                for (float v : game.getGameDTO().getSurprises()) {
+                    if (v > max) {
+                        max = v;
+                    }
+                }
+                game.setSurpriseMax((double) max);
+            }
+        );
+        return replayBuffer.getBuffer().getGames().stream().max((g1, g2) -> {
+            return (int) (g1.getSurpriseMax() - g2.getSurpriseMax());
+        }) ;
+
+    }
+
+    public static float arrayMax(float[] arr) {
+        float max = Float.NEGATIVE_INFINITY;
+
+        for(float cur: arr)
+            max = (float) Math.max(max, cur);
+        return max;
+    }
+
+
+    public Optional<Game> getGameStartingWithActions(int... actions) {
+        List<Integer> actionsList =  Arrays.stream(actions).boxed().collect(Collectors.toList());
+        return getGameStartingWithActions(actionsList);
+    }
+
+    public Optional<Game> getGameStartingWithActions( List<Integer> actionsList) {
+        replayBuffer.loadLatestState();
+        List<Game> games = replayBuffer.getBuffer().getGames();
+        return games.stream().filter(game ->
+            // check if game.getGameDTO().getActions() starts with actionsList
+            game.getGameDTO().getActions().stream().limit(actionsList.size()).collect(Collectors.toList()).equals(actionsList)
+        ).findFirst();
+    }
+
+    public Optional<Game> getGameStartingWithActionsFromStart(int... actions) {
+
+        Game game = this.config.newGame();
+        game.apply(actions);
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+            Network network = new Network(config, model);
+            surprise.measureValueAndSurprise(network, List.of(game));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+        return Optional.of(game);
+
+    }
 }

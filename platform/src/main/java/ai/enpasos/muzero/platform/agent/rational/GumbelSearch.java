@@ -17,6 +17,8 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
+import static ai.enpasos.muzero.platform.common.Functions.draw;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
 /**
@@ -79,7 +81,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActionsInitially(List<GumbelAction> gumbelActions, int n) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperatureRoot()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() ).toArray();
         double[] raw = add(logits, g);
 
         List<Integer> selectedActions = drawActions(actions, raw, n);
@@ -105,7 +107,7 @@ public class GumbelSearch {
     public List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale, int maxActionVisitCount) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
-        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit() / config.getTemperatureNonRoot()).toArray();
+        double[] logits = gumbelActions.stream().mapToDouble(a -> a.getLogit()  ).toArray();
         double[] qs = gumbelActions.stream()
             .mapToDouble(GumbelAction::getQValue)
             .map(v -> minMaxStats.normalize(v))
@@ -225,17 +227,30 @@ public class GumbelSearch {
 
         Action action;
 
+
+
+        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
+
         if (fastRuleLearning) {
             action = root.getRandomAction();
         } else {
-            action = selectedAction;
-        }
+            if (config.getTemperatureRoot() == 0.0) {
+                action = selectedAction;
+           } else {
+                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1);
+                double[] raw = new double[policyTarget.length];
+                for (int i = 0; i < policyTarget.length; i++) {
+                    raw[i] = Math.log(policyTarget[i]);
+                }
+                double[] p = softmax(raw, config.getTemperatureRoot());
+                int a = draw(p);
+                action = config.newAction(a);
+            }
+         }
         if (action == null) {
             throw new MuZeroException("action must not be null");
         }
         game.apply(action);
-        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
-
 
         if (render && debug) {
             List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();
