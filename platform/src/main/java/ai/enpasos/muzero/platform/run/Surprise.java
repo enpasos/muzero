@@ -130,7 +130,7 @@ public class Surprise {
     public double getSurpriseThresholdAndShowSurpriseStatistics(List<Game> games) {
         List<Double> relevantSurprises = new ArrayList<>();
         games.forEach(g -> {
-            int t = g.getGameDTO().getActions().size() - 1;
+            int t = g.getGameDTO().getSurprises().size() - 1;
             IntStream.range(0, t).forEach(i -> relevantSurprises.add(Double.valueOf(g.getGameDTO().getSurprises().get(i))));
         });
         Collections.sort(relevantSurprises);

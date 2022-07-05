@@ -126,11 +126,11 @@ public class Node {
 
     public void calculateImprovedPolicy(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-        double temperature = this.isRoot() ? config.getTemperatureRoot() : config.getTemperatureNonRoot();
-        double[] logits = getChildren().stream().mapToDouble(node -> node.getLogit() / temperature).toArray();
+
+        double[] logits = getChildren().stream().mapToDouble(node -> node.getLogit() ).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
         double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-        double[] improvedPolicy = softmax(raw);
+        double[] improvedPolicy = softmax(raw  );
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
     }
 
@@ -248,14 +248,32 @@ public class Node {
     }
 
 
-    public Node selectChild(MinMaxStats minMaxStats) {
+    public Node selectChild(MinMaxStats minMaxStats) { //}, double temperature) {
 
-        calculateImprovedPolicy(minMaxStats);
         int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
-        this.getChildren().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
-        return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
-
+        this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
+//        if (temperature == 0d) {
+            return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
+//        } else {
+//            this.getChildren().stream().forEach(node -> node.setImprovedPolicyValue3(
+//                Math.exp(node.getImprovedPolicyValue2()/temperature)
+//            ));
+//            double sum = this.getChildren().stream().mapToDouble(Node::getImprovedPolicyValue3).sum();
+//            this.getChildren().stream().forEach(node -> node.setImprovedPolicyValue3(
+//                node.getImprovedPolicyValue3()/sum
+//            ));
+//            double rand = ThreadLocalRandom.current().nextDouble();
+//            double s = 0d;
+//            for (Node node : this.getChildren()) {
+//                s += node.getImprovedPolicyValue3();
+//                if (s > rand) {
+//                    return node;
+//                }
+//            }
+//            throw new MuZeroException("problem in drawing from discrete probability distribution");
+//        }
     }
+
 
     public void calculateImprovedValue() {
         this.improvedValue = this.getChildren().stream()
@@ -270,12 +288,17 @@ public class Node {
         if (!this.isRoot()) throw new MuZeroException("functionality not prepared to add noise at non root");
 
         int numOfAllowedActions = this.children.size();
-        double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
         double frac = config.getRootExplorationFraction();
-        for (int i = 0; i < this.children.size(); i++) {
-            Node node = children.get(i);
-            node.setPrior(node.getPrior() * (1d - frac) + noise[i] * frac);
-            node.setLogit(Math.log(node.getPrior()));
+        if (frac == 0d) {
+            return;
+        } else {
+            double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
+
+            for (int i = 0; i < this.children.size(); i++) {
+                Node node = children.get(i);
+                node.setPrior(node.getPrior() * (1d - frac) + noise[i] * frac);
+                node.setLogit(Math.log(node.getPrior()));
+            }
         }
     }
 }
