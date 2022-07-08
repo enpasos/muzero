@@ -70,14 +70,14 @@ public class SurpriseExtractor {
             for (int t = 0; t < values.size(); t++) {
 
                 float value = values.get(t);
-                float surprise = surprises.get(t);
+                float surpriseLocal = surprises.get(t);
                 try {
                     double valuePlayer = value;
                     if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                         valuePlayer *= Math.pow(-1, t);
                     }
                     csvPrinter.printRecord(t,
-                        NumberFormat.getNumberInstance().format(surprise),
+                        NumberFormat.getNumberInstance().format(surpriseLocal),
                         NumberFormat.getNumberInstance().format(valuePlayer));
                 } catch (Exception e) {
                     // ignore
@@ -116,7 +116,6 @@ public class SurpriseExtractor {
     public Optional<Game> getGameWithHighestSurprise() {
 
         replayBuffer.loadLatestState();
-        List<Game> games = replayBuffer.getBuffer().getGames();
 
         // return the game with the highest surprise
         replayBuffer.getBuffer().getGames().forEach(game -> {

@@ -449,8 +449,6 @@ public class MuZeroConfig {
         int numPurePolicyPlays;
 
         double temperatureRoot = 1;
-        //double temperatureNonRoot = 1;
-
         double[] values;
     }
 

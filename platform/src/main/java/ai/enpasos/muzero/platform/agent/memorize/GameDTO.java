@@ -84,7 +84,6 @@ public class GameDTO implements Comparable<GameDTO> {
     }
 
     public GameDTO copy(int toPosition) {
-        // toPosition = Math.max(1, toPosition);
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;
         copy.surprised = this.surprised;

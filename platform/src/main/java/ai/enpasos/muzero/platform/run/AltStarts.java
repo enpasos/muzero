@@ -31,7 +31,7 @@ public class AltStarts {
     @Autowired
     SelfPlay selfPlay;
 
-    public void playGames(Network network, int trainingStep) {
+    public void playGames(Network network) {
         double pThreshold = config.getBadActionProbabilityThreshold();
         List<Game> normalGames = replayBuffer.getBuffer().getGames().stream().filter(g -> g.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
 
@@ -84,7 +84,6 @@ public class AltStarts {
         selfPlay.replayGamesFromSeeds(network, gameSeeds2);
 
         gameSeeds.clear();
-//        gameSeeds2.clear();
         normalGames.clear();
 
         replayBuffer.saveState();
