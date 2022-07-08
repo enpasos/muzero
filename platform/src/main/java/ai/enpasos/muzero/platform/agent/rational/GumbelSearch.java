@@ -139,7 +139,7 @@ public class GumbelSearch {
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-            node = node.selectChild(minMaxStats);
+            node = node.selectChild();
             rootChild.getSearchPath().add(node);
         }
         return rootChild.getSearchPath();

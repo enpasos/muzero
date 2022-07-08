@@ -159,7 +159,6 @@ public class ReplayBuffer {
     public void init() {
         this.batchSize = config.getBatchSize();
         if (this.buffer != null) {
-            //this.buffer.getdata().clear();
             this.buffer.games.forEach(g -> {
                 g.setGameDTO(null);
                 g.setOriginalGameDTO(null);
@@ -171,7 +170,7 @@ public class ReplayBuffer {
 
     public void saveGame(@NotNull Game game) {
         game.getGameDTO().setNetworkName(this.currentNetworkName);
-        buffer.saveGame(game, config);
+        buffer.saveGame(game);
 
     }
 
@@ -272,7 +271,7 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         List<Path> paths = getBufferNames();
-        if (paths.size() > 0) {
+        if (!paths.isEmpty()) {
             Path path = paths.get(paths.size() - 1);
             loadState(path);
         }
@@ -363,7 +362,6 @@ public class ReplayBuffer {
 
     public void keepOnlyTheLatestGames(int n) {
         buffer.games = buffer.games.subList(Math.max(buffer.games.size() - n, 0), buffer.games.size());
-        //  buffer.setdata(buffer.getdata().subList(Math.max(buffer.getdata().size() - n, 0), buffer.getdata().size()));
     }
 
     public void sortGamesByLastValueError() {
@@ -376,7 +374,6 @@ public class ReplayBuffer {
         int size = this.getBuffer().getGames().size();
         if (size <= max) return;
         this.getBuffer().setGames(this.getBuffer().getGames().subList(size - max, size));
-        // this.getBuffer().setdata(this.getBuffer().getdata().subList(size - max, size));
     }
 
     public void removeGames(List<Game> games) {

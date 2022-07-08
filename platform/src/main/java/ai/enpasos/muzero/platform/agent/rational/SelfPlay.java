@@ -153,7 +153,6 @@ public class SelfPlay {
         IntStream.range(0, gameList.size()).forEach(g ->
         {
             Game game = gameList.get(g);
-            Node root = rootList.get(g);
 
             int nActionsReplayed = game.actionHistory().getActionIndexList().size();
             if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
@@ -326,9 +325,6 @@ public class SelfPlay {
         List<Game> gamesWithRandomActionHere = gamesToApplyAction.stream().filter(game -> ThreadLocalRandom.current().nextDouble() <= p).collect(Collectors.toList());
         if (gamesWithRandomActionHere.isEmpty()) return;
 
-        if (gamesWithRandomActionHere.get(0).getGameDTO().getActions().size() == 1) {
-            int i = 42;
-        }
 
         gamesWithRandomActionHere.forEach(game -> {
             int numLegalActions = game.legalActions().size();
