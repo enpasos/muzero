@@ -37,7 +37,7 @@ public class GameTree {
     List<DNode> forceableWinNodesPlayerB;
     List<DNode> terminatedGameNodes;
     List<DNode> unterminatedGameNodes;
-    Set<ZeroSumGame> terminatedGameDTOs;
+    Set<ZeroSumGame> terminatedGames;
     DNode rootNode;
 
     public GameTree(MuZeroConfig config) {
@@ -62,7 +62,7 @@ public class GameTree {
         }
 
 
-        terminatedGameDTOs = terminatedGameNodes.stream().map(DNode::getGame).collect(Collectors.toSet());
+        terminatedGames = terminatedGameNodes.stream().map(DNode::getGame).collect(Collectors.toSet());
 
 
         propagateBestForceableValueBottomUp(OneOfTwoPlayer.PLAYER_A);

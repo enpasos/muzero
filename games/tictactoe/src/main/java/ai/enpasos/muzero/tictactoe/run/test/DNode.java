@@ -19,6 +19,7 @@ package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
@@ -30,10 +31,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest2.checkForProblematicNodes;
+
 @Data
 public class DNode {
     ZeroSumGame game;
-    boolean terminated;
+ //   boolean terminated;
     DNode parent;
     List<DNode> children;
     boolean checked;
@@ -55,7 +58,7 @@ public class DNode {
     public DNode(ZeroSumGame game) {
         this.game = game;
         children = new ArrayList<>();
-        terminated = false;
+        //terminated = false;
     }
 
     public DNode(DNode parent, ZeroSumGame game) {
@@ -147,7 +150,7 @@ public class DNode {
             }
         } else {
             terminatedGameNodes.add(this);
-            terminated = false;
+          //  terminated = false;
         }
         unterminatedGameNodes.remove(this);
     }
@@ -166,14 +169,20 @@ public class DNode {
         }
     }
 
-    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS, SelfPlay selfPlay) {
+
+
+    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS, SelfPlay selfPlay ) {
+
         NetworkIO networkOutput = network.initialInferenceDirect(game);
         aiValue = networkOutput.getValue();
         int actionIndexSelectedByNetwork = -1;
         List<Action> legalActions = game.legalActions();
+      //  checkForProblematicNodes(Set.of(this));
+        // some bug after this point
         if (withMCTS) {
-            selfPlay.playOneActionFromCurrentState(network, game, false);
-            Action action = game.actionHistory().lastAction();
+            Game tmpGame =   game.copy();
+            selfPlay.playOneActionFromCurrentState(network, tmpGame, false);
+            Action action = tmpGame.actionHistory().lastAction();
             actionIndexSelectedByNetwork = action.getIndex();
         } else {
             float maxValue = 0f;
@@ -185,12 +194,24 @@ public class DNode {
                 }
             }
         }
+        // some bug before this point
+     //   checkForProblematicNodes(Set.of(this));
         for (DNode n : children) {
-            if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
+            if (n.game.getGameDTO().getActions().get(n.game.getGameDTO().getActions().size()-1) == actionIndexSelectedByNetwork) {
                 return n;
             }
         }
+     //   checkForProblematicNodes(Set.of(this));
         return null;
+    }
+
+    public boolean checkForActionListSize() {
+        for (DNode n : children) {
+            if (n.game.getGameDTO().getActions().size() == this.game.getGameDTO().getActions().size()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void collectGamesLost(OneOfTwoPlayer player, @NotNull List<DNode> gamesLostByPlayer) {

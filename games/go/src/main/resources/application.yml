@@ -62,9 +62,7 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
-
 
       # Gumbel MuZero parameters
       initialGumbelM: 8
@@ -75,17 +73,17 @@ muzero:
 
       numChannels: 256     # 256 in the paper
       numBottleneckChannels: 128
-      numResiduals: 8
-      broadcastEveryN: 3  # broadcasting block in every 8th layer
+      numResiduals: 12
+      broadcastEveryN: 8  # broadcasting block in every 8th layer
 
 
-      surpriseHandlingOn: false # false in paper
-      extraValueTrainingOn: false # false in paper
+      # surpriseHandlingOn: false # false in paper
+      # extraValueTrainingOn: false # false in paper
 
       valueLossWeight: 5.0
 
-      maxGameLiveTime: 10000000  # or 40000
-      surpriseCheckInterval: 50000
+      # maxGameLiveTime: 10000000  # or 40000
+      # surpriseCheckInterval: 50000
 
       # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
       # dirichlet noise is added before mcts

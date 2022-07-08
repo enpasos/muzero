@@ -31,10 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,6 +50,7 @@ public class TicTacToeTest {
 
     public boolean test() {
 
+        //config.setTemperatureRoot(0.001);
         config.setTemperatureRoot(0.0);
 
 
@@ -71,7 +69,7 @@ public class TicTacToeTest {
             .filter(d -> !bufferGameDTOs.contains(d))
             .collect(Collectors.toSet());
 
-        log.info("terminatedGameDTOs           : " + gameTree.terminatedGameDTOs.size());
+        log.info("terminatedGames           : " + gameTree.terminatedGames.size());
         log.info("bufferGameDTOs               : " + bufferGameDTOs.size());
         log.info("terminatedGameNotInBufferDTOs: " + terminatedGameNotInBufferDTOs.size());
 
@@ -82,7 +80,6 @@ public class TicTacToeTest {
         Set<DNode> nodesWhereADecisionMatters = new HashSet<>();
         gameTree.rootNode.findNodesWhereADecisionMatters(nodesWhereADecisionMatters);
         log.info("nodesWhereADecisionMatters:    " + nodesWhereADecisionMatters.size());
-
 
         List<DNode> wonByPlayerAGameNodes = gameTree.terminatedGameNodes.stream()
             .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
@@ -138,12 +135,11 @@ public class TicTacToeTest {
 
     private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
         gameTree.rootNode.clearAIDecisions();
+
+
         gameTree.rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
-
-
         gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
         log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
-
         printActions(gamesLostByPlayer);
 
 
