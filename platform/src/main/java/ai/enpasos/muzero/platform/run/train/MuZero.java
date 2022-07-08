@@ -161,25 +161,19 @@ public class MuZero {
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
 
-
-                   // altStarts.reset();
-
                     playGames(params.render, network, trainingStep);
 
-                    altStarts.playGames(network, trainingStep);
+                    altStarts.playGames(network);
 
                     surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
                     log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                     if (config.isExtraValueTrainingOn()) {
-                     //   double temp = config.getTemperatureRoot();
                         int sims = config.getNumSimulations();
                         config.setNumSimulations(0);
-                      //  config.setTemperatureRoot(1);
                         playGames(params.render, network, trainingStep);
                         config.setNumSimulations(sims);
-                       // config.setTemperatureRoot(temp);
                     }
 
                 }

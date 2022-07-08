@@ -76,7 +76,6 @@ public class MuZeroFast2 {
 
             int loop = 0;
 
-            //  double surpriseThreshold = Double.MAX_VALUE;
             double surpriseThreshold = 0.1d;
 
             List<Game> gamesWithSurprise = new ArrayList<>();
@@ -90,7 +89,6 @@ public class MuZeroFast2 {
                 log.info("end surprise.measureValueAndSurprise");
 
                 log.info(loop + " >>> 1. find surprise threshold as 3*sigma surprise");
-                //   surpriseThreshold = surprise.getSurpriseThreshold(games);
 
 
                 log.info(loop + " >>> 2. for each game with a surprise beyond threshold, mark the surprise beyond threshold that is the latest time");
