@@ -109,11 +109,11 @@ public class MuZeroFast2 {
                 ));
                 Collections.reverse(gamesWithSurprise);
                 List<Game> gamesToReplay = gamesWithSurprise.stream().limit(1000).collect(Collectors.toList());
-                games.stream().forEach(game ->
+                games.forEach(game ->
                     game.getGameDTO().setSurprised(false)
 
                 );
-                gamesToReplay.stream().forEach(game ->
+                gamesToReplay.forEach(game ->
                     game.getGameDTO().setSurprised(true)
                 );
                 surprise.handleOldSurprises(network);

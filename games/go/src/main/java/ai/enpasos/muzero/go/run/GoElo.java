@@ -64,7 +64,7 @@ public class GoElo {
         RankingListDTO rankingList = ranking.getRankingList();
         rankingList.sortByEpoch();
         System.out.println("epoch;elo");
-        rankingList.getRankings().stream().forEach(r ->
+        rankingList.getRankings().forEach(r ->
             System.out.println(r.getEpochPlayer() + ";" + r.getElo())
         );
     }

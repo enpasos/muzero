@@ -250,7 +250,7 @@ public class Node {
     public Node selectChild(MinMaxStats minMaxStats) { //}, double temperature) {
 
         int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
-        this.getChildren().stream().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
+        this.getChildren().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
 //        if (temperature == 0d) {
             return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
 //        } else {

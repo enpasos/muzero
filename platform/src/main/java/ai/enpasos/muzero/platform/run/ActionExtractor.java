@@ -62,7 +62,7 @@ public class ActionExtractor {
             for (Game game : replayBuffer.getBuffer().getGames()) {
                 List<String> valueList = new ArrayList<>();
                 valueList.add("" + count++);
-                valueList.addAll(game.getGameDTO().getActions().stream().map(a -> a.intValue() + "").collect(Collectors.toList()));
+                valueList.addAll(game.getGameDTO().getActions().stream().map(a -> a + "").collect(Collectors.toList()));
 
                 String[] values = valueList.toArray(new String[0]);
 

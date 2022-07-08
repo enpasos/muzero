@@ -119,7 +119,7 @@ public class SurpriseExtractor {
         List<Game> games = replayBuffer.getBuffer().getGames();
 
         // return the game with the highest surprise
-        replayBuffer.getBuffer().getGames().stream().forEach(game -> {
+        replayBuffer.getBuffer().getGames().forEach(game -> {
                 float max = Float.MIN_VALUE;
                 for (float v : game.getGameDTO().getSurprises()) {
                     if (v > max) {

@@ -219,7 +219,7 @@ public class MuZero {
         surprise.measureValueAndSurprise(network, gamesToCheck);
         log.info("end surprise.measureValueAndSurprise");
 
-        gamesToCheck.stream().forEach(game ->
+        gamesToCheck.forEach(game ->
             game.getGameDTO().setNextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck() + config.getSurpriseCheckInterval())
          );
 
@@ -344,12 +344,12 @@ public class MuZero {
         List<Game> gamesWithSurprise = surprise.getGamesWithSurprisesAboveThreshold(games, surpriseThreshold);
 
 
-        games.stream().forEach(game -> {
+        games.forEach(game -> {
             game.getGameDTO().setSurprised(false);
             game.getGameDTO().setTStateA(0);
             game.getGameDTO().setTStateB(0);
         });
-        gamesWithSurprise.stream().forEach(game -> {
+        gamesWithSurprise.forEach(game -> {
             game.getGameDTO().setSurprised(true);
             long t = game.getGameDTO().getTSurprise();
             long t0 = Math.max(t + offset, 0);
