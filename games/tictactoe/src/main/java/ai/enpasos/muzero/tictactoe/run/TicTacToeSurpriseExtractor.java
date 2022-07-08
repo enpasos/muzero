@@ -36,7 +36,7 @@ public class TicTacToeSurpriseExtractor {
     @Autowired
     SurpriseExtractor surpriseExtractor;
 
-    @SuppressWarnings("squid:S125")
+    @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
         // Optional<Game> game = surpriseExtractor.getGame(4);
@@ -44,9 +44,7 @@ public class TicTacToeSurpriseExtractor {
 
 
         Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 1, 7, 3, 8, 6, 2);
-        game.ifPresent(g -> {
-            System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g));
-        });
+        game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
 
     }
 

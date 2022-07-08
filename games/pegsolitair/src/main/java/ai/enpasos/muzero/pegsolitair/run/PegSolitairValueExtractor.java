@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@SuppressWarnings("squid:S106")
+@SuppressWarnings({"squid:S106", "unchecked"})
 @Component
 public class PegSolitairValueExtractor {
     @Autowired

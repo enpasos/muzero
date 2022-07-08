@@ -22,6 +22,9 @@
         <pytorch-engine.version>${djl.version}</pytorch-engine.version>
         <pytorch-model-zoo.version>${djl.version}</pytorch-model-zoo.version>
 
+        <onnxruntime-engine.version>0.18.0-SNAPSHOT</onnxruntime-engine.version>
+        <onnxruntime.version>1.10.0</onnxruntime.version>
+
         <pytorch.version>1.11.0</pytorch.version>
         <pytorch-native-cu113.version>${pytorch.version}</pytorch-native-cu113.version>
 
@@ -36,8 +39,8 @@
         <lombok.version>1.18.24</lombok.version>
         <protobuf-java.version>3.19.4</protobuf-java.version>
         <ssj.version>3.3.1</ssj.version>
-        <onnxruntime.version>1.10.0</onnxruntime.version>
         <slf4j.version>1.7.36</slf4j.version>
+        <jackson-databind.version>2.13.2</jackson-databind.version>
     </properties>
 
 
@@ -59,6 +62,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
@@ -133,6 +141,7 @@
                 <artifactId>commons-cli</artifactId>
                 <version>${commons-cli.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
@@ -153,6 +162,11 @@
                         <groupId>org.apache.commons</groupId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>ai.djl.onnxruntime</groupId>
+                <artifactId>onnxruntime-engine</artifactId>
+                <version>${onnxruntime-engine.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.onnxruntime</groupId>
@@ -190,11 +204,7 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
             </dependency>
-            <dependency>
-                <groupId>ai.djl.onnxruntime</groupId>
-                <artifactId>onnxruntime-engine</artifactId>
-                <version>0.18.0-SNAPSHOT</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.enpasos.muzero</groupId>
                 <artifactId>tictactoe</artifactId>

@@ -20,7 +20,9 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public class ReplayBufferDTO {
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
 
     public List<GameDTO> getDTOListFromGames() {
-        return games.stream().map(game -> game.getGameDTO()).collect(Collectors.toList());
+        return games.stream().map(Game::getGameDTO).collect(Collectors.toList());
     }
 
 
@@ -70,16 +72,8 @@ public class ReplayBufferDTO {
     }
 
     public void saveGame(@NotNull Game game, MuZeroConfig config) {
-        //if (games.indexOf(game) != -1) {
-        // games.remove(game);  // do not keep old copies with the same action history
-        //  game.setPlayedMoreThanOnce(true);
-        //}
         while (isBufferFilled()) {
             games.remove(0);
-//            GameDTO toBeRemoved = games.get(0).getGameDTO();
-//            Game gameToBeRemoved = config.newGame();
-//            gameToBeRemoved.setGameDTO(toBeRemoved);
-//            games.remove(gameToBeRemoved);
         }
         if (!game.terminal()) {
             game.replayToPosition(game.actionHistory().getActionIndexList().size());
@@ -87,11 +81,6 @@ public class ReplayBufferDTO {
         games.add(game);
         counter++;
         game.getGameDTO().setCount(counter);
-
-//        List<Game> toRemove = games.stream()
-//            .filter(g -> counter - g.getGameDTO().getCount() > config.getMaxGameLiveTime())
-//            .collect(Collectors.toList());
-//        toRemove.forEach(this::removeGame);
 
 
     }
@@ -108,11 +97,6 @@ public class ReplayBufferDTO {
         }
         getInitialGameDTOList().clear();
     }
-
-
-//    public void clear() {
-//        data.clear();
-//    }
 
 
     public ReplayBufferProto proto() {

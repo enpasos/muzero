@@ -98,7 +98,7 @@ public class DJLMNISTTest {
     }
 
     private static Translator<Image, Classifications> getImageClassificationsTranslator() {
-        Translator<Image, Classifications> translator = new Translator<>() {
+        return new Translator<>() {
 
             @Override
             public NDList processInput(TranslatorContext ctx, Image input) {
@@ -122,6 +122,5 @@ public class DJLMNISTTest {
                 return Batchifier.STACK;
             }
         };
-        return translator;
     }
 }

@@ -52,7 +52,7 @@ public class OnnxIOExport {
         graphBuilder.addAllNode(onnxBlock.getNodes());
 
 
-        onnxBlock.getInputNames().stream().forEach(
+        onnxBlock.getInputNames().forEach(
             n -> graphBuilder.addInput(
                 onnxBlock.getValueInfos().stream()
                     .filter(vi -> vi.getName().equals(n))
@@ -66,7 +66,7 @@ public class OnnxIOExport {
             .collect(Collectors.toSet())
         );
 
-        onnxBlock.getOutputNames().stream().forEach(
+        onnxBlock.getOutputNames().forEach(
             n -> graphBuilder.addOutput(
                 onnxBlock.getValueInfos().stream()
                     .filter(vi -> vi.getName().equals(n))

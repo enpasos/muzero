@@ -60,7 +60,6 @@ public class PegSolitair implements CommandLineRunner {
                 break;
             case NONE:
             default:
-                return;
         }
     }
 }

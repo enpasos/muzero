@@ -100,9 +100,7 @@ public class ReplayBuffer {
         int enhanceFactor = 1;
         long numNormalActions = numActions - (dto.getTStateA() + delta);
         int n = (int) (enhanceFactor * (delta) + numNormalActions);
-        if (n <= 0) {
-            int i = 42;
-        }
+
         int rawpos = ThreadLocalRandom.current().nextInt(0, n);
         int gamePos = 0;
         if (rawpos < numNormalActions) {
@@ -162,7 +160,7 @@ public class ReplayBuffer {
         this.batchSize = config.getBatchSize();
         if (this.buffer != null) {
             //this.buffer.getdata().clear();
-            this.buffer.games.stream().forEach(g -> {
+            this.buffer.games.forEach(g -> {
                 g.setGameDTO(null);
                 g.setOriginalGameDTO(null);
             });
@@ -371,8 +369,6 @@ public class ReplayBuffer {
     public void sortGamesByLastValueError() {
         this.getBuffer().getGames().sort(
             (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
-//        this.getBuffer().getdata().sort(
-//            (GameDTO g1, GameDTO g2) -> Float.compare(g2.getLastValueError(), g1.getLastValueError()));
     }
 
     public void removeHighLastValueErrorGames() {
