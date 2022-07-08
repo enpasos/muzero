@@ -51,12 +51,5 @@ public class GoValuesExtractor {
 
         System.out.println(valuesExtractor.listValuesForTrainedNetworks(game));
 
-//        System.out.println();
-//        System.out.println();
-//
-//        List<Integer> actions = game.actionHistory().getActionIndexList();
-//
-//        System.out.println(valueExtractor.listValuesForTrainedNetworks(actions));
-
     }
 }

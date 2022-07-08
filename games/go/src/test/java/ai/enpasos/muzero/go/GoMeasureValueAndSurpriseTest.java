@@ -3,7 +3,6 @@ package ai.enpasos.muzero.go;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.training.DefaultTrainingConfig;
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
@@ -20,10 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -76,14 +75,7 @@ class GoMeasureValueAndSurpriseTest {
             assertEquals(dtoAfter.getActions().size() + 1, dtoAfter.getSurprises().size());
             assertEquals(dtoAfter.getActions().size() + 1, dtoAfter.getRootValuesFromInitialInference().size());
 
-            // TODO fix stored games under pretrained
-            //         assertEquals(dtoBefore.getSurprises().size(), dtoAfter.getSurprises().size());
-            //         assertFalse(Arrays.equals(dtoBefore.getSurprises().toArray(), dtoAfter.getSurprises().toArray()));
 
-
-            //      assertEquals(dtoBefore.getRootValuesFromInitialInference().size(), dtoAfter.getRootValuesFromInitialInference().size());
-            //        assertFalse(Arrays.equals(dtoBefore.getRootValuesFromInitialInference().toArray(), dtoAfter.getRootValuesFromInitialInference().toArray()));
-            int i = 42;
 
             assertEquals(dtoAfter.getPolicyTargets().size(), dtoAfter.getPolicyTargets().size());
 

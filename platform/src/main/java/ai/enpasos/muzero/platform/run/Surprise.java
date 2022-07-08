@@ -75,9 +75,6 @@ public class Surprise {
 
 
         gamesWithOldSurprise.forEach(game -> {
-            if (game.getGameDTO().getActions().equals(List.of(4, 3, 8, 0, 6, 7, 2))) {
-                int i = 42;
-            }
             Game newGame = game.copy((int) game.getGameDTO().getTStateA());
             newGame.getGameDTO().setTStateB(newGame.getGameDTO().getTStateA());
             newGame.getGameDTO().setTSurprise(0);
@@ -135,7 +132,7 @@ public class Surprise {
         });
         Collections.sort(relevantSurprises);
         Collections.reverse(relevantSurprises);
-        if (relevantSurprises.size() == 0) return Double.MAX_VALUE;
+        if (relevantSurprises.isEmpty()) return Double.MAX_VALUE;
 
         double surpriseMean = relevantSurprises.stream().mapToDouble(x -> x).average().orElseThrow(MuZeroException::new);
         double surpriseMax = relevantSurprises.stream().mapToDouble(x -> x).max().orElseThrow(MuZeroException::new);

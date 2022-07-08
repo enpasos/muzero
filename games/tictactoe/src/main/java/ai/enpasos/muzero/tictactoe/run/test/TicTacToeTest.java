@@ -131,9 +131,7 @@ public class TicTacToeTest {
     }
 
     private void printActions(List<DNode> nodes) {
-        nodes.forEach(n -> {
-            log.info("{}", n.getGame().getGameDTO().getActions());
-        });
+        nodes.forEach(n -> log.info("{}", n.getGame().getGameDTO().getActions()));
     }
 
     private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {

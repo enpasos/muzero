@@ -97,7 +97,6 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case NONE:
             default:
-                return;
         }
     }
 }

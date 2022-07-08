@@ -126,12 +126,10 @@ public class SurpriseExtractor {
                         max = v;
                     }
                 }
-                game.setSurpriseMax((double) max);
+                game.setSurpriseMax(max);
             }
         );
-        return replayBuffer.getBuffer().getGames().stream().max((g1, g2) -> {
-            return (int) (g1.getSurpriseMax() - g2.getSurpriseMax());
-        }) ;
+        return replayBuffer.getBuffer().getGames().stream().max((g1, g2) -> (int) (g1.getSurpriseMax() - g2.getSurpriseMax())) ;
 
     }
 
@@ -139,7 +137,7 @@ public class SurpriseExtractor {
         float max = Float.NEGATIVE_INFINITY;
 
         for(float cur: arr)
-            max = (float) Math.max(max, cur);
+            max = Math.max(max, cur);
         return max;
     }
 

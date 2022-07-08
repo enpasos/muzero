@@ -113,7 +113,6 @@ public class Go implements CommandLineRunner {
                 break;
             case NONE:
             default:
-                return;
         }
     }
 }

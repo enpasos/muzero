@@ -129,7 +129,7 @@ public class Network {
     }
 
 
-    @SuppressWarnings("squid:S125")
+    @SuppressWarnings({"squid:S125", "EmptyMethod"})
     public static void debugDumpFromTrainer(Trainer trainer) {
         //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
     }
@@ -217,7 +217,7 @@ public class Network {
         return getEpoch(model) * config.getNumberOfTrainingStepsPerEpoch();
     }
 
-    @SuppressWarnings("squid:S125")
+    @SuppressWarnings({"squid:S125", "EmptyMethod"})
     public void debugDump() {
         //   ((BaseNDManager) this.getModel().getNDManager()).debugDump(0);
     }

@@ -316,7 +316,7 @@ public class SelfPlay {
             game.setActionApplied(true);
         });
 
-        gamesToApplyAction.removeIf(game -> game.isActionApplied());
+        gamesToApplyAction.removeIf(Game::isActionApplied);
     }
 
     private void shortCutForRandomAction(List<Game> gamesToApplyAction, boolean render) {
@@ -346,7 +346,7 @@ public class SelfPlay {
             game.setActionApplied(true);
         });
 
-        gamesToApplyAction.removeIf(game -> game.isActionApplied());
+        gamesToApplyAction.removeIf(Game::isActionApplied);
     }
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
@@ -499,8 +499,6 @@ public class SelfPlay {
         resultGames.forEach(replayBuffer::saveGame);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         resultGames.clear();
-        //   List<Game> resultGames2 = resultGames.stream().filter(g->g.getGameDTO().getTStateA() < 3).collect(Collectors.toList());
-        //    int i = 42;
     }
 
 }

@@ -47,7 +47,7 @@ public class OnnxHelper {
     }
 
     public static ValueInfoProto createValueInfoProto(OnnxTensor output) {
-        ValueInfoProto valueInfoProto = ValueInfoProto.newBuilder()
+        return ValueInfoProto.newBuilder()
             .setType(TypeProto.newBuilder()
                 .setTensorType(TypeProto.Tensor.newBuilder()
                     .setElemType(1) // float32
@@ -57,6 +57,5 @@ public class OnnxHelper {
                 .build())
             .setName(output.getName())
             .build();
-        return valueInfoProto;
     }
 }
