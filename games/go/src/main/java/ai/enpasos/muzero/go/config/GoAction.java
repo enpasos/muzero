@@ -70,7 +70,9 @@ public class GoAction extends Action {
 
     public NDArray encode(@NotNull NDManager nd) {
         NDArray array = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
-        array.setScalar(new NDIndex(0, getRow(), getCol()), 1f);
+        if (this.getIndex() < config.getBoardHeight() * config.getBoardWidth()) {
+            array.setScalar(new NDIndex(0, getRow(), getCol()), 1f);
+        }
         return array;
     }
 
