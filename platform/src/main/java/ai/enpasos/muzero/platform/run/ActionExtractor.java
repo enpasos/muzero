@@ -49,7 +49,7 @@ public class ActionExtractor {
     Inference inference;
 
 
-    @SuppressWarnings("squid:S1141")
+    @SuppressWarnings({"squid:S1141", "java:S106"})
     public void run() {
 
         replayBuffer.loadLatestState();

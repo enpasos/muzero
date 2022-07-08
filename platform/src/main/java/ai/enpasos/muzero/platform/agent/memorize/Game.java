@@ -316,7 +316,6 @@ public abstract class Game {
         this.gameDTO = this.gameDTO.copyWithoutActions();
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.initEnvironment();
-        //this.replayToPosition(getGameDTO().getActions().size());
     }
 
     public void beforeReplayWithoutChangingActionHistory(int backInTime) {
