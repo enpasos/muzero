@@ -52,14 +52,13 @@ public class TicTacToeMicrosoftRT {
             try (OrtSession session = env.createSession(modelPath, opts)) {
                 Map<String, OnnxTensor> map = new TreeMap<>();
                 try {
-                    for (int i = 0; i < input.size(); i++) {
-                        JvmData jvmData = input.get(i);
+                    for (JvmData jvmData : input) {
                         map.put(jvmData.getName(), OnnxTensor.createTensor(env, FloatBuffer.wrap(jvmData.getData()), jvmData.getShape().getShape()));
                     }
                     OrtSession.Result output = session.run(map);
                     return convert(output);
                 } finally {
-                    map.values().stream().forEach(OnnxTensor::close);
+                    map.values().forEach(OnnxTensor::close);
                 }
             }
         }
@@ -69,8 +68,7 @@ public class TicTacToeMicrosoftRT {
     public static List<JvmData> convert(OrtSession.Result raw) {
 
         List<JvmData> data = new ArrayList<>();
-        for (Iterator<Map.Entry<String, OnnxValue>> it = raw.iterator(); it.hasNext(); ) {
-            Map.Entry<String, OnnxValue> entry = it.next();
+        for (Map.Entry<String, OnnxValue> entry : raw) {
             String name = entry.getKey();
             OnnxValue v = entry.getValue();
 

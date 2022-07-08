@@ -3,6 +3,7 @@ package ai.enpasos.muzero.platform.run;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
@@ -35,40 +36,34 @@ public class AltStarts {
         List<Game> normalGames = replayBuffer.getBuffer().getGames().stream().filter(g -> g.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
 
         final List<Game> gameSeeds = new ArrayList<>();
-        normalGames.stream().forEach(game -> {
-            //  for (int t = 0; t < game.getGameDTO().getActions().size() - 1; t++) {
+        normalGames.forEach(game -> {
             List<StartOption> options = new ArrayList<>();
             Game tmpGame = config.newGame();
-           // for (int t = 0; t < game.getGameDTO().getActions().size() - 1; t++) {
              for (int t = 0; t < Math.min(2, game.getGameDTO().getActions().size() - 1); t++) {
 
                 Integer action = game.getGameDTO().getActions().get(t);
                 float[] policyTarget = game.getGameDTO().getPolicyTargets().get(t);
-                int[] legalActionsArray = tmpGame.legalActions().stream().mapToInt(a -> a.getIndex()).toArray();
+                int[] legalActionsArray = tmpGame.legalActions().stream().mapToInt(Action::getIndex).toArray();
                 for (int a = 0; a < policyTarget.length; a++) {
-                    // if the action is legal and value of policyTarget is smaller than pThreshold
                     if (ArrayUtils.contains(legalActionsArray, a) && policyTarget[a] < pThreshold) {
                         options.add(new StartOption(t, a));
                     }
                 }
                 tmpGame.apply(action);
             }
-            options.stream().forEach(startOption -> {
+            options.forEach(startOption -> {
                 Game seed = game.copy(startOption.t);
-                try {
+
                     seed.apply(startOption.actionIndex);
-                } catch (Exception e) {
-                    int i= 42;
-                }
+
 
                 seed.getGameDTO().setTStateA(seed.getGameDTO().getActions().size());
                 seed.getGameDTO().setTStateB(seed.getGameDTO().getActions().size());
-                // dummy copy for the applied action
-               // seed.getGameDTO().getSurprises().add(0f );  // a dummy
+
                 seed.getGameDTO().getSurprises().add(game.getGameDTO().getSurprises().get(startOption.t + 1));
                 seed.getGameDTO().getPolicyTargets().add(game.getGameDTO().getPolicyTargets().get(startOption.t + 1));
 
-                //   seed.getGameDTO().getValues().add(game.getGameDTO().getValues().get(startOption.t + 1));
+
                 seed.getGameDTO().getRootValuesFromInitialInference().add(game.getGameDTO().getRootValuesFromInitialInference().get(startOption.t + 1));
                 gameSeeds.add(seed);
             });

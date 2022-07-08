@@ -37,7 +37,7 @@ public class PegSolitairRenderGame {
     RenderGame renderGame;
 
 
-    @SuppressWarnings("squid:S125")
+    @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
         // perfect games:

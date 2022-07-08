@@ -314,14 +314,6 @@ public class MuZeroConfig {
     }
 
 
-//    public double getTemperatureNonRoot() {
-//        return getConf().temperatureNonRoot;
-//    }
-//
-//    public void setTemperatureNonRoot(double temperature) {
-//        getConf().temperatureNonRoot = temperature;
-//    }
-
     public String getOutputDir() {
         return getConf().outputDir;
     }

@@ -275,7 +275,7 @@ public class SelfPlay {
     }
 
 
-    @SuppressWarnings("squid:S3740")
+    @SuppressWarnings({"squid:S3740", "unchecked"})
     private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
         List<Node> roots = new ArrayList<>();
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
@@ -316,7 +316,7 @@ public class SelfPlay {
             game.setActionApplied(true);
         });
 
-        gamesToApplyAction.removeIf(game -> game.isActionApplied());
+        gamesToApplyAction.removeIf(Game::isActionApplied);
     }
 
     private void shortCutForRandomAction(List<Game> gamesToApplyAction, boolean render) {
@@ -346,7 +346,7 @@ public class SelfPlay {
             game.setActionApplied(true);
         });
 
-        gamesToApplyAction.removeIf(game -> game.isActionApplied());
+        gamesToApplyAction.removeIf(Game::isActionApplied);
     }
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
@@ -357,7 +357,7 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGames() {
-        gameList.stream().forEach(game -> game.setDone(game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves()));
+        gameList.forEach(game -> game.setDone(game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves()));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
@@ -366,7 +366,7 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGamesReplay() {
-        gameList.stream().forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
+        gameList.forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
@@ -499,8 +499,6 @@ public class SelfPlay {
         resultGames.forEach(replayBuffer::saveGame);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         resultGames.clear();
-        //   List<Game> resultGames2 = resultGames.stream().filter(g->g.getGameDTO().getTStateA() < 3).collect(Collectors.toList());
-        //    int i = 42;
     }
 
 }

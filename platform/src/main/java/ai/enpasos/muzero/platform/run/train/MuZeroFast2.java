@@ -28,7 +28,6 @@ import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.Surprise;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -110,11 +109,11 @@ public class MuZeroFast2 {
                 ));
                 Collections.reverse(gamesWithSurprise);
                 List<Game> gamesToReplay = gamesWithSurprise.stream().limit(1000).collect(Collectors.toList());
-                games.stream().forEach(game ->
+                games.forEach(game ->
                     game.getGameDTO().setSurprised(false)
 
                 );
-                gamesToReplay.stream().forEach(game ->
+                gamesToReplay.forEach(game ->
                     game.getGameDTO().setSurprised(true)
                 );
                 surprise.handleOldSurprises(network);

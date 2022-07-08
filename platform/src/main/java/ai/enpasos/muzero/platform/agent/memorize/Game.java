@@ -158,7 +158,7 @@ public abstract class Game {
     }
 
     public void apply(List<Integer> actions) {
-        actions.stream().forEach(
+        actions.forEach(
             i -> apply(config.newAction(i))
         );
     }

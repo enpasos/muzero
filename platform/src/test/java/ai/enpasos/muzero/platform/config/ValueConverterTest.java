@@ -15,11 +15,4 @@ class ValueConverterTest {
     }
 
 
-//    @Test
-//    void classIndexToValue() {
-//        double[] confValues = {-1, 0, 1};
-//        assertEquals(-1, ValueConverter.classIndexToValue(confValues, 0));
-//        assertEquals(0, ValueConverter.classIndexToValue(confValues, 1));
-//        assertEquals(1, ValueConverter.classIndexToValue(confValues, 2));
-//    }
 }
