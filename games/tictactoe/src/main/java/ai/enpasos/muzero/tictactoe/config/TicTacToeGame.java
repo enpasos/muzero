@@ -113,8 +113,8 @@ public class TicTacToeGame extends ZeroSumGame {
         NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
 
         float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
-        for (int i = 0; i < data.length; i++) {
-            Arrays.fill(data[i], currentPlayer.getActionValue());
+        for (float[] datum : data) {
+            Arrays.fill(datum, currentPlayer.getActionValue());
         }
         NDArray boardColorToPlay = ndManager.create(data);
 

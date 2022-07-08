@@ -113,9 +113,8 @@ public class Node {
 
     public double[] getCompletedQValuesNormalized(MinMaxStats minMaxStats) {
         return children.stream().mapToDouble(node -> {
-                Node child = node;
-                if (child.getVisitCount() > 0) {
-                    return child.getQValue();
+                if (node.getVisitCount() > 0) {
+                    return node.getQValue();
                 } else {
                     return getVmix();
                 }
@@ -127,7 +126,7 @@ public class Node {
     public void calculateImprovedPolicy(MinMaxStats minMaxStats) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
-        double[] logits = getChildren().stream().mapToDouble(node -> node.getLogit() ).toArray();
+        double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
         double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw  );
@@ -289,9 +288,7 @@ public class Node {
 
         int numOfAllowedActions = this.children.size();
         double frac = config.getRootExplorationFraction();
-        if (frac == 0d) {
-            return;
-        } else {
+        if (frac != 0d)  {
             double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
 
             for (int i = 0; i < this.children.size(); i++) {

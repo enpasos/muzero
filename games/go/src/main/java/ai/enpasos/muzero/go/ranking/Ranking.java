@@ -98,8 +98,7 @@ public class Ranking {
                 .mapToInt(path -> {
                     String pathStr = path.toString();
                     String noStr = pathStr.substring(pathStr.length() - "0000.params".length(), pathStr.length() - "params".length() - 1);
-                    int i = Integer.parseInt(noStr);
-                    return i;
+                    return Integer.parseInt(noStr);
                 })
                 .mapToObj(i -> i + "")
                 .collect(Collectors.toList());

@@ -170,15 +170,6 @@ public class MuZero {
 
                     surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
-                    //  if (trainingStep > 1000) {
-//                        surpriseCheck(network);
-                    //   }
-
-//                    if (config.isSurpriseHandlingOn() && networkHelper.getEpoch() > 1) {
-//                        surprise.handleOldSurprises(network);
-//                        surprise.markSurprise();
-//                    }
-
                     log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                     if (config.isExtraValueTrainingOn()) {
@@ -208,7 +199,7 @@ public class MuZero {
 
     private void surpriseCheck(Network network) {
         List<Game> gamesForThreshold = this.replayBuffer.getBuffer().getGames().stream()
-            .filter(game -> game.getGameDTO().getSurprises().size() > 0)
+            .filter(game -> !game.getGameDTO().getSurprises().isEmpty())
             .filter(game -> game.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
         double surpriseThreshold = surprise.getSurpriseThresholdAndShowSurpriseStatistics(gamesForThreshold);
         log.info("surpriseThreshold: " + surpriseThreshold);
@@ -228,9 +219,9 @@ public class MuZero {
         surprise.measureValueAndSurprise(network, gamesToCheck);
         log.info("end surprise.measureValueAndSurprise");
 
-        gamesToCheck.stream().forEach(game -> {
-            game.getGameDTO().setNextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck() + config.getSurpriseCheckInterval());
-        });
+        gamesToCheck.stream().forEach(game ->
+            game.getGameDTO().setNextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck() + config.getSurpriseCheckInterval())
+         );
 
 
         identifyGamesWithSurprise(this.replayBuffer.getBuffer().getGames(), surpriseThreshold, 0);

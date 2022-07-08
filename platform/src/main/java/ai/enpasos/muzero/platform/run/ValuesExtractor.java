@@ -109,8 +109,7 @@ public class ValuesExtractor {
     @NotNull
     public Game getGame() {
         replayBuffer.loadLatestState();
-        Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
-        return game;
+        return replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
     }
 
 }
