@@ -116,7 +116,7 @@ public class Ranking {
     }
 
     private void addPlayersToRanking(List<String> players) {
-        players.stream().forEach(p ->
+        players.forEach(p ->
             this.rankingList.rankings.add(RankingEntryDTO.builder()
                 .epochPlayer(Integer.parseInt(p))
                 .build())

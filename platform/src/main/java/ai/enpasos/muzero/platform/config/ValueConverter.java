@@ -15,7 +15,7 @@ public class ValueConverter {
         return valueToClassIndex(config.getValues(), value);
     }
 
-    @SuppressWarnings("squid:S3740")
+    @SuppressWarnings({"squid:S3740", "unchecked"})
     public static int valueToClassIndex(double[] confValues, double value) {
         return (Integer) IntStream.range(0, confValues.length)
             .mapToObj(i -> new Pair(i, confValues[i]))

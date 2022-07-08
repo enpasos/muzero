@@ -160,7 +160,7 @@ public class ReplayBuffer {
         this.batchSize = config.getBatchSize();
         if (this.buffer != null) {
             //this.buffer.getdata().clear();
-            this.buffer.games.stream().forEach(g -> {
+            this.buffer.games.forEach(g -> {
                 g.setGameDTO(null);
                 g.setOriginalGameDTO(null);
             });

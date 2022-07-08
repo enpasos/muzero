@@ -36,7 +36,7 @@ public class AltStarts {
         List<Game> normalGames = replayBuffer.getBuffer().getGames().stream().filter(g -> g.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
 
         final List<Game> gameSeeds = new ArrayList<>();
-        normalGames.stream().forEach(game -> {
+        normalGames.forEach(game -> {
             List<StartOption> options = new ArrayList<>();
             Game tmpGame = config.newGame();
              for (int t = 0; t < Math.min(2, game.getGameDTO().getActions().size() - 1); t++) {
@@ -51,7 +51,7 @@ public class AltStarts {
                 }
                 tmpGame.apply(action);
             }
-            options.stream().forEach(startOption -> {
+            options.forEach(startOption -> {
                 Game seed = game.copy(startOption.t);
 
                     seed.apply(startOption.actionIndex);

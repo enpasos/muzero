@@ -275,7 +275,7 @@ public class SelfPlay {
     }
 
 
-    @SuppressWarnings("squid:S3740")
+    @SuppressWarnings({"squid:S3740", "unchecked"})
     private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
         List<Node> roots = new ArrayList<>();
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
@@ -357,7 +357,7 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGames() {
-        gameList.stream().forEach(game -> game.setDone(game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves()));
+        gameList.forEach(game -> game.setDone(game.terminal() || game.getGameDTO().getActions().size() >= config.getMaxMoves()));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
@@ -366,7 +366,7 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGamesReplay() {
-        gameList.stream().forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
+        gameList.forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
