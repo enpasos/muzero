@@ -248,26 +248,11 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>3.0.0</version>
-            <executions>
-                <execution>
-                    <id>train</id>
-                    <configuration>
-                        <mainClass>ai.enpasos.muzero.platform.run.train.MuZero</mainClass>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>test</id>
-                    <configuration>
-                        <mainClass>ai.enpasos.muzero.platform.run.TicTacToeTest</mainClass>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>integrationtest</id>
-                    <configuration>
-                        <mainClass>ai.enpasos.muzero.integrationtest.TicTacToeTest</mainClass>
-                    </configuration>
-                </execution>
-            </executions>
+
+        </plugin>
+        <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.0.0</version>
         </plugin>
         <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
@@ -295,21 +280,7 @@
             <groupId>com.github.os72</groupId>
             <artifactId>protoc-jar-maven-plugin</artifactId>
             <version>3.11.4</version>
-            <executions>
-                <execution>
-                    <phase>generate-sources</phase>
-                    <goals>
-                        <goal>run</goal>
-                    </goals>
-                    <configuration>
-                        <addProtoSources>all</addProtoSources>
-                        <includeMavenTypes>direct</includeMavenTypes>
-                        <inputDirectories>
-                            <include>src/main/protobuf</include>
-                        </inputDirectories>
-                    </configuration>
-                </execution>
-            </executions>
+
         </plugin>
     </plugins>
         </pluginManagement>
