@@ -23,7 +23,7 @@
         <pytorch-model-zoo.version>${djl.version}</pytorch-model-zoo.version>
         <onnxruntime-engine.version>${djl.version}</onnxruntime-engine.version>
 
-        <onnxruntime.version>1.10.0</onnxruntime.version>
+        <onnxruntime.version>1.11.0</onnxruntime.version>
 
         <pytorch.version>1.11.0</pytorch.version>
         <pytorch-native-cu113.version>${pytorch.version}</pytorch-native-cu113.version>
@@ -37,7 +37,7 @@
 
         <jupiter.version>5.8.2</jupiter.version>
         <lombok.version>1.18.24</lombok.version>
-        <protobuf-java.version>3.19.4</protobuf-java.version>
+        <protobuf-java.version>3.21.2</protobuf-java.version>
         <ssj.version>3.3.1</ssj.version>
         <slf4j.version>1.7.36</slf4j.version>
         <jackson-databind.version>2.13.2</jackson-databind.version>
@@ -290,7 +290,6 @@
             <groupId>com.github.os72</groupId>
             <artifactId>protoc-jar-maven-plugin</artifactId>
             <version>3.11.4</version>
-
         </plugin>
     </plugins>
         </pluginManagement>
