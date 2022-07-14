@@ -7,22 +7,22 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.0</version>
+        <version>2.7.1</version>
     </parent>
 
     <properties>
-        <springboot.version>2.7.0</springboot.version>
+        <springboot.version>2.7.1</springboot.version>
 
         <onnxModelGen.version>${project.version}</onnxModelGen.version>
         <platform.version>${project.version}</platform.version>
 
-        <djl.version>0.18.0-SNAPSHOT</djl.version>
+        <djl.version>0.19.0-SNAPSHOT</djl.version>
         <model-zoo.version>${djl.version}</model-zoo.version>
         <basicdataset.version>${djl.version}</basicdataset.version>
         <pytorch-engine.version>${djl.version}</pytorch-engine.version>
         <pytorch-model-zoo.version>${djl.version}</pytorch-model-zoo.version>
+        <onnxruntime-engine.version>${djl.version}</onnxruntime-engine.version>
 
-        <onnxruntime-engine.version>0.18.0-SNAPSHOT</onnxruntime-engine.version>
         <onnxruntime.version>1.10.0</onnxruntime.version>
 
         <pytorch.version>1.11.0</pytorch.version>
