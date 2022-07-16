@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
+import ai.enpasos.muzero.platform.config.DeviceType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ class GoInferenceTest {
     @Test
     void aiDecisionGoFast() {
         List<Integer> actions = new ArrayList<>();
-        int nextMoveInt = inference.aiDecision(actions, false, "./pretrained");
+        int nextMoveInt = inference.aiDecision(actions, false, "./pretrained",  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
     }
 
@@ -33,7 +34,7 @@ class GoInferenceTest {
     @Test
     void aiDecisionGoSlow() {
         List<Integer> actions = new ArrayList<>();
-        int nextMoveInt = inference.aiDecision(actions, true, "./pretrained");
+        int nextMoveInt = inference.aiDecision(actions, true, "./pretrained",  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
     }
 
@@ -43,7 +44,7 @@ class GoInferenceTest {
 
         List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25);
 
-        int nextMoveInt = inference.aiDecision(actions, true, "./pretrained");
+        int nextMoveInt = inference.aiDecision(actions, true, "./pretrained",  DeviceType.GPU);
 
         assertTrue(nextMoveInt >= 0);
 

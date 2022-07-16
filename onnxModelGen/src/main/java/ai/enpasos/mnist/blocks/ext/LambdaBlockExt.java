@@ -3,7 +3,7 @@ package ai.enpasos.mnist.blocks.ext;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.LambdaBlockOpened;
+import ai.djl.nn.LambdaBlock;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
@@ -21,7 +21,7 @@ import static ai.enpasos.mnist.blocks.OnnxBlock.*;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class LambdaBlockExt extends LambdaBlockOpened implements OnnxIO {
+public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
 
     private final Type type;
 
