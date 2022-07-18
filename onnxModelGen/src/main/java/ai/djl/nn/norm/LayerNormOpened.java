@@ -1,3 +1,15 @@
+/*
+ * Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+ * with the License. A copy of the License is located at
+ *
+ * http://aws.amazon.com/apache2.0/
+ *
+ * or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+ * OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package ai.djl.nn.norm;
 
 import ai.djl.Device;
@@ -83,14 +95,14 @@ public class LayerNormOpened extends AbstractBlock {
      * Applies Layer Normalization with average and variance for each input sample across the axis
      * dimensions.
      *
-     * @param input           the input {@code NDArray} of shape (batchSize, inputChannel, *), * could be
-     *                        empty, width, (height, width), (depth, height, width)
+     * @param input the input {@code NDArray} of shape (batchSize, inputChannel, *), * could be
+     *     empty, width, (height, width), (depth, height, width)
      * @param normalizedShape dimensions to calculate average and variance from
-     * @param gamma           gamma weight {@code NDArray}
-     * @param beta            beta weight {@code NDArray}
-     * @param eps             a value added to the denominator for numerical stability
+     * @param gamma gamma weight {@code NDArray}
+     * @param beta beta weight {@code NDArray}
+     * @param eps a value added to the denominator for numerical stability
      * @return the output {@code NDArray} of shape (batchSize, inputChannel, *), * could be empty,
-     * width, (height, width), (depth, height, width)
+     *     width, (height, width), (depth, height, width)
      */
     public static NDList layerNorm(
         NDArray input, Shape normalizedShape, NDArray gamma, NDArray beta, float eps) {
@@ -107,9 +119,7 @@ public class LayerNormOpened extends AbstractBlock {
         return new Builder();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected NDList forwardInternal(
         ParameterStore parameterStore,
@@ -124,17 +134,13 @@ public class LayerNormOpened extends AbstractBlock {
         return layerNorm(input, normalizedShape, gammaArr, betaArr, epsilon);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        return new Shape[]{inputShapes[0]};
+        return new Shape[] {inputShapes[0]};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void beforeInitialize(Shape... inputShapes) {
         super.beforeInitialize(inputShapes);
@@ -147,27 +153,21 @@ public class LayerNormOpened extends AbstractBlock {
                     .toArray());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void prepare(Shape[] inputShapes) {
         gamma.setShape(normalizedShape);
         beta.setShape(normalizedShape);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void saveMetadata(DataOutputStream os) throws IOException {
         saveInputShapes(os);
         os.write(normalizedShape.getEncoded());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void loadMetadata(byte loadVersion, DataInputStream is)
         throws IOException, MalformedModelException {
@@ -196,7 +196,7 @@ public class LayerNormOpened extends AbstractBlock {
          * normalizedShape).
          *
          * @param axis input axis over which the mean and variance will be calculated (if null all
-         *             existing dimensions)
+         *     existing dimensions)
          * @return this Builder
          */
         public Builder axis(int... axis) {

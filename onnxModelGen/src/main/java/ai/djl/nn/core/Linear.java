@@ -1,3 +1,15 @@
+/*
+ * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+ * with the License. A copy of the License is located at
+ *
+ * http://aws.amazon.com/apache2.0/
+ *
+ * or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+ * OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package ai.djl.nn.core;
 
 import ai.djl.Device;
@@ -35,10 +47,13 @@ import java.util.Collections;
 public class Linear extends AbstractBlock {
 
     private static final byte VERSION = 4;
-    private final Parameter weight;
+
     private long units;
     private long inputFeatures;
+
     private Shape inputShape;
+
+    private Parameter weight;
     private Parameter bias;
 
     Linear(Builder builder) {
@@ -60,41 +75,7 @@ public class Linear extends AbstractBlock {
         }
     }
 
-    /**
-     * Applies a linear transformation to the incoming data.
-     *
-     * @param input  input X: [x1, x2, …, xn, input_dim]
-     * @param weight weight W: [units, input_dim]
-     * @return output Y: [x1, x2, …, xn, units]
-     */
-    public static NDList linear(NDArray input, NDArray weight) {
-        return linear(input, weight, null);
-    }
-
-    /**
-     * Applies a linear transformation to the incoming data.
-     *
-     * @param input  input X: [x1, x2, …, xn, input_dim]
-     * @param weight weight W: [units, input_dim]
-     * @param bias   bias b: [units]
-     * @return output Y: [x1, x2, …, xn, units]
-     */
-    public static NDList linear(NDArray input, NDArray weight, NDArray bias) {
-        return input.getNDArrayInternal().linear(input, weight, bias);
-    }
-
-    /**
-     * Creates a builder to build a {@code Linear}.
-     *
-     * @return a new builder
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected NDList forwardInternal(
         ParameterStore parameterStore,
@@ -108,26 +89,20 @@ public class Linear extends AbstractBlock {
         return linear(input, weightArr, biasArr);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
-        return new Shape[]{inputs[0].slice(0, inputs[0].dimension() - 1).add(units)};
+        return new Shape[] {inputs[0].slice(0, inputs[0].dimension() - 1).add(units)};
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public PairList<String, Shape> describeInput() {
         return new PairList<>(
             Collections.singletonList("linearInput"), Collections.singletonList(inputShape));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void beforeInitialize(Shape... inputShapes) {
         super.beforeInitialize(inputShapes);
@@ -137,9 +112,7 @@ public class Linear extends AbstractBlock {
         inputShape = input.slice(0, input.dimension() - 1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void prepare(Shape[] inputShapes) {
         Shape input = inputShapes[0];
@@ -149,9 +122,7 @@ public class Linear extends AbstractBlock {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void saveMetadata(DataOutputStream os) throws IOException {
         os.writeLong(units);
@@ -159,9 +130,7 @@ public class Linear extends AbstractBlock {
         os.write(inputShape.getEncoded());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void loadMetadata(byte loadVersion, DataInputStream is)
         throws IOException, MalformedModelException {
@@ -193,15 +162,44 @@ public class Linear extends AbstractBlock {
     }
 
     /**
-     * The Builder to construct a {@link Linear} type of {@link Block}.
+     * Applies a linear transformation to the incoming data.
+     *
+     * @param input input X: [x1, x2, …, xn, input_dim]
+     * @param weight weight W: [units, input_dim]
+     * @return output Y: [x1, x2, …, xn, units]
      */
+    public static NDList linear(NDArray input, NDArray weight) {
+        return linear(input, weight, null);
+    }
+
+    /**
+     * Applies a linear transformation to the incoming data.
+     *
+     * @param input input X: [x1, x2, …, xn, input_dim]
+     * @param weight weight W: [units, input_dim]
+     * @param bias bias b: [units]
+     * @return output Y: [x1, x2, …, xn, units]
+     */
+    public static NDList linear(NDArray input, NDArray weight, NDArray bias) {
+        return input.getNDArrayInternal().linear(input, weight, bias);
+    }
+
+    /**
+     * Creates a builder to build a {@code Linear}.
+     *
+     * @return a new builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /** The Builder to construct a {@link Linear} type of {@link Block}. */
     public static final class Builder {
 
         private long units;
         private boolean bias = true;
 
-        Builder() {
-        }
+        Builder() {}
 
         /**
          * Sets the number of output channels.
@@ -231,7 +229,7 @@ public class Linear extends AbstractBlock {
          *
          * @return the constructed {@code Linear}
          * @throws IllegalArgumentException if all required parameters (outChannels) have not been
-         *                                  set
+         *     set
          */
         public Linear build() {
             Preconditions.checkArgument(units > 0, "You must specify unit");
