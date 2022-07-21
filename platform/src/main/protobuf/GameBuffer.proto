@@ -31,6 +31,8 @@ message GameProto {
   float last_value_error = 6;
   string networkName = 15;
   int64 nextSurpriseCheck = 20;
+  float pRandomActionRawSum = 16;
+  int32 pRandomActionRawCount = 17;
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;

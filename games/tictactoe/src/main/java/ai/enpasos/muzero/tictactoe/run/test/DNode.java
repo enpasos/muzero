@@ -193,6 +193,15 @@ public class DNode {
         return null;
     }
 
+    public boolean checkForActionListSize() {
+        for (DNode n : children) {
+            if (n.game.getGameDTO().getActions().size() == this.game.getGameDTO().getActions().size()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void collectGamesLost(OneOfTwoPlayer player, @NotNull List<DNode> gamesLostByPlayer) {
         OneOfTwoPlayer opponent = OneOfTwoPlayer.otherPlayer(player);
         if (this.game.terminal()) {

@@ -383,4 +383,10 @@ public class ReplayBuffer {
     public void removeGame(Game game) {
         this.buffer.removeGame(game);
     }
+
+    public double getPRandomActionRawAverage() {
+        double sum = this.buffer.games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
+        long count = this.buffer.games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
+        return sum/count;
+    }
 }

@@ -8,17 +8,19 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
-import static ai.enpasos.muzero.platform.common.Functions.draw;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
 /**
@@ -39,7 +41,11 @@ public class GumbelSearch {
     boolean debug;
     private List<Node> rootChildrenCandidates;
 
-    public GumbelSearch(MuZeroConfig config, Game game, boolean debug) {
+
+    double pRandomActionRawAverage; //TODO
+
+    public GumbelSearch(MuZeroConfig config, Game game, boolean debug, double pRandomActionRawAverage) {
+        this.pRandomActionRawAverage = pRandomActionRawAverage;
         this.debug = debug;
         this.config = config;
         this.root = new Node(config, 0, true);
@@ -223,11 +229,9 @@ public class GumbelSearch {
         }
     }
 
-    public void selectAndApplyActionAndStoreSearchStatistics(boolean render, boolean fastRuleLearning) {
+    public void selectAndApplyActionAndStoreSearchStatistics(boolean render, boolean fastRuleLearning, boolean withRandomActions) {
 
         Action action;
-
-
 
         storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
 
@@ -250,6 +254,13 @@ public class GumbelSearch {
         if (action == null) {
             throw new MuZeroException("action must not be null");
         }
+
+        if (withRandomActions) {
+            Optional<Action> optionalAction = badAction(render );
+            if (optionalAction.isPresent()) {
+                action = optionalAction.get();
+            }
+        }
         game.apply(action);
 
         if (render && debug) {
@@ -262,6 +273,77 @@ public class GumbelSearch {
 
     }
 
+    private Optional<Action> badAction(boolean render) {
+
+        int[] legalActions = game.legalActions().stream().mapToInt(Action::getIndex).toArray();
+
+        double[]  pRational_ = toDouble(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
+
+        double[]  pRational = IntStream.range(0,legalActions.length).mapToDouble(i -> pRational_[legalActions[i]]).toArray();
+
+
+        double[]  pIntuitive = this.root.children.stream().mapToDouble(Node::getPrior).toArray();
+
+        double[]  p_perLegalActionRaw  =  new double[legalActions.length];
+
+        IntStream.range(0,legalActions.length).forEach( i ->
+            p_perLegalActionRaw[i] = (1.0 - pIntuitive[i]) * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i]: 0.0)
+        );
+
+        this.game.getGameDTO().setPRandomActionRawSum(
+            this.game.getGameDTO().getPRandomActionRawSum() + (float)Arrays.stream(p_perLegalActionRaw).sum()
+        );
+        this.game.getGameDTO().setPRandomActionRawCount(
+            this.game.getGameDTO().getPRandomActionRawCount() + 1
+        );
+
+        if (pRandomActionRawAverage == 0) return Optional.empty();
+
+        float fraction = config.getFractionOfAlternativeActions();
+        double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
+            config.getFractionOfAlternativeActions() * pRaw /  pRandomActionRawAverage
+        ).toArray();
+
+
+        double  p_perGame = Arrays.stream(p).sum();
+
+        if (!draw( p_perGame)) return Optional.empty();
+
+        p =  Arrays.stream(p).map(b ->
+            b / p_perGame
+        ).toArray();
+
+        int numLegalActions = game.legalActions().size();
+        Action action = config.newAction(legalActions[draw(p)]);
+
+          //  game.apply(action);
+
+//        float[] policyTarget = new float[config.getActionSpaceSize()];
+//        policyTarget[action.getIndex()] = 1f;
+//        game.getGameDTO().getPolicyTargets().remove(game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1))
+//        game.getGameDTO().getPolicyTargets().add(policyTarget);
+        game.getGameDTO().setTStateA(game.getGameDTO().getActions().size());
+        game.getGameDTO().setTStateB(game.getGameDTO().getActions().size());
+        if (render && game.isDebug()) {
+            game.renderMCTSSuggestion(config, game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1));
+            log.debug("\n" + game.render());
+        }
+        game.setActionApplied(true);
+return Optional.of(action);
+    }
+
+    private double[] getProbabilitiesPerLegalAction() {
+        List<Action> legalActions = game.legalActions();
+
+        float[] policyTarget = this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size()-1);
+
+
+        double[] p_perLegalActionRaw = new double[game.legalActions().size()];
+        for (int i = 0; i < p_perLegalActionRaw.length; i++) {
+            p_perLegalActionRaw[i] = 1.0 / p_perLegalActionRaw.length;
+        }
+        return p_perLegalActionRaw;
+    }
 
     public void drawCandidateAndAddValue() {
         List<GumbelAction> gumbelActions = rootChildrenCandidates.stream().map(Node::getGumbelAction).collect(Collectors.toList());
