@@ -163,7 +163,7 @@ public class MuZero {
 
                     playGames(params.render, network, trainingStep);
 
-                    altStarts.playGames(network);
+                 //   altStarts.playGames(network);
 
                     surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 

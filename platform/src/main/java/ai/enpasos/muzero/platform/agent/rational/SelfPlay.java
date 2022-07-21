@@ -187,7 +187,7 @@ public class SelfPlay {
 
 
     @SuppressWarnings("squid:S3776")
-    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
         List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
@@ -215,16 +215,14 @@ public class SelfPlay {
         }
 
         shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
-        if (withRandomActions) {
-            shortCutForRandomAction(gamesToApplyAction, render);
-        }
+
 
 
         int nGames = gamesToApplyAction.size();
         if (nGames != 0) {
 
             List<GumbelSearch> searchManagers = gamesToApplyAction.stream().map(game -> {
-                game.initSearchManager();
+                game.initSearchManager( pRandomActionRawAverage);
                 return game.getSearchManager();
             }).collect(Collectors.toList());
 
@@ -264,7 +262,9 @@ public class SelfPlay {
 
             }
             IntStream.range(0, nGames).forEach(i ->
-                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning)
+
+                    searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning, withRandomActions)
+
             );
 
         }
@@ -318,32 +318,7 @@ public class SelfPlay {
         gamesToApplyAction.removeIf(Game::isActionApplied);
     }
 
-    private void shortCutForRandomAction(List<Game> gamesToApplyAction, boolean render) {
 
-        float p = config.getRandomActionProbability();
-
-        List<Game> gamesWithRandomActionHere = gamesToApplyAction.stream().filter(game -> ThreadLocalRandom.current().nextDouble() <= p).collect(Collectors.toList());
-        if (gamesWithRandomActionHere.isEmpty()) return;
-
-
-        gamesWithRandomActionHere.forEach(game -> {
-            int numLegalActions = game.legalActions().size();
-            Action action = game.legalActions().get(ThreadLocalRandom.current().nextInt(numLegalActions));
-            game.apply(action);
-            float[] policyTarget = new float[config.getActionSpaceSize()];
-            policyTarget[action.getIndex()] = 1f;
-            game.getGameDTO().getPolicyTargets().add(policyTarget);
-            game.getGameDTO().setTStateA(game.getGameDTO().getActions().size());
-            game.getGameDTO().setTStateB(game.getGameDTO().getActions().size());
-            if (render && game.isDebug()) {
-                game.renderMCTSSuggestion(config, policyTarget);
-                log.debug("\n" + game.render());
-            }
-            game.setActionApplied(true);
-        });
-
-        gamesToApplyAction.removeIf(Game::isActionApplied);
-    }
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
         if (render && indexOfJustOneOfTheGames != -1 && justOneOfTheGames().terminal()) {
@@ -425,7 +400,7 @@ public class SelfPlay {
 
     public void playOneActionFromCurrentState(Network network, Game replayGame, boolean withRandomActions) {
         init(List.of(replayGame));
-        play(network, false, false, false, withRandomActions);
+        play(network, false, false, false, withRandomActions, this.replayBuffer.getPRandomActionRawAverage());
     }
 
     public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, List<Game> replayGames, boolean withRandomActions) {
@@ -450,7 +425,7 @@ public class SelfPlay {
             network.createAndSetHiddenStateNDManager(nDManager, true);
             int count = 1;
             while (notFinished() && (untilEnd || count == 1)) {
-                play(network, render, fastRulesLearning, justInitialInferencePolicy, withRandomActions);
+                play(network, render, fastRulesLearning, justInitialInferencePolicy, withRandomActions, this.replayBuffer.getPRandomActionRawAverage());
                 log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
                 count++;
             }

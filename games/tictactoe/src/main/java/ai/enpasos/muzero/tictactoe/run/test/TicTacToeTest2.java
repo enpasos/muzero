@@ -31,15 +31,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class TicTacToeTest {
+public class TicTacToeTest2 {
 
     @Autowired
     MuZeroConfig config;
@@ -53,6 +50,7 @@ public class TicTacToeTest {
 
     public boolean test() {
 
+        //config.setTemperatureRoot(0.001);
         config.setTemperatureRoot(0.0);
 
 
@@ -71,7 +69,7 @@ public class TicTacToeTest {
             .filter(d -> !bufferGameDTOs.contains(d))
             .collect(Collectors.toSet());
 
-        log.info("terminatedGameDTOs           : " + gameTree.terminatedGames.size());
+        log.info("terminatedGames           : " + gameTree.terminatedGames.size());
         log.info("bufferGameDTOs               : " + bufferGameDTOs.size());
         log.info("terminatedGameNotInBufferDTOs: " + terminatedGameNotInBufferDTOs.size());
 
@@ -79,10 +77,11 @@ public class TicTacToeTest {
         gameTree.rootNode.collectDecisionNodes(decisionNodes);
         log.info("decisionNodes:                 " + decisionNodes.size());
 
+        checkForProblematicNodes(decisionNodes);
+
         Set<DNode> nodesWhereADecisionMatters = new HashSet<>();
         gameTree.rootNode.findNodesWhereADecisionMatters(nodesWhereADecisionMatters);
         log.info("nodesWhereADecisionMatters:    " + nodesWhereADecisionMatters.size());
-
 
         List<DNode> wonByPlayerAGameNodes = gameTree.terminatedGameNodes.stream()
             .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
@@ -95,6 +94,7 @@ public class TicTacToeTest {
 
         log.info("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
 
+        checkForProblematicNodes(decisionNodes);
 
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
@@ -106,46 +106,78 @@ public class TicTacToeTest {
                 network.initActionSpaceOnDevice(nDManager);
 
 
-                List<DNode> gamesLostByPlayerA = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, false, gamesLostByPlayerA);
-
-                List<DNode> gamesLostByPlayerB = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, false, gamesLostByPlayerB);
+                List<DNode> gamesWithBadDecisions = new ArrayList<>();
+                List<DNode> gamesWithBadDecisions2 = new ArrayList<>();
 
 
-                List<DNode> gamesLostByPlayerA2 = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, true, gamesLostByPlayerA2);
-
-                List<DNode> gamesLostByPlayerB2 = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, true, gamesLostByPlayerB2);
+                notOptimal2(gameTree, network,   false, gamesWithBadDecisions, nodesWhereADecisionMatters);
 
 
-                return gamesLostByPlayerA.isEmpty() &&
-                    gamesLostByPlayerB.isEmpty() &&
-                    gamesLostByPlayerA2.isEmpty() &&
-                    gamesLostByPlayerB2.isEmpty();
+
+                checkForProblematicNodes(decisionNodes);
+                notOptimal2(gameTree, network,  true, gamesWithBadDecisions2, nodesWhereADecisionMatters);
+
+
+
+
+                return gamesWithBadDecisions.isEmpty() &&
+                    gamesWithBadDecisions2.isEmpty()  ;
             }
 
         }
 
     }
 
-    private void printActions(List<DNode> nodes) {
-        nodes.forEach(n -> log.info("{}", n.getGame().getGameDTO().getActions()));
+    public static void checkForProblematicNodes(Set<DNode> decisionNodes) {
+        List<DNode> problematicNodes = decisionNodes.stream().filter(d -> !d.checkForActionListSize()).collect(Collectors.toList());
+        log.info("problematicNodes: {}", problematicNodes.size());
+        printActions(problematicNodes);
+    }
+
+    private static void printActions(List<DNode> nodes) {
+        nodes.forEach(n -> {
+            log.info("{}", n.getGame().getGameDTO().getActions());
+        });
     }
 
     private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
         gameTree.rootNode.clearAIDecisions();
+
+
         gameTree.rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
-
-
         gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
         log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
-
         printActions(gamesLostByPlayer);
 
 
     }
+
+    private void notOptimal2(@NotNull GameTree gameTree, @NotNull Network network,  boolean withMCTS, @NotNull List<DNode> badDecisionGame,     Set<DNode> nodesWhereADecisionMatters) {
+        gameTree.rootNode.clearAIDecisions();
+        int count = 0;
+        // checkForProblematicNodes(nodesWhereADecisionMatters);
+        for (DNode n : nodesWhereADecisionMatters ) {
+            log.info("{} of {}", count++, nodesWhereADecisionMatters.size());
+            //  checkForProblematicNodes(nodesWhereADecisionMatters);
+
+            n.aiChosenChild = n.aiDecision(network, withMCTS, selfPlay );
+            // checkForProblematicNodes(nodesWhereADecisionMatters);
+            if( n.getGame().getEnvironment().getPlayerToMove() == OneOfTwoPlayer.PLAYER_A) {
+                if (n.aiChosenChild.bestForceableValuePlayerA != n.bestForceableValuePlayerA) {
+                    badDecisionGame.add(n.aiChosenChild);
+                }
+            } else {
+                if (n.aiChosenChild.bestForceableValuePlayerB != n.bestForceableValuePlayerB) {
+                    badDecisionGame.add(n.aiChosenChild);
+                }
+            }
+        }
+        log.info("Bad decisions with MCTS=" + withMCTS + ": " + badDecisionGame.size());
+        printActions(badDecisionGame);
+
+
+    }
+
 
 
     private @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {

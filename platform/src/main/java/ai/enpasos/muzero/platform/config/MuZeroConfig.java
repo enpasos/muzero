@@ -234,12 +234,12 @@ public class MuZeroConfig {
         return getConf().lrInit;
     }
 
-    public float getBadActionProbabilityThreshold() {
-        return getConf().badActionProbabilityThreshold;
-    }
+   // public float getBadActionProbabilityThreshold() {
+//        return getConf().badActionProbabilityThreshold;
+//    }
 
-    public float getRandomActionProbability() {
-        return getConf().randomActionProbability;
+    public float getFractionOfAlternativeActions() {
+        return getConf().fractionOfAlternativeActions;
     }
 
 
@@ -417,9 +417,9 @@ public class MuZeroConfig {
         protected float weightDecay;
         protected float valueLossWeight;
         protected float lrInit;
-        protected float badActionProbabilityThreshold;
+      //  protected float badActionProbabilityThreshold;
 
-        protected float randomActionProbability;
+        protected float fractionOfAlternativeActions;
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;
@@ -448,7 +448,7 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
 
-        double temperatureRoot = 1;
+        double temperatureRoot = 0.0;
         double[] values;
     }
 
