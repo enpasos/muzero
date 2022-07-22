@@ -43,6 +43,7 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Integer> actions;
 
 
+
     private List<Float> rewards;
     private List<Float> surprises;
     private List<float[]> policyTargets;
@@ -60,6 +61,9 @@ public class GameDTO implements Comparable<GameDTO> {
     private long tStateA;
     private long tStateB;
 
+
+    float pRandomActionRawSum;
+    int pRandomActionRawCount;
 
     public GameDTO(List<Integer> actions) {
         this();
@@ -85,6 +89,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
     public GameDTO copy(int toPosition) {
         GameDTO copy = new GameDTO();
+
         copy.networkName = this.networkName;
         copy.surprised = this.surprised;
         copy.tSurprise = this.tSurprise;
@@ -92,10 +97,13 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.count = this.count;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
+        copy.pRandomActionRawSum = this.pRandomActionRawSum;
+        copy.pRandomActionRawCount = this.pRandomActionRawCount;
         if (toPosition > 0) {
             copy.rewards.addAll(this.rewards.subList(0, toPosition));
             copy.surprises.addAll(this.surprises.subList(0, toPosition));
             copy.actions.addAll(this.actions.subList(0, toPosition));
+
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
             if (this.rootValues.size() >= toPosition)
                 copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
@@ -125,6 +133,9 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.surprises.addAll(this.surprises);
         copy.actions.addAll(this.actions);
+
+        copy.pRandomActionRawSum = this.pRandomActionRawSum;
+        copy.pRandomActionRawCount = this.pRandomActionRawCount;
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
         this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
         copy.rootValues.addAll(this.rootValues);
@@ -143,6 +154,8 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
         gameBuilder.addAllActions(getActions());
+        gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
+        gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValues(getRootValues());
         gameBuilder.addAllSurprises(getSurprises());
@@ -165,6 +178,8 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
         this.setActions(p.getActionsList());
+        this.setPRandomActionRawSum(p.getPRandomActionRawSum());
+        this.setPRandomActionRawCount(p.getPRandomActionRawCount());
         this.setRewards(p.getRewardsList());
         this.setRootValues(p.getRootValuesList());
         this.setSurprises(p.getSurprisesList());

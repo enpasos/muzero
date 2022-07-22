@@ -45,6 +45,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public abstract class Game {
 
+
     protected boolean purelyRandom;
 
     boolean playedMoreThanOnce;
@@ -333,7 +334,7 @@ public abstract class Game {
 
     public abstract void initEnvironment();
 
-    public void initSearchManager() {
-        searchManager = new GumbelSearch(config, this, debug);
+    public void initSearchManager(double pRandomActionRawAverage) {
+        searchManager = new GumbelSearch(config, this, debug, pRandomActionRawAverage);
     }
 }

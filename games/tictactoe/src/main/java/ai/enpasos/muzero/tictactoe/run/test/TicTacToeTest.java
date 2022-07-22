@@ -71,7 +71,7 @@ public class TicTacToeTest {
             .filter(d -> !bufferGameDTOs.contains(d))
             .collect(Collectors.toSet());
 
-        log.info("terminatedGameDTOs           : " + gameTree.terminatedGameDTOs.size());
+        log.info("terminatedGameDTOs           : " + gameTree.terminatedGames.size());
         log.info("bufferGameDTOs               : " + bufferGameDTOs.size());
         log.info("terminatedGameNotInBufferDTOs: " + terminatedGameNotInBufferDTOs.size());
 

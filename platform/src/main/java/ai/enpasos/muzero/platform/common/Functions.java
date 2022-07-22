@@ -88,5 +88,8 @@ public class Functions {
         }
         throw new MuZeroException("problem in drawing from discrete probability distribution");
     }
-
+    public static boolean draw(double p) {
+        double rand = ThreadLocalRandom.current().nextDouble();
+        return rand < p;
+    }
 }
