@@ -238,8 +238,8 @@ public class MuZeroConfig {
 //        return getConf().badActionProbabilityThreshold;
 //    }
 
-    public float getFractionOfAlternativeActions() {
-        return getConf().fractionOfAlternativeActions;
+    public float getAlternativeActionsWeight() {
+        return getConf().alternativeActionsWeight;
     }
 
 
@@ -419,7 +419,7 @@ public class MuZeroConfig {
         protected float lrInit;
       //  protected float badActionProbabilityThreshold;
 
-        protected float fractionOfAlternativeActions;
+        protected float alternativeActionsWeight;
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;
