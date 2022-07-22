@@ -68,9 +68,8 @@ muzero:
 
       numSimulations: 20
 
-
-      numResiduals: 8
-      broadcastEveryN: 4
+      numResiduals: 12
+      broadcastEveryN: 8
       numChannels: 256
       numBottleneckChannels: 128
 
@@ -78,18 +77,16 @@ muzero:
 
       # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
       # dirichlet noise is added before mcts
-      rootDirichletAlpha: 1.0
-      rootExplorationFraction: 0.25
+      rootDirichletAlpha: 0.3
+      rootExplorationFraction: 0.25  # 0.0 means switched off
 
       # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
       # before drawing the action from the policy target (a little different from the paper)
       # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-      temperatureRoot: 2.0
+      temperatureRoot: 0.0   # 0.0 means switched off
 
-
-      windowSize: 1000
+      windowSize: 20000
       numberOfTrainingSteps: 2000
 
-
-
+      alternativeActionsWeight: 0.06   # 0.0 means switched off
 

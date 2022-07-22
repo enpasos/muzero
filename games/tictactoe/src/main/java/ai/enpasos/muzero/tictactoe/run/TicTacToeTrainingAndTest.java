@@ -26,11 +26,12 @@ public class TicTacToeTrainingAndTest {
     private MuZero muZero;
 
     public void run() {
+
         rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
             .render(true)
-         //  .withoutFill(true)
+           // .withoutFill(true)
             .build());
 
         boolean passed = ticTacToeTest.test();

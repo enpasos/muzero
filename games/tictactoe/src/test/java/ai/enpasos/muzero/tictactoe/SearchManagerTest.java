@@ -60,7 +60,7 @@ class SearchManagerTest {
         config.setCVisit(16);
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
-        game.initSearchManager();
+        game.initSearchManager(0);
         GumbelSearch searchManager = game.getSearchManager();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             MuZeroBlock block = new MuZeroBlock(config);
