@@ -8,7 +8,6 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -287,21 +286,21 @@ public class GumbelSearch {
         double[]  p_perLegalActionRaw  =  new double[legalActions.length];
 
         IntStream.range(0,legalActions.length).forEach( i ->
-            p_perLegalActionRaw[i] = (1.0 - pIntuitive[i]) * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i]: 0.0)
+            p_perLegalActionRaw[i] = (1.0 - pRational[i]) * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i]: 0.0)
         );
 
         this.game.getGameDTO().setPRandomActionRawSum(
             this.game.getGameDTO().getPRandomActionRawSum() + (float)Arrays.stream(p_perLegalActionRaw).sum()
         );
         this.game.getGameDTO().setPRandomActionRawCount(
-            this.game.getGameDTO().getPRandomActionRawCount() + 1
+            this.game.getGameDTO().getPRandomActionRawCount() + p_perLegalActionRaw.length
         );
 
         if (pRandomActionRawAverage == 0) return Optional.empty();
 
-        float fraction = config.getFractionOfAlternativeActions();
+        float fraction = config.getAlternativeActionsWeight();
         double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
-            config.getFractionOfAlternativeActions() * pRaw /  pRandomActionRawAverage
+            config.getAlternativeActionsWeight() * pRaw /  pRandomActionRawAverage
         ).toArray();
 
 

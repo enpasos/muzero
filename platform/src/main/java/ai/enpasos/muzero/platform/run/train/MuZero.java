@@ -163,6 +163,12 @@ public class MuZero {
 
                     playGames(params.render, network, trainingStep);
 
+                    int n = replayBuffer.getBuffer().getGames().size();
+                    int m = (int)replayBuffer.getBuffer().getGames().stream().filter(g ->
+                        g.getGameDTO().getTStateB() != 0
+                        ).count();
+                    log.info("games with an alternative action " + m + " out of " + n);
+
                  //   altStarts.playGames(network);
 
                     surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
