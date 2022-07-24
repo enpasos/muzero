@@ -286,7 +286,7 @@ public class GumbelSearch {
         double[]  p_perLegalActionRaw  =  new double[legalActions.length];
 
         IntStream.range(0,legalActions.length).forEach( i ->
-            p_perLegalActionRaw[i] = (1.0 - pRational[i]) * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i]: 0.0)
+            p_perLegalActionRaw[i] = (1.0 - pIntuitive[i])  * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i]: 0.0) // / (1.0 + this.game.getGameDTO().getActions().size())
         );
 
         this.game.getGameDTO().setPRandomActionRawSum(
@@ -296,7 +296,7 @@ public class GumbelSearch {
             this.game.getGameDTO().getPRandomActionRawCount() + p_perLegalActionRaw.length
         );
 
-        if (pRandomActionRawAverage == 0) return Optional.empty();
+        if (pRandomActionRawAverage == 0  || game.getGameDTO().getTStateA() != 0) return Optional.empty();
 
         float fraction = config.getAlternativeActionsWeight();
         double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
@@ -315,12 +315,7 @@ public class GumbelSearch {
         int numLegalActions = game.legalActions().size();
         Action action = config.newAction(legalActions[draw(p)]);
 
-          //  game.apply(action);
 
-//        float[] policyTarget = new float[config.getActionSpaceSize()];
-//        policyTarget[action.getIndex()] = 1f;
-//        game.getGameDTO().getPolicyTargets().remove(game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1))
-//        game.getGameDTO().getPolicyTargets().add(policyTarget);
         game.getGameDTO().setTStateA(game.getGameDTO().getActions().size());
         game.getGameDTO().setTStateB(game.getGameDTO().getActions().size());
         if (render && game.isDebug()) {
