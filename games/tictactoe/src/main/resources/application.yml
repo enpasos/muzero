@@ -88,5 +88,5 @@ muzero:
       windowSize: 20000
       numberOfTrainingSteps: 2000
 
-      alternativeActionsWeight: 0.06   # 0.0 means switched off
+      alternativeActionsWeight: 0.1   # 0.0 means switched off
 
