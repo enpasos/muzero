@@ -201,9 +201,7 @@ public class MuZeroConfig {
         return getConf().windowValueSelfconsistencySize;
     }
 
-    public int getWindowSize() {
-        return getConf().windowSize;
-    }
+
 
     public int getBatchSize() {
         return getConf().batchSize;
@@ -384,6 +382,21 @@ public class MuZeroConfig {
         getConf().setGameBufferWritingFormat(fileType);
     }
 
+
+    public  int getWindowSize(long gamesPlayed) {
+        int w0 = getConf().windowSizeStart;
+        double a = getConf().windowSizeDynamicFraction;
+        if (a == 0.0) return w0;
+        double b = getConf().windowSizeExponent;
+
+      //  long t0 =  getConf().getNumParallelGamesPlayed() / getConf().getNumberOfTrainingStepsPerEpoch() * w0;
+     //   int t00 = (int)Math.min(t0, gamesPlayed);
+        return (int)(w0 - a * Math.pow(w0,b) + a * Math.pow(gamesPlayed,b));
+
+    }
+
+
+
     @Data
     public static class Conf {
         protected boolean surpriseHandlingOn;
@@ -408,7 +421,17 @@ public class MuZeroConfig {
         protected int numResiduals;
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
-        protected int windowSize;
+
+
+
+
+        protected int windowSizeStart;
+        protected double windowSizeDynamicFraction;
+        protected double windowSizeExponent;
+
+
+
+
         protected int windowValueSelfconsistencySize;
         protected int batchSize;
         protected int numUnrollSteps;

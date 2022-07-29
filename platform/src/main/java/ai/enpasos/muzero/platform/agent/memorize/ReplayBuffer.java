@@ -165,7 +165,7 @@ public class ReplayBuffer {
             });
             this.buffer.games.clear();
         }
-        this.buffer = new ReplayBufferDTO(config.getWindowSize(), config.getGameClassName());
+        this.buffer = new ReplayBufferDTO(config);
     }
 
     public void saveGame(@NotNull Game game) {
@@ -336,7 +336,7 @@ public class ReplayBuffer {
                 byte[] raw = zis.readAllBytes();
                 this.buffer = decodeDTO(raw);
                 rebuildGames();
-                this.buffer.setWindowSize(config.getWindowSize());
+                //this.buffer.setWindowSize(config.getWindowSize(this.buffer.getCounter()));
             }
         } catch (Exception e) {
             try (FileInputStream fis = new FileInputStream(pathname)) {
@@ -345,7 +345,7 @@ public class ReplayBuffer {
                     ReplayBufferProto proto = ReplayBufferProto.parseFrom(zis);
                     this.buffer.deproto(proto);
                     rebuildGames();
-                    this.buffer.setWindowSize(config.getWindowSize());
+                  //  this.buffer.setWindowSize(config.getWindowSize(this.buffer.getCounter()));
                 }
             } catch (Exception e2) {
                 log.warn(e2.getMessage());
