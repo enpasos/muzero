@@ -87,8 +87,9 @@ public class MuZero {
 
     public void initialFillingBuffer(Network network) {
 
-        int windowSize = config.getWindowSize();
+
         long startCounter = replayBuffer.getBuffer().getCounter();
+        int windowSize = config.getWindowSize(startCounter);
         while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
             selfPlay.playMultipleEpisodes(network, false, true, false, false);
@@ -168,6 +169,8 @@ public class MuZero {
                         g.getGameDTO().getTStateB() != 0
                         ).count();
                     log.info("games with an alternative action " + m + " out of " + n);
+                    log.info("counter: " + replayBuffer.getBuffer().getCounter());
+                    log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
 
                  //   altStarts.playGames(network);
 
