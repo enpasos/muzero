@@ -45,24 +45,29 @@ public class ReplayBufferDTO {
     transient List<Game> games = new ArrayList<>();
     private String gameClassName;
     private long counter;
-    private int windowSize;
 
+MuZeroConfig config;
 
-    public ReplayBufferDTO(int windowSize, String gameClassName) {
-        this.windowSize = windowSize;
-        this.gameClassName = gameClassName;
+    public ReplayBufferDTO( MuZeroConfig config) {
+        this.gameClassName = config.getGameClassName();
+        this.config = config;
     }
 
     public ReplayBufferDTO copyEnvelope() {
         ReplayBufferDTO copy = new ReplayBufferDTO();
-        copy.windowSize = this.windowSize;
+
         copy.counter = this.counter;
         copy.gameClassName = this.gameClassName;
         return copy;
     }
 
     public boolean isBufferFilled() {
-        return games.size() >= windowSize;
+        return games.size() >= getWindowSize();
+    }
+
+
+    public int getWindowSize() {
+        return config.getWindowSize(this.getCounter());
     }
 
 
@@ -102,7 +107,7 @@ public class ReplayBufferDTO {
         ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
             .setVersion(1)
             .setCounter((int) getCounter())
-            .setWindowSize(getWindowSize())
+
             .setGameClassName(getGameClassName());
 
         games.forEach(game -> bufferBuilder.addGameProtos(game.getGameDTO().proto()));
@@ -114,7 +119,7 @@ public class ReplayBufferDTO {
 
         this.setGameClassName(proto.getGameClassName());
         this.setCounter(proto.getCounter());
-        this.setWindowSize(proto.getWindowSize());
+
 
         proto.getGameProtosList().forEach(p -> {
             GameDTO gameDTO = new GameDTO();

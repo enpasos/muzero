@@ -296,7 +296,8 @@ public class GumbelSearch {
             this.game.getGameDTO().getPRandomActionRawCount() + p_perLegalActionRaw.length
         );
 
-        if (pRandomActionRawAverage == 0  || game.getGameDTO().getTStateA() != 0) return Optional.empty();
+     //   if (pRandomActionRawAverage == 0  || game.getGameDTO().getTStateA() != 0) return Optional.empty();
+        if (pRandomActionRawAverage == 0  ) return Optional.empty();
 
         float fraction = config.getAlternativeActionsWeight();
         double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
