@@ -43,7 +43,6 @@ muzero:
 
       inferenceDeviceType: GPU
       outputDir: ./memory/tictactoe/
-      numEpisodes: 1
       size: 3
       maxMoves: 9  # size*size
       boardHeight: 3 # size
@@ -59,6 +58,8 @@ muzero:
       batchSize: 256
 
       numParallelGamesPlayed: 1000
+      numEpisodes: 1
+
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
       # Gumbel MuZero parameters
@@ -86,9 +87,8 @@ muzero:
       temperatureRoot: 0.0   # 0.0 means switched off
 
       windowSizeStart: 1000
-      windowSizeDynamicFraction: 1.0
-      windowSizeExponent: 0.95
-
+      windowSizeDynamicFraction: 1.0  # 0.0 means switched off
+      windowSizeExponent: 0.95  # sublinear scaling of window size
 
       numberOfTrainingSteps: 4000
 

@@ -95,15 +95,15 @@ muzero:
       # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
       # before drawing the action from the policy target (a little different from the paper)
       # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-      temperatureRoot: 1.0
+      temperatureRoot: 0.0  # off
 
       windowSizeStart: 10000
-      windowSizeDynamicFraction: 0.0  # off
-      windowSizeExponent: 0.95
-
+      windowSizeDynamicFraction: 1.0  # 0 = off,1 = on
+      windowSizeExponent: 0.90
 
       numberOfTrainingSteps: 100000
 
+      alternativeActionsWeight: 0.001   # 0.0 means switched off
 
     GO_9:
       modelName: MuZero-Go-9
