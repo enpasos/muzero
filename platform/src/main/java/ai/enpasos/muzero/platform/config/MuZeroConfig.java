@@ -389,8 +389,6 @@ public class MuZeroConfig {
         if (a == 0.0) return w0;
         double b = getConf().windowSizeExponent;
 
-      //  long t0 =  getConf().getNumParallelGamesPlayed() / getConf().getNumberOfTrainingStepsPerEpoch() * w0;
-     //   int t00 = (int)Math.min(t0, gamesPlayed);
         return (int)(w0 - a * Math.pow(w0,b) + a * Math.pow(gamesPlayed,b));
 
     }
