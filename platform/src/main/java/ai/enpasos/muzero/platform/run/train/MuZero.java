@@ -35,9 +35,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.AltStarts;
 import ai.enpasos.muzero.platform.run.Surprise;
-import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -69,12 +67,7 @@ public class MuZero {
     @Autowired
     Surprise surprise;
 
-    @Autowired
-    AltStarts altStarts;
 
-
-    @Autowired
-    ValueSelfconsistency valueSelfconsistency;
 
 
     @Autowired

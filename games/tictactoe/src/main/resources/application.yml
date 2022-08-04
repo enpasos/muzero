@@ -86,9 +86,10 @@ muzero:
       # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
       temperatureRoot: 0.0   # 0.0 means switched off
 
-      windowSizeStart: 1000
-      windowSizeDynamicFraction: 1.0  # 0.0 means switched off
-      windowSizeExponent: 0.95  # sublinear scaling of window size
+      windowSizeStart: 10000
+      windowSizeIsDynamic: true
+      windowSizeExponent: 0.75  # sublinear scaling of window size
+      windowSizeSlope: 0.4
 
       numberOfTrainingSteps: 4000
 

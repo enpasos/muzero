@@ -39,7 +39,6 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -451,7 +450,9 @@ public class SelfPlay {
         IntStream.range(0, config.getNumEpisodes()).forEach(i ->
         {
             List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
-            games.forEach(replayBuffer::saveGame);
+            replayBuffer.addGames(games);
+
+          //  replayBuffer.saveGames(games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
         });
@@ -467,7 +468,7 @@ public class SelfPlay {
         }
         log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());
-        resultGames.forEach(replayBuffer::saveGame);
+        replayBuffer.addGames(resultGames);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         resultGames.clear();
     }
