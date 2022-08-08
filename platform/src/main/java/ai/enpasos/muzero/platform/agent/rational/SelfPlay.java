@@ -44,8 +44,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 
 
 @Slf4j
@@ -447,15 +446,23 @@ public class SelfPlay {
     }
 
     public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
-        IntStream.range(0, config.getNumEpisodes()).forEach(i ->
+        for(int i = 0; i< config.getNumEpisodes(); i++)
         {
+//            boolean withRandomActionsHere = withRandomActions;
+//            if (withRandomActions) {
+//                withRandomActionsHere = draw(config.getFractionOfAlternativeActionGames());
+//            }
+
+
+
             List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
             replayBuffer.addGames(games);
+
 
           //  replayBuffer.saveGames(games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
-        });
+        }
     }
 
     public void replayGamesFromSeeds(Network network, List<Game> gameSeeds) {

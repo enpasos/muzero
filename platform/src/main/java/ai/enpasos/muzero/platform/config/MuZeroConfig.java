@@ -307,6 +307,13 @@ public class MuZeroConfig {
         return getConf().temperatureRoot;
     }
 
+
+    public double getFractionOfAlternativeActionGames() {
+        return getConf().fractionOfAlternativeActionGames;
+    }
+
+
+
     public void setTemperatureRoot(double temperature) {
         getConf().temperatureRoot = temperature;
     }
@@ -431,6 +438,7 @@ public class MuZeroConfig {
         protected double windowSizeSlope;
 
 
+        protected double fractionOfAlternativeActionGames;
 
         protected int windowValueSelfconsistencySize;
         protected int batchSize;
