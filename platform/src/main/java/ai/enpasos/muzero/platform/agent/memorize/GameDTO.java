@@ -48,8 +48,8 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Float> surprises;
     private List<float[]> policyTargets;
 
-    private List<List<Float>> values;
-    private List<Float> rootValues;
+ //   private List<List<Float>> values;
+    private List<Float> rootValueTargets;
     private List<Float> rootValuesFromInitialInference;
     private float lastValueError;
     private long count;
@@ -74,10 +74,10 @@ public class GameDTO implements Comparable<GameDTO> {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
-        this.rootValues = new ArrayList<>();
+        this.rootValueTargets = new ArrayList<>();
         this.surprises = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
-        this.values = new ArrayList<>();
+    //    this.values = new ArrayList<>();
         this.surprised = false;
     }
 
@@ -105,8 +105,8 @@ public class GameDTO implements Comparable<GameDTO> {
             copy.actions.addAll(this.actions.subList(0, toPosition));
 
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
-            if (this.rootValues.size() >= toPosition)
-                copy.rootValues.addAll(this.rootValues.subList(0, toPosition));
+            if (this.rootValueTargets.size() >= toPosition)
+                copy.rootValueTargets.addAll(this.rootValueTargets.subList(0, toPosition));
             if (this.rootValuesFromInitialInference.size() >= toPosition)
                 copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference.subList(0, toPosition));
         }
@@ -137,8 +137,8 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
-        this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
-        copy.rootValues.addAll(this.rootValues);
+     //   this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
+        copy.rootValueTargets.addAll(this.rootValueTargets);
         copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference);
         return copy;
     }
@@ -157,7 +157,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
         gameBuilder.addAllRewards(getRewards());
-        gameBuilder.addAllRootValues(getRootValues());
+        gameBuilder.addAllRootValueTargets(getRootValueTargets());
         gameBuilder.addAllSurprises(getSurprises());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
@@ -181,7 +181,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setPRandomActionRawSum(p.getPRandomActionRawSum());
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());
         this.setRewards(p.getRewardsList());
-        this.setRootValues(p.getRootValuesList());
+        this.setRootValueTargets(p.getRootValueTargetsList());
         this.setSurprises(p.getSurprisesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
@@ -201,14 +201,14 @@ public class GameDTO implements Comparable<GameDTO> {
                 )
                 .collect(Collectors.toList()));
         }
-        if (p.getValuesCount() > 0) {
-            List<List<Float>> vs = p.getValuesList().stream().map(
-                    valueProtos ->
-                        List.copyOf(valueProtos.getValueList())
-                )
-                .collect(Collectors.toList());
-            this.setValues(vs);
-        }
+//        if (p.getValuesCount() > 0) {
+//            List<List<Float>> vs = p.getValuesList().stream().map(
+//                    valueProtos ->
+//                        List.copyOf(valueProtos.getValueList())
+//                )
+//                .collect(Collectors.toList());
+//            this.setValues(vs);
+//        }
     }
 
 

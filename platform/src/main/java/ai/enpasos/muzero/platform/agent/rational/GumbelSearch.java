@@ -216,6 +216,13 @@ public class GumbelSearch {
                 node.calculateVmix();
                 node.calculateImprovedPolicy(minMaxStats);
                 node.calculateImprovedValue();
+                // debug log ValueFromNetwork, Vmix, ImprovedValue
+//                if (debug) {
+//                    log.debug("---------");
+//                    log.debug("ValueFrom    : " + node.getValueFromNetwork());
+//                    log.debug("Vmix         : " + node.getVmix());
+//                    log.debug("ImprovedValue: " + node.getImprovedValue());
+//                }
             }
 
             value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
@@ -355,15 +362,15 @@ public class GumbelSearch {
         // drawing 1 action out of the candidate actions (from root) for each parallel played game
 
         GumbelAction gumbelAction = drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
-        List<Float> values = this.game.getGameDTO().getValues().get(this.game.getGameDTO().getValues().size() - 1);
-        values.add((float) gumbelAction.getNode().getQValue());
+//        List<Float> values = this.game.getGameDTO().getValues().get(this.game.getGameDTO().getValues().size() - 1);
+//        values.add((float) gumbelAction.getNode().getQValue());
     }
 
     public void drawCandidateAndAddValueStart() {
         List<Float> vs = new ArrayList<>();
         float v = (float) this.root.getValueFromNetwork();
         vs.add(v);
-        this.game.getGameDTO().getValues().add(vs);
+      //  this.game.getGameDTO().getValues().add(vs);
     }
 
     public void addExplorationNoise() {
