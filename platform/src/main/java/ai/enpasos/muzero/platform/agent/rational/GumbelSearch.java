@@ -300,20 +300,20 @@ public class GumbelSearch {
         if (pRandomActionRawAverage == 0  ) return Optional.empty();
 
         float fraction = config.getAlternativeActionsWeight();
-//        double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
-//            config.getAlternativeActionsWeight() * pRaw /  pRandomActionRawAverage
-//        ).toArray();
+        double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
+            config.getAlternativeActionsWeight() * pRaw /  pRandomActionRawAverage
+        ).toArray();
 
 
-        double[]  p  =  p_perLegalActionRaw;
+    //    double[]  p  =  p_perLegalActionRaw;
 
         double  p_perGame = Arrays.stream(p).sum();
 
 
-     //   if (!draw( p_perGame)) return Optional.empty();
+        if (!draw( p_perGame)) return Optional.empty();
 
 
-        if (!draw( config.getAlternativeActionsWeight()) || p_perGame == 0) return Optional.empty();
+     //  if (!draw( config.getAlternativeActionsWeight()) || p_perGame == 0) return Optional.empty();
 
         p =  Arrays.stream(p).map(b ->
             b / p_perGame
@@ -330,7 +330,7 @@ public class GumbelSearch {
             log.debug("\n" + game.render());
         }
         game.setActionApplied(true);
-return Optional.of(action);
+        return Optional.of(action);
     }
 
     private double[] getProbabilitiesPerLegalAction() {
