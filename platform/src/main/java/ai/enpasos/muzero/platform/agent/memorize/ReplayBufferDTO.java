@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("squid:S2065")
 public class ReplayBufferDTO {
 
+    public static final double BUFFER_IO_VERSION = 1.0;
+
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
 
     public List<GameDTO> getDTOListFromGames() {
@@ -46,7 +48,7 @@ public class ReplayBufferDTO {
     private String gameClassName;
     private long counter;
 
-MuZeroConfig config;
+    transient MuZeroConfig config;
 
     public ReplayBufferDTO( MuZeroConfig config) {
         this.gameClassName = config.getGameClassName();
@@ -60,6 +62,15 @@ MuZeroConfig config;
         copy.gameClassName = this.gameClassName;
         return copy;
     }
+    public void sortGamesByLastValueError() {
+         getGames().sort(
+            (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
+    }
+
+    public void keepOnlyTheLatestGames(int n) {
+         games =  games.subList(Math.max( games.size() - n, 0), games.size());
+    }
+
 
     public boolean isBufferFilled() {
         return games.size() >= getWindowSize();
@@ -75,7 +86,7 @@ MuZeroConfig config;
         games.remove(game);
     }
 
-    public void saveGame(@NotNull Game game) {
+    public void addGame(@NotNull Game game) {
         while (isBufferFilled()) {
             games.remove(0);
         }
@@ -115,17 +126,17 @@ MuZeroConfig config;
         return bufferBuilder.build();
     }
 
-    public void deproto(ReplayBufferProto proto) {
-
-        this.setGameClassName(proto.getGameClassName());
-        this.setCounter(proto.getCounter());
+    public static ReplayBufferDTO deproto(ReplayBufferProto proto, MuZeroConfig config) {
+        ReplayBufferDTO dto = new ReplayBufferDTO( config);
+        dto.setCounter(proto.getCounter());
 
 
         proto.getGameProtosList().forEach(p -> {
             GameDTO gameDTO = new GameDTO();
             gameDTO.deproto(p);
-            this.getInitialGameDTOList().add(gameDTO);
+            dto.getInitialGameDTOList().add(gameDTO);
         });
+        return dto;
     }
 
 
