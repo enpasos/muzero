@@ -35,9 +35,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.AltStarts;
 import ai.enpasos.muzero.platform.run.Surprise;
-import ai.enpasos.muzero.platform.run.ValueSelfconsistency;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
+import static ai.enpasos.muzero.platform.common.Functions.draw;
 
 @Slf4j
 @Component
@@ -69,12 +68,7 @@ public class MuZero {
     @Autowired
     Surprise surprise;
 
-    @Autowired
-    AltStarts altStarts;
 
-
-    @Autowired
-    ValueSelfconsistency valueSelfconsistency;
 
 
     @Autowired
@@ -337,6 +331,8 @@ public class MuZero {
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
             boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
+
+
             play(network, render, justInitialInferencePolicy, true);
             replayBuffer.saveState();
         }

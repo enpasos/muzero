@@ -307,6 +307,13 @@ public class MuZeroConfig {
         return getConf().temperatureRoot;
     }
 
+
+    public double getFractionOfAlternativeActionGames() {
+        return getConf().fractionOfAlternativeActionGames;
+    }
+
+
+
     public void setTemperatureRoot(double temperature) {
         getConf().temperatureRoot = temperature;
     }
@@ -385,11 +392,13 @@ public class MuZeroConfig {
 
     public  int getWindowSize(long gamesPlayed) {
         int w0 = getConf().windowSizeStart;
-        double a = getConf().windowSizeDynamicFraction;
-        if (a == 0.0) return w0;
-        double b = getConf().windowSizeExponent;
+        if (!getConf().windowSizeIsDynamic) return w0;
+        double a = getConf().windowSizeExponent;
+        double b = getConf().windowSizeSlope;
 
-        return (int)(w0 - a * Math.pow(w0,b) + a * Math.pow(gamesPlayed,b));
+        int w = (int) (w0 * (1.0 +  b * (Math.pow(gamesPlayed/w0, a) - 1)/a));
+
+        return   Math.max(w0,w)  ;
 
     }
 
@@ -424,11 +433,12 @@ public class MuZeroConfig {
 
 
         protected int windowSizeStart;
-        protected double windowSizeDynamicFraction;
+        protected boolean windowSizeIsDynamic = false;
         protected double windowSizeExponent;
+        protected double windowSizeSlope;
 
 
-
+        protected double fractionOfAlternativeActionGames;
 
         protected int windowValueSelfconsistencySize;
         protected int batchSize;

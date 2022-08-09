@@ -22,14 +22,9 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
-import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
-import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
-import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -37,21 +32,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 
 @Data
@@ -59,7 +45,7 @@ import java.util.zip.ZipOutputStream;
 @Component
 public class ReplayBuffer {
 
-    public static final double BUFFER_IO_VERSION = 1.0;
+
     private int batchSize;
     private ReplayBufferDTO buffer;
 
@@ -67,6 +53,9 @@ public class ReplayBuffer {
     private String currentNetworkName = "NONE";
     @Autowired
     private MuZeroConfig config;
+
+    @Autowired
+    private ReplayBufferIO replayBufferIO;
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
@@ -116,28 +105,7 @@ public class ReplayBuffer {
         return gamePos;
     }
 
-    public static @NotNull ReplayBufferDTO decodeDTO(byte @NotNull [] bytes) {
-        String json = new String(bytes, StandardCharsets.UTF_8);
-        return getGson().fromJson(json, ReplayBufferDTO.class);
-    }
 
-    @NotNull
-    private static Gson getGson() {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setVersion(BUFFER_IO_VERSION);
-        return builder.create();
-    }
-
-    public static byte @NotNull [] encodeDTO(ReplayBufferDTO dto) {
-        try {
-            String json = getGson().toJson(dto);
-            return json.getBytes(StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
-
-    }
 
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
         String epochValue = model.getProperty("Epoch");
@@ -168,11 +136,7 @@ public class ReplayBuffer {
         this.buffer = new ReplayBufferDTO(config);
     }
 
-    public void saveGame(@NotNull Game game) {
-        game.getGameDTO().setNetworkName(this.currentNetworkName);
-        buffer.saveGame(game);
 
-    }
 
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
@@ -222,159 +186,25 @@ public class ReplayBuffer {
 
 
     public void saveState() {
-
-        ReplayBufferDTO dto = this.buffer;
-
-
-        String filename = this.currentNetworkName;
-        String pathname = config.getGamesBasedir() + File.separator + filename + "_jsonbuf.zip";
-
-        byte[] input;
-
-        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
-            log.info("saving ... " + pathname);
-            input = encodeDTO(dto);
-            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                    ZipEntry entry = new ZipEntry(filename + ".json");
-                    entry.setSize(input.length);
-                    zos.putNextEntry(entry);
-                    zos.write(input);
-                    zos.closeEntry();
-                }
-            } catch (Exception e) {
-                throw new MuZeroException(e);
-            }
-        }
-
-
-        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
-            ReplayBufferProto proto = dto.proto();
-            pathname = config.getGamesBasedir() + File.separator + filename + "_protobuf.zip";
-            log.info("saving ... " + pathname);
-            input = proto.toByteArray();
-
-            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                    ZipEntry entry = new ZipEntry(filename + ".dat");
-                    entry.setSize(input.length);
-                    zos.putNextEntry(entry);
-                    zos.write(input);
-                    zos.closeEntry();
-                }
-            } catch (Exception e) {
-                throw new MuZeroException(e);
-            }
-        }
-
+        replayBufferIO.saveState(this.buffer, this.currentNetworkName);
     }
+
 
     public void loadLatestState() {
-        List<Path> paths = getBufferNames();
-        if (!paths.isEmpty()) {
-            Path path = paths.get(paths.size() - 1);
-            loadState(path);
+        ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadLatestState();
+        if(replayBufferDTO != null) {
+            this.buffer = replayBufferDTO;
         }
     }
 
 
-
-
-    public List<Path> getBufferNames() {
-        List<Path> paths = new ArrayList<>();
-        Path gamesPath = Paths.get(config.getGamesBasedir());
-        if (Files.notExists(gamesPath)) {
-            try {
-                Files.createFile(Files.createDirectories(gamesPath));
-            } catch (IOException e) {
-                log.warn(e.getMessage());
-            }
-        }
-        try (Stream<Path> walk = Files.walk(gamesPath)) {
-            paths = walk.filter(Files::isRegularFile)
-                .collect(Collectors.toList());
-
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-        Collections.sort(paths);
-        return paths;
-    }
-
-    public int getLatestBufferNo() {
-        Path gamesPath = Paths.get(config.getGamesBasedir());
-        if (Files.notExists(gamesPath)) {
-            try {
-                Files.createFile(Files.createDirectories(gamesPath));
-            } catch (IOException e) {
-                log.warn(e.getMessage());
-            }
-        }
-        try (Stream<Path> walk = Files.walk(gamesPath)) {
-            OptionalInt no = walk.filter(Files::isRegularFile)
-                .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", "")))
-                .max();
-            if (no.isPresent()) {
-                return no.getAsInt();
-            } else {
-                return 0;
-            }
-        } catch (IOException e) {
-            throw new MuZeroException(e);
-        }
-
-    }
-
-    public void loadState(Path path) {
-        init();
-
-        String pathname = path.toString();
-        log.info("loading ... " + pathname);
-        try (FileInputStream fis = new FileInputStream(pathname)) {
-            try (ZipInputStream zis = new ZipInputStream(fis)) {
-                zis.getNextEntry();
-                byte[] raw = zis.readAllBytes();
-                this.buffer = decodeDTO(raw);
-                rebuildGames();
-                //this.buffer.setWindowSize(config.getWindowSize(this.buffer.getCounter()));
-            }
-        } catch (Exception e) {
-            try (FileInputStream fis = new FileInputStream(pathname)) {
-                try (ZipInputStream zis = new ZipInputStream(fis)) {
-                    zis.getNextEntry();
-                    ReplayBufferProto proto = ReplayBufferProto.parseFrom(zis);
-                    this.buffer.deproto(proto);
-                    rebuildGames();
-                  //  this.buffer.setWindowSize(config.getWindowSize(this.buffer.getCounter()));
-                }
-            } catch (Exception e2) {
-                log.warn(e2.getMessage());
-            }
-        }
-
-
-    }
-
-    public void rebuildGames() {
-        this.buffer.rebuildGames(this.config);
-    }
-
-
-    public void keepOnlyTheLatestGames(int n) {
-        buffer.games = buffer.games.subList(Math.max(buffer.games.size() - n, 0), buffer.games.size());
-    }
 
     public void sortGamesByLastValueError() {
         this.getBuffer().getGames().sort(
             (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
     }
 
-    public void removeHighLastValueErrorGames() {
-        int max = this.getConfig().getWindowValueSelfconsistencySize();
-        int size = this.getBuffer().getGames().size();
-        if (size <= max) return;
-        this.getBuffer().setGames(this.getBuffer().getGames().subList(size - max, size));
-    }
+
 
     public void removeGames(List<Game> games) {
         games.forEach(this::removeGame);
@@ -388,5 +218,18 @@ public class ReplayBuffer {
         double sum = this.buffer.games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
         long count = this.buffer.games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
         return sum/count;
+    }
+
+    public void addGames(List<Game> games) {
+        games.forEach(this::addGame);
+    }
+
+//    public void saveGames(List<Game> games) {
+//         replayBufferIO.saveGames(games,  this.currentNetworkName);
+//    }
+
+    private void addGame(@NotNull Game game) {
+        game.getGameDTO().setNetworkName(this.currentNetworkName);
+        buffer.addGame(game);
     }
 }

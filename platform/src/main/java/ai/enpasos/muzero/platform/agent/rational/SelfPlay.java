@@ -39,14 +39,12 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 
 
 @Slf4j
@@ -75,6 +73,12 @@ public class SelfPlay {
     }
 
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
+
+
+        // TODO check if this is correct
+        game.getGameDTO().getRootValueTargets().add((float)root.getVmix());
+
+
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
@@ -214,7 +218,7 @@ public class SelfPlay {
             });
         }
 
-        shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+        shortCutForGamesWithoutAnOption(gamesToApplyAction, render, fastRuleLearning, network);
 
 
 
@@ -298,13 +302,31 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
-    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render) {
+    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning, Network network) {
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
-        gamesWithOnlyOneAllowedAction.forEach(game -> {
+        List<NetworkIO> networkOutput = null;
+        if (!fastRuleLearning) {
+            networkOutput = initialInference(network, gamesToApplyAction, false, fastRuleLearning, 0);
+        }
+        List<NetworkIO> networkOutputFinal  =networkOutput;
+
+        IntStream.range(0, gamesWithOnlyOneAllowedAction.size()).forEach(g -> {
+            Game game = gamesWithOnlyOneAllowedAction.get(g);
             Action action = game.legalActions().get(0);
             game.apply(action);
+
+
+
+            float value = 0f;
+            if (!fastRuleLearning) {
+                value = (float) networkOutputFinal.get(g).getValue();
+            }
+
+            // TODO check if this is correct
+            game.getGameDTO().getRootValueTargets().add(value);
+
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
             game.getGameDTO().getPolicyTargets().add(policyTarget);
@@ -448,13 +470,23 @@ public class SelfPlay {
     }
 
     public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
-        IntStream.range(0, config.getNumEpisodes()).forEach(i ->
+        for(int i = 0; i< config.getNumEpisodes(); i++)
         {
+//            boolean withRandomActionsHere = withRandomActions;
+//            if (withRandomActions) {
+//                withRandomActionsHere = draw(config.getFractionOfAlternativeActionGames());
+//            }
+
+
+
             List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
-            games.forEach(replayBuffer::saveGame);
+            replayBuffer.addGames(games);
+
+
+          //  replayBuffer.saveGames(games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
-        });
+        }
     }
 
     public void replayGamesFromSeeds(Network network, List<Game> gameSeeds) {
@@ -467,7 +499,7 @@ public class SelfPlay {
         }
         log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());
-        resultGames.forEach(replayBuffer::saveGame);
+        replayBuffer.addGames(resultGames);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         resultGames.clear();
     }
