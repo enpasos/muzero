@@ -105,10 +105,10 @@ public class SurpriseExtractor {
     }
 
     @NotNull
-    public Game getGame(int no) {
+    public Optional<Game> getGame(int no) {
         replayBuffer.loadLatestState();
-        return Optional.of(replayBuffer.getBuffer().getGames().get(no))
-            .orElseThrow(() -> new MuZeroException("Game no " + no + " not found"));
+        return Optional.of(replayBuffer.getBuffer().getGames().get(no));
+           // .orElseThrow(() -> new MuZeroException("Game no " + no + " not found"));
 
     }
 

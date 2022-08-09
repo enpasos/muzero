@@ -74,6 +74,12 @@ public class SelfPlay {
 
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
+
+        // TODO check if this is correct
+        game.getGameDTO().getRootValueTargets().add((float)root.getVmix());
+
+
+
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
             root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());
@@ -212,7 +218,7 @@ public class SelfPlay {
             });
         }
 
-        shortCutForGamesWithoutAnOption(gamesToApplyAction, render);
+        shortCutForGamesWithoutAnOption(gamesToApplyAction, render, fastRuleLearning, network);
 
 
 
@@ -296,13 +302,31 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
-    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render) {
+    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning, Network network) {
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
-        gamesWithOnlyOneAllowedAction.forEach(game -> {
+        List<NetworkIO> networkOutput = null;
+        if (!fastRuleLearning) {
+            networkOutput = initialInference(network, gamesToApplyAction, false, fastRuleLearning, 0);
+        }
+        List<NetworkIO> networkOutputFinal  =networkOutput;
+
+        IntStream.range(0, gamesWithOnlyOneAllowedAction.size()).forEach(g -> {
+            Game game = gamesWithOnlyOneAllowedAction.get(g);
             Action action = game.legalActions().get(0);
             game.apply(action);
+
+
+
+            float value = 0f;
+            if (!fastRuleLearning) {
+                value = (float) networkOutputFinal.get(g).getValue();
+            }
+
+            // TODO check if this is correct
+            game.getGameDTO().getRootValueTargets().add(value);
+
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
             game.getGameDTO().getPolicyTargets().add(policyTarget);

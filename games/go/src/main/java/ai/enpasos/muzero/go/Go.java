@@ -41,8 +41,7 @@ public class Go implements CommandLineRunner {
 
     @Autowired
     private GoValueExtractor valueExtractor;
-    @Autowired
-    private GoValuesExtractor valuesExtractor;
+
     @Autowired
     private GoEntropyExtractor entropyExtractor;
 
@@ -93,9 +92,7 @@ public class Go implements CommandLineRunner {
             case VALUE:
                 valueExtractor.run();
                 break;
-            case VALUES:
-                valuesExtractor.run();
-                break;
+
             case ENTROPY:
                 entropyExtractor.run();
                 break;
