@@ -28,8 +28,6 @@ muzero:
 
       numberOfTrainingStepsPerEpoch: 40
 
-      # windowValueSelfconsistencySize: 5000 <- postponed
-
       numUnrollSteps: 5
       tdSteps: 9 # size * size
       discount: 1.0
@@ -37,7 +35,7 @@ muzero:
       lrInit: 0.0001
       absorbingStateDropToZero: false # faster for integration test
 
-      numberTrainingStepsOnStart: 0
+      # numberTrainingStepsOnStart: 0
 
       knownBoundsType: FROM_VALUES
 
@@ -69,7 +67,7 @@ muzero:
 
       numSimulations: 20
 
-      numResiduals: 12
+      numResiduals: 6
       broadcastEveryN: 8
       numChannels: 256
       numBottleneckChannels: 128
@@ -88,11 +86,11 @@ muzero:
 
       windowSizeStart: 10000
       windowSizeIsDynamic: true
-      windowSizeExponent: 1  # (sub)linear scaling of window size
+      windowSizeExponent: 0.8  # (sub)linear scaling of window size
       windowSizeSlope: 0.5
 
-      numberOfTrainingSteps: 5000
+      numberOfTrainingSteps: 4000
 
       # fractionOfAlternativeActionGames: 1.0
-      alternativeActionsWeight: 0.1   # 0.0 means switched off
+      alternativeActionsWeight: 0.04   # 0.0 means switched off
 
