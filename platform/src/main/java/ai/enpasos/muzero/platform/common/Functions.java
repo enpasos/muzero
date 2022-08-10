@@ -41,6 +41,7 @@ public class Functions {
     }
 
     public static double[] softmax(double[] raw, double temperature) {
+        //if (temperature == 0.0) return Arrays.stream(raw).max();
         double max = Arrays.stream(raw).max().getAsDouble();
         raw = Arrays.stream(raw).map(x -> (x - max)/temperature).toArray();
         double[] vs = Arrays.stream(raw).map(Math::exp).toArray();
