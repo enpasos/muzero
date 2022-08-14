@@ -62,11 +62,12 @@ public class SurpriseExtractor {
     public String listValuesForTrainedNetworks(Game game) {
 
         List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();
+        List<Integer> actions = game.getGameDTO().getActions();
         StringWriter stringWriter = new StringWriter();
 
         List<Float> surprises = game.getGameDTO().getSurprises();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "surprise", "vPlayerA").build())) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "surprise", "vPlayerA", "action").build())) {
             for (int t = 0; t < values.size(); t++) {
 
                 float value = values.get(t);
@@ -78,7 +79,8 @@ public class SurpriseExtractor {
                     }
                     csvPrinter.printRecord(t,
                         NumberFormat.getNumberInstance().format(surpriseLocal),
-                        NumberFormat.getNumberInstance().format(valuePlayer));
+                        NumberFormat.getNumberInstance().format(valuePlayer),
+                        actions.get(t));
                 } catch (Exception e) {
                     // ignore
                 }

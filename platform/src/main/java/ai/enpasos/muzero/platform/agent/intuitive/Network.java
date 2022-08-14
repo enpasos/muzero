@@ -111,12 +111,12 @@ public class Network {
     }
 
     public static double getDoubleValue(@NotNull Model model, String name) {
-        double epoch = 0;
+        double value = 0;
         String prop = model.getProperty(name);
         if (prop != null) {
-            epoch = Double.parseDouble(prop);
+            value = Double.parseDouble(prop);
         }
-        return epoch;
+        return value;
     }
 
     public static int getEpoch(@NotNull Model model) {

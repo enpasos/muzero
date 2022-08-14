@@ -75,8 +75,9 @@ public class SelfPlay {
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
 
-        // TODO check if this is correct
+
         game.getGameDTO().getRootValueTargets().add((float)root.getVmix());
+
 
 
 
