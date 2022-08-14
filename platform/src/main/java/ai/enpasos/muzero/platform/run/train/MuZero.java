@@ -283,6 +283,11 @@ public class MuZero {
                 }
                 Metrics metrics = trainer.getMetrics();
 
+                // number of action paths
+                int numActionPaths = this.replayBuffer.getBuffer().getNumOfDifferentGames();
+                model.setProperty("NumActionPaths", Double.toString( numActionPaths));
+                log.info("NumActionPaths: " +  numActionPaths);
+
                 // mean loss
                 List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
                 double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);

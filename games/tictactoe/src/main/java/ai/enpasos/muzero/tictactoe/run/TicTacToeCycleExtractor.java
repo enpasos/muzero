@@ -40,7 +40,7 @@ public class TicTacToeCycleExtractor {
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
-        cycleExtractor.run(new int[] {4}, 1);
+        cycleExtractor.run(new int[] {7,3}, 2);
 
     }
 
