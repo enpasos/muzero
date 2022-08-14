@@ -38,32 +38,22 @@ import java.util.stream.IntStream;
 public class GameDTO implements Comparable<GameDTO> {
 
     String networkName = "NONE";
-
+    float pRandomActionRawSum;
+    int pRandomActionRawCount;
     @EqualsAndHashCode.Include
     private List<Integer> actions;
-
-
-
     private List<Float> rewards;
     private List<Float> surprises;
     private List<float[]> policyTargets;
-
- //   private List<List<Float>> values;
     private List<Float> rootValueTargets;
     private List<Float> rootValuesFromInitialInference;
     private float lastValueError;
     private long count;
-
     private long nextSurpriseCheck;
-
     private boolean surprised;
     private long tSurprise;
     private long tStateA;
     private long tStateB;
-
-
-    float pRandomActionRawSum;
-    int pRandomActionRawCount;
 
     public GameDTO(List<Integer> actions) {
         this();
@@ -77,7 +67,6 @@ public class GameDTO implements Comparable<GameDTO> {
         this.rootValueTargets = new ArrayList<>();
         this.surprises = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
-    //    this.values = new ArrayList<>();
         this.surprised = false;
     }
 
@@ -137,7 +126,6 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
-     //   this.values.forEach(pT -> copy.values.add(List.copyOf(pT)));
         copy.rootValueTargets.addAll(this.rootValueTargets);
         copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference);
         return copy;
@@ -201,14 +189,7 @@ public class GameDTO implements Comparable<GameDTO> {
                 )
                 .collect(Collectors.toList()));
         }
-//        if (p.getValuesCount() > 0) {
-//            List<List<Float>> vs = p.getValuesList().stream().map(
-//                    valueProtos ->
-//                        List.copyOf(valueProtos.getValueList())
-//                )
-//                .collect(Collectors.toList());
-//            this.setValues(vs);
-//        }
+
     }
 
 

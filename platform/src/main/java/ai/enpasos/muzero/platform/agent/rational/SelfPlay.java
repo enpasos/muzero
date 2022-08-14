@@ -44,7 +44,8 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.*;
+import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 
 
 @Slf4j
@@ -75,10 +76,7 @@ public class SelfPlay {
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
 
-
-        game.getGameDTO().getRootValueTargets().add((float)root.getVmix());
-
-
+        game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
 
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
@@ -179,7 +177,7 @@ public class SelfPlay {
 
     private void calculateSurprise(double value, Game game) {
         int pos = game.getGameDTO().getSurprises().size() - 1;
-        boolean notUnexpectedSurprise = (pos == game.getGameDTO().getTStateA()-1L);
+        boolean notUnexpectedSurprise = (pos == game.getGameDTO().getTStateA() - 1L);
         if (game.getGameDTO().getRootValuesFromInitialInference().size() > pos && pos >= 0 && !notUnexpectedSurprise) {
             double valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
             double deltaValue = value - valueBefore;
@@ -222,12 +220,11 @@ public class SelfPlay {
         shortCutForGamesWithoutAnOption(gamesToApplyAction, render, fastRuleLearning, network);
 
 
-
         int nGames = gamesToApplyAction.size();
         if (nGames != 0) {
 
             List<GumbelSearch> searchManagers = gamesToApplyAction.stream().map(game -> {
-                game.initSearchManager( pRandomActionRawAverage);
+                game.initSearchManager(pRandomActionRawAverage);
                 return game.getSearchManager();
             }).collect(Collectors.toList());
 
@@ -268,7 +265,7 @@ public class SelfPlay {
             }
             IntStream.range(0, nGames).forEach(i ->
 
-                    searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning, withRandomActions)
+                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning, withRandomActions)
 
             );
 
@@ -311,7 +308,7 @@ public class SelfPlay {
         if (!fastRuleLearning) {
             networkOutput = initialInference(network, gamesToApplyAction, false, fastRuleLearning, 0);
         }
-        List<NetworkIO> networkOutputFinal  =networkOutput;
+        List<NetworkIO> networkOutputFinal = networkOutput;
 
         IntStream.range(0, gamesWithOnlyOneAllowedAction.size()).forEach(g -> {
             Game game = gamesWithOnlyOneAllowedAction.get(g);
@@ -319,13 +316,11 @@ public class SelfPlay {
             game.apply(action);
 
 
-
             float value = 0f;
             if (!fastRuleLearning) {
                 value = (float) networkOutputFinal.get(g).getValue();
             }
 
-            // TODO check if this is correct
             game.getGameDTO().getRootValueTargets().add(value);
 
             float[] policyTarget = new float[config.getActionSpaceSize()];
@@ -340,7 +335,6 @@ public class SelfPlay {
 
         gamesToApplyAction.removeIf(Game::isActionApplied);
     }
-
 
 
     private void renderNetworkGuess(Network network, boolean render, int indexOfJustOneOfTheGames) {
@@ -471,20 +465,9 @@ public class SelfPlay {
     }
 
     public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
-        for(int i = 0; i< config.getNumEpisodes(); i++)
-        {
-//            boolean withRandomActionsHere = withRandomActions;
-//            if (withRandomActions) {
-//                withRandomActionsHere = draw(config.getFractionOfAlternativeActionGames());
-//            }
-
-
-
+        for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
             replayBuffer.addGames(games);
-
-
-          //  replayBuffer.saveGames(games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
         }

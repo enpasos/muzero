@@ -36,26 +36,35 @@ import java.util.stream.Collectors;
 public class ReplayBufferDTO {
 
     public static final double BUFFER_IO_VERSION = 1.0;
-
+    transient List<Game> games = new ArrayList<>();
+    transient MuZeroConfig config;
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
+    private String gameClassName;
+    private long counter;
+    public ReplayBufferDTO(MuZeroConfig config) {
+        this.gameClassName = config.getGameClassName();
+        this.config = config;
+    }
+
+    public static ReplayBufferDTO deproto(ReplayBufferProto proto, MuZeroConfig config) {
+        ReplayBufferDTO dto = new ReplayBufferDTO(config);
+        dto.setCounter(proto.getCounter());
+
+
+        proto.getGameProtosList().forEach(p -> {
+            GameDTO gameDTO = new GameDTO();
+            gameDTO.deproto(p);
+            dto.getInitialGameDTOList().add(gameDTO);
+        });
+        return dto;
+    }
 
     public List<GameDTO> getDTOListFromGames() {
         return games.stream().map(Game::getGameDTO).collect(Collectors.toList());
     }
+
     public int getNumOfDifferentGames() {
-        return  games.stream().map(Game::getGameDTO).collect(Collectors.toSet()).size();
-    }
-
-
-    transient List<Game> games = new ArrayList<>();
-    private String gameClassName;
-    private long counter;
-
-    transient MuZeroConfig config;
-
-    public ReplayBufferDTO( MuZeroConfig config) {
-        this.gameClassName = config.getGameClassName();
-        this.config = config;
+        return games.stream().map(Game::getGameDTO).collect(Collectors.toSet()).size();
     }
 
     public ReplayBufferDTO copyEnvelope() {
@@ -65,25 +74,23 @@ public class ReplayBufferDTO {
         copy.gameClassName = this.gameClassName;
         return copy;
     }
+
     public void sortGamesByLastValueError() {
-         getGames().sort(
+        getGames().sort(
             (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
     }
 
     public void keepOnlyTheLatestGames(int n) {
-         games =  games.subList(Math.max( games.size() - n, 0), games.size());
+        games = games.subList(Math.max(games.size() - n, 0), games.size());
     }
-
 
     public boolean isBufferFilled() {
         return games.size() >= getWindowSize();
     }
 
-
     public int getWindowSize() {
         return config.getWindowSize(this.getCounter());
     }
-
 
     public void removeGame(Game game) {
         games.remove(game);
@@ -116,7 +123,6 @@ public class ReplayBufferDTO {
         getInitialGameDTOList().clear();
     }
 
-
     public ReplayBufferProto proto() {
         ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
             .setVersion(1)
@@ -127,19 +133,6 @@ public class ReplayBufferDTO {
         games.forEach(game -> bufferBuilder.addGameProtos(game.getGameDTO().proto()));
 
         return bufferBuilder.build();
-    }
-
-    public static ReplayBufferDTO deproto(ReplayBufferProto proto, MuZeroConfig config) {
-        ReplayBufferDTO dto = new ReplayBufferDTO( config);
-        dto.setCounter(proto.getCounter());
-
-
-        proto.getGameProtosList().forEach(p -> {
-            GameDTO gameDTO = new GameDTO();
-            gameDTO.deproto(p);
-            dto.getInitialGameDTOList().add(gameDTO);
-        });
-        return dto;
     }
 
 

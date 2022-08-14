@@ -41,9 +41,8 @@ public class Functions {
     }
 
     public static double[] softmax(double[] raw, double temperature) {
-        //if (temperature == 0.0) return Arrays.stream(raw).max();
         double max = Arrays.stream(raw).max().getAsDouble();
-        raw = Arrays.stream(raw).map(x -> (x - max)/temperature).toArray();
+        raw = Arrays.stream(raw).map(x -> (x - max) / temperature).toArray();
         double[] vs = Arrays.stream(raw).map(Math::exp).toArray();
         double sum = Arrays.stream(vs).sum();
         return Arrays.stream(vs).map(v -> v / sum).toArray();
@@ -89,6 +88,7 @@ public class Functions {
         }
         throw new MuZeroException("problem in drawing from discrete probability distribution");
     }
+
     public static boolean draw(double p) {
         double rand = ThreadLocalRandom.current().nextDouble();
         return rand < p;

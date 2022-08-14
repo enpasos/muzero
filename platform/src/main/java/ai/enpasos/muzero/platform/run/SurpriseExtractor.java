@@ -57,6 +57,13 @@ public class SurpriseExtractor {
     @Autowired
     Surprise surprise;
 
+    public static float arrayMax(float[] arr) {
+        float max = Float.NEGATIVE_INFINITY;
+
+        for (float cur : arr)
+            max = Math.max(max, cur);
+        return max;
+    }
 
     @SuppressWarnings("squid:S1141")
     public String listValuesForTrainedNetworks(Game game) {
@@ -110,8 +117,6 @@ public class SurpriseExtractor {
     public Optional<Game> getGame(int no) {
         replayBuffer.loadLatestState();
         return Optional.of(replayBuffer.getBuffer().getGames().get(no));
-           // .orElseThrow(() -> new MuZeroException("Game no " + no + " not found"));
-
     }
 
     @NotNull
@@ -130,25 +135,16 @@ public class SurpriseExtractor {
                 game.setSurpriseMax(max);
             }
         );
-        return replayBuffer.getBuffer().getGames().stream().max((g1, g2) -> (int) (g1.getSurpriseMax() - g2.getSurpriseMax())) ;
+        return replayBuffer.getBuffer().getGames().stream().max((g1, g2) -> (int) (g1.getSurpriseMax() - g2.getSurpriseMax()));
 
     }
-
-    public static float arrayMax(float[] arr) {
-        float max = Float.NEGATIVE_INFINITY;
-
-        for(float cur: arr)
-            max = Math.max(max, cur);
-        return max;
-    }
-
 
     public Optional<Game> getGameStartingWithActions(int... actions) {
-        List<Integer> actionsList =  Arrays.stream(actions).boxed().collect(Collectors.toList());
+        List<Integer> actionsList = Arrays.stream(actions).boxed().collect(Collectors.toList());
         return getGameStartingWithActions(actionsList);
     }
 
-    public Optional<Game> getGameStartingWithActions( List<Integer> actionsList) {
+    public Optional<Game> getGameStartingWithActions(List<Integer> actionsList) {
         replayBuffer.loadLatestState();
         List<Game> games = replayBuffer.getBuffer().getGames();
         return games.stream().filter(game ->

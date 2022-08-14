@@ -50,14 +50,12 @@ public class TicTacToeTest2 {
 
     public boolean test() {
 
-        //config.setTemperatureRoot(0.001);
         config.setTemperatureRoot(0.0);
 
 
         replayBuffer.init();
 
         replayBuffer.loadLatestState();
-        // now let PlayerA and PlayerB play all possible moves
 
 
         GameTree gameTree = new GameTree(config);
@@ -135,39 +133,25 @@ public class TicTacToeTest2 {
     }
 
     private static void printActions(List<DNode> nodes) {
-        nodes.forEach(n -> {
-            log.info("{}", n.getGame().getGameDTO().getActions());
-        });
+        nodes.forEach(n ->
+            log.info("{}", n.getGame().getGameDTO().getActions())
+         );
     }
 
-    private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
-        gameTree.rootNode.clearAIDecisions();
-
-
-        gameTree.rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
-        gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
-        log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
-        printActions(gamesLostByPlayer);
-
-
-    }
 
     private void notOptimal2(@NotNull GameTree gameTree, @NotNull Network network,  boolean withMCTS, @NotNull List<DNode> badDecisionGame,     Set<DNode> nodesWhereADecisionMatters) {
         gameTree.rootNode.clearAIDecisions();
         int count = 0;
-        // checkForProblematicNodes(nodesWhereADecisionMatters);
         for (DNode n : nodesWhereADecisionMatters ) {
             log.info("{} of {}", count++, nodesWhereADecisionMatters.size());
-            //  checkForProblematicNodes(nodesWhereADecisionMatters);
 
             n.aiChosenChild = n.aiDecision(network, withMCTS, selfPlay );
-            // checkForProblematicNodes(nodesWhereADecisionMatters);
             if( n.getGame().getEnvironment().getPlayerToMove() == OneOfTwoPlayer.PLAYER_A) {
-                if (n.aiChosenChild.bestForceableValuePlayerA != n.bestForceableValuePlayerA) {
+                if (!n.aiChosenChild.bestForceableValuePlayerA.equals(n.bestForceableValuePlayerA)) {
                     badDecisionGame.add(n.aiChosenChild);
                 }
             } else {
-                if (n.aiChosenChild.bestForceableValuePlayerB != n.bestForceableValuePlayerB) {
+                if (!n.aiChosenChild.bestForceableValuePlayerB.equals(n.bestForceableValuePlayerB)) {
                     badDecisionGame.add(n.aiChosenChild);
                 }
             }

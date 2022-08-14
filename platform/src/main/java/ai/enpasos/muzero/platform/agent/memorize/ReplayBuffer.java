@@ -106,7 +106,6 @@ public class ReplayBuffer {
     }
 
 
-
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
         String epochValue = model.getProperty("Epoch");
         Path modelPath = Paths.get(outputDir);
@@ -135,7 +134,6 @@ public class ReplayBuffer {
         }
         this.buffer = new ReplayBufferDTO(config);
     }
-
 
 
     /**
@@ -192,18 +190,16 @@ public class ReplayBuffer {
 
     public void loadLatestState() {
         ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadLatestState();
-        if(replayBufferDTO != null) {
+        if (replayBufferDTO != null) {
             this.buffer = replayBufferDTO;
         }
     }
-
 
 
     public void sortGamesByLastValueError() {
         this.getBuffer().getGames().sort(
             (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
     }
-
 
 
     public void removeGames(List<Game> games) {
@@ -217,16 +213,12 @@ public class ReplayBuffer {
     public double getPRandomActionRawAverage() {
         double sum = this.buffer.games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
         long count = this.buffer.games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
-        return sum/count;
+        return sum / count;
     }
 
     public void addGames(List<Game> games) {
         games.forEach(this::addGame);
     }
-
-//    public void saveGames(List<Game> games) {
-//         replayBufferIO.saveGames(games,  this.currentNetworkName);
-//    }
 
     private void addGame(@NotNull Game game) {
         game.getGameDTO().setNetworkName(this.currentNetworkName);

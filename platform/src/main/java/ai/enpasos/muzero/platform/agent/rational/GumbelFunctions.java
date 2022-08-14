@@ -19,7 +19,7 @@ public class GumbelFunctions {
     }
 
 
-    public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int n ) {
+    public static List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int n) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
         double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();

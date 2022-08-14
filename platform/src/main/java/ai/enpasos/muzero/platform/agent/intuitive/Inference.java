@@ -49,7 +49,7 @@ public class Inference {
     @Autowired
     SelfPlay selfPlay;
 
-    public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir  ) {
+    public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir) {
         return aiDecision(actions, withMCTS, networkDir, DeviceType.CPU);
     }
 

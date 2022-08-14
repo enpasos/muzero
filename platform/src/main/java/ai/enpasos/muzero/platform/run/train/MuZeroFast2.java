@@ -100,7 +100,6 @@ public class MuZeroFast2 {
                 trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
 
-
                 log.info(loop + " >>> 5. Replay the 1000 games with the highest marked surprise according to convolution for gameplay. Higher temperature and higher simulationNum at hotspot");
                 gamesWithSurprise.sort(Comparator.comparing(
                     game -> game.getGameDTO().getSurprises().get((int) game.getGameDTO().getTSurprise())
@@ -126,9 +125,6 @@ public class MuZeroFast2 {
 
         }
     }
-
-
-
 
 
 }

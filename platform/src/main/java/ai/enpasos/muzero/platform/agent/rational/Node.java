@@ -129,7 +129,7 @@ public class Node {
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
         double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-        double[] improvedPolicy = softmax(raw  );
+        double[] improvedPolicy = softmax(raw);
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
     }
 
@@ -252,7 +252,7 @@ public class Node {
         int nSum = this.getChildren().stream().mapToInt(Node::getVisitCount).sum();
         this.getChildren().forEach(n -> n.improvedPolicyValue2 = n.comparisonValue(nSum));
 
-            return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
+        return this.getChildren().stream().max(Comparator.comparing(Node::getImprovedPolicyValue2)).get();
 
     }
 
@@ -271,7 +271,7 @@ public class Node {
 
         int numOfAllowedActions = this.children.size();
         double frac = config.getRootExplorationFraction();
-        if (frac != 0d)  {
+        if (frac != 0d) {
             double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
 
             for (int i = 0; i < this.children.size(); i++) {
