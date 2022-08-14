@@ -46,8 +46,8 @@ public class LossExtractor {
                 , "totalLoss"
                 , "valueLoss"
                 , "policyLoss"
-            //  , "actionPaths"
-        ).build())) {
+                //  , "actionPaths"
+            ).build())) {
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);

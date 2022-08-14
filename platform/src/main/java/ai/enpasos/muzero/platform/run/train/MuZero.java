@@ -50,7 +50,6 @@ import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
-import static ai.enpasos.muzero.platform.common.Functions.draw;
 
 @Slf4j
 @Component
@@ -67,8 +66,6 @@ public class MuZero {
 
     @Autowired
     Surprise surprise;
-
-
 
 
     @Autowired
@@ -159,14 +156,13 @@ public class MuZero {
                     playGames(params.render, network, trainingStep);
 
                     int n = replayBuffer.getBuffer().getGames().size();
-                    int m = (int)replayBuffer.getBuffer().getGames().stream().filter(g ->
+                    int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
                         g.getGameDTO().getTStateB() != 0
-                        ).count();
+                    ).count();
                     log.info("games with an alternative action " + m + " out of " + n);
                     log.info("counter: " + replayBuffer.getBuffer().getCounter());
                     log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
 
-                 //   altStarts.playGames(network);
 
                     surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
@@ -218,7 +214,7 @@ public class MuZero {
 
         gamesToCheck.forEach(game ->
             game.getGameDTO().setNextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck() + config.getSurpriseCheckInterval())
-         );
+        );
 
 
         identifyGamesWithSurprise(this.replayBuffer.getBuffer().getGames(), surpriseThreshold, 0);
@@ -285,8 +281,8 @@ public class MuZero {
 
                 // number of action paths
                 int numActionPaths = this.replayBuffer.getBuffer().getNumOfDifferentGames();
-                model.setProperty("NumActionPaths", Double.toString( numActionPaths));
-                log.info("NumActionPaths: " +  numActionPaths);
+                model.setProperty("NumActionPaths", Double.toString(numActionPaths));
+                log.info("NumActionPaths: " + numActionPaths);
 
                 // mean loss
                 List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");

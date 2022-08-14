@@ -17,15 +17,11 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.CycleExtractor;
-import ai.enpasos.muzero.platform.run.SurpriseExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Slf4j
 @SuppressWarnings("squid:S106")

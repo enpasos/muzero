@@ -47,19 +47,14 @@ public abstract class Game {
 
 
     protected boolean purelyRandom;
-
-    boolean playedMoreThanOnce;
-
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
-
     protected MuZeroConfig config;
-
     protected int actionSpaceSize;
     protected double discount;
     protected Environment environment;
     protected GameDTO originalGameDTO;
-    // double[] values;
+    boolean playedMoreThanOnce;
     double surpriseMean;
     double surpriseMax;
 
@@ -185,10 +180,10 @@ public abstract class Game {
     private void fillTarget(int stateIndex, int tdSteps, int currentIndex, Target target) {
         int perspective = getPerspective(stateIndex, currentIndex);
 
-        int bootstrapIndex = currentIndex + tdSteps;
+        // int bootstrapIndex = currentIndex + tdSteps;
 
-        double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        value = finalizeValue(currentIndex, perspective, bootstrapIndex, value);
+        //double value = getBootstrapValue(tdSteps, bootstrapIndex);
+        double value = calculateValue(currentIndex, perspective );
 
         float lastReward = getLastReward(currentIndex);
 
@@ -235,31 +230,15 @@ public abstract class Game {
         return lastReward;
     }
 
-    private double finalizeValue(int currentIndex, int perspective, int bootstrapIndex, double value) {
-//        int startIndex;
-//        if (config.isNetworkWithRewardHead()) {
-//            startIndex = currentIndex;
-//        } else {
-//            startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
-//        }
-//        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-//            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * perspective;
-//        }
-        // TODO: add a configurable option
-        try {
-
-            if (currentIndex == this.getGameDTO().getRewards().size() - 1) {
-//        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value = (double) this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) * Math.pow(this.discount, currentIndex) * perspective;
-            } else if (currentIndex < this.getGameDTO().getRewards().size() - 1) {
-                value = this.getGameDTO().getRootValueTargets().get(currentIndex) ;
-            } else  {
-                value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) * perspective;
-            }
-        } catch ( Exception e) {
-            int i = 42;
+    private double calculateValue(int currentIndex, int perspective ) {
+        double value = 0d;
+        if (currentIndex == this.getGameDTO().getRewards().size() - 1) {
+            value = (double) this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) * Math.pow(this.discount, currentIndex) * perspective;
+        } else if (currentIndex < this.getGameDTO().getRewards().size() - 1) {
+            value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+        } else {
+            value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) * perspective;
         }
-
         return value;
     }
 

@@ -36,7 +36,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -54,6 +57,29 @@ public class ReplayBufferIO {
 
     @Autowired
     MuZeroConfig config;
+
+    @NotNull
+    private static Gson getGson() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.setVersion(BUFFER_IO_VERSION);
+        return builder.create();
+    }
+
+    public static byte @NotNull [] encodeDTO(Object dto) {
+        try {
+            String json = getGson().toJson(dto);
+            return json.getBytes(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+
+    }
+
+    public static @NotNull ReplayBufferDTO decodeDTO(byte @NotNull [] bytes) {
+        String json = new String(bytes, StandardCharsets.UTF_8);
+        return getGson().fromJson(json, ReplayBufferDTO.class);
+    }
 
     public void saveState(ReplayBufferDTO dto, String networkName) {
 
@@ -136,7 +162,6 @@ public class ReplayBufferIO {
         return null;
     }
 
-
     public List<Path> getBufferNames() {
         List<Path> paths = new ArrayList<>();
         Path gamesPath = Paths.get(config.getGamesBasedir());
@@ -188,28 +213,28 @@ public class ReplayBufferIO {
         String pathname = path.toString();
         log.info("loading ... " + pathname);
         try (FileInputStream fis = new FileInputStream(pathname)) {
-           try (BufferedInputStream bis = new BufferedInputStream(fis)) {
-               try (ZipInputStream zis = new ZipInputStream(fis)) {
-                   ZipEntry entry;
+            try (BufferedInputStream bis = new BufferedInputStream(fis)) {
+                try (ZipInputStream zis = new ZipInputStream(fis)) {
+                    ZipEntry entry;
 
-                   while ((entry = zis.getNextEntry()) != null) {
-                       String filename = entry.getName();
-                       if (filename.endsWith(".dat")) {
-                           byte[] bytes = zis.readAllBytes();
+                    while ((entry = zis.getNextEntry()) != null) {
+                        String filename = entry.getName();
+                        if (filename.endsWith(".dat")) {
+                            byte[] bytes = zis.readAllBytes();
 
-                           ReplayBufferProto proto = ReplayBufferProto.parseFrom(bytes);
-                           ReplayBufferDTO dtoHere = ReplayBufferDTO.deproto(proto, config);
-                           if (dto == null) {
-                               dto = dtoHere;
-                           } else {
-                               dto.getInitialGameDTOList().addAll(dtoHere.getInitialGameDTOList());
-                           }
+                            ReplayBufferProto proto = ReplayBufferProto.parseFrom(bytes);
+                            ReplayBufferDTO dtoHere = ReplayBufferDTO.deproto(proto, config);
+                            if (dto == null) {
+                                dto = dtoHere;
+                            } else {
+                                dto.getInitialGameDTOList().addAll(dtoHere.getInitialGameDTOList());
+                            }
 
-                       }
-                   }
-                   dto.rebuildGames(config);
-               }
-           }
+                        }
+                    }
+                    dto.rebuildGames(config);
+                }
+            }
         } catch (Exception e) {
             try (FileInputStream fis = new FileInputStream(pathname)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
@@ -237,79 +262,6 @@ public class ReplayBufferIO {
 
     }
 
-    @NotNull
-    private static Gson getGson() {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setVersion(BUFFER_IO_VERSION);
-        return builder.create();
-    }
 
 
-    public static byte @NotNull [] encodeDTO(Object dto) {
-        try {
-            String json = getGson().toJson(dto);
-            return json.getBytes(StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
-
-    }
-
-
-    public static @NotNull ReplayBufferDTO decodeDTO(byte @NotNull [] bytes) {
-        String json = new String(bytes, StandardCharsets.UTF_8);
-        return getGson().fromJson(json, ReplayBufferDTO.class);
-    }
-
-
-//    public void saveGames(List<Game> games, String filename) {
-//        GamesDTO dto = new GamesDTO();
-//        games.forEach(g -> {
-//            dto.getGameDTOList().add(g.getGameDTO());
-//        });
-//
-//        String pathname = config.getGamesBasedir() + File.separator + filename + "-1-" + games.size() + "-jsonbuf.zip";
-//
-//        byte[] input;
-//
-//        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
-//            log.info("saving ... " + pathname);
-//
-//            input = encodeDTO(dto);
-//            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-//                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-//                    ZipEntry entry = new ZipEntry(filename + ".json");
-//                    entry.setSize(input.length);
-//                    zos.putNextEntry(entry);
-//                    zos.write(input);
-//                    zos.closeEntry();
-//                }
-//            } catch (Exception e) {
-//                throw new MuZeroException(e);
-//            }
-//        }
-//
-//
-//        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
-//            ReplayBufferProto proto = dto.proto();
-//            pathname = config.getGamesBasedir() + File.separator + filename + "-1-" + games.size() + "-protobuf.zip";
-//            log.info("saving ... " + pathname);
-//            input = proto.toByteArray();
-//
-//            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-//                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-//                    ZipEntry entry = new ZipEntry(filename + ".dat");
-//                    entry.setSize(input.length);
-//                    zos.putNextEntry(entry);
-//                    zos.write(input);
-//                    zos.closeEntry();
-//                }
-//            } catch (Exception e) {
-//                throw new MuZeroException(e);
-//            }
-//        }
-//
-//
-//    }
 }

@@ -21,10 +21,8 @@ import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.intuitive.Network.getDoubleValue;
 import static ai.enpasos.muzero.platform.agent.intuitive.Network.getEpoch;
 
 @Slf4j
@@ -42,7 +40,7 @@ public class CycleExtractor {
     }
 
     @SuppressWarnings("squid:S106")
-    public void run(int[] actions, int lastAction ) {
+    public void run(int[] actions, int lastAction) {
 
         Game game = this.getGameStartingWithActionsFromStart(actions);
 
@@ -70,7 +68,7 @@ public class CycleExtractor {
                         log.debug("player " + i + " model.load not successfull");
                     }
                 }
-                );
+            );
 
 
         } catch (Exception e) {
@@ -93,9 +91,8 @@ public class CycleExtractor {
 
 
             float[] policyValues = networkOutput.get(0).getPolicyValues();
-            return (double) policyValues[action];
+            return  policyValues[action];
         }
-
 
 
     }

@@ -38,10 +38,8 @@ public class GumbelSearch {
     MinMaxStats minMaxStats;
     MuZeroConfig config;
     boolean debug;
+    double pRandomActionRawAverage;
     private List<Node> rootChildrenCandidates;
-
-
-    double pRandomActionRawAverage; //TODO
 
     public GumbelSearch(MuZeroConfig config, Game game, boolean debug, double pRandomActionRawAverage) {
         this.pRandomActionRawAverage = pRandomActionRawAverage;
@@ -216,13 +214,7 @@ public class GumbelSearch {
                 node.calculateVmix();
                 node.calculateImprovedPolicy(minMaxStats);
                 node.calculateImprovedValue();
-                // debug log ValueFromNetwork, Vmix, ImprovedValue
-//                if (debug) {
-//                    log.debug("---------");
-//                    log.debug("ValueFrom    : " + node.getValueFromNetwork());
-//                    log.debug("Vmix         : " + node.getVmix());
-//                    log.debug("ImprovedValue: " + node.getImprovedValue());
-//                }
+
             }
 
             value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
@@ -246,8 +238,8 @@ public class GumbelSearch {
         } else {
             if (config.getTemperatureRoot() == 0.0) {
                 action = selectedAction;
-           } else {
-                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1);
+            } else {
+                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
                 double[] raw = new double[policyTarget.length];
                 for (int i = 0; i < policyTarget.length; i++) {
                     raw[i] = Math.log(policyTarget[i]);
@@ -256,13 +248,13 @@ public class GumbelSearch {
                 int a = draw(p);
                 action = config.newAction(a);
             }
-         }
+        }
         if (action == null) {
             throw new MuZeroException("action must not be null");
         }
 
         if (withRandomActions) {
-            Optional<Action> optionalAction = badAction(render );
+            Optional<Action> optionalAction = badAction(render);
             if (optionalAction.isPresent()) {
                 action = optionalAction.get();
             }
@@ -283,75 +275,55 @@ public class GumbelSearch {
 
         int[] legalActions = game.legalActions().stream().mapToInt(Action::getIndex).toArray();
 
-        double[]  pRational_ = toDouble(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
+        double[] pRationalB = toDouble(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
 
-        double[]  pRational = IntStream.range(0,legalActions.length).mapToDouble(i -> pRational_[legalActions[i]]).toArray();
+        double[] pRational = IntStream.range(0, legalActions.length).mapToDouble(i -> pRationalB[legalActions[i]]).toArray();
 
 
-        double[]  pIntuitive = this.root.children.stream().mapToDouble(Node::getPrior).toArray();
+        double[] pIntuitive = this.root.children.stream().mapToDouble(Node::getPrior).toArray();
 
-        double[]  p_perLegalActionRaw  =  new double[legalActions.length];
+        double[] pPerLegalActionRaw = new double[legalActions.length];
 
-        IntStream.range(0,legalActions.length).forEach( i ->
-            p_perLegalActionRaw[i] = (1.0 - pIntuitive[i])  * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i]: 0.0) // / (1.0 + this.game.getGameDTO().getActions().size())
+        IntStream.range(0, legalActions.length).forEach(i ->
+            pPerLegalActionRaw[i] = (1.0 - pIntuitive[i]) * (pRational[i] > pIntuitive[i] ? pRational[i] - pIntuitive[i] : 0.0) // / (1.0 + this.game.getGameDTO().getActions().size())
         );
 
         this.game.getGameDTO().setPRandomActionRawSum(
-            this.game.getGameDTO().getPRandomActionRawSum() + (float)Arrays.stream(p_perLegalActionRaw).sum()
+            this.game.getGameDTO().getPRandomActionRawSum() + (float) Arrays.stream(pPerLegalActionRaw).sum()
         );
         this.game.getGameDTO().setPRandomActionRawCount(
-            this.game.getGameDTO().getPRandomActionRawCount() + p_perLegalActionRaw.length
+            this.game.getGameDTO().getPRandomActionRawCount() + pPerLegalActionRaw.length
         );
 
-     //   if (pRandomActionRawAverage == 0  || game.getGameDTO().getTStateA() != 0) return Optional.empty();
-        if (pRandomActionRawAverage == 0  ) return Optional.empty();
+        if (pRandomActionRawAverage == 0) return Optional.empty();
 
-        float fraction = config.getAlternativeActionsWeight();
-        double[]  p  =  Arrays.stream(p_perLegalActionRaw).map(pRaw ->
-            config.getAlternativeActionsWeight() * pRaw /  pRandomActionRawAverage
+        double[] p = Arrays.stream(pPerLegalActionRaw).map(pRaw ->
+            config.getAlternativeActionsWeight() * pRaw / pRandomActionRawAverage
         ).toArray();
 
-
-    //    double[]  p  =  p_perLegalActionRaw;
-
-        double  p_perGame = Arrays.stream(p).sum();
+        double pPerGame = Arrays.stream(p).sum();
 
 
-        if (!draw( p_perGame)) return Optional.empty();
+        if (!draw(pPerGame)) return Optional.empty();
 
 
-     //  if (!draw( config.getAlternativeActionsWeight()) || p_perGame == 0) return Optional.empty();
-
-        p =  Arrays.stream(p).map(b ->
-            b / p_perGame
+        p = Arrays.stream(p).map(b ->
+            b / pPerGame
         ).toArray();
 
-        int numLegalActions = game.legalActions().size();
         Action action = config.newAction(legalActions[draw(p)]);
 
 
         game.getGameDTO().setTStateA(game.getGameDTO().getActions().size());
         game.getGameDTO().setTStateB(game.getGameDTO().getActions().size());
         if (render && game.isDebug()) {
-            game.renderMCTSSuggestion(config, game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1));
+            game.renderMCTSSuggestion(config, game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1));
             log.debug("\n" + game.render());
         }
         game.setActionApplied(true);
         return Optional.of(action);
     }
 
-    private double[] getProbabilitiesPerLegalAction() {
-        List<Action> legalActions = game.legalActions();
-
-        float[] policyTarget = this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size()-1);
-
-
-        double[] p_perLegalActionRaw = new double[game.legalActions().size()];
-        for (int i = 0; i < p_perLegalActionRaw.length; i++) {
-            p_perLegalActionRaw[i] = 1.0 / p_perLegalActionRaw.length;
-        }
-        return p_perLegalActionRaw;
-    }
 
     public void drawCandidateAndAddValue() {
         List<GumbelAction> gumbelActions = rootChildrenCandidates.stream().map(Node::getGumbelAction).collect(Collectors.toList());
@@ -359,18 +331,14 @@ public class GumbelSearch {
 
         int maxActionVisitCount = rootChildrenCandidates.stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
-        // drawing 1 action out of the candidate actions (from root) for each parallel played game
+         drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
 
-        GumbelAction gumbelAction = drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
-//        List<Float> values = this.game.getGameDTO().getValues().get(this.game.getGameDTO().getValues().size() - 1);
-//        values.add((float) gumbelAction.getNode().getQValue());
     }
 
     public void drawCandidateAndAddValueStart() {
         List<Float> vs = new ArrayList<>();
         float v = (float) this.root.getValueFromNetwork();
         vs.add(v);
-      //  this.game.getGameDTO().getValues().add(vs);
     }
 
     public void addExplorationNoise() {

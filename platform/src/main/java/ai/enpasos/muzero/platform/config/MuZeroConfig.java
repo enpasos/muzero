@@ -202,7 +202,6 @@ public class MuZeroConfig {
     }
 
 
-
     public int getBatchSize() {
         return getConf().batchSize;
     }
@@ -232,14 +231,9 @@ public class MuZeroConfig {
         return getConf().lrInit;
     }
 
-   // public float getBadActionProbabilityThreshold() {
-//        return getConf().badActionProbabilityThreshold;
-//    }
-
     public float getAlternativeActionsWeight() {
         return getConf().alternativeActionsWeight;
     }
-
 
     public boolean isAbsorbingStateDropToZero() {
         return getConf().absorbingStateDropToZero;
@@ -307,17 +301,13 @@ public class MuZeroConfig {
         return getConf().temperatureRoot;
     }
 
-
-    public double getFractionOfAlternativeActionGames() {
-        return getConf().fractionOfAlternativeActionGames;
-    }
-
-
-
     public void setTemperatureRoot(double temperature) {
         getConf().temperatureRoot = temperature;
     }
 
+    public double getFractionOfAlternativeActionGames() {
+        return getConf().fractionOfAlternativeActionGames;
+    }
 
     public String getOutputDir() {
         return getConf().outputDir;
@@ -390,18 +380,17 @@ public class MuZeroConfig {
     }
 
 
-    public  int getWindowSize(long gamesPlayed) {
+    public int getWindowSize(long gamesPlayed) {
         int w0 = getConf().windowSizeStart;
         if (!getConf().windowSizeIsDynamic) return w0;
         double a = getConf().windowSizeExponent;
         double b = getConf().windowSizeSlope;
 
-        int w = (int) (w0 * (1.0 +  b * (Math.pow(gamesPlayed/w0, a) - 1)/a));
+        int w = (int) (w0 * (1.0 + b * (Math.pow((double)gamesPlayed / w0, a) - 1) / a));
 
-        return   Math.max(w0,w)  ;
+        return Math.max(w0, w);
 
     }
-
 
 
     @Data
@@ -430,8 +419,6 @@ public class MuZeroConfig {
         protected int numberOfTrainingStepsPerEpoch;
 
 
-
-
         protected int windowSizeStart;
         protected boolean windowSizeIsDynamic = false;
         protected double windowSizeExponent;
@@ -448,7 +435,6 @@ public class MuZeroConfig {
         protected float weightDecay;
         protected float valueLossWeight;
         protected float lrInit;
-      //  protected float badActionProbabilityThreshold;
 
         protected float alternativeActionsWeight;
         protected boolean absorbingStateDropToZero;
