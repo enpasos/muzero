@@ -201,6 +201,15 @@ public class NetworkHelper {
             .optWeightDecays(config.getWeightDecay())
             .optClipGrad(10f)
             .build();
+
+
+//        return Optimizer.sgd()
+//            .setLearningRateTracker(learningRateTracker)
+//            .optMomentum(0.9f)
+//            .optWeightDecays(config.getWeightDecay())
+//            .optClipGrad(10f)
+//            .build();
+
     }
 
 

@@ -42,6 +42,9 @@ public class ReplayBufferDTO {
     public List<GameDTO> getDTOListFromGames() {
         return games.stream().map(Game::getGameDTO).collect(Collectors.toList());
     }
+    public int getNumOfDifferentGames() {
+        return  games.stream().map(Game::getGameDTO).collect(Collectors.toSet()).size();
+    }
 
 
     transient List<Game> games = new ArrayList<>();

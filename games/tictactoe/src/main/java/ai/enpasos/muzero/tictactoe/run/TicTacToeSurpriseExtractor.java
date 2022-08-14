@@ -40,10 +40,10 @@ public class TicTacToeSurpriseExtractor {
     public void run() {
 
        //  Optional<Game> game = surpriseExtractor.getGame(4);
-        //  Optional<Game> game = surpriseExtractor.getGameWithHighestSurprise();
+          Optional<Game> game = surpriseExtractor.getGameWithHighestSurprise();
 
 
-       Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(6, 4, 1, 7, 0, 8, 3);
+   //    Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2,3,1);
         game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
 
     }
