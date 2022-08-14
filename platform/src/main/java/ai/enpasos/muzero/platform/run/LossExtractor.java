@@ -41,7 +41,13 @@ public class LossExtractor {
 
         StringWriter stringWriter = new StringWriter();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss").build())) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';')
+            .setHeader("trainingStep"
+                , "totalLoss"
+                , "valueLoss"
+                , "policyLoss"
+            //  , "actionPaths"
+        ).build())) {
 
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 model.setBlock(block);
@@ -55,6 +61,8 @@ public class LossExtractor {
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
+                                //,
+                                //NumberFormat.getNumberInstance().format(getDoubleValue(model, "NumActionPaths"))
                             );
                         } catch (Exception ignored) {
                             log.debug("player " + i + " model.load not successfull");
