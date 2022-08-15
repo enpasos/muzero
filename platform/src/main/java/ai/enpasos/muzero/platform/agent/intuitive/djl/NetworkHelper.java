@@ -49,6 +49,8 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
+
 
 @Slf4j
 @Component
@@ -102,7 +104,7 @@ public class NetworkHelper {
 
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
         NDManager nd = ndManager.newSubManager();
-        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), config.getTdSteps(), nd);
+        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(),   nd);
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
         List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch);
 

@@ -8,6 +8,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +57,7 @@ class ProtobufferTest {
         muZero.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            List<Game> games = selfPlay.playGame(network, false, true, false, false);
+            List<Game> games = selfPlay.playGame( network, false, true, false, false);
             replayBuffer.init();
 
             //replayBuffer.saveGames(games);

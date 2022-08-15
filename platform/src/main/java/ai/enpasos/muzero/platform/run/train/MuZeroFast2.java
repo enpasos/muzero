@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.run.Surprise;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class MuZeroFast2 {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-            muzero.init(params.freshBuffer, params.randomFill, network, params.withoutFill);
+            muzero.init(  params.freshBuffer, params.randomFill, network, params.withoutFill);
 
             int epoch = networkHelper.getEpoch();
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
@@ -113,11 +114,11 @@ public class MuZeroFast2 {
                 gamesToReplay.forEach(game ->
                     game.getGameDTO().setSurprised(true)
                 );
-                surprise.handleOldSurprises(network);
+                surprise.handleOldSurprises(  network);
 
 
                 log.info(loop + " >>> 6. Play 1000 new games from start with normal temperature and simulationNum. And train all games.");
-                muzero.playGames(params.render, network, trainingStep);
+                muzero.playGames( params.render, network, trainingStep);
                 trainingStep = muzero.trainNetwork(params.numberOfEpochs, model, djlConfig);
 
             } while (!gamesWithSurprise.isEmpty());

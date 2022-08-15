@@ -32,6 +32,7 @@ message GameProto {
   int64 nextSurpriseCheck = 20;
   float pRandomActionRawSum = 16;
   int32 pRandomActionRawCount = 17;
+  int32 tdSteps = 9;
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;
