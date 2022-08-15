@@ -57,12 +57,12 @@ public class ReplayBuffer {
     @Autowired
     private ReplayBufferIO replayBufferIO;
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps,  @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, tdSteps, game, gamePos, ndManager, replayBuffer);
+        return sampleFromGame(numUnrollSteps,   game, gamePos, ndManager, replayBuffer);
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, int tdSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps,   @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
         Sample sample = new Sample();
         game.replayToPosition(gamePos);
 
@@ -76,7 +76,7 @@ public class ReplayBuffer {
 
         sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, tdSteps));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps ));
 
         return sample;
     }
@@ -139,11 +139,11 @@ public class ReplayBuffer {
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps, int tdSteps, NDManager ndManager) {
+    public List<Sample> sampleBatch(int numUnrollSteps,  NDManager ndManager) {
 
         return sampleGames().stream()
             .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
-            .map(game -> sampleFromGame(numUnrollSteps, tdSteps, game, ndManager, this))
+            .map(game -> sampleFromGame(numUnrollSteps,  game, ndManager, this))
             .collect(Collectors.toList());
 
     }

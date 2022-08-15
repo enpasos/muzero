@@ -210,8 +210,8 @@ public class MuZeroConfig {
         return getConf().numUnrollSteps;
     }
 
-    public int getTdSteps() {
-        return getConf().tdSteps;
+    public int getTdSteps( ) {
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey() ).getTdSteps();
     }
 
     public float getDiscount() {
@@ -231,9 +231,9 @@ public class MuZeroConfig {
         return getConf().lrInit;
     }
 
-    public float getAlternativeActionsWeight() {
-        return getConf().alternativeActionsWeight;
-    }
+//    public float getAlternativeActionsWeight() {
+//        return getConf().alternativeActionsWeight;
+//    }
 
     public boolean isAbsorbingStateDropToZero() {
         return getConf().absorbingStateDropToZero;
@@ -267,12 +267,12 @@ public class MuZeroConfig {
         return getConf().surpriseCheckInterval;
     }
 
-    public double getRootDirichletAlpha() {
-        return getConf().rootDirichletAlpha;
+    public double getRootDirichletAlpha( ) {
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).rootDirichletAlpha;
     }
 
-    public double getRootExplorationFraction() {
-        return getConf().rootExplorationFraction;
+    public double getRootExplorationFraction( ) {
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).rootExplorationFraction;
     }
 
     public double getVariableStartFraction() {
@@ -297,12 +297,12 @@ public class MuZeroConfig {
         getConf().setInferenceDeviceType(deviceType);
     }
 
-    public double getTemperatureRoot() {
-        return getConf().temperatureRoot;
+    public double getTemperatureRoot( ) {
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).temperatureRoot;
     }
 
-    public void setTemperatureRoot(double temperature) {
-        getConf().temperatureRoot = temperature;
+    public void setTemperatureRoot( double temperature) {
+        getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).temperatureRoot = temperature;
     }
 
     public double getFractionOfAlternativeActionGames() {
@@ -318,23 +318,23 @@ public class MuZeroConfig {
     }
 
     public int getNumEpisodes() {
-        return getConf().numEpisodes;
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).numEpisodes;
     }
 
     public int getInitialGumbelM() {
         return getConf().initialGumbelM;
     }
 
-    public int getNumSimulations() {
-        return getConf().numSimulations;
+    public int getNumSimulations( ) {
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).numSimulations;
     }
 
-    public void setNumSimulations(int numSimulations) {
-        getConf().setNumSimulations(numSimulations);
+    public void setNumSimulations( int numSimulations) {
+        getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).setNumSimulations(numSimulations);
     }
 
     public int getNumParallelGamesPlayed() {
-        return getConf().numParallelGamesPlayed;
+        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).numParallelGamesPlayed;
     }
 
     public int getBroadcastEveryN() {
@@ -377,6 +377,16 @@ public class MuZeroConfig {
 
     public void setGameBufferWritingFormat(FileType fileType) {
         getConf().setGameBufferWritingFormat(fileType);
+    }
+
+
+
+    public TrainingTypeKey getTrainingTypeKey() {
+        return getConf().trainingTypeKey;
+    }
+
+    public void setTrainingTypeKey(TrainingTypeKey trainingTypeKey) {
+        getConf().setTrainingTypeKey(trainingTypeKey);
     }
 
 
@@ -430,13 +440,13 @@ public class MuZeroConfig {
         protected int windowValueSelfconsistencySize;
         protected int batchSize;
         protected int numUnrollSteps;
-        protected int tdSteps;
+
         protected float discount;
         protected float weightDecay;
         protected float valueLossWeight;
         protected float lrInit;
 
-        protected float alternativeActionsWeight;
+      //  protected float alternativeActionsWeight;
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;
@@ -447,15 +457,13 @@ public class MuZeroConfig {
 
         protected int surpriseCheckInterval;
         protected KnownBoundsType knownBoundsType;
-        protected double rootDirichletAlpha;
-        protected double rootExplorationFraction;
+
 
         protected double variableStartFraction;
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
-        protected int numEpisodes;
-        protected int numSimulations;
-        protected int numParallelGamesPlayed;
+
+
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
         protected long maxGameLiveTime;
 
@@ -465,8 +473,25 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
 
-        double temperatureRoot = 0.0;
         double[] values;
+
+
+        public Map<TrainingTypeKey, TrainingType> trainingTypes;
+
+        protected TrainingTypeKey trainingTypeKey;
+
+
+        @Data
+        public static class TrainingType {
+            protected int numEpisodes;
+            protected int numParallelGamesPlayed;
+
+            protected int tdSteps;
+            protected int numSimulations;
+            protected double rootDirichletAlpha;
+            protected double rootExplorationFraction;
+            double temperatureRoot = 0.0;
+        }
     }
 
 }
