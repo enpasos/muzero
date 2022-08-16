@@ -18,11 +18,6 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoTrainingAndTest trainingAndTest;
 
-
-    @Autowired
-    private GoTrainFastAndTest trainFastAndTest;
-
-
     @Autowired
     private ActionExtractor actionExtractor;
 
@@ -74,9 +69,7 @@ public class Go implements CommandLineRunner {
             case ACTIONS:
                 actionExtractor.run();
                 break;
-            case TRAINFAST:
-                trainFastAndTest.run();
-                break;
+
             case TRAIN:
                 trainingAndTest.run();
                 break;
