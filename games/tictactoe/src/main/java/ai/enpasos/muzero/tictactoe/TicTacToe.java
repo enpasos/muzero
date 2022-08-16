@@ -19,14 +19,10 @@ public class TicTacToe implements CommandLineRunner {
 
     @Autowired
     private TicTacToeTrainingAndTest trainingAndTest;
-    @Autowired
-    private TicTacToeTrainFastAndTest trainFastAndTest;
+
     @Autowired
     private TicTacToeSurpriseExtractor surpriseExtractor;
 
-
-    @Autowired
-    private TicTacToeCycleExtractor cycleExtractor;
 
     @Autowired
     private TicTacToePolicyOnly policyOnly;
@@ -63,15 +59,11 @@ public class TicTacToe implements CommandLineRunner {
             case ACTIONS:
                 actionExtractor.run();
                 break;
-            case TRAINFAST:
-                trainFastAndTest.run();
-                break;
+
             case TRAIN:
                 trainingAndTest.run();
                 break;
-            case CYCLE:
-                cycleExtractor.run();
-                break;
+
             case POLICYONLY:
                 policyOnly.run();
                 break;
