@@ -24,6 +24,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -66,7 +67,7 @@ public class Surprise {
     }
 
 
-    public void handleOldSurprises(Network network) {
+    public void handleOldSurprises( Network network) {
         List<Game> allGames = replayBuffer.getBuffer().getGames();
 
         List<Game> gamesWithOldSurprise = allGames.stream().filter(game -> game.getGameDTO().isSurprised()).collect(Collectors.toList());
@@ -89,7 +90,7 @@ public class Surprise {
             }
         });
 
-        selfPlay.replayGamesFromSeeds(network, gameSeeds);
+        selfPlay.replayGamesFromSeeds( network, gameSeeds);
 
         gamesWithOldSurprise.clear();
         gameSeeds.clear();
@@ -104,8 +105,8 @@ public class Surprise {
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, backInTime).getLeft();
     }
 
-    public void markSurprise() {
-        int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
+    public void markSurprise( ) {
+        int n = config.getNumEpisodes( ) * config.getNumParallelGamesPlayed( );
         List<Game> games = getRelevantGames(n);
         double quantil = this.getSurpriseThresholdAndShowSurpriseStatistics(games);
         getGamesWithSurprisesAboveThresholdBackInTime(games, quantil, 1000).getLeft();
@@ -246,14 +247,14 @@ public class Surprise {
         return stringWriter.toString();
     }
 
-    public void measureValueAndSurprise(Network network, List<Game> games) {
+    public void measureValueAndSurprise( Network network, List<Game> games) {
         games.forEach(Game::beforeReplayWithoutChangingActionHistory);
-        measureValueAndSurpriseMain(network, games);
+        measureValueAndSurpriseMain( network, games);
         games.forEach(Game::afterReplay);
     }
 
-    private void measureValueAndSurpriseMain(Network network, List<Game> games) {
-        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+    private void measureValueAndSurpriseMain( Network network, List<Game> games) {
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed( ));
         List<Game> resultGames = new ArrayList<>();
         int i = 1;
         for (List<Game> gameList : gameBatches) {
@@ -263,9 +264,9 @@ public class Surprise {
 
     }
 
-    public void measureValueAndSurprise(Network network, List<Game> games, int backInTime) {
+    public void measureValueAndSurprise(  Network network, List<Game> games, int backInTime) {
         games.forEach(game -> game.beforeReplayWithoutChangingActionHistory(backInTime));
-        measureValueAndSurpriseMain(network, games);
+        measureValueAndSurpriseMain(   network, games);
         games.forEach(Game::afterReplay);
     }
 

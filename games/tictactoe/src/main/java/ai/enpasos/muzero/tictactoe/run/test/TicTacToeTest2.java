@@ -34,6 +34,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
+
 @Slf4j
 @Component
 public class TicTacToeTest2 {
@@ -50,7 +52,7 @@ public class TicTacToeTest2 {
 
     public boolean test() {
 
-        config.setTemperatureRoot(0.0);
+        config.setTemperatureRoot(  0.0);
 
 
         replayBuffer.init();

@@ -36,6 +36,7 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
 
 @Data
 @Builder
@@ -270,9 +271,9 @@ public class Node {
         if (!this.isRoot()) throw new MuZeroException("functionality not prepared to add noise at non root");
 
         int numOfAllowedActions = this.children.size();
-        double frac = config.getRootExplorationFraction();
+        double frac = config.getRootExplorationFraction( );
         if (frac != 0d) {
-            double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
+            double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha( ), numOfAllowedActions);
 
             for (int i = 0; i < this.children.size(); i++) {
                 Node node = children.get(i);

@@ -166,24 +166,21 @@ public abstract class Game {
         this.getGameDTO().getActions().add(action.getIndex());
     }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, int tdSteps) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps ) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(stateIndex, tdSteps, currentIndex, target);
+            fillTarget(stateIndex, currentIndex, target);
             targets.add(target);
         });
         return targets;
     }
 
-    private void fillTarget(int stateIndex, int tdSteps, int currentIndex, Target target) {
+    private void fillTarget(int stateIndex,  int currentIndex, Target target) {
         int perspective = getPerspective(stateIndex, currentIndex);
 
-        // int bootstrapIndex = currentIndex + tdSteps;
-
-        //double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        double value = calculateValue(currentIndex, perspective );
+        double value = calculateValue(currentIndex, perspective  );
 
         float lastReward = getLastReward(currentIndex);
 
@@ -230,22 +227,29 @@ public abstract class Game {
         return lastReward;
     }
 
+
+
     private double calculateValue(int currentIndex, int perspective ) {
-        double value = 0d;
-        if (currentIndex == this.getGameDTO().getRewards().size() - 1) {
-            value = (double) this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) * Math.pow(this.discount, currentIndex) * perspective;
-        } else if (currentIndex < this.getGameDTO().getRewards().size() - 1) {
-            value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+          int tdSteps = this.getGameDTO().getTdSteps();
+        int startIndex;
+        int bootstrapIndex = currentIndex + tdSteps;
+        double value =  getBootstrapValue(tdSteps, bootstrapIndex);
+        if (config.isNetworkWithRewardHead()) {
+            startIndex = currentIndex;
         } else {
-            value = this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) * perspective;
+            startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
+        }
+        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * perspective;
         }
         return value;
+
     }
 
     private double getBootstrapValue(int tdSteps, int bootstrapIndex) {
         double value;
-        if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-            value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
+        if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
+            value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
         } else {
             value = 0;
         }

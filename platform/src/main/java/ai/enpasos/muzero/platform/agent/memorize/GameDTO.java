@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -55,6 +56,9 @@ public class GameDTO implements Comparable<GameDTO> {
     private long tStateA;
     private long tStateB;
 
+
+    private int tdSteps;
+
     public GameDTO(List<Integer> actions) {
         this();
         this.actions.addAll(actions);
@@ -84,6 +88,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tSurprise = this.tSurprise;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
+        copy.tdSteps = this.tdSteps;
         copy.count = this.count;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
@@ -120,6 +125,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tSurprise = this.tSurprise;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
+        copy.tdSteps = this.tdSteps;
         copy.surprises.addAll(this.surprises);
         copy.actions.addAll(this.actions);
 
@@ -141,6 +147,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTSurprise(this.tSurprise);
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
+        gameBuilder.setTdSteps(this.tdSteps);
         gameBuilder.addAllActions(getActions());
         gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
@@ -165,6 +172,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTSurprise(p.getTSurprise());
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
+        this.setTdSteps(p.getTdSteps());
         this.setActions(p.getActionsList());
         this.setPRandomActionRawSum(p.getPRandomActionRawSum());
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());
