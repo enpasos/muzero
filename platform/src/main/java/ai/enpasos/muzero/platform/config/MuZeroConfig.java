@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
+import java.util.Set;
 
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.FROM_VALUES;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
@@ -400,6 +401,10 @@ public class MuZeroConfig {
 
         return Math.max(w0, w);
 
+    }
+
+    public Set<TrainingTypeKey> getTrainingTypeKeys() {
+        return getConf().getTrainingTypes().keySet();
     }
 
 
