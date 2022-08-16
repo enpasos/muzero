@@ -84,7 +84,7 @@ muzero:
       trainingTypes:
         ENVIRONMENT_EXPLORATION:
           numEpisodes: 1
-          numParallelGamesPlayed: 800
+          numParallelGamesPlayed: 500
 
           tdSteps: 0 # direct bootstrap
 
@@ -102,7 +102,7 @@ muzero:
 
         BEST_EFFORT:
           numEpisodes: 1
-          numParallelGamesPlayed: 200
+          numParallelGamesPlayed: 500
 
           tdSteps: 9 # 9 # size * size
 
