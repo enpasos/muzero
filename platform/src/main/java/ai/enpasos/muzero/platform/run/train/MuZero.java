@@ -155,11 +155,11 @@ public class MuZero {
             int i = 0;
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
-                    config.setTrainingTypeKey(ENVIRONMENT_EXPLORATION);
-                    playGames( params.render, network, trainingStep);
 
-                    config.setTrainingTypeKey(BEST_EFFORT);
-                    playGames (params.render, network, trainingStep);
+                    for(TrainingTypeKey key : config.getTrainingTypeKeys()) {
+                        config.setTrainingTypeKey( key);
+                        playGames( params.render, network, trainingStep);
+                    }
 
                     int n = replayBuffer.getBuffer().getGames().size();
                     int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
