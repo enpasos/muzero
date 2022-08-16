@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
+import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ConstantConditions")
@@ -56,7 +57,7 @@ class SearchManagerTest {
     void searchManagerTest() {
         config.setNetworkBaseDir("./pretrained");
         int n = 200;
-        config.setNumSimulations(n);
+        config.setNumSimulations(  n);
         config.setCVisit(16);
         Game game = config.newGame();
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
@@ -76,8 +77,8 @@ class SearchManagerTest {
                 searchManager.gumbelActionsStart();
                 for (int i = 0; i < 2 * n; i++) {
                     System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
-                    assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
-                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
+                    assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations( )) ||
+                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations( )));
                     searchManager.next();
                 }
             }

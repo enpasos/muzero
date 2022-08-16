@@ -12,8 +12,7 @@ muzero:
       boardHeight: 5 # size
       boardWidth: 5 # size
       actionSpaceSize: 26  # size * size + 1,  place a stone on the board or pass
-      numParallelGamesPlayed: 250
-      numEpisodes: 4
+
 
       # general
       gameClassName: ai.enpasos.muzero.go.config.GoGame
@@ -41,7 +40,7 @@ muzero:
       # windowValueSelfconsistencySize: 30000   <- postponed
       batchSize: 128
       numUnrollSteps: 5
-      tdSteps: 10000 # here equals max moves
+      # tdSteps: 10000 # here equals max moves
       discount: 1.0
       # loss details
       weightDecay: 0.0001
@@ -62,8 +61,6 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numSimulations: 50
-
       numChannels: 192     # 256 in the paper
       numBottleneckChannels: 96
       numResiduals: 12
@@ -73,20 +70,37 @@ muzero:
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
 
-      valueLossWeight: 5.0
+      valueLossWeight: 1.0
 
       maxGameLiveTime: 10000000  # or 40000
       surpriseCheckInterval: 50000
 
-      # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-      # dirichlet noise is added before mcts
-      rootDirichletAlpha: 1.0
-      rootExplorationFraction: 0.25
+      windowSizeStart: 10000
+      windowSizeDynamicFraction: 1.0  # 0 = off,1 = on
+      windowSizeExponent: 0.8
 
-      # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
-      # before drawing the action from the policy target (a little different from the paper)
-      # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-      temperatureRoot: 1.0
-
-      windowSize: 10000
       numberOfTrainingSteps: 100000
+
+      # alternativeActionsWeight: 0.001   # 0.0 means switched off
+
+      trainingTypeKey: ENVIRONMENT_EXPLORATION
+
+      trainingTypes:
+        ENVIRONMENT_EXPLORATION:
+          numEpisodes: 4
+          numParallelGamesPlayed: 250
+
+          tdSteps: 0 # direct bootstrap
+
+          numSimulations: 50
+
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 0.1
+          rootExplorationFraction: 0.1  # 0.0 means switched off
+
+          # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
+          # before drawing the action from the policy target (a little different from the paper)
+          # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
+          temperatureRoot: 1.0   # 0.0 means switched off
+
