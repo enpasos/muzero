@@ -171,16 +171,16 @@ public abstract class Game {
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(stateIndex, currentIndex, target);
+            fillTarget(currentIndex, target);
             targets.add(target);
         });
         return targets;
     }
 
-    private void fillTarget(int stateIndex,  int currentIndex, Target target) {
-        int perspective = getPerspective(stateIndex, currentIndex);
+    private void fillTarget(int currentIndex, Target target) {
 
-        double value = calculateValue(currentIndex, perspective  );
+
+        double value = calculateValue(currentIndex  );
 
         float lastReward = getLastReward(currentIndex);
 
@@ -229,49 +229,42 @@ public abstract class Game {
 
 
 
-    private double calculateValue(int currentIndex, int perspective ) {
-          int tdSteps = this.getGameDTO().getTdSteps();
+    private double calculateValue(int currentIndex ) {
+        int tdSteps = this.getGameDTO().getTdSteps();
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
-        double value =  getBootstrapValue(tdSteps, bootstrapIndex);
+        double value = getBootstrapValue(tdSteps, bootstrapIndex);
         if (config.isNetworkWithRewardHead()) {
             startIndex = currentIndex;
         } else {
             startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
         }
         for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * perspective;
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective( i-currentIndex) ;
         }
         return value;
 
     }
 
+    private double getPerspective(int delta) {
+        boolean perspectiveChange = config.getPlayerMode() == PlayerMode.TWO_PLAYERS;
+        double perspective = 1.0;
+        if (perspectiveChange) {
+            perspective =  Math.pow(-1, delta);
+        }
+        return perspective;
+    }
+
     private double getBootstrapValue(int tdSteps, int bootstrapIndex) {
         double value;
         if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
-            value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps);
+            value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps) ;
         } else {
             value = 0;
         }
         return value;
     }
 
-    private int getPerspective(int stateIndex, int currentIndex) {
-        int perspective;
-        boolean perspectiveChange = config.getPlayerMode() == PlayerMode.TWO_PLAYERS;
-        int currentIndexPerspective;
-        int winnerPerspective;
-        if (perspectiveChange) {
-            currentIndexPerspective = toPlay() == OneOfTwoPlayer.PLAYER_A ? 1 : -1;
-            currentIndexPerspective *= Math.pow(-1d, (double) currentIndex - stateIndex);
-            winnerPerspective = this.getGameDTO().getRewards().size() % 2 == 1 ? 1 : -1;
-        } else {
-            currentIndexPerspective = 1;
-            winnerPerspective = 1;
-        }
-        perspective = winnerPerspective * currentIndexPerspective;
-        return perspective;
-    }
 
     public abstract Player toPlay();
 
