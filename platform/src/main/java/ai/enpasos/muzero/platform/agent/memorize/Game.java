@@ -231,6 +231,9 @@ public abstract class Game {
 
     private double calculateValue(int currentIndex ) {
         int tdSteps = this.getGameDTO().getTdSteps();
+//        if (tdSteps == 0) {
+//            int i = 42;
+//        }
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
@@ -240,6 +243,12 @@ public abstract class Game {
             startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
         }
         for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+//            if (i == this.getGameDTO().getRewards().size() -1 ) {
+//                int j = 42;
+//                if (value != 0d) {
+//                    int k = 42;
+//                }
+//            }
             value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective( i-currentIndex) ;
         }
         return value;
