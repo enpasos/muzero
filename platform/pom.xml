@@ -13,16 +13,6 @@
     <artifactId>platform</artifactId>
 
 
-    <properties>
-        <djl.version>0.18.0-SNAPSHOT</djl.version>
-        <pytorch.version>1.11.0</pytorch.version>
-        <junit.version>5.6.0</junit.version>
-        <lombok.version>1.18.22</lombok.version>
-        <log4j2.version>2.14.1</log4j2.version>
-        <protobuf.version>3.19.2</protobuf.version>
-    </properties>
-
-
 
     <dependencies>
         <dependency>
@@ -86,7 +76,7 @@
         </dependency-->
         <dependency>
             <groupId>ai.djl.pytorch</groupId>
-            <artifactId>pytorch-native-cu113</artifactId>
+            <artifactId>pytorch-native-cu116</artifactId>
         </dependency>
 
         <dependency>
