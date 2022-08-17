@@ -67,7 +67,7 @@
         </dependency>
         <dependency>
             <groupId>ai.djl.pytorch</groupId>
-            <artifactId>pytorch-native-cu113</artifactId>
+            <artifactId>pytorch-native-cu116</artifactId>
         </dependency>
 
         <dependency>
