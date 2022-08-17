@@ -25,8 +25,8 @@
 
         <onnxruntime.version>1.11.0</onnxruntime.version>
 
-        <pytorch.version>1.11.0</pytorch.version>
-        <pytorch-native-cu113.version>${pytorch.version}</pytorch-native-cu113.version>
+        <pytorch.version>1.12.1-SNAPSHOT</pytorch.version>
+        <pytorch-native-cu116.version>${pytorch.version}</pytorch-native-cu116.version>
 
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
@@ -133,8 +133,8 @@
             </dependency>
             <dependency>
                 <groupId>ai.djl.pytorch</groupId>
-                <artifactId>pytorch-native-cu113</artifactId>
-                <version>${pytorch-native-cu113.version}</version>
+                <artifactId>pytorch-native-cu116</artifactId>
+                <version>${pytorch-native-cu116.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
