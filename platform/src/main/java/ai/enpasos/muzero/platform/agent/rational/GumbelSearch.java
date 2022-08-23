@@ -2,6 +2,7 @@ package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -22,6 +23,7 @@ import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStat
 import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
+import static ai.enpasos.muzero.platform.config.TrainingTypeKey.HYBRID;
 
 /**
  * Per game responsible for the rational search
@@ -228,11 +230,11 @@ public class GumbelSearch {
         }
     }
 
-    public void selectAndApplyActionAndStoreSearchStatistics(boolean render, boolean fastRuleLearning, boolean withRandomActions) {
+    public void selectAndApplyActionAndStoreSearchStatistics(ReplayBuffer replayBuffer, boolean render, boolean fastRuleLearning, boolean withRandomActions) {
 
         Action action;
 
-        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
+        storeSearchStatistics(replayBuffer, game, root, fastRuleLearning, config, selectedAction, minMaxStats);
 
         if (fastRuleLearning) {
             action = root.getRandomAction();
@@ -245,7 +247,14 @@ public class GumbelSearch {
                 for (int i = 0; i < policyTarget.length; i++) {
                     raw[i] = Math.log(policyTarget[i]);
                 }
-                double[] p = softmax(raw, config.getTemperatureRoot( ));
+                double temperature = 0.0;
+                if (config.getTrainingTypeKey() == HYBRID) {
+                    // TODO check that this is not used for playout
+                   if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
+                       temperature = config.getTemperatureRoot( ); // TODO dynamic missing
+                   }
+                }
+                double[] p = softmax(raw, temperature);
                 int a = draw(p);
                 action = config.newAction(a);
             }

@@ -22,6 +22,7 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
+import ai.enpasos.muzero.platform.agent.memorize.tree.NodeDTO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -48,6 +49,9 @@ public class ReplayBuffer {
 
     private int batchSize;
     private ReplayBufferDTO buffer;
+
+
+
 
 
     private String currentNetworkName = "NONE";
@@ -216,12 +220,42 @@ public class ReplayBuffer {
         return sum / count;
     }
 
-    public void addGames(List<Game> games) {
-        games.forEach(this::addGame);
+    public void addGames(Model model, List<Game> games) {
+        games.forEach(game ->  addGame(model, game));
     }
 
-    private void addGame(@NotNull Game game) {
+    private void addGame(Model model,  Game game) {
+        String epochStr = model.getProperty("Epoch");
+        if (epochStr == null) {
+            epochStr = "0";
+        }
+        int epoch = Integer.parseInt(epochStr);
         game.getGameDTO().setNetworkName(this.currentNetworkName);
+        this.buffer.getNodeDTO().memorize(game, epoch);
         buffer.addGame(game);
+    }
+
+
+    private Map<Integer, Double> meanValuesLosses = new HashMap<>();
+    public void putMeanValueLoss(int epoch, double meanValueLoss) {
+        meanValuesLosses.put(epoch, meanValueLoss);
+    }
+
+    public Double getMaxMeanValueLoss() {
+        // get max of meanValueLosses values
+        return meanValuesLosses.values().stream().max(Double::compare).orElse(0.0);
+    }
+
+    public double getDynamicRootTemperature() {
+        return config.getTemperatureRoot();
+
+
+//        if (config.getTemperatureRoot()  == 0.0) return 0.0;
+//        // get last entry of meanValueLosses.keySet() values
+//       double value = meanValuesLosses.keySet().stream().max(Integer::compare).map(meanValuesLosses::get).orElse(0.0);
+//       double maxValue = getMaxMeanValueLoss();
+//       if (maxValue == 0) return 0.0;
+//
+//        return config.getTemperatureRoot() * (1 - value / maxValue);
     }
 }

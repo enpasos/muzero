@@ -40,6 +40,7 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -48,6 +49,7 @@ import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
+import static ai.enpasos.muzero.platform.config.TrainingTypeKey.HYBRID;
 
 
 @Slf4j
@@ -75,7 +77,7 @@ public class SelfPlay {
         node.getChildren().forEach(SelfPlay::clean);
     }
 
-    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
+    public static void storeSearchStatistics(ReplayBuffer replayBuffer, Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
 
         game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
@@ -98,13 +100,27 @@ public class SelfPlay {
             double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
-            double[] improvedPolicyWithTemperature = softmax(raw, config.getTemperatureRoot( ));
+            //double[] improvedPolicyWithTemperature = softmax(raw, config.getTemperatureRoot( ));
+
+//            double rootTemperature =  replayBuffer.getDynamicRootTemperature();
+//
+//            if (config.getTrainingTypeKey() == HYBRID) {
+//
+//                if (game.getGameDTO().getActions().size() <= game.getGameDTO().getTHybrid() ) {
+//                    rootTemperature = replayBuffer.getDynamicRootTemperature();
+//                } else {
+//                    rootTemperature = 0.0;
+//                }
+//            }
+//
+//
+//            double[] improvedPolicyWithTemperature = softmax(raw, rootTemperature );
 
             for (int i = 0; i < raw.length; i++) {
                 int action = actions[i];
                 double v = improvedPolicy[i];
-                double vWithTemperature = improvedPolicyWithTemperature[i];
-                root.getChildren().get(i).setImprovedPolicyValue(vWithTemperature);  // for debugging
+              //  double vWithTemperature = improvedPolicyWithTemperature[i];
+             //   root.getChildren().get(i).setImprovedPolicyValue(vWithTemperature);  // for debugging
                 policyTarget[action] = (float) v;
             }
         }
@@ -123,6 +139,9 @@ public class SelfPlay {
             .mapToObj(i -> config.newGame())
             .collect(Collectors.toList());
         gameList.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
+        if (config.getTrainingTypeKey() == HYBRID) {
+            hybridConfiguration();
+        }
         gameList.get(0).setDebug(true);
         gamesDoneList = new ArrayList<>();
     }
@@ -133,7 +152,19 @@ public class SelfPlay {
         gameList = new ArrayList<>();
         gameList.addAll(inputGames);
         gameList.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
+        if (config.getTrainingTypeKey() == HYBRID) {
+            hybridConfiguration();
+        }
         gamesDoneList = new ArrayList<>();
+    }
+
+    private void hybridConfiguration() {
+        gameList.stream().forEach(game -> {
+            game.getGameDTO().setHybrid(true);
+            if (game.getGameDTO().getTHybrid() == -1) {
+                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, 10)); // TODO make configurable
+            }
+        });
     }
 
     public void justReplayWithInitialInference(Network network) {
@@ -269,7 +300,7 @@ public class SelfPlay {
             }
             IntStream.range(0, nGames).forEach(i ->
 
-                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning, withRandomActions)
+                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(replayBuffer, render, fastRuleLearning, withRandomActions)
 
             );
 
@@ -298,7 +329,7 @@ public class SelfPlay {
             Action action = selectActionByDrawingFromDistribution(distributionInput);
 
             game.apply(action);
-            storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
+            storeSearchStatistics(this.replayBuffer, game, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
         });
 
         keepTrackOfOpenGames();
@@ -472,7 +503,7 @@ public class SelfPlay {
     public void playMultipleEpisodes( Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         for (int i = 0; i < config.getNumEpisodes( ); i++) {
             List<Game> games = playGame( network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
-            replayBuffer.addGames(games);
+            replayBuffer.addGames(network.getModel(), games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed( ), i);
         }
@@ -488,7 +519,7 @@ public class SelfPlay {
         }
         log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());
-        replayBuffer.addGames(resultGames);
+        replayBuffer.addGames(network.getModel(), resultGames);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         resultGames.clear();
     }

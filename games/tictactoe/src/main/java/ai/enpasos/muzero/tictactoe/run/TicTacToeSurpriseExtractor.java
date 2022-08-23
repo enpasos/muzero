@@ -43,7 +43,8 @@ public class TicTacToeSurpriseExtractor {
        //   Optional<Game> game = surpriseExtractor.getGameWithHighestSurprise();
 
 
-       Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2,3,1);
+        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+       // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 1, 7, 2, 3, 6);
         game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
 
     }
