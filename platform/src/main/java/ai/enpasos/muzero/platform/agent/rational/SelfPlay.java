@@ -138,7 +138,7 @@ public class SelfPlay {
             .collect(Collectors.toList());
         gameList.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
         if (config.getTrainingTypeKey() == HYBRID) {
-            hybridConfiguration();
+            hybridConfiguration( );
         }
         gameList.get(0).setDebug(true);
         gamesDoneList = new ArrayList<>();
@@ -157,14 +157,17 @@ public class SelfPlay {
     }
 
     private void hybridConfiguration() {
-        gameList.stream().forEach(game -> {
+        int gameLength = replayBuffer.getAverageGameLengthOrOne();
+            hybridConfiguration( gameLength);
+    }
+    private void hybridConfiguration(int gameLength) {
+          gameList.stream().forEach(game -> {
             game.getGameDTO().setHybrid(true);
             if (game.getGameDTO().getTHybrid() == -1) {
-                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, 10)); // TODO make configurable
+                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
             }
         });
     }
-
     public void justReplayWithInitialInference(Network network) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 

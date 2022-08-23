@@ -22,7 +22,6 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
-import ai.enpasos.muzero.platform.agent.memorize.tree.NodeDTO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -51,8 +50,9 @@ public class ReplayBuffer {
     private ReplayBufferDTO buffer;
 
 
-
-
+public int getAverageGameLengthOrOne() {
+return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).average().orElse(1.0);
+}
 
     private String currentNetworkName = "NONE";
     @Autowired

@@ -491,6 +491,13 @@ public class MuZeroConfig {
 
         protected PlayTypeKey playTypeKey;
 
+        public PlayTypeKey getPlayTypeKey() {
+            if (playTypeKey == null) {
+                this.playTypes.entrySet().stream().filter(entry -> entry.getValue().isForTraining()).findFirst().ifPresent(entry -> this.playTypeKey = entry.getKey());
+            }
+        return playTypeKey;
+        }
+
 
         @Data
         public static class PlayType {
