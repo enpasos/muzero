@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.rational.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -59,6 +60,8 @@ public abstract class Game {
     double surpriseMax;
 
     boolean done;
+
+
     GumbelSearch searchManager;
     private Random r;
     private float error;
@@ -231,24 +234,26 @@ public abstract class Game {
 
     private double calculateValue(int currentIndex ) {
         int tdSteps = this.getGameDTO().getTdSteps();
-//        if (tdSteps == 0) {
-//            int i = 42;
-//        }
+        if (gameDTO.isHybrid()) {
+            if (currentIndex < this.getGameDTO().getTHybrid()) {   // TODO check >=
+                tdSteps = 0;
+            }
+        }
+
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
+        if (gameDTO.isHybrid()) {  // TODO test it
+            if (tdSteps == 0) {
+                value = MyL2Loss.NULL_VALUE;  // no value change force
+            }
+        }
         if (config.isNetworkWithRewardHead()) {
             startIndex = currentIndex;
         } else {
             startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
         }
         for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-//            if (i == this.getGameDTO().getRewards().size() -1 ) {
-//                int j = 42;
-//                if (value != 0d) {
-//                    int k = 42;
-//                }
-//            }
             value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective( i-currentIndex) ;
         }
         return value;

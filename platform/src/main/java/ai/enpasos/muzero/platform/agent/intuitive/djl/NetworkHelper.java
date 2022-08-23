@@ -31,7 +31,6 @@ import ai.djl.training.listener.EpochTrainingListener;
 import ai.djl.training.listener.MemoryTrainingListener;
 import ai.djl.training.listener.TimeMeasureTrainingListener;
 import ai.djl.training.loss.IndexLoss;
-import ai.djl.training.loss.L2Loss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
@@ -48,8 +47,6 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
 import java.util.List;
-
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
 
 
 @Slf4j
@@ -159,7 +156,7 @@ public class NetworkHelper {
             loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + 0, 1.0f, 1, false, true), k));
         } else { // EXPECTED
             log.info("k={}: Value L2Loss", k);
-            loss.addLoss(new IndexLoss(new L2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
+            loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
         }
         k++;
 
@@ -176,7 +173,7 @@ public class NetworkHelper {
                 loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + i, gradientScale, 1, false, true), k));
             } else { // EXPECTED
                 log.info("k={}: Value L2Loss", k);
-                loss.addLoss(new IndexLoss(new L2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+                loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             }
             k++;
         }

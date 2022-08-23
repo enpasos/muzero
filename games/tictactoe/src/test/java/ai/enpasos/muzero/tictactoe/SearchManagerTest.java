@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ConstantConditions")

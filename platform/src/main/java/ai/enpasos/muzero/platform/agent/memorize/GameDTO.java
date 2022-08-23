@@ -19,7 +19,6 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -52,7 +51,11 @@ public class GameDTO implements Comparable<GameDTO> {
     private long count;
     private long nextSurpriseCheck;
     private boolean surprised;
+
+
+    private  boolean hybrid;
     private long tSurprise;
+    private long tHybrid = -1;
     private long tStateA;
     private long tStateB;
 
@@ -72,6 +75,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.surprises = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.surprised = false;
+        this.hybrid = false;
     }
 
     public @NotNull String getActionHistoryAsString() {
@@ -85,7 +89,9 @@ public class GameDTO implements Comparable<GameDTO> {
 
         copy.networkName = this.networkName;
         copy.surprised = this.surprised;
+        copy.hybrid = this.hybrid;
         copy.tSurprise = this.tSurprise;
+        copy.tHybrid = this.tHybrid;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
@@ -122,7 +128,9 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.rewards.addAll(this.rewards);
         copy.surprised = this.surprised;
+        copy.hybrid = this.hybrid;
         copy.tSurprise = this.tSurprise;
+        copy.tHybrid = this.tHybrid;
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
@@ -144,7 +152,9 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setCount(this.count);
         gameBuilder.setNextSurpriseCheck(this.nextSurpriseCheck);
         gameBuilder.setSurprised(this.surprised);
+        gameBuilder.setHybrid(this.hybrid);
         gameBuilder.setTSurprise(this.tSurprise);
+        gameBuilder.setTHybrid(this.tHybrid);
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
         gameBuilder.setTdSteps(this.tdSteps);
@@ -169,7 +179,9 @@ public class GameDTO implements Comparable<GameDTO> {
     public void deproto(GameProto p) {
         this.setNetworkName(p.getNetworkName());
         this.setSurprised(p.getSurprised());
+        this.setHybrid(p.getHybrid());
         this.setTSurprise(p.getTSurprise());
+        this.setTHybrid(p.getTHybrid());
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
         this.setTdSteps(p.getTdSteps());
