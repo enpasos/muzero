@@ -62,7 +62,7 @@ class ProtobufferTest {
 
             //replayBuffer.saveGames(games);
 
-            replayBuffer.addGames(games);
+            replayBuffer.addGames(model, games);
             List<Game> gamesOld = replayBuffer.getBuffer().getGames();
             replayBuffer.saveState();
             replayBuffer.loadLatestState();

@@ -159,7 +159,7 @@ public class NetworkHelper {
             loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + 0, 1.0f, 1, false, true), k));
         } else { // EXPECTED
             log.info("k={}: Value L2Loss", k);
-            loss.addLoss(new IndexLoss(new L2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
+            loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
         }
         k++;
 
@@ -176,7 +176,7 @@ public class NetworkHelper {
                 loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + i, gradientScale, 1, false, true), k));
             } else { // EXPECTED
                 log.info("k={}: Value L2Loss", k);
-                loss.addLoss(new IndexLoss(new L2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+                loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             }
             k++;
         }

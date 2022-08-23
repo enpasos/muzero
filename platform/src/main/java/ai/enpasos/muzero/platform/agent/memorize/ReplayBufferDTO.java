@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.memorize;
 
 
+import ai.enpasos.muzero.platform.agent.memorize.tree.NodeDTO;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,8 @@ public class ReplayBufferDTO {
     transient List<Game> games = new ArrayList<>();
     transient MuZeroConfig config;
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
+
+    private NodeDTO nodeDTO = new NodeDTO();
     private String gameClassName;
     private long counter;
     public ReplayBufferDTO(MuZeroConfig config) {

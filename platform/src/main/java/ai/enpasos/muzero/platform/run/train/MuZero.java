@@ -302,6 +302,7 @@ public class MuZero {
                     .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
                     .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                     .sum();
+                replayBuffer.putMeanValueLoss(epoch, meanValueLoss);
                 meanValueLoss += metrics.getMetricNames().stream()
                     .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
                     .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))

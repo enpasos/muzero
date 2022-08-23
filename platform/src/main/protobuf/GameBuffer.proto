@@ -24,6 +24,8 @@ message GameProto {
   int64 count = 8;
   bool surprised = 11;
   int64 tSurprise = 12;
+  bool hybrid = 21;
+  int64 tHybrid = 22;
   int64 tStateA = 13;
   int64 tStateB = 14;
   repeated float root_values_from_initial_inference = 5;
