@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.FROM_VALUES;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
@@ -212,7 +213,7 @@ public class MuZeroConfig {
     }
 
     public int getTdSteps( ) {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey() ).getTdSteps();
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey() ).getTdSteps();
     }
 
     public float getDiscount() {
@@ -269,11 +270,11 @@ public class MuZeroConfig {
     }
 
     public double getRootDirichletAlpha( ) {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).rootDirichletAlpha;
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
     }
 
     public double getRootExplorationFraction( ) {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).rootExplorationFraction;
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootExplorationFraction;
     }
 
     public double getVariableStartFraction() {
@@ -299,11 +300,11 @@ public class MuZeroConfig {
     }
 
     public double getTemperatureRoot( ) {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).temperatureRoot;
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).temperatureRoot;
     }
 
     public void setTemperatureRoot( double temperature) {
-        getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).temperatureRoot = temperature;
+        getConf().getPlayTypes().get(getConf().getPlayTypeKey()).temperatureRoot = temperature;
     }
 
     public double getFractionOfAlternativeActionGames() {
@@ -319,7 +320,7 @@ public class MuZeroConfig {
     }
 
     public int getNumEpisodes() {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).numEpisodes;
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numEpisodes;
     }
 
     public int getInitialGumbelM() {
@@ -327,15 +328,15 @@ public class MuZeroConfig {
     }
 
     public int getNumSimulations( ) {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).numSimulations;
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numSimulations;
     }
 
     public void setNumSimulations( int numSimulations) {
-        getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).setNumSimulations(numSimulations);
+        getConf().getPlayTypes().get(getConf().getPlayTypeKey()).setNumSimulations(numSimulations);
     }
 
     public int getNumParallelGamesPlayed() {
-        return getConf().getTrainingTypes().get(getConf().getTrainingTypeKey()).numParallelGamesPlayed;
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numParallelGamesPlayed;
     }
 
     public int getBroadcastEveryN() {
@@ -382,12 +383,12 @@ public class MuZeroConfig {
 
 
 
-    public TrainingTypeKey getTrainingTypeKey() {
-        return getConf().trainingTypeKey;
+    public PlayTypeKey getTrainingTypeKey() {
+        return getConf().playTypeKey;
     }
 
-    public void setTrainingTypeKey(TrainingTypeKey trainingTypeKey) {
-        getConf().setTrainingTypeKey(trainingTypeKey);
+    public void setPlayTypeKey(PlayTypeKey trainingTypeKey) {
+        getConf().setPlayTypeKey(trainingTypeKey);
     }
 
 
@@ -403,9 +404,14 @@ public class MuZeroConfig {
 
     }
 
-    public Set<TrainingTypeKey> getTrainingTypeKeys() {
-        return getConf().getTrainingTypes().keySet();
+    public Set<PlayTypeKey> getPlayTypeKeysForTraining() {
+        return getConf().getPlayTypes().entrySet().stream()
+            .filter(entry -> entry.getValue().isForTraining())
+            .map(entry -> entry.getKey())
+            .collect(Collectors.toSet());
     }
+
+
 
 
     @Data
@@ -481,13 +487,13 @@ public class MuZeroConfig {
         double[] values;
 
 
-        public Map<TrainingTypeKey, TrainingType> trainingTypes;
+        public Map<PlayTypeKey, PlayType> playTypes;
 
-        protected TrainingTypeKey trainingTypeKey;
+        protected PlayTypeKey playTypeKey;
 
 
         @Data
-        public static class TrainingType {
+        public static class PlayType {
             protected int numEpisodes;
             protected int numParallelGamesPlayed;
 
@@ -496,6 +502,8 @@ public class MuZeroConfig {
             protected double rootDirichletAlpha;
             protected double rootExplorationFraction;
             double temperatureRoot = 0.0;
+
+            boolean forTraining = true;
         }
     }
 

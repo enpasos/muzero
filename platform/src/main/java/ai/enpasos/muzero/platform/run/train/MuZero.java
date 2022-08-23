@@ -35,7 +35,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.run.Surprise;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -51,8 +51,6 @@ import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.BEST_EFFORT;
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
 
 @Slf4j
 @Component
@@ -156,8 +154,8 @@ public class MuZero {
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
 
-                    for(TrainingTypeKey key : config.getTrainingTypeKeys()) {
-                        config.setTrainingTypeKey( key);
+                    for(PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey( key);
                         playGames( params.render, network, trainingStep);
                     }
 
@@ -302,6 +300,7 @@ public class MuZero {
                     .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
                     .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                     .sum();
+                replayBuffer.putMeanValueLoss(epoch, meanValueLoss);
                 meanValueLoss += metrics.getMetricNames().stream()
                     .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
                     .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))

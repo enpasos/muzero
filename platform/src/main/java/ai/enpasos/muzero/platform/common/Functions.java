@@ -41,11 +41,28 @@ public class Functions {
     }
 
     public static double[] softmax(double[] raw, double temperature) {
+        if (temperature == 0) {
+            return softmax0(raw);
+        }
         double max = Arrays.stream(raw).max().getAsDouble();
         raw = Arrays.stream(raw).map(x -> (x - max) / temperature).toArray();
         double[] vs = Arrays.stream(raw).map(Math::exp).toArray();
         double sum = Arrays.stream(vs).sum();
         return Arrays.stream(vs).map(v -> v / sum).toArray();
+    }
+
+    private static double[] softmax0(double[] raw) {
+        double[] result = new double[raw.length];
+        int maxi = 0;
+        double max = - Double.MAX_VALUE;
+        for(int i = 0; i < raw.length; i++) {
+            if (raw[i] > max) {
+                maxi = i;
+                max = raw[i];
+            }
+        }
+        result[maxi] = 1.0;
+        return result;
     }
 
     public static double[] toDouble(float[] ps) {
