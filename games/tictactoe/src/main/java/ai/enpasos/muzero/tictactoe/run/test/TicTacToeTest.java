@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
+import static ai.enpasos.muzero.platform.config.PlayTypeKey.PLAYOUT;
 
 @Slf4j
 @Component
@@ -55,7 +55,8 @@ public class TicTacToeTest {
 
     public boolean test() {
 
-        config.setTemperatureRoot(  0.0);
+      //  config.setTemperatureRoot(  0.0);
+        config.setPlayTypeKey(PLAYOUT);
 
 
         replayBuffer.init();

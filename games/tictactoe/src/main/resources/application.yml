@@ -71,7 +71,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 20000
+      numberOfTrainingSteps: 2000
 
 
       windowSizeStart: 5000
@@ -79,10 +79,16 @@ muzero:
       windowSizeExponent: 0.8  # (sub)linear scaling of window size
       windowSizeSlope: 0.5
 
-      trainingTypeKey:   HYBRID
+      playTypeKey:   HYBRID
 
-      trainingTypes:
+      playTypes:
+        PLAYOUT:
+          forTraining: false
+          numSimulations: 20
+          rootExplorationFraction: 0.0  # 0.0 means switched off
+          temperatureRoot: 0.0   # 0.0 means switched off
         HYBRID:
+          forTraining: true
           numEpisodes: 1
           numParallelGamesPlayed: 800
 
@@ -93,7 +99,7 @@ muzero:
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
           rootDirichletAlpha: 0.5
-          rootExplorationFraction: 0.1  # 0.0 means switched off
+          rootExplorationFraction: 0.0  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (a little different from the paper)
