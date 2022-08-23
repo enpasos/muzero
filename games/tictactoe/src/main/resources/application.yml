@@ -79,8 +79,6 @@ muzero:
       windowSizeExponent: 0.8  # (sub)linear scaling of window size
       windowSizeSlope: 0.5
 
-      playTypeKey:   HYBRID
-
       playTypes:
         PLAYOUT:
           forTraining: false

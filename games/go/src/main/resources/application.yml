@@ -92,26 +92,31 @@ muzero:
 
       # alternativeActionsWeight: 0.001   # 0.0 means switched off
 
-      trainingTypeKey: ENVIRONMENT_EXPLORATION
 
-      trainingTypes:
-        ENVIRONMENT_EXPLORATION:
+      playTypes:
+        PLAYOUT:
+          forTraining: false
+          numSimulations: 50
+          rootExplorationFraction: 0.0  # 0.0 means switched off
+          temperatureRoot: 0.0   # 0.0 means switched off
+        HYBRID:
+          forTraining: true
           numEpisodes: 4
           numParallelGamesPlayed: 250
-
-          tdSteps: 0 # direct bootstrap
+          tdSteps: 10000
 
           numSimulations: 50
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
-          rootDirichletAlpha: 0.1
-          rootExplorationFraction: 0.1  # 0.0 means switched off
+          rootDirichletAlpha: 0.5
+          rootExplorationFraction: 0.0  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (a little different from the paper)
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
           temperatureRoot: 1.0   # 0.0 means switched off
+
 
 
     GO_9:
@@ -195,9 +200,8 @@ muzero:
       maxGameLiveTime: 10000000  # or 40000
       surpriseCheckInterval: 50000
 
-      trainingTypeKey: ENVIRONMENT_EXPLORATION
 
-      trainingTypes:
+      playTypes:
         ENVIRONMENT_EXPLORATION:
           numEpisodes: 4
           numParallelGamesPlayed: 250
