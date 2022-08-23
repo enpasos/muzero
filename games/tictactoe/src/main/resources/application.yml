@@ -71,7 +71,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 2500
+      numberOfTrainingSteps: 2000
 
 
       windowSizeStart: 5000
@@ -97,7 +97,7 @@ muzero:
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
           rootDirichletAlpha: 0.5
-          rootExplorationFraction: 0.0  # 0.0 means switched off
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (a little different from the paper)
