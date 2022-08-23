@@ -11,9 +11,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,8 +20,7 @@ import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInf
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.HYBRID;
+import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 /**
  * Per game responsible for the rational search

@@ -26,7 +26,6 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -48,8 +47,7 @@ import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.HYBRID;
+import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 
 @Slf4j
@@ -104,7 +102,7 @@ public class SelfPlay {
 
 //            double rootTemperature =  replayBuffer.getDynamicRootTemperature();
 //
-//            if (config.getTrainingTypeKey() == HYBRID) {
+//            if (config.getPlayTypeKey() == HYBRID) {
 //
 //                if (game.getGameDTO().getActions().size() <= game.getGameDTO().getTHybrid() ) {
 //                    rootTemperature = replayBuffer.getDynamicRootTemperature();

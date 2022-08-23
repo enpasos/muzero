@@ -31,7 +31,6 @@ import ai.djl.training.listener.EpochTrainingListener;
 import ai.djl.training.listener.MemoryTrainingListener;
 import ai.djl.training.listener.TimeMeasureTrainingListener;
 import ai.djl.training.loss.IndexLoss;
-import ai.djl.training.loss.L2Loss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
@@ -48,8 +47,6 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
 import java.util.List;
-
-import static ai.enpasos.muzero.platform.config.TrainingTypeKey.ENVIRONMENT_EXPLORATION;
 
 
 @Slf4j
