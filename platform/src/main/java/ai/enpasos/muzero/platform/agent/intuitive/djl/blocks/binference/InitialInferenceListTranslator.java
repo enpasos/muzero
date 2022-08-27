@@ -27,6 +27,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -108,7 +109,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 } else {
                     double scale = config.getValueSpan() / 2.0;
                     return NetworkIO.builder()
-                        .value(scale * vArray[i])
+                        .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
                         .policyValues(ps)
                         .logits(logits2)
                         .build();

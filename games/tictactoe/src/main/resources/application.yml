@@ -91,6 +91,7 @@ muzero:
           numParallelGamesPlayed: 800
 
           tdSteps: 9 # 9 # size * size
+          isForTdStep0NoValueTraining: true
 
           numSimulations: 20
 
