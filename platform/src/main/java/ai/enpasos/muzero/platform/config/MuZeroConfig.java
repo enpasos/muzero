@@ -339,6 +339,10 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numParallelGamesPlayed;
     }
 
+    public boolean isForTdStep0NoValueTraining() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0NoValueTraining;
+    }
+
     public int getBroadcastEveryN() {
         return getConf().broadcastEveryN;
     }
@@ -503,6 +507,8 @@ public class MuZeroConfig {
         public static class PlayType {
             protected int numEpisodes;
             protected int numParallelGamesPlayed;
+
+            protected boolean forTdStep0NoValueTraining = false;
 
             protected int tdSteps;
             protected int numSimulations;

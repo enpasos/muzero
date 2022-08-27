@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
@@ -42,10 +44,18 @@ public class GoSurpriseExtractor {
     @SuppressWarnings("squid:S125")
     public void run() {
 
-        Game game = surpriseExtractor.getGame();
+//        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(
+//        12, 17, 11, 13, 7, 8, 6, 16, 18, 19, 1, 23, 0, 15, 20, 21, 3, 9, 10, 4, 2, 5, 6, 11, 0, 10, 7, 1, 2, 0, 3, 12, 6, 7, 2, 3, 25
+//        );
+        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(
+            12, 16, 18, 20, 7, 24
+        );
 
-        System.out.println(surpriseExtractor.listValuesForTrainedNetworks(game));
 
+
+        //Game game = surpriseExtractor.getGame();
+
+        game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
     }
 
 }

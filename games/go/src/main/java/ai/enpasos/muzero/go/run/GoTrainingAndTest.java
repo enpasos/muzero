@@ -30,10 +30,11 @@ public class GoTrainingAndTest {
 
     @SuppressWarnings("squid:S125")
     public void run() {
-       rmDir(config.getOutputDir());
+       // rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
-            //.withoutFill(true)
+            .withoutFill(true)
+          //  .render(true)
             .build());
     }
 

@@ -46,6 +46,7 @@ public class GoAdapter {
         List<NDArray> list = new ArrayList<>();
 
         Player player = gameState.getNextPlayer();
+     //   System.out.println("player = " + player);
 
         // values in the range [0, 1]
         // 8 historic boards needed

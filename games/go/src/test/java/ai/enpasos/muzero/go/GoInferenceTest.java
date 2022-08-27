@@ -50,5 +50,16 @@ class GoInferenceTest {
 
     }
 
+    @Test
+    void aiDecisionFastLongerGame2() {
+
+        List<Integer> actions = List.of(12, 16);
+
+        int nextMoveInt = inference.aiDecision(actions, false, "./pretrained",  DeviceType.GPU);
+
+        assertTrue(nextMoveInt >= 0);
+
+    }
+
 
 }

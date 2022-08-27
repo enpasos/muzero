@@ -235,7 +235,7 @@ public abstract class Game {
     private double calculateValue(int currentIndex ) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (gameDTO.isHybrid()) {
-            if (currentIndex < this.getGameDTO().getTHybrid()) {   // TODO check >=
+            if (currentIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             }
         }
@@ -243,9 +243,10 @@ public abstract class Game {
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        if (gameDTO.isHybrid()) {  // TODO test it
+        if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining()) {  // TODO test it
             if (tdSteps == 0) {
                 value = MyL2Loss.NULL_VALUE;  // no value change force
+                return value;
             }
         }
         if (config.isNetworkWithRewardHead()) {
