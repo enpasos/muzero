@@ -231,7 +231,9 @@ return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getAct
         }
         int epoch = Integer.parseInt(epochStr);
         game.getGameDTO().setNetworkName(this.currentNetworkName);
-        this.buffer.getNodeDTO().memorize(game, epoch);
+        if (config.isRecordVisitsOn()) {
+            this.buffer.getNodeDTO().memorize(game, epoch);
+        }
         buffer.addGame(game);
     }
 

@@ -354,7 +354,11 @@ public class MuZeroConfig {
 
     public boolean isSurpriseHandlingOn() {
         return getConf().isSurpriseHandlingOn();
+}
+    public boolean isRecordVisitsOn() {
+        return getConf().recordVisitsOn;
     }
+
 
     public int getCVisit() {
         return getConf().cVisit;
@@ -420,8 +424,9 @@ public class MuZeroConfig {
 
     @Data
     public static class Conf {
-        protected boolean surpriseHandlingOn;
-        protected boolean extraValueTrainingOn;
+        protected boolean recordVisitsOn = false;
+        protected boolean surpriseHandlingOn = false;
+        protected boolean extraValueTrainingOn = false;
         protected double komi;
         protected double maxKomi = Double.MAX_VALUE;
         protected String modelName;

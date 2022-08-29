@@ -115,13 +115,14 @@ public class ReplayBufferIO {
                             zos.write(input);
                             zos.closeEntry();
                         }
-
-                        input = encodeDTO(dto.getNodeDTO());
-                        ZipEntry entry = new ZipEntry( "nodetree.json");
-                        entry.setSize(input.length);
-                        zos.putNextEntry(entry);
-                        zos.write(input);
-                        zos.closeEntry();
+                        if (config.isRecordVisitsOn()) {
+                            input = encodeDTO(dto.getNodeDTO());
+                            ZipEntry entry = new ZipEntry("nodetree.json");
+                            entry.setSize(input.length);
+                            zos.putNextEntry(entry);
+                            zos.write(input);
+                            zos.closeEntry();
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -157,13 +158,14 @@ public class ReplayBufferIO {
                             zos.closeEntry();
 
                         }
-
-                        input = encodeDTO(dto.getNodeDTO());
-                        ZipEntry entry = new ZipEntry( "nodetree.json");
-                        entry.setSize(input.length);
-                        zos.putNextEntry(entry);
-                        zos.write(input);
-                        zos.closeEntry();
+                        if (config.isRecordVisitsOn()) {
+                            input = encodeDTO(dto.getNodeDTO());
+                            ZipEntry entry = new ZipEntry("nodetree.json");
+                            entry.setSize(input.length);
+                            zos.putNextEntry(entry);
+                            zos.write(input);
+                            zos.closeEntry();
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -240,6 +242,7 @@ public class ReplayBufferIO {
                     while ((entry = zis.getNextEntry()) != null) {
                         String filename = entry.getName();
                         if (filename.endsWith(".dat")) {
+                            log.info("load: " + filename);
                             byte[] bytes = zis.readAllBytes();
 
                             ReplayBufferProto proto = ReplayBufferProto.parseFrom(bytes);
@@ -251,14 +254,15 @@ public class ReplayBufferIO {
                             }
 
                         }
-
-                        if (filename.equals("nodetree.json")) {
-                            byte[] raw = zis.readAllBytes();
-                            NodeDTO dtoHere = decodeNodeDTO(raw);
-                            dto.setNodeDTO(dtoHere);
+                        if (config.isRecordVisitsOn()) {
+                            if (filename.equals("nodetree.json")) {
+                                byte[] raw = zis.readAllBytes();
+                                NodeDTO dtoHere = decodeNodeDTO(raw);
+                                dto.setNodeDTO(dtoHere);
+                            }
                         }
                     }
-                    dto.rebuildGames(config);
+                    dto.rebuildGames(config, false);
                 }
             }
         } catch (Exception e) {
@@ -268,6 +272,7 @@ public class ReplayBufferIO {
                     while ((entry = zis.getNextEntry()) != null) {
                         String filename = entry.getName();
                         if (filename.endsWith(".dat")) {
+                            log.info("load: " + filename);
                             byte[] raw = zis.readAllBytes();
                             ReplayBufferDTO dtoHere = decodeReplayBufferDTO(raw);
                             if (dto == null) {
@@ -276,13 +281,15 @@ public class ReplayBufferIO {
                                 dto.getInitialGameDTOList().addAll(dtoHere.getInitialGameDTOList());
                             }
                         }
-                        if (filename.equals("nodetree.json")) {
-                            byte[] raw = zis.readAllBytes();
-                            NodeDTO dtoHere = decodeNodeDTO(raw);
-                            dto.setNodeDTO(dtoHere);
+                        if (config.isRecordVisitsOn()) {
+                            if (filename.equals("nodetree.json")) {
+                                byte[] raw = zis.readAllBytes();
+                                NodeDTO dtoHere = decodeNodeDTO(raw);
+                                dto.setNodeDTO(dtoHere);
+                            }
                         }
                     }
-                    dto.rebuildGames(config);
+                    dto.rebuildGames(config, false);
                 }
             } catch (Exception e2) {
                 log.warn(e2.getMessage());
