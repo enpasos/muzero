@@ -24,12 +24,14 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -41,12 +43,17 @@ public class ReplayBufferDTO {
     transient MuZeroConfig config;
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
 
-    private NodeDTO nodeDTO = new NodeDTO();
+    transient
+    private NodeDTO nodeDTO;
+
     private String gameClassName;
     private long counter;
     public ReplayBufferDTO(MuZeroConfig config) {
         this.gameClassName = config.getGameClassName();
         this.config = config;
+        if (config.isRecordVisitsOn()) {
+            nodeDTO = new NodeDTO();
+        }
     }
 
     public static ReplayBufferDTO deproto(ReplayBufferProto proto, MuZeroConfig config) {
@@ -113,12 +120,13 @@ public class ReplayBufferDTO {
 
     }
 
-    public void rebuildGames(MuZeroConfig config) {
+    public void rebuildGames(MuZeroConfig config, boolean withReplay) {
+        log.info("rebuildGames"  );
         games = new ArrayList<>();
         for (GameDTO gameDTO : getInitialGameDTOList()) {
             Game game = config.newGame();
             game.setGameDTO(gameDTO);
-            if (!game.terminal()) {
+            if (!game.terminal() && withReplay) {
                 game.replayToPosition(game.actionHistory().getActionIndexList().size());
             }
             games.add(game);
