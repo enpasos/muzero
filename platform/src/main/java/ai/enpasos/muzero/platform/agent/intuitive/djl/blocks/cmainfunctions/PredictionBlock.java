@@ -21,6 +21,7 @@ import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.NetworkType;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.config.ValueHeadType;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +32,18 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getValues().length, config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize(), config.getValueHeadType());
+        this(config.getNetworkType(), config.getValues().length, config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize(), config.getValueHeadType());
     }
 
-    public PredictionBlock(int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
+    public PredictionBlock(NetworkType networkType, int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
 
-        SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt()
-            .add(Conv1x1LayerNormRelu.builder().channels(1).build())
-            .add(BlocksExt.batchFlattenBlock())
-            .add(LinearExt.builder()
+
+        SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt();
+        if (networkType == NetworkType.CON) {
+            valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+                .add(BlocksExt.batchFlattenBlock());
+        }
+        valueHead.add(LinearExt.builder()
                 .setUnits(numChannels) // config.getNumChannels())  // originally 256
                 .build())
             .add(ActivationExt.reluBlock());
@@ -57,10 +61,13 @@ public class PredictionBlock extends MySequentialBlock {
             }
         }
 
-        SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt()
-            .add(Conv1x1LayerNormRelu.builder().channels(2).build())
-            .add(BlocksExt.batchFlattenBlock())
-            .add(LinearExt.builder()
+        SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt();
+        if (networkType == NetworkType.CON) {
+            policyHead
+                .add(Conv1x1LayerNormRelu.builder().channels(2).build())
+                .add(BlocksExt.batchFlattenBlock());
+        }
+        policyHead.add(LinearExt.builder()
                 .setUnits(actionSpaceSize)
                 .build());
 

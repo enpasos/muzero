@@ -49,11 +49,20 @@ public class RescaleBlockExt extends AbstractBlock implements OnnxIO {
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDArray current = inputs.head();
 
+
         // Scale to the range [0, 1]  (same range as the action input)
         Shape origShape = current.getShape();
-        Shape shape2 = new Shape(origShape.get(0), origShape.get(1) * origShape.get(2) * origShape.get(3));
+        Shape shape2 = null;
+        Shape shape3 = null;
+        if (origShape.dimension() == 4) {
+            shape2 = new Shape(origShape.get(0), origShape.get(1) * origShape.get(2) * origShape.get(3));
+            shape3 = new Shape(origShape.get(0), 1, 1, 1);
+        } else {
+            shape2 = new Shape(origShape.get(0), origShape.get(1));
+            shape3 = new Shape(origShape.get(0), 1);
+        }
         NDArray current2 = current.reshape(shape2);
-        Shape shape3 = new Shape(origShape.get(0), 1, 1, 1);
+
         NDArray min2 = current2.min(new int[]{1}, true).reshape(shape3);
         NDArray max2 = current2.max(new int[]{1}, true).reshape(shape3);
 
