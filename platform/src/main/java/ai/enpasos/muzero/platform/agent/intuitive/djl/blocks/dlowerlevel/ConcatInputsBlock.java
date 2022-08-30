@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel;
 
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.Shape;
@@ -27,6 +28,9 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
+import ai.enpasos.muzero.platform.common.MuZeroException;
+import ai.enpasos.muzero.platform.config.NetworkType;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
 import org.jetbrains.annotations.NotNull;
@@ -36,13 +40,17 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
+import static ai.enpasos.mnist.blocks.ext.BlocksExt.batchFlatten;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
 public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
 
-    public ConcatInputsBlock() {
+    NetworkType networkType;
+
+    public ConcatInputsBlock(NetworkType networkType) {
         super(MYVERSION);
+        this.networkType = networkType;
     }
 
 
@@ -51,18 +59,31 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
      */
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-        return new NDList(NDArrays.concat(inputs, 1));
+        NDArray state = inputs.get(0);
+        NDArray externalInput = inputs.get(1);
+        if (networkType == NetworkType.FC) {
+            externalInput =  batchFlatten(externalInput);
+        }
+
+        return new NDList(NDArrays.concat(new NDList(state, externalInput), 1));
     }
 
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         long size = 0;
-        for (Shape inputShape : inputShapes) {
-            size += inputShape.get(1);
-        }
         Shape[] shapes = new Shape[1];
-        shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));
+        if (networkType == NetworkType.CON) {
+            for (Shape inputShape : inputShapes) {
+                size += inputShape.get(1);
+            }
+
+            shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));
+        } else {
+            size += inputShapes[0].get(1);
+            size += inputShapes[1].get(2) * inputShapes[1].get(3);
+            shapes[0] = new Shape(inputShapes[0].get(0), size);
+        }
 
         return shapes;
 

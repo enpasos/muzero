@@ -17,12 +17,15 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
+import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv3x3;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.NetworkType;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
@@ -37,30 +40,48 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-        this(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
+            this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
+     }
+
+
+//    public void initializeChildBlocks(
+//        NDManager manager, DataType dataType, Shape... inputShapes) {
+//        super.initializeChildBlocks(manager, dataType, inputShapes );
+//    }
+
+
+    public RepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int numHiddenStateChannels, int broadcastEveryN) {
+        if (networkType == NetworkType.CON) {
+            this.add(Conv3x3.builder().channels(numChannels).build())
+
+                .add(ResidualTower.builder()
+                    .numResiduals(numResiduals)
+                    .numChannels(numChannels)
+                    .numBottleneckChannels(numBottleneckChannels)
+                    .broadcastEveryN(broadcastEveryN)
+
+                    .height(height)
+                    .width(width)
+                    .build())
+
+                // compressing hidden state (not in muzero paper)
+                .add(Conv1x1LayerNormRelu.builder().channels(numHiddenStateChannels).build())
+
+                .add(new RescaleBlockExt());
+        }
+        if (networkType == NetworkType.FC) {
+            this.add(BlocksExt.batchFlattenBlock());
+            this.add(LinearExt.builder().setUnits(numChannels).build())
+
+                .add(ResidualTowerFC.builder()
+                    .numResiduals(numResiduals)
+                    .numChannels(numChannels)
+                    .build())
+
+                // compressing hidden state (not in muzero paper)
+                .add(LinearExt.builder().setUnits(numHiddenStateChannels*height*width).build())
+
+                .add(new RescaleBlockExt());
+        }
     }
-
-
-    public RepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int numHiddenStateChannels, int broadcastEveryN) {
-
-
-        this.add(Conv3x3.builder().channels(numChannels).build())
-
-            .add(ResidualTower.builder()
-                .numResiduals(numResiduals)
-                .numChannels(numChannels)
-                .numBottleneckChannels(numBottleneckChannels)
-                .broadcastEveryN(broadcastEveryN)
-
-                .height(height)
-                .width(width)
-                .build())
-
-            // compressing hidden state (not in muzero paper)
-            .add(Conv1x1LayerNormRelu.builder().channels(numHiddenStateChannels).build())
-
-            .add(new RescaleBlockExt());
-
-    }
-
 }
