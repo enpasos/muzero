@@ -43,8 +43,7 @@ public class ReplayBufferDTO {
     transient MuZeroConfig config;
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
 
-    transient
-    private NodeDTO nodeDTO;
+    private transient NodeDTO nodeDTO;
 
     private String gameClassName;
     private long counter;

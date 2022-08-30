@@ -251,13 +251,5 @@ return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getAct
     public double getDynamicRootTemperature() {
         return config.getTemperatureRoot();
 
-
-//        if (config.getTemperatureRoot()  == 0.0) return 0.0;
-//        // get last entry of meanValueLosses.keySet() values
-//       double value = meanValuesLosses.keySet().stream().max(Integer::compare).map(meanValuesLosses::get).orElse(0.0);
-//       double maxValue = getMaxMeanValueLoss();
-//       if (maxValue == 0) return 0.0;
-//
-//        return config.getTemperatureRoot() * (1 - value / maxValue);
     }
 }

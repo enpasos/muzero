@@ -127,8 +127,6 @@ public class GoGame extends ZeroSumGame {
 
         NDArray stacked = NDArrays.stack(new NDList(ndArrayList));
 
-       // System.out.println(Arrays.toString(stacked.toFloatArray()));
-
         return new Observation(stacked);
     }
 

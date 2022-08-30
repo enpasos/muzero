@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,10 @@ import java.util.stream.IntStream;
 @Slf4j
 public abstract class Game {
 
-
+    @Builder.Default
+    protected boolean recordValueImprovements = false;
+    @Builder.Default
+    List<Double> valueImprovements = new ArrayList<>();
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
@@ -60,6 +64,7 @@ public abstract class Game {
     double surpriseMax;
 
     boolean done;
+
 
 
     GumbelSearch searchManager;
@@ -243,7 +248,7 @@ public abstract class Game {
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining()) {  // TODO test it
+        if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining()) {
             if (tdSteps == 0) {
                 value = MyL2Loss.NULL_VALUE;  // no value change force
                 return value;
