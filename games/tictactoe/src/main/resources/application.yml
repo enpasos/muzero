@@ -18,6 +18,7 @@ muzero:
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
       valueHeadType: EXPECTED # DISTRIBUTION
+      networkType: CON  # CON or FC
       networkWithRewardHead: false
       withRewardHead: false
       values: [ -1,0,1 ]
@@ -71,7 +72,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 2000
+      numberOfTrainingSteps: 2000  #  5000 for FC
 
 
       windowSizeStart: 5000

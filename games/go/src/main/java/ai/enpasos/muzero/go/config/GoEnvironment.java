@@ -78,7 +78,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         float reward = 0f;
 
         if (terminal()) {
-            setResult(GameResult.apply(state.getBoard(), (float) this.getConfig().getKomi()));
+            setResult(GameResult.apply(state.getBoard(), 6.5f));
             log.debug(getResult().toString());
             reward = (float) getResult().blackPoints() - getResult().whitePoints();
             if (thisPlayer == Player.WHITE_PLAYER) {

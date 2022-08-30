@@ -26,10 +26,14 @@ import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
+import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationBlock;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.NetworkType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +41,8 @@ import java.util.ArrayList;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock.newDynamicsBlock;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
+import static ai.enpasos.muzero.platform.config.NetworkType.CON;
+import static ai.enpasos.muzero.platform.config.NetworkType.FC;
 
 
 public class MuZeroBlock extends AbstractBlock {
@@ -44,6 +50,8 @@ public class MuZeroBlock extends AbstractBlock {
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
+
+    private final LambdaBlockExt actionFlattenBlock;
     private final MuZeroConfig config;
 
 
@@ -55,6 +63,7 @@ public class MuZeroBlock extends AbstractBlock {
         representationBlock = this.addChildBlock("Representation", new RepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
+        actionFlattenBlock = (LambdaBlockExt) this.addChildBlock("ActionFlatten", BlocksExt.batchFlattenBlock());
 
         inputNames = new ArrayList<>();
         inputNames.add("observation");
@@ -83,7 +92,16 @@ public class MuZeroBlock extends AbstractBlock {
 
             // recurrent Inference
             NDArray action = inputs.get(k);
-            NDList dynamicsResult = dynamicsBlock.forward(parameterStore, new NDList(stateWithScaledBackpropagation, action), training, params);
+            NDList dynamicIn = null;
+//            if (config.getNetworkType() == FC) {
+//                action = this.actionFlattenBlock.forward(parameterStore,  new NDList(action), training, params).get(0);
+//                dynamicIn =  new NDList(stateWithScaledBackpropagation.concat(action, 1));
+//            } else {
+                dynamicIn =  new NDList(stateWithScaledBackpropagation, action);
+//            }
+
+            NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
+
             state = dynamicsResult.get(0);
 
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
@@ -108,8 +126,14 @@ public class MuZeroBlock extends AbstractBlock {
             // recurrent Inference
             Shape stateShape = stateOutputShapes[0];
             Shape actionShape = inputShapes[k];
-            Shape dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-
+            Shape dynamicsInputShape = null;
+            if(stateShape.dimension() == 4) {
+                 dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
+            } else if(stateShape.size() == 2) {
+                 dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1));
+            } else {
+                throw new MuZeroException("wrong input shape");
+            }
             stateOutputShapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
             outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapes));
 
@@ -133,14 +157,29 @@ public class MuZeroBlock extends AbstractBlock {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
+        actionFlattenBlock.initialize(manager, dataType, inputShapes[1]);
         representationBlock.initialize(manager, dataType, inputShapes[0]);
-        Shape[] stateOutputShapes = representationBlock.getOutputShapes(inputShapes);
+  //      Shape[] stateOutputShapes = representationBlock.getOutputShapes(inputShapes);
+        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[] {inputShapes[0]});
         predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);
 
         Shape stateShape = stateOutputShapes[0];
         Shape actionShape = inputShapes[1];
-        Shape dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+//        Shape dynamicsInputShape = null;
+//        if (config.getNetworkType() == CON) {
+//            dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
+//        } else {
+//            if (stateShape.dimension() == 4) {
+//                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1) * stateShape.get(2) * stateShape.get(3));
+//            } else if (stateShape.dimension() == 2) {
+//                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1) );
+//            } else {
+//                throw new MuZeroException("stateShape has unexpected dimensions");
+//            }
+//        }
+//
+//        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+        dynamicsBlock.initialize(manager, dataType, stateShape, actionShape);
     }
 
 
