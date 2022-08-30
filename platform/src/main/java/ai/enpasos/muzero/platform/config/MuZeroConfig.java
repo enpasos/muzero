@@ -233,10 +233,6 @@ public class MuZeroConfig {
         return getConf().lrInit;
     }
 
-//    public float getAlternativeActionsWeight() {
-//        return getConf().alternativeActionsWeight;
-//    }
-
     public boolean isAbsorbingStateDropToZero() {
         return getConf().absorbingStateDropToZero;
     }
@@ -466,7 +462,6 @@ public class MuZeroConfig {
         protected float valueLossWeight;
         protected float lrInit;
 
-      //  protected float alternativeActionsWeight;
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;

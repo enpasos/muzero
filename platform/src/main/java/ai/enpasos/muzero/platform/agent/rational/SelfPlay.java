@@ -98,27 +98,11 @@ public class SelfPlay {
             double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
-            //double[] improvedPolicyWithTemperature = softmax(raw, config.getTemperatureRoot( ));
 
-//            double rootTemperature =  replayBuffer.getDynamicRootTemperature();
-//
-//            if (config.getPlayTypeKey() == HYBRID) {
-//
-//                if (game.getGameDTO().getActions().size() <= game.getGameDTO().getTHybrid() ) {
-//                    rootTemperature = replayBuffer.getDynamicRootTemperature();
-//                } else {
-//                    rootTemperature = 0.0;
-//                }
-//            }
-//
-//
-//            double[] improvedPolicyWithTemperature = softmax(raw, rootTemperature );
 
             for (int i = 0; i < raw.length; i++) {
                 int action = actions[i];
                 double v = improvedPolicy[i];
-              //  double vWithTemperature = improvedPolicyWithTemperature[i];
-             //   root.getChildren().get(i).setImprovedPolicyValue(vWithTemperature);  // for debugging
                 policyTarget[action] = (float) v;
             }
         }
@@ -467,9 +451,6 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-//    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
-//        runEpisode(network, render, fastRulesLearning, true, justInitialInferencePolicy, withRandomActions);
-//    }
 
     private void runEpisode( Network network, boolean render, boolean fastRulesLearning,  boolean justInitialInferencePolicy, boolean withRandomActions) {
         boolean untilEnd = true;
