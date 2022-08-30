@@ -88,11 +88,7 @@ public class Network {
         }
 
 
-        String komiStrFromModel = model.getProperty("komi");
-        if (komiStrFromModel != null) {
-            log.info("komi = " + komiStrFromModel);
-            this.config.setKomi(Double.parseDouble(komiStrFromModel));
-        }
+
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");

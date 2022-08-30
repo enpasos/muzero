@@ -104,17 +104,6 @@ public class MuZeroConfig {
         return this.games.get(this.activeGame);
     }
 
-    public double getKomi() {
-        return getConf().komi;
-    }
-
-    public void setKomi(double komi) {
-        getConf().setKomi(komi);
-    }
-
-    public double getMaxKomi() {
-        return getConf().maxKomi;
-    }
 
     public String getModelName() {
         return getConf().modelName;
@@ -281,6 +270,10 @@ public class MuZeroConfig {
         return getConf().knownBoundsType;
     }
 
+    public NetworkType getNetworkType() {
+        return getConf().networkType;
+    }
+
     public double getGumbelScale() {
         return getConf().gumbelScale;
     }
@@ -423,8 +416,11 @@ public class MuZeroConfig {
         protected boolean recordVisitsOn = false;
         protected boolean surpriseHandlingOn = false;
         protected boolean extraValueTrainingOn = false;
-        protected double komi;
-        protected double maxKomi = Double.MAX_VALUE;
+//        protected double komi;
+//        protected double maxKomi = Double.MAX_VALUE;
+
+
+        protected NetworkType networkType = NetworkType.CON;
         protected String modelName;
         protected String gameClassName;
         protected String actionClassName;
