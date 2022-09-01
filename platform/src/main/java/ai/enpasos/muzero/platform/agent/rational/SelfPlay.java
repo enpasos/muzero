@@ -36,7 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
@@ -79,6 +81,12 @@ public class SelfPlay {
 
 
         game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
+
+        if (game.isRecordValueImprovements()) {
+//            double vImprovement = root.getVmix() - root.getValueFromInitialInference();
+//            vImprovement = vImprovement * vImprovement;
+            game.getValueImprovements().add(10d);   // a marker
+        }
 
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
@@ -211,7 +219,13 @@ public class SelfPlay {
 
     @SuppressWarnings("squid:S3776")
     public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
-        int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
+
+        Game justOneOfTheGames = justOneOfTheGames();
+        justOneOfTheGames.setRecordValueImprovements(true);
+
+        int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames);
+
+
 
         List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
         gamesToApplyAction.forEach(game -> game.setActionApplied(false));
@@ -486,6 +500,38 @@ public class SelfPlay {
         for (int i = 0; i < config.getNumEpisodes( ); i++) {
             List<Game> games = playGame( network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
             replayBuffer.addGames(network.getModel(), games);
+
+            games.stream().filter(Game::isRecordValueImprovements).forEach(game ->  {
+                System.out.println("### valueImprovement ... ");
+                game.getValueImprovements().stream().forEach(v ->
+                    System.out.println( NumberFormat.getNumberInstance().format(v))
+                    );
+                System.out.println("### valueImprovementDelta ... ");
+                double lastV = 0d;
+                boolean first = true;
+                double vDelta = 0d;
+                for(Double v : game.getValueImprovements()) {
+                    if (first || lastV == 10) {
+                        first = false;
+                        vDelta = 0d;
+                    } else {
+                        vDelta = v - lastV;
+                        if (v == 10) {
+                            vDelta = 10; // marker
+                        }
+                    }
+                    System.out.println(NumberFormat.getNumberInstance().format(vDelta*vDelta));
+                    lastV = v;
+                }
+
+                System.out.println("### actions ... ");
+                System.out.println(game.getGameDTO().getActions().toString());
+                System.out.println("###");
+                System.out.println("###");
+                System.out.println("###");
+                System.out.println("###");
+                System.out.println("###");
+            });
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed( ), i);
         }

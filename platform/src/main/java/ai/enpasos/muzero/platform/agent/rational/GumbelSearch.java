@@ -187,6 +187,13 @@ public class GumbelSearch {
         }
 
         backUp(networkOutput.getValue(), node.getToPlay(), this.config.getDiscount());
+
+        if (game.isRecordValueImprovements()) {
+            double vImprovement = root.getVmix() - root.getValueFromInitialInference();
+            vImprovement = vImprovement * vImprovement;
+            game.getValueImprovements().add(vImprovement);
+        }
+
     }
 
 

@@ -70,7 +70,7 @@ public class Node {
     public Node(MuZeroConfig config, double prior, boolean root) {
         this(config, prior);
         this.root = root;
-        this.valueFromInitialInference = 100000f; // to produce a high error if not changed
+        this.valueFromInitialInference = 0f;
 
     }
 
@@ -81,7 +81,7 @@ public class Node {
         this.children = new ArrayList<>();
         hiddenState = null;
         reward = 0.0;
-        this.valueFromInitialInference = 100000f;  // to produce a high error if not changed
+        this.valueFromInitialInference = 0f;
     }
 
     public void setVisitCount(int visitCount) {
