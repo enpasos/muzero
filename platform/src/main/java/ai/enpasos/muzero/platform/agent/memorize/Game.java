@@ -51,6 +51,9 @@ public abstract class Game {
     protected boolean recordValueImprovements = false;
     @Builder.Default
     List<Double> valueImprovements = new ArrayList<>();
+
+
+
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
