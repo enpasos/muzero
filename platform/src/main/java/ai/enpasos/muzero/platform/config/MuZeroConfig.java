@@ -320,6 +320,26 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numSimulations;
     }
 
+
+    public double getNumSimThreshold( ) {
+        return getConf().numSimThreshold;
+    }
+    public int getNumSimMin( ) {
+        return getConf().numSimMin;
+    }
+    public int getNumSimMax( ) {
+        return getConf().numSimMax;
+    }
+    public int getNumSimWindow( ) {
+        return getConf().numSimWindow;
+    }
+
+
+
+
+
+
+
     public void setNumSimulations( int numSimulations) {
         getConf().getPlayTypes().get(getConf().getPlayTypeKey()).setNumSimulations(numSimulations);
     }
@@ -334,6 +354,9 @@ public class MuZeroConfig {
 
     public int getBroadcastEveryN() {
         return getConf().broadcastEveryN;
+    }
+    public PlayTypeKey getPlayTypeKey() {
+        return getConf().getPlayTypeKey();
     }
 
 
@@ -416,9 +439,12 @@ public class MuZeroConfig {
         protected boolean recordVisitsOn = false;
         protected boolean surpriseHandlingOn = false;
         protected boolean extraValueTrainingOn = false;
-//        protected double komi;
-//        protected double maxKomi = Double.MAX_VALUE;
 
+
+        protected double numSimThreshold;
+        protected int numSimMin;
+        protected int numSimMax;
+        protected int numSimWindow;
 
         protected NetworkType networkType = NetworkType.CON;
         protected String modelName;

@@ -82,11 +82,7 @@ public class SelfPlay {
 
         game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
 
-        if (game.isRecordValueImprovements()) {
-//            double vImprovement = root.getVmix() - root.getValueFromInitialInference();
-//            vImprovement = vImprovement * vImprovement;
-            game.getValueImprovements().add(10d);   // a marker
-        }
+
 
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
@@ -224,8 +220,14 @@ public class SelfPlay {
         justOneOfTheGames.setRecordValueImprovements(true);
 
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames);
-
-
+         getGameList().stream().forEach(g -> {
+            if (g.isRecordValueImprovements()) {
+    //            double vImprovement = root.getVmix() - root.getValueFromInitialInference();
+    //            vImprovement = vImprovement * vImprovement;
+                //     game.getValueImprovements().add(10d);   // a marker
+                g.getValueImprovements().clear();
+            }
+        });
 
         List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
         gamesToApplyAction.forEach(game -> game.setActionApplied(false));
@@ -502,35 +504,37 @@ public class SelfPlay {
             replayBuffer.addGames(network.getModel(), games);
 
             games.stream().filter(Game::isRecordValueImprovements).forEach(game ->  {
-                System.out.println("### valueImprovement ... ");
-                game.getValueImprovements().stream().forEach(v ->
-                    System.out.println( NumberFormat.getNumberInstance().format(v))
-                    );
-                System.out.println("### valueImprovementDelta ... ");
-                double lastV = 0d;
-                boolean first = true;
-                double vDelta = 0d;
-                for(Double v : game.getValueImprovements()) {
-                    if (first || lastV == 10) {
-                        first = false;
-                        vDelta = 0d;
-                    } else {
-                        vDelta = v - lastV;
-                        if (v == 10) {
-                            vDelta = 10; // marker
-                        }
-                    }
-                    System.out.println(NumberFormat.getNumberInstance().format(vDelta*vDelta));
-                    lastV = v;
-                }
-
-                System.out.println("### actions ... ");
-                System.out.println(game.getGameDTO().getActions().toString());
-                System.out.println("###");
-                System.out.println("###");
-                System.out.println("###");
-                System.out.println("###");
-                System.out.println("###");
+                double variance = game.calculateValueImprovementVariance(config);
+                System.out.println("### valueImprovementVariance: " + variance);
+//                System.out.println("### valueImprovement ... ");
+//                game.getValueImprovements().stream().forEach(v ->
+//                    System.out.println( NumberFormat.getNumberInstance().format(v))
+//                    );
+//                System.out.println("### valueImprovementDelta ... ");
+//                double lastV = 0d;
+//                boolean first = true;
+//                double vDelta = 0d;
+//                for(Double v : game.getValueImprovements()) {
+//                    if (first || lastV == 10) {
+//                        first = false;
+//                        vDelta = 0d;
+//                    } else {
+//                        vDelta = v - lastV;
+//                        if (v == 10) {
+//                            vDelta = 10; // marker
+//                        }
+//                    }
+//                    System.out.println(NumberFormat.getNumberInstance().format(vDelta*vDelta));
+//                    lastV = v;
+//                }
+//
+//                System.out.println("### actions ... ");
+//                System.out.println(game.getGameDTO().getActions().toString());
+//                System.out.println("###");
+//                System.out.println("###");
+//                System.out.println("###");
+//                System.out.println("###");
+//                System.out.println("###");
             });
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed( ), i);

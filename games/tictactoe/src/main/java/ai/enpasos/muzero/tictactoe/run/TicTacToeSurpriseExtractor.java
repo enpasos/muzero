@@ -39,11 +39,15 @@ public class TicTacToeSurpriseExtractor {
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
-        Optional<Game> game = surpriseExtractor.getGame(4);
+       // Optional<Game> game = surpriseExtractor.getGame(4);
        //   Optional<Game> game = surpriseExtractor.getGameWithHighestSurprise();
 
 
-       // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+     //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 0, 8, 5, 6, 1, 3, 2);
+       // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(0, 6, 2, 4, 8, 3, 7, 5);
+        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+
+    //    Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(8, 4, 7, 6, 2, 3, 5);
 
 
        // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(8, 6, 0, 1, 5, 7, 3, 4);

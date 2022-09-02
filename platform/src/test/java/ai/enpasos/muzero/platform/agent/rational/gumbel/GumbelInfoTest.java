@@ -11,8 +11,15 @@ class GumbelInfoTest {
     @Test
     void initGumbelInfo() {
 
+
+        simNumTest(20, 4, 9);
+
+        simNumTest(30, 16, 26);
+
         // from paper for go
         simNumTest(200, 16, 26);
+
+
 
         // tictactoe example
         simNumTest(20, 4, 9);
