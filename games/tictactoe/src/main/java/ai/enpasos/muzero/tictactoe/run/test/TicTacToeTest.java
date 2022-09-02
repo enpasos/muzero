@@ -55,7 +55,6 @@ public class TicTacToeTest {
 
     public boolean test() {
 
-      //  config.setTemperatureRoot(  0.0);
         config.setPlayTypeKey(PLAYOUT);
 
 

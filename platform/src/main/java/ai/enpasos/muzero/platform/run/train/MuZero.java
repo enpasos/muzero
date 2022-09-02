@@ -172,13 +172,6 @@ public class MuZero {
 
                     log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
-//                    if (config.isExtraValueTrainingOn()) {
-//                        int sims = config.getNumSimulations(ENVIRONMENT_EXPLORATION);
-//                        config.setNumSimulations(ENVIRONMENT_EXPLORATION, 0);
-//                        playGames(params.render, network, trainingStep);
-//                        config.setNumSimulations(ENVIRONMENT_EXPLORATION, sims);
-//                    }
-
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
                 trainingStep = trainNetwork(params.numberOfEpochs, model, djlConfig);

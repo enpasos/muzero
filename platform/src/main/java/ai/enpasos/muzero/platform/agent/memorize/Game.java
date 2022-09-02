@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.Environment;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -45,6 +47,12 @@ import java.util.stream.IntStream;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Slf4j
 public abstract class Game {
+
+    @Builder.Default
+    protected boolean recordValueImprovements = false;
+    @Builder.Default
+    List<Double> valueImprovements = new ArrayList<>();
+
 
 
     protected boolean purelyRandom;
@@ -60,6 +68,7 @@ public abstract class Game {
     double surpriseMax;
 
     boolean done;
+
 
 
     GumbelSearch searchManager;
@@ -174,16 +183,23 @@ public abstract class Game {
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target);
+            fillTarget(currentIndex, stateIndex, target);
             targets.add(target);
         });
         return targets;
     }
 
-    private void fillTarget(int currentIndex, Target target) {
+    private void fillTarget(int currentIndex, int stateIndex, Target target) {
 
+        if (currentIndex == 0) {
+            int k = 42;
+        }
 
-        double value = calculateValue(currentIndex  );
+        double value = calculateValue(currentIndex, stateIndex  );
+
+//        if (currentIndex == 0) {
+//            System.out.println("currentIndex = 0, value = " + value);
+//        }
 
         float lastReward = getLastReward(currentIndex);
 
@@ -232,10 +248,10 @@ public abstract class Game {
 
 
 
-    private double calculateValue(int currentIndex ) {
+    private double calculateValue(int currentIndex, int stateIndex ) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (gameDTO.isHybrid()) {
-            if (currentIndex < this.getGameDTO().getTHybrid()) {
+            if (stateIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             }
         }
@@ -243,20 +259,24 @@ public abstract class Game {
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining()) {  // TODO test it
-            if (tdSteps == 0) {
+        if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining() && tdSteps == 0) {
                 value = MyL2Loss.NULL_VALUE;  // no value change force
-                return value;
+        } else {
+            if (config.isNetworkWithRewardHead()) {
+                startIndex = currentIndex;
+            } else {
+                startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
+            }
+            for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
             }
         }
-        if (config.isNetworkWithRewardHead()) {
-            startIndex = currentIndex;
-        } else {
-            startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
-        }
-        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective( i-currentIndex) ;
-        }
+//        if (gameDTO.isHybrid() && currentIndex == 0 && value == 1.0){
+//            System.out.println(" gameDTO.isHybrid() && currentIndex == 0  ... value = " + value);
+//        }
+//        if (!gameDTO.isHybrid() && currentIndex == 0 ) {
+//            System.out.println("!gameDTO.isHybrid() && currentIndex == 0  ... value = " + value);
+//        }
         return value;
 
     }
@@ -342,5 +362,22 @@ public abstract class Game {
 
     public void initSearchManager(double pRandomActionRawAverage) {
         searchManager = new GumbelSearch(config, this, debug, pRandomActionRawAverage);
+    }
+
+    public double calculateValueImprovementVariance(MuZeroConfig config) {
+
+        if (this.getValueImprovements().size() <  config.getNumSimWindow()) {
+            return 0d;
+        }
+        List<Double> vs =
+            this.getValueImprovements().stream().skip(this.getValueImprovements().size() - config.getNumSimWindow()).collect(Collectors.toList());
+
+
+        int n = vs.size();
+        if (n == 0) return 0d;
+        double mean = vs.stream().reduce(0.0, Double::sum) / n;
+
+        double variance = vs.stream().map(x -> x - mean).map(x -> x * x).reduce(0.0, Double::sum) / n;
+        return variance;
     }
 }

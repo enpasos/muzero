@@ -29,9 +29,9 @@ public class NodeDTO {
     }
 
     public void memorize(List<Game> games, int epoch) {
-        games.stream().forEach( game -> {
-            memorize(game, epoch);
-        });
+        games.stream().forEach( game ->
+            memorize(game, epoch)
+         );
     }
 
     public void memorize(Game game, int epoch) {

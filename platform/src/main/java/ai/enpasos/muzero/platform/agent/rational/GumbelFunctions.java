@@ -89,11 +89,12 @@ public class GumbelFunctions {
         int[] result = new int[phases];
         for (int p = 0; p < phases; p++) {
             int na = (int) ((double) budget / phases / m);
+            na = Math.max(1, na);
             if (p < phases - 1) {
                 result[p] = na;
                 remainingBudget -= na * m;
             } else {
-                result[p] = remainingBudget / m;
+                result[p] = Math.max(1,remainingBudget / m);
             }
             m /= 2;
         }
