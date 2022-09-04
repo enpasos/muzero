@@ -351,6 +351,13 @@ public class MuZeroConfig {
     public boolean isForTdStep0NoValueTraining() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0NoValueTraining;
     }
+    public boolean isGumbelActionSelection() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelection;
+    }
+    public boolean isWithGumbel() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).withGumbel;
+    }
+
 
     public int getBroadcastEveryN() {
         return getConf().broadcastEveryN;
@@ -537,6 +544,9 @@ public class MuZeroConfig {
             protected double rootDirichletAlpha;
             protected double rootExplorationFraction;
             double temperatureRoot = 0.0;
+
+            boolean gumbelActionSelection = true;
+            boolean withGumbel = true;
 
             boolean forTraining = true;
         }
