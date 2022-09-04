@@ -10,10 +10,7 @@ import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -86,8 +83,10 @@ public class GumbelSearch {
         gumbelActions = drawGumbelActionsInitially(gumbelActions, gumbelInfo.getM());
 
         List<GumbelAction> gumbelActionsFinal = gumbelActions;
-        rootChildrenCandidates.put(currentPhase, this.root.getChildren().stream()
-            .filter(node -> gumbelActionsFinal.contains(node.getGumbelAction())).collect(Collectors.toList()));
+        rootChildrenCandidates.put(currentPhase,
+            this.root.getChildren().stream()
+            .filter(node -> gumbelActionsFinal.contains(node.getGumbelAction()))
+            .collect(Collectors.toList()));
 
     }
 
@@ -104,8 +103,6 @@ public class GumbelSearch {
     public void gumbelActionsOnPhaseChange() {
 
         List<GumbelAction> gumbelActions = rootChildrenCandidates.get(currentPhase).stream().map(Node::getGumbelAction).collect(Collectors.toList());
-
-
         int maxActionVisitCount = rootChildrenCandidates.get(currentPhase).stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
         // drawing m actions out of the candidate actions (from root) for each parallel played game
@@ -120,6 +117,15 @@ public class GumbelSearch {
 
     public List<GumbelAction> drawGumbelActions(List<GumbelAction> gumbelActions, int m, int cVisit, double cScale, int maxActionVisitCount) {
         int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+        double[] raw = getLogitsAndQs(true, gumbelActions, cVisit, cScale, maxActionVisitCount);
+
+        IntStream.range(0, rootChildrenCandidates.get(currentPhase).size()).forEach(i -> rootChildrenCandidates.get(currentPhase).get(i).setPseudoLogit(raw[i]));
+
+        List<Integer> selectedActions = drawActions(actions, raw, m);
+        return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
+    }
+
+    private double[] getLogitsAndQs(boolean withGumbel, List<GumbelAction> gumbelActions, int cVisit, double cScale, int maxActionVisitCount) {
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
         double[] logits = gumbelActions.stream().mapToDouble(GumbelAction::getLogit).toArray();
         double[] qs = gumbelActions.stream()
@@ -129,12 +135,11 @@ public class GumbelSearch {
 
         double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
 
-        double[] raw = add(add(logits, g), sigmas);
-
-        IntStream.range(0, rootChildrenCandidates.get(currentPhase).size()).forEach(i -> rootChildrenCandidates.get(currentPhase).get(i).setPseudoLogit(raw[i]));
-
-        List<Integer> selectedActions = drawActions(actions, raw, m);
-        return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
+        if (withGumbel) {
+            return add(add(logits, g), sigmas);
+        } else {
+            return add(logits, sigmas);
+        }
     }
 
     public Node getCurrentRootChild() {
@@ -268,7 +273,7 @@ public class GumbelSearch {
 
     public void selectAndApplyActionAndStoreSearchStatistics(ReplayBuffer replayBuffer, boolean render, boolean fastRuleLearning, boolean withRandomActions) {
 
-        Action action;
+        Action action = null;
 
         storeSearchStatistics(replayBuffer, game, root, fastRuleLearning, config, selectedAction, minMaxStats);
 
@@ -276,7 +281,7 @@ public class GumbelSearch {
             action = root.getRandomAction();
         } else {
             double temperature = config.getTemperatureRoot( );
-            if ( temperature == 1.0) {
+            if ( config.isGumbelActionSelection()) {
                 action = selectedAction;
             } else {
                 float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
@@ -285,18 +290,28 @@ public class GumbelSearch {
                     raw[i] = Math.log(policyTarget[i]);
                 }
 
+//                List<GumbelAction> gumbelActions = root.getChildren().stream().map(Node::getGumbelAction).collect(Collectors.toList());
+//                int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+//                double[] raw = getLogitsAndQs(config.isWithGumbel(), gumbelActions, config.getCVisit(), config.getCScale(), maxActionVisitCount);
+//                double[] raw  = new double[config.getActionSpaceSize()];
+//                IntStream.range(0,raw_.length).forEach(i ->
+//                    raw[gumbelActions.get(i).actionIndex] = raw_[i]
+//                );
+
+
                 if (config.getTrainingTypeKey() == HYBRID) {
                     // TODO check that this is not used for playout
                     if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
                         temperature = config.getTemperatureRoot( ); // TODO dynamic missing
+                        action = getAction( temperature, raw );
                     } else {
-                        temperature = 1.0;
+                     //  the Gumbel selection
+                        action = selectedAction;
                     }
+                } else {
+                    action = getAction(  temperature, raw );
                 }
 
-                double[]   p = softmax(raw, temperature);
-                int a = draw(p);
-                action = config.newAction(a);
             }
         }
         if (action == null) {
@@ -313,6 +328,20 @@ public class GumbelSearch {
         }
 
 
+    }
+    private Action getAction(double temperature, double[] raw ) {
+        Action action;
+        double[]   p = softmax(raw, temperature);
+        int i = draw(p);
+        action = config.newAction(i);
+        return action;
+    }
+    private Action getAction(double temperature, double[] raw, List<GumbelAction> gumbelActions) {
+        Action action;
+        double[]   p = softmax(raw, temperature);
+        int i = draw(p);
+        action = config.newAction(gumbelActions.get(i).actionIndex);
+        return action;
     }
 
 
