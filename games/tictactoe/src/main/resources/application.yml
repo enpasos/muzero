@@ -72,7 +72,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 30000  #  5000 for FC
+      numberOfTrainingSteps: 2000  #  5000 for FC
 
 
       windowSizeStart: 5000
@@ -93,7 +93,7 @@ muzero:
           rootExplorationFraction: 0.0  # 0.0 means switched off
           temperatureRoot: 0.0
           gumbelActionSelection: false
-          withGumbel: false
+          # withGumbel: false
         HYBRID:
           forTraining: true
           numEpisodes: 1
@@ -115,7 +115,7 @@ muzero:
           temperatureRoot: 2.0
 
           gumbelActionSelection: false
-          withGumbel: true
+          #withGumbel: false
 
         BEST_EFFORT:
           numEpisodes: 1
