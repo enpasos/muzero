@@ -284,32 +284,28 @@ public class GumbelSearch {
             if ( config.isGumbelActionSelection()) {
                 action = selectedAction;
             } else {
-                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
-                double[] raw = new double[policyTarget.length];
-                for (int i = 0; i < policyTarget.length; i++) {
-                    raw[i] = Math.log(policyTarget[i]);
-                }
+//                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
+//                double[] raw = new double[policyTarget.length];
+//                for (int i = 0; i < policyTarget.length; i++) {
+//                    raw[i] = Math.log(policyTarget[i]);
+//                }
 
-//                List<GumbelAction> gumbelActions = root.getChildren().stream().map(Node::getGumbelAction).collect(Collectors.toList());
-//                int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-//                double[] raw = getLogitsAndQs(config.isWithGumbel(), gumbelActions, config.getCVisit(), config.getCScale(), maxActionVisitCount);
-//                double[] raw  = new double[config.getActionSpaceSize()];
-//                IntStream.range(0,raw_.length).forEach(i ->
-//                    raw[gumbelActions.get(i).actionIndex] = raw_[i]
-//                );
+                List<GumbelAction> gumbelActions = root.getChildren().stream().map(Node::getGumbelAction).collect(Collectors.toList());
+                int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+                double[] raw = getLogitsAndQs(config.isWithGumbel(), gumbelActions, config.getCVisit(), config.getCScale(), maxActionVisitCount);
 
 
                 if (config.getTrainingTypeKey() == HYBRID) {
                     // TODO check that this is not used for playout
                     if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
                         temperature = config.getTemperatureRoot( ); // TODO dynamic missing
-                        action = getAction( temperature, raw );
+                        action = getAction( temperature, raw, gumbelActions );
                     } else {
                      //  the Gumbel selection
                         action = selectedAction;
                     }
                 } else {
-                    action = getAction(  temperature, raw );
+                    action = getAction(  temperature, raw, gumbelActions );
                 }
 
             }
