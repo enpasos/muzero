@@ -47,8 +47,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 
@@ -80,7 +79,8 @@ public class SelfPlay {
     public static void storeSearchStatistics(ReplayBuffer replayBuffer, Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
 
-        game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
+      //  game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
+        game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
 
 
 
@@ -222,10 +222,8 @@ public class SelfPlay {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames);
          getGameList().stream().forEach(g -> {
             if (g.isRecordValueImprovements()) {
-    //            double vImprovement = root.getVmix() - root.getValueFromInitialInference();
-    //            vImprovement = vImprovement * vImprovement;
-                //     game.getValueImprovements().add(10d);   // a marker
-                g.getValueImprovements().clear();
+                     g.getValueImprovements().add(10d);   // a marker
+            //    g.getValueImprovements().clear();
             }
         });
 
@@ -500,45 +498,79 @@ public class SelfPlay {
 
     public void playMultipleEpisodes( Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         for (int i = 0; i < config.getNumEpisodes( ); i++) {
-            List<Game> games = playGame( network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
+            List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
             replayBuffer.addGames(network.getModel(), games);
 
-            games.stream().filter(Game::isRecordValueImprovements).forEach(game ->  {
-                double variance = game.calculateValueImprovementVariance(config);
-                System.out.println("### valueImprovementVariance: " + variance);
-//                System.out.println("### valueImprovement ... ");
-//                game.getValueImprovements().stream().forEach(v ->
-//                    System.out.println( NumberFormat.getNumberInstance().format(v))
-//                    );
-//                System.out.println("### valueImprovementDelta ... ");
-//                double lastV = 0d;
-//                boolean first = true;
-//                double vDelta = 0d;
-//                for(Double v : game.getValueImprovements()) {
-//                    if (first || lastV == 10) {
-//                        first = false;
-//                        vDelta = 0d;
-//                    } else {
-//                        vDelta = v - lastV;
-//                        if (v == 10) {
-//                            vDelta = 10; // marker
-//                        }
-//                    }
-//                    System.out.println(NumberFormat.getNumberInstance().format(vDelta*vDelta));
-//                    lastV = v;
-//                }
-//
-//                System.out.println("### actions ... ");
-//                System.out.println(game.getGameDTO().getActions().toString());
-//                System.out.println("###");
-//                System.out.println("###");
-//                System.out.println("###");
-//                System.out.println("###");
-//                System.out.println("###");
-            });
+            // recordValueImprovements(games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed( ), i);
         }
+    }
+
+    private static void recordValueImprovements(List<Game> games) {
+        games.stream().filter(Game::isRecordValueImprovements).forEach(game -> {
+            System.out.println("### actions ... ");
+            // print game.getGameDTO().getActions() in  "%02d" format and semikolon separated
+            game.getGameDTO().getActions().stream().forEach(a ->
+                System.out.print(String.format("%02d", a) + " | ")
+            );
+
+
+            System.out.println("### valueImprovementDelta ... ");
+            double lastV = 0d;
+            boolean first = true;
+            double vDelta = 0d;
+            List<List<Double>> deltasList = new ArrayList<>();
+            List<Double> deltas = new ArrayList<>();
+            for (Double v : game.getValueImprovements()) {
+                if (first || lastV == 10d) {
+                    first = false;
+                    vDelta = 0d;
+                    deltas = new ArrayList<>();
+                    deltasList.add(deltas);
+                } else {
+                    vDelta = v - lastV;
+                    deltas.add(vDelta);
+
+                }
+                //System.out.println(NumberFormat.getNumberInstance().format(vDelta*vDelta));
+                lastV = v;
+            }
+
+            double threshold = 0.01d;  // example threshold
+            int n = 5;  // example n
+            List<Integer> numSims = new ArrayList<>();
+            for (List<Double> deltas2 : deltasList) {
+
+                // iterate over all deltas2 until the last n deltas are below the threshold
+                for (int j = 0; j < deltas2.size() - n; j++) {
+                    List<Double> vs = deltas2.subList(j, j + n);
+                    if (vs.stream().allMatch(v -> v < threshold)) {
+                        numSims.add(j + n);
+                        // System.out.println("### all valueImprovements below threshold " + threshold + " in the last " + n + " valueImprovements");
+                        break;
+                    }
+                }
+
+
+            }
+            // print numSims
+            System.out.println("### numSims ... ");
+            System.out.println(numSims);
+
+            // calculate average numSims and print it
+            System.out.println("### average numSims ... ");
+            double averageNumSims = numSims.stream().mapToDouble(a -> a).average().orElse(0d);
+            System.out.println(averageNumSims);
+
+
+
+            System.out.println("###");
+            System.out.println("###");
+            System.out.println("###");
+            System.out.println("###");
+            System.out.println("###");
+        });
     }
 
     public void replayGamesFromSeeds(  Network network, List<Game> gameSeeds) {

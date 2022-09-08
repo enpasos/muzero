@@ -55,7 +55,7 @@ public class Node {
     private NDArray hiddenState;
     private double reward;
     private double multiplierLambda;
-    private double valueSum;
+    private double qValueSum;
     private double vmix;
     private Action action;
     private int visitCount;
@@ -92,6 +92,10 @@ public class Node {
     }
 
     public void calculateVmix() {
+        if (this.isRoot()) {
+            if (this.valueFromNetwork != this.valueFromInitialInference)
+                throw new MuZeroException("root node valueFromNetwork != valueFromInitialInference");
+        }
 
         double vHat = this.getValueFromNetwork();
         vmix = vHat;
@@ -160,7 +164,7 @@ public class Node {
             // then complete
             return this.parent.getVmix();
         }
-        return this.getValueSum() / this.visitCount;
+        return this.getQValueSum() / this.visitCount;
     }
 
 
@@ -258,8 +262,13 @@ public class Node {
 
 
     public void calculateImprovedValue() {
+//        this.improvedValue = this.getChildren().stream()
+//            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getImprovedValue())
+//            .sum();
+
+
         this.improvedValue = this.getChildren().stream()
-            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getImprovedValue())
+            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getQValue())
             .sum();
     }
 

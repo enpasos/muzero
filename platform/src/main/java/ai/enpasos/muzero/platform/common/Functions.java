@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.common;
 
 import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Functions {
@@ -109,5 +111,22 @@ public class Functions {
     public static boolean draw(double p) {
         double rand = ThreadLocalRandom.current().nextDouble();
         return rand < p;
+    }
+
+    public static double calculateRunningVariance(List<Double> values, MuZeroConfig config) {
+
+        if (values.size() <  config.getNumSimWindow()) {
+            return 0d;
+        }
+        List<Double> vs =
+            values.stream().skip(values.size() - config.getNumSimWindow()).collect(Collectors.toList());
+
+
+        int n = vs.size();
+        if (n == 0) return 0d;
+        double mean = vs.stream().reduce(0.0, Double::sum) / n;
+
+        double variance = vs.stream().map(x -> x - mean).map(x -> x * x).reduce(0.0, Double::sum) / n;
+        return variance;
     }
 }
