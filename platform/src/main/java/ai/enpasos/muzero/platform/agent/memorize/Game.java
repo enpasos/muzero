@@ -40,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.Functions.calculateRunningVariance;
+
 /**
  * A single episode of interaction with the environment.
  */
@@ -52,7 +54,6 @@ public abstract class Game {
     protected boolean recordValueImprovements = false;
     @Builder.Default
     List<Double> valueImprovements = new ArrayList<>();
-
 
 
     protected boolean purelyRandom;
@@ -68,7 +69,6 @@ public abstract class Game {
     double surpriseMax;
 
     boolean done;
-
 
 
     GumbelSearch searchManager;
@@ -178,7 +178,7 @@ public abstract class Game {
         this.getGameDTO().getActions().add(action.getIndex());
     }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps ) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
@@ -195,7 +195,7 @@ public abstract class Game {
             int k = 42;
         }
 
-        double value = calculateValue(currentIndex, stateIndex  );
+        double value = calculateValue(currentIndex, stateIndex);
 
 //        if (currentIndex == 0) {
 //            System.out.println("currentIndex = 0, value = " + value);
@@ -247,8 +247,7 @@ public abstract class Game {
     }
 
 
-
-    private double calculateValue(int currentIndex, int stateIndex ) {
+    private double calculateValue(int currentIndex, int stateIndex) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (gameDTO.isHybrid()) {
             if (stateIndex < this.getGameDTO().getTHybrid()) {
@@ -260,7 +259,7 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
         if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining() && tdSteps == 0) {
-                value = MyL2Loss.NULL_VALUE;  // no value change force
+            value = MyL2Loss.NULL_VALUE;  // no value change force
         } else {
             if (config.isNetworkWithRewardHead()) {
                 startIndex = currentIndex;
@@ -285,7 +284,7 @@ public abstract class Game {
         boolean perspectiveChange = config.getPlayerMode() == PlayerMode.TWO_PLAYERS;
         double perspective = 1.0;
         if (perspectiveChange) {
-            perspective =  Math.pow(-1, delta);
+            perspective = Math.pow(-1, delta);
         }
         return perspective;
     }
@@ -293,7 +292,7 @@ public abstract class Game {
     private double getBootstrapValue(int tdSteps, int bootstrapIndex) {
         double value;
         if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
-            value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps) ;
+            value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
         } else {
             value = 0;
         }
@@ -365,19 +364,8 @@ public abstract class Game {
     }
 
     public double calculateValueImprovementVariance(MuZeroConfig config) {
-
-        if (this.getValueImprovements().size() <  config.getNumSimWindow()) {
-            return 0d;
-        }
-        List<Double> vs =
-            this.getValueImprovements().stream().skip(this.getValueImprovements().size() - config.getNumSimWindow()).collect(Collectors.toList());
-
-
-        int n = vs.size();
-        if (n == 0) return 0d;
-        double mean = vs.stream().reduce(0.0, Double::sum) / n;
-
-        double variance = vs.stream().map(x -> x - mean).map(x -> x * x).reduce(0.0, Double::sum) / n;
-        return variance;
+        return calculateRunningVariance(this.getValueImprovements(), config);
     }
+
+
 }
