@@ -18,7 +18,6 @@ import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.*;
-import static ai.enpasos.muzero.platform.config.PlayTypeKey.PLAYOUT;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
@@ -226,8 +225,11 @@ public class GumbelSearch {
         backUp(networkOutput.getValue(), node.getToPlay(), this.config.getDiscount());
 
         if (game.isRecordValueImprovements()) {
-            double vImprovement = root.getVmix() - root.getValueFromInitialInference();
-            vImprovement = vImprovement * vImprovement;
+            if (this.root.getVisitCount() == 200) {
+                int j = 42;
+            }
+            double vImprovement = root.getImprovedValue() - root.getValueFromInitialInference();
+            vImprovement = vImprovement ;
             game.getValueImprovements().add(vImprovement);
         }
 
@@ -263,11 +265,8 @@ public class GumbelSearch {
 
             value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
-            node.setValueSum(node.getValueSum() + value);
-
+            node.setQValueSum(node.getQValueSum() + value);
             minMaxStats.update(value);
-
-
         }
     }
 
