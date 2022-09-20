@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.FROM_VALUES;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
+import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 @Component
 @ConfigurationProperties("muzero")
@@ -319,8 +320,18 @@ public class MuZeroConfig {
     public int getNumSimulations( ) {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numSimulations;
     }
+    public int getNumSimulationsHybrid( ) {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numSimulationsHybrid;
+    }
 
-
+    public int getNumSimulations(Game game ) {
+        if ( this.getTrainingTypeKey() == HYBRID  &&
+             game.getGameDTO().getActions().size() <  game.getGameDTO().getTHybrid()   ) {
+                return getNumSimulationsHybrid();
+        } else {
+            return getNumSimulations();
+        }
+    }
     public double getNumSimThreshold( ) {
         return getConf().numSimThreshold;
     }
@@ -348,8 +359,11 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numParallelGamesPlayed;
     }
 
-    public boolean isForTdStep0NoValueTraining() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0NoValueTraining;
+    public boolean isForTdStep0ValueTraining() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0ValueTraining;
+    }
+    public boolean isForTdStep0PolicyTraining() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0PolicyTraining;
     }
     public boolean isGumbelActionSelection() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelection;
@@ -537,10 +551,11 @@ public class MuZeroConfig {
             protected int numEpisodes;
             protected int numParallelGamesPlayed;
 
-            protected boolean forTdStep0NoValueTraining = false;
-
+            protected boolean forTdStep0ValueTraining = true;
+            protected boolean forTdStep0PolicyTraining = true;
             protected int tdSteps;
             protected int numSimulations;
+            protected int numSimulationsHybrid;
             protected double rootDirichletAlpha;
             protected double rootExplorationFraction;
             double temperatureRoot = 0.0;

@@ -50,7 +50,7 @@ public class GumbelSearch {
         this.game = game;
         this.minMaxStats = new MinMaxStats(config.getKnownBounds());
 
-        int n = config.getNumSimulations( );
+        int n = config.getNumSimulations(game );
         int m = config.getInitialGumbelM() ;
         int k = game.legalActions().size();
         this.gumbelInfo = initGumbelInfo(n, m, k);
@@ -301,7 +301,7 @@ public class GumbelSearch {
                 if (config.getTrainingTypeKey() == HYBRID) {
                     // TODO check that this is not used for playout
                     if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
-                        temperature = config.getTemperatureRoot( ); // TODO dynamic missing
+                      //  temperature = config.getTemperatureRoot( ); // TODO dynamic missing
                         action = getAction( temperature, raw );
                     } else {
                      //  the Gumbel selection

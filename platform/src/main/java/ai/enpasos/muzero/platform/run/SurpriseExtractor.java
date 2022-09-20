@@ -102,14 +102,9 @@ public class SurpriseExtractor {
     }
 
     @NotNull
-    public Game getGame() {
-
-
+    public Optional<Game> getGame() {
         replayBuffer.loadLatestState();
-
-
-        return replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
-
+        return Optional.of(replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1));
 
     }
 
