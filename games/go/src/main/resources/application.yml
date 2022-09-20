@@ -128,11 +128,12 @@ muzero:
 
         BEST_EFFORT:
           forTraining: true
-          numEpisodes: 4
+          numEpisodes: 2
           numParallelGamesPlayed: 250 #250
           tdSteps: 10000
           numSimulations: 50
-          rootExplorationFraction: 0.0  # 0.0 means switched off
+          rootDirichletAlpha: 0.1
+          rootExplorationFraction: 0.25  # 0.0 means switched off
           gumbelActionSelection: true
 
 
