@@ -202,11 +202,19 @@ public abstract class Game {
 //        }
 
         float lastReward = getLastReward(currentIndex);
+        int tdSteps = this.getGameDTO().getTdSteps();
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
+
             setValueOnTarget(target, value);
             target.setReward(lastReward);
-            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            if  (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
+                target.setPolicy(new float[this.actionSpaceSize]);
+                // the idea is not to put any force on the network to learn a particular action where it is not necessary
+                Arrays.fill(target.getPolicy(), 0f);
+            } else {
+                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            }
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -258,7 +266,7 @@ public abstract class Game {
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        if (gameDTO.isHybrid() && config.isForTdStep0NoValueTraining() && tdSteps == 0) {
+        if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0ValueTraining() ) {
             value = MyL2Loss.NULL_VALUE;  // no value change force
         } else {
             if (config.isNetworkWithRewardHead()) {

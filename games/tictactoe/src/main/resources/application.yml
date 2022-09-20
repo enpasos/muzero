@@ -72,7 +72,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 2000  #  5000 for FC
+      numberOfTrainingSteps: 10000  #  5000 for FC
 
 
       windowSizeStart: 5000
@@ -96,10 +96,12 @@ muzero:
         HYBRID:
           forTraining: true
           numEpisodes: 1
-          numParallelGamesPlayed: 800
+          numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
-          forTdStep0NoValueTraining: true
+          forTdStep0ValueTraining: false
+          forTdStep0PolicyTraining: true
           numSimulations: 20
+          numSimulationsHybrid: 20
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
@@ -114,7 +116,7 @@ muzero:
 
         BEST_EFFORT:
           numEpisodes: 1
-          numParallelGamesPlayed: 200
+          numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
           numSimulations: 20
           rootExplorationFraction: 0.0  # 0.0 means switched off
