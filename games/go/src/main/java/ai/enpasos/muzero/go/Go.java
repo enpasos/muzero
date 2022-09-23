@@ -27,6 +27,9 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoLossExtractor lossExtractor;
 
+    @Autowired
+    private GoTest goTest;
+
 
     @Autowired
     private GoArena arena;
@@ -100,6 +103,9 @@ public class Go implements CommandLineRunner {
                 break;
             case SURPRISE:
                 goSurprise.run();
+                break;
+            case TEST:
+                goTest.run();
                 break;
             case NONE:
             default:
