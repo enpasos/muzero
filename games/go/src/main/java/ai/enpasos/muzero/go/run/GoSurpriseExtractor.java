@@ -51,7 +51,14 @@ public class GoSurpriseExtractor {
 //            12, 16, 18, 20, 7, 24
 //        );
 
-        Optional<Game> game = surpriseExtractor.getGame();
+
+
+
+        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(
+            12, 17, 11, 13, 7, 19, 6, 23, 8, 14, 3, 22, 1, 16, 15, 9, 5, 21, 4, 20, 10, 25, 0, 2, 12
+        );
+
+      //  Optional<Game> game = surpriseExtractor.getGame();
         game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
     }
 
