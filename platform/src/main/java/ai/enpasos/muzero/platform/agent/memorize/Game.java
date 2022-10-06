@@ -261,8 +261,12 @@ public abstract class Game {
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0ValueTraining() ) {
-            value = MyL2Loss.NULL_VALUE;  // no value change force
+        if (gameDTO.isHybrid() && tdSteps == 0 ) {
+            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
+                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+            } else {
+                value = MyL2Loss.NULL_VALUE;  // no value change force
+            }
         } else {
             if (config.isNetworkWithRewardHead()) {
                 startIndex = currentIndex;
