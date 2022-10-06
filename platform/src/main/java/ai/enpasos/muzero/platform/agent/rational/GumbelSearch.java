@@ -301,7 +301,6 @@ public class GumbelSearch {
                 if (config.getTrainingTypeKey() == HYBRID) {
                     // TODO check that this is not used for playout
                     if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
-                      //  temperature = config.getTemperatureRoot( ); // TODO dynamic missing
                         action = getAction( temperature, raw );
                     } else {
                      //  the Gumbel selection

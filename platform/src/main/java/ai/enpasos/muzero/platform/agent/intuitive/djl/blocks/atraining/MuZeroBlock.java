@@ -85,20 +85,13 @@ public class MuZeroBlock extends AbstractBlock {
         combinedResult.add(predictionResult.get(0));
         combinedResult.add(predictionResult.get(1));
 
+        state = state.scaleGradient(0.5);
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
-            NDArray stateWithScaledBackpropagation = state.scaleGradient(0.5);
-
             // recurrent Inference
             NDArray action = inputs.get(k);
-            NDList dynamicIn = null;
-//            if (config.getNetworkType() == FC) {
-//                action = this.actionFlattenBlock.forward(parameterStore,  new NDList(action), training, params).get(0);
-//                dynamicIn =  new NDList(stateWithScaledBackpropagation.concat(action, 1));
-//            } else {
-                dynamicIn =  new NDList(stateWithScaledBackpropagation, action);
-//            }
+            NDList dynamicIn =  new NDList(state, action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
