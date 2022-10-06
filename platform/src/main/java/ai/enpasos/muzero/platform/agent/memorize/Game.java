@@ -191,15 +191,7 @@ public abstract class Game {
 
     private void fillTarget(int currentIndex, int stateIndex, Target target) {
 
-        if (currentIndex == 0) {
-            int k = 42;
-        }
-
         double value = calculateValue(currentIndex, stateIndex);
-
-//        if (currentIndex == 0) {
-//            System.out.println("currentIndex = 0, value = " + value);
-//        }
 
         float lastReward = getLastReward(currentIndex);
         int tdSteps = this.getGameDTO().getTdSteps();
@@ -258,7 +250,10 @@ public abstract class Game {
     private double calculateValue(int currentIndex, int stateIndex) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (gameDTO.isHybrid()) {
-            if (stateIndex < this.getGameDTO().getTHybrid()) {
+//            if (stateIndex < this.getGameDTO().getTHybrid()) {
+//                tdSteps = 0;
+//            }
+            if (currentIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             }
         }
@@ -278,12 +273,6 @@ public abstract class Game {
                 value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
             }
         }
-//        if (gameDTO.isHybrid() && currentIndex == 0 && value == 1.0){
-//            System.out.println(" gameDTO.isHybrid() && currentIndex == 0  ... value = " + value);
-//        }
-//        if (!gameDTO.isHybrid() && currentIndex == 0 ) {
-//            System.out.println("!gameDTO.isHybrid() && currentIndex == 0  ... value = " + value);
-//        }
         return value;
 
     }
