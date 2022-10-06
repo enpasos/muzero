@@ -85,9 +85,10 @@ public class MuZeroBlock extends AbstractBlock {
         combinedResult.add(predictionResult.get(0));
         combinedResult.add(predictionResult.get(1));
 
-        state = state.scaleGradient(0.5);
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+
+
 
             // recurrent Inference
             NDArray action = inputs.get(k);
@@ -96,6 +97,8 @@ public class MuZeroBlock extends AbstractBlock {
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
             state = dynamicsResult.get(0);
+
+            state  = state.scaleGradient(0.5);
 
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
