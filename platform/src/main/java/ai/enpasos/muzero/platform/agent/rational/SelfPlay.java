@@ -145,7 +145,7 @@ public class SelfPlay {
     }
 
     private void hybridConfiguration() {
-        int gameLength = replayBuffer.getAverageGameLengthOrOne();
+        int gameLength = replayBuffer.getMaxGameLength();
             hybridConfiguration( gameLength);
     }
     private void hybridConfiguration(int gameLength) {
