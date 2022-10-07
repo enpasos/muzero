@@ -78,12 +78,7 @@ public class SelfPlay {
 
     public static void storeSearchStatistics(ReplayBuffer replayBuffer, Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
-
-      //  game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
-
-
-
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
@@ -145,7 +140,7 @@ public class SelfPlay {
     }
 
     private void hybridConfiguration() {
-        int gameLength = replayBuffer.getAverageGameLengthOrOne();
+        int gameLength = replayBuffer.getMaxGameLength();
             hybridConfiguration( gameLength);
     }
     private void hybridConfiguration(int gameLength) {

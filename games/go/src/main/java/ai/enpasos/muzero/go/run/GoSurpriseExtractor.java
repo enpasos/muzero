@@ -55,7 +55,7 @@ public class GoSurpriseExtractor {
 
 
         Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(
-            12, 17, 11, 13, 7, 19, 6, 23, 8, 14, 3, 22, 1, 16, 15, 9, 5, 21, 4, 20, 10, 25, 0, 2, 12
+            12, 17, 11, 13, 7, 23, 6, 19, 8, 9, 16, 21, 3, 20, 4, 14, 15, 22, 25, 0, 5, 1, 2, 1, 0, 25, 10, 1, 16
         );
 
       //  Optional<Game> game = surpriseExtractor.getGame();
