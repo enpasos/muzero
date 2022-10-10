@@ -231,7 +231,7 @@ public abstract class Game {
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
+            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? MyL2Loss.NULL_VALUE : (float) value);
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
