@@ -190,11 +190,19 @@ public abstract class Game {
     }
 
     private void fillTarget(int currentIndex, int stateIndex, Target target) {
-
-        double value = calculateValue(currentIndex, stateIndex);
+        int tdSteps = this.getGameDTO().getTdSteps();
+        if (gameDTO.isHybrid()) {
+//            if (stateIndex < this.getGameDTO().getTHybrid()) {
+//                tdSteps = 0;
+//            }
+            if (currentIndex < this.getGameDTO().getTHybrid()) {
+                tdSteps = 0;
+            }
+        }
+        double value = calculateValue(tdSteps, currentIndex, stateIndex);
 
         float lastReward = getLastReward(currentIndex);
-        int tdSteps = this.getGameDTO().getTdSteps();
+       // int tdSteps = this.getGameDTO().getTdSteps();
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
 
@@ -223,7 +231,7 @@ public abstract class Game {
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? 0f : (float) value);
+            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? MyL2Loss.NULL_VALUE : (float) value);
             target.setReward(lastReward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
@@ -247,38 +255,37 @@ public abstract class Game {
     }
 
 
-    private double calculateValue(int currentIndex, int stateIndex) {
-        int tdSteps = this.getGameDTO().getTdSteps();
-        if (gameDTO.isHybrid()) {
-//            if (stateIndex < this.getGameDTO().getTHybrid()) {
-//                tdSteps = 0;
-//            }
-            if (currentIndex < this.getGameDTO().getTHybrid()) {
-                tdSteps = 0;
-            }
-        }
+    private double calculateValue(int tdSteps, int currentIndex, int stateIndex) {
 
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
         if (gameDTO.isHybrid() && tdSteps == 0 ) {
-//            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
-//                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
-//            } else {
-                value = MyL2Loss.NULL_VALUE;  // no value change force
-            //}
-        } else {
-            if (config.isNetworkWithRewardHead()) {
-                startIndex = currentIndex;
+            if (this.getGameDTO().getRootValuesFromInitialInference().size() > currentIndex) {
+                value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
+            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
+                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
             } else {
-                startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
+                value = MyL2Loss.NULL_VALUE;  // no value change force
             }
-            for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
-            }
+        } else {
+            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
         }
         return value;
 
+    }
+
+    private double calculateValueFromReward(int currentIndex, int bootstrapIndex, double value) {
+        int startIndex;
+        if (config.isNetworkWithRewardHead()) {
+            startIndex = currentIndex;
+        } else {
+            startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
+        }
+        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+        }
+        return value;
     }
 
     private double getPerspective(int delta) {
