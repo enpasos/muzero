@@ -72,7 +72,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 2000  #  5000 for FC
+      numberOfTrainingSteps: 10000  #  5000 for FC
 
 
       windowSizeStart: 5000
@@ -119,8 +119,10 @@ muzero:
           numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
           numSimulations: 20
-          rootExplorationFraction: 0.0  # 0.0 means switched off
           gumbelActionSelection: true
-
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 0.5
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 
