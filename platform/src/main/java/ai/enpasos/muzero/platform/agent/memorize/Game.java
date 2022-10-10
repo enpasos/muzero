@@ -190,11 +190,19 @@ public abstract class Game {
     }
 
     private void fillTarget(int currentIndex, int stateIndex, Target target) {
-
-        double value = calculateValue(currentIndex, stateIndex);
+        int tdSteps = this.getGameDTO().getTdSteps();
+        if (gameDTO.isHybrid()) {
+//            if (stateIndex < this.getGameDTO().getTHybrid()) {
+//                tdSteps = 0;
+//            }
+            if (currentIndex < this.getGameDTO().getTHybrid()) {
+                tdSteps = 0;
+            }
+        }
+        double value = calculateValue(tdSteps, currentIndex, stateIndex);
 
         float lastReward = getLastReward(currentIndex);
-        int tdSteps = this.getGameDTO().getTdSteps();
+       // int tdSteps = this.getGameDTO().getTdSteps();
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
 
@@ -247,16 +255,7 @@ public abstract class Game {
     }
 
 
-    private double calculateValue(int currentIndex, int stateIndex) {
-        int tdSteps = this.getGameDTO().getTdSteps();
-        if (gameDTO.isHybrid()) {
-//            if (stateIndex < this.getGameDTO().getTHybrid()) {
-//                tdSteps = 0;
-//            }
-            if (currentIndex < this.getGameDTO().getTHybrid()) {
-                tdSteps = 0;
-            }
-        }
+    private double calculateValue(int tdSteps, int currentIndex, int stateIndex) {
 
         int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
