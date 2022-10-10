@@ -264,20 +264,31 @@ public abstract class Game {
 //            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
 //                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
 //            } else {
+            if (this.getGameDTO().getRootValuesFromInitialInference().size() > 0) {
+                this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
+            } else {
                 value = MyL2Loss.NULL_VALUE;  // no value change force
+                // value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
+            }
             //}
         } else {
-            if (config.isNetworkWithRewardHead()) {
-                startIndex = currentIndex;
-            } else {
-                startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
-            }
-            for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
-            }
+            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
         }
         return value;
 
+    }
+
+    private double calculateValueFromReward(int currentIndex, int bootstrapIndex, double value) {
+        int startIndex;
+        if (config.isNetworkWithRewardHead()) {
+            startIndex = currentIndex;
+        } else {
+            startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
+        }
+        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+        }
+        return value;
     }
 
     private double getPerspective(int delta) {
