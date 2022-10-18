@@ -25,6 +25,7 @@ import ai.djl.training.listener.TrainingListenerAdapter;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ import java.util.function.Consumer;
  */
 @Component
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MySaveModelTrainingListener.class);

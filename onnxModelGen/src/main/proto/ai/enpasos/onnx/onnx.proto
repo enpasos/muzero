@@ -8,7 +8,7 @@
 
 syntax = "proto3";
 
-package onnx;
+package ai.enpasos.onnx;
 
 
 option java_package = "ai.enpasos.onnx";
