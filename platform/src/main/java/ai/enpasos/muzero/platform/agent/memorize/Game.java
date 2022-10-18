@@ -50,9 +50,9 @@ import static ai.enpasos.muzero.platform.common.Functions.calculateRunningVarian
 @Slf4j
 public abstract class Game {
 
-    @Builder.Default
+//    @Builder.Default
     protected boolean recordValueImprovements = false;
-    @Builder.Default
+ //   @Builder.Default
     List<Double> valueImprovements = new ArrayList<>();
 
 
@@ -329,15 +329,15 @@ public abstract class Game {
         return actionList;
     }
 
-    public boolean equals(Object other) {
-        if (!(other instanceof Game)) return false;
-        Game otherGame = (Game) other;
-        return this.getGameDTO().getActions().equals(otherGame.getGameDTO().getActions());
-    }
-
-    public int hashCode() {
-        return this.getGameDTO().getActions().hashCode();
-    }
+//    public boolean equals(Object other) {
+//        if (!(other instanceof Game)) return false;
+//        Game otherGame = (Game) other;
+//        return this.getGameDTO().getActions().equals(otherGame.getGameDTO().getActions());
+//    }
+//
+//    public int hashCode() {
+//        return this.getGameDTO().getActions().hashCode();
+//    }
 
     public abstract void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkIO, boolean b);
 

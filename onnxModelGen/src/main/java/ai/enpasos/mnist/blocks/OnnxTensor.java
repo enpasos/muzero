@@ -9,5 +9,4 @@ import lombok.Data;
 public class OnnxTensor {
     private String name;
     private Shape shape;
-
 }

@@ -8,8 +8,8 @@
 
 syntax = "proto3";
 
-package onnx;
-import "onnx.proto";
+package ai.enpasos.onnx;
+import "ai/enpasos/onnx/onnx.proto";
 
 option java_package = "ai.enpasos.onnx";
 option java_multiple_files = true;
