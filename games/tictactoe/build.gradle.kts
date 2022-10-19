@@ -4,12 +4,17 @@
 
 plugins {
     id("com.enpasos.muzero.java-conventions")
+    id("org.springframework.boot") version "3.0.0-M5"
+    id("io.spring.dependency-management") version "1.0.14.RELEASE"
 }
+
+apply(plugin = "io.spring.dependency-management")
 
 dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime:1.11.0")
     implementation(project(":platform"))
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.0.0-M5")
+    implementation("org.springframework.boot:spring-boot-starter")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     testCompileOnly("org.projectlombok:lombok:1.18.24")
