@@ -10,7 +10,7 @@ plugins {
 dependencies {
     implementation("com.google.protobuf:protobuf-java:3.21.4")
     implementation("com.microsoft.onnxruntime:onnxruntime:1.11.0")
-    implementation("com.google.protobuf:protobuf-java:3.21.2")
+    implementation("com.google.protobuf:protobuf-java:3.21.4")
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("org.apache.commons:commons-math3:3.6.1")
     implementation("org.apache.commons:commons-csv:1.9.0")
