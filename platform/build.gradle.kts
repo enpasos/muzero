@@ -1,17 +1,29 @@
 import com.google.protobuf.gradle.*
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 
 
 plugins {
     id("com.enpasos.muzero.java-conventions")
     id("idea")
     id("com.google.protobuf") version "0.8.19"
+    id("org.springframework.boot") version "3.0.0-M5"
+    id("io.spring.dependency-management") version "1.0.14.RELEASE"
 }
 
+apply(plugin = "io.spring.dependency-management")
+apply(plugin = "org.springframework.boot")
+
+tasks.named<BootJar>("bootJar") {
+        isEnabled = false
+}
 dependencies {
+    implementation(project(":onnxModelGen"))
 
     implementation("com.google.protobuf:protobuf-java:3.21.4")
-    implementation(project(":onnxModelGen"))
-    implementation("org.springframework.boot:spring-boot-starter:3.0.0-M5")
+
+   // implementation("com.microsoft.onnxruntime:onnxruntime:1.11.0")
+    implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.apache.commons:commons-math3:3.6.1")
     implementation("org.apache.commons:commons-csv:1.9.0")
     implementation("ai.djl:model-zoo:0.20.0-SNAPSHOT")

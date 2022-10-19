@@ -13,3 +13,20 @@ include(":games")
 project(":go").projectDir = file("games/go")
 project(":tictactoe").projectDir = file("games/tictactoe")
 project(":pegsolitair").projectDir = file("games/pegsolitair")
+
+
+
+pluginManagement {
+    repositories {
+        maven { url = uri("https://repo.spring.io/snapshot") }
+        maven { url = uri("https://repo.spring.io/milestone") }
+        gradlePluginPortal()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "org.springframework.boot") {
+                useModule("org.springframework.boot:spring-boot-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
