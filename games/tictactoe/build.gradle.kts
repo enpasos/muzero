@@ -28,7 +28,14 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     testCompileOnly("org.projectlombok:lombok:1.18.24")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.24")
-
 }
+
+configurations {
+    all {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+        exclude(group = "org.slf4j", module = "slf4j-simple")
+    }
+}
+
 
 description = "tictactoe"
