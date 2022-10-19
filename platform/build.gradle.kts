@@ -1,8 +1,6 @@
 import com.google.protobuf.gradle.*
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
-
-
 plugins {
     id("com.enpasos.muzero.java-conventions")
     id("idea")
@@ -16,6 +14,9 @@ apply(plugin = "org.springframework.boot")
 
 tasks.named<BootJar>("bootJar") {
         isEnabled = false
+}
+tasks.named<Jar>("jar") {
+    this.archiveClassifier.set("")
 }
 dependencies {
     implementation(project(":onnxModelGen"))
@@ -39,16 +40,13 @@ dependencies {
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("ca.umontreal.iro.simul:ssj:3.3.1")
     implementation("org.jetbrains:annotations:23.0.0")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.0.0-M5")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     testCompileOnly("org.projectlombok:lombok:1.18.24")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.24")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     compileOnly("org.jetbrains:annotations:23.0.0")
-
-
-
 
 }
 
