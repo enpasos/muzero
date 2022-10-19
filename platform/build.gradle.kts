@@ -22,7 +22,7 @@ dependencies {
 
     implementation("com.google.protobuf:protobuf-java:3.21.4")
 
-   // implementation("com.microsoft.onnxruntime:onnxruntime:1.11.0")
+    implementation("com.microsoft.onnxruntime:onnxruntime:1.11.0")
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.apache.commons:commons-math3:3.6.1")
     implementation("org.apache.commons:commons-csv:1.9.0")
@@ -45,6 +45,11 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.24")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.24")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
+    compileOnly("org.jetbrains:annotations:23.0.0")
+
+
+
+
 }
 
 description = "platform"
