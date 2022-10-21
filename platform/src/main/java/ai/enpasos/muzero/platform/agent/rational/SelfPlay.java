@@ -494,7 +494,11 @@ public class SelfPlay {
     public void playMultipleEpisodes( Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         for (int i = 0; i < config.getNumEpisodes( ); i++) {
             List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
-            replayBuffer.addGames(network.getModel(), games);
+
+            List<Game> gamesRelevant = games.stream().filter(game -> !game.getGameDTO().isHybrid() || game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size()).collect(Collectors.toList());
+            log.info(gamesRelevant.size() + " relevant out of " + games.size());
+
+            replayBuffer.addGames(network.getModel(), gamesRelevant);
 
             // recordValueImprovements(games);
 
