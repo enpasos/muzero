@@ -30,3 +30,17 @@ pluginManagement {
         }
     }
 }
+
+
+
+//dependencyResolutionManagement {
+//    versionCatalogs {
+//        create("mylibs") {
+//            from(files("gradle/libs.versions.toml"))
+//        }
+//    }
+//}
+
+
+
+
