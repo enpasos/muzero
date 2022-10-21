@@ -5,7 +5,6 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBufferDTO;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+
+import static org.apache.commons.io.FileUtils.deleteDirectory;
+import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,8 +43,8 @@ class IOTest {
         replayBuffer1.init();
         replayBuffer1.loadLatestState();
         config.setOutputDir("./target/");
-        FileUtils.deleteDirectory(new File("./target/games/"));
-        FileUtils.forceMkdir(new File("./target/games/"));
+        deleteDirectory(new File("./target/games/"));
+        forceMkdir(new File("./target/games/"));
         ReplayBufferDTO dto1 = replayBuffer1.getBuffer();
 
         config.setGameBufferWritingFormat(FileType.ZIPPED_PROTOCOL_BUFFERS);

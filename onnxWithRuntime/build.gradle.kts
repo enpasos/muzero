@@ -1,7 +1,7 @@
 plugins {
     id("com.enpasos.muzero.java-conventions")
-    id("org.springframework.boot") version "3.0.0-M5"
-    id("io.spring.dependency-management") version "1.0.14.RELEASE"
+    alias(libs.plugins.springboot)
+    alias(libs.plugins.spring.dependencyManagement)
     id("idea")
 }
 
@@ -15,6 +15,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
 dependencies {
     implementation(project(":platform"))
     implementation(project(":tictactoe"))
+
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("ai.djl.pytorch:pytorch-engine:0.20.0-SNAPSHOT")
     implementation("ai.djl.pytorch:pytorch-model-zoo:0.20.0-SNAPSHOT")
@@ -23,13 +24,15 @@ dependencies {
     implementation("ai.djl:basicdataset:0.20.0-SNAPSHOT")
     implementation("ai.djl.onnxruntime:onnxruntime-engine:0.20.0-SNAPSHOT")
 
-    implementation("org.springframework.boot:spring-boot-starter")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation(libs.springboot.starter)
+    testImplementation(libs.springboot.starter.test)
+
     runtimeOnly("org.slf4j:slf4j-simple:1.7.36")
-    compileOnly("org.projectlombok:lombok:1.18.24")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
-    testCompileOnly("org.projectlombok:lombok:1.18.24")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.24")
+
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 
     compileOnly("org.jetbrains:annotations:23.0.0")
 }
