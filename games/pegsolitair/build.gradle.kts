@@ -48,3 +48,4 @@ configurations {
 }
 
 description = "pegsolitair"
+group = "${group}.games"

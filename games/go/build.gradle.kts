@@ -35,7 +35,7 @@ dependencies {
 
     compileOnly(libs.jetbrains.annotations)
     testCompileOnly(libs.jetbrains.annotations)
- 
+
 }
 
 configurations {
@@ -46,3 +46,4 @@ configurations {
 }
 
 description = "go"
+group = "${group}.games"
