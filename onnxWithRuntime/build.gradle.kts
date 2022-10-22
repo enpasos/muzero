@@ -16,25 +16,24 @@ dependencies {
     implementation(project(":platform"))
     implementation(project(":games:tictactoe"))
 
-    implementation("org.slf4j:slf4j-api:1.7.36")
-    implementation("ai.djl.pytorch:pytorch-engine:0.20.0-SNAPSHOT")
-    implementation("ai.djl.pytorch:pytorch-model-zoo:0.20.0-SNAPSHOT")
-    implementation("ai.djl.pytorch:pytorch-native-cu116:1.12.1-SNAPSHOT")
-    implementation("ai.djl:model-zoo:0.20.0-SNAPSHOT")
-    implementation("ai.djl:basicdataset:0.20.0-SNAPSHOT")
-    implementation("ai.djl.onnxruntime:onnxruntime-engine:0.20.0-SNAPSHOT")
+    implementation(libs.slf4j.api)
+    implementation(libs.slf4j.simple)
+
+    implementation(libs.bundles.djl)
+
+    implementation(libs.djl.onnxruntime.engine)
+
 
     implementation(libs.springboot.starter)
     testImplementation(libs.springboot.starter.test)
-
-    runtimeOnly("org.slf4j:slf4j-simple:1.7.36")
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 
-    compileOnly("org.jetbrains:annotations:23.0.0")
+    compileOnly(libs.jetbrains.annotations)
+    testCompileOnly(libs.jetbrains.annotations)
 }
 
 configurations {

@@ -14,6 +14,12 @@ djl-pytorch-engine = { module = "ai.djl.pytorch:pytorch-engine", version.ref = "
 djl-pytorch-model-zoo = { module = "ai.djl.pytorch:pytorch-model-zoo", version.ref = "djl" }
 djl-pytorch-native-cu116 = { module = "ai.djl.pytorch:pytorch-native-cu116", version.ref = "pytorch" }
 
+
+djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", version.ref = "djl" }
+
+
+
+
 commons-math = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
 commons-csv = { module = "org.apache.commons:commons-csv", version = "1.9.0" }
 commons-cli = { module = "commons-cli:commons-cli", version = "1.4" }
@@ -54,4 +60,3 @@ commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-
 springboot = { id = "org.springframework.boot", version.ref = "springboot" }
 protobuf = { id = "com.google.protobuf", version = "0.8.19" }
 spring-dependencyManagement = { id = "io.spring.dependency-management", version = "1.1.0" }
-
