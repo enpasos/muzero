@@ -1,10 +1,9 @@
 import com.google.protobuf.gradle.*
 
 plugins {
-   // id("com.enpasos.muzero.java-conventions")
     id("com.enpasos.muzero.java-conventions")
     id("idea")
-    id("com.google.protobuf") version "0.8.19"
+    alias(libs.plugins.protobuf)
 }
 
 dependencies {
