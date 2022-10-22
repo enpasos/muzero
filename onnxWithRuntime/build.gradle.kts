@@ -14,7 +14,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
 
 dependencies {
     implementation(project(":platform"))
-    implementation(project(":tictactoe"))
+    implementation(project(":games:tictactoe"))
 
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("ai.djl.pytorch:pytorch-engine:0.20.0-SNAPSHOT")
