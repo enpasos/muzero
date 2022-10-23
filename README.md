@@ -36,7 +36,7 @@ You can find out the inference time while running MuZero on your edge device:
 ## Run integration test on tictactoc
 
 ``` 
-    java -jar games/tictactoe/build/libs/tictactoe-0.4.0-SNAPSHOT-exec.jar  
+    java -jar games/tictactoe/build/libs/tictactoe-0.5.0-SNAPSHOT-exec.jar  
 ```
 
 ## Further info
