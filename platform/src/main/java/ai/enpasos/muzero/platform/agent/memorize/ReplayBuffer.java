@@ -50,9 +50,9 @@ public class ReplayBuffer {
     private ReplayBufferDTO buffer;
 
 
-public int getMaxGameLength() {
-    return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
-}
+    public int getMaxGameLength() {
+        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+    }
 
     private String currentNetworkName = "NONE";
     @Autowired

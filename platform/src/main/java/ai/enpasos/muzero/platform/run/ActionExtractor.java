@@ -67,7 +67,7 @@ public class ActionExtractor {
                 String[] values = valueList.toArray(new String[0]);
 
                 try {
-                    csvPrinter.printRecord(values);
+                    csvPrinter.printRecord((Object[])values);
                 } catch (Exception e) {
                     // ignore
                 }

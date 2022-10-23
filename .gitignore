@@ -1,19 +1,15 @@
-### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
+**/.gradle
 
-**/target/**
-**/logs/**
-**/memory/**
+**/build
+**/target
+**/logs
+**/memory
 
-/onnxWithRuntime/data
-/onnxWithRuntime/build
-/mymodel
-/games/go/arena/
-/savedModel/
-/.gradle/
-/buildSrc/build/
-/gradle/wrapper/
+
+
+
