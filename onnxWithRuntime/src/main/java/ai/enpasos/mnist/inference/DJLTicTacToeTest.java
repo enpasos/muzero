@@ -22,7 +22,7 @@ import java.util.List;
 @SpringBootApplication
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.*", excludeFilters = {
-    @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = TicTacToe.class)})
+@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = TicTacToe.class)})
 @SuppressWarnings("all")
 public class DJLTicTacToeTest implements CommandLineRunner {
 

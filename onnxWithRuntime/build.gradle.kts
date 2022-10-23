@@ -17,7 +17,6 @@ dependencies {
     implementation(project(":games:tictactoe"))
 
     implementation(libs.slf4j.api)
-    implementation(libs.slf4j.simple)
 
     implementation(libs.bundles.djl)
 
@@ -39,7 +38,7 @@ dependencies {
 configurations {
     all {
         exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
-        exclude(group = "org.slf4j", module = "slf4j-simple")
+        exclude(group = "ch.qos.logback", module = "logback-classic")
     }
 }
 
