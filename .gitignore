@@ -6,9 +6,8 @@
 **/.gradle
 
 **/build
-**/target
 **/logs
-**/memory
+/memory/*
 
 
 
