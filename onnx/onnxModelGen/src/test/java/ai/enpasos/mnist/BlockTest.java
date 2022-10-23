@@ -22,7 +22,7 @@ class BlockTest {
     void layerNorm2ZERO() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/LayerNorm2.onnx",
+                "./build/LayerNorm2.onnx",
                 LayerNormExt.builder().build(),
                 List.of(new Shape(1, 128, 3, 3)),
                 ZERO
@@ -35,7 +35,7 @@ class BlockTest {
     void layerNorm2RANDOM() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/LayerNorm2.onnx",
+                "./build/LayerNorm2.onnx",
                 LayerNormExt.builder().build(),
                 List.of(new Shape(1, 128, 3, 3)),
                 RANDOM
@@ -47,7 +47,7 @@ class BlockTest {
     void layerNormZERO() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/LayerNorm.onnx",
+                "./build/LayerNorm.onnx",
                 LayerNormExt.builder().build(),
                 List.of(new Shape(1, 128, 3, 3)),
                 ZERO
@@ -60,7 +60,7 @@ class BlockTest {
     void layerNormRANDOM() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/LayerNorm.onnx",
+                "./build/LayerNorm.onnx",
                 LayerNormExt.builder().build(),
                 List.of(new Shape(1, 128, 3, 3)),
                 RANDOM
@@ -73,7 +73,7 @@ class BlockTest {
     void squeezeExciteRANDOM() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/SqueezeExciteBlock.onnx",
+                "./build/SqueezeExciteBlock.onnx",
                 new SqueezeExciteExt(128, 10),
                 List.of(new Shape(1, 128, 3, 3)),
                 RANDOM);
@@ -83,7 +83,7 @@ class BlockTest {
     @Test
     void mnistBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/MnistBlock.onnx",
+            "./build/MnistBlock.onnx",
             MnistBlock.newMnistBlock(),
             List.of(new Shape(1, 1, 28, 28)),
             RANDOM);
@@ -95,7 +95,7 @@ class BlockTest {
     void squeezeExciteZERO() throws Exception {
         boolean check =
             compareOnnxWithDJL(
-                "./target/SqueezeExciteBlock.onnx",
+                "./build/SqueezeExciteBlock.onnx",
                 new SqueezeExciteExt(128, 10),
                 List.of(new Shape(1, 128, 3, 3)),
                 ZERO);
@@ -105,7 +105,7 @@ class BlockTest {
     @Test
     void mnistBlockZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/MnistBlock.onnx",
+            "./build/MnistBlock.onnx",
             MnistBlock.newMnistBlock(),
             List.of(new Shape(1, 1, 28, 28)),
             ZERO);

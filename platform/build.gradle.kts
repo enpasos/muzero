@@ -19,7 +19,7 @@ tasks.named<Jar>("jar") {
     this.archiveClassifier.set("")
 }
 dependencies {
-    implementation(project(":onnxModelGen"))
+    implementation(project(":onnx:onnxModelGen"))
 
     implementation(libs.protobuf)
 

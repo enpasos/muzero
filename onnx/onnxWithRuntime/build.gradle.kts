@@ -43,3 +43,5 @@ configurations {
 }
 
 description = "onnxWithRuntime"
+
+group = "${group}.onnx"
