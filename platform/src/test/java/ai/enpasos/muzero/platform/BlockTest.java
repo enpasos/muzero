@@ -27,7 +27,7 @@ class BlockTest {
     @Test
     void broadcastBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/BroadcastBlock.onnx",
+            "./build/BroadcastBlock.onnx",
             BroadcastBlock.builder().setUnits(3 * 3).build(),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
@@ -37,7 +37,7 @@ class BlockTest {
     @Test
     void squeezeExciteRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/SqueezeExciteBlock.onnx",
+            "./build/SqueezeExciteBlock.onnx",
             new SqueezeExciteExt(128, 10),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
@@ -47,7 +47,7 @@ class BlockTest {
     @Test
     void residualRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/ResidualBlockV2.onnx",
+            "./build/ResidualBlockV2.onnx",
             new ResidualBlockV2(128, 10),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
@@ -57,7 +57,7 @@ class BlockTest {
     @Test
     void bottleneckResidualRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/BottleneckResidualBlock.onnx",
+            "./build/BottleneckResidualBlock.onnx",
             new BottleneckResidualBlock(128, 64),
             List.of(new Shape(1, 128, 3, 3)),
             RANDOM);
@@ -67,7 +67,7 @@ class BlockTest {
     @Test
     void residualTowerRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/ResidualTowerBlock.onnx",
+            "./build/ResidualTowerBlock.onnx",
             ResidualTower.builder()
                 .numResiduals(8)
                 .numChannels(128)
@@ -84,7 +84,7 @@ class BlockTest {
     @Test
     void broadcastBlockZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/BroadcastBlock.onnx",
+            "./build/BroadcastBlock.onnx",
             BroadcastBlock.builder().setUnits(3 * 3).build(),
             List.of(new Shape(1, 128, 3, 3)),
             ZERO);
@@ -94,7 +94,7 @@ class BlockTest {
     @Test
     void squeezeExciteZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/SqueezeExciteBlock.onnx",
+            "./build/SqueezeExciteBlock.onnx",
             new SqueezeExciteExt(128, 10),
             List.of(new Shape(1, 128, 3, 3)),
             ZERO);
@@ -104,7 +104,7 @@ class BlockTest {
     @Test
     void residualZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/ResidualBlockV2.onnx",
+            "./build/ResidualBlockV2.onnx",
             new ResidualBlockV2(128, 10),
             List.of(new Shape(1, 128, 3, 3)),
             ZERO);
@@ -114,7 +114,7 @@ class BlockTest {
     @Test
     void residualTowerZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/ResidualTowerBlock.onnx",
+            "./build/ResidualTowerBlock.onnx",
             ResidualTower.builder()
                 .numResiduals(8)
                 .numChannels(128)
@@ -131,7 +131,7 @@ class BlockTest {
     @Test
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/RepresentationOrDynamicsBlock.onnx",
+            "./build/RepresentationOrDynamicsBlock.onnx",
             new RepresentationOrDynamicsBlock(NetworkType.CON,3, 3, 3, 128, 64, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
@@ -142,7 +142,7 @@ class BlockTest {
     void predictionZERO() throws Exception {
 
         boolean check = compareOnnxWithDJL(
-            "./target/PredictionBlock.onnx",
+            "./build/PredictionBlock.onnx",
             new PredictionBlock(NetworkType.CON,3, 128, true, 9, ValueHeadType.EXPECTED),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
@@ -152,7 +152,7 @@ class BlockTest {
     @Test
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-            "./target/RepresentationOrDynamicsBlock.onnx",
+            "./build/RepresentationOrDynamicsBlock.onnx",
             new RepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 5, 8),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
@@ -163,7 +163,7 @@ class BlockTest {
     void predictionRANDOM() throws Exception {
 
         boolean check = compareOnnxWithDJL(
-            "./target/PredictionBlock.onnx",
+            "./build/PredictionBlock.onnx",
             new PredictionBlock(NetworkType.CON, 3, 128, true, 9, ValueHeadType.EXPECTED),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);

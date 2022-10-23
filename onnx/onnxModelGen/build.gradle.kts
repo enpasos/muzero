@@ -30,8 +30,14 @@ dependencies {
 
 description = "onnxModelGen"
 
+group = "${group}.onnx"
+
+// protobuf protoc with artifact from catalog
+
+
+
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.21.4"
+        artifact = "com.google.protobuf:protoc:3.21.8"
     }
 }

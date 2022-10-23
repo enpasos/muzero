@@ -1,12 +1,11 @@
 rootProject.name = "muzero"
 
-include(":onnxModelGen")
-include(":onnxWithRuntime")
 include(":platform")
 include(":games:go")
 include(":games:tictactoe")
 include(":games:pegsolitair")
-
+include(":onnx:onnxModelGen")
+include(":onnx:onnxWithRuntime")
 
 pluginManagement {
     repositories {
