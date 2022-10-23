@@ -30,7 +30,7 @@ You can find out the inference time while running MuZero on your edge device:
 ## Build
 
 ```
-    gradlew clean build
+    gradlew build
 ```
 
 ## Run integration test on tictactoc
