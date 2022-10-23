@@ -39,7 +39,7 @@ public class DJLTicTacToeTest implements CommandLineRunner {
     public void run(String... args) {
         log.info("default engine name: " + Engine.getDefaultEngineName());
         log.info("all engines: " + Engine.getAllEngines());
-        String modelPath = "./models/initialInference.onnx";
+        String modelPath = "./memory/tictactoe/onnx/MuZero-TicTacToe-InitialInference.onnx";
 
 
         Model model = Model.newInstance("model", "OnnxRuntime");
