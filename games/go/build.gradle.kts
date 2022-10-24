@@ -8,7 +8,7 @@ plugins {
 apply(plugin = "io.spring.dependency-management")
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    mainClass.set("ai.enpasos.muzero.tictactoe.TicTacToe")
+    mainClass.set("ai.enpasos.muzero.go.Go")
     this.archiveClassifier.set("exec")
 }
 tasks.named<Jar>("jar") {
