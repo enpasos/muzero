@@ -18,9 +18,11 @@
 package ai.enpasos.muzero.platform.agent.memorize;
 
 
+import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.djl.util.Utils;
+import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -70,15 +72,27 @@ public class ReplayBuffer {
         Sample sample = new Sample();
         game.replayToPosition(gamePos);
 
-        sample.setObservation(game.getObservation(ndManager));
+        sample.getObservations().add(game.getObservation(ndManager));
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
+        int originalActionSize = actions.size();
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
+        }
+        sample.setActionsList(new ArrayList<>());
+        Observation lastObservation = null;
+        for (int i = 0; i < numUnrollSteps; i++) {
+            int actionIndex = actions.get(gamePos + i);
+            sample.getActionsList().add(actionIndex);
+
+            if (gamePos + i < originalActionSize) {
+                game.replayToPosition(gamePos + i);
+                lastObservation = game.getObservation(ndManager);
+            }
+            sample.getObservations().add(lastObservation);
+
 
         }
-
-        sample.setActionsList(actions.subList(gamePos, gamePos + numUnrollSteps));
 
         sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps ));
 
@@ -143,14 +157,14 @@ public class ReplayBuffer {
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps,  NDManager ndManager) {
-
-        return sampleGames().stream()
-            .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
-            .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
-            .map(game -> sampleFromGame(numUnrollSteps,  game, ndManager, this))
-            .collect(Collectors.toList());
-
+    public List<Sample> sampleBatch(int numUnrollSteps) {
+        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
+            return sampleGames().stream()
+                .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
+                .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
+                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
+                .collect(Collectors.toList());
+        }
     }
 
 

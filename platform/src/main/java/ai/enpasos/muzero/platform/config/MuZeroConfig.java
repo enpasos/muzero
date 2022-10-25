@@ -414,6 +414,17 @@ public class MuZeroConfig {
         return getConf().numPurePolicyPlays;
     }
 
+    public int getNumChannelsHiddenLayerSimilarity() {
+        return getConf().numChannelsHiddenLayerSimilarity;
+    }
+    public int getNumChannelsOutputLayerSimilarity() {
+        return getConf().numChannelsOutputLayerSimilarity;
+    }
+
+
+
+
+
     public FileType getGameBufferWritingFormat() {
         return getConf().gameBufferWritingFormat;
     }
@@ -492,6 +503,10 @@ public class MuZeroConfig {
         protected boolean windowSizeIsDynamic = false;
         protected double windowSizeExponent;
         protected double windowSizeSlope;
+
+
+        protected int numChannelsHiddenLayerSimilarity;
+        protected int numChannelsOutputLayerSimilarity;
 
 
         protected double fractionOfAlternativeActionGames;

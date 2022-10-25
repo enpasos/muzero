@@ -46,6 +46,8 @@ public class LossExtractor {
                 , "totalLoss"
                 , "valueLoss"
                 , "policyLoss"
+                , "similarityLoss"
+
                 //  , "actionPaths"
             ).build())) {
 
@@ -60,7 +62,8 @@ public class LossExtractor {
                             csvPrinter.printRecord(trainingSteps,
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss"))
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanSimilarityLoss"))
                                 //,
                                 //NumberFormat.getNumberInstance().format(getDoubleValue(model, "NumActionPaths"))
                             );

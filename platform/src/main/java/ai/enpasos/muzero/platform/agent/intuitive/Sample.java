@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -37,8 +38,15 @@ public class Sample {
     @Builder.Default
     private boolean actionTrainingPlayerB = true;
 
-    private Observation observation;
-    private List<Integer> actionsList;
-    private List<Target> targetList;
+
+    @Builder.Default
+    private List<Observation> observations = new ArrayList<>();
+
+
+    @Builder.Default
+    private List<Integer> actionsList = new ArrayList<>();
+
+    @Builder.Default
+    private List<Target> targetList = new ArrayList<>();
 
 }

@@ -27,6 +27,7 @@ import ai.djl.training.EasyTrain;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MySaveModelTrainingListener;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
@@ -270,7 +271,7 @@ public class MuZero {
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
                         log.debug("trainBatch " + m);
-                        EasyTrain.trainBatch(trainer, batch);
+                        MyEasyTrain.trainBatch(trainer, batch);
                         trainer.step();
                     }
                 }
@@ -300,6 +301,21 @@ public class MuZero {
                     .sum();
                 model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
                 log.info("MeanValueLoss: " + meanValueLoss);
+
+
+                // mean similarity
+                // loss
+                double meanSimLoss = metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                replayBuffer.putMeanValueLoss(epoch, meanSimLoss);
+                meanSimLoss += metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                model.setProperty("MeanSimilarityLoss", Double.toString(meanSimLoss));
+                log.info("MeanSimilarityLoss: " + meanSimLoss);
 
                 // mean policy loss
                 double meanPolicyLoss = metrics.getMetricNames().stream()
