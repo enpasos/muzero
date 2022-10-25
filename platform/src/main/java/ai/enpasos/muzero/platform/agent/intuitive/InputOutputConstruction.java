@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Component
@@ -46,32 +47,20 @@ public class InputOutputConstruction {
     @Autowired
     MuZeroConfig config;
 
-    public List<NDArray> constructInput(@NotNull NDManager nd, int numUnrollSteps, Observation observation, List<Integer> actionsList, boolean withSymmetryEnrichment) {
-
-        List<NDArray> inputs = new ArrayList<>();
-
-
-        Sample sample = Sample.builder()
-            .observation(observation)
-            .actionsList(actionsList)
-            .build();
-        List<Sample> batch = new ArrayList<>();
-        batch.add(sample);
-
-        addHiddenStateInput(nd, batch, inputs);
-        addActionInput(numUnrollSteps, batch, nd, inputs, withSymmetryEnrichment);
-
-        return inputs;
-
-    }
 
     public List<NDArray> constructInput(@NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment) {
 
         List<NDArray> inputs = new ArrayList<>();
+        List<NDArray> inputsH = new ArrayList<>();
+        List<NDArray> inputsA = new ArrayList<>();
+        addHiddenStateInput(numUnrollSteps, ndManager, batch, inputsH);
+        addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
+        inputs.add(inputsH.get(0));
+        IntStream.range(0, inputsA.size()).forEach(i -> {
+            inputs.add(inputsA.get(i));
+            inputs.add(inputsH.get(1 + i));
 
-        addHiddenStateInput(ndManager, batch, inputs);
-        addActionInput(numUnrollSteps, batch, ndManager, inputs, withSymmetryEnrichment);
-
+        });
         return inputs;
 
     }
@@ -122,12 +111,15 @@ public class InputOutputConstruction {
     }
 
 
-    private void addHiddenStateInput(@NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
-        List<NDArray> o = batch.stream()
-            .map(sample -> sample.getObservation().getNDArray(ndManager))
-            .collect(Collectors.toList());
+    private void addHiddenStateInput(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
+        for (int k = 0; k < numUnrollSteps + 1; k++) {
+            final int kFinal = k;
+            List<NDArray> o = batch.stream()
+                .map(sample -> sample.getObservations().get(kFinal).getNDArray(ndManager))
+                .collect(Collectors.toList());
 
-        inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+            inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+        }
     }
 
     public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {

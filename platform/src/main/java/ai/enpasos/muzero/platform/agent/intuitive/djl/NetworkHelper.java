@@ -35,6 +35,8 @@ import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
 import ai.enpasos.muzero.platform.agent.intuitive.InputOutputConstruction;
+import ai.enpasos.muzero.platform.agent.intuitive.Network;
+import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
@@ -47,6 +49,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -54,6 +57,7 @@ import java.util.List;
 public class NetworkHelper {
 
     public static final String LOSS_VALUE = "loss_value_";
+    public static final String LOSS_SIMILARITY = "loss_similarity_";
     @Autowired
     MuZeroConfig config;
 
@@ -99,10 +103,13 @@ public class NetworkHelper {
         return epoch;
     }
 
-    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
+    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment ) {
+        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps());
         NDManager nd = ndManager.newSubManager();
-        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(),   nd);
+
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
+
+
         List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch);
 
         return new Batch(
@@ -167,7 +174,6 @@ public class NetworkHelper {
             loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
             // value
-            // value
             if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
                 log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
                 loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + i, gradientScale, 1, false, true), k));
@@ -175,6 +181,11 @@ public class NetworkHelper {
                 log.info("k={}: Value L2Loss", k);
                 loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             }
+            k++;
+            // similarity
+            log.info("k={}: Similarity L2Loss", k);
+            loss.addLoss(new IndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, 2 * gradientScale), k));
+
             k++;
         }
 
