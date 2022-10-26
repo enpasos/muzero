@@ -9,6 +9,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.SurpriseExtractor;
 import ai.enpasos.muzero.platform.run.train.MuZero;
@@ -49,7 +50,7 @@ public class GoTest {
 
         Game  game = surpriseExtractor.getGameStartingWithActionsFromStart(
             12, 17, 11, 13, 7, 23, 6, 19, 8, 9, 16, 21, 3, 20, 4, 14, 15, 22, 25, 0, 5, 1, 2, 1, 0, 25, 10
-        ).get();
+        ).orElseThrow(MuZeroException::new);
 
 //        List<Integer> actions = List.of(12, 17, 11, 13, 7, 23, 6, 19, 8, 9, 16, 21, 3, 20, 4, 14, 15, 22, 25, 0, 5, 1, 2, 1, 0, 25, 10);
 //
@@ -67,15 +68,12 @@ public class GoTest {
                 List<Pair<Action, Double>> distributionInput = null;
 
                 distributionInput = getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList));
-                int i = 42;
-
 
 
 
                 List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(List.of(networkOutputList.get(0).getHiddenState()), List.of(distributionInput.get(0).getKey().encode(nDManager)));
-                List<Pair<Action, Double>> distributionInput2 = getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
+                 getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
 
-                int j = 42;
 
 
             }

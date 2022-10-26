@@ -82,8 +82,8 @@ public class NaiveInitialInferenceListTranslator implements Translator<List<Game
             .collect(Collectors.toList());
 
         return new NDList(NDArrays.stack(new NDList(
-            observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
-        )));
+            observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList()))
+        ));
     }
 
 

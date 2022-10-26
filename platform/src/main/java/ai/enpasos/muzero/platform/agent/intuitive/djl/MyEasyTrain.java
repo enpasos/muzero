@@ -10,6 +10,7 @@ import ai.djl.training.dataset.Dataset;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.translate.TranslateException;
 import ai.djl.util.Preconditions;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
@@ -91,7 +92,7 @@ public final class MyEasyTrain {
 
             if (splits.length > 1 && trainer.getExecutorService().isPresent()) {
                 // multi-threaded
-                ExecutorService executor = trainer.getExecutorService().get();
+                ExecutorService executor = trainer.getExecutorService().orElseThrow(MuZeroException::new);
                 List<CompletableFuture<Boolean>> futures = new ArrayList<>(splits.length);
                 for (Batch split : splits) {
                     futures.add(
@@ -164,7 +165,7 @@ public final class MyEasyTrain {
 
         if (splits.length > 1 && trainer.getExecutorService().isPresent()) {
             // multi-threaded
-            ExecutorService executor = trainer.getExecutorService().get();
+            ExecutorService executor = trainer.getExecutorService().orElseThrow(MuZeroException::new);
             List<CompletableFuture<Boolean>> futures = new ArrayList<>(splits.length);
             for (Batch split : splits) {
                 futures.add(

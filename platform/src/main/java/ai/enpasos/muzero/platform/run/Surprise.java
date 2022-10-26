@@ -116,7 +116,7 @@ public class Surprise {
     private List<Game> getRelevantGames(int numGames) {
         List<Game> games = replayBuffer.getBuffer().getGames().stream()
             .filter(game -> !game.getGameDTO().getSurprises().isEmpty())
-            .collect(Collectors.toList());
+            .collect( Collectors.toList());
 
         List<Game> result = games.subList(Math.max(games.size() - numGames, 0), games.size());
         games.clear();

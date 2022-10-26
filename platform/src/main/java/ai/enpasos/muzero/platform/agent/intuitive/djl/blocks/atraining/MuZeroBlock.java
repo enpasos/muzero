@@ -163,7 +163,6 @@ public class MuZeroBlock extends AbstractBlock {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-     //   actionFlattenBlock.initialize(manager, dataType, inputShapes[1]);
         representationBlock.initialize(manager, dataType, inputShapes[0]);
 
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[] {inputShapes[0]});
@@ -171,8 +170,6 @@ public class MuZeroBlock extends AbstractBlock {
 
         Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes( new Shape[] {stateOutputShapes[0]});
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
-
-  //      Shape[] stateOutputShapes = representationBlock.getOutputShapes(inputShapes);
 
         predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);
 

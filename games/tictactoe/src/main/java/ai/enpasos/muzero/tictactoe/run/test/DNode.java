@@ -78,8 +78,6 @@ public class DNode {
         switch (player) {
             case PLAYER_A -> bestForceableValuePlayerA = value;
             case PLAYER_B -> bestForceableValuePlayerB = value;
-            default -> {
-            }
         }
     }
 

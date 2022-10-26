@@ -62,7 +62,7 @@ public class PegSolitairEnvironment implements Environment {
     public @NotNull List<Action> legalActions() {
         return board.getLegalJumps().stream()
             .map(j -> ActionAdapter.getAction(config, j))
-            .collect(Collectors.toList());
+            .collect( Collectors.toList());
 
     }
 

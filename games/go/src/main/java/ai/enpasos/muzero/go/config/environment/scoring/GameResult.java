@@ -129,7 +129,6 @@ public class GameResult {
             return switch (winner()) {
                 case BLACK_PLAYER -> "Black +" + blackWinningMargin();
                 case WHITE_PLAYER -> "White +" + (-blackWinningMargin());
-                default -> "this should not happen";
             };
         }
 

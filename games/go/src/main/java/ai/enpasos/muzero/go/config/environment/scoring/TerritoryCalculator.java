@@ -115,7 +115,7 @@ public class TerritoryCalculator {
                 visitedPlayers.add(player.get());
 
             if (player.isEmpty() || statusMap.get(point).isTerritory()) {
-                var nextVisits = point.neighbors().stream().filter(board::inBounds).collect(Collectors.toList());
+                var nextVisits = point.neighbors().stream().filter(board::inBounds).collect( Collectors.toList());
                 nextVisits.removeAll(visitedPoints);
                 nextPoints = ListUtils.union(nextVisits, nextPoints);
                 visitedPoints.add(point);

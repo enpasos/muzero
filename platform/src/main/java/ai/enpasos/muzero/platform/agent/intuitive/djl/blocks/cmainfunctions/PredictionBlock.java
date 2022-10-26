@@ -38,7 +38,7 @@ public class PredictionBlock extends MySequentialBlock {
     public PredictionBlock(NetworkType networkType, int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
 
 
-        SequentialBlockExt valueHead = (SequentialBlockExt) new SequentialBlockExt();
+        SequentialBlockExt valueHead =  new SequentialBlockExt();
         if (networkType == NetworkType.CON) {
             valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock());
@@ -61,7 +61,7 @@ public class PredictionBlock extends MySequentialBlock {
             }
         }
 
-        SequentialBlockExt policyHead = (SequentialBlockExt) new SequentialBlockExt();
+        SequentialBlockExt policyHead =  new SequentialBlockExt();
         if (networkType == NetworkType.CON) {
             policyHead
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())

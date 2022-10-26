@@ -85,7 +85,7 @@ public class GumbelSearch {
         rootChildrenCandidates.put(currentPhase,
             this.root.getChildren().stream()
             .filter(node -> gumbelActionsFinal.contains(node.getGumbelAction()))
-            .collect(Collectors.toList()));
+                .collect(Collectors.toList()));
 
     }
 
@@ -290,7 +290,6 @@ public class GumbelSearch {
 
 
                 if (config.getTrainingTypeKey() == HYBRID) {
-                    // TODO check that this is not used for playout
                     if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
                         action = getAction( temperature, raw );
                     } else {

@@ -43,7 +43,7 @@ public class GumbelFunctions {
 
         List<Pair<Integer, Double>> gPlusLogits = IntStream.range(0, x.length).mapToObj(
             i -> new Pair<>(i, x[i])
-        ).collect(Collectors.toList());
+        ).collect( Collectors.toList());
 
         IntStream.range(0, n).forEach(i -> {
             Pair<Integer, Double> selected = null;

@@ -119,7 +119,7 @@ public class Functions {
             return 0d;
         }
         List<Double> vs =
-            values.stream().skip(values.size() - config.getNumSimWindow()).collect(Collectors.toList());
+            values.stream().skip((long)values.size() - (long)config.getNumSimWindow()).collect(Collectors.toList());
 
 
         int n = vs.size();

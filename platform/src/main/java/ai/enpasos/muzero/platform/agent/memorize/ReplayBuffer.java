@@ -53,7 +53,7 @@ public class ReplayBuffer {
 
 
     public int getMaxGameLength() {
-        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
     }
 
     private String currentNetworkName = "NONE";
@@ -183,7 +183,7 @@ public class ReplayBuffer {
                     return true;
                 }
             })
-            .limit(this.batchSize / 2).collect(Collectors.toList());
+            .limit(this.batchSize / 2).collect( Collectors.toList());
         games.removeAll(gamesToTrain);  // otherwise, draw games could be selected again
         gamesToTrain.addAll(games.stream()
             .filter(g -> {
