@@ -41,7 +41,7 @@ import java.util.function.Consumer;
  */
 @Component
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MySaveModelTrainingListener.class);

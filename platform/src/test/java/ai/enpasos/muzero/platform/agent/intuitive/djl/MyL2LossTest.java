@@ -4,7 +4,7 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MyL2LossTest {
 

@@ -24,7 +24,7 @@ import ai.djl.training.loss.Loss;
  */
 public class MyL2Loss extends Loss {
 
-    public static final  float NULL_VALUE = 1234567f;
+    public static final float NULL_VALUE = 1234567f;
 
     private final float weight;
 

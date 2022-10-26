@@ -20,7 +20,6 @@ class GumbelInfoTest {
         simNumTest(200, 16, 26);
 
 
-
         // tictactoe example
         simNumTest(20, 4, 9);
 

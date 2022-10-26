@@ -100,7 +100,7 @@ public class NetworkHelper {
         return epoch;
     }
 
-    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment ) {
+    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps());
         NDManager nd = ndManager.newSubManager();
 

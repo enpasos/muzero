@@ -6,7 +6,7 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MySimilarityLossTest {
 
@@ -26,8 +26,7 @@ class MySimilarityLossTest {
         prediction = prediction.reshape(shape);
 
 
-
-        assertEquals(0f, loss.evaluate( new NDList( label), new NDList(prediction)).getFloat());
+        assertEquals(0f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
 
     }
 }

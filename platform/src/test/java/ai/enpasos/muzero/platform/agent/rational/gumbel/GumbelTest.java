@@ -49,19 +49,19 @@ class GumbelTest {
         );
 
 
-        assertEquals(2, drawGumbelActions(actions, 2 ).size());
-        assertEquals(3, drawGumbelActions(actions, 3 ).size());
-        assertEquals(1, drawGumbelActions(actions, 1 ).size());
-        assertEquals(0, drawGumbelActions(actions, 0 ).size());
+        assertEquals(2, drawGumbelActions(actions, 2).size());
+        assertEquals(3, drawGumbelActions(actions, 3).size());
+        assertEquals(1, drawGumbelActions(actions, 1).size());
+        assertEquals(0, drawGumbelActions(actions, 0).size());
 //        assertThrows(MuZeroException.class, () -> {
 //            GumbelFunctions.drawGumbelActionsInitially(actions, 4);
 //        });
-        System.out.println(drawGumbelActions(actions, 2 ).toString());
-        System.out.println(drawGumbelActions(actions, 2 ).toString());
-        System.out.println(drawGumbelActions(actions, 2 ).toString());
-        System.out.println(drawGumbelActions(actions, 2 ).toString());
-        System.out.println(drawGumbelActions(actions, 2 ).toString());
-        System.out.println(drawGumbelActions(actions, 2 ).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
+        System.out.println(drawGumbelActions(actions, 2).toString());
     }
 
 

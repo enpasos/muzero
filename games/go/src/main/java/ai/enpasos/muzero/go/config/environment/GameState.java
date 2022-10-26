@@ -61,8 +61,8 @@ public class GameState {
 
     public GameState applyMove(Move move) {
         GoBoard nextBoard = board;
-        if (move instanceof Play) {
-            nextBoard = board.placeStone(nextPlayer, ((Play) move).getPoint());
+        if (move instanceof Play play) {
+            nextBoard = board.placeStone(nextPlayer, play.getPoint());
         }
 
         List<Pair<Player, Long>> newAllPrevStates = new ArrayList<>(allPreviousStates);

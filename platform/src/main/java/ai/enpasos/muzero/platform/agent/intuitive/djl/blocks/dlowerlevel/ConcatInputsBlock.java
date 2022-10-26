@@ -60,7 +60,7 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
         NDArray state = inputs.get(0);
         NDArray externalInput = inputs.get(1);
         if (networkType == NetworkType.FC) {
-            externalInput =  batchFlatten(externalInput);
+            externalInput = batchFlatten(externalInput);
         }
 
         return new NDList(NDArrays.concat(new NDList(state, externalInput), 1));
