@@ -72,19 +72,19 @@ public class MuZero {
     @Autowired
     NetworkHelper networkHelper;
 
-    public void play( Network network, boolean render, boolean justInitialInferencePolicy, boolean withRandomActions) {
+    public void play(Network network, boolean render, boolean justInitialInferencePolicy, boolean withRandomActions) {
 
-        selfPlay.playMultipleEpisodes( network, render, false, justInitialInferencePolicy, withRandomActions);
+        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy, withRandomActions);
     }
 
-    public void initialFillingBuffer( Network network) {
+    public void initialFillingBuffer(Network network) {
 
 
         long startCounter = replayBuffer.getBuffer().getCounter();
         int windowSize = config.getWindowSize(startCounter);
         while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(   network, false, true, false, false);
+            selfPlay.playMultipleEpisodes(network, false, true, false, false);
             replayBuffer.saveState();
         }
     }
@@ -144,7 +144,7 @@ public class MuZero {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-            init(  params.freshBuffer, params.randomFill, network, params.withoutFill);
+            init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
             int epoch = networkHelper.getEpoch();
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
@@ -154,9 +154,9 @@ public class MuZero {
             while (trainingStep < config.getNumberOfTrainingSteps()) {
                 if (!params.freshBuffer) {
 
-                    for(PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                        config.setPlayTypeKey( key);
-                        playGames( params.render, network, trainingStep);
+                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey(key);
+                        playGames(params.render, network, trainingStep);
                     }
 
                     int n = replayBuffer.getBuffer().getGames().size();
@@ -187,7 +187,7 @@ public class MuZero {
         }
     }
 
-    private void surpriseCheck(   Network network) {
+    private void surpriseCheck(Network network) {
         List<Game> gamesForThreshold = this.replayBuffer.getBuffer().getGames().stream()
             .filter(game -> !game.getGameDTO().getSurprises().isEmpty())
             .filter(game -> game.getGameDTO().getTStateA() == 0).collect(Collectors.toList());
@@ -218,33 +218,27 @@ public class MuZero {
 
     }
 
-    public void init( boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
+    public void init(boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
         createNetworkModelIfNotExisting();
         replayBuffer.init();
         if (freshBuffer) {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
-                play(   network, false, true, false);
+                play(network, false, true, false);
                 replayBuffer.saveState();
             }
         } else {
             replayBuffer.loadLatestState();
             if (withoutFill) return;
             if (randomFill) {
-                initialFillingBuffer(  network);
+                initialFillingBuffer(network);
             } else {
-                play(   network, false, false, false);
+                play(network, false, false, false);
                 replayBuffer.saveState();
             }
         }
     }
 
-    private void init2(Network network) {
-        createNetworkModelIfNotExisting();
-
-        replayBuffer.init();
-
-    }
 
     int trainNetwork(int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
@@ -337,15 +331,15 @@ public class MuZero {
         return trainingStep;
     }
 
-    void playGames(  boolean render, Network network, int trainingStep) {
+    void playGames(boolean render, Network network, int trainingStep) {
         if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
             log.info("last training step = {}", trainingStep);
-            log.info("numSimulations: " + config.getNumSimulations( ));
+            log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
-            boolean justInitialInferencePolicy = config.getNumSimulations( ) == 0;
+            boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
 
-            play(  network, render, justInitialInferencePolicy, true);
+            play(network, render, justInitialInferencePolicy, true);
             replayBuffer.saveState();
         }
     }

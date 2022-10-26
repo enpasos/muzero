@@ -28,29 +28,29 @@ import org.jetbrains.annotations.NotNull;
 public class SimilarityPredictorBlock extends MySequentialBlock {
 
 
-        private SimilarityPredictorBlock() {
-        }
-
-        @Builder()
-        public static @NotNull SimilarityPredictorBlock newPredictorBlock(int hiddenChannels, int outputChannels) {
-            SimilarityPredictorBlock instance = new SimilarityPredictorBlock();
-            instance
-
-                // layer 1
-                .add(LinearExt.builder()
-                    .setUnits(hiddenChannels)
-                    .build())
-                .add(LayerNormExt.builder().build())
-                .add(ActivationExt.reluBlock())
-
-                // layer 2
-                .add(LinearExt.builder()
-                    .setUnits(outputChannels)
-                    .build())
-                .add(LayerNormExt.builder().build());
-
-            return instance;
-        }
-
-
+    private SimilarityPredictorBlock() {
     }
+
+    @Builder()
+    public static @NotNull SimilarityPredictorBlock newPredictorBlock(int hiddenChannels, int outputChannels) {
+        SimilarityPredictorBlock instance = new SimilarityPredictorBlock();
+        instance
+
+            // layer 1
+            .add(LinearExt.builder()
+                .setUnits(hiddenChannels)
+                .build())
+            .add(LayerNormExt.builder().build())
+            .add(ActivationExt.reluBlock())
+
+            // layer 2
+            .add(LinearExt.builder()
+                .setUnits(outputChannels)
+                .build())
+            .add(LayerNormExt.builder().build());
+
+        return instance;
+    }
+
+
+}

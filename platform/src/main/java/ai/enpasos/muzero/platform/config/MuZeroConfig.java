@@ -202,8 +202,8 @@ public class MuZeroConfig {
         return getConf().numUnrollSteps;
     }
 
-    public int getTdSteps( ) {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey() ).getTdSteps();
+    public int getTdSteps() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getTdSteps();
     }
 
     public float getDiscount() {
@@ -255,11 +255,11 @@ public class MuZeroConfig {
         return getConf().surpriseCheckInterval;
     }
 
-    public double getRootDirichletAlpha( ) {
+    public double getRootDirichletAlpha() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
     }
 
-    public double getRootExplorationFraction( ) {
+    public double getRootExplorationFraction() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootExplorationFraction;
     }
 
@@ -289,11 +289,11 @@ public class MuZeroConfig {
         getConf().setInferenceDeviceType(deviceType);
     }
 
-    public double getTemperatureRoot( ) {
+    public double getTemperatureRoot() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).temperatureRoot;
     }
 
-    public void setTemperatureRoot( double temperature) {
+    public void setTemperatureRoot(double temperature) {
         getConf().getPlayTypes().get(getConf().getPlayTypeKey()).temperatureRoot = temperature;
     }
 
@@ -317,42 +317,41 @@ public class MuZeroConfig {
         return getConf().initialGumbelM;
     }
 
-    public int getNumSimulations( ) {
+    public int getNumSimulations() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numSimulations;
     }
-    public int getNumSimulationsHybrid( ) {
+
+    public void setNumSimulations(int numSimulations) {
+        getConf().getPlayTypes().get(getConf().getPlayTypeKey()).setNumSimulations(numSimulations);
+    }
+
+    public int getNumSimulationsHybrid() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numSimulationsHybrid;
     }
 
-    public int getNumSimulations(Game game ) {
-        if ( this.getTrainingTypeKey() == HYBRID  &&
-             game.getGameDTO().getActions().size() <  game.getGameDTO().getTHybrid()   ) {
-                return getNumSimulationsHybrid();
+    public int getNumSimulations(Game game) {
+        if (this.getTrainingTypeKey() == HYBRID &&
+            game.getGameDTO().getActions().size() < game.getGameDTO().getTHybrid()) {
+            return getNumSimulationsHybrid();
         } else {
             return getNumSimulations();
         }
     }
-    public double getNumSimThreshold( ) {
+
+    public double getNumSimThreshold() {
         return getConf().numSimThreshold;
     }
-    public int getNumSimMin( ) {
+
+    public int getNumSimMin() {
         return getConf().numSimMin;
     }
-    public int getNumSimMax( ) {
+
+    public int getNumSimMax() {
         return getConf().numSimMax;
     }
-    public int getNumSimWindow( ) {
+
+    public int getNumSimWindow() {
         return getConf().numSimWindow;
-    }
-
-
-
-
-
-
-
-    public void setNumSimulations( int numSimulations) {
-        getConf().getPlayTypes().get(getConf().getPlayTypeKey()).setNumSimulations(numSimulations);
     }
 
     public int getNumParallelGamesPlayed() {
@@ -362,12 +361,15 @@ public class MuZeroConfig {
     public boolean isForTdStep0ValueTraining() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0ValueTraining;
     }
+
     public boolean isForTdStep0PolicyTraining() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0PolicyTraining;
     }
+
     public boolean isGumbelActionSelection() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelection;
     }
+
     public boolean isWithGumbel() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).withGumbel;
     }
@@ -376,10 +378,14 @@ public class MuZeroConfig {
     public int getBroadcastEveryN() {
         return getConf().broadcastEveryN;
     }
+
     public PlayTypeKey getPlayTypeKey() {
         return getConf().getPlayTypeKey();
     }
 
+    public void setPlayTypeKey(PlayTypeKey trainingTypeKey) {
+        getConf().setPlayTypeKey(trainingTypeKey);
+    }
 
     public boolean isExtraValueTrainingOn() {
         return getConf().isExtraValueTrainingOn();
@@ -387,11 +393,11 @@ public class MuZeroConfig {
 
     public boolean isSurpriseHandlingOn() {
         return getConf().isSurpriseHandlingOn();
-}
+    }
+
     public boolean isRecordVisitsOn() {
         return getConf().recordVisitsOn;
     }
-
 
     public int getCVisit() {
         return getConf().cVisit;
@@ -409,7 +415,6 @@ public class MuZeroConfig {
         return getConf().cScale;
     }
 
-
     public int getNumPurePolicyPlays() {
         return getConf().numPurePolicyPlays;
     }
@@ -417,13 +422,10 @@ public class MuZeroConfig {
     public int getNumChannelsHiddenLayerSimilarity() {
         return getConf().numChannelsHiddenLayerSimilarity;
     }
+
     public int getNumChannelsOutputLayerSimilarity() {
         return getConf().numChannelsOutputLayerSimilarity;
     }
-
-
-
-
 
     public FileType getGameBufferWritingFormat() {
         return getConf().gameBufferWritingFormat;
@@ -433,16 +435,9 @@ public class MuZeroConfig {
         getConf().setGameBufferWritingFormat(fileType);
     }
 
-
-
     public PlayTypeKey getTrainingTypeKey() {
         return getConf().playTypeKey;
     }
-
-    public void setPlayTypeKey(PlayTypeKey trainingTypeKey) {
-        getConf().setPlayTypeKey(trainingTypeKey);
-    }
-
 
     public int getWindowSize(long gamesPlayed) {
         int w0 = getConf().windowSizeStart;
@@ -450,7 +445,7 @@ public class MuZeroConfig {
         double a = getConf().windowSizeExponent;
         double b = getConf().windowSizeSlope;
 
-        int w = (int) (w0 * (1.0 + b * (Math.pow((double)gamesPlayed / w0, a) - 1) / a));
+        int w = (int) (w0 * (1.0 + b * (Math.pow((double) gamesPlayed / w0, a) - 1) / a));
 
         return Math.max(w0, w);
 
@@ -464,20 +459,16 @@ public class MuZeroConfig {
     }
 
 
-
-
     @Data
     public static class Conf {
+        public Map<PlayTypeKey, PlayType> playTypes;
         protected boolean recordVisitsOn = false;
         protected boolean surpriseHandlingOn = false;
         protected boolean extraValueTrainingOn = false;
-
-
         protected double numSimThreshold;
         protected int numSimMin;
         protected int numSimMax;
         protected int numSimWindow;
-
         protected NetworkType networkType = NetworkType.CON;
         protected String modelName;
         protected String gameClassName;
@@ -497,29 +488,20 @@ public class MuZeroConfig {
         protected int numResiduals;
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
-
-
         protected int windowSizeStart;
         protected boolean windowSizeIsDynamic = false;
         protected double windowSizeExponent;
         protected double windowSizeSlope;
-
-
         protected int numChannelsHiddenLayerSimilarity;
         protected int numChannelsOutputLayerSimilarity;
-
-
         protected double fractionOfAlternativeActionGames;
-
         protected int windowValueSelfconsistencySize;
         protected int batchSize;
         protected int numUnrollSteps;
-
         protected float discount;
         protected float weightDecay;
         protected float valueLossWeight;
         protected float lrInit;
-
         protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;
@@ -527,37 +509,26 @@ public class MuZeroConfig {
         protected int boardWidth;
         protected int actionSpaceSize;
         protected int numberTrainingStepsOnStart;
-
         protected int surpriseCheckInterval;
         protected KnownBoundsType knownBoundsType;
-
-
         protected double variableStartFraction;
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
-
-
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
         protected long maxGameLiveTime;
-
+        protected PlayTypeKey playTypeKey;
         int initialGumbelM;
         double gumbelScale = 1;
         int cVisit;
         double cScale;
         int numPurePolicyPlays;
-
         double[] values;
-
-
-        public Map<PlayTypeKey, PlayType> playTypes;
-
-        protected PlayTypeKey playTypeKey;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {
                 this.playTypes.entrySet().stream().filter(entry -> entry.getValue().isForTraining()).findFirst().ifPresent(entry -> this.playTypeKey = entry.getKey());
             }
-        return playTypeKey;
+            return playTypeKey;
         }
 
 

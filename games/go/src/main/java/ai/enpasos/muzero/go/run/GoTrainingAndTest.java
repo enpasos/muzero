@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 
 
 @Slf4j
@@ -33,7 +32,7 @@ public class GoTrainingAndTest {
         //rmDir(config.getOutputDir());
 
         muZero.train(TrainParams.builder()
-            .withoutFill(true)
+             .withoutFill(true)
           //  .render(true)
             .build());
     }

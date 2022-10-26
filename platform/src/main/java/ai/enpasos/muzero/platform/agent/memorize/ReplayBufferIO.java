@@ -29,6 +29,7 @@ import com.google.gson.GsonBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -53,6 +55,7 @@ import static ai.enpasos.muzero.platform.agent.memorize.ReplayBufferDTO.BUFFER_I
 public class ReplayBufferIO {
 
 
+    public static final String NODETREE_JSON = "nodetree.json";
     @Autowired
     MuZeroConfig config;
 
@@ -114,7 +117,7 @@ public class ReplayBufferIO {
                         }
                         if (config.isRecordVisitsOn()) {
                             input = encodeDTO(dto.getNodeDTO());
-                            ZipEntry entry = new ZipEntry("nodetree.json");
+                            ZipEntry entry = new ZipEntry(NODETREE_JSON);
                             entry.setSize(input.length);
                             zos.putNextEntry(entry);
                             zos.write(input);
@@ -157,7 +160,7 @@ public class ReplayBufferIO {
                         }
                         if (config.isRecordVisitsOn()) {
                             input = encodeDTO(dto.getNodeDTO());
-                            ZipEntry entry = new ZipEntry("nodetree.json");
+                            ZipEntry entry = new ZipEntry(NODETREE_JSON);
                             entry.setSize(input.length);
                             zos.putNextEntry(entry);
                             zos.write(input);
@@ -227,10 +230,19 @@ public class ReplayBufferIO {
     }
 
     public ReplayBufferDTO loadState(Path path) {
-        ReplayBufferDTO dto = null;
 
         String pathname = path.toString();
         log.info("loading ... " + pathname);
+        return loadFromProtobuf(pathname,  Optional.of(this::loadStateFromJson));
+
+    }
+
+
+    @Nullable
+    private ReplayBufferDTO loadFromProtobuf(String pathname,  Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
+        ReplayBufferDTO dto = null;
+
+
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (BufferedInputStream bis = new BufferedInputStream(fis)) {
                 try (ZipInputStream zis = new ZipInputStream(fis)) {
@@ -251,51 +263,63 @@ public class ReplayBufferIO {
                             }
 
                         }
-                        if (config.isRecordVisitsOn()) {
-                            if (filename.equals("nodetree.json")) {
-                                byte[] raw = zis.readAllBytes();
-                                NodeDTO dtoHere = decodeNodeDTO(raw);
-                                Objects.requireNonNull(dto).setNodeDTO(dtoHere);
-                            }
+                        if (config.isRecordVisitsOn() && filename.equals(NODETREE_JSON)) {
+                            byte[] raw = zis.readAllBytes();
+                            NodeDTO dtoHere = decodeNodeDTO(raw);
+                            Objects.requireNonNull(dto).setNodeDTO(dtoHere);
                         }
+
                     }
                     Objects.requireNonNull(dto).rebuildGames(config, false);
                 }
             }
         } catch (Exception e) {
-            try (FileInputStream fis = new FileInputStream(pathname)) {
-                try (ZipInputStream zis = new ZipInputStream(fis)) {
-                    ZipEntry entry;
-                    while ((entry = zis.getNextEntry()) != null) {
-                        String filename = entry.getName();
-                        if (filename.endsWith(".dat")) {
-                            log.info("load: " + filename);
-                            byte[] raw = zis.readAllBytes();
-                            ReplayBufferDTO dtoHere = decodeReplayBufferDTO(raw);
-                            if (dto == null) {
-                                dto = dtoHere;
-                            } else {
-                                dto.getInitialGameDTOList().addAll(dtoHere.getInitialGameDTOList());
-                            }
-                        }
-                        if (config.isRecordVisitsOn()) {
-                            if (filename.equals("nodetree.json")) {
-                                byte[] raw = zis.readAllBytes();
-                                NodeDTO dtoHere = decodeNodeDTO(raw);
-                                Objects.requireNonNull(dto).setNodeDTO(dtoHere);
-                            }
-                        }
-                    }
-                    Objects.requireNonNull(dto).rebuildGames(config, false);
-                }
-            } catch (Exception e2) {
-                log.warn(e2.getMessage());
-            }
+            log.warn(e.getMessage());
+            if (optionalOtherLoader.isPresent())
+                dto = optionalOtherLoader.get().apply(pathname);
         }
         return dto;
-
     }
 
+    private ReplayBufferDTO loadStateFromJson( String pathname) {
+        return loadStateFromJson(pathname, Optional.empty());
+    }
+
+    @Nullable
+    // add a function as the second parameter
+    private ReplayBufferDTO loadStateFromJson( String pathname, Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
+        ReplayBufferDTO dto = null;
+        try (FileInputStream fis = new FileInputStream(pathname)) {
+            try (ZipInputStream zis = new ZipInputStream(fis)) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    String filename = entry.getName();
+                    if (filename.endsWith(".dat")) {
+                        log.info("load: " + filename);
+                        byte[] raw = zis.readAllBytes();
+                        ReplayBufferDTO dtoHere = decodeReplayBufferDTO(raw);
+                        if (dto == null) {
+                            dto = dtoHere;
+                        } else {
+                            dto.getInitialGameDTOList().addAll(dtoHere.getInitialGameDTOList());
+                        }
+                    }
+                    if (config.isRecordVisitsOn() && filename.equals(NODETREE_JSON)) {
+                        byte[] raw = zis.readAllBytes();
+                        NodeDTO dtoHere = decodeNodeDTO(raw);
+                        Objects.requireNonNull(dto).setNodeDTO(dtoHere);
+
+                    }
+                }
+                Objects.requireNonNull(dto).rebuildGames(config, false);
+            }
+        } catch (Exception e2) {
+            log.warn(e2.getMessage());
+            if (optionalOtherLoader.isPresent())
+                dto = optionalOtherLoader.get().apply(pathname);
+        }
+        return dto;
+    }
 
 
 }

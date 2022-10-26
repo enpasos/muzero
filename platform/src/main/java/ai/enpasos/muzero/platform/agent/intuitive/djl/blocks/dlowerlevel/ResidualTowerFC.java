@@ -30,8 +30,8 @@ public class ResidualTowerFC extends MySequentialBlock {
     public static @NotNull ResidualTowerFC newResidualTower(int numResiduals, int numChannels) {
         ResidualTowerFC instance = new ResidualTowerFC();
         for (int i = 0; i < numResiduals; i++) {
-                instance.add(new ResidualBlockFC(numChannels));
-           }
+            instance.add(new ResidualBlockFC(numChannels));
+        }
         return instance;
     }
 

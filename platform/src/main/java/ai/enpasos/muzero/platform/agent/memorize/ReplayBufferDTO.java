@@ -47,6 +47,7 @@ public class ReplayBufferDTO {
 
     private String gameClassName;
     private long counter;
+
     public ReplayBufferDTO(MuZeroConfig config) {
         this.gameClassName = config.getGameClassName();
         this.config = config;
@@ -120,7 +121,7 @@ public class ReplayBufferDTO {
     }
 
     public void rebuildGames(MuZeroConfig config, boolean withReplay) {
-        log.info("rebuildGames"  );
+        log.info("rebuildGames");
         games = new ArrayList<>();
         for (GameDTO gameDTO : getInitialGameDTOList()) {
             Game game = config.newGame();

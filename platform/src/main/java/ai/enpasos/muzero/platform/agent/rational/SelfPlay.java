@@ -45,7 +45,8 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.*;
+import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 
@@ -74,7 +75,7 @@ public class SelfPlay {
         node.getChildren().forEach(SelfPlay::clean);
     }
 
-    public static void storeSearchStatistics(ReplayBuffer replayBuffer, Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
+    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
 
@@ -111,15 +112,15 @@ public class SelfPlay {
         init();
     }
 
-    public void init( ) {
+    public void init() {
         start = System.currentTimeMillis();
         inferenceDuration = new Duration();
-        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed( ))
+        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
             .mapToObj(i -> config.newGame())
-            .collect( Collectors.toList());
+            .collect(Collectors.toList());
         gameList.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
         if (config.getTrainingTypeKey() == HYBRID) {
-            hybridConfiguration( );
+            hybridConfiguration();
         }
         gameList.get(0).setDebug(true);
         gamesDoneList = new ArrayList<>();
@@ -139,16 +140,18 @@ public class SelfPlay {
 
     private void hybridConfiguration() {
         int gameLength = replayBuffer.getMaxGameLength();
-            hybridConfiguration( gameLength);
+        hybridConfiguration(gameLength);
     }
+
     private void hybridConfiguration(int gameLength) {
-          gameList.stream().forEach(game -> {
+        gameList.stream().forEach(game -> {
             game.getGameDTO().setHybrid(true);
             if (game.getGameDTO().getTHybrid() == -1) {
                 game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
             }
         });
     }
+
     public void justReplayWithInitialInference(Network network) {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames());
 
@@ -213,9 +216,9 @@ public class SelfPlay {
         justOneOfTheGames.setRecordValueImprovements(true);
 
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames);
-         getGameList().stream().forEach(g -> {
+        getGameList().stream().forEach(g -> {
             if (g.isRecordValueImprovements()) {
-                     g.getValueImprovements().add(10d);
+                g.getValueImprovements().add(10d);
             }
         });
 
@@ -291,7 +294,7 @@ public class SelfPlay {
             }
             IntStream.range(0, nGames).forEach(i ->
 
-                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(replayBuffer, render, fastRuleLearning, withRandomActions)
+                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning )
 
             );
 
@@ -320,7 +323,7 @@ public class SelfPlay {
             Action action = selectActionByDrawingFromDistribution(distributionInput);
 
             game.apply(action);
-            storeSearchStatistics(this.replayBuffer, game, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
+            storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
         });
 
         keepTrackOfOpenGames();
@@ -417,12 +420,12 @@ public class SelfPlay {
         return !gameList.isEmpty();
     }
 
-    public @NotNull List<Game> playGame(  Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
-        init( );
+    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+        init();
         if (render) {
             log.debug(justOneOfTheGames().render());
         }
-        runEpisode(  network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
+        runEpisode(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration game play [ms]: {}", duration);
         log.info("inference duration game play [ms]: {}", getInferenceDuration().value);
@@ -430,10 +433,10 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public @NotNull Game playGameFromCurrentState( Network network, Game replayGame, boolean untilEnd) {
+    public @NotNull Game playGameFromCurrentState(Network network, Game replayGame, boolean untilEnd) {
         log.info("playGameFromCurrentState");
         init(List.of(replayGame));
-        runEpisode( network, false, false, untilEnd, false);
+        runEpisode(network, false, false, untilEnd, false);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -446,10 +449,10 @@ public class SelfPlay {
         play(network, false, false, false, withRandomActions, this.replayBuffer.getPRandomActionRawAverage());
     }
 
-    public @NotNull List<Game> playGamesFromTheirCurrentState(  Network network, List<Game> replayGames, boolean withRandomActions) {
+    public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, List<Game> replayGames, boolean withRandomActions) {
         log.info("play " + replayGames.size() + " GamesFromTheirCurrentState");
         init(replayGames);
-        runEpisode( network, false, false, false, withRandomActions);
+        runEpisode(network, false, false, false, withRandomActions);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -458,8 +461,7 @@ public class SelfPlay {
     }
 
 
-    private void runEpisode( Network network, boolean render, boolean fastRulesLearning,  boolean justInitialInferencePolicy, boolean withRandomActions) {
-        boolean untilEnd = true;
+    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
@@ -467,7 +469,7 @@ public class SelfPlay {
             int count = 1;
             while (notFinished()) {
                 play(network, render, fastRulesLearning, justInitialInferencePolicy, withRandomActions, this.replayBuffer.getPRandomActionRawAverage());
-                log.info("move " + count + " for " + config.getNumParallelGamesPlayed( ) + " games (where necessary) finished.");
+                log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
                 count++;
             }
         }
@@ -488,8 +490,8 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public void playMultipleEpisodes( Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
-        for (int i = 0; i < config.getNumEpisodes( ); i++) {
+    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+        for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
 
             List<Game> gamesRelevant = games.stream().filter(game -> !game.getGameDTO().isHybrid() || game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size()).collect(Collectors.toList());
@@ -497,83 +499,18 @@ public class SelfPlay {
 
             replayBuffer.addGames(network.getModel(), gamesRelevant);
 
-            log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed( ), i);
+            log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
         }
     }
 
-    private static void recordValueImprovements(List<Game> games) {
-        games.stream().filter(Game::isRecordValueImprovements).forEach(game -> {
-            System.out.println("### actions ... ");
-            // print game.getGameDTO().getActions() in  "%02d" format and semikolon separated
-            game.getGameDTO().getActions().stream().forEach(a ->
-                System.out.print(String.format("%02d", a) + " | ")
-            );
 
-
-            System.out.println("### valueImprovementDelta ... ");
-            double lastV = 0d;
-            boolean first = true;
-            double vDelta = 0d;
-            List<List<Double>> deltasList = new ArrayList<>();
-            List<Double> deltas = new ArrayList<>();
-            for (Double v : game.getValueImprovements()) {
-                if (first || lastV == 10d) {
-                    first = false;
-                    vDelta = 0d;
-                    deltas = new ArrayList<>();
-                    deltasList.add(deltas);
-                } else {
-                    vDelta = v - lastV;
-                    deltas.add(vDelta);
-
-                }
-                //System.out.println(NumberFormat.getNumberInstance().format(vDelta*vDelta));
-                lastV = v;
-            }
-
-            double threshold = 0.01d;  // example threshold
-            int n = 5;  // example n
-            List<Integer> numSims = new ArrayList<>();
-            for (List<Double> deltas2 : deltasList) {
-
-                // iterate over all deltas2 until the last n deltas are below the threshold
-                for (int j = 0; j < deltas2.size() - n; j++) {
-                    List<Double> vs = deltas2.subList(j, j + n);
-                    if (vs.stream().allMatch(v -> v < threshold)) {
-                        numSims.add(j + n);
-                        // System.out.println("### all valueImprovements below threshold " + threshold + " in the last " + n + " valueImprovements");
-                        break;
-                    }
-                }
-
-
-            }
-            // print numSims
-            System.out.println("### numSims ... ");
-            System.out.println(numSims);
-
-            // calculate average numSims and print it
-            System.out.println("### average numSims ... ");
-            double averageNumSims = numSims.stream().mapToDouble(a -> a).average().orElse(0d);
-            System.out.println(averageNumSims);
-
-
-
-            System.out.println("###");
-            System.out.println("###");
-            System.out.println("###");
-            System.out.println("###");
-            System.out.println("###");
-        });
-    }
-
-    public void replayGamesFromSeeds(  Network network, List<Game> gameSeeds) {
+    public void replayGamesFromSeeds(Network network, List<Game> gameSeeds) {
         log.info("replayGamesFromSeeds, {} games", gameSeeds.size());
         List<List<Game>> gameBatches = ListUtils.partition(gameSeeds, config.getNumParallelGamesPlayed());
 
         List<Game> resultGames = new ArrayList<>();
         for (List<Game> games : gameBatches) {
-            resultGames.addAll(playGamesFromTheirCurrentState( network, games, false));
+            resultGames.addAll(playGamesFromTheirCurrentState(network, games, false));
         }
         log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());

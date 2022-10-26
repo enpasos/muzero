@@ -10,16 +10,20 @@ import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
-import static ai.enpasos.muzero.platform.common.Functions.*;
-import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
+import static ai.enpasos.muzero.platform.common.Functions.draw;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
+import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
 /**
  * Per game responsible for the rational search
@@ -38,9 +42,8 @@ public class GumbelSearch {
     MuZeroConfig config;
     boolean debug;
     double pRandomActionRawAverage;
-    private Map<Integer, List<Node>> rootChildrenCandidates;
-
     int currentPhase;
+    private Map<Integer, List<Node>> rootChildrenCandidates;
 
     public GumbelSearch(MuZeroConfig config, Game game, boolean debug, double pRandomActionRawAverage) {
         this.pRandomActionRawAverage = pRandomActionRawAverage;
@@ -50,8 +53,8 @@ public class GumbelSearch {
         this.game = game;
         this.minMaxStats = new MinMaxStats(config.getKnownBounds());
 
-        int n = config.getNumSimulations(game );
-        int m = config.getInitialGumbelM() ;
+        int n = config.getNumSimulations(game);
+        int m = config.getInitialGumbelM();
         int k = game.legalActions().size();
         this.gumbelInfo = initGumbelInfo(n, m, k);
         if (debug) log.trace(gumbelInfo.toString());
@@ -84,7 +87,7 @@ public class GumbelSearch {
         List<GumbelAction> gumbelActionsFinal = gumbelActions;
         rootChildrenCandidates.put(currentPhase,
             this.root.getChildren().stream()
-            .filter(node -> gumbelActionsFinal.contains(node.getGumbelAction()))
+                .filter(node -> gumbelActionsFinal.contains(node.getGumbelAction()))
                 .collect(Collectors.toList()));
 
     }
@@ -176,7 +179,7 @@ public class GumbelSearch {
                 // find the phaseNum with the most visited actions
                 int maxPhaseNum = getPhaseNumWithTheMostVisitedActions();
 
-                   List<GumbelAction> gumbelActions = this.rootChildrenCandidates.get(maxPhaseNum).stream().map(Node::getGumbelAction).collect(Collectors.toList());
+                List<GumbelAction> gumbelActions = this.rootChildrenCandidates.get(maxPhaseNum).stream().map(Node::getGumbelAction).collect(Collectors.toList());
                 int maxActionVisitCount = this.rootChildrenCandidates.get(maxPhaseNum).stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
                 this.selectedAction = drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0).node.getAction();
@@ -225,9 +228,6 @@ public class GumbelSearch {
         backUp(networkOutput.getValue(), node.getToPlay(), this.config.getDiscount());
 
         if (game.isRecordValueImprovements()) {
-            if (this.root.getVisitCount() == 200) {
-                int j = 42;
-            }
             double vImprovement = root.getImprovedValue() - root.getValueFromInitialInference();
             game.getValueImprovements().add(vImprovement);
         }
@@ -269,39 +269,47 @@ public class GumbelSearch {
         }
     }
 
-    public void selectAndApplyActionAndStoreSearchStatistics(ReplayBuffer replayBuffer, boolean render, boolean fastRuleLearning, boolean withRandomActions) {
+    public void selectAndApplyActionAndStoreSearchStatistics(boolean render, boolean fastRuleLearning) {
 
         Action action = null;
 
-        storeSearchStatistics(replayBuffer, game, root, fastRuleLearning, config, selectedAction, minMaxStats);
+        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
 
         if (fastRuleLearning) {
             action = root.getRandomAction();
-        } else {
-            double temperature = config.getTemperatureRoot( );
-            if ( config.isGumbelActionSelection()) {
-                action = selectedAction;
-            } else {
-                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
-                double[] raw = new double[policyTarget.length];
-                for (int i = 0; i < policyTarget.length; i++) {
-                    raw[i] = Math.log(policyTarget[i]);
-                }
-
-
-                if (config.getTrainingTypeKey() == HYBRID) {
-                    if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()   ) {
-                        action = getAction( temperature, raw );
-                    } else {
-                     //  the Gumbel selection
-                        action = selectedAction;
-                    }
-                } else {
-                    action = getAction(  temperature, raw );
-                }
-
-            }
+            applyAction(render, action);
+            return;
         }
+
+        if (config.isGumbelActionSelection()) {
+            action = selectedAction;
+            applyAction(render, action);
+            return;
+        }
+
+
+        double temperature = config.getTemperatureRoot();
+
+        float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
+        double[] raw = new double[policyTarget.length];
+        for (int i = 0; i < policyTarget.length; i++) {
+            raw[i] = Math.log(policyTarget[i]);
+        }
+        if (config.getTrainingTypeKey() == HYBRID) {
+            if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()) {
+                action = getAction(temperature, raw);
+            } else {
+                //  the Gumbel selection
+                action = selectedAction;
+            }
+        } else {
+            action = getAction(temperature, raw);
+        }
+        applyAction(render, action);
+
+    }
+
+    private void applyAction(boolean render, Action action) {
         if (action == null) {
             throw new MuZeroException("action must not be null");
         }
@@ -314,19 +322,19 @@ public class GumbelSearch {
             game.renderMCTSSuggestion(config, policyTarget);
             log.debug("\n" + game.render());
         }
-
-
     }
-    private Action getAction(double temperature, double[] raw ) {
+
+    private Action getAction(double temperature, double[] raw) {
         Action action;
-        double[]   p = softmax(raw, temperature);
+        double[] p = softmax(raw, temperature);
         int i = draw(p);
         action = config.newAction(i);
         return action;
     }
+
     private Action getAction(double temperature, double[] raw, List<GumbelAction> gumbelActions) {
         Action action;
-        double[]   p = softmax(raw, temperature);
+        double[] p = softmax(raw, temperature);
         int i = draw(p);
         action = config.newAction(gumbelActions.get(i).actionIndex);
         return action;
@@ -335,8 +343,8 @@ public class GumbelSearch {
 
     public void drawCandidateAndAddValue() {
         List<GumbelAction> gumbelActions = rootChildrenCandidates.get(currentPhase).stream().map(Node::getGumbelAction).collect(Collectors.toList());
-         int maxActionVisitCount = rootChildrenCandidates.get(currentPhase).stream().mapToInt(Node::getVisitCount).max().getAsInt();
-         drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
+        int maxActionVisitCount = rootChildrenCandidates.get(currentPhase).stream().mapToInt(Node::getVisitCount).max().getAsInt();
+        drawGumbelActions(gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
     }
 
     public void drawCandidateAndAddValueStart() {

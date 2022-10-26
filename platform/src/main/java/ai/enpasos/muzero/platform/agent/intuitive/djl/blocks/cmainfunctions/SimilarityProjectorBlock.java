@@ -17,7 +17,10 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
-import ai.enpasos.mnist.blocks.ext.*;
+import ai.enpasos.mnist.blocks.ext.ActivationExt;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExt;
+import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
@@ -26,13 +29,13 @@ import org.jetbrains.annotations.NotNull;
 public class SimilarityProjectorBlock extends MySequentialBlock {
 
 
-        private SimilarityProjectorBlock() {
-        }
+    private SimilarityProjectorBlock() {
+    }
 
-        @Builder()
-        public static @NotNull SimilarityProjectorBlock newProjectorBlock(int hiddenChannels, int outputChannels) {
-            SimilarityProjectorBlock instance = new SimilarityProjectorBlock();
-            instance.add(BlocksExt.batchFlattenBlock())
+    @Builder()
+    public static @NotNull SimilarityProjectorBlock newProjectorBlock(int hiddenChannels, int outputChannels) {
+        SimilarityProjectorBlock instance = new SimilarityProjectorBlock();
+        instance.add(BlocksExt.batchFlattenBlock())
 
             // layer 1
             .add(LinearExt.builder()
@@ -55,8 +58,8 @@ public class SimilarityProjectorBlock extends MySequentialBlock {
             .add(LayerNormExt.builder().build());
 
 
-            return instance;
-        }
-
-
+        return instance;
     }
+
+
+}

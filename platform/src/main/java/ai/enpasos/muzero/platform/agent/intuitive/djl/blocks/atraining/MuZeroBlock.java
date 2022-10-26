@@ -63,7 +63,6 @@ public class MuZeroBlock extends AbstractBlock {
             config.getNumChannelsHiddenLayerSimilarity(), config.getNumChannelsOutputLayerSimilarity()));
 
 
-
         inputNames = new ArrayList<>();
         inputNames.add("observation");
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
@@ -85,30 +84,27 @@ public class MuZeroBlock extends AbstractBlock {
         combinedResult.add(predictionResult.get(1));
 
 
-
-
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
 
-
             // recurrent Inference
-            NDArray action = inputs.get(2*k - 1);
-            NDList dynamicIn =  new NDList(state, action);
+            NDArray action = inputs.get(2 * k - 1);
+            NDList dynamicIn = new NDList(state, action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
             state = dynamicsResult.get(0);
 
-            state  = state.scaleGradient(0.5);
+            state = state.scaleGradient(0.5);
 
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
-            NDList similarityProjectorResultList =  this.similarityProjectorBlock.forward(parameterStore, new NDList(state), training, params);
-            NDArray similarityPredictorResult =  this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
+            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(state), training, params);
+            NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
             // initial Inference
-            representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2*k)), training, params);
-            NDArray similarityProjectorResultLabel =  this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
+            representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
+            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
             combinedResult.add(predictionResult.get(0));
@@ -133,10 +129,10 @@ public class MuZeroBlock extends AbstractBlock {
             Shape stateShape = stateOutputShapes[0];
             Shape actionShape = inputShapes[k];
             Shape dynamicsInputShape = null;
-            if(stateShape.dimension() == 4) {
-                 dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-            } else if(stateShape.size() == 2) {
-                 dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1));
+            if (stateShape.dimension() == 4) {
+                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
+            } else if (stateShape.size() == 2) {
+                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1));
             } else {
                 throw new MuZeroException("wrong input shape");
             }
@@ -165,10 +161,10 @@ public class MuZeroBlock extends AbstractBlock {
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
         representationBlock.initialize(manager, dataType, inputShapes[0]);
 
-        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[] {inputShapes[0]});
+        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
         similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[0]);
 
-        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes( new Shape[] {stateOutputShapes[0]});
+        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[0]});
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
         predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);

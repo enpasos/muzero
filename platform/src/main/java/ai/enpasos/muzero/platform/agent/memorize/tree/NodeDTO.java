@@ -15,12 +15,7 @@ public class NodeDTO {
     private Map<Integer, Double> valuePerEpoch;
     private Map<Integer, Integer> visitsPerEpoch;
 
-    private Map<Integer, NodeDTO>  childPerAction;
-
-    public boolean isRoot() {
-        return action == null;
-    }
-
+    private Map<Integer, NodeDTO> childPerAction;
 
     public NodeDTO() {
         valuePerEpoch = new TreeMap<>();
@@ -28,34 +23,38 @@ public class NodeDTO {
         childPerAction = new TreeMap<>();
     }
 
+    public boolean isRoot() {
+        return action == null;
+    }
+
     public void memorize(List<Game> games, int epoch) {
-        games.stream().forEach( game ->
+        games.stream().forEach(game ->
             memorize(game, epoch)
-         );
+        );
     }
 
     public void memorize(Game game, int epoch) {
-        memorize(game,  epoch, 0);
+        memorize(game, epoch, 0);
     }
 
-    private void memorize(Game game,  int epoch, int index) {
+    private void memorize(Game game, int epoch, int index) {
         List<Integer> actions = game.getGameDTO().getActions();
         if (index > actions.size() - 1 || index > game.getGameDTO().getRootValuesFromInitialInference().size() - 1) {
             return;
         }
-        int action = actions.get(index);
-        if (!childPerAction.containsKey(action)) {
-            childPerAction.put(action, new NodeDTO());
-        }
+        int actionLocal = actions.get(index);
+
+        childPerAction.computeIfAbsent(actionLocal, k -> new NodeDTO());
+
         double value = game.getGameDTO().getRootValuesFromInitialInference().get(index);
         this.valuePerEpoch.put(epoch, value);
         int count = 1;
         if (this.visitsPerEpoch.containsKey(epoch)) {
-            count += this.visitsPerEpoch.get(epoch) ;
+            count += this.visitsPerEpoch.get(epoch);
         }
         this.visitsPerEpoch.put(epoch, count);
 
-        NodeDTO child = childPerAction.get(action);
+        NodeDTO child = childPerAction.get(actionLocal);
         child.memorize(game, epoch, index + 1);
     }
 }

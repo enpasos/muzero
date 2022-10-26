@@ -195,8 +195,8 @@ public class TicTacToeGame extends ZeroSumGame {
                 }
 
             }
-            if (toPlay instanceof OneOfTwoPlayer)
-                log.debug("Estimated chance for " + ((OneOfTwoPlayer) toPlay).getSymbol() + " to win: " + percent + "%");
+            if (toPlay instanceof OneOfTwoPlayer oneOfTwoPlayer)
+                log.debug("Estimated chance for " + oneOfTwoPlayer.getSymbol() + " to win: " + percent + "%");
 
         }
     }

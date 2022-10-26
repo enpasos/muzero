@@ -8,7 +8,7 @@ import ai.djl.training.loss.Loss;
 
 public class MySimilarityLoss extends Loss {
 
-    public static final  float NULL_VALUE = 1234567f;
+    public static final float NULL_VALUE = 1234567f;
 
     private final float weight;
 
@@ -36,7 +36,7 @@ public class MySimilarityLoss extends Loss {
         NDArray pred = prediction.singletonOrThrow();
         NDArray lab = label.singletonOrThrow();
 
-        int[] axis = new int[] {1};
+        int[] axis = new int[]{1};
         double epsilon = 1e-5;
         NDArray labNorm = lab.norm(axis, false).maximum(epsilon);
 

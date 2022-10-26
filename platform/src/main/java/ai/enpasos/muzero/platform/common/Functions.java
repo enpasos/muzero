@@ -56,8 +56,8 @@ public class Functions {
     private static double[] softmax0(double[] raw) {
         double[] result = new double[raw.length];
         int maxi = 0;
-        double max = - Double.MAX_VALUE;
-        for(int i = 0; i < raw.length; i++) {
+        double max = -Double.MAX_VALUE;
+        for (int i = 0; i < raw.length; i++) {
             if (raw[i] > max) {
                 maxi = i;
                 max = raw[i];
@@ -115,11 +115,11 @@ public class Functions {
 
     public static double calculateRunningVariance(List<Double> values, MuZeroConfig config) {
 
-        if (values.size() <  config.getNumSimWindow()) {
+        if (values.size() < config.getNumSimWindow()) {
             return 0d;
         }
         List<Double> vs =
-            values.stream().skip((long)values.size() - (long)config.getNumSimWindow()).collect(Collectors.toList());
+            values.stream().skip((long) values.size() - (long) config.getNumSimWindow()).collect(Collectors.toList());
 
 
         int n = vs.size();

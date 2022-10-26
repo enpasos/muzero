@@ -53,7 +53,7 @@ public class GameDTO implements Comparable<GameDTO> {
     private boolean surprised;
 
 
-    private  boolean hybrid;
+    private boolean hybrid;
     private long tSurprise;
     private long tHybrid = -1;
     private long tStateA;

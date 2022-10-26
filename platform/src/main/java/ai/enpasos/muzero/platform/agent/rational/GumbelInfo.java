@@ -92,7 +92,7 @@ public class GumbelInfo {
     }
 
     private void onFinishedM2One() {
-        if (remainingBudget == 0)   {
+        if (remainingBudget == 0) {
             finished = true;
         }
         if (finished) {

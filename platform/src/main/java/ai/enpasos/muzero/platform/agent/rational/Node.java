@@ -92,9 +92,8 @@ public class Node {
     }
 
     public void calculateVmix() {
-        if (this.isRoot()) {
-            if (this.valueFromNetwork != this.valueFromInitialInference)
-                throw new MuZeroException("root node valueFromNetwork != valueFromInitialInference");
+        if (this.isRoot() && this.valueFromNetwork != this.valueFromInitialInference) {
+            throw new MuZeroException("root node valueFromNetwork != valueFromInitialInference");
         }
 
         double vHat = this.getValueFromNetwork();
@@ -276,9 +275,9 @@ public class Node {
         if (!this.isRoot()) throw new MuZeroException("functionality not prepared to add noise at non root");
 
         int numOfAllowedActions = this.children.size();
-        double frac = config.getRootExplorationFraction( );
+        double frac = config.getRootExplorationFraction();
         if (frac != 0d) {
-            double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha( ), numOfAllowedActions);
+            double[] noise = Functions.numpyRandomDirichlet(config.getRootDirichletAlpha(), numOfAllowedActions);
 
             for (int i = 0; i < this.children.size(); i++) {
                 Node node = children.get(i);

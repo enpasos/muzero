@@ -50,25 +50,19 @@ public class ReplayBuffer {
 
     private int batchSize;
     private ReplayBufferDTO buffer;
-
-
-    public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
-    }
-
     private String currentNetworkName = "NONE";
     @Autowired
     private MuZeroConfig config;
-
     @Autowired
     private ReplayBufferIO replayBufferIO;
+    private Map<Integer, Double> meanValuesLosses = new HashMap<>();
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps,  @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps,   game, gamePos, ndManager, replayBuffer);
+        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer);
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps,   @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
         Sample sample = new Sample();
         game.replayToPosition(gamePos);
 
@@ -94,7 +88,7 @@ public class ReplayBuffer {
 
         }
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps ));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps));
 
         return sample;
     }
@@ -122,6 +116,9 @@ public class ReplayBuffer {
         return gamePos;
     }
 
+    public int getMaxGameLength() {
+        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+    }
 
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
         String epochValue = model.getProperty("Epoch");
@@ -152,7 +149,6 @@ public class ReplayBuffer {
         this.buffer = new ReplayBufferDTO(config);
     }
 
-
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
@@ -166,7 +162,6 @@ public class ReplayBuffer {
         }
     }
 
-
     // for "fair" training do train the strengths of PlayerA and PlayerB equally
     public List<Game> sampleGames() {
 
@@ -176,19 +171,19 @@ public class ReplayBuffer {
 
         List<Game> gamesToTrain = games.stream()
             .filter(g -> {
-                if (g instanceof ZeroSumGame) {
-                    Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
+                if (g instanceof ZeroSumGame zeroSumGame) {
+                    Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
                     return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_A;
                 } else {
                     return true;
                 }
             })
-            .limit(this.batchSize / 2).collect( Collectors.toList());
+            .limit(this.batchSize / 2).collect(Collectors.toList());
         games.removeAll(gamesToTrain);  // otherwise, draw games could be selected again
         gamesToTrain.addAll(games.stream()
             .filter(g -> {
-                if (g instanceof ZeroSumGame) {
-                    Optional<OneOfTwoPlayer> winner = ((ZeroSumGame) g).whoWonTheGame();
+                if (g instanceof ZeroSumGame zeroSumGame) {
+                    Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
                     return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_B;
                 } else {
                     return true;
@@ -200,11 +195,9 @@ public class ReplayBuffer {
         return gamesToTrain;
     }
 
-
     public void saveState() {
         replayBufferIO.saveState(this.buffer, this.currentNetworkName);
     }
-
 
     public void loadLatestState() {
         ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadLatestState();
@@ -213,12 +206,10 @@ public class ReplayBuffer {
         }
     }
 
-
     public void sortGamesByLastValueError() {
         this.getBuffer().getGames().sort(
             (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
     }
-
 
     public void removeGames(List<Game> games) {
         games.forEach(this::removeGame);
@@ -235,10 +226,10 @@ public class ReplayBuffer {
     }
 
     public void addGames(Model model, List<Game> games) {
-        games.forEach(game ->  addGame(model, game));
+        games.forEach(game -> addGame(model, game));
     }
 
-    private void addGame(Model model,  Game game) {
+    private void addGame(Model model, Game game) {
         String epochStr = model.getProperty("Epoch");
         if (epochStr == null) {
             epochStr = "0";
@@ -251,8 +242,6 @@ public class ReplayBuffer {
         buffer.addGame(game);
     }
 
-
-    private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     public void putMeanValueLoss(int epoch, double meanValueLoss) {
         meanValuesLosses.put(epoch, meanValueLoss);
     }

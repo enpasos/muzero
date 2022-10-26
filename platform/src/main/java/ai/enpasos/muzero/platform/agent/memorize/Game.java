@@ -47,12 +47,8 @@ import static ai.enpasos.muzero.platform.common.Functions.calculateRunningVarian
 @Slf4j
 public abstract class Game {
 
-//    @Builder.Default
+    //    @Builder.Default
     protected boolean recordValueImprovements = false;
- //   @Builder.Default
-    List<Double> valueImprovements = new ArrayList<>();
-
-
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
@@ -61,6 +57,8 @@ public abstract class Game {
     protected double discount;
     protected Environment environment;
     protected GameDTO originalGameDTO;
+    //   @Builder.Default
+    List<Double> valueImprovements = new ArrayList<>();
     boolean playedMoreThanOnce;
     double surpriseMean;
     double surpriseMax;
@@ -186,13 +184,13 @@ public abstract class Game {
         return targets;
     }
 
-    private void fillTarget(int currentIndex,  Target target) {
+    private void fillTarget(int currentIndex, Target target) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-                tdSteps = 0;
-            }
+            tdSteps = 0;
+        }
 
-        double value = calculateValue(tdSteps, currentIndex );
+        double value = calculateValue(tdSteps, currentIndex);
 
         float lastReward = getLastReward(currentIndex);
 
@@ -200,7 +198,7 @@ public abstract class Game {
 
             setValueOnTarget(target, value);
             target.setReward(lastReward);
-            if  (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
+            if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
                 target.setPolicy(new float[this.actionSpaceSize]);
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.getPolicy(), 0f);
@@ -247,11 +245,11 @@ public abstract class Game {
     }
 
 
-    private double calculateValue(int tdSteps, int currentIndex ) {
+    private double calculateValue(int tdSteps, int currentIndex) {
 
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
-        if (gameDTO.isHybrid() && tdSteps == 0 ) {
+        if (gameDTO.isHybrid() && tdSteps == 0) {
             if (this.getGameDTO().getRootValuesFromInitialInference().size() > currentIndex) {
                 value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
             } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
@@ -319,7 +317,6 @@ public abstract class Game {
         }
         return actionList;
     }
-
 
 
     public abstract void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkIO, boolean b);

@@ -75,9 +75,10 @@ public class DNode {
     }
 
     public void setBestForceableValue(@NotNull OneOfTwoPlayer player, Integer value) {
-        switch (player) {
-            case PLAYER_A -> bestForceableValuePlayerA = value;
-            case PLAYER_B -> bestForceableValuePlayerB = value;
+        if (player == OneOfTwoPlayer.PLAYER_A) {
+            bestForceableValuePlayerA = value;
+        } else {
+            bestForceableValuePlayerB = value;
         }
     }
 

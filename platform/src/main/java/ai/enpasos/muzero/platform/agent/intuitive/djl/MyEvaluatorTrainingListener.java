@@ -148,8 +148,8 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
     }
 
     private void memorizeLossContributions(Metrics metrics, Evaluator evaluator) {
-        if (evaluator instanceof SimpleCompositeLoss) {
-            for (Evaluator evaluatorChild : ((SimpleCompositeLoss) evaluator).getComponents()) {
+        if (evaluator instanceof SimpleCompositeLoss simpleCompositeLoss) {
+            for (Evaluator evaluatorChild : simpleCompositeLoss.getComponents()) {
                 String childKey = metricName(evaluatorChild, Constants.DIR_TRAIN_ALL);
                 float childValue = evaluatorChild.getAccumulator(Constants.DIR_TRAIN_ALL);
                 metrics.addMetric(childKey, childValue);

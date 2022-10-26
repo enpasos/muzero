@@ -37,10 +37,10 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-            this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
-     }
+        this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
+    }
 
-
+    @java.lang.SuppressWarnings("java:S107")
     public RepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int numHiddenStateChannels, int broadcastEveryN) {
         if (networkType == NetworkType.CON) {
             this.add(Conv3x3.builder().channels(numChannels).build())
@@ -70,7 +70,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
                     .build())
 
                 // compressing hidden state (not in muzero paper)
-                .add(LinearExt.builder().setUnits((long) numHiddenStateChannels *height*width).build())
+                .add(LinearExt.builder().setUnits((long) numHiddenStateChannels * height * width).build())
 
                 .add(new RescaleBlockExt());
         }
