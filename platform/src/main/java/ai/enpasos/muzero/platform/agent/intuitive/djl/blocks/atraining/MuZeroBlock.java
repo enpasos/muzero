@@ -28,9 +28,7 @@ import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.NetworkType;
@@ -51,9 +49,9 @@ public class MuZeroBlock extends AbstractBlock {
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
 
-    private final LambdaBlockExt actionFlattenBlock;
     private final MuZeroConfig config;
-
+    private final SimilarityPredictorBlock similarityPredictorBlock;
+    private final SimilarityProjectorBlock similarityProjectorBlock;
 
     public MuZeroBlock(MuZeroConfig config) {
         super(MYVERSION);
@@ -63,7 +61,13 @@ public class MuZeroBlock extends AbstractBlock {
         representationBlock = this.addChildBlock("Representation", new RepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
-        actionFlattenBlock = (LambdaBlockExt) this.addChildBlock("ActionFlatten", BlocksExt.batchFlattenBlock());
+
+        similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
+            config.getNumChannelsHiddenLayerSimilarity(), config.getNumChannelsOutputLayerSimilarity()));
+        similarityPredictorBlock = this.addChildBlock("Predictor", SimilarityPredictorBlock.newPredictorBlock(
+            config.getNumChannelsHiddenLayerSimilarity(), config.getNumChannelsOutputLayerSimilarity()));
+
+
 
         inputNames = new ArrayList<>();
         inputNames.add("observation");
@@ -86,12 +90,14 @@ public class MuZeroBlock extends AbstractBlock {
         combinedResult.add(predictionResult.get(1));
 
 
+
+
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
 
 
             // recurrent Inference
-            NDArray action = inputs.get(k);
+            NDArray action = inputs.get(2*k - 1);
             NDList dynamicIn =  new NDList(state, action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
@@ -102,9 +108,18 @@ public class MuZeroBlock extends AbstractBlock {
 
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
+            NDList similarityProjectorResultList =  this.similarityProjectorBlock.forward(parameterStore, new NDList(state), training, params);
+            NDArray similarityPredictorResult =  this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
+
+            // initial Inference
+            representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2*k)), training, params);
+            NDArray similarityProjectorResultLabel =  this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
+            similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
             combinedResult.add(predictionResult.get(0));
             combinedResult.add(predictionResult.get(1));
+            combinedResult.add(similarityPredictorResult);
+            combinedResult.add(similarityProjectorResultLabel);
 
         }
         return combinedResult;
@@ -153,28 +168,22 @@ public class MuZeroBlock extends AbstractBlock {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        actionFlattenBlock.initialize(manager, dataType, inputShapes[1]);
+     //   actionFlattenBlock.initialize(manager, dataType, inputShapes[1]);
         representationBlock.initialize(manager, dataType, inputShapes[0]);
-  //      Shape[] stateOutputShapes = representationBlock.getOutputShapes(inputShapes);
+
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[] {inputShapes[0]});
+        similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[0]);
+
+        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes( new Shape[] {stateOutputShapes[0]});
+        this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+
+  //      Shape[] stateOutputShapes = representationBlock.getOutputShapes(inputShapes);
+
         predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);
 
         Shape stateShape = stateOutputShapes[0];
         Shape actionShape = inputShapes[1];
-//        Shape dynamicsInputShape = null;
-//        if (config.getNetworkType() == CON) {
-//            dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-//        } else {
-//            if (stateShape.dimension() == 4) {
-//                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1) * stateShape.get(2) * stateShape.get(3));
-//            } else if (stateShape.dimension() == 2) {
-//                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1) );
-//            } else {
-//                throw new MuZeroException("stateShape has unexpected dimensions");
-//            }
-//        }
-//
-//        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+
         dynamicsBlock.initialize(manager, dataType, stateShape, actionShape);
     }
 

@@ -104,6 +104,8 @@ public class TicTacToeGame extends ZeroSumGame {
     @SuppressWarnings("squid:S2095")
     public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
 
+
+
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
         OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
 
