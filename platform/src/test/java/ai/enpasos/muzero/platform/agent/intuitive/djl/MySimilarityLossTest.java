@@ -29,7 +29,7 @@ class MySimilarityLossTest {
 
 
 
-        assertEquals(-2f, loss.evaluate( new NDList( label), new NDList(prediction)).getFloat());
+        assertEquals(0f, loss.evaluate( new NDList( label), new NDList(prediction)).getFloat());
 
     }
 }

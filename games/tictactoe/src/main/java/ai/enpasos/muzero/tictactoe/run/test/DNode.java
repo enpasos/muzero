@@ -76,13 +76,10 @@ public class DNode {
 
     public void setBestForceableValue(@NotNull OneOfTwoPlayer player, Integer value) {
         switch (player) {
-            case PLAYER_A:
-                bestForceableValuePlayerA = value;
-                break;
-            case PLAYER_B:
-                bestForceableValuePlayerB = value;
-                break;
-            default:
+            case PLAYER_A -> bestForceableValuePlayerA = value;
+            case PLAYER_B -> bestForceableValuePlayerB = value;
+            default -> {
+            }
         }
     }
 
@@ -236,8 +233,7 @@ public class DNode {
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof DNode)) return false;
-        DNode n = (DNode) o;
+        if (!(o instanceof DNode n)) return false;
         return n.game.equals(n.getGame());
     }
 

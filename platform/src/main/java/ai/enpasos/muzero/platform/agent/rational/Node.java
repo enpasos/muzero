@@ -262,9 +262,6 @@ public class Node {
 
 
     public void calculateImprovedValue() {
-//        this.improvedValue = this.getChildren().stream()
-//            .mapToDouble(node -> node.getImprovedPolicyValue() * node.getImprovedValue())
-//            .sum();
 
 
         this.improvedValue = this.getChildren().stream()

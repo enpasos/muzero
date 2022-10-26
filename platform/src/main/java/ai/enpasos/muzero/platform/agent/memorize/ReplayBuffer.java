@@ -114,7 +114,6 @@ public class ReplayBuffer {
             gamePos = (int) (rawpos + dto.getTStateA() + delta);
         } else {
             rawpos -= numNormalActions;
-            rawpos /= enhanceFactor;
             gamePos = rawpos;
         }
         if (dto.getTStateA() > 0 && gamePos < dto.getTStateA()) {

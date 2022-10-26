@@ -23,7 +23,6 @@ import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
-import ai.djl.training.EasyTrain;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
@@ -219,7 +218,6 @@ public class MuZero {
 
     }
 
-    @NotNull
     public void init( boolean freshBuffer, boolean randomFill, Network network, boolean withoutFill) {
         createNetworkModelIfNotExisting();
         replayBuffer.init();
@@ -241,7 +239,6 @@ public class MuZero {
         }
     }
 
-    @NotNull
     private void init2(Network network) {
         createNetworkModelIfNotExisting();
 

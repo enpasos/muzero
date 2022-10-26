@@ -26,12 +26,9 @@ import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
-import ai.enpasos.mnist.blocks.ext.LambdaBlockExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.NetworkType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +36,6 @@ import java.util.ArrayList;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock.newDynamicsBlock;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
-import static ai.enpasos.muzero.platform.config.NetworkType.CON;
-import static ai.enpasos.muzero.platform.config.NetworkType.FC;
 
 
 public class MuZeroBlock extends AbstractBlock {

@@ -28,8 +28,6 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.NetworkType;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
@@ -46,7 +44,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
 
-    NetworkType networkType;
+    final NetworkType networkType;
 
     public ConcatInputsBlock(NetworkType networkType) {
         super(MYVERSION);

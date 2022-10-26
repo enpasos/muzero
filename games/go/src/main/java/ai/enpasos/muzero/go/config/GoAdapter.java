@@ -73,8 +73,7 @@ public class GoAdapter {
 
 
     public static Action translate(MuZeroConfig config, Move move) {
-        if (move instanceof Play) {
-            Play play = (Play) move;
+        if (move instanceof Play play) {
             return new GoAction(config, play.getPoint().getRow() - 1, play.getPoint().getCol() - 1);
         } else if (move instanceof Pass) {
             return config.newAction(config.getActionSpaceSize() - 1);

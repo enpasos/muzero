@@ -26,8 +26,6 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.Environment;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.common.Functions.calculateRunningVariance;
@@ -192,9 +189,6 @@ public abstract class Game {
     private void fillTarget(int currentIndex, int stateIndex, Target target) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (gameDTO.isHybrid()) {
-//            if (stateIndex < this.getGameDTO().getTHybrid()) {
-//                tdSteps = 0;
-//            }
             if (currentIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             }

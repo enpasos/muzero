@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -148,7 +149,7 @@ public class Inference {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             network.setHiddenStateNDManager(nDManager);
             List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            valueByNetwork = networkOutputs.stream().mapToDouble(NetworkIO::getValue).toArray();
+            valueByNetwork = Objects.requireNonNull(networkOutputs).stream().mapToDouble(NetworkIO::getValue).toArray();
         }
         return valueByNetwork;
     }
@@ -158,7 +159,7 @@ public class Inference {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             network.setHiddenStateNDManager(nDManager);
             List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            entropyByNetwork = networkOutputs.stream().mapToDouble(io -> entropy(toDouble(io.getValueDistribution()))).toArray();
+            entropyByNetwork = Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getValueDistribution()))).toArray();
         }
         return entropyByNetwork;
     }
@@ -187,7 +188,7 @@ public class Inference {
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);
                 List<Action> legalActions = game.legalActions();
-                float[] policyValues = networkOutputList.get(g).getPolicyValues();
+                float[] policyValues = Objects.requireNonNull(networkOutputList).get(g).getPolicyValues();
                 List<Pair<Action, Double>> distributionInput =
                     IntStream.range(0, game.getConfig().getActionSpaceSize())
                         .filter(i -> {
@@ -216,7 +217,7 @@ public class Inference {
             for (int g = 0; g < games.size(); g++) {
                 Action action = actions.get(g);
                 actionIndexSelectedByNetwork = action.getIndex();
-                double aiValue = networkOutputList.get(0).getValue();
+                double aiValue = Objects.requireNonNull(networkOutputList).get(0).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
         }

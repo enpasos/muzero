@@ -51,19 +51,15 @@ class BlockTestHelper {
         try (Model model = Model.newInstance("mymodel", Device.cpu())) {
 
             model.setBlock(block);
-            switch (testdata) {
-                case ZERO:
-                    input = new NDList(inputShapes.stream()
-                        .map(inputShape -> NDManager.newBaseManager().create(inputShape))
-                        .collect(Collectors.toList()));
-                    break;
-                case RANDOM:
-                    input = new NDList(inputShapes.stream()
-                        .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
+            input = switch (testdata) {
+                case ZERO -> new NDList(inputShapes.stream()
+                    .map(inputShape -> NDManager.newBaseManager().create(inputShape))
+                    .collect(Collectors.toList()));
+                case RANDOM -> new NDList(inputShapes.stream()
+                    .map(inputShape -> NDManager.newBaseManager().randomUniform(0f, 1f, inputShape))
 
-                        .collect(Collectors.toList()));
-                    break;
-            }
+                    .collect(Collectors.toList()));
+            };
 
 
             // no training here - loss function is a dummy
