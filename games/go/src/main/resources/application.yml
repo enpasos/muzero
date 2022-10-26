@@ -47,7 +47,7 @@ muzero:
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
       # windowValueSelfconsistencySize: 30000   <- postponed
-      batchSize: 128
+      batchSize: 64
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0
@@ -84,19 +84,18 @@ muzero:
       maxGameLiveTime: 10000000  # or 40000
       surpriseCheckInterval: 50000
 
-      windowSizeStart: 50000
-      windowSizeDynamicFraction: 0.0  # 0 = off,1 = on
-      windowSizeExponent: 0.8
+      windowSizeStart: 40000
+      windowSizeIsDynamic: false
 
       numberOfTrainingSteps: 300000
-
 
       numSimMin: 5
       numSimWindow: 5
       numSimMax: 800
       numSimThreshold: 0.001
 
-
+      numChannelsHiddenLayerSimilarity: 250
+      numChannelsOutputLayerSimilarity: 500
 
       playTypes:
         PLAYOUT:
