@@ -223,7 +223,7 @@ public class Network {
         List<Action> lastActions = searchPathList.stream().map(nodes -> nodes.get(nodes.size() - 1).getAction()).collect(Collectors.toList());
         List<NDArray> actionList = lastActions.stream().map(action ->
             getActionSpaceOnDevice().get(action.getIndex())
-        ).collect(Collectors.toList());
+        ).collect( Collectors.toList());
 
         List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
             Node parent = searchPath.get(searchPath.size() - 2);

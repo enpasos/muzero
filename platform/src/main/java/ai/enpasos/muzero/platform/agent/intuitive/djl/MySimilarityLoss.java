@@ -10,7 +10,7 @@ public class MySimilarityLoss extends Loss {
 
     public static final  float NULL_VALUE = 1234567f;
 
-    private float weight;
+    private final float weight;
 
 
     public MySimilarityLoss() {
@@ -42,7 +42,6 @@ public class MySimilarityLoss extends Loss {
 
         NDArray predNorm = pred.norm(axis, false).maximum(epsilon);
 
-        NDArray i = lab.mul(pred).sum(axis);
         NDArray loss = lab.mul(pred).sum(axis).div(labNorm).div(predNorm).sub(1).mul(-weight);
 
         return loss.mean();

@@ -20,8 +20,7 @@ import java.util.Arrays;
 
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -67,7 +66,7 @@ class IOTest {
 
         log.info(Arrays.toString(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
         log.info(Arrays.toString(dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
-        assertTrue(Arrays.equals(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0), dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
+        assertArrayEquals(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0), dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0));
 
 
     }

@@ -15,14 +15,16 @@ class BoardTest {
         Board board = new Board();
 
         assertEquals(board.render(),
-            "   1  2  3  4  5  6  7\n" +
-                "1        O  O  O      \n" +
-                "2        O  O  O      \n" +
-                "3  O  O  O  O  O  O  O\n" +
-                "4  O  O  O  .  O  O  O\n" +
-                "5  O  O  O  O  O  O  O\n" +
-                "6        O  O  O      \n" +
-                "7        O  O  O      \n");
+            """
+                   1  2  3  4  5  6  7
+                1        O  O  O     \s
+                2        O  O  O     \s
+                3  O  O  O  O  O  O  O
+                4  O  O  O  .  O  O  O
+                5  O  O  O  O  O  O  O
+                6        O  O  O     \s
+                7        O  O  O     \s
+                """);
 
         assertEquals(33, Board.neighborMap.getMap().size());
 
@@ -31,14 +33,16 @@ class BoardTest {
         board.applyJump(jumps.get(0));
 
         assertEquals(board.render(),
-            "   1  2  3  4  5  6  7\n" +
-                "1        O  O  O      \n" +
-                "2        O  .  O      \n" +
-                "3  O  O  O  .  O  O  O\n" +
-                "4  O  O  O  O  O  O  O\n" +
-                "5  O  O  O  O  O  O  O\n" +
-                "6        O  O  O      \n" +
-                "7        O  O  O      \n");
+            """
+                   1  2  3  4  5  6  7
+                1        O  O  O     \s
+                2        O  .  O     \s
+                3  O  O  O  .  O  O  O
+                4  O  O  O  O  O  O  O
+                5  O  O  O  O  O  O  O
+                6        O  O  O     \s
+                7        O  O  O     \s
+                """);
 
 
         jumps = board.getLegalJumps();

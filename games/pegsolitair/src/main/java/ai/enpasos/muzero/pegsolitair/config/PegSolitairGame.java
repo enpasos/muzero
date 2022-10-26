@@ -71,7 +71,7 @@ public class PegSolitairGame extends Game {
 
     @Override
     public List<Action> allActionsInActionSpace() {
-        return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> config.newAction(i)).collect(Collectors.toList());
+        return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> config.newAction(i)).collect( Collectors.toList());
     }
 
 

@@ -180,23 +180,21 @@ public abstract class Game {
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, stateIndex, target);
+            fillTarget(currentIndex, target);
             targets.add(target);
         });
         return targets;
     }
 
-    private void fillTarget(int currentIndex, int stateIndex, Target target) {
+    private void fillTarget(int currentIndex,  Target target) {
         int tdSteps = this.getGameDTO().getTdSteps();
-        if (gameDTO.isHybrid()) {
-            if (currentIndex < this.getGameDTO().getTHybrid()) {
+        if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             }
-        }
-        double value = calculateValue(tdSteps, currentIndex, stateIndex);
+
+        double value = calculateValue(tdSteps, currentIndex );
 
         float lastReward = getLastReward(currentIndex);
-       // int tdSteps = this.getGameDTO().getTdSteps();
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
 
@@ -249,9 +247,8 @@ public abstract class Game {
     }
 
 
-    private double calculateValue(int tdSteps, int currentIndex, int stateIndex) {
+    private double calculateValue(int tdSteps, int currentIndex ) {
 
-        int startIndex;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
         if (gameDTO.isHybrid() && tdSteps == 0 ) {

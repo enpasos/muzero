@@ -116,7 +116,7 @@ public class SelfPlay {
         inferenceDuration = new Duration();
         gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed( ))
             .mapToObj(i -> config.newGame())
-            .collect(Collectors.toList());
+            .collect( Collectors.toList());
         gameList.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration( );
@@ -215,8 +215,7 @@ public class SelfPlay {
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames);
          getGameList().stream().forEach(g -> {
             if (g.isRecordValueImprovements()) {
-                     g.getValueImprovements().add(10d);   // a marker
-            //    g.getValueImprovements().clear();
+                     g.getValueImprovements().add(10d);
             }
         });
 
@@ -497,8 +496,6 @@ public class SelfPlay {
             log.info(gamesRelevant.size() + " relevant out of " + games.size());
 
             replayBuffer.addGames(network.getModel(), gamesRelevant);
-
-            // recordValueImprovements(games);
 
             log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed( ), i);
         }

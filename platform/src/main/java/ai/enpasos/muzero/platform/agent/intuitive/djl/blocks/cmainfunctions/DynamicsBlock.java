@@ -35,7 +35,7 @@ public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
 
     @Builder()
     public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config) {
-        DynamicsBlock block = (DynamicsBlock) new DynamicsBlock();
+        DynamicsBlock block =  new DynamicsBlock();
 
         block.add(new ConcatInputsBlock(config.getNetworkType()))
             .add(new RepresentationOrDynamicsBlock(config));
