@@ -65,7 +65,7 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 4
+      numResiduals: 6
       broadcastEveryN: 8  # out of range here
       numChannels: 256
       numBottleneckChannels: 128
@@ -77,14 +77,17 @@ muzero:
 
       windowSizeStart: 5000
       windowSizeIsDynamic: false #
-      windowSizeExponent: 0.8  # (sub)linear scaling of window size
-      windowSizeSlope: 0.5
+      # windowSizeExponent: 0.8  # (sub)linear scaling of window size
+      # windowSizeSlope: 0.5
 
 
       # numSimMin: 4
       # numSimWindow: 4
       # numSimMax: 100
       # numSimThreshold: 0.001
+
+      numChannelsHiddenLayerSimilarity: 250
+      numChannelsOutputLayerSimilarity: 500
 
       playTypes:
         PLAYOUT:
