@@ -18,11 +18,9 @@
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
 import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ConcatInputsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.NetworkType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 

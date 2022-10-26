@@ -26,7 +26,7 @@ public class MyL2Loss extends Loss {
 
     public static final  float NULL_VALUE = 1234567f;
 
-    private float weight;
+    private final float weight;
 
     /**
      * Calculate L2Loss between the label and prediction, a.k.a. MSE(Mean Square Error).

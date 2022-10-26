@@ -37,10 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -258,11 +255,11 @@ public class ReplayBufferIO {
                             if (filename.equals("nodetree.json")) {
                                 byte[] raw = zis.readAllBytes();
                                 NodeDTO dtoHere = decodeNodeDTO(raw);
-                                dto.setNodeDTO(dtoHere);
+                                Objects.requireNonNull(dto).setNodeDTO(dtoHere);
                             }
                         }
                     }
-                    dto.rebuildGames(config, false);
+                    Objects.requireNonNull(dto).rebuildGames(config, false);
                 }
             }
         } catch (Exception e) {
@@ -285,11 +282,11 @@ public class ReplayBufferIO {
                             if (filename.equals("nodetree.json")) {
                                 byte[] raw = zis.readAllBytes();
                                 NodeDTO dtoHere = decodeNodeDTO(raw);
-                                dto.setNodeDTO(dtoHere);
+                                Objects.requireNonNull(dto).setNodeDTO(dtoHere);
                             }
                         }
                     }
-                    dto.rebuildGames(config, false);
+                    Objects.requireNonNull(dto).rebuildGames(config, false);
                 }
             } catch (Exception e2) {
                 log.warn(e2.getMessage());

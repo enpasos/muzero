@@ -36,9 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
@@ -163,7 +161,7 @@ public class SelfPlay {
         {
             Game game = gameList.get(g);
             Node root = rootList.get(g);
-            double value = networkOutputFinal.get(g).getValue();
+            double value = Objects.requireNonNull(networkOutputFinal).get(g).getValue();
             root.setValueFromInitialInference(value);
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
             calculateSurprise(value, game);
@@ -227,7 +225,7 @@ public class SelfPlay {
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
-            networkOutput = initialInference(network, gamesToApplyAction, render, fastRuleLearning, indexOfJustOneOfTheGames);
+            networkOutput = initialInference(network, gamesToApplyAction, render, false, indexOfJustOneOfTheGames);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
 
@@ -240,7 +238,7 @@ public class SelfPlay {
         if (!fastRuleLearning) {
             IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
                 Game game = gamesToApplyAction.get(g);
-                double value = networkOutputFinal.get(g).getValue();
+                double value = Objects.requireNonNull(networkOutputFinal).get(g).getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
                 calculateSurprise(value, game);
             });
@@ -259,7 +257,7 @@ public class SelfPlay {
 
             IntStream.range(0, nGames).forEach(i -> {
                 GumbelSearch sm = searchManagers.get(i);
-                sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutputFinal.get(i));
+                sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : Objects.requireNonNull(networkOutputFinal).get(i));
                 if (!fastRuleLearning) sm.addExplorationNoise();
                 sm.gumbelActionsStart();
                 sm.drawCandidateAndAddValueStart();
@@ -279,7 +277,7 @@ public class SelfPlay {
 
                     IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
                         GumbelSearch sm = searchManagersLocal.get(i);
-                        sm.expandAndBackpropagate(networkOutputList.get(i));
+                        sm.expandAndBackpropagate(Objects.requireNonNull(networkOutputList).get(i));
                         sm.next();
                         sm.drawCandidateAndAddValue();
                     });
@@ -335,7 +333,7 @@ public class SelfPlay {
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
-            networkOutput = initialInference(network, gamesToApplyAction, false, fastRuleLearning, 0);
+            networkOutput = initialInference(network, gamesToApplyAction, false, false, 0);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
 
@@ -347,7 +345,7 @@ public class SelfPlay {
 
             float value = 0f;
             if (!fastRuleLearning) {
-                value = (float) networkOutputFinal.get(g).getValue();
+                value = (float) Objects.requireNonNull(networkOutputFinal).get(g).getValue();
             }
 
             game.getGameDTO().getRootValueTargets().add(value);
@@ -468,7 +466,7 @@ public class SelfPlay {
             network.setActionSpaceOnDevice(actionSpaceOnDevice);
             network.createAndSetHiddenStateNDManager(nDManager, true);
             int count = 1;
-            while (notFinished() && (untilEnd || count == 1)) {
+            while (notFinished()) {
                 play(network, render, fastRulesLearning, justInitialInferencePolicy, withRandomActions, this.replayBuffer.getPRandomActionRawAverage());
                 log.info("move " + count + " for " + config.getNumParallelGamesPlayed( ) + " games (where necessary) finished.");
                 count++;

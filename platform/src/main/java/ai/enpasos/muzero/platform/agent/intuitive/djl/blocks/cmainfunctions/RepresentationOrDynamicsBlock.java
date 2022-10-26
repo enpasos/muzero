@@ -17,9 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
-import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.DataType;
-import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
@@ -42,12 +39,6 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
     public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
             this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
      }
-
-
-//    public void initializeChildBlocks(
-//        NDManager manager, DataType dataType, Shape... inputShapes) {
-//        super.initializeChildBlocks(manager, dataType, inputShapes );
-//    }
 
 
     public RepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int numHiddenStateChannels, int broadcastEveryN) {
@@ -79,7 +70,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
                     .build())
 
                 // compressing hidden state (not in muzero paper)
-                .add(LinearExt.builder().setUnits(numHiddenStateChannels*height*width).build())
+                .add(LinearExt.builder().setUnits((long) numHiddenStateChannels *height*width).build())
 
                 .add(new RescaleBlockExt());
         }

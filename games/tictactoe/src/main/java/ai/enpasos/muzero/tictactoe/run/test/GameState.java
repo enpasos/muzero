@@ -36,8 +36,7 @@ public class GameState {
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof GameState)) return false;
-        GameState gs = (GameState) o;
+        if (!(o instanceof GameState gs)) return false;
         return Arrays.deepEquals(this.game.getEnvironment().getBoard(), gs.game.getEnvironment().getBoard());
     }
 }

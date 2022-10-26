@@ -130,8 +130,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
                 lastMove = "PASS";
             } else if (state.getLastMove() instanceof Resign) {
                 lastMove = "RESIGN";
-            } else if (state.getLastMove() instanceof Play) {
-                Play play = (Play) state.getLastMove();
+            } else if (state.getLastMove() instanceof Play play) {
                 Point p = play.getPoint();
                 lastMove = "PLAY(" + (char) (64 + p.getCol()) + ", " + (config.getBoardHeight() - p.getRow() + 1) + ")";
             }

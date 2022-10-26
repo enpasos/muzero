@@ -9,18 +9,16 @@ import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.SurpriseExtractor;
 import ai.enpasos.muzero.platform.run.train.MuZero;
-import ai.enpasos.muzero.platform.run.train.TrainParams;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -68,14 +66,14 @@ public class GoTest {
                 List<NetworkIO> networkOutputList = network.initialInferenceListDirect(List.of(game));
                 List<Pair<Action, Double>> distributionInput = null;
 
-                distributionInput = getPolicyOverLegalActions(game, networkOutputList);
+                distributionInput = getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList));
                 int i = 42;
 
 
 
 
                 List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(List.of(networkOutputList.get(0).getHiddenState()), List.of(distributionInput.get(0).getKey().encode(nDManager)));
-                List<Pair<Action, Double>> distributionInput2 = getPolicyOverLegalActions(game, networkOutputList2);
+                List<Pair<Action, Double>> distributionInput2 = getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
 
                 int j = 42;
 

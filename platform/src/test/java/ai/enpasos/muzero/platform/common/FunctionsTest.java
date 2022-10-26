@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.platform.common;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -34,7 +33,6 @@ class FunctionsTest {
         System.out.println(Arrays.toString(sm(raw, 5)));
     }
 
-    @NotNull
     private static double[] sm(double[] raw, double temperature) {
         double[] softmax1 = Functions.softmax(raw, temperature);
         assertEquals(1d, Arrays.stream(softmax1).sum(), 0.000001d);

@@ -229,7 +229,6 @@ public class GumbelSearch {
                 int j = 42;
             }
             double vImprovement = root.getImprovedValue() - root.getValueFromInitialInference();
-            vImprovement = vImprovement ;
             game.getValueImprovements().add(vImprovement);
         }
 
@@ -288,14 +287,6 @@ public class GumbelSearch {
                 for (int i = 0; i < policyTarget.length; i++) {
                     raw[i] = Math.log(policyTarget[i]);
                 }
-
-//                List<GumbelAction> gumbelActions = root.getChildren().stream().map(Node::getGumbelAction).collect(Collectors.toList());
-//                int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-//                double[] raw = getLogitsAndQs(config.isWithGumbel(), gumbelActions, config.getCVisit(), config.getCScale(), maxActionVisitCount);
-//                double[] raw  = new double[config.getActionSpaceSize()];
-//                IntStream.range(0,raw_.length).forEach(i ->
-//                    raw[gumbelActions.get(i).actionIndex] = raw_[i]
-//                );
 
 
                 if (config.getTrainingTypeKey() == HYBRID) {

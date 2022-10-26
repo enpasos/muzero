@@ -126,7 +126,6 @@ public class Functions {
         if (n == 0) return 0d;
         double mean = vs.stream().reduce(0.0, Double::sum) / n;
 
-        double variance = vs.stream().map(x -> x - mean).map(x -> x * x).reduce(0.0, Double::sum) / n;
-        return variance;
+        return vs.stream().map(x -> x - mean).map(x -> x * x).reduce(0.0, Double::sum) / n;
     }
 }

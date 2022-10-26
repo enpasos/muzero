@@ -62,28 +62,19 @@ public class GameResult {
         for (Map.Entry<Point, VertexType> entry : territoryMap.entrySet()) {
             VertexType status = entry.getValue();
             switch (status) {
-                case BLACK_STONE:
-                    numBlackStones += 1;
-                    break;
-                case WHITE_STONE:
-                    numWhiteStones += 1;
-                    break;
-                case BLACK_TERRITORY:
-                    numBlackTerritory += 1;
-                    break;
-                case WHITE_TERRITORY:
-                    numWhiteTerritory += 1;
-                    break;
-                case CAPTURED_BLACK_STONE:
+                case BLACK_STONE -> numBlackStones += 1;
+                case WHITE_STONE -> numWhiteStones += 1;
+                case BLACK_TERRITORY -> numBlackTerritory += 1;
+                case WHITE_TERRITORY -> numWhiteTerritory += 1;
+                case CAPTURED_BLACK_STONE -> {
                     numWhiteTerritory += 1;
                     numWhiteCaptures += 1;
-                    break;
-                case CAPTURED_WHITE_STONE:
+                }
+                case CAPTURED_WHITE_STONE -> {
                     numBlackTerritory += 1;
                     numBlackCaptures += 1;
-                    break;
-                case DAME:
-                    numDame += 1;
+                }
+                case DAME -> numDame += 1;
             }
         }
         return GameResult.builder()
@@ -135,14 +126,11 @@ public class GameResult {
         if (wonByResignation != null) {
             return (wonByResignation == BLACK_PLAYER ? "Black" : "White") + " won by resignation";
         } else {
-            switch (winner()) {
-                case BLACK_PLAYER:
-                    return "Black +" + blackWinningMargin();
-                case WHITE_PLAYER:
-                    return "White +" + (-blackWinningMargin());
-                default:
-                    return "this should not happen";
-            }
+            return switch (winner()) {
+                case BLACK_PLAYER -> "Black +" + blackWinningMargin();
+                case WHITE_PLAYER -> "White +" + (-blackWinningMargin());
+                default -> "this should not happen";
+            };
         }
 
     }

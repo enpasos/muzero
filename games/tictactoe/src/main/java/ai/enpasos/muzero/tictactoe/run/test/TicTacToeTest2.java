@@ -147,11 +147,11 @@ public class TicTacToeTest2 {
 
             n.aiChosenChild = n.aiDecision(network, withMCTS, selfPlay );
             if( n.getGame().getEnvironment().getPlayerToMove() == OneOfTwoPlayer.PLAYER_A) {
-                if (!n.aiChosenChild.bestForceableValuePlayerA.equals(n.bestForceableValuePlayerA)) {
+                if (!Objects.requireNonNull(n.aiChosenChild).bestForceableValuePlayerA.equals(n.bestForceableValuePlayerA)) {
                     badDecisionGame.add(n.aiChosenChild);
                 }
             } else {
-                if (!n.aiChosenChild.bestForceableValuePlayerB.equals(n.bestForceableValuePlayerB)) {
+                if (!Objects.requireNonNull(n.aiChosenChild).bestForceableValuePlayerB.equals(n.bestForceableValuePlayerB)) {
                     badDecisionGame.add(n.aiChosenChild);
                 }
             }
