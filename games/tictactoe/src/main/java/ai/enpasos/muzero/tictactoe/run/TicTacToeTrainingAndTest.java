@@ -27,11 +27,15 @@ public class TicTacToeTrainingAndTest {
 
     public void run() {
 
-       rmDir(config.getOutputDir());
+        boolean startFromScratch = true;
+
+        if(startFromScratch) {
+            rmDir(config.getOutputDir());
+        }
 
         muZero.train(TrainParams.builder()
             .render(true)
-          // .withoutFill(true)
+            .withoutFill(!startFromScratch)
             .build());
 
         boolean passed = ticTacToeTest.test();
