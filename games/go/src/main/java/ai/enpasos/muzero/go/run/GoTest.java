@@ -33,22 +33,37 @@ public class GoTest {
     @Autowired
     ReplayBuffer replayBuffer;
     @Autowired
+    SurpriseExtractor surpriseExtractor;
+    @Autowired
+    Inference inference;
+    @Autowired
     private MuZeroConfig config;
     @Autowired
     private MuZero muZero;
 
-    @Autowired
-    SurpriseExtractor surpriseExtractor;
-
-    @Autowired
-    Inference inference;
-
+    private static List<Pair<Action, Double>> getPolicyOverLegalActions(Game game, List<NetworkIO> networkOutputList) {
+        List<Pair<Action, Double>> distributionInput;
+        List<Action> legalActions = game.legalActions();
+        float[] policyValues = networkOutputList.get(0).getPolicyValues();
+        distributionInput =
+            IntStream.range(0, game.getConfig().getActionSpaceSize())
+                .filter(i -> {
+                    Action action = game.getConfig().newAction(i);
+                    return legalActions.contains(action);
+                })
+                .mapToObj(i -> {
+                    Action action = game.getConfig().newAction(i);
+                    double v = policyValues[i];
+                    return new Pair<>(action, v);
+                }).collect(Collectors.toList());
+        return distributionInput;
+    }
 
     @SuppressWarnings("squid:S125")
     public void run() {
 
 
-        Game  game = surpriseExtractor.getGameStartingWithActionsFromStart(
+        Game game = surpriseExtractor.getGameStartingWithActionsFromStart(
             12, 17, 11, 13, 7, 23, 6, 19, 8, 9, 16, 21, 3, 20, 4, 14, 15, 22, 25, 0, 5, 1, 2, 1, 0, 25, 10
         ).orElseThrow(MuZeroException::new);
 
@@ -70,33 +85,13 @@ public class GoTest {
                 distributionInput = getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList));
 
 
-
                 List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(List.of(networkOutputList.get(0).getHiddenState()), List.of(distributionInput.get(0).getKey().encode(nDManager)));
-                 getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
-
+                getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
 
 
             }
 
         }
-    }
-
-    private static List<Pair<Action, Double>> getPolicyOverLegalActions(Game game, List<NetworkIO> networkOutputList) {
-        List<Pair<Action, Double>> distributionInput;
-        List<Action> legalActions = game.legalActions();
-        float[] policyValues = networkOutputList.get(0).getPolicyValues();
-        distributionInput =
-          IntStream.range(0, game.getConfig().getActionSpaceSize())
-              .filter(i -> {
-                  Action action = game.getConfig().newAction(i);
-                  return legalActions.contains(action);
-              })
-              .mapToObj(i -> {
-                  Action action = game.getConfig().newAction(i);
-                  double v = policyValues[i];
-                  return new Pair<>(action, v);
-              }).collect(Collectors.toList());
-        return distributionInput;
     }
 
 

@@ -188,6 +188,12 @@ public class Node {
             );
         }
 
+        renormPrior(policyMap);
+
+
+    }
+
+    private void renormPrior(Map<Action, Pair<Float, Float>> policyMap) {
         double policySum = policyMap.values().stream()
             .mapToDouble(p -> p.getFirst().doubleValue())
             .sum();
@@ -197,8 +203,6 @@ public class Node {
             Float logit2 = e.getValue().getSecond();
             getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
         }
-
-
     }
 
 
@@ -232,15 +236,7 @@ public class Node {
 
                 );
 
-            double policySum = policy.values().stream()
-                .mapToDouble(p -> p.getFirst().doubleValue())
-                .sum();
-            for (Map.Entry<Action, Pair<Float, Float>> e : policy.entrySet()) {
-                Action action2 = e.getKey();
-                Float p = e.getValue().getFirst();
-                Float logit2 = e.getValue().getSecond();
-                getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
-            }
+            renormPrior(policy);
 
         }
     }
