@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.go.run;
 
-
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
@@ -27,12 +26,11 @@ public class GoTrainingAndTest {
     @Autowired
     private GoSurprise goSurprise;
 
-
-    @SuppressWarnings("squid:S125")
+    @SuppressWarnings({"squid:S125", "java:S2583"})
     public void run() {
-        boolean startFromScratch = false;
+        boolean startFromScratch = true;
 
-        if(startFromScratch) {
+        if (startFromScratch) {
             rmDir(config.getOutputDir());
         }
 
@@ -41,6 +39,5 @@ public class GoTrainingAndTest {
             .withoutFill(!startFromScratch)
             .build());
     }
-
 
 }
