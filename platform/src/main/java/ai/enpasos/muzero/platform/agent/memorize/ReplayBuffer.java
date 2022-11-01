@@ -116,8 +116,8 @@ public class ReplayBuffer {
         return gamePos;
     }
 
-    public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+    public int getAverageGameLength() {
+        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).average().orElse(1000);
     }
 
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
@@ -236,9 +236,6 @@ public class ReplayBuffer {
         }
         int epoch = Integer.parseInt(epochStr);
         game.getGameDTO().setNetworkName(this.currentNetworkName);
-        if (config.isRecordVisitsOn()) {
-            this.buffer.getNodeDTO().memorize(game, epoch);
-        }
         buffer.addGame(game);
     }
 

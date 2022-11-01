@@ -395,10 +395,6 @@ public class MuZeroConfig {
         return getConf().isSurpriseHandlingOn();
     }
 
-    public boolean isRecordVisitsOn() {
-        return getConf().recordVisitsOn;
-    }
-
     public int getCVisit() {
         return getConf().cVisit;
     }
@@ -462,7 +458,6 @@ public class MuZeroConfig {
     @Data
     public static class Conf {
         public Map<PlayTypeKey, PlayType> playTypes;
-        protected boolean recordVisitsOn = false;
         protected boolean surpriseHandlingOn = false;
         protected boolean extraValueTrainingOn = false;
         protected double numSimThreshold;
