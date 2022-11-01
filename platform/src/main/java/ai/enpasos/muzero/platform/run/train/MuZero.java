@@ -85,8 +85,8 @@ public class MuZero {
         while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
             selfPlay.playMultipleEpisodes(network, false, true, false, false);
-            replayBuffer.saveState();
         }
+        replayBuffer.saveState();
     }
 
     public void createNetworkModelIfNotExisting() {
