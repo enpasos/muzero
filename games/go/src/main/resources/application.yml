@@ -111,18 +111,18 @@ muzero:
           tdSteps:  10000
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
-          numSimulations: 20
-          numSimulationsHybrid: 20
+          numSimulations: 30
+          numSimulationsHybrid: 10
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
-          rootDirichletAlpha: 0.1
+          rootDirichletAlpha: 0.4
           rootExplorationFraction: 0.25  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (a little different from the paper)
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-          temperatureRoot: 1.5
+          temperatureRoot: 1.2
           gumbelActionSelection: false
 
         BEST_EFFORT:
@@ -130,9 +130,11 @@ muzero:
           numEpisodes: 2
           numParallelGamesPlayed: 250 #250
           tdSteps: 10000
-          numSimulations: 20
-          rootExplorationFraction: 0.0  # 0.0 means switched off
-          gumbelActionSelection: true
+          numSimulations: 30
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 0.4
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 
     GO_9:

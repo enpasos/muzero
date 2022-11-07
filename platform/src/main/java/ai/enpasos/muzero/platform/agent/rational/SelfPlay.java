@@ -357,7 +357,7 @@ public class SelfPlay {
             game.getGameDTO().getPolicyTargets().add(policyTarget);
             if (render && game.isDebug()) {
                 game.renderMCTSSuggestion(config, policyTarget);
-                log.debug("\n" + game.render());
+                log.info("\n" + game.render());
             }
             game.setActionApplied(true);
         });
@@ -423,7 +423,7 @@ public class SelfPlay {
     public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         init();
         if (render) {
-            log.debug(justOneOfTheGames().render());
+            log.info(justOneOfTheGames().render());
         }
         runEpisode(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
         long duration = System.currentTimeMillis() - getStart();

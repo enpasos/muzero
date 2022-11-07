@@ -86,7 +86,9 @@ public class GoTest {
 
 
                 List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(List.of(networkOutputList.get(0).getHiddenState()), List.of(distributionInput.get(0).getKey().encode(nDManager)));
-                getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
+                List<Pair<Action, Double>>  result = getPolicyOverLegalActions(game, Objects.requireNonNull(networkOutputList2));
+
+                int i = 42;
 
 
             }
