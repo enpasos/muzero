@@ -206,7 +206,7 @@ public class NetworkHelper {
         return Optimizer.adam()
             .optLearningRateTracker(learningRateTracker)
             .optWeightDecays(config.getWeightDecay())
-            .optClipGrad(10f)
+            .optClipGrad(1f)
             .build();
 
     }

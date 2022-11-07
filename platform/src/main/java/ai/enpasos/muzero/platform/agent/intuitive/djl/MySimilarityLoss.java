@@ -37,10 +37,10 @@ public class MySimilarityLoss extends Loss {
         NDArray lab = label.singletonOrThrow();
 
         int[] axis = new int[]{1};
-        double epsilon = 1e-5;
-        NDArray labNorm = lab.norm(axis, false).maximum(epsilon);
+        double epsilon = 1e-4;
+        NDArray labNorm = lab.norm(axis, false).add(epsilon);
 
-        NDArray predNorm = pred.norm(axis, false).maximum(epsilon);
+        NDArray predNorm = pred.norm(axis, false).add(epsilon);
 
         NDArray loss = lab.mul(pred).sum(axis).div(labNorm).div(predNorm).sub(1).mul(-weight);
 
