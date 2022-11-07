@@ -320,7 +320,7 @@ public class GumbelSearch {
             List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();
             float[] policyTarget = policyTargets.get(policyTargets.size() - 1);
             game.renderMCTSSuggestion(config, policyTarget);
-            log.debug("\n" + game.render());
+            log.info("\n" + game.render());
         }
     }
 

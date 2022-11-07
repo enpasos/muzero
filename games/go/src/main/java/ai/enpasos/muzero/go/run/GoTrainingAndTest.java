@@ -35,7 +35,7 @@ public class GoTrainingAndTest {
         }
 
         muZero.train(TrainParams.builder()
-            .render(false)
+            .render(true)
             .withoutFill(!startFromScratch)
             .build());
     }

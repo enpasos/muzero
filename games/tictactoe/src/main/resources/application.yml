@@ -108,7 +108,7 @@ muzero:
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
-          rootDirichletAlpha: 0.5
+          rootDirichletAlpha: 1.2
           rootExplorationFraction: 0.25  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
@@ -125,7 +125,7 @@ muzero:
           gumbelActionSelection: true
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
-          rootDirichletAlpha: 0.5
+          rootDirichletAlpha: 1.2
           rootExplorationFraction: 0.25  # 0.0 means switched off
 
 

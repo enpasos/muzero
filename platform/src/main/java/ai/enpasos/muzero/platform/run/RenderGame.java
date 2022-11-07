@@ -43,15 +43,15 @@ public class RenderGame {
     public void renderGame(@NotNull Game game) {
         Game replayGame = config.newGame();
 
-        log.debug("\n" + Objects.requireNonNull(replayGame).render());
+        log.info("\n" + Objects.requireNonNull(replayGame).render());
         for (int i = 0; i < game.getGameDTO().getActions().size(); i++) {
             Action action = config.newAction(game.getGameDTO().getActions().get(i));
 
 
             replayGame.apply(action);
-            log.debug("\n" + replayGame.render());
+            log.info("\n" + replayGame.render());
         }
-        log.debug(game.getEnvironment().toString());
+        log.info(game.getEnvironment().toString());
     }
 
 }
