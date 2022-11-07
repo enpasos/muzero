@@ -26,7 +26,7 @@ class MySimilarityLossTest {
         prediction = prediction.reshape(shape);
 
 
-        assertEquals(0f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
+        assertEquals(4.0006638E-4f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
 
     }
 }
