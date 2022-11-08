@@ -155,8 +155,8 @@ public class ReplayBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
             return sampleGames().stream()
-                .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
-                .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
+              //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
+              //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
                 .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
                 .collect(Collectors.toList());
         }
