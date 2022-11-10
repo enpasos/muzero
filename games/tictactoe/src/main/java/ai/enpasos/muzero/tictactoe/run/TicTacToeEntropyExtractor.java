@@ -19,6 +19,7 @@ package ai.enpasos.muzero.tictactoe.run;
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.EntropyExtractor;
+import ai.enpasos.muzero.platform.run.SurpriseExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,11 +36,23 @@ public class TicTacToeEntropyExtractor {
     @Autowired
     EntropyExtractor entropyExtractor;
 
+
+    @Autowired
+    SurpriseExtractor surpriseExtractor;
+
     public void run() {
 
         config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
-        List<Integer> actionIndexList = entropyExtractor.getActionList();
+        // just an example for a played game
+       // List<Integer> actionIndexList = entropyExtractor.getActionList();
+
+
+
+
+
+
+        List<Integer> actionIndexList = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8).get().actionHistory().getActionIndexList();
 
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
     }

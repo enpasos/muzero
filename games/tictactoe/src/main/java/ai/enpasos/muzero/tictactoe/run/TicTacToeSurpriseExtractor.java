@@ -45,7 +45,11 @@ public class TicTacToeSurpriseExtractor {
 
      //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 0, 8, 5, 6, 1, 3, 2);
        // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(0, 6, 2, 4, 8, 3, 7, 5);
+
         Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+      //  game = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8);
+
+
 
     //    Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(8, 4, 7, 6, 2, 3, 5);
 

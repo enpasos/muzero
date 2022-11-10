@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.Functions.entropy;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
+
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -61,6 +64,8 @@ public class GameDTO implements Comparable<GameDTO> {
 
 
     private int tdSteps;
+    private float maxEntropySum;
+    private float entropySum;
 
     public GameDTO(List<Integer> actions) {
         this();
@@ -76,6 +81,17 @@ public class GameDTO implements Comparable<GameDTO> {
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.surprised = false;
         this.hybrid = false;
+        this.maxEntropySum = 0f;
+        this.entropySum = 0f;
+    }
+
+
+    public void increaseEntropySum(float[] ps) {
+        entropySum += entropy(toDouble(ps));
+    }
+
+    public void increaseMaxEntropySum(int legalActions) {
+        maxEntropySum += Math.log(legalActions);
     }
 
     public @NotNull String getActionHistoryAsString() {
@@ -96,6 +112,8 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.count = this.count;
+        copy.maxEntropySum = this.maxEntropySum;
+        copy.entropySum = this.entropySum;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
@@ -117,6 +135,8 @@ public class GameDTO implements Comparable<GameDTO> {
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;
         copy.count = this.count;
+        copy.maxEntropySum = this.maxEntropySum;
+        copy.entropySum = this.entropySum;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         return copy;
     }
@@ -136,6 +156,8 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tdSteps = this.tdSteps;
         copy.surprises.addAll(this.surprises);
         copy.actions.addAll(this.actions);
+        copy.maxEntropySum = this.maxEntropySum;
+        copy.entropySum = this.entropySum;
 
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
@@ -158,6 +180,8 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
         gameBuilder.setTdSteps(this.tdSteps);
+        gameBuilder.setMaxEntropySum(this.maxEntropySum);
+        gameBuilder.setEntropySum(this.entropySum);
         gameBuilder.addAllActions(getActions());
         gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
@@ -185,6 +209,8 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
         this.setTdSteps(p.getTdSteps());
+        this.setMaxEntropySum(p.getMaxEntropySum());
+        this.setEntropySum(p.getEntropySum());
         this.setActions(p.getActionsList());
         this.setPRandomActionRawSum(p.getPRandomActionRawSum());
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());

@@ -232,6 +232,8 @@ public class SelfPlay {
         List<NetworkIO> networkOutputFinal = networkOutput;
 
 
+        storeEntropyInfo(gamesToApplyAction, networkOutputFinal);
+
         if (justInitialInferencePolicy) {
             playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
             return;
@@ -304,6 +306,18 @@ public class SelfPlay {
         keepTrackOfOpenGames();
     }
 
+    private static void storeEntropyInfo(List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
+        IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
+            Game game = gamesToApplyAction.get(g);
+            List<Action> legalActions = game.legalActions();
+            game.getGameDTO().increaseMaxEntropySum(legalActions.size());
+            if(networkOutputFinal != null) {
+                float[] ps = networkOutputFinal.get(g).getPolicyValues();
+                game.getGameDTO().increaseEntropySum(ps);
+            }
+        });
+    }
+
 
     @SuppressWarnings({"squid:S3740", "unchecked"})
     private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
@@ -311,6 +325,7 @@ public class SelfPlay {
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
             Game game = gamesToApplyAction.get(i);
             List<Action> legalActions = game.legalActions();
+            //game.getGameDTO().increaseMaxEntropySum(legalActions.size());
             Node root = new Node(config, 0, true);
             roots.add(root);
             root.expandRootNode(game.toPlay(), legalActions, networkOutputFinal.get(i), fastRuleLearning);
