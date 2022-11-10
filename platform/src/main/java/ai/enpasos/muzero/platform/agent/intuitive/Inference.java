@@ -159,7 +159,7 @@ public class Inference {
         try (NDManager nDManager = network.getNDManager().newSubManager()) {
             network.setHiddenStateNDManager(nDManager);
             List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            entropyByNetwork = Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getValueDistribution()))).toArray();
+            entropyByNetwork = Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getPolicyValues()))).toArray();
         }
         return entropyByNetwork;
     }

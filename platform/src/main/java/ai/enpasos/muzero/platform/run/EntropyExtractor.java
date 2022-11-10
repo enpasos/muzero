@@ -53,30 +53,21 @@ public class EntropyExtractor {
 
     public String listValuesForTrainedNetworks(List<Integer> actions) {
 
-        if (config.getValueHeadType() != ValueHeadType.DISTRIBUTION) {
-            throw new MuZeroException("ValueHeadType must be DISTRIBUTION");
-        }
-
-
         StringWriter stringWriter = new StringWriter();
 
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "entropy", "vPlayerA", "actionIndex").build())) {
-            IntStream.range(0, actions.size() + 1).forEach(
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "entropy", "actionIndex").build())) {
+            IntStream.range(0, actions.size()).forEach(
                 t -> {
                     try {
                         double entropy = inference.aiEntropy(actions.subList(0, t), config.getNetworkBaseDir());
-                        double valuePlayerA = inference.aiValue(actions.subList(0, t), config.getNetworkBaseDir());
-                        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                            valuePlayerA *= Math.pow(-1, t);
-                        }
+
                         csvPrinter.printRecord(t,
                             NumberFormat.getNumberInstance().format(entropy),
-                            NumberFormat.getNumberInstance().format(valuePlayerA),
-                            t == 0 ? -1 : actions.get(t - 1));
+                            actions.get(t));
 
                     } catch (Exception e) {
-                        // ignore
+                        e.printStackTrace();
                     }
                 });
 
@@ -95,7 +86,7 @@ public class EntropyExtractor {
 
         Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
 
-
+        System.out.println(game.getGameDTO().getEntropySum());
         List<Integer> actions = game.actionHistory().getActionIndexList();
         log.debug(actions.toString());
         return actions;

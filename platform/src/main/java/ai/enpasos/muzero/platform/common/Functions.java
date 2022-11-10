@@ -72,7 +72,18 @@ public class Functions {
     }
 
     public static double entropy(double[] ps) {
-        return Arrays.stream(ps).reduce(0d, (e, p) -> e - p * Math.log(p));
+        return Arrays.stream(ps).reduce(0d, (e, p) -> e + singleEntropySummand(p));
+    }
+
+    public static double entropy(List<Float> ps) {
+        return (double)ps.stream().reduce(0f, (e, p) -> e + (float)singleEntropySummand(p));
+    }
+
+    public static double singleEntropySummand(double p) {
+        if (p == 0 || p == 1) {
+            return 0;
+        }
+        return - p * Math.log(p);
     }
 
     public static Action selectActionByMaxFromDistribution(List<Pair<Action, Double>> distributionInput) {
