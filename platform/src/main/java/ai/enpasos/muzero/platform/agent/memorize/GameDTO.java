@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
-import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 
 @Data
 @AllArgsConstructor
@@ -47,6 +46,7 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Integer> actions;
     private List<Float> rewards;
     private List<Float> surprises;
+    private List<Float> entropies;
     private List<float[]> policyTargets;
     private List<Float> rootValueTargets;
     private List<Float> rootValuesFromInitialInference;
@@ -64,8 +64,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
 
     private int tdSteps;
-    private float maxEntropySum;
-    private float entropySum;
+    private List<Float>  maxEntropies;
 
     public GameDTO(List<Integer> actions) {
         this();
@@ -78,20 +77,34 @@ public class GameDTO implements Comparable<GameDTO> {
         this.policyTargets = new ArrayList<>();
         this.rootValueTargets = new ArrayList<>();
         this.surprises = new ArrayList<>();
+        this.entropies = new ArrayList<>();
+        this.maxEntropies = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.surprised = false;
         this.hybrid = false;
-        this.maxEntropySum = 0f;
-        this.entropySum = 0f;
+    }
+
+    public boolean hasExploration() {
+        return tHybrid > 0;
+    }
+
+    public double getAverageEntropy() {
+        return IntStream.range(0, entropies.size())
+                .mapToDouble(i -> entropies.get(i))
+                .sum()/Math.max(1, entropies.size());
+    }
+    public double getAverageMaxEntropy() {
+        return IntStream.range(0, maxEntropies.size())
+            .mapToDouble(i -> maxEntropies.get(i))
+            .sum()/Math.max(1, maxEntropies.size());
     }
 
 
-    public void increaseEntropySum(float[] ps) {
-        entropySum += entropy(toDouble(ps));
+    public double getEntropySum() {
+        return entropies.stream().mapToDouble(Float::doubleValue).sum();
     }
-
-    public void increaseMaxEntropySum(int legalActions) {
-        maxEntropySum += Math.log(legalActions);
+    public double getMaxEntropySum() {
+        return maxEntropies.stream().mapToDouble(Float::doubleValue).sum();
     }
 
     public @NotNull String getActionHistoryAsString() {
@@ -112,14 +125,14 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.count = this.count;
-        copy.maxEntropySum = this.maxEntropySum;
-        copy.entropySum = this.entropySum;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         if (toPosition > 0) {
             copy.rewards.addAll(this.rewards.subList(0, toPosition));
             copy.surprises.addAll(this.surprises.subList(0, toPosition));
+            copy.entropies.addAll(this.entropies.subList(0, toPosition));
+            copy.maxEntropies.addAll(this.maxEntropies.subList(0, toPosition));
             copy.actions.addAll(this.actions.subList(0, toPosition));
 
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
@@ -135,8 +148,6 @@ public class GameDTO implements Comparable<GameDTO> {
         GameDTO copy = new GameDTO();
         copy.networkName = this.networkName;
         copy.count = this.count;
-        copy.maxEntropySum = this.maxEntropySum;
-        copy.entropySum = this.entropySum;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         return copy;
     }
@@ -155,9 +166,9 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.surprises.addAll(this.surprises);
+        copy.entropies.addAll(this.entropies);
+        copy.maxEntropies.addAll(this.maxEntropies);
         copy.actions.addAll(this.actions);
-        copy.maxEntropySum = this.maxEntropySum;
-        copy.entropySum = this.entropySum;
 
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
@@ -180,14 +191,14 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
         gameBuilder.setTdSteps(this.tdSteps);
-        gameBuilder.setMaxEntropySum(this.maxEntropySum);
-        gameBuilder.setEntropySum(this.entropySum);
         gameBuilder.addAllActions(getActions());
         gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValueTargets(getRootValueTargets());
         gameBuilder.addAllSurprises(getSurprises());
+        gameBuilder.addAllEntropies(getEntropies());
+        gameBuilder.addAllMaxEntropies(getMaxEntropies());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
 
         getPolicyTargets().forEach(policyTarget -> {
@@ -209,14 +220,14 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
         this.setTdSteps(p.getTdSteps());
-        this.setMaxEntropySum(p.getMaxEntropySum());
-        this.setEntropySum(p.getEntropySum());
         this.setActions(p.getActionsList());
         this.setPRandomActionRawSum(p.getPRandomActionRawSum());
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());
         this.setRewards(p.getRewardsList());
         this.setRootValueTargets(p.getRootValueTargetsList());
         this.setSurprises(p.getSurprisesList());
+        this.setEntropies(p.getEntropiesList());
+        this.setMaxEntropies(p.getMaxEntropiesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setCount(p.getCount());

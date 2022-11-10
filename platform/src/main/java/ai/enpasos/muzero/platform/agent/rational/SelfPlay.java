@@ -45,8 +45,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 
@@ -310,10 +309,10 @@ public class SelfPlay {
         IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
             Game game = gamesToApplyAction.get(g);
             List<Action> legalActions = game.legalActions();
-            game.getGameDTO().increaseMaxEntropySum(legalActions.size());
+            game.getGameDTO().getMaxEntropies().add((float)Math.log(legalActions.size()));
             if(networkOutputFinal != null) {
                 float[] ps = networkOutputFinal.get(g).getPolicyValues();
-                game.getGameDTO().increaseEntropySum(ps);
+                game.getGameDTO().getEntropies().add((float)entropy(toDouble(ps)));
             }
         });
     }
