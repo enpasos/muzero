@@ -56,6 +56,15 @@ public class ReplayBuffer {
     @Autowired
     private ReplayBufferIO replayBufferIO;
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
+    private Map<Integer, Double> entropyExplorationSum = new HashMap<>();
+    private Map<Integer, Integer> entropyExplorationCount = new HashMap<>();
+    private Map<Integer, Double> maxEntropyExplorationSum = new HashMap<>();
+    private Map<Integer, Integer> maxEntropyExplorationCount = new HashMap<>();
+    private Map<Integer, Double> entropyBestEffortSum = new HashMap<>();
+    private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
+    private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
+    private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
+
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
         int gamePos = samplePosition(game);
@@ -227,6 +236,7 @@ public class ReplayBuffer {
 
     public void addGames(Model model, List<Game> games) {
         games.forEach(game -> addGame(model, game));
+        logEntropyInfo();
     }
 
     private void addGame(Model model, Game game) {
@@ -235,8 +245,51 @@ public class ReplayBuffer {
             epochStr = "0";
         }
         int epoch = Integer.parseInt(epochStr);
+
+        memorizeEntropyInfo(game, epoch);
+
+
         game.getGameDTO().setNetworkName(this.currentNetworkName);
         buffer.addGame(game);
+    }
+
+    private void memorizeEntropyInfo(Game game, int epoch) {
+        this.entropyBestEffortSum.putIfAbsent(epoch, 0.0);
+        this.maxEntropyBestEffortSum.putIfAbsent(epoch, 0.0);
+        this.entropyExplorationSum.putIfAbsent(epoch, 0.0);
+        this.maxEntropyExplorationSum.putIfAbsent(epoch, 0.0);
+        this.entropyBestEffortCount.putIfAbsent(epoch, 0);
+        this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
+        this.entropyExplorationCount.putIfAbsent(epoch, 0);
+        this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
+
+        if (game.getGameDTO().hasExploration()) {
+            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getGameDTO().getAverageEntropy());
+            this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
+            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getGameDTO().getAverageMaxEntropy());
+            this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
+        } else {
+            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageEntropy());
+            this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
+            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageMaxEntropy());
+            this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
+        }
+    }
+
+    public void logEntropyInfo() {
+        System.out.println("epoch;entropyBestEffort;entropyExploration;maxEntropyBestEffort;maxEntropyExploration");
+        this.entropyBestEffortSum.keySet().stream().sorted().forEach(epoch -> {
+
+            double entropyBestEffort = this.entropyBestEffortSum.get(epoch) / Math.max(1, this.entropyBestEffortCount.get(epoch));
+            double entropyExploration = this.entropyExplorationSum.get(epoch) / Math.max(1, this.entropyExplorationCount.get(epoch));
+            double maxEntropyBestEffort = this.maxEntropyBestEffortSum.get(epoch) / Math.max(1, this.maxEntropyBestEffortCount.get(epoch));
+            double maxEntropyExploration = this.maxEntropyExplorationSum.get(epoch) / Math.max(1, this.maxEntropyExplorationCount.get(epoch));
+            String message = String.format("%d; %.4f; %.4f; %.4f; %.4f", epoch, entropyBestEffort, entropyExploration, maxEntropyBestEffort, maxEntropyExploration);
+
+            System.out.println(message);
+
+        });
+
     }
 
     public void putMeanValueLoss(int epoch, double meanValueLoss) {
