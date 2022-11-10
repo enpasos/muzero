@@ -47,7 +47,7 @@ muzero:
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
       # windowValueSelfconsistencySize: 30000   <- postponed
-      batchSize: 128
+      batchSize: 64
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0
@@ -70,8 +70,8 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 128     # 256 in the paper
-      numBottleneckChannels: 96
+      numChannels: 192     # 256 in the paper
+      numBottleneckChannels: 128
       numResiduals: 12
       broadcastEveryN: 8  # broadcasting block in every 8th layer
 
