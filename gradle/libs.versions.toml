@@ -3,7 +3,7 @@ lombok = "1.18.24"
 djl = "0.20.0-SNAPSHOT"
 pytorch = "1.12.1"
 slf4j = "2.0.3"
-springboot = "3.0.0-RC1"
+springboot = "3.0.0-RC2"
 protobuf = "3.21.8"
 
 
