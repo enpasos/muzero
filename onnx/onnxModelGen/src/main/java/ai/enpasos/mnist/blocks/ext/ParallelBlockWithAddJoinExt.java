@@ -26,7 +26,7 @@ public class ParallelBlockWithAddJoinExt extends ParallelBlock implements OnnxIO
         super(
             list -> {
                 NDList unit = list.get(0);
-                NDList parallel = list.get(1);
+                NDList parallel = new NDList(list.get(1).get(0));
                 return new NDList(
                     unit.singletonOrThrow()
                         .add(parallel.singletonOrThrow())

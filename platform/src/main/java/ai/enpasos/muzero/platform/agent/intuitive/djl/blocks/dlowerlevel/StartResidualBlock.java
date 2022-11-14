@@ -37,36 +37,32 @@ import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class ResidualBlockFC extends AbstractBlock implements OnnxIO {
+public class StartResidualBlock extends AbstractBlock implements OnnxIO {
 
 
     public final ParallelBlockWithAddJoinExt block;
 
-    public ResidualBlockFC(int numChannels) {
+    public StartResidualBlock(int numChannels) {
         super(MYVERSION);
 
         SequentialBlockExt b1;
         SequentialBlockExt identity;
 
         b1 = (SequentialBlockExt) new SequentialBlockExt()
-            .add(LayerNormExt.builder().build())
-            .add(ActivationExt.reluBlock())
-            .add(LinearExt.builder()
-                .setUnits(numChannels)
-                .build())
+            .add(new ConcatInputsBlock())
+            .add(Conv3x3.builder().channels(numChannels).build())
         ;
 
         identity = (SequentialBlockExt) new SequentialBlockExt()
             .add(BlocksExt.identityBlock());
 
-
-        block = addChildBlock("residualBlock", new ParallelBlockWithAddJoinExt(
+        block = addChildBlock("startResidualBlock", new ParallelBlockWithAddJoinExt(
             Arrays.asList(b1, identity)));
     }
 
     @Override
     public @NotNull String toString() {
-        return "Residual()";
+        return "StartResidual()";
     }
 
     @Override
