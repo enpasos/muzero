@@ -44,11 +44,9 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
 
-    final NetworkType networkType;
-
-    public ConcatInputsBlock(NetworkType networkType) {
+    public ConcatInputsBlock() {
         super(MYVERSION);
-        this.networkType = networkType;
+     //   this.networkType = networkType;
     }
 
 
@@ -59,9 +57,7 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDArray state = inputs.get(0);
         NDArray externalInput = inputs.get(1);
-        if (networkType == NetworkType.FC) {
-            externalInput = batchFlatten(externalInput);
-        }
+
 
         return new NDList(NDArrays.concat(new NDList(state, externalInput), 1));
     }
@@ -71,17 +67,10 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         long size = 0;
         Shape[] shapes = new Shape[1];
-        if (networkType == NetworkType.CON) {
-            for (Shape inputShape : inputShapes) {
-                size += inputShape.get(1);
-            }
-
-            shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));
-        } else {
-            size += inputShapes[0].get(1);
-            size += inputShapes[1].get(2) * inputShapes[1].get(3);
-            shapes[0] = new Shape(inputShapes[0].get(0), size);
+        for (Shape inputShape : inputShapes) {
+            size += inputShape.get(1);
         }
+        shapes[0] = new Shape(inputShapes[0].get(0), size, inputShapes[0].get(2), inputShapes[0].get(3));
 
         return shapes;
 

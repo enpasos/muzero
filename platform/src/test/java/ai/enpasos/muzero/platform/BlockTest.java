@@ -4,9 +4,8 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationOrDynamicsBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.MainRepresentationOrDynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.BottleneckResidualBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualBlockV2;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.NetworkType;
 import ai.enpasos.muzero.platform.config.ValueHeadType;
@@ -44,15 +43,7 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
 
-    @Test
-    void residualRANDOM() throws Exception {
-        boolean check = compareOnnxWithDJL(
-            "./build/ResidualBlockV2.onnx",
-            new ResidualBlockV2(128, 10),
-            List.of(new Shape(1, 128, 3, 3)),
-            RANDOM);
-        Assertions.assertTrue(check);
-    }
+
 
     @Test
     void bottleneckResidualRANDOM() throws Exception {
@@ -101,15 +92,7 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
 
-    @Test
-    void residualZERO() throws Exception {
-        boolean check = compareOnnxWithDJL(
-            "./build/ResidualBlockV2.onnx",
-            new ResidualBlockV2(128, 10),
-            List.of(new Shape(1, 128, 3, 3)),
-            ZERO);
-        Assertions.assertTrue(check);
-    }
+
 
     @Test
     void residualTowerZERO() throws Exception {
@@ -132,7 +115,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./build/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 5, 8),
+            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64,8, false),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -153,7 +136,7 @@ class BlockTest {
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./build/RepresentationOrDynamicsBlock.onnx",
-            new RepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 5, 8),
+            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 8, false),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

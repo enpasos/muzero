@@ -164,9 +164,6 @@ public class MuZeroConfig {
         return getConf().numBottleneckChannels;
     }
 
-    public int getNumHiddenStateChannels() {
-        return getConf().numHiddenStateChannels;
-    }
 
     public int getNumResiduals() {
         return getConf().numResiduals;
@@ -479,7 +476,7 @@ public class MuZeroConfig {
         protected int numChannels;
         protected int broadcastEveryN;
         protected int numBottleneckChannels;
-        protected int numHiddenStateChannels;
+
         protected int numResiduals;
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;

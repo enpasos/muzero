@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock.newDynamicsBlock;
+import static ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationBlock.newRepresentationBlock;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
@@ -53,7 +54,7 @@ public class MuZeroBlock extends AbstractBlock {
         this.config = config;
 
 
-        representationBlock = this.addChildBlock("Representation", new RepresentationBlock(config));
+        representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
