@@ -165,8 +165,12 @@ public class MuZeroConfig {
     }
 
 
-    public int getNumResiduals() {
-        return getConf().numResiduals;
+    public int getNumResidualsRepresentation() {
+        return getConf().numResidualsRepresentation;
+    }
+
+    public int getNumResidualsGeneration() {
+        return getConf().numResidualsGeneration;
     }
 
     public double[] getValues() {
@@ -372,8 +376,11 @@ public class MuZeroConfig {
     }
 
 
-    public int getBroadcastEveryN() {
-        return getConf().broadcastEveryN;
+    public int getBroadcastEveryNRepresentation() {
+        return getConf().broadcastEveryNRepresentation;
+    }
+    public int getBroadcastEveryNGeneration() {
+        return getConf().broadcastEveryNGeneration;
     }
 
     public PlayTypeKey getPlayTypeKey() {
@@ -474,10 +481,12 @@ public class MuZeroConfig {
         protected int numObservationLayers;
         protected int numActionLayers;
         protected int numChannels;
-        protected int broadcastEveryN;
+        protected int broadcastEveryNRepresentation;
+        protected int broadcastEveryNGeneration;
         protected int numBottleneckChannels;
 
-        protected int numResiduals;
+        protected int numResidualsRepresentation;
+        protected int numResidualsGeneration;
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSizeStart;
