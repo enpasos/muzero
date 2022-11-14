@@ -24,7 +24,7 @@ import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 @ConfigurationProperties("muzero")
 @Data
 @Slf4j
-@SuppressWarnings("squid:S1104")
+@SuppressWarnings({"squid:S1104", "unchecked"})
 public class MuZeroConfig {
     public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
     public Map<GameType, Conf> games;

@@ -69,7 +69,7 @@ muzero:
       numResidualsRepresentation: 6
       broadcastEveryNRepresentation: 8  # out of range here
 
-      numResidualsGeneration: 1
+      numResidualsGeneration: 6    #  1 works too :-)
       broadcastEveryNGeneration: 8 # out of range here
 
       numChannels: 256
