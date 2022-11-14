@@ -115,7 +115,7 @@ class BlockTest {
     void representationOrDynamicsZERO() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./build/RepresentationOrDynamicsBlock.onnx",
-            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64,8, false),
+            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64,8),
             List.of(new Shape(1, 3, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -136,7 +136,7 @@ class BlockTest {
     void representationOrDynamicsRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
             "./build/RepresentationOrDynamicsBlock.onnx",
-            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 8, false),
+            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 8),
             List.of(new Shape(1, 3, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

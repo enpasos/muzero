@@ -34,12 +34,12 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
      */
 
 
-    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, boolean inputChannelsEqualsNumChannels) {
-        this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(),   config.getBroadcastEveryN(), inputChannelsEqualsNumChannels);
+    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
+        this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannels(), config.getNumBottleneckChannels(),   broadcastEveryN );
     }
 
     @java.lang.SuppressWarnings("java:S107")
-    public MainRepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN, boolean inputChannelsEqualsNumChannels) {
+    public MainRepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN ) {
             this
 //                .add(inputChannelsEqualsNumChannels ?
 //                    new StartResidualBlock(numChannels) :
