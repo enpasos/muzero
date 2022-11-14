@@ -72,8 +72,16 @@ muzero:
 
       numChannels: 192     # 256 in the paper
       numBottleneckChannels: 128
-      numResiduals: 12
-      broadcastEveryN: 8  # broadcasting block in every 8th layer
+#      numResiduals: 12
+#      broadcastEveryN: 8  # broadcasting block in every 8th layer
+
+
+      numResidualsRepresentation: 12
+      broadcastEveryNRepresentation: 8  # out of range here
+
+      numResidualsGeneration: 4    #  1 works too :-)
+      broadcastEveryNGeneration: 8 # out of range here
+
 
 
       surpriseHandlingOn: false # false in paper
