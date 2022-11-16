@@ -123,6 +123,7 @@ muzero:
           gumbelActionSelection: false
 
         BEST_EFFORT:
+          forTraining: true
           numEpisodes: 1
           numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
