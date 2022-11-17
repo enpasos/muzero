@@ -153,7 +153,6 @@ muzero:
       batchSize: 64
       numParallelGamesPlayed: 100
       numEpisodes: 10
-      squeezeChannelRatio: 10  # on squeeze and excitation (SE) block
 
       # general
       gameClassName: ai.enpasos.muzero.go.config.GoGame

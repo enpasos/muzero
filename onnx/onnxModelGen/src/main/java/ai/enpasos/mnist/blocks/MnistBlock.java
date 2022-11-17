@@ -55,7 +55,7 @@ public class MnistBlock extends SequentialBlockExt implements OnnxIO {
                             .build()
                     ))
             )
-            .add(new SqueezeExciteExt(32, 8))
+           // .add(new SqueezeExciteExt(32, 8))
             .add(LayerNormExt.builder().build())
             .add(ActivationExt.reluBlock())
             .add(PoolExt.maxPool2dBlock(new Shape(2, 2), new Shape(2, 2)))  // 14 -> 7
