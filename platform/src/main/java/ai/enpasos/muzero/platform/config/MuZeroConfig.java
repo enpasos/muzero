@@ -24,7 +24,7 @@ import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 @ConfigurationProperties("muzero")
 @Data
 @Slf4j
-@SuppressWarnings("squid:S1104")
+@SuppressWarnings({"squid:S1104", "unchecked"})
 public class MuZeroConfig {
     public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
     public Map<GameType, Conf> games;
@@ -164,12 +164,13 @@ public class MuZeroConfig {
         return getConf().numBottleneckChannels;
     }
 
-    public int getNumHiddenStateChannels() {
-        return getConf().numHiddenStateChannels;
+
+    public int getNumResidualsRepresentation() {
+        return getConf().numResidualsRepresentation;
     }
 
-    public int getNumResiduals() {
-        return getConf().numResiduals;
+    public int getNumResidualsGeneration() {
+        return getConf().numResidualsGeneration;
     }
 
     public double[] getValues() {
@@ -375,8 +376,11 @@ public class MuZeroConfig {
     }
 
 
-    public int getBroadcastEveryN() {
-        return getConf().broadcastEveryN;
+    public int getBroadcastEveryNRepresentation() {
+        return getConf().broadcastEveryNRepresentation;
+    }
+    public int getBroadcastEveryNGeneration() {
+        return getConf().broadcastEveryNGeneration;
     }
 
     public PlayTypeKey getPlayTypeKey() {
@@ -477,10 +481,12 @@ public class MuZeroConfig {
         protected int numObservationLayers;
         protected int numActionLayers;
         protected int numChannels;
-        protected int broadcastEveryN;
+        protected int broadcastEveryNRepresentation;
+        protected int broadcastEveryNGeneration;
         protected int numBottleneckChannels;
-        protected int numHiddenStateChannels;
-        protected int numResiduals;
+
+        protected int numResidualsRepresentation;
+        protected int numResidualsGeneration;
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSizeStart;

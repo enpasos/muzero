@@ -17,8 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
-import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -26,7 +24,7 @@ import ai.enpasos.muzero.platform.config.NetworkType;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class RepresentationOrDynamicsBlock extends MySequentialBlock {
+public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     /**
@@ -36,15 +34,17 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
      */
 
 
-    public RepresentationOrDynamicsBlock(@NotNull MuZeroConfig config) {
-        this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), config.getNumChannels(), config.getNumBottleneckChannels(), config.getNumHiddenStateChannels(), config.getBroadcastEveryN());
+    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
+        this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannels(), config.getNumBottleneckChannels(),   broadcastEveryN );
     }
 
     @java.lang.SuppressWarnings("java:S107")
-    public RepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int numHiddenStateChannels, int broadcastEveryN) {
-        if (networkType == NetworkType.CON) {
-            this.add(Conv3x3.builder().channels(numChannels).build())
-
+    public MainRepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN ) {
+            this
+//                .add(inputChannelsEqualsNumChannels ?
+//                    new StartResidualBlock(numChannels) :
+//                    Conv3x3.builder().channels(numChannels).build()
+//                    )
                 .add(ResidualTower.builder()
                     .numResiduals(numResiduals)
                     .numChannels(numChannels)
@@ -55,24 +55,7 @@ public class RepresentationOrDynamicsBlock extends MySequentialBlock {
                     .width(width)
                     .build())
 
-                // compressing hidden state (not in muzero paper)
-                .add(Conv1x1LayerNormRelu.builder().channels(numHiddenStateChannels).build())
-
                 .add(new RescaleBlockExt());
-        }
-        if (networkType == NetworkType.FC) {
-            this.add(BlocksExt.batchFlattenBlock());
-            this.add(LinearExt.builder().setUnits(numChannels).build())
 
-                .add(ResidualTowerFC.builder()
-                    .numResiduals(numResiduals)
-                    .numChannels(numChannels)
-                    .build())
-
-                // compressing hidden state (not in muzero paper)
-                .add(LinearExt.builder().setUnits((long) numHiddenStateChannels * height * width).build())
-
-                .add(new RescaleBlockExt());
-        }
     }
 }

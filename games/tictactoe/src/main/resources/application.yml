@@ -67,6 +67,12 @@ muzero:
       numResiduals: 6
       broadcastEveryN: 8  # out of range here
 
+      numResidualsRepresentation: 6
+      broadcastEveryNRepresentation: 8  # out of range here
+
+      numResidualsGeneration: 6    #  1 works too :-)
+      broadcastEveryNGeneration: 8 # out of range here
+
       numChannels: 256
       numHiddenStateChannels: 256
       numBottleneckChannels: 128
@@ -119,6 +125,7 @@ muzero:
           gumbelActionSelection: false
 
         BEST_EFFORT:
+          forTraining: true
           numEpisodes: 1
           numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
