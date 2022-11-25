@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe.config;
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
@@ -102,25 +103,27 @@ public class TicTacToeGame extends ZeroSumGame {
     }
 
     @SuppressWarnings("squid:S2095")
-    public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
-
-
+    public @NotNull Observation getObservation(@NotNull NDManager ndManagerOnGPU) {
+        NDManager ndManagerOnCPU = NDManager.newBaseManager(Device.cpu());
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
         OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
 
-
         // values in the range [0, 1]
-        NDArray boardCurrentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
-        NDArray boardOpponentPlayer = ndManager.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
+        NDArray boardCurrentPlayer = ndManagerOnCPU.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
+        NDArray boardOpponentPlayer = ndManagerOnCPU.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
 
         float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
-        for (float[] datum : data) {
+        for (
+            float[] datum : data) {
             Arrays.fill(datum, currentPlayer.getActionValue());
         }
-        NDArray boardColorToPlay = ndManager.create(data);
 
-        NDArray stacked = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
+        NDArray boardColorToPlay = ndManagerOnCPU.create(data);
+
+        NDArray stackedLocal = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
+
+        NDArray stacked = ndManagerOnGPU.from(stackedLocal);
 
         return new Observation(stacked);
     }

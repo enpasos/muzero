@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.go.config;
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
@@ -94,7 +95,10 @@ public class GoGame extends ZeroSumGame {
     }
 
 
-    public @NotNull Observation getObservation(@NotNull NDManager ndManager) {
+    public @NotNull Observation getObservation(@NotNull NDManager ndManagerOnGPU) {
+
+        NDManager ndManager = NDManager.newBaseManager(Device.cpu());
+
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
 
         List<GameState> history = this.getEnvironment().getHistory();
@@ -124,11 +128,12 @@ public class GoGame extends ZeroSumGame {
         ndArrayList.add(boardColorToPlay);
 
 
-        NDArray stacked = NDArrays.stack(new NDList(ndArrayList));
+        NDArray stackedLocal = NDArrays.stack(new NDList(ndArrayList));
+
+        NDArray stacked = ndManagerOnGPU.from(stackedLocal);
 
         return new Observation(stacked);
     }
-
 
     @Override
     public Player toPlay() {
