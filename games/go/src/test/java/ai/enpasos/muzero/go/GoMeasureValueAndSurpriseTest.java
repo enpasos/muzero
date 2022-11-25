@@ -77,7 +77,7 @@ class GoMeasureValueAndSurpriseTest {
 
 
 
-            assertEquals(dtoAfter.getPolicyTargets().size(), dtoAfter.getPolicyTargets().size());
+            assertEquals(dtoAfter.getPolicyTargets().size(), dtoBefore.getPolicyTargets().size());
 
         }
 
