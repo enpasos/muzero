@@ -22,7 +22,7 @@ public class PegSolitairOnnx {
     public void run() {
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();
-        long hs = config.getNumHiddenStateChannels();
+        long hs = config.getNumChannels();
         long a = config.getNumActionLayers();
         long o = config.getNumObservationLayers();
 
