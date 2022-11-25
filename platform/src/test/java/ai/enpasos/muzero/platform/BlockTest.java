@@ -2,7 +2,6 @@ package ai.enpasos.muzero.platform;
 
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
-import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.MainRepresentationOrDynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.BottleneckResidualBlock;
@@ -33,15 +32,7 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
 
-    @Test
-    void squeezeExciteRANDOM() throws Exception {
-        boolean check = compareOnnxWithDJL(
-            "./build/SqueezeExciteBlock.onnx",
-            new SqueezeExciteExt(128, 10),
-            List.of(new Shape(1, 128, 3, 3)),
-            RANDOM);
-        Assertions.assertTrue(check);
-    }
+
 
 
 
@@ -82,15 +73,6 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
 
-    @Test
-    void squeezeExciteZERO() throws Exception {
-        boolean check = compareOnnxWithDJL(
-            "./build/SqueezeExciteBlock.onnx",
-            new SqueezeExciteExt(128, 10),
-            List.of(new Shape(1, 128, 3, 3)),
-            ZERO);
-        Assertions.assertTrue(check);
-    }
 
 
 
