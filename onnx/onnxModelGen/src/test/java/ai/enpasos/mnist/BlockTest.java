@@ -2,7 +2,6 @@ package ai.enpasos.mnist;
 
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.MnistBlock;
-import ai.enpasos.mnist.blocks.SqueezeExciteExt;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -69,16 +68,6 @@ class BlockTest {
     }
 
 
-    @Test
-    void squeezeExciteRANDOM() throws Exception {
-        boolean check =
-            compareOnnxWithDJL(
-                "./build/SqueezeExciteBlock.onnx",
-                new SqueezeExciteExt(128, 10),
-                List.of(new Shape(1, 128, 3, 3)),
-                RANDOM);
-        Assertions.assertTrue(check);
-    }
 
     @Test
     void mnistBlockRANDOM() throws Exception {
@@ -91,16 +80,7 @@ class BlockTest {
     }
 
 
-    @Test
-    void squeezeExciteZERO() throws Exception {
-        boolean check =
-            compareOnnxWithDJL(
-                "./build/SqueezeExciteBlock.onnx",
-                new SqueezeExciteExt(128, 10),
-                List.of(new Shape(1, 128, 3, 3)),
-                ZERO);
-        Assertions.assertTrue(check);
-    }
+
 
     @Test
     void mnistBlockZERO() throws Exception {
