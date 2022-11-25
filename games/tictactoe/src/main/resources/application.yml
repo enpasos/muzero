@@ -70,16 +70,15 @@ muzero:
       numResidualsRepresentation: 6
       broadcastEveryNRepresentation: 8  # out of range here
 
-      numResidualsGeneration: 6    #  1 works too :-)
+      numResidualsGeneration: 6    #
       broadcastEveryNGeneration: 8 # out of range here
 
       numChannels: 256
-      numHiddenStateChannels: 256
       numBottleneckChannels: 128
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 40000
+      numberOfTrainingSteps: 10000
 
 
       windowSizeStart: 10000

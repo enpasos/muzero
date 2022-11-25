@@ -40,7 +40,6 @@ muzero:
       # network sizing
       numObservationLayers: 17  # 8 history * 2 player + 1 color of next player
       numActionLayers: 1
-      numHiddenStateChannels: 192 # squeezing the hidden state from c to observationLayers + 2
 
 
       # network training
@@ -70,7 +69,7 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 256     # 256 in the paper
+      numChannels: 192     # 256 in the paper
       numBottleneckChannels: 128
 #      numResiduals: 12
 #      broadcastEveryN: 8  # broadcasting block in every 8th layer
@@ -180,7 +179,6 @@ muzero:
       numObservationLayers: 17  # 8 history * 2 player + 1 color of next player
       numActionLayers: 1
 
-      numHiddenStateChannels: 19 # squeezing the hidden state from c to observationLayers + 2
       numResiduals: 16
 
       # network training

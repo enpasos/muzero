@@ -35,7 +35,6 @@ muzero:
       numObservationLayers: 1
       numActionLayers: 4   # one for each direction
       numChannels: 128     # 256 in the paper
-      numHiddenStateChannels: 3
       numResiduals: 16
 
       # network training
