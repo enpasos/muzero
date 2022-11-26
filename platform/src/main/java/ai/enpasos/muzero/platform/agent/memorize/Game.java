@@ -17,7 +17,6 @@
 
 package ai.enpasos.muzero.platform.agent.memorize;
 
-import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
@@ -305,7 +304,7 @@ public abstract class Game {
 
     public abstract String render();
 
-    public abstract Observation getObservation(NDManager ndManager);
+    public abstract Observation getObservation();
 
     public abstract void replayToPosition(int stateIndex);
 

@@ -75,7 +75,7 @@ public class ReplayBuffer {
         Sample sample = new Sample();
         game.replayToPosition(gamePos);
 
-        sample.getObservations().add(game.getObservation(ndManager));
+        sample.getObservations().add(game.getObservation());
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
         int originalActionSize = actions.size();
@@ -90,7 +90,7 @@ public class ReplayBuffer {
 
             if (gamePos + i < originalActionSize) {
                 game.replayToPosition(gamePos + i);
-                lastObservation = game.getObservation(ndManager);
+                lastObservation = game.getObservation();
             }
             sample.getObservations().add(lastObservation);
 

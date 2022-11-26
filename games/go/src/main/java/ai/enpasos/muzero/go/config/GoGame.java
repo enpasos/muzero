@@ -95,15 +95,16 @@ public class GoGame extends ZeroSumGame {
     }
 
 
-    public @NotNull Observation getObservation(@NotNull NDManager ndManagerOnGPU) {
+    public @NotNull Observation getObservation() {
 
-        NDManager ndManager = NDManager.newBaseManager(Device.cpu());
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
 
         List<GameState> history = this.getEnvironment().getHistory();
         List<Optional<GameState>> relevantHistory = new ArrayList<>();
-        List<NDArray> ndArrayList = new ArrayList<>();
+
+        float[] result = new float[config.getNumObservationLayers()*config.getBoardHeight()*config.getBoardWidth()];
+
 
         for (int i = 7; i >= 0; i--) {
             Optional<GameState> state = Optional.empty();
@@ -113,27 +114,25 @@ public class GoGame extends ZeroSumGame {
             relevantHistory.add(state);
         }
 
-
+        int index = 0;
         for (Optional<GameState> optionalGameState : relevantHistory) {
-            if (optionalGameState.isEmpty()) {
-                ndArrayList.add(ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f));
-                ndArrayList.add(ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f));
-            } else {
+            if (!optionalGameState.isEmpty()) {
                 GameState gameState = optionalGameState.get();
-                ndArrayList.addAll(GoAdapter.translate(config, ndManager, gameState));
+                GoAdapter.translate(config, result, index, gameState);
+            }
+            index += 2*config.getBoardHeight()*config.getBoardWidth();
+        }
+        float v = currentPlayer.getActionValue();
+        for (int i = 0; i < config.getBoardHeight(); i++) {
+            for (int j = 0; j < config.getBoardWidth(); j++) {
+                result[index++] = v;
             }
         }
 
-        NDArray boardColorToPlay = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), currentPlayer.getActionValue());
-        ndArrayList.add(boardColorToPlay);
-
-
-        NDArray stackedLocal = NDArrays.stack(new NDList(ndArrayList));
-
-        NDArray stacked = ndManagerOnGPU.from(stackedLocal);
-
-        return new Observation(stacked);
+        return new Observation(result, new long[] {config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
+
+
 
     @Override
     public Player toPlay() {
