@@ -42,13 +42,45 @@ public class GoAdapter {
         }
     }
 
-    public static List<NDArray> translate(MuZeroConfig config, NDManager ndManager, GameState gameState) {
+    public static void translate(MuZeroConfig config, float[] result, int index, GameState gameState) {
+       // List<float[][]> list = new ArrayList<>();
+
+        Player player = gameState.getNextPlayer();
+
+        // values in the range [0, 1]
+        // 8 historic boards needed
+
+        int H = config.getBoardHeight();
+        int W = config.getBoardWidth();
+        int opponentOffset = H * W;
+
+        for (int row = 0; row < config.getBoardHeight(); row++) {
+            for (int col = 0; col < config.getBoardWidth(); col++) {
+                var p = new Point(row + 1, col + 1);
+                Optional<GoString> goStringOptional = gameState.getBoard().getGoString(p);
+                if (goStringOptional.isPresent()) {
+                    GoString goString = goStringOptional.get();
+                    if (goString.getPlayer() == player) {
+                        result[index + row*W + col] = 1f;
+                    } else {
+                        result[index + opponentOffset +  row*W + col] = 1f;
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    public static List<NDArray> translateB(MuZeroConfig config, NDManager ndManager, GameState gameState) {
         List<NDArray> list = new ArrayList<>();
 
         Player player = gameState.getNextPlayer();
 
         // values in the range [0, 1]
         // 8 historic boards needed
+
+
         NDArray boardCurrentPlayer = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f);
         list.add(boardCurrentPlayer);
         NDArray boardOpponentPlayer = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f);
@@ -70,7 +102,6 @@ public class GoAdapter {
         }
         return list;
     }
-
 
     public static Action translate(MuZeroConfig config, Move move) {
         if (move instanceof Play play) {

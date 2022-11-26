@@ -17,11 +17,6 @@
 
 package ai.enpasos.muzero.tictactoe.config;
 
-import ai.djl.Device;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
-import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
@@ -36,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -93,7 +87,15 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
-    private float[] @NotNull [] getBoardPositions(int[] @NotNull [] board, int p) {
+    private void getBoardPositions(float[] result, int index, int[][] board, int p) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                result[index + i * board.length + j] = board[i][j] == p ? 1f : 0f;
+            }
+        }
+    }
+
+    private float[] [] getBoardPositionsB(int[] [] board, int p) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 boardtransfer[i][j] = board[i][j] == p ? 1 : 0;
@@ -103,30 +105,61 @@ public class TicTacToeGame extends ZeroSumGame {
     }
 
     @SuppressWarnings("squid:S2095")
-    public @NotNull Observation getObservation(@NotNull NDManager ndManagerOnGPU) {
-        NDManager ndManagerOnCPU = NDManager.newBaseManager(Device.cpu());
+    public @NotNull Observation getObservation() {
+
+
+
+        float[] result = new float[config.getNumObservationLayers()*config.getBoardHeight()*config.getBoardWidth()];
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
         OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
 
         // values in the range [0, 1]
-        NDArray boardCurrentPlayer = ndManagerOnCPU.create(getBoardPositions(this.getEnvironment().currentImage(), currentPlayer.getValue()));
-        NDArray boardOpponentPlayer = ndManagerOnCPU.create(getBoardPositions(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
 
-        float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
-        for (
-            float[] datum : data) {
-            Arrays.fill(datum, currentPlayer.getActionValue());
+        int index = 0;
+        getBoardPositions(result, index, this.getEnvironment().currentImage(), currentPlayer.getValue());
+        index += config.getBoardHeight()*config.getBoardWidth();
+
+        getBoardPositions(result, index, this.getEnvironment().currentImage(), opponentPlayer.getValue());
+        index += config.getBoardHeight()*config.getBoardWidth();
+
+
+        float v = currentPlayer.getActionValue();
+        for (int i = 0; i < config.getBoardHeight(); i++) {
+            for (int j = 0; j < config.getBoardWidth(); j++) {
+                result[index++] = v;
+            }
         }
 
-        NDArray boardColorToPlay = ndManagerOnCPU.create(data);
 
-        NDArray stackedLocal = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
-
-        NDArray stacked = ndManagerOnGPU.from(stackedLocal);
-
-        return new Observation(stacked);
+        return new Observation(result, new long[] {config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()} );
     }
+
+//    @SuppressWarnings("squid:S2095")
+//    public @NotNull Observation getObservationB(@NotNull NDManager ndManagerOnGPU) {
+//        NDManager ndManagerOnCPU = NDManager.newBaseManager(Device.cpu());
+//
+//        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
+//        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
+//
+//        // values in the range [0, 1]
+//        NDArray boardCurrentPlayer = ndManagerOnCPU.create(getBoardPositionsB(this.getEnvironment().currentImage(), currentPlayer.getValue()));
+//        NDArray boardOpponentPlayer = ndManagerOnCPU.create(getBoardPositionsB(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
+//
+//        float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
+//        for (
+//            float[] datum : data) {
+//            Arrays.fill(datum, currentPlayer.getActionValue());
+//        }
+//
+//        NDArray boardColorToPlay = ndManagerOnCPU.create(data);
+//
+//        NDArray stackedLocal = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
+//
+//        NDArray stacked = ndManagerOnGPU.from(stackedLocal);
+//
+//        return new Observation(stacked);
+//    }
 
 
     @Override
