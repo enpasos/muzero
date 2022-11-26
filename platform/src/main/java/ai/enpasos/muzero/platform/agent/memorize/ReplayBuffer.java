@@ -60,6 +60,7 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyExplorationCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyExplorationSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyExplorationCount = new HashMap<>();
+    private Map<Integer, Long> timestamps = new HashMap<>();
     private Map<Integer, Double> entropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
@@ -236,21 +237,27 @@ public class ReplayBuffer {
 
     public void addGames(Model model, List<Game> games) {
         games.forEach(game -> addGame(model, game));
+        this.timestamps.put(getEpoch(model), System.currentTimeMillis());
         logEntropyInfo();
     }
 
     private void addGame(Model model, Game game) {
-        String epochStr = model.getProperty("Epoch");
-        if (epochStr == null) {
-            epochStr = "0";
-        }
-        int epoch = Integer.parseInt(epochStr);
+        int epoch = getEpoch(model);
 
         memorizeEntropyInfo(game, epoch);
 
 
         game.getGameDTO().setNetworkName(this.currentNetworkName);
         buffer.addGame(game);
+    }
+
+    private static int getEpoch(Model model) {
+        String epochStr = model.getProperty("Epoch");
+        if (epochStr == null) {
+            epochStr = "0";
+        }
+        int epoch = Integer.parseInt(epochStr);
+        return epoch;
     }
 
     private void memorizeEntropyInfo(Game game, int epoch) {
@@ -262,6 +269,7 @@ public class ReplayBuffer {
         this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
         this.entropyExplorationCount.putIfAbsent(epoch, 0);
         this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
+
 
         if (game.getGameDTO().hasExploration()) {
             this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getGameDTO().getAverageEntropy());
@@ -276,15 +284,17 @@ public class ReplayBuffer {
         }
     }
 
+
+
     public void logEntropyInfo() {
-        System.out.println("epoch;entropyBestEffort;entropyExploration;maxEntropyBestEffort;maxEntropyExploration");
+        System.out.println("epoch;timestamp;entropyBestEffort;entropyExploration;maxEntropyBestEffort;maxEntropyExploration");
         this.entropyBestEffortSum.keySet().stream().sorted().forEach(epoch -> {
 
             double entropyBestEffort = this.entropyBestEffortSum.get(epoch) / Math.max(1, this.entropyBestEffortCount.get(epoch));
             double entropyExploration = this.entropyExplorationSum.get(epoch) / Math.max(1, this.entropyExplorationCount.get(epoch));
             double maxEntropyBestEffort = this.maxEntropyBestEffortSum.get(epoch) / Math.max(1, this.maxEntropyBestEffortCount.get(epoch));
             double maxEntropyExploration = this.maxEntropyExplorationSum.get(epoch) / Math.max(1, this.maxEntropyExplorationCount.get(epoch));
-            String message = String.format("%d; %.4f; %.4f; %.4f; %.4f", epoch, entropyBestEffort, entropyExploration, maxEntropyBestEffort, maxEntropyExploration);
+            String message = String.format("%d; %d; %.4f; %.4f; %.4f; %.4f", epoch, this.timestamps.get(epoch), entropyBestEffort, entropyExploration, maxEntropyBestEffort, maxEntropyExploration);
 
             System.out.println(message);
 
