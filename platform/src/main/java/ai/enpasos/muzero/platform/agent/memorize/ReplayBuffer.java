@@ -65,6 +65,7 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
+    private String currentNetworkNameWithoutEpoch;
 
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
@@ -98,7 +99,7 @@ public class ReplayBuffer {
 
         }
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, sample.getTrainingTypeKey()));
 
         return sample;
     }
@@ -140,6 +141,7 @@ public class ReplayBuffer {
             throw new MuZeroException(e);
         }
         this.currentNetworkName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
+        this.currentNetworkNameWithoutEpoch = String.format(Locale.ROOT, "%s", modelName);
     }
 
     @PostConstruct
@@ -201,12 +203,12 @@ public class ReplayBuffer {
             })
             .limit(this.batchSize / 2)
             .collect(Collectors.toList()));
-
+        gamesToTrain.stream().forEach(g -> g.setPlayTypeKey(config.getPlayTypeKey()));
         return gamesToTrain;
     }
 
     public void saveState() {
-        replayBufferIO.saveState(this.buffer, this.currentNetworkName);
+        replayBufferIO.saveState(this.buffer, this.currentNetworkNameWithoutEpoch);
     }
 
     public void loadLatestState() {
@@ -239,6 +241,11 @@ public class ReplayBuffer {
         games.forEach(game -> addGame(model, game));
         this.timestamps.put(getEpoch(model), System.currentTimeMillis());
         logEntropyInfo();
+        this.replayBufferIO.saveGames(
+            this.buffer.games.stream()
+                .filter(g -> g.getGameDTO().getNetworkName().equals(this.currentNetworkName))
+                .collect(Collectors.toList()),
+            this.currentNetworkName, this.getConfig());
     }
 
     private void addGame(Model model, Game game) {

@@ -453,7 +453,7 @@ public class MuZeroConfig {
 
     public Set<PlayTypeKey> getPlayTypeKeysForTraining() {
         return getConf().getPlayTypes().entrySet().stream()
-            .filter(entry -> entry.getValue().isForTraining())
+            .filter(entry -> entry.getValue().isForTraining() )
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
