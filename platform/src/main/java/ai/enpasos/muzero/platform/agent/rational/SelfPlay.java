@@ -117,7 +117,10 @@ public class SelfPlay {
         gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
             .mapToObj(i -> config.newGame())
             .collect(Collectors.toList());
-        gameList.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
+        gameList.stream().forEach(game -> {
+            game.getGameDTO().setTdSteps(config.getTdSteps());
+            game.setPlayTypeKey(this.config.getPlayTypeKey());
+        });
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration();
         }
@@ -246,6 +249,15 @@ public class SelfPlay {
                 calculateSurprise(value, game);
             });
         }
+
+        IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
+            Game game = gamesToApplyAction.get(g);
+            boolean[] legalActions = new boolean[config.getActionSpaceSize()];
+            for (Action action : game.legalActions()) {
+                legalActions[action.getIndex()] = true;
+            }
+            game.getGameDTO().getLegalActions().add(legalActions);
+        });
 
         shortCutForGamesWithoutAnOption(gamesToApplyAction, render, fastRuleLearning, network);
 
@@ -504,17 +516,21 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+    public List<Game> playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+        List<Game> games = new ArrayList<>();
         for (int i = 0; i < config.getNumEpisodes(); i++) {
-            List<Game> games = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
+            List<Game> gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
 
-            List<Game> gamesRelevant = games.stream().filter(game -> !game.getGameDTO().isHybrid() || game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size()).collect(Collectors.toList());
-            log.info(gamesRelevant.size() + " relevant out of " + games.size());
+         //   List<Game> gamesRelevant = games.stream().filter(game -> !game.getGameDTO().isHybrid() || game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size()).collect(Collectors.toList());
+           // log.info(gamesRelevant.size() + " relevant out of " + games.size());
 
-            replayBuffer.addGames(network.getModel(), gamesRelevant);
+        //    replayBuffer.addGames(network.getModel(), gamesRelevant);
 
-            log.info("Played {} games parallel, round {}", config.getNumParallelGamesPlayed(), i);
+            log.info("Played {} games parallel, round {}", gamesPart.size(), i);
+            games.addAll(gamesPart);
         }
+        replayBuffer.addGames(network.getModel(), games);
+        return games;
     }
 
 

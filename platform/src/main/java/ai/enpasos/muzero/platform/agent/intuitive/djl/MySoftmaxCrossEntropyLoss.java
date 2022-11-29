@@ -22,6 +22,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.training.loss.Loss;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,6 +41,8 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     private final boolean sparseLabel;
     private final boolean fromLogit;
 
+   private final TrainingTypeKey trainingTypeKey;
+
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
      */
@@ -53,7 +56,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      * @param name the name of the loss
      */
     public MySoftmaxCrossEntropyLoss(String name) {
-        this(name, 1, -1, true, false);
+        this(name, 1, -1, true, false, TrainingTypeKey.POLICY_DEPENDENT);
     }
 
     /**
@@ -67,12 +70,13 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      *                    false
      */
     public MySoftmaxCrossEntropyLoss(
-        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit) {
+        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit, TrainingTypeKey trainingTypeKey) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
         this.sparseLabel = sparseLabel;
         this.fromLogit = fromLogit;
+        this.trainingTypeKey = trainingTypeKey;
     }
 
     /**
@@ -81,13 +85,17 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     @Override
     public NDArray evaluate(@NotNull NDList label, @NotNull NDList prediction) {
         NDArray pred = prediction.singletonOrThrow();
+        NDArray lab = label.singletonOrThrow();
 
-        // the fromLogit Sign will be fixed on the upcoming release
         if (fromLogit) {
+            if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT) {
+                lab = pred.softmax(1).mul(lab).normalize(1, 1, 1e-12);
+            }
+
             pred = pred.logSoftmax(classAxis);
         }
         NDArray loss;
-        NDArray lab = label.singletonOrThrow();
+
         if (sparseLabel) {
             NDIndex pickIndex =
                 new NDIndex()

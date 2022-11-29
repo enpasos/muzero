@@ -16,6 +16,8 @@ class MyL2LossTest {
         NDManager manager = NDManager.newBaseManager();
         label.add(manager.create(new float[]{1, 2, 3, MyL2Loss.NULL_VALUE}));
         prediction.add(manager.create(new float[]{2, 3, 4, 19})); // no force on the last element
+
+
         assertEquals(0.375f, loss.evaluate(label, prediction).getFloat());
     }
 

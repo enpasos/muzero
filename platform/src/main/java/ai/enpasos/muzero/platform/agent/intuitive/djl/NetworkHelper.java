@@ -39,6 +39,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -100,8 +101,10 @@ public class NetworkHelper {
         return epoch;
     }
 
-    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
+    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, TrainingTypeKey trainingTypeKey) {
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps());
+        batch.stream().forEach(sample -> sample.setTrainingTypeKey(trainingTypeKey));
+
         NDManager nd = ndManager.newSubManager();
 
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
@@ -135,7 +138,7 @@ public class NetworkHelper {
     }
 
 
-    public DefaultTrainingConfig setupTrainingConfig(int epoch) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch, TrainingTypeKey trainingTypeKey) {
         String outputDir = config.getNetworkBaseDir();
         MySaveModelTrainingListener listener = mySaveModelTrainingListener;
         mySaveModelTrainingListener.setOutputDir(outputDir);
@@ -150,14 +153,14 @@ public class NetworkHelper {
 
         // policy
         log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
+        loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, trainingTypeKey), k));
         k++;
 
         // value
 
         if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
             log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + 0, 1.0f, 1, false, true), k));
+            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + 0, 1.0f, 1, false, true, trainingTypeKey), k));
         } else { // EXPECTED
             log.info("k={}: Value L2Loss", k);
             loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
@@ -168,12 +171,12 @@ public class NetworkHelper {
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
             log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
+            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true, trainingTypeKey), k));
             k++;
             // value
             if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
                 log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-                loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + i, gradientScale, 1, false, true), k));
+                loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(LOSS_VALUE + i, gradientScale, 1, false, true, trainingTypeKey), k));
             } else { // EXPECTED
                 log.info("k={}: Value L2Loss", k);
                 loss.addLoss(new IndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));

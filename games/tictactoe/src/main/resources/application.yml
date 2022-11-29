@@ -6,6 +6,10 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
+#ai:
+#  djl:
+#    logging:
+#      level: debug
 
 
 muzero:
@@ -134,5 +138,6 @@ muzero:
           # dirichlet noise is added before mcts
           rootDirichletAlpha: 1.2
           rootExplorationFraction: 0.25  # 0.0 means switched off
+
 
 

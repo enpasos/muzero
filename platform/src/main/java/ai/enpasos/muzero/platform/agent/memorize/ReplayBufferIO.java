@@ -81,6 +81,16 @@ public class ReplayBufferIO {
         return getGson().fromJson(json, ReplayBufferDTO.class);
     }
 
+    public void saveGames(List<Game> games, String networkName, MuZeroConfig config) {
+
+        ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
+        replayBufferDTO.setGames(games);
+
+        saveState(replayBufferDTO, networkName + "test");
+
+
+    }
+
 
     public void saveState(ReplayBufferDTO dto, String networkName) {
 
