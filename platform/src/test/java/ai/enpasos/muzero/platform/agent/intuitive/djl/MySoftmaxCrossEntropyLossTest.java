@@ -66,4 +66,23 @@ class MySoftmaxCrossEntropyLossTest {
 
         assertEquals(0.7247226f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
+
+    @Test
+    void evaluateLegalActions2() {
+        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, true);
+
+        NDManager manager = NDManager.newBaseManager();
+
+        Shape shape = new Shape(2, 3);
+
+
+        NDArray label = manager.create(new float[]{1f, 0f, 0f, 0, 1f, 0});
+        label = label.reshape(shape);
+
+        NDArray prediction = manager.create(new float[]{0.8f, 0f, 0.1f, 0, 1f, 0});
+        prediction = prediction.reshape(shape);
+
+
+        assertEquals(0.608588321f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
+    }
 }

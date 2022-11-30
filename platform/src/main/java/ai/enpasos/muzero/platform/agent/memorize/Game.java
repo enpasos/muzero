@@ -188,26 +188,35 @@ public abstract class Game {
     }
 
     private void fillTarget(int currentIndex, Target target, TrainingTypeKey trainingTypeKey) {
+        int tdSteps = this.getGameDTO().getTdSteps();
         if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT) {
 
 
             // only use the rewards (here we only take into account the final reward) TODO generalize this
             double value = MyL2Loss.NULL_VALUE;
-            if (currentIndex == this.getGameDTO().getRewards().size() - 1) {
-                value = this.getGameDTO().getRewards().get(currentIndex);
+            int bootstrapIndex = currentIndex + tdSteps;
+            if (currentIndex >= this.getGameDTO().getRewards().size() - 1) {
+                value = calculateValueFromReward(currentIndex, bootstrapIndex, 0f);
             }
+
+
 
             // consistency dynamics is done automatically by the loss function
 
             // allowed actions learning is missing here
             // need to be stored first with the gameDTO
-            boolean[] legalActions = this.getGameDTO().getLegalActions().get(currentIndex);
-            float[] legalActions2 = new float[legalActions.length];
-            for (int i = 0; i < legalActions.length; i++) {
-                legalActions2[i] = legalActions[i] ? 1f : 0f;
+
+            float[] legalActions2 = new float[config.getActionSpaceSize()];
+            if (currentIndex < this.getGameDTO().getRewards().size()) {
+                boolean[] legalActions = this.getGameDTO().getLegalActions().get(currentIndex);
+                for (int i = 0; i < legalActions.length; i++) {
+                    legalActions2[i] = legalActions[i] ? 1f : 0f;
+                }
+            } else {
+                for (int i = 0; i < legalActions2.length; i++) {
+                    legalActions2[i] = 1f;
+                }
             }
-
-
 
             setValueOnTarget(target, value);
             target.setReward(getLastReward(currentIndex));  // TODO: not really used here
@@ -215,7 +224,7 @@ public abstract class Game {
 
 
         } else {
-            int tdSteps = this.getGameDTO().getTdSteps();
+
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             }
