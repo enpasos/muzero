@@ -66,6 +66,7 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
+    private String currentNetworkNameWithoutEpoch;
 
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
@@ -246,15 +247,6 @@ public class ReplayBuffer {
                 .filter(g -> g.getGameDTO().getNetworkName().equals(this.currentNetworkName))
                 .collect(Collectors.toList()),
             this.currentNetworkName, this.getConfig());
-    }
-
-    private static int getEpoch(Model model) {
-        String epochStr = model.getProperty(EPOCH);
-        if (epochStr == null) {
-            epochStr = "0";
-        }
-        int epoch = Integer.parseInt(epochStr);
-        return epoch;
     }
 
     private void addGame(Model model, Game game) {
