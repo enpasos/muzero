@@ -89,10 +89,10 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
 
         if (fromLogit) {
             if (useLabelAsLegalCategoriesFilter) {
-                lab = pred.softmax(1).mul(lab).normalize(1, 1, 1e-12);
+                lab = pred.softmax(classAxis).mul(lab).normalize(1, classAxis, 1e-12);
             }
-
             pred = pred.logSoftmax(classAxis);
+
         }
         NDArray loss;
 

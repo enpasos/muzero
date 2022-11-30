@@ -102,8 +102,8 @@ public class NetworkHelper {
     }
 
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, TrainingTypeKey trainingTypeKey) {
-        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps());
-        batch.stream().forEach(sample -> sample.setTrainingTypeKey(trainingTypeKey));
+        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), trainingTypeKey);
+     //   batch.stream().forEach(sample -> sample.setTrainingTypeKey(trainingTypeKey));
 
         NDManager nd = ndManager.newSubManager();
 

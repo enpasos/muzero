@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -69,13 +70,16 @@ public class ReplayBuffer {
     private String currentNetworkNameWithoutEpoch;
 
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer);
+        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer,  trainingTypeKey);
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
         Sample sample = new Sample();
+        sample.setTrainingTypeKey(
+                trainingTypeKey
+        );
         game.replayToPosition(gamePos);
 
         sample.getObservations().add(game.getObservation());
@@ -165,12 +169,12 @@ public class ReplayBuffer {
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps) {
+    public List<Sample> sampleBatch(int numUnrollSteps, TrainingTypeKey trainingTypeKey) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
             return sampleGames().stream()
               //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
               //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
-                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
+                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this,  trainingTypeKey))
                 .collect(Collectors.toList());
         }
     }
