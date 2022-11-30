@@ -26,7 +26,7 @@ public class GoTrainingAndTest {
     @Autowired
     private GoSurprise goSurprise;
 
-    @SuppressWarnings({"squid:S125", "java:S2583"})
+    @SuppressWarnings({"squid:S125", "java:S2583", "java:S2589"})
     public void run() {
         boolean startFromScratch = true;
 
