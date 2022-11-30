@@ -211,8 +211,7 @@ public abstract class Game {
 
             setValueOnTarget(target, value);
             target.setReward(getLastReward(currentIndex));  // TODO: not really used here
-            target.setPolicy(new float[this.actionSpaceSize]);
-            Arrays.fill(target.getPolicy(), 0f);
+            target.setPolicy(legalActions2);
 
 
         } else {

@@ -248,11 +248,13 @@ public class MuZero {
         boolean withSymmetryEnrichment = true;
 
 
-        int finalEpoch = epoch;
 
         for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
 
+
+
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch, trainingTypeKey);
+            int finalEpoch = epoch;
             djlConfig.getTrainingListeners().stream()
                 .filter(MySaveModelTrainingListener.class::isInstance)
                 .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
