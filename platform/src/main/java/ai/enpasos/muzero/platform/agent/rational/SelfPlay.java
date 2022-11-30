@@ -336,7 +336,6 @@ public class SelfPlay {
         IntStream.range(0, gamesToApplyAction.size()).forEach(i -> {
             Game game = gamesToApplyAction.get(i);
             List<Action> legalActions = game.legalActions();
-            //game.getGameDTO().increaseMaxEntropySum(legalActions.size());
             Node root = new Node(config, 0, true);
             roots.add(root);
             root.expandRootNode(game.toPlay(), legalActions, networkOutputFinal.get(i), fastRuleLearning);

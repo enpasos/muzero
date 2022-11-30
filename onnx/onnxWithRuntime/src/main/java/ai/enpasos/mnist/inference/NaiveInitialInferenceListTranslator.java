@@ -78,7 +78,7 @@ public class NaiveInitialInferenceListTranslator implements Translator<List<Game
 
 
         List<Observation> observations = gameList.stream()
-            .map(g -> g.getObservation())
+            .map(Game::getObservation)
             .collect(Collectors.toList());
 
         return new NDList(NDArrays.stack(new NDList(

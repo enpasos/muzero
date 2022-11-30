@@ -76,7 +76,7 @@ public class Functions {
     }
 
     public static double entropy(List<Float> ps) {
-        return (double)ps.stream().reduce(0f, (e, p) -> e + (float)singleEntropySummand(p));
+        return ps.stream().reduce(0f, (e, p) -> e + (float)singleEntropySummand(p));
     }
 
     public static double singleEntropySummand(double p) {

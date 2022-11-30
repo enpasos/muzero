@@ -18,11 +18,8 @@
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
 import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.StartResidualBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;

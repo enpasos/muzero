@@ -17,9 +17,6 @@
 
 package ai.enpasos.muzero.pegsolitair.config;
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
-import ai.djl.ndarray.NDList;
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
@@ -87,11 +84,6 @@ public class PegSolitairGame extends Game {
     public @NotNull Observation getObservation() {
 
         Board board = ((PegSolitairEnvironment) environment).getBoard();
-
-//        // values in the range [0, 1]
-//        NDArray boardObservation = ndManager.create(getBoardPositions(board));
-//
-//        NDArray stacked = NDArrays.stack(new NDList(boardObservation));
 
         return new Observation(getBoardPositions(board),new long[] {1L, 7L, 7L});
     }

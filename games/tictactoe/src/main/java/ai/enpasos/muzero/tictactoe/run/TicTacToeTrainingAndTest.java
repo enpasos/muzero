@@ -25,7 +25,7 @@ public class TicTacToeTrainingAndTest {
     @Autowired
     private MuZero muZero;
 
-    @SuppressWarnings({"java:S2583"})
+    @SuppressWarnings({"java:S2583", "java:S2589"})
     public void run() {
 
         boolean startFromScratch = true;

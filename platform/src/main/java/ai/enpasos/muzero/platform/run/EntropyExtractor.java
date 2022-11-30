@@ -86,7 +86,6 @@ public class EntropyExtractor {
 
         Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
 
-        System.out.println(game.getGameDTO().getEntropySum());
         List<Integer> actions = game.actionHistory().getActionIndexList();
         log.debug(actions.toString());
         return actions;
