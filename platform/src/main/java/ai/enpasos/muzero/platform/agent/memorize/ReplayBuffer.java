@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public class ReplayBuffer {
 
 
+    public static final String EPOCH = "Epoch";
     private int batchSize;
     private ReplayBufferDTO buffer;
     private String currentNetworkName = "NONE";
@@ -65,7 +66,6 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
-    private String currentNetworkNameWithoutEpoch;
 
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer) {
@@ -248,6 +248,15 @@ public class ReplayBuffer {
             this.currentNetworkName, this.getConfig());
     }
 
+    private static int getEpoch(Model model) {
+        String epochStr = model.getProperty(EPOCH);
+        if (epochStr == null) {
+            epochStr = "0";
+        }
+        int epoch = Integer.parseInt(epochStr);
+        return epoch;
+    }
+
     private void addGame(Model model, Game game) {
         int epoch = getEpoch(model);
 
@@ -292,7 +301,7 @@ public class ReplayBuffer {
     }
 
 
-
+    @SuppressWarnings({"java:S106"})
     public void logEntropyInfo() {
         System.out.println("epoch;timestamp;entropyBestEffort;entropyExploration;maxEntropyBestEffort;maxEntropyExploration");
         this.entropyBestEffortSum.keySet().stream().sorted().forEach(epoch -> {

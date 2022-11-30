@@ -17,8 +17,8 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.EntropyExtractor;
 import ai.enpasos.muzero.platform.run.SurpriseExtractor;
@@ -49,20 +49,8 @@ public class TicTacToeEntropyExtractor {
 
     public void run() {
 
-       // config.setNetworkBaseDir(config.getOutputDir() + "/networks");
 
-        // just an example for a played game
-       // List<Integer> actionIndexList = entropyExtractor.getActionList();
-
-
-//        replayBuffer.loadLatestState();
-//       Game game =  replayBuffer.getBuffer().getGames().get(0);
-//
-//       int i = 42;
-//game.getGameDTO().hasExploration();
-//game.getGameDTO().getAverageEntropy();
-
-        List<Integer> actionIndexList = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8).get().actionHistory().getActionIndexList();
+        List<Integer> actionIndexList = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8).orElseThrow(MuZeroException::new).actionHistory().getActionIndexList();
 
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
     }
