@@ -95,14 +95,6 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
-    private float[] [] getBoardPositionsB(int[] [] board, int p) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                boardtransfer[i][j] = board[i][j] == p ? 1 : 0;
-            }
-        }
-        return boardtransfer;
-    }
 
     @SuppressWarnings("squid:S2095")
     public @NotNull Observation getObservation() {
@@ -135,31 +127,6 @@ public class TicTacToeGame extends ZeroSumGame {
         return new Observation(result, new long[] {config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()} );
     }
 
-//    @SuppressWarnings("squid:S2095")
-//    public @NotNull Observation getObservationB(@NotNull NDManager ndManagerOnGPU) {
-//        NDManager ndManagerOnCPU = NDManager.newBaseManager(Device.cpu());
-//
-//        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
-//        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-//
-//        // values in the range [0, 1]
-//        NDArray boardCurrentPlayer = ndManagerOnCPU.create(getBoardPositionsB(this.getEnvironment().currentImage(), currentPlayer.getValue()));
-//        NDArray boardOpponentPlayer = ndManagerOnCPU.create(getBoardPositionsB(this.getEnvironment().currentImage(), opponentPlayer.getValue()));
-//
-//        float[][] data = new float[config.getBoardHeight()][config.getBoardWidth()];
-//        for (
-//            float[] datum : data) {
-//            Arrays.fill(datum, currentPlayer.getActionValue());
-//        }
-//
-//        NDArray boardColorToPlay = ndManagerOnCPU.create(data);
-//
-//        NDArray stackedLocal = NDArrays.stack(new NDList(boardCurrentPlayer, boardOpponentPlayer, boardColorToPlay));
-//
-//        NDArray stacked = ndManagerOnGPU.from(stackedLocal);
-//
-//        return new Observation(stacked);
-//    }
 
 
     @Override

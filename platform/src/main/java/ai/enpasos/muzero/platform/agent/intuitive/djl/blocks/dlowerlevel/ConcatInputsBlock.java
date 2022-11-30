@@ -28,7 +28,6 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.config.NetworkType;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +37,6 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxBlock.createOutput;
 import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
-import static ai.enpasos.mnist.blocks.ext.BlocksExt.batchFlatten;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
@@ -46,7 +44,6 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
 
     public ConcatInputsBlock() {
         super(MYVERSION);
-     //   this.networkType = networkType;
     }
 
 

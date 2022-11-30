@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public class ReplayBuffer {
 
 
+    public static final String EPOCH = "Epoch";
     private int batchSize;
     private ReplayBufferDTO buffer;
     private String currentNetworkName = "NONE";
@@ -131,7 +132,7 @@ public class ReplayBuffer {
     }
 
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
-        String epochValue = model.getProperty("Epoch");
+        String epochValue = model.getProperty(EPOCH);
         Path modelPath = Paths.get(outputDir);
         int epoch = 0;
         try {
@@ -242,7 +243,7 @@ public class ReplayBuffer {
     }
 
     private static int getEpoch(Model model) {
-        String epochStr = model.getProperty("Epoch");
+        String epochStr = model.getProperty(EPOCH);
         if (epochStr == null) {
             epochStr = "0";
         }
@@ -251,7 +252,7 @@ public class ReplayBuffer {
     }
 
     private void addGame(Model model, Game game) {
-        String epochStr = model.getProperty("Epoch");
+        String epochStr = model.getProperty(EPOCH);
         if (epochStr == null) {
             epochStr = "0";
         }
@@ -287,6 +288,8 @@ public class ReplayBuffer {
         }
     }
 
+
+    @SuppressWarnings({"java:S106"})
     public void logEntropyInfo() {
         System.out.println("epoch;timestamp;entropyBestEffort;entropyExploration;maxEntropyBestEffort;maxEntropyExploration");
         this.entropyBestEffortSum.keySet().stream().sorted().forEach(epoch -> {
