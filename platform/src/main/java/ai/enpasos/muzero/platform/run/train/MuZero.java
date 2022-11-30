@@ -142,11 +142,14 @@ public class MuZero {
 
     public void train(TrainParams params) {
         int trainingStep = 0;
+        boolean initial = true;
         do {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
-            init(params.freshBuffer, params.randomFill, network, params.withoutFill);
+            if (initial) init(params.freshBuffer, params.randomFill, network, params.withoutFill);
+
+            initial = false;
 
             int epoch = networkHelper.getEpoch();
             trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;

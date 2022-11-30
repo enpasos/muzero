@@ -69,7 +69,7 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 192     # 256 in the paper
+      numChannels: 256     # 256 in the paper
       numBottleneckChannels: 128
 #      numResiduals: 12
 #      broadcastEveryN: 8  # broadcasting block in every 8th layer
@@ -113,8 +113,8 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 250
+          numEpisodes: 1
+          numParallelGamesPlayed: 500
           tdSteps:  10000
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
@@ -134,8 +134,8 @@ muzero:
 
         BEST_EFFORT:
           forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 250 #250
+          numEpisodes: 1
+          numParallelGamesPlayed: 500 #250
           tdSteps: 10000
           numSimulations: 30
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
