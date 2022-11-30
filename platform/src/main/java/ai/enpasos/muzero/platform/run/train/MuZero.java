@@ -141,17 +141,19 @@ public class MuZero {
     }
 
     public void train(TrainParams params) {
+        int trainingStep = 0;
+        do {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
 
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
             int epoch = networkHelper.getEpoch();
-            int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+            trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
             int i = 0;
-            while (trainingStep < config.getNumberOfTrainingSteps()) {
+
                 if (!params.freshBuffer) {
 
                     for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
@@ -184,7 +186,7 @@ public class MuZero {
                 }
                 i++;
             }
-        }
+        } while (trainingStep < config.getNumberOfTrainingSteps());
     }
 
     private void surpriseCheck(Network network) {
