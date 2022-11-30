@@ -47,6 +47,10 @@ public class LossExtractor {
                 , "valueLoss"
                 , "policyLoss"
                 , "similarityLoss"
+                , "totalLossPolicyIndependent"
+                , "valueLossPolicyIndependent"
+                , "policyLossPolicyIndependent"
+                , "similarityLossPolicyIndependent"
 
                 //  , "actionPaths"
             ).build())) {
@@ -60,10 +64,15 @@ public class LossExtractor {
                             int epoch = getEpoch(model);
                             int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                             csvPrinter.printRecord(trainingSteps,
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanSimilarityLoss"))
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanPolicyLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanSimilarityLoss")),
+
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanPolicyLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanSimilarityLoss"))
                                 //,
                                 //NumberFormat.getNumberInstance().format(getDoubleValue(model, "NumActionPaths"))
                             );

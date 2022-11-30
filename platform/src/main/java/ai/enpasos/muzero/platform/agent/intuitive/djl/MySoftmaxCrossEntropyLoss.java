@@ -41,7 +41,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     private final boolean sparseLabel;
     private final boolean fromLogit;
 
-   private final TrainingTypeKey trainingTypeKey;
+   private final boolean  useLabelAsLegalCategoriesFilter;
 
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
@@ -56,7 +56,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      * @param name the name of the loss
      */
     public MySoftmaxCrossEntropyLoss(String name) {
-        this(name, 1, -1, true, false, TrainingTypeKey.POLICY_DEPENDENT);
+        this(name, 1, -1, true, false, false);
     }
 
     /**
@@ -70,13 +70,13 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      *                    false
      */
     public MySoftmaxCrossEntropyLoss(
-        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit, TrainingTypeKey trainingTypeKey) {
+        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit, boolean useLabelAsLegalCategoriesFilter) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
         this.sparseLabel = sparseLabel;
         this.fromLogit = fromLogit;
-        this.trainingTypeKey = trainingTypeKey;
+        this.useLabelAsLegalCategoriesFilter =  useLabelAsLegalCategoriesFilter;
     }
 
     /**
@@ -88,7 +88,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         NDArray lab = label.singletonOrThrow();
 
         if (fromLogit) {
-            if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT) {
+            if (useLabelAsLegalCategoriesFilter) {
                 lab = pred.softmax(1).mul(lab).normalize(1, 1, 1e-12);
             }
 
