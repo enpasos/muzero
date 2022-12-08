@@ -33,6 +33,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlo
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
@@ -47,8 +48,10 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
@@ -143,52 +146,72 @@ public class MuZero {
 
     public void train(TrainParams params) {
         int trainingStep = 0;
-        do {
+
+        List<DurAndMem> durations = new ArrayList<>();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
-
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
             int epoch = networkHelper.getEpoch();
-
             trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+
+            int finalEpoch = epoch;
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);  // TODO: if it works epoch needs to be fixed
+            djlConfig.getTrainingListeners().stream()
+                .filter(MySaveModelTrainingListener.class::isInstance)
+                .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
+
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+                trainer.setMetrics(new Metrics());
+                Shape[] inputShapes = networkHelper.getInputShapes();
+                trainer.initialize(inputShapes);
+                do {
+                    DurAndMem duration = new DurAndMem();
+                    duration.on();
+                    int i = 0;
+
+                    if (!params.freshBuffer) {
+
+                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                            config.setPlayTypeKey(key);
+                            playGames(params.render, network, trainingStep);
+                        }
+
+                        int n = replayBuffer.getBuffer().getGames().size();
+                        int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
+                            g.getGameDTO().getTStateB() != 0
+                        ).count();
+                        log.info("games with an alternative action " + m + " out of " + n);
+                        log.info("counter: " + replayBuffer.getBuffer().getCounter());
+                        log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
 
 
-            int i = 0;
+                        surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
-                if (!params.freshBuffer) {
+                        log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
-                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                        config.setPlayTypeKey(key);
-                        playGames(params.render, network, trainingStep);
+                    }
+                    params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
+                    trainingStep = trainNetwork(trainer, params.numberOfEpochs, model, djlConfig);
+                    if (config.isSurpriseHandlingOn()) {
+                        surpriseCheck(network);
                     }
 
-                    int n = replayBuffer.getBuffer().getGames().size();
-                    int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
-                        g.getGameDTO().getTStateB() != 0
-                    ).count();
-                    log.info("games with an alternative action " + m + " out of " + n);
-                    log.info("counter: " + replayBuffer.getBuffer().getCounter());
-                    log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
+                    if (i % 5 == 0) {
+                        params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
+                    }
+                    i++;
+                    duration.off();
+                    durations.add(duration);
+                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
+                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-
-                    surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
-
-                    log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                 }
-                params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-                trainingStep = trainNetwork(params.numberOfEpochs, model);
-                if (config.isSurpriseHandlingOn()) {
-                    surpriseCheck(network);
-                }
-
-                if (i % 5 == 0) {
-                    params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
-                }
-                i++;
+                while (trainingStep < config.getNumberOfTrainingSteps());
             }
-        } while (trainingStep < config.getNumberOfTrainingSteps());
+        }
     }
 
     private void surpriseCheck(Network network) {
@@ -200,12 +223,12 @@ public class MuZero {
         long c = this.replayBuffer.getBuffer().getCounter();
         List<Game> gamesToCheck = this.replayBuffer.getBuffer().getGames().stream()
             .filter(game -> {
-                    long nextCheck = game.getGameDTO().getNextSurpriseCheck();
-                    if (nextCheck == 0) {
-                        game.getGameDTO().setNextSurpriseCheck(this.config.getSurpriseCheckInterval());
-                        nextCheck = game.getGameDTO().getNextSurpriseCheck();
-                    }
-                    return nextCheck < c;
+                long nextCheck = game.getGameDTO().getNextSurpriseCheck();
+                if (nextCheck == 0) {
+                    game.getGameDTO().setNextSurpriseCheck(this.config.getSurpriseCheckInterval());
+                    nextCheck = game.getGameDTO().getNextSurpriseCheck();
+                }
+                return nextCheck < c;
                 }
             ).collect(Collectors.toList());
 
@@ -244,103 +267,95 @@ public class MuZero {
     }
 
 
-    int trainNetwork(int numberOfEpochs, Model model) {
+    int trainNetwork(Trainer trainer, int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = getEpochFromModel(model);
         boolean withSymmetryEnrichment = true;
 
 
+        int finalEpoch = epoch;
+        djlConfig.getTrainingListeners().stream()
+            .filter(MySaveModelTrainingListener.class::isInstance)
+            .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
 
-        for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
+       // try (Trainer trainer = model.newTrainer(djlConfig)) {
 
+            trainer.setMetrics(new Metrics());
+//            Shape[] inputShapes = networkHelper.getInputShapes();
+//            trainer.initialize(inputShapes);
 
-
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch, trainingTypeKey);
-            int finalEpoch = epoch;
-            djlConfig.getTrainingListeners().stream()
-                .filter(MySaveModelTrainingListener.class::isInstance)
-                .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
-
-            try (Trainer trainer = model.newTrainer(djlConfig)) {
-
-                trainer.setMetrics(new Metrics());
-                Shape[] inputShapes = networkHelper.getInputShapes();
-                trainer.initialize(inputShapes);
-
-
-                // for( TrainingTypeKey key : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
-                for (int i = 0; i < numberOfEpochs; i++) {
-                    for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                        try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment, trainingTypeKey)) {
-                            log.debug("trainBatch " + m);
-                            MyEasyTrain.trainBatch(trainer, batch);
-                            trainer.step();
-                        }
+            for (int i = 0; i < numberOfEpochs; i++) {
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
+                        log.debug("trainBatch " + m);
+                        MyEasyTrain.trainBatch(trainer, batch);
+                        trainer.step();
                     }
-                    Metrics metrics = trainer.getMetrics();
-
-                    // number of action paths
-                    int numActionPaths = this.replayBuffer.getBuffer().getNumOfDifferentGames();
-                    model.setProperty(trainingTypeKey +"NumActionPaths", Double.toString(numActionPaths));
-                    log.info("NumActionPaths: " + numActionPaths);
-
-                    // mean loss
-                    List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-                    double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);
-                    model.setProperty(trainingTypeKey+"MeanLoss", Double.toString(meanLoss));
-                    log.info("MeanLoss: " + meanLoss);
-
-                    // mean value
-                    // loss
-                    double meanValueLoss = metrics.getMetricNames().stream()
-                        .filter(name -> name.startsWith(TRAIN_ALL) && name.contains(  "value_0"))
-                        .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                        .sum();
-                    replayBuffer.putMeanValueLoss(epoch, meanValueLoss);
-                    meanValueLoss += metrics.getMetricNames().stream()
-                        .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains( "value_0") && name.contains("value"))
-                        .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                        .sum();
-                    model.setProperty( trainingTypeKey+"MeanValueLoss", Double.toString(meanValueLoss));
-                    log.info("MeanValueLoss: " + meanValueLoss);
-
-
-                    // mean similarity
-                    // loss
-                    double meanSimLoss = metrics.getMetricNames().stream()
-                        .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
-                        .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                        .sum();
-                    replayBuffer.putMeanValueLoss(epoch, meanSimLoss);
-                    meanSimLoss += metrics.getMetricNames().stream()
-                        .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
-                        .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                        .sum();
-                    model.setProperty(trainingTypeKey+"MeanSimilarityLoss", Double.toString(meanSimLoss));
-                    log.info("MeanSimilarityLoss: " + meanSimLoss);
-
-
-
-
-                    // mean policy loss
-                    double meanPolicyLoss = metrics.getMetricNames().stream()
-                        .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
-                        .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                        .sum();
-                    meanPolicyLoss += metrics.getMetricNames().stream()
-                        .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
-                        .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                        .sum();
-                    model.setProperty(trainingTypeKey+"MeanPolicyLoss", Double.toString(meanPolicyLoss));
-                    log.info("MeanPolicyLoss: " + meanPolicyLoss);
-
-                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-
                 }
+                Metrics metrics = trainer.getMetrics();
+
+                // number of action paths
+                int numActionPaths = this.replayBuffer.getBuffer().getNumOfDifferentGames();
+                model.setProperty("NumActionPaths", Double.toString(numActionPaths));
+                log.info("NumActionPaths: " + numActionPaths);
+
+                // mean loss
+                List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
+                double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);
+                model.setProperty("MeanLoss", Double.toString(meanLoss));
+                log.info("MeanLoss: " + meanLoss);
+
+                // mean value
+                // loss
+                double meanValueLoss = metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                replayBuffer.putMeanValueLoss(epoch, meanValueLoss);
+                meanValueLoss += metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
+                log.info("MeanValueLoss: " + meanValueLoss);
+
+
+                // mean similarity
+                // loss
+                double meanSimLoss = metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                replayBuffer.putMeanValueLoss(epoch, meanSimLoss);
+                meanSimLoss += metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                model.setProperty("MeanSimilarityLoss", Double.toString(meanSimLoss));
+                log.info("MeanSimilarityLoss: " + meanSimLoss);
+
+                // mean policy loss
+                double meanPolicyLoss = metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                meanPolicyLoss += metrics.getMetricNames().stream()
+                    .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
+                    .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                    .sum();
+                model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
+                log.info("MeanPolicyLoss: " + meanPolicyLoss);
+
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+
             }
 
-        }
+            // like a trainer.close - without manager.close
+     //  trainer.notifyListenersLikeOnTrainingEndAndSyncParameterStore();
+
+
+       // }
         epoch = getEpochFromModel(model);
         trainingStep = epoch * numberOfTrainingStepsPerEpoch;
         return trainingStep;
