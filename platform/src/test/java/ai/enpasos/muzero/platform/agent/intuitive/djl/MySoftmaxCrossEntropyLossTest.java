@@ -13,7 +13,7 @@ class MySoftmaxCrossEntropyLossTest {
 
     @Test
     void evaluateNormal() {
-        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, false);
+        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
 
         NDManager manager = NDManager.newBaseManager();
 
@@ -31,8 +31,8 @@ class MySoftmaxCrossEntropyLossTest {
 
     @Test
     void evaluateLegalActions1() {
-        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, true);
-
+        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
+loss.setUseLabelAsLegalCategoriesFilter(true);
         NDManager manager = NDManager.newBaseManager();
 
         Shape shape = new Shape(1, 2);
@@ -50,8 +50,8 @@ class MySoftmaxCrossEntropyLossTest {
 
     @Test
     void evaluateLegalActions() {
-        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, true);
-
+        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true );
+        loss.setUseLabelAsLegalCategoriesFilter(true);
         NDManager manager = NDManager.newBaseManager();
 
         Shape shape = new Shape(2, 3);
@@ -69,8 +69,8 @@ class MySoftmaxCrossEntropyLossTest {
 
     @Test
     void evaluateLegalActions2() {
-        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, true);
-
+        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true );
+        loss.setUseLabelAsLegalCategoriesFilter(true);
         NDManager manager = NDManager.newBaseManager();
 
         Shape shape = new Shape(2, 3);

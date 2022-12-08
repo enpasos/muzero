@@ -103,7 +103,6 @@ public class NetworkHelper {
 
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, TrainingTypeKey trainingTypeKey) {
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), trainingTypeKey);
-     //   batch.stream().forEach(sample -> sample.setTrainingTypeKey(trainingTypeKey));
 
         NDManager nd = ndManager.newSubManager();
 
@@ -138,7 +137,7 @@ public class NetworkHelper {
     }
 
 
-    public DefaultTrainingConfig setupTrainingConfig(int epoch, TrainingTypeKey trainingTypeKey) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch) {
         String outputDir = config.getNetworkBaseDir();
         MySaveModelTrainingListener listener = mySaveModelTrainingListener;
         mySaveModelTrainingListener.setOutputDir(outputDir);
@@ -153,17 +152,17 @@ public class NetworkHelper {
 
         // policy
         log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(  "loss_policy_" + 0, 1.0f, 1, false, true, trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT), k));
+        loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss(  "loss_policy_" + 0, 1.0f, 1, false, true), k));
         k++;
 
         // value
 
         if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
             log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss(  LOSS_VALUE + 0, 1.0f, 1, false, true, false), k));
+            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss(  LOSS_VALUE + 0, 1.0f, 1, false, true), k));
         } else { // EXPECTED
             log.info("k={}: Value L2Loss", k);
-            loss.addLoss(new IndexLoss(new MyL2Loss( LOSS_VALUE + 0, config.getValueLossWeight()), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss( LOSS_VALUE + 0, config.getValueLossWeight()), k));
         }
         k++;
 
@@ -171,20 +170,20 @@ public class NetworkHelper {
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
             log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true, trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT), k));
+            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
             // value
             if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
                 log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-                loss.addLoss(new IndexLoss(new MySoftmaxCrossEntropyLoss( LOSS_VALUE + i, gradientScale, 1, false, true, false), k));
+                loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss( LOSS_VALUE + i, gradientScale, 1, false, true ), k));
             } else { // EXPECTED
                 log.info("k={}: Value L2Loss", k);
-                loss.addLoss(new IndexLoss(new MyL2Loss( LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+                loss.addLoss(new MyIndexLoss(new MyL2Loss( LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             }
             k++;
             // similarity
             log.info("k={}: Similarity L2Loss", k);
-            loss.addLoss(new IndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, 2 * gradientScale), k));
+            loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, 2 * gradientScale), k));
 
             k++;
         }

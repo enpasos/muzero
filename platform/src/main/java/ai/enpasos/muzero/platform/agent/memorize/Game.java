@@ -191,15 +191,13 @@ public abstract class Game {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT) {
 
-
             // only use the rewards (here we only take into account the final reward) TODO generalize this
             double value = MyL2Loss.NULL_VALUE;
-            int bootstrapIndex = currentIndex + tdSteps;
+
             if (currentIndex >= this.getGameDTO().getRewards().size() - 1) {
+                int bootstrapIndex = currentIndex + tdSteps;
                 value = calculateValueFromReward(currentIndex, bootstrapIndex, 0f);
             }
-
-
 
             // consistency dynamics is done automatically by the loss function
 

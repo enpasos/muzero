@@ -57,7 +57,7 @@ class GoMeasureValueAndSurpriseTest {
 
             int epoch = networkHelper.getEpoch();
             int trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch, TrainingTypeKey.POLICY_DEPENDENT);
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
             List<Game> games = this.replayBuffer.getBuffer().getGames().subList(0, 1);
 
