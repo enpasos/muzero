@@ -86,7 +86,7 @@ public class ReplayBufferIO {
         ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
         replayBufferDTO.setGames(games);
 
-        saveState(replayBufferDTO, networkName + "test");
+        saveState(replayBufferDTO, networkName );
 
 
     }
