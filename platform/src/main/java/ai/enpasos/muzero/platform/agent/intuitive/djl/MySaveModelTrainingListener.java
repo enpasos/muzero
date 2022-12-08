@@ -63,7 +63,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     }
 
     public MySaveModelTrainingListener() {
-        this("outputDir", null, -1);
+        this("outputDir", null, 1);
     }
 
     public MySaveModelTrainingListener(String outputDir, String overrideModelName, int step) {
@@ -84,7 +84,6 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
         }
 
         if (step > 0 && epoch % step == 0) {
-            // save model at end of each player
             saveModel(trainer);
         }
     }
