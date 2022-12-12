@@ -283,7 +283,9 @@ public class MuZero {
         int epoch = getEpochFromModel(model);
         boolean withSymmetryEnrichment = true;
         for (int i = 0; i < numberOfEpochs; i++) {
-            for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
+
+            // for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
+            for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_INDEPENDENT)) {
                 setTrainingTypeKeyOnTrainer(trainer, trainingTypeKey);
                 replayBuffer.setTrainingTypeKey(trainingTypeKey);
                 if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT
