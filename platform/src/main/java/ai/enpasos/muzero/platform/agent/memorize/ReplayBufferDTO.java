@@ -102,7 +102,7 @@ public class ReplayBufferDTO {
         games.remove(game);
     }
 
-    public void addGame(@NotNull Game game) {
+    public void addGameAndRemoveOldGameIfNecessary(@NotNull Game game) {
         while (isBufferFilled()) {
             games.remove(0);
         }
@@ -113,8 +113,15 @@ public class ReplayBufferDTO {
         counter++;
         game.getGameDTO().setCount(counter);
 
+    }
+    public void addGame(@NotNull Game game) {
+
+        games.add(game);
+        counter++;
+        game.getGameDTO().setCount(counter);
 
     }
+
 
     public void rebuildGames(MuZeroConfig config, boolean withReplay) {
         log.info("rebuildGames");

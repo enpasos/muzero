@@ -6,6 +6,10 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
+#ai:
+#  djl:
+#    logging:
+#      level: debug
 
 
 muzero:
@@ -55,8 +59,6 @@ muzero:
       symmetryType: SQUARE
       batchSize: 256
 
-
-
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
       # Gumbel MuZero parameters
@@ -78,7 +80,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 4000
+      numberOfTrainingSteps: 10000
 
 
       windowSizeStart: 10000
@@ -134,5 +136,6 @@ muzero:
           # dirichlet noise is added before mcts
           rootDirichletAlpha: 1.2
           rootExplorationFraction: 0.25  # 0.0 means switched off
+
 
 

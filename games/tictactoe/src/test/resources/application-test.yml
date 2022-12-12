@@ -1,1 +1,5 @@
 muzero.run: none
+#ai:
+#  djl:
+#    logging:
+#      level: debug

@@ -19,27 +19,32 @@ message GameProto {
   repeated float rewards = 2;
   repeated PolicyTargetProtos policy_targets = 3;
   repeated float root_value_targets = 4;
-  repeated float entropies = 7;
-  repeated float surprises = 10;
-  int64 count = 8;
-  bool surprised = 11;
-  int64 tSurprise = 12;
-  bool hybrid = 21;
-  int64 tHybrid = 22;
-  int64 tStateA = 13;
-  int64 tStateB = 14;
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;
+  repeated float entropies = 7;
+  int64 count = 8;
+  int32 tdSteps = 9;
+  repeated float surprises = 10;
+  bool surprised = 11;
+  int64 tSurprise = 12;
+  int64 tStateA = 13;
+  int64 tStateB = 14;
   string networkName = 15;
-  int64 nextSurpriseCheck = 20;
   float pRandomActionRawSum = 16;
   int32 pRandomActionRawCount = 17;
-  int32 tdSteps = 9;
+  repeated LegalActionProtos legal_actions = 18;
+  int64 nextSurpriseCheck = 20;
+  bool hybrid = 21;
+  int64 tHybrid = 22;
   repeated float maxEntropies = 24;
 
 }
 message PolicyTargetProtos {
   repeated float policy_target = 1;
+}
+
+message LegalActionProtos {
+  repeated bool legal_action = 1;
 }
 
 message ValueProtos {
