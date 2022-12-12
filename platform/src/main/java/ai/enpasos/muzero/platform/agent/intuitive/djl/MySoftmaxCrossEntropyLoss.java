@@ -22,6 +22,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.training.loss.Loss;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -39,6 +40,8 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     private final int classAxis;
     private final boolean sparseLabel;
     private final boolean fromLogit;
+
+   private  boolean  useLabelAsLegalCategoriesFilter;
 
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
@@ -67,12 +70,13 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      *                    false
      */
     public MySoftmaxCrossEntropyLoss(
-        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit) {
+        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit ) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
         this.sparseLabel = sparseLabel;
         this.fromLogit = fromLogit;
+    //    this.useLabelAsLegalCategoriesFilter =  useLabelAsLegalCategoriesFilter;
     }
 
     /**
@@ -81,13 +85,26 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     @Override
     public NDArray evaluate(@NotNull NDList label, @NotNull NDList prediction) {
         NDArray pred = prediction.singletonOrThrow();
+        NDArray lab = label.singletonOrThrow();
 
-        // the fromLogit Sign will be fixed on the upcoming release
         if (fromLogit) {
+            if (useLabelAsLegalCategoriesFilter) {
+              // normalize needs djl = "0.20.0" :-(  not used for now because of performance
+              //  lab = pred.softmax(classAxis).mul(lab).normalize(1, classAxis, 1e-12);
+                // therefore for now explicitly
+
+                lab = pred.stopGradient().mul(lab);
+                lab = lab.eq(0).mul(-1e12f).add(lab).softmax(classAxis);
+//
+//                ..softmax(classAxis);
+//                NDArray sum = lab.sum(new int[] {1}, true).add(1e-12);
+//                lab = lab.div(sum);
+            }
             pred = pred.logSoftmax(classAxis);
+
         }
         NDArray loss;
-        NDArray lab = label.singletonOrThrow();
+
         if (sparseLabel) {
             NDIndex pickIndex =
                 new NDIndex()
@@ -102,5 +119,13 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
             loss = loss.mul(weight);
         }
         return loss.mean();
+    }
+
+    public boolean isUseLabelAsLegalCategoriesFilter() {
+        return useLabelAsLegalCategoriesFilter;
+    }
+
+    public void setUseLabelAsLegalCategoriesFilter(boolean useLabelAsLegalCategoriesFilter) {
+       this.useLabelAsLegalCategoriesFilter = useLabelAsLegalCategoriesFilter;
     }
 }

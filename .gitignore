@@ -7,7 +7,7 @@
 
 **/build
 **/logs
-/memory
+/memory/*
 /games/tictactoe/memory
 
 

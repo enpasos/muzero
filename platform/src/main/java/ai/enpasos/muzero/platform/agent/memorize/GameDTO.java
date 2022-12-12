@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.LegalActionProtos;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,6 +49,8 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Float> surprises;
     private List<Float> entropies;
     private List<float[]> policyTargets;
+
+    private List<boolean[]> legalActions;
     private List<Float> rootValueTargets;
     private List<Float> rootValuesFromInitialInference;
     private float lastValueError;
@@ -75,6 +78,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
+        this.legalActions = new ArrayList<>();
         this.rootValueTargets = new ArrayList<>();
         this.surprises = new ArrayList<>();
         this.entropies = new ArrayList<>();
@@ -136,6 +140,7 @@ public class GameDTO implements Comparable<GameDTO> {
             copy.actions.addAll(this.actions.subList(0, toPosition));
 
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+            this.legalActions.subList(0, toPosition).forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
             if (this.rootValueTargets.size() >= toPosition)
                 copy.rootValueTargets.addAll(this.rootValueTargets.subList(0, toPosition));
             if (this.rootValuesFromInitialInference.size() >= toPosition)
@@ -173,6 +178,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+        this.legalActions.forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
         copy.rootValueTargets.addAll(this.rootValueTargets);
         copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference);
         return copy;
@@ -208,6 +214,13 @@ public class GameDTO implements Comparable<GameDTO> {
             );
             gameBuilder.addPolicyTargets(b.build());
         });
+        getLegalActions().forEach(legalActions -> {
+            LegalActionProtos.Builder b = LegalActionProtos.newBuilder();
+            IntStream.range(0, legalActions.length).forEach(i ->
+                b.addLegalAction(legalActions[i])
+            );
+            gameBuilder.addLegalActions(b.build());
+        });
         return gameBuilder.build();
     }
 
@@ -240,6 +253,18 @@ public class GameDTO implements Comparable<GameDTO> {
                         int i = 0;
                         for (Float f : policyTargetProtos.getPolicyTargetList()) {
                             result[i++] = f;
+                        }
+                        return result;
+                    }
+                )
+                .collect(Collectors.toList()));
+        }
+        if (p.getLegalActionsCount() > 0) {
+            this.setLegalActions(p.getLegalActionsList().stream().map(legalActionProtos -> {
+                        boolean[] result = new boolean[p.getLegalActions(0).getLegalActionCount()];
+                        int i = 0;
+                        for (Boolean b : legalActionProtos.getLegalActionList()) {
+                            result[i++] = b;
                         }
                         return result;
                     }

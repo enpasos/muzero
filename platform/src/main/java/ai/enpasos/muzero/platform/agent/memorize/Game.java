@@ -23,7 +23,9 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.rational.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.config.PlayerMode;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.environment.Environment;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -71,6 +73,8 @@ public abstract class Game {
     private boolean debug;
 
     private boolean actionApplied;
+
+    private PlayTypeKey playTypeKey;
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
@@ -172,61 +176,95 @@ public abstract class Game {
         this.getGameDTO().getActions().add(action.getIndex());
     }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, TrainingTypeKey trainingTypeKey) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target);
+            fillTarget(currentIndex, target, trainingTypeKey);
             targets.add(target);
         });
         return targets;
     }
 
-    private void fillTarget(int currentIndex, Target target) {
+    private void fillTarget(int currentIndex, Target target, TrainingTypeKey trainingTypeKey) {
         int tdSteps = this.getGameDTO().getTdSteps();
-        if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-            tdSteps = 0;
-        }
+        if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT) {
 
-        double value = calculateValue(tdSteps, currentIndex);
+            // only use the rewards (here we only take into account the final reward) TODO generalize this
+            double value = MyL2Loss.NULL_VALUE;
 
-        float lastReward = getLastReward(currentIndex);
+            if (currentIndex >= this.getGameDTO().getRewards().size() - 1) {
+                int bootstrapIndex = currentIndex + tdSteps;
+                value = calculateValueFromReward(currentIndex, bootstrapIndex, 0f);
+            }
 
-        if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
+            // consistency dynamics is done automatically by the loss function
+
+            // allowed actions learning is missing here
+            // need to be stored first with the gameDTO
+
+            float[] legalActions2 = new float[config.getActionSpaceSize()];
+            if (currentIndex < this.getGameDTO().getRewards().size()) {
+                boolean[] legalActions = this.getGameDTO().getLegalActions().get(currentIndex);
+                for (int i = 0; i < legalActions.length; i++) {
+                    legalActions2[i] = legalActions[i] ? 1f : 0f;
+                }
+            } else {
+                for (int i = 0; i < legalActions2.length; i++) {
+                    legalActions2[i] = 1f;
+                }
+            }
 
             setValueOnTarget(target, value);
-            target.setReward(lastReward);
-            if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
+            target.setReward(getLastReward(currentIndex));  // TODO: not really used here
+            target.setPolicy(legalActions2);
+
+
+        } else {
+
+            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+                tdSteps = 0;
+            }
+
+            double value = calculateValue(tdSteps, currentIndex);
+
+            float lastReward = getLastReward(currentIndex);
+
+            if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
+
+                setValueOnTarget(target, value);
+                target.setReward(lastReward);
+                if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
+                    target.setPolicy(new float[this.actionSpaceSize]);
+                    // the idea is not to put any force on the network to learn a particular action where it is not necessary
+                    Arrays.fill(target.getPolicy(), 0f);
+                } else {
+                    target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+                }
+            } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
+                // If we do not train the reward (as only boardgames are treated here)
+                // the value has to take the role of the reward on this node (needed in MCTS)
+                // if we were running the network with reward head
+                // the value would be 0 here
+                // but as we do not get the expected reward from the network
+                // we need use this node to keep the reward value
+                // therefore target.value is not 0f
+                // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
+
+                setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
+                target.setReward(lastReward);
                 target.setPolicy(new float[this.actionSpaceSize]);
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.getPolicy(), 0f);
             } else {
-                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+                setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? MyL2Loss.NULL_VALUE : (float) value);
+                target.setReward(lastReward);
+                target.setPolicy(new float[this.actionSpaceSize]);
+                // the idea is not to put any force on the network to learn a particular action where it is not necessary
+                Arrays.fill(target.getPolicy(), 0f);
             }
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
-            // If we do not train the reward (as only boardgames are treated here)
-            // the value has to take the role of the reward on this node (needed in MCTS)
-            // if we were running the network with reward head
-            // the value would be 0 here
-            // but as we do not get the expected reward from the network
-            // we need use this node to keep the reward value
-            // therefore target.value is not 0f
-            // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-
-            setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
-            target.setReward(lastReward);
-            target.setPolicy(new float[this.actionSpaceSize]);
-            // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
-        } else {
-            setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? MyL2Loss.NULL_VALUE : (float) value);
-            target.setReward(lastReward);
-            target.setPolicy(new float[this.actionSpaceSize]);
-            // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
         }
-
     }
 
     private void setValueOnTarget(Target target, double value) {
