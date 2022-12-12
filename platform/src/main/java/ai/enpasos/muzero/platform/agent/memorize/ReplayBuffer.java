@@ -80,7 +80,7 @@ public class ReplayBuffer {
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
     private String currentNetworkNameWithoutEpoch;
-    private TrainingTypeKey trainingTypeKey;
+    private TrainingTypeKey trainingTypeKey =TrainingTypeKey.POLICY_DEPENDENT;
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
         int gamePos = samplePosition(game);
@@ -304,7 +304,7 @@ public class ReplayBuffer {
 
         game.getGameDTO().setNetworkName(this.currentNetworkName);
         buffer.addGameAndRemoveOldGameIfNecessary(game);
-        allEpisodes.addGame(game);
+       // allEpisodes.addGame(game);
     }
 
     private void memorizeEntropyInfo(Game game, int epoch) {

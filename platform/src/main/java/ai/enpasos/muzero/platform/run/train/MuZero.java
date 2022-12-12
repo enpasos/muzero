@@ -154,7 +154,7 @@ public class MuZero {
 
             int epoch = networkHelper.getEpoch();
             trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch );
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
             int finalEpoch = epoch;
             djlConfig.getTrainingListeners().stream()
@@ -166,7 +166,10 @@ public class MuZero {
                 trainer.setMetrics(new Metrics());
                 Shape[] inputShapes = networkHelper.getInputShapes();
                 trainer.initialize(inputShapes);
-                do {
+
+
+                while (trainingStep < config.getNumberOfTrainingSteps()) {
+
                     DurAndMem duration = new DurAndMem();
                     duration.on();
                     int i = 0;
@@ -209,12 +212,12 @@ public class MuZero {
                     System.out.println("epoch;duration[ms];gpuMem[MiB]");
                     IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-
                 }
-                while (trainingStep < config.getNumberOfTrainingSteps());
             }
+
         }
     }
+
 
     private static void setTrainingTypeKeyOnTrainer(Trainer trainer, TrainingTypeKey trainingTypeKey) {
         SimpleCompositeLoss loss = (SimpleCompositeLoss) trainer.getLoss();
@@ -285,7 +288,7 @@ public class MuZero {
         for (int i = 0; i < numberOfEpochs; i++) {
 
             // for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
-            for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_INDEPENDENT)) {
+            for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
                 setTrainingTypeKeyOnTrainer(trainer, trainingTypeKey);
                 replayBuffer.setTrainingTypeKey(trainingTypeKey);
                 if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT
