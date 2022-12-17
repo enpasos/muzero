@@ -80,7 +80,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 10000
+      numberOfTrainingSteps: 3000
 
 
       windowSizeStart: 10000
