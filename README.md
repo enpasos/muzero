@@ -27,6 +27,18 @@ You can find out the inference time while running MuZero on your edge device:
 * [TicTacToe](https://enpasos.ai/muzero/TicTacToe)
 * [Go](https://enpasos.ai/muzero/Go)
 
+
+
+## Patch DJL
+As a workaround for the DJL performance issue https://github.com/deepjavalibrary/djl/issues/2210
+```
+git clone https://github.com/enpasos/djl.git
+cd djl
+git checkout gc-orphaned-resources
+gradlew build -x test
+```
+
+
 ## Build
 
 ```
