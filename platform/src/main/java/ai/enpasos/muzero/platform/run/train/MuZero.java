@@ -148,7 +148,7 @@ public class MuZero {
         int trainingStep = 0;
 
         List<DurAndMem> durations = new ArrayList<>();
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu(), true)) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
