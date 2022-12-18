@@ -36,6 +36,7 @@ git clone https://github.com/enpasos/djl.git
 cd djl
 git checkout gc-orphaned-resources
 gradlew build -x test
+gradlew publishToMavenLocal
 ```
 
 
