@@ -37,6 +37,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -133,7 +134,14 @@ public class InputOutputConstruction {
                     Action action = config.newAction(s.getActionsList().get(k));
                     aArray = action.encode(nd);
                 } else {
-                    aArray = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
+                    // TODO: check
+                    // random int between 0 and config.getActionSpaceSize() base on ThreadLocalRandom.current().nextInt(0, config.getActionSpaceSize());
+                 int a = ThreadLocalRandom.current().nextInt(0, config.getActionSpaceSize());
+
+                    Action action = config.newAction(a);
+                    aArray = action.encode(nd);
+
+                   // aArray = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
                 }
                 list.add(aArray);
             }
