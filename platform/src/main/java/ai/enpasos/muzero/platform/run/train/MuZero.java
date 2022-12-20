@@ -149,6 +149,7 @@ public class MuZero {
 
         List<DurAndMem> durations = new ArrayList<>();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu(), true)) {
+    //    try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
@@ -160,6 +161,9 @@ public class MuZero {
             djlConfig.getTrainingListeners().stream()
                 .filter(MySaveModelTrainingListener.class::isInstance)
                 .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
+
+
+
 
             try (Trainer trainer = model.newTrainer(djlConfig)) {
 
@@ -298,7 +302,6 @@ public class MuZero {
 
                 trainer.setMetrics(new Metrics());
 
-
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment, trainingTypeKey)) {
                         log.debug("trainBatch " + m);
@@ -387,7 +390,10 @@ public class MuZero {
             boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
             play(network, render, justInitialInferencePolicy, true);
-            replayBuffer.saveState();
+
+            if (networkHelper.getEpoch() % 10 == 0) {
+                replayBuffer.saveState();
+            }
         }
     }
 
