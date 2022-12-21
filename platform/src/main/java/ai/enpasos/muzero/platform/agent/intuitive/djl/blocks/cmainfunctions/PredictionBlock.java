@@ -23,7 +23,6 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySeque
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.NetworkType;
 import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.config.ValueHeadType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -32,10 +31,10 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNetworkType(), config.getValues().length, config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize(), config.getValueHeadType());
+        this(config.getNetworkType(), config.getValues().length, config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
     }
 
-    public PredictionBlock(NetworkType networkType, int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, ValueHeadType valueHeadType) {
+    public PredictionBlock(NetworkType networkType, int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
 
 
         SequentialBlockExt valueHead = new SequentialBlockExt();
@@ -48,10 +47,7 @@ public class PredictionBlock extends MySequentialBlock {
                 .build())
             .add(ActivationExt.reluBlock());
 
-        if (valueHeadType == ValueHeadType.DISTRIBUTION) {
-            valueHead.add(LinearExt.builder()
-                .setUnits(numCategories).build());
-        } else { // default is EXPECTED
+
             valueHead.add(LinearExt.builder()
                 .setUnits(1).build());
 
@@ -59,7 +55,6 @@ public class PredictionBlock extends MySequentialBlock {
             if (isPlayerModeTWOPLAYERS) {
                 valueHead.add(ActivationExt.tanhBlock());
             }
-        }
 
         SequentialBlockExt policyHead = new SequentialBlockExt();
         if (networkType == NetworkType.CON) {
