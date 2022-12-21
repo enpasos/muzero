@@ -21,7 +21,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      valueHeadType: EXPECTED # DISTRIBUTION
       networkType: CON  # CON or FC
       networkWithRewardHead: false
       withRewardHead: false

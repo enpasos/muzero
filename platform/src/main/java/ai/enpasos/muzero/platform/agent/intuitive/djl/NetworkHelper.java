@@ -40,7 +40,6 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlo
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.TrainingTypeKey;
-import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,13 +156,10 @@ public class NetworkHelper {
 
         // value
 
-        if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-            log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss(  LOSS_VALUE + 0, 1.0f, 1, false, true), k));
-        } else { // EXPECTED
+
             log.info("k={}: Value L2Loss", k);
             loss.addLoss(new MyIndexLoss(new MyL2Loss( LOSS_VALUE + 0, config.getValueLossWeight()), k));
-        }
+
         k++;
 
 
@@ -173,13 +169,10 @@ public class NetworkHelper {
             loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
             // value
-            if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-                log.info("k={}: Value SoftmaxCrossEntropyLoss", k);
-                loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss( LOSS_VALUE + i, gradientScale, 1, false, true ), k));
-            } else { // EXPECTED
+
                 log.info("k={}: Value L2Loss", k);
                 loss.addLoss(new MyIndexLoss(new MyL2Loss( LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
-            }
+
             k++;
             // similarity
             log.info("k={}: Similarity L2Loss", k);

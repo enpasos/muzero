@@ -28,7 +28,6 @@ import ai.enpasos.muzero.platform.agent.memorize.Target;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.ValueConverter;
-import ai.enpasos.muzero.platform.config.ValueHeadType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,34 +155,24 @@ public class InputOutputConstruction {
 
     public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
         List<NDArray> outputs = new ArrayList<>();
+        int actionSize = config.getActionSpaceSize();
         for (int k = 0; k <= numUnrollSteps; k++) {
-            List<NDArray> policyList = new ArrayList<>();
-            List<NDArray> valueList = new ArrayList<>();
             int b = 0;
+            float[] valueArray = new float[batch.size()];
+            float[] policyArray = new float[batch.size() * actionSize];
             for (Sample s : batch) {
                 List<Target> targets = s.getTargetList();
                 log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
                 Target target = targets.get(k);
                 log.trace("valuetarget: {}", target.getValue());
-                if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-                    NDArray valueOutput = nd.zeros(new Shape(config.getValues().length));
-                    int index = ValueConverter.valueToClassIndex(config.getValues(), target.getValue());
-                    valueOutput.setScalar(new NDIndex(index), 1);
-                    valueList.add(valueOutput);
-                } else {
-                    double scale = 2.0 / config.getValueSpan();
-                    NDArray valueOutput = nd.zeros(new Shape(1));
-                    valueOutput.setScalar(new NDIndex(0), target.getValue() * scale);
-                    valueList.add(valueOutput);
-                }
+                double scale = 2.0 / config.getValueSpan();
+                valueArray[b] = (float) (target.getValue() * scale);
+                System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
                 log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
-                NDArray c = nd.create(target.getPolicy());
-                policyList.add(c);
-
                 b++;
             }
-            NDArray policyOutput2 = NDArrays.stack(new NDList(policyList));
-            NDArray valueOutput2 = NDArrays.stack(new NDList(valueList));
+            NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
+            NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
             outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
         }

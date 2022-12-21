@@ -32,7 +32,6 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.ValueConverter;
-import ai.enpasos.muzero.platform.config.ValueHeadType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,10 +79,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
         NDArray vp = null;
         float[] vpArray = null;
-        if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-            vp = v.softmax(1);
-            vpArray = vp.toFloatArray();
-        }
+
         final float[] vpArrayFinal = vpArray;
 
         int n = (int) v.getShape().get(0);
@@ -96,24 +92,14 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 float[] logits2 = new float[actionSpaceSize];
                 System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
-                if (config.getValueHeadType() == ValueHeadType.DISTRIBUTION) {
-                    int l = config.getValues().length;
-                    float[] vps = new float[l];
-                    System.arraycopy(vpArrayFinal, i * l, vps, 0, l);
-                    return NetworkIO.builder()
-                        .value(ValueConverter.expectedValue(config, vps))
-                        .valueDistribution(vps)
-                        .policyValues(ps)
-                        .logits(logits2)
-                        .build();
-                } else {
+
                     double scale = config.getValueSpan() / 2.0;
                     return NetworkIO.builder()
                         .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
                         .policyValues(ps)
                         .logits(logits2)
                         .build();
-                }
+
 
 
             })

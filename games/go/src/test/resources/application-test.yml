@@ -18,7 +18,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.go.config.GoGame
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
-      valueHeadType: EXPECTED # DISTRIBUTION
       networkWithRewardHead: false
       withRewardHead: false
       absorbingStateDropToZero: false
