@@ -22,12 +22,10 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.memorize.Target;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.ValueConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +51,7 @@ public class InputOutputConstruction {
         List<NDArray> inputs = new ArrayList<>();
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
-        addHiddenStateInput(numUnrollSteps, ndManager, batch, inputsH);
+        addObservation(numUnrollSteps, ndManager, batch, inputsH);
         addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
         inputs.add(inputsH.get(0));
         IntStream.range(0, inputsA.size()).forEach(i -> {
@@ -111,7 +109,7 @@ public class InputOutputConstruction {
     }
 
 
-    private void addHiddenStateInput(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
+    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
         for (int k = 0; k < numUnrollSteps + 1; k++) {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
