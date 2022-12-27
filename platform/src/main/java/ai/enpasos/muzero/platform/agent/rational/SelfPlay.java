@@ -528,7 +528,7 @@ public class SelfPlay {
             log.info("Played {} games parallel, round {}", gamesPart.size(), i);
             games.addAll(gamesPart);
         }
-        replayBuffer.addGames(network.getModel(), games);
+        replayBuffer.addGames(network.getModel(), games, false);
         return games;
     }
 
@@ -543,7 +543,7 @@ public class SelfPlay {
         }
         log.info("replayBuffer size (before replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         log.info("resultGames size: " + resultGames.size());
-        replayBuffer.addGames(network.getModel(), resultGames);
+        replayBuffer.addGames(network.getModel(), resultGames, false);
         log.info("replayBuffer size (after replayBuffer::saveGame): " + replayBuffer.getBuffer().getGames().size());
         resultGames.clear();
     }

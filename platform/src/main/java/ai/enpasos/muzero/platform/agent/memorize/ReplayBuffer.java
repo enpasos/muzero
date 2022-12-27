@@ -254,17 +254,32 @@ public class ReplayBuffer {
         return games;
     }
 
-    public void saveState() {
-        replayBufferIO.saveState(this.getBuffer(), this.currentNetworkNameWithoutEpoch);
-    }
+//    public void saveState() {
+//        replayBufferIO.saveState(this.getBuffer(), this.currentNetworkNameWithoutEpoch);
+//    }
 
     public void loadLatestState() {
-        ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadLatestState();
-        if (replayBufferDTO != null) {
-            this.buffer = replayBufferDTO;
-            // TODO handle this.allEpisodes
+//         this.replayBufferIO.loadLatestState();
+//        public void loadLatestState() {
+
+            //         ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadLatestState();
+            //        if (replayBufferDTO != null) {
+            //            this.addGames(model, replayBufferDTO.getGames(), true);
+            //
+            //            // TODO handle this.allEpisodes
+            //        }
+            List<Path> paths = this.replayBufferIO.getBufferNames();
+            List<ReplayBufferDTO> buffers = new ArrayList<>();
+           for(int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
+                Path path = paths.get(paths.size() - 1 - h);
+                ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
+               // this.addGames(model, replayBufferDTO.getGames(), true);
+
+               // TODO instead of model get the info from the pathname
+                replayBufferDTO.getGames().forEach(game -> addGame(model, game, true));
+            }
+
         }
-    }
 
     public void sortGamesByLastValueError() {
         this.getBuffer().getGames().sort(
@@ -285,8 +300,8 @@ public class ReplayBuffer {
         return sum / count;
     }
 
-    public void addGames(Model model, List<Game> games) {
-        games.forEach(game -> addGame(model, game));
+    public void addGames(Model model, List<Game> games, boolean atBeginning) {
+        games.forEach(game -> addGame(model, game, atBeginning));
         this.timestamps.put(getEpoch(model), System.currentTimeMillis());
         logEntropyInfo();
         this.replayBufferIO.saveGames(
@@ -296,14 +311,11 @@ public class ReplayBuffer {
             this.currentNetworkName, this.getConfig());
     }
 
-    private void addGame(Model model, Game game) {
+    private boolean addGame(Model model, Game game, boolean atBeginning) {
         int epoch = getEpoch(model);
-
         memorizeEntropyInfo(game, epoch);
-
-
         game.getGameDTO().setNetworkName(this.currentNetworkName);
-        buffer.addGameAndRemoveOldGameIfNecessary(game);
+        return buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
        // allEpisodes.addGame(game);
     }
 

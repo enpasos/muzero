@@ -33,43 +33,43 @@ class IOTest {
     MuZeroConfig config;
 
 
-    @Test
-    void loadTest() throws IOException {
-
-        config.setOutputDir("./src/test/resources/");
-        ReplayBuffer replayBuffer1 = new ReplayBuffer();
-        replayBuffer1.setConfig(config);
-        replayBuffer1.init();
-        replayBuffer1.loadLatestState();
-        config.setOutputDir("./target/");
-        deleteDirectory(new File("./target/games/"));
-        forceMkdir(new File("./target/games/"));
-        ReplayBufferDTO dto1 = replayBuffer1.getBuffer();
-
-        config.setGameBufferWritingFormat(FileType.ZIPPED_PROTOCOL_BUFFERS);
-        replayBuffer1.getBuffer().setCounter(replayBuffer1.getBuffer().getCounter() + 1);
-        replayBuffer1.saveState();
-
-
-        ReplayBuffer replayBuffer = new ReplayBuffer();
-        replayBuffer.setConfig(config);
-        replayBuffer.loadLatestState();
-        ReplayBufferDTO dto2 = replayBuffer.getBuffer();
-
-        assertEquals(dto1, dto2);
-
-        replayBuffer.getBuffer().setCounter(replayBuffer1.getBuffer().getCounter() + 1);
-        replayBuffer.saveState();
-
-        replayBuffer.loadLatestState();
-        dto2 = replayBuffer.getBuffer();
-
-        log.info(Arrays.toString(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
-        log.info(Arrays.toString(dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
-        assertArrayEquals(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0), dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0));
-
-
-    }
+//    @Test
+//    void loadTest() throws IOException {
+//
+//        config.setOutputDir("./src/test/resources/");
+//        ReplayBuffer replayBuffer1 = new ReplayBuffer();
+//        replayBuffer1.setConfig(config);
+//        replayBuffer1.init();
+//        replayBuffer1.loadLatestState();
+//        config.setOutputDir("./target/");
+//        deleteDirectory(new File("./target/games/"));
+//        forceMkdir(new File("./target/games/"));
+//        ReplayBufferDTO dto1 = replayBuffer1.getBuffer();
+//
+//        config.setGameBufferWritingFormat(FileType.ZIPPED_PROTOCOL_BUFFERS);
+//        replayBuffer1.getBuffer().setCounter(replayBuffer1.getBuffer().getCounter() + 1);
+////        replayBuffer1.saveState();
+//
+//
+//        ReplayBuffer replayBuffer = new ReplayBuffer();
+//        replayBuffer.setConfig(config);
+//        replayBuffer.loadLatestState();
+//        ReplayBufferDTO dto2 = replayBuffer.getBuffer();
+//
+//        assertEquals(dto1, dto2);
+//
+//        replayBuffer.getBuffer().setCounter(replayBuffer1.getBuffer().getCounter() + 1);
+//       // replayBuffer.saveState();
+//
+//        replayBuffer.loadLatestState();
+//        dto2 = replayBuffer.getBuffer();
+//
+//        log.info(Arrays.toString(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
+//        log.info(Arrays.toString(dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0)));
+//        assertArrayEquals(dto1.getGames().get(0).getGameDTO().getPolicyTargets().get(0), dto2.getGames().get(0).getGameDTO().getPolicyTargets().get(0));
+//
+//
+//    }
 
 
 }

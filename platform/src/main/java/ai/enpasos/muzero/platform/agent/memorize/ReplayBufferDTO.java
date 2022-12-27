@@ -102,17 +102,21 @@ public class ReplayBufferDTO {
         games.remove(game);
     }
 
-    public void addGameAndRemoveOldGameIfNecessary(@NotNull Game game) {
+    public boolean addGameAndRemoveOldGameIfNecessary(@NotNull Game game, boolean atBeginning) {
         while (isBufferFilled()) {
             games.remove(0);
         }
         if (!game.terminal()) {
             game.replayToPosition(game.actionHistory().getActionIndexList().size());
         }
-        games.add(game);
+        if (atBeginning) {
+            games.add(0, game);
+        } else {
+            games.add(game);
+        }
         counter++;
         game.getGameDTO().setCount(counter);
-
+        return !isBufferFilled();
     }
     public void addGame(@NotNull Game game) {
 

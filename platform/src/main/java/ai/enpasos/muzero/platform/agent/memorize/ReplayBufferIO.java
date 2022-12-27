@@ -88,6 +88,18 @@ public class ReplayBufferIO {
 
         saveState(replayBufferDTO, networkName );
 
+    }
+
+    public List<Game> loadGames(String networkName, MuZeroConfig config) {
+        List<Game> games = null;
+
+        ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
+        replayBufferDTO.setGames(games);
+
+        saveState(replayBufferDTO, networkName );
+
+
+        return games;
 
     }
 
@@ -166,14 +178,7 @@ public class ReplayBufferIO {
 
     }
 
-    public ReplayBufferDTO loadLatestState() {
-        List<Path> paths = getBufferNames();
-        if (!paths.isEmpty()) {
-            Path path = paths.get(paths.size() - 1);
-            return loadState(path);
-        }
-        return null;
-    }
+
 
     public List<Path> getBufferNames() {
         List<Path> paths = new ArrayList<>();
@@ -254,8 +259,6 @@ public class ReplayBufferIO {
                             }
 
                         }
-
-
                     }
                     Objects.requireNonNull(dto).rebuildGames(config, false);
                 }

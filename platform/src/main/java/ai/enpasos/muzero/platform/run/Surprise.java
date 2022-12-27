@@ -94,7 +94,7 @@ public class Surprise {
         gamesWithOldSurprise.clear();
         gameSeeds.clear();
 
-        replayBuffer.saveState();
+     //   replayBuffer.saveState();
 
     }
 

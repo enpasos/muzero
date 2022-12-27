@@ -28,7 +28,7 @@ public class TicTacToeTrainingAndTest {
     @SuppressWarnings({"java:S2583", "java:S2589"})
     public void run() {
 
-        boolean startFromScratch = true;
+        boolean startFromScratch = false;
 
         if(startFromScratch) {
             rmDir(config.getOutputDir());
