@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.run.train;
 
+import ai.djl.ndarray.gc.SwitchGarbageCollection;
 import ai.djl.training.loss.IndexLoss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.Device;
@@ -146,10 +147,10 @@ public class MuZero {
 
     public void train(TrainParams params) {
         int trainingStep = 0;
+        SwitchGarbageCollection.on();
 
         List<DurAndMem> durations = new ArrayList<>();
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu(), true)) {
-    //    try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
