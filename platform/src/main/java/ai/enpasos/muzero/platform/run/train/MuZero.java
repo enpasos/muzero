@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.run.train;
 
+import ai.djl.ndarray.gc.SwitchGarbageCollection;
 import ai.djl.training.loss.IndexLoss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.Device;
@@ -90,7 +91,7 @@ public class MuZero {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
             selfPlay.playMultipleEpisodes(network, false, true, false, false);
         }
-        replayBuffer.saveState();
+      //  replayBuffer.saveState();
     }
 
     public void createNetworkModelIfNotExisting() {
@@ -145,10 +146,13 @@ public class MuZero {
     }
 
     public void train(TrainParams params) {
+
+
+        SwitchGarbageCollection.on();
         int trainingStep = 0;
 
         List<DurAndMem> durations = new ArrayList<>();
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu(), true)) {
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
     //    try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
@@ -161,7 +165,6 @@ public class MuZero {
             djlConfig.getTrainingListeners().stream()
                 .filter(MySaveModelTrainingListener.class::isInstance)
                 .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
-
 
 
 
@@ -269,7 +272,7 @@ public class MuZero {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
                 play(network, false, true, false);
-                replayBuffer.saveState();
+             //   replayBuffer.saveState();
             }
         } else {
             replayBuffer.loadLatestState();
@@ -278,7 +281,7 @@ public class MuZero {
                 initialFillingBuffer(network);
             } else {
                 play(network, false, false, false);
-                replayBuffer.saveState();
+              //  replayBuffer.saveState();
             }
         }
     }
@@ -391,9 +394,9 @@ public class MuZero {
 
             play(network, render, justInitialInferencePolicy, true);
 
-            if (networkHelper.getEpoch() % 10 == 0) {
-                replayBuffer.saveState();
-            }
+        //    if (networkHelper.getEpoch() % 10 == 0) {
+             //   replayBuffer.saveState();
+           // }
         }
     }
 
