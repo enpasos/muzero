@@ -59,12 +59,12 @@ class ProtobufferTest {
             List<Game> games = selfPlay.playGame( network, false, true, false, false);
             replayBuffer.init();
 
-            //replayBuffer.saveGames(games);
+            replayBuffer.getReplayBufferIO().saveGames(games, network.getModel().getName(), config);
 
-            replayBuffer.addGames(model, games);
+           // replayBuffer.addGames(model, games);
             List<Game> gamesOld = replayBuffer.getBuffer().getGames();
-            replayBuffer.saveState();
-            replayBuffer.loadLatestState();
+           // replayBuffer.saveState();
+            //replayBuffer.loadLatestState();
             //replayBuffer.rebuildGames();
 
             IntStream.range(0, gamesOld.size()).forEach(i -> assertEquals(gamesOld.get(i), replayBuffer.getBuffer().getGames().get(i), "games should be the same"));
