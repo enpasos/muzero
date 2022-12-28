@@ -254,16 +254,32 @@ public class ReplayBuffer {
         return games;
     }
 
-    public void saveState() {
-        replayBufferIO.saveState(this.getBuffer(), this.currentNetworkNameWithoutEpoch);
-    }
+//    public void saveState() {
+//        replayBufferIO.saveState(this.getBuffer(), this.currentNetworkNameWithoutEpoch);
+//    }
 
     public void loadLatestState() {
-        ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadLatestState();
-        if (replayBufferDTO != null) {
-            this.buffer = replayBufferDTO;
-            // TODO handle this.allEpisodes
+            List<Path> paths = this.replayBufferIO.getBufferNames();
+            List<ReplayBufferDTO> buffers = new ArrayList<>();
+           for(int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
+                Path path = paths.get(paths.size() - 1 - h);
+                ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
+                int epoch = getEpochFromPath(path);
+
+                replayBufferDTO.getGames().forEach(game -> addGame(epoch, game, true));
+            }
         }
+
+    private static int getEpochFromPath(Path path) {
+        int epoch;
+        String fileName = path.getFileName().toString();
+        if (fileName.contains("-")) {
+            String[] split = fileName.split("-");
+            epoch = Integer.parseInt(split[split.length - 2]);
+        } else {
+            throw new MuZeroException("Could not find epoch in path " + path);
+        }
+        return epoch;
     }
 
     public void sortGamesByLastValueError() {
@@ -285,8 +301,8 @@ public class ReplayBuffer {
         return sum / count;
     }
 
-    public void addGames(Model model, List<Game> games) {
-        games.forEach(game -> addGame(model, game));
+    public void addGames(Model model, List<Game> games, boolean atBeginning) {
+        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
         this.timestamps.put(getEpoch(model), System.currentTimeMillis());
         logEntropyInfo();
         this.replayBufferIO.saveGames(
@@ -296,15 +312,25 @@ public class ReplayBuffer {
             this.currentNetworkName, this.getConfig());
     }
 
-    private void addGame(Model model, Game game) {
+    private boolean addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
         int epoch = getEpoch(model);
+         return addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.currentNetworkName);
+    }
+
+    private boolean addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {
 
         memorizeEntropyInfo(game, epoch);
+        game.getGameDTO().setNetworkName(networkName);
+        return buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+        // allEpisodes.addGame(game);
+    }
 
+    private void addGame(int epoch, Game game, boolean atBeginning) {
 
-        game.getGameDTO().setNetworkName(this.currentNetworkName);
-        buffer.addGameAndRemoveOldGameIfNecessary(game);
-       // allEpisodes.addGame(game);
+        memorizeEntropyInfo(game, epoch);
+      //  game.getGameDTO().setNetworkName(this.currentNetworkName);
+         buffer.addGame(game, atBeginning);
+        // allEpisodes.addGame(game);
     }
 
     private void memorizeEntropyInfo(Game game, int epoch) {

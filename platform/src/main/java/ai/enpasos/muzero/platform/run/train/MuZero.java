@@ -91,7 +91,7 @@ public class MuZero {
             log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
             selfPlay.playMultipleEpisodes(network, false, true, false, false);
         }
-        replayBuffer.saveState();
+      //  replayBuffer.saveState();
     }
 
     public void createNetworkModelIfNotExisting() {
@@ -146,11 +146,14 @@ public class MuZero {
     }
 
     public void train(TrainParams params) {
-        int trainingStep = 0;
+
+
         SwitchGarbageCollection.on();
+        int trainingStep = 0;
 
         List<DurAndMem> durations = new ArrayList<>();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+    //    try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
@@ -162,7 +165,6 @@ public class MuZero {
             djlConfig.getTrainingListeners().stream()
                 .filter(MySaveModelTrainingListener.class::isInstance)
                 .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
-
 
 
 
@@ -203,7 +205,7 @@ public class MuZero {
                     params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
 
 
-                    trainingStep = trainNetwork(trainer, params.numberOfEpochs, model, djlConfig);
+                    trainingStep = trainNetwork(trainer, model, djlConfig);
                     if (config.isSurpriseHandlingOn()) {
                         surpriseCheck(network);
                     }
@@ -270,7 +272,7 @@ public class MuZero {
             while (!replayBuffer.getBuffer().isBufferFilled()) {
                 network.debugDump();
                 play(network, false, true, false);
-                replayBuffer.saveState();
+             //   replayBuffer.saveState();
             }
         } else {
             replayBuffer.loadLatestState();
@@ -279,18 +281,18 @@ public class MuZero {
                 initialFillingBuffer(network);
             } else {
                 play(network, false, false, false);
-                replayBuffer.saveState();
+              //  replayBuffer.saveState();
             }
         }
     }
 
 
-    int trainNetwork(Trainer trainer, int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
+    int trainNetwork(Trainer trainer,   Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = getEpochFromModel(model);
         boolean withSymmetryEnrichment = true;
-        for (int i = 0; i < numberOfEpochs; i++) {
+      //  for (int i = 0; i < numberOfEpochs; i++) {
 
             // for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
             for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
@@ -322,7 +324,7 @@ public class MuZero {
                 replayBuffer.setTrainingTypeKey(TrainingTypeKey.POLICY_DEPENDENT);
             }
             trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-        }
+      //  }
         epoch = getEpochFromModel(model);
         trainingStep = epoch * numberOfTrainingStepsPerEpoch;
         return trainingStep;
@@ -392,9 +394,9 @@ public class MuZero {
 
             play(network, render, justInitialInferencePolicy, true);
 
-            if (networkHelper.getEpoch() % 10 == 0) {
-                replayBuffer.saveState();
-            }
+        //    if (networkHelper.getEpoch() % 10 == 0) {
+             //   replayBuffer.saveState();
+           // }
         }
     }
 
