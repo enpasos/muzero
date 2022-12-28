@@ -205,7 +205,7 @@ public class MuZero {
                     params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
 
 
-                    trainingStep = trainNetwork(trainer, params.numberOfEpochs, model, djlConfig);
+                    trainingStep = trainNetwork(trainer, model, djlConfig);
                     if (config.isSurpriseHandlingOn()) {
                         surpriseCheck(network);
                     }
@@ -287,12 +287,12 @@ public class MuZero {
     }
 
 
-    int trainNetwork(Trainer trainer, int numberOfEpochs, Model model, DefaultTrainingConfig djlConfig) {
+    int trainNetwork(Trainer trainer,   Model model, DefaultTrainingConfig djlConfig) {
         int trainingStep;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         int epoch = getEpochFromModel(model);
         boolean withSymmetryEnrichment = true;
-        for (int i = 0; i < numberOfEpochs; i++) {
+      //  for (int i = 0; i < numberOfEpochs; i++) {
 
             // for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT, TrainingTypeKey.POLICY_INDEPENDENT)) {
             for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
@@ -324,7 +324,7 @@ public class MuZero {
                 replayBuffer.setTrainingTypeKey(TrainingTypeKey.POLICY_DEPENDENT);
             }
             trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-        }
+      //  }
         epoch = getEpochFromModel(model);
         trainingStep = epoch * numberOfTrainingStepsPerEpoch;
         return trainingStep;

@@ -118,9 +118,13 @@ public class ReplayBufferDTO {
         game.getGameDTO().setCount(counter);
         return !isBufferFilled();
     }
-    public void addGame(@NotNull Game game) {
+    public void addGame(@NotNull Game game, boolean atBeginning) {
 
-        games.add(game);
+        if (atBeginning) {
+            games.add(0, game);
+        } else {
+            games.add(game);
+        }
         counter++;
         game.getGameDTO().setCount(counter);
 
