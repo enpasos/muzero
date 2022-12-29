@@ -80,17 +80,17 @@ public class ReplayBuffer {
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
     private String currentNetworkNameWithoutEpoch;
-    private TrainingTypeKey trainingTypeKey =TrainingTypeKey.POLICY_DEPENDENT;
+    private TrainingTypeKey trainingTypeKey = TrainingTypeKey.POLICY_DEPENDENT;
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer,  trainingTypeKey);
+        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer, trainingTypeKey);
     }
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
         Sample sample = new Sample();
         sample.setTrainingTypeKey(
-                trainingTypeKey
+            trainingTypeKey
         );
         game.replayToPosition(gamePos);
 
@@ -201,9 +201,9 @@ public class ReplayBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps, TrainingTypeKey trainingTypeKey) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
             return sampleGames(trainingTypeKey).stream()
-              //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
-              //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
-                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this,  trainingTypeKey))
+                //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
+                //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
+                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this, trainingTypeKey))
                 .collect(Collectors.toList());
         }
     }
@@ -259,16 +259,15 @@ public class ReplayBuffer {
 //    }
 
     public void loadLatestState() {
-            List<Path> paths = this.replayBufferIO.getBufferNames();
-            List<ReplayBufferDTO> buffers = new ArrayList<>();
-           for(int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
-                Path path = paths.get(paths.size() - 1 - h);
-                ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
-                int epoch = getEpochFromPath(path);
-
-                replayBufferDTO.getGames().forEach(game -> addGame(epoch, game, true));
-            }
+        List<Path> paths = this.replayBufferIO.getBufferNames();
+        List<ReplayBufferDTO> buffers = new ArrayList<>();
+        for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
+            Path path = paths.get(paths.size() - 1 - h);
+            ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
+            int epoch = getEpochFromPath(path);
+            replayBufferDTO.getGames().forEach(game -> addGame(epoch, game, true));
         }
+    }
 
     private static int getEpochFromPath(Path path) {
         int epoch;
@@ -314,7 +313,7 @@ public class ReplayBuffer {
 
     private boolean addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
         int epoch = getEpoch(model);
-         return addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.currentNetworkName);
+        return addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.currentNetworkName);
     }
 
     private boolean addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {
@@ -328,8 +327,8 @@ public class ReplayBuffer {
     private void addGame(int epoch, Game game, boolean atBeginning) {
 
         memorizeEntropyInfo(game, epoch);
-      //  game.getGameDTO().setNetworkName(this.currentNetworkName);
-         buffer.addGame(game, atBeginning);
+        //  game.getGameDTO().setNetworkName(this.currentNetworkName);
+        buffer.addGame(game, atBeginning);
         // allEpisodes.addGame(game);
     }
 
