@@ -71,36 +71,7 @@ public class GoAdapter {
     }
 
 
-    public static List<NDArray> translateB(MuZeroConfig config, NDManager ndManager, GameState gameState) {
-        List<NDArray> list = new ArrayList<>();
 
-        Player player = gameState.getNextPlayer();
-
-        // values in the range [0, 1]
-        // 8 historic boards needed
-
-
-        NDArray boardCurrentPlayer = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f);
-        list.add(boardCurrentPlayer);
-        NDArray boardOpponentPlayer = ndManager.full(new Shape(config.getBoardHeight(), config.getBoardWidth()), 0f);
-        list.add(boardOpponentPlayer);
-
-        for (int row = 0; row < config.getBoardHeight(); row++) {
-            for (int col = 0; col < config.getBoardWidth(); col++) {
-                var p = new Point(row + 1, col + 1);
-                Optional<GoString> goStringOptional = gameState.getBoard().getGoString(p);
-                if (goStringOptional.isPresent()) {
-                    GoString goString = goStringOptional.get();
-                    if (goString.getPlayer() == player) {
-                        boardCurrentPlayer.setScalar(new NDIndex(row, col), 1f);
-                    } else {
-                        boardOpponentPlayer.setScalar(new NDIndex(row, col), 1f);
-                    }
-                }
-            }
-        }
-        return list;
-    }
 
     public static Action translate(MuZeroConfig config, Move move) {
         if (move instanceof Play play) {

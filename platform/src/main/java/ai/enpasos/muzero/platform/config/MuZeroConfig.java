@@ -70,20 +70,31 @@ public class MuZeroConfig {
         return null;
     }
 
-    public Action newAction(int index) {
-        Action action = this.newAction();
-        action.setIndex(index);
-        return action;
-    }
+//    public Action newAction(int index) {
+//        Action action = this.newAction();
+//        action.setIndex(index);
+//        return action;
+//    }
 
-    public Action newAction() {
-        try {
-            Constructor<?> constructor = this.getActionClass().getConstructor(MuZeroConfig.class);
-            return (Action) constructor.newInstance(this);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+    Action[] actions;
+
+    public Action newAction(int index) {
+        if (actions == null) {
+            int n = this.getActionSpaceSize();
+            actions = new Action[n];
+            for (int i = 0; i < n; i++) {
+                try {
+                    Constructor<?> constructor = this.getActionClass().getConstructor(MuZeroConfig.class);
+                    actions[i] = (Action) constructor.newInstance(this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                actions[i].setIndex(i);
+            }
+
         }
-        return null;
+        return actions[index];
     }
 
     public @NotNull String getGamesBasedir() {
