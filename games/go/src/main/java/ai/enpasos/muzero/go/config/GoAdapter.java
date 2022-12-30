@@ -1,9 +1,6 @@
 package ai.enpasos.muzero.go.config;
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.index.NDIndex;
-import ai.djl.ndarray.types.Shape;
+
 import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.go.config.environment.GoString;
 import ai.enpasos.muzero.go.config.environment.basics.Player;
@@ -18,8 +15,6 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class GoAdapter {

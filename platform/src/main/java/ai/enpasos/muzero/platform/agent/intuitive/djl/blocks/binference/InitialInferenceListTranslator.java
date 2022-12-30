@@ -31,7 +31,6 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.ValueConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,10 +76,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         NDArray v = list.get(2);
         float[] vArray = v.toFloatArray();
 
-        NDArray vp = null;
         float[] vpArray = null;
-
-        final float[] vpArrayFinal = vpArray;
 
         int n = (int) v.getShape().get(0);
 

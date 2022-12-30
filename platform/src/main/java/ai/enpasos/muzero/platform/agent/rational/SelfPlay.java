@@ -520,11 +520,6 @@ public class SelfPlay {
         for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
 
-         //   List<Game> gamesRelevant = games.stream().filter(game -> !game.getGameDTO().isHybrid() || game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size()).collect(Collectors.toList());
-           // log.info(gamesRelevant.size() + " relevant out of " + games.size());
-
-        //    replayBuffer.addGames(network.getModel(), gamesRelevant);
-
             log.info("Played {} games parallel, round {}", gamesPart.size(), i);
             games.addAll(gamesPart);
         }
