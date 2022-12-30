@@ -154,11 +154,9 @@ public class MuZero {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
-        }
 
-        while (trainingStep < config.getNumberOfTrainingSteps()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                Network network = new Network(config, model);
+            while (trainingStep < config.getNumberOfTrainingSteps()) {
+
                 DurAndMem duration = new DurAndMem();
                 duration.on();
                 int i = 0;
@@ -178,14 +176,11 @@ public class MuZero {
                     log.info("counter: " + replayBuffer.getBuffer().getCounter());
                     log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
 
-
                     surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
                     log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
-
                 }
                 params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-
 
                 trainingStep = trainNetwork(model);
                 if (config.isSurpriseHandlingOn()) {
