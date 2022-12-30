@@ -80,8 +80,6 @@ muzero:
       numResidualsGeneration: 12
       broadcastEveryNGeneration: 8 # out of range here
 
-
-
       surpriseHandlingOn: false # false in paper
       extraValueTrainingOn: false # false in paper
 
