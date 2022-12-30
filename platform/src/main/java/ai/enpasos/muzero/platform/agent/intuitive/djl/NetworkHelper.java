@@ -100,6 +100,23 @@ public class NetworkHelper {
         return epoch;
     }
 
+    public int getEpoch(Model model) {
+
+            if (model.getBlock() == null) {
+                MuZeroBlock block = new MuZeroBlock(config);
+                model.setBlock(block);
+                try {
+                    model.load(Paths.get(config.getNetworkBaseDir()));
+                } catch (Exception e) {
+                    log.info("*** no existing model has been found ***");
+                }
+            }
+
+
+       return getEpochFromModel(model);
+    }
+
+
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, TrainingTypeKey trainingTypeKey) {
         List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps(), trainingTypeKey);
 
