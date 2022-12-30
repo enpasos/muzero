@@ -332,13 +332,13 @@ public class GumbelSearch {
         return action;
     }
 
-    private Action getAction(double temperature, double[] raw, List<GumbelAction> gumbelActions) {
-        Action action;
-        double[] p = softmax(raw, temperature);
-        int i = draw(p);
-        action = config.newAction(gumbelActions.get(i).actionIndex);
-        return action;
-    }
+//    private Action getAction(double temperature, double[] raw, List<GumbelAction> gumbelActions) {
+//        Action action;
+//        double[] p = softmax(raw, temperature);
+//        int i = draw(p);
+//        action = config.newAction(gumbelActions.get(i).actionIndex);
+//        return action;
+//    }
 
 
     public void drawCandidateAndAddValue() {
