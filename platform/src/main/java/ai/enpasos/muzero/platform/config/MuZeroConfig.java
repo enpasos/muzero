@@ -70,11 +70,6 @@ public class MuZeroConfig {
         return null;
     }
 
-//    public Action newAction(int index) {
-//        Action action = this.newAction();
-//        action.setIndex(index);
-//        return action;
-//    }
 
 
     Action[] actions;

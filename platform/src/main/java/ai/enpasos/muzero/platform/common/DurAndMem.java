@@ -36,7 +36,6 @@ public class DurAndMem {
 
     public synchronized void on() {
         dur -= System.currentTimeMillis();
-       // mem -= calculateMem();
     }
 
 
@@ -49,7 +48,7 @@ public class DurAndMem {
 
     private long calculateMem() {
         Device device = Device.gpu(0);
-        MemoryUsage mem = CudaUtils.getGpuMemory(device);
-        return mem.getCommitted();
+        MemoryUsage memoryUsage = CudaUtils.getGpuMemory(device);
+        return memoryUsage.getCommitted();
     }
 }
