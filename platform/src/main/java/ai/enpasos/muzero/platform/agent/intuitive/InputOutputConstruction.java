@@ -132,13 +132,10 @@ public class InputOutputConstruction {
                     aArray = action.encode(nd);
                 } else {
                     // TODO: check
-                    // random int between 0 and config.getActionSpaceSize() base on ThreadLocalRandom.current().nextInt(0, config.getActionSpaceSize());
-                 int a = ThreadLocalRandom.current().nextInt(0, config.getActionSpaceSize());
+                    int a = ThreadLocalRandom.current().nextInt(0, config.getActionSpaceSize());
 
                     Action action = config.newAction(a);
                     aArray = action.encode(nd);
-
-                   // aArray = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
                 }
                 list.add(aArray);
             }

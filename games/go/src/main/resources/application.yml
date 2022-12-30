@@ -45,7 +45,7 @@ muzero:
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
       # windowValueSelfconsistencySize: 30000   <- postponed
-      batchSize: 64  # 56
+      batchSize: 50  # 56
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0
