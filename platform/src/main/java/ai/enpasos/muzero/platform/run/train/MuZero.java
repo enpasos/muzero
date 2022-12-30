@@ -147,79 +147,63 @@ public class MuZero {
 
     public void train(TrainParams params) {
 
-
         SwitchGarbageCollection.on();
         int trainingStep = 0;
 
         List<DurAndMem> durations = new ArrayList<>();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-    //    try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
+        }
 
-            int epoch = networkHelper.getEpoch();
-            trainingStep = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+        while (trainingStep < config.getNumberOfTrainingSteps()) {
+            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+                Network network = new Network(config, model);
+                DurAndMem duration = new DurAndMem();
+                duration.on();
+                int i = 0;
 
-            int finalEpoch = epoch;
-            djlConfig.getTrainingListeners().stream()
-                .filter(MySaveModelTrainingListener.class::isInstance)
-                .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
+                if (!params.freshBuffer) {
 
-
-
-
-
-
-                while (trainingStep < config.getNumberOfTrainingSteps()) {
-
-                    DurAndMem duration = new DurAndMem();
-                    duration.on();
-                    int i = 0;
-
-                    if (!params.freshBuffer) {
-
-                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                            config.setPlayTypeKey(key);
-                            playGames(params.render, network, trainingStep);
-                        }
-
-                        int n = replayBuffer.getBuffer().getGames().size();
-                        int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
-                            g.getGameDTO().getTStateB() != 0
-                        ).count();
-                        log.info("games with an alternative action " + m + " out of " + n);
-                        log.info("counter: " + replayBuffer.getBuffer().getCounter());
-                        log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
-
-
-                        surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
-
-                        log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
-
+                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey(key);
+                        playGames(params.render, network, trainingStep);
                     }
-                    params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
+
+                    int n = replayBuffer.getBuffer().getGames().size();
+                    int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
+                        g.getGameDTO().getTStateB() != 0
+                    ).count();
+                    log.info("games with an alternative action " + m + " out of " + n);
+                    log.info("counter: " + replayBuffer.getBuffer().getCounter());
+                    log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
 
 
-                        trainingStep = trainNetwork(model, djlConfig);
-                        if (config.isSurpriseHandlingOn()) {
-                            surpriseCheck(network);
-                        }
+                    surprise.getSurpriseThresholdAndShowSurpriseStatistics(this.replayBuffer.getBuffer().getGames());
 
-                        if (i % 5 == 0) {
-                            params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
-                        }
-                        i++;
-                        duration.off();
-                        durations.add(duration);
-                        System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
+                    log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
 
                 }
+                params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
 
+
+                trainingStep = trainNetwork(model);
+                if (config.isSurpriseHandlingOn()) {
+                    surpriseCheck(network);
+                }
+
+                if (i % 5 == 0) {
+                    params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
+                }
+                i++;
+                duration.off();
+                durations.add(duration);
+                System.out.println("epoch;duration[ms];gpuMem[MiB]");
+                IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+            }
         }
     }
+
 
 
     private static void setTrainingTypeKeyOnTrainer(Trainer trainer, TrainingTypeKey trainingTypeKey) {
@@ -283,12 +267,17 @@ public class MuZero {
     }
 
 
-    int trainNetwork(Model model, DefaultTrainingConfig djlConfig) {
-        int trainingStep;
-        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+    int trainNetwork(Model model) {
+
         int epoch = getEpochFromModel(model);
+        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         boolean withSymmetryEnrichment = true;
         for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+            int finalEpoch = epoch;
+            djlConfig.getTrainingListeners().stream()
+                .filter(MySaveModelTrainingListener.class::isInstance)
+                .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
                 Shape[] inputShapes = networkHelper.getInputShapes();
                 trainer.initialize(inputShapes);
@@ -321,8 +310,7 @@ public class MuZero {
             }
         }
         epoch = getEpochFromModel(model);
-        trainingStep = epoch * numberOfTrainingStepsPerEpoch;
-        return trainingStep;
+        return epoch * numberOfTrainingStepsPerEpoch;
 
     }
 
