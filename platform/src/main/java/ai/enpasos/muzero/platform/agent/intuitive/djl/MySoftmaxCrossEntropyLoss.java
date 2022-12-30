@@ -76,7 +76,6 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         this.classAxis = classAxis;
         this.sparseLabel = sparseLabel;
         this.fromLogit = fromLogit;
-    //    this.useLabelAsLegalCategoriesFilter =  useLabelAsLegalCategoriesFilter;
     }
 
     /**
