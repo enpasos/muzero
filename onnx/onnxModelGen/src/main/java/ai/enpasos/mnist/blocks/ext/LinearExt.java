@@ -4,7 +4,6 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.core.Linear;
-import ai.djl.nn.core.LinearOpened;
 import ai.djl.util.Preconditions;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -21,7 +20,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class LinearExt extends LinearOpened implements OnnxIO {
+public class LinearExt extends Linear implements OnnxIO {
 
 
     LinearExt(Builder builder) {
@@ -160,7 +159,7 @@ public class LinearExt extends LinearOpened implements OnnxIO {
     /**
      * The Builder to construct a {@link Linear} type of {@link Block}.
      */
-    public static final class Builder extends LinearOpened.Builder {
+    public static final class Builder extends Linear.Builder {
 
         Builder() {
             super();
