@@ -5,7 +5,6 @@ import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.core.Linear;
-import ai.djl.nn.core.LinearOpened;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.djl.util.Preconditions;
@@ -19,7 +18,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class BroadcastBlock extends LinearOpened implements OnnxIO {
+public class BroadcastBlock extends Linear implements OnnxIO {
 
 
     BroadcastBlock(Builder builder) {
@@ -242,7 +241,7 @@ public class BroadcastBlock extends LinearOpened implements OnnxIO {
     /**
      * The Builder to construct a {@link Linear} type of {@link Block}.
      */
-    public static final class Builder extends LinearOpened.Builder {
+    public static final class Builder extends Linear.Builder {
 
         Builder() {
             super();

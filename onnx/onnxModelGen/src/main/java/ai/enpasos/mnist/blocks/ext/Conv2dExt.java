@@ -4,7 +4,6 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Block;
 import ai.djl.nn.convolutional.Conv2d;
-import ai.djl.nn.convolutional.Conv2dOpened;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
@@ -21,7 +20,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class Conv2dExt extends Conv2dOpened implements OnnxIO {
+public class Conv2dExt extends Conv2d implements OnnxIO {
 
     Conv2dExt(Builder builder) {
         super(builder);
@@ -95,7 +94,7 @@ public class Conv2dExt extends Conv2dOpened implements OnnxIO {
     /**
      * The Builder to construct a {@link Conv2d} type of {@link Block}.
      */
-    public static final class Builder extends Conv2dOpened.Builder {
+    public static final class Builder extends Conv2d.Builder {
 
         /**
          * Creates a builder that can build a {@link Conv2d} block.
