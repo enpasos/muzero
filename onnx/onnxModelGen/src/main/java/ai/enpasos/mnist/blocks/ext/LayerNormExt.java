@@ -2,7 +2,7 @@ package ai.enpasos.mnist.blocks.ext;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.norm.LayerNormOpened;
+import ai.djl.nn.norm.LayerNorm;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
@@ -19,7 +19,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.convert;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class LayerNormExt extends LayerNormOpened implements OnnxIO {
+public class LayerNormExt extends LayerNorm implements OnnxIO {
 
     LayerNormExt(LayerNormExt.Builder builder) {
         super(builder);
@@ -107,7 +107,7 @@ public class LayerNormExt extends LayerNormOpened implements OnnxIO {
             .build();
     }
 
-    public static final class Builder extends LayerNormOpened.Builder {
+    public static final class Builder extends LayerNorm.Builder {
 
         protected Builder() {
             super();
