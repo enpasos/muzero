@@ -64,7 +64,7 @@ public class ReplayBuffer {
 
     private ReplayBufferDTO allEpisodes;
 
-    private String currentNetworkName;
+
     @Autowired
     private MuZeroConfig config;
     @Autowired
@@ -79,7 +79,7 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
-    private String currentNetworkNameWithoutEpoch;
+
     private TrainingTypeKey trainingTypeKey = TrainingTypeKey.POLICY_DEPENDENT;
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
@@ -171,8 +171,18 @@ public class ReplayBuffer {
         } else {
             modelName = config.getModelName();
         }
-        this.currentNetworkName = String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
-        this.currentNetworkNameWithoutEpoch = String.format(Locale.ROOT, "%s", modelName);
+        this.modelName = modelName;
+        this.epoch = epoch;
+    }
+
+    String modelName;
+    int epoch;
+    public String getCurrentNetworkName() {
+        return String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
+    }
+
+    public String getCurrentNetworkNameWithoutEpoch() {
+        return String.format(Locale.ROOT, "%s", modelName);
     }
 
     @PostConstruct
@@ -265,6 +275,9 @@ public class ReplayBuffer {
             Path path = paths.get(paths.size() - 1 - h);
             ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
             int epoch = getEpochFromPath(path);
+            if (h==0) {
+                this.epoch = epoch;
+            }
             replayBufferDTO.getGames().forEach(game -> addGame(epoch, game, true));
         }
     }
@@ -306,14 +319,14 @@ public class ReplayBuffer {
         logEntropyInfo();
         this.replayBufferIO.saveGames(
             this.getBuffer().games.stream()
-                .filter(g -> g.getGameDTO().getNetworkName().equals(this.currentNetworkName))
+                .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
                 .collect(Collectors.toList()),
-            this.currentNetworkName, this.getConfig());
+            this.getCurrentNetworkName(), this.getConfig());
     }
 
     private boolean addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
         int epoch = getEpoch(model);
-        return addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.currentNetworkName);
+        return addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.getCurrentNetworkName());
     }
 
     private boolean addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {

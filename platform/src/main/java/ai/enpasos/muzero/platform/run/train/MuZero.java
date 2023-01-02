@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.run.train;
 
 import ai.djl.ndarray.gc.SwitchGarbageCollection;
+import ai.djl.training.listener.EpochTrainingListener;
 import ai.djl.training.loss.IndexLoss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.Device;
@@ -263,16 +264,16 @@ public class MuZero {
 
 
     int trainNetwork(Model model) {
-
-        int epoch = getEpochFromModel(model);
+        int epoch;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         boolean withSymmetryEnrichment = true;
         for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
+            epoch = getEpochFromModel(model);
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
             int finalEpoch = epoch;
             djlConfig.getTrainingListeners().stream()
-                .filter(MySaveModelTrainingListener.class::isInstance)
-                .forEach(trainingListener -> ((MySaveModelTrainingListener) trainingListener).setEpoch(finalEpoch));
+                .filter(MyEpochTrainingListener.class::isInstance)
+                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
                 Shape[] inputShapes = networkHelper.getInputShapes();
                 trainer.initialize(inputShapes);
