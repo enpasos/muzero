@@ -136,6 +136,9 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
             modelName = overrideModelName;
         }
         try {
+            if (epoch < 200) {
+                int i = 42;
+            }
             model.setProperty("Epoch", String.valueOf(epoch));
             if (onSaveModel != null) {
                 onSaveModel.accept(trainer);
