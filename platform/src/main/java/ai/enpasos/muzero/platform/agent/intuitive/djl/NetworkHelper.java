@@ -202,7 +202,8 @@ public class NetworkHelper {
         return new DefaultTrainingConfig(loss)
             .optDevices(Engine.getInstance().getDevices(1))
             .optOptimizer(setupOptimizer())
-            .addTrainingListeners(new EpochTrainingListener(),
+            .addTrainingListeners(
+                new MyEpochTrainingListener(),
                 new MemoryTrainingListener(outputDir),
                 new MyEvaluatorTrainingListener(),
                 new DivergenceCheckTrainingListener(),
