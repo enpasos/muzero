@@ -150,13 +150,18 @@ public class MuZero {
 
         SwitchGarbageCollection.on();
         int trainingStep = 0;
+        int epoch = 0;
 
         List<DurAndMem> durations = new ArrayList<>();
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
             init(params.freshBuffer, params.randomFill, network, params.withoutFill);
 
-            while (trainingStep < config.getNumberOfTrainingSteps()) {
+            epoch = NetworkHelper.getEpochFromModel(model);
+            int epochStart = epoch;
+
+            while (trainingStep < config.getNumberOfTrainingSteps() &&
+                (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch-epochStart < config.getNumberOfEpisodesPerJVMStart())) {
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -196,6 +201,9 @@ public class MuZero {
                 durations.add(duration);
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
+
+                epoch = NetworkHelper.getEpochFromModel(model);
             }
         }
     }
