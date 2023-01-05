@@ -1,4 +1,7 @@
+import org.gradle.api.tasks.JavaExec
+
 plugins {
+    java
     id("com.enpasos.muzero.java-conventions")
     alias(libs.plugins.springboot)
     alias(libs.plugins.spring.dependencyManagement)
@@ -14,6 +17,25 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
 tasks.named<Jar>("jar") {
     this.archiveClassifier.set("")
 }
+
+
+
+repeat(200) { i ->
+    tasks.register<JavaExec>("runJar-" + i) {
+        if (i != 0) dependsOn("runJar-" + (i-1) )
+        dependsOn("jar")
+        this.workingDir("$projectDir/../..")
+        this.setClasspath( files("${project.buildDir}/libs/${project.name}-${project.version}-exec.jar"))
+        this.setArgsString("")
+    }
+}
+
+
+
+tasks.register("run") {
+    dependsOn("runJar-199")
+}
+
 
 dependencies {
     implementation(project(":platform"))

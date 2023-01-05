@@ -206,6 +206,10 @@ public class MuZeroConfig {
     public int getNumUnrollSteps() {
         return getConf().numUnrollSteps;
     }
+    public int getNumberOfEpisodesPerJVMStart() {
+        return getConf().numberOfEpisodesPerJVMStart;
+    }
+
 
     public int getTdSteps() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getTdSteps();
@@ -502,6 +506,10 @@ public class MuZeroConfig {
         protected int windowValueSelfconsistencySize;
         protected int batchSize;
         protected int numUnrollSteps;
+        protected int numberOfEpisodesPerJVMStart;
+
+
+
         protected float discount;
         protected float weightDecay;
         protected float valueLossWeight;
