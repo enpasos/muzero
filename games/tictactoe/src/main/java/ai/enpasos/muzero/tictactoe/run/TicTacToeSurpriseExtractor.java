@@ -46,7 +46,7 @@ public class TicTacToeSurpriseExtractor {
      //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 0, 8, 5, 6, 1, 3, 2);
        // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(0, 6, 2, 4, 8, 3, 7, 5);
 
-        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+
       //  game = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8);
 
 
@@ -58,6 +58,17 @@ public class TicTacToeSurpriseExtractor {
 
 
        // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 1, 7, 2, 3, 6);
+
+
+        // a normal draw game (no mistake)
+      //  Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 0, 1, 7, 6, 2, 5, 3, 8);
+
+        // a single mistake game
+         Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 7);
+
+
+        // a double mistake game
+        //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
         game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
 
     }
