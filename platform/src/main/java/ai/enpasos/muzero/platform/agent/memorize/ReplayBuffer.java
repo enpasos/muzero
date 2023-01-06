@@ -124,23 +124,23 @@ public class ReplayBuffer {
     public static int samplePosition(@NotNull Game game) {
         GameDTO dto = game.getGameDTO();
         int numActions = dto.getActions().size();
-        long delta = dto.getTStateB() - dto.getTStateA();
-        if (delta < 0) delta = 0L;
-        int enhanceFactor = 1;
-        long numNormalActions = numActions - (dto.getTStateA() + delta);
-        int n = (int) (enhanceFactor * (delta) + numNormalActions);
+ //       long delta = dto.getTStateB() - dto.getTStateA();
+   //    if (delta < 0) delta = 0L;
+      //  int enhanceFactor = 1;
+      //  long numNormalActions = numActions - (dto.getTStateA() + delta);
+      //  int n = (int) (enhanceFactor * (delta) + numNormalActions);
 
-        int rawpos = ThreadLocalRandom.current().nextInt(0, n);
-        int gamePos = 0;
-        if (rawpos < numNormalActions) {
-            gamePos = (int) (rawpos + dto.getTStateA() + delta);
-        } else {
-            rawpos -= numNormalActions;
-            gamePos = rawpos;
-        }
-        if (dto.getTStateA() > 0 && gamePos < dto.getTStateA()) {
-            throw new MuZeroException("gamePos < dto.getTStateA()");
-        }
+        int gamePos = ThreadLocalRandom.current().nextInt(0, numActions);
+//        int gamePos = 0;
+//        if (rawpos < numNormalActions) {
+//            gamePos = (int) (rawpos + dto.getTStateA() + delta);
+//        } else {
+//            rawpos -= numNormalActions;
+//            gamePos = rawpos;
+//        }
+//        if (dto.getTStateA() > 0 && gamePos < dto.getTStateA()) {
+//            throw new MuZeroException("gamePos < dto.getTStateA()");
+//        }
         return gamePos;
     }
 
