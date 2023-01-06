@@ -66,6 +66,8 @@ public abstract class Game {
 
     boolean done;
 
+    int epoch;
+
 
     GumbelSearch searchManager;
     private Random r;
@@ -287,7 +289,7 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
         if (gameDTO.isHybrid() && tdSteps == 0) {
-            if (this.getGameDTO().getRootValuesFromInitialInference().size() > currentIndex) {
+            if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
                 value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
             } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
                 value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
@@ -302,14 +304,16 @@ public abstract class Game {
     }
 
     private double calculateValueFromReward(int currentIndex, int bootstrapIndex, double value) {
-        int startIndex;
-        if (config.isNetworkWithRewardHead()) {
-            startIndex = currentIndex;
-        } else {
-            startIndex = Math.min(currentIndex, this.getGameDTO().getRewards().size() - 1);
-        }
-        for (int i = startIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+        if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
+            int i = this.getGameDTO().getRewards().size()-1;
+//            if (this.getGameDTO().getRewards().get(i) != 0) {
+//                int k = 0;
+//            }
             value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+        } else {
+            for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
+                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+            }
         }
         return value;
     }
