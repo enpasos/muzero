@@ -21,6 +21,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -74,7 +75,9 @@ public class SurpriseExtractor {
 
         List<Float> surprises = game.getGameDTO().getSurprises();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "surprise", "vPlayerA", "action").build())) {
+       System.out.println("epoch;" + game.getEpoch());
+
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("t", "vPlayerA", "surprise", "action").build())) {
             for (int t = 0; t < values.size(); t++) {
 
                 float value = values.get(t);
@@ -85,9 +88,9 @@ public class SurpriseExtractor {
                         valuePlayer *= Math.pow(-1, t);
                     }
                     csvPrinter.printRecord(t,
-                        NumberFormat.getNumberInstance().format(surpriseLocal),
                         NumberFormat.getNumberInstance().format(valuePlayer),
-                        actions.get(t));
+                        NumberFormat.getNumberInstance().format(surpriseLocal),
+                        t<actions.size() ? actions.get(t) : "");
                 } catch (Exception e) {
                     // ignore
                 }
@@ -154,6 +157,7 @@ public class SurpriseExtractor {
         game.apply(actions);
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             Network network = new Network(config, model);
+            game.setEpoch(NetworkHelper.getEpochFromModel(network.getModel()));
             surprise.measureValueAndSurprise(network, List.of(game));
         } catch (Exception e) {
             return Optional.empty();
