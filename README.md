@@ -34,7 +34,7 @@ As a workaround for the DJL performance issue https://github.com/deepjavalibrary
 ```
 git clone https://github.com/enpasos/djl.git
 cd djl
-git checkout gc-orphaned-resources
+git checkout gc-orphaned-resources-plus
 gradlew build -x test
 gradlew publishToMavenLocal
 ```
