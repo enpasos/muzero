@@ -95,6 +95,7 @@ public class ReplayBuffer {
         game.replayToPosition(gamePos);
 
         sample.getObservations().add(game.getObservation());
+        Observation lastObservation =  game.getObservation();
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
         int originalActionSize = actions.size();
@@ -102,7 +103,6 @@ public class ReplayBuffer {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
         }
         sample.setActionsList(new ArrayList<>());
-        Observation lastObservation = null;
         for (int i = 0; i < numUnrollSteps; i++) {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
@@ -122,26 +122,7 @@ public class ReplayBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-        GameDTO dto = game.getGameDTO();
-        int numActions = dto.getActions().size();
- //       long delta = dto.getTStateB() - dto.getTStateA();
-   //    if (delta < 0) delta = 0L;
-      //  int enhanceFactor = 1;
-      //  long numNormalActions = numActions - (dto.getTStateA() + delta);
-      //  int n = (int) (enhanceFactor * (delta) + numNormalActions);
-
-        int gamePos = ThreadLocalRandom.current().nextInt(0, numActions);
-//        int gamePos = 0;
-//        if (rawpos < numNormalActions) {
-//            gamePos = (int) (rawpos + dto.getTStateA() + delta);
-//        } else {
-//            rawpos -= numNormalActions;
-//            gamePos = rawpos;
-//        }
-//        if (dto.getTStateA() > 0 && gamePos < dto.getTStateA()) {
-//            throw new MuZeroException("gamePos < dto.getTStateA()");
-//        }
-        return gamePos;
+        return ThreadLocalRandom.current().nextInt(0, game.getGameDTO().getActions().size() + 1);
     }
 
     private static int getEpoch(Model model) {
@@ -155,6 +136,9 @@ public class ReplayBuffer {
 
     public int getAverageGameLength() {
         return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).average().orElse(1000);
+    }
+    public int getMaxGameLength() {
+        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
     }
 
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
