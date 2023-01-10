@@ -113,7 +113,13 @@ public class InputOutputConstruction {
         for (int k = 0; k < numUnrollSteps + 1; k++) {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
-                .map(sample -> sample.getObservations().get(kFinal).getNDArray(ndManager))
+                .map(sample -> {
+                   Observation observation = sample.getObservations().get(kFinal);
+//                   if (observation == null) {
+//                       int i = 42;
+//                   }
+                    return observation.getNDArray(ndManager);
+                })
                 .collect(Collectors.toList());
 
             inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
