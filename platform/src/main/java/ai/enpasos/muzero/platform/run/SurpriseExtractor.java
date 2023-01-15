@@ -36,11 +36,16 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Map.entry;
 
 
 @Slf4j
@@ -152,11 +157,20 @@ public class SurpriseExtractor {
     }
 
     public Optional<Game> getGameStartingWithActionsFromStart(int... actions) {
+        return getGameStartingWithActionsFromStartForEpoch(  -1, actions);
+    }
+
+    public Optional<Game> getGameStartingWithActionsFromStartForEpoch(int epoch,  int... actions) {
 
         Game game = this.config.newGame();
         game.apply(actions);
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            Network network = new Network(config, model);
+            Network network = null;
+            if (epoch == -1) {
+                network = new Network(config, model);
+            } else {
+                network = new Network(config, model, Paths.get(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
+            }
             game.setEpoch(NetworkHelper.getEpochFromModel(network.getModel()));
             surprise.measureValueAndSurprise(network, List.of(game));
         } catch (Exception e) {
