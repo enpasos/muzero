@@ -1,15 +1,14 @@
 logging:
-  file.name: logs/muzero-tictactoe.log
+  file:
+    name: logs/muzero-tictactoe.log
+    max-size: 10 MB
   pattern:
     console: "%d %-5level %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: WARN
     ai.enpasos: DEBUG
-#ai:
-#  djl:
-#    logging:
-#      level: debug
+    ai.djl: INFO
 
 
 muzero:
