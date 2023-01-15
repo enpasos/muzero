@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.intuitive;
 
 import ai.djl.Model;
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
@@ -26,6 +27,7 @@ import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -55,6 +57,30 @@ public class Inference {
     }
 
 
+    public int aiDecisionForGame(List<Integer> actions, boolean withMCTS, Map<String, ?> options) {
+
+        Game game = getGame(actions);
+
+        int[] actionIndexesSelectedByNetwork;
+
+        try (Model model = Model.newInstance(config.getModelName())) {
+
+            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
+
+            try (NDManager nDManager = network.getNDManager().newSubManager()) {
+
+                network.initActionSpaceOnDevice(nDManager);
+                network.setHiddenStateNDManager(nDManager);
+
+                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, List.of(game)).stream()
+                    .mapToInt(Pair::getSecond).toArray();
+
+            }
+
+        }
+        return actionIndexesSelectedByNetwork[0];
+    }
+
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
 
         int[] actionIndexesSelectedByNetwork;
@@ -62,6 +88,7 @@ public class Inference {
         try (Model model = Model.newInstance(config.getModelName())) {
 
             Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
+
             try (NDManager nDManager = network.getNDManager().newSubManager()) {
 
                 network.initActionSpaceOnDevice(nDManager);
@@ -179,6 +206,19 @@ public class Inference {
     @SuppressWarnings("java:S1135")
     private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, List<Game> games) {
         List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
+
+        // intermediate test
+//        List< NDArray > hiddenStateList = List.of(networkOutputList.get(0).getHiddenState());
+//        Action action2 = config.newAction(3);
+//        List<NDArray> actionList = List.of(action2.encode(network.getNDManager()));
+//        List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
+//
+//       hiddenStateList = List.of(networkOutputList2.get(0).getHiddenState());
+//   action2 = config.newAction(5);
+//          actionList = List.of(action2.encode(network.getNDManager()));
+//        networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
+
+        // intermediate test
 
         int actionIndexSelectedByNetwork;
 

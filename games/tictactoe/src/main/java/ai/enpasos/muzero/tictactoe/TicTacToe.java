@@ -43,6 +43,8 @@ public class TicTacToe implements CommandLineRunner {
 
 
     @Autowired
+    private TicTacToeFindNetworksDoingABadMove badAction;
+    @Autowired
     private TicTacToeEntropyExtractor entropyExtractor;
 
     @Autowired
@@ -59,11 +61,12 @@ public class TicTacToe implements CommandLineRunner {
             case ACTIONS:
                 actionExtractor.run();
                 break;
-
+            case BADACTION:
+                badAction.run();
+                break;
             case TRAIN:
                 trainingAndTest.run();
                 break;
-
             case POLICYONLY:
                 policyOnly.run();
                 break;
