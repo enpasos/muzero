@@ -24,6 +24,7 @@ dependencies {
     testImplementation(libs.springboot.starter.test)
 
     implementation(libs.commons.lang)
+    implementation(libs.commons.csv)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

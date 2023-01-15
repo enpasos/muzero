@@ -64,11 +64,12 @@ public class TicTacToeSurpriseExtractor {
       //  Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 0, 1, 7, 6, 2, 5, 3, 8);
 
         // a single mistake game
-        // Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 7);
+     //    Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 7);
 
 
         // a double mistake game
-           Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+       //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+        Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStartForEpoch(100,4, 5, 8, 0, 6, 2, 3, 1);
         game.ifPresent(g -> System.out.println(surpriseExtractor.listValuesForTrainedNetworks(g)));
 
     }
