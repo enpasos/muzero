@@ -53,8 +53,8 @@ public class TicTacToeValueExtractor {
 
         // a double mistake game
         int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-        int start = 365;
-        int stop = 365;
+        int start = 1;
+        int stop = 81;
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 
         List<Optional<Game>> games = IntStream.rangeClosed(start, stop)
