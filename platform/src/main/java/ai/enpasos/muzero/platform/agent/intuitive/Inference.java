@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -101,6 +102,44 @@ public class Inference {
 
         }
         return actionIndexesSelectedByNetwork;
+    }
+
+    public double[][] getInMindValues( int epoch, int[] actions, int extra, int actionspace) {
+        try (Model model = Model.newInstance(config.getModelName())) {
+            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
+            try (NDManager nDManager = network.getNDManager().newSubManager()) {
+                network.initActionSpaceOnDevice(nDManager);
+                network.setHiddenStateNDManager(nDManager);
+                return getInMindValues( network,  actions,  extra,  actionspace);
+            }
+        }
+    }
+
+
+    private double[][] getInMindValues(Network network, int[] actions, int extra, int actionspace) {
+        double[][] values = new double[actions.length + 1 ][actions.length + 1+ extra];
+        Game game = config.newGame();
+        for (int t = 0; t <= actions.length; t++) {
+            NetworkIO infResult = network.initialInferenceDirect(game);
+            NDArray s = infResult.getHiddenState();
+            values[t][0] = infResult.getValue();
+            for (int r = 0; r <= t; r++) {
+                values[t][r] = values[0][r];
+            }
+            for (int r = t; r < actions.length + extra; r++) {
+                int action;
+                if (r < actions.length) {
+                    action = actions[r];
+                } else {
+                    action = ThreadLocalRandom.current().nextInt(actionspace);
+                }
+                infResult = network.recurrentInference(s, action);
+                s = infResult.getHiddenState();
+                values[t][r+1] = infResult.getValue();
+            }
+            if (t < actions.length) game.apply(actions[t]);
+        }
+        return values;
     }
 
 
@@ -203,17 +242,33 @@ public class Inference {
         return aiDecision(network, withMCTS, List.of(game)).get(0);
     }
 
+
+
+
+
+
+
+
     @SuppressWarnings("java:S1135")
     private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, List<Game> games) {
         List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
 
         // intermediate test
-//        List< NDArray > hiddenStateList = List.of(networkOutputList.get(0).getHiddenState());
-//        Action action2 = config.newAction(3);
-//        List<NDArray> actionList = List.of(action2.encode(network.getNDManager()));
-//        List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
+
+
+
+//        NDArray s = networkOutputList.get(0).getHiddenState();
+//        int action = 3;
 //
-//       hiddenStateList = List.of(networkOutputList2.get(0).getHiddenState());
+//        NetworkIO networkIO = recurrentInference(network, s, action);
+//
+//
+//        Action action2;
+//        List<NDArray> actionList;
+//        List<NDArray> hiddenStateList;
+//        List<NetworkIO> networkOutputList2;
+//
+//        hiddenStateList = List.of(networkIO.getHiddenState());
 //   action2 = config.newAction(5);
 //          actionList = List.of(action2.encode(network.getNDManager()));
 //        networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
@@ -263,6 +318,19 @@ public class Inference {
         }
         return result;
     }
+
+//    public NetworkIO initialInference(Network network, Game game) {
+//        return network.initialInferenceDirect(game);
+//    }
+//
+//    public NetworkIO recurrentInference(Network network, NDArray hiddenState, int action) {
+//        List< NDArray > hiddenStateList = List.of(hiddenState);
+//        Action action2 = config.newAction(action);
+//        List<NDArray> actionList = List.of(action2.encode(network.getNDManager()));
+//        List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
+//        NetworkIO networkIO = networkOutputList2.get(0);
+//        return networkIO;
+//    }
 
 
 }

@@ -113,6 +113,15 @@ public class Network {
         return value;
     }
 
+    public NetworkIO recurrentInference(NDArray hiddenState, int action) {
+        List< NDArray > hiddenStateList = List.of(hiddenState);
+        Action action2 = config.newAction(action);
+        List<NDArray> actionList = List.of(action2.encode( getNDManager()));
+        List<NetworkIO> networkOutputList2 =  recurrentInferenceListDirect(  hiddenStateList,  actionList);
+        NetworkIO networkIO = networkOutputList2.get(0);
+        return networkIO;
+    }
+
     public static int getEpoch(@NotNull Model model) {
         int epoch = 0;
         String prop = model.getProperty("Epoch");
