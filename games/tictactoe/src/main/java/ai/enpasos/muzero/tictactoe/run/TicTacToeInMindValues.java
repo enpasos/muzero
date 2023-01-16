@@ -17,35 +17,38 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
+import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.run.SurpriseExtractor;
-import ai.enpasos.muzero.platform.run.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class TicTacToeValueExtractor {
+public class TicTacToeInMindValues {
     @Autowired
     MuZeroConfig config;
 
 
     @Autowired
-    SurpriseExtractor surpriseExtractor;
+    Inference inference;
+
+
 
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
@@ -53,43 +56,39 @@ public class TicTacToeValueExtractor {
 
         // a double mistake game
         int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-        int start = 1230;
-        int stop = 1230;
-        //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
+        int epoch = 300;
+        int extra = 5;
 
-        List<Optional<Game>> games = IntStream.rangeClosed(start, stop)
-            .mapToObj(epoch -> {
-               return surpriseExtractor.getGameStartingWithActionsFromStartForEpoch(epoch, actions);
-            })
-            .toList();
 
-        System.out.println(listValuesForTrainedNetworks(games, start, stop, actions.length + 1));
+        double[][] values = inference.getInMindValues(epoch, actions, extra, config.getActionSpaceSize());
+
+       System.out.println(output(values, epoch));
 
     }
 
     @SuppressWarnings("squid:S1141")
-    public String listValuesForTrainedNetworks(List<Optional<Game>> games, int start, int stop, int numValues) {
-
+    public String output(double[][] values, int epoch) {
+        System.out.println("epoch: " + epoch);
         StringWriter stringWriter = new StringWriter();
         List<String> header = new ArrayList<>();
-        header.add("t/epoch");
-        IntStream.rangeClosed(start, stop).forEach(epoch -> header.add(epoch + ""));
-
+        header.add("t/t'");
+          for (int i = 0; i < values.length; i++) {
+                header.add(String.valueOf(i));
+          }
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader((String[]) header.toArray(new String[0])).build())) {
 
-            for (int t = 0; t < numValues; t++) {
-                Object[] objects = new Object[stop - start + 2];
+            for (int t = 0; t <  values[0].length ; t++) {
+                Object[] objects = new Object[values.length + 1];
                 objects[0] = t;
-                for (int epoch = start; epoch <= stop; epoch++) {
-                    Game game = games.get(epoch-start).get();
-                    List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();
-                    float value = values.get(t);
-                    //float surpriseLocal = surprises.get(t);
+                for (int r = 0; r < values.length ; r++) {
+
+
+                    double value = values[r][t];
                     double valuePlayer = value;
                     if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                         valuePlayer *= Math.pow(-1, t);
                     }
-                    objects[1 + epoch - start] = NumberFormat.getNumberInstance().format(valuePlayer);
+                    objects[r+1] = NumberFormat.getNumberInstance().format(valuePlayer);
                 }
                 try {
                     csvPrinter.printRecord(objects);
