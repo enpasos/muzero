@@ -46,6 +46,8 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeFindNetworksDoingABadMove badAction;
     @Autowired
     private TicTacToeEntropyExtractor entropyExtractor;
+    @Autowired
+    private TicTacToeInMindValues inMindValues;
 
     @Autowired
     private TicTacToeInference inference;
@@ -60,6 +62,9 @@ public class TicTacToe implements CommandLineRunner {
         switch (conf.getRun()) {
             case ACTIONS:
                 actionExtractor.run();
+                break;
+            case INMIND:
+                inMindValues.run();
                 break;
             case BADACTION:
                 badAction.run();
