@@ -92,7 +92,7 @@ muzero:
       windowSizeIsDynamic: false
 
       numberOfTrainingSteps: 300000
-      numberOfEpisodesPerJVMStart: 40 # 50 would be ok
+    #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
 
       numSimMin: 5
