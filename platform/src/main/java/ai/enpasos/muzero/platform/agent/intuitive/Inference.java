@@ -122,9 +122,9 @@ public class Inference {
         for (int t = 0; t <= actions.length; t++) {
             NetworkIO infResult = network.initialInferenceDirect(game);
             NDArray s = infResult.getHiddenState();
-            values[t][0] = infResult.getValue();
+            values[actions.length][t] = infResult.getValue();
             for (int r = 0; r <= t; r++) {
-                values[t][r] = values[0][r];
+                values[t][r] = values[actions.length][r];
             }
             for (int r = t; r < actions.length + extra; r++) {
                 int action;
