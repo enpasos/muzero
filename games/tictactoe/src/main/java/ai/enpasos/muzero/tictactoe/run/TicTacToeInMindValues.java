@@ -56,8 +56,10 @@ public class TicTacToeInMindValues {
 
         // a double mistake game
         int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-        int epoch = 300;
-        int extra = 5;
+        int epoch = 1028;
+        int extra = 10;
+   //     config.setOutputDir("./memory/tictactoe-without-exploration/");
+      //  config.setOutputDir("./memory/tictactoe/");
 
 
         double[][] values = inference.getInMindValues(epoch, actions, extra, config.getActionSpaceSize());
@@ -88,7 +90,7 @@ public class TicTacToeInMindValues {
                     if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                         valuePlayer *= Math.pow(-1, t);
                     }
-                    objects[r+1] = NumberFormat.getNumberInstance().format(valuePlayer);
+                    objects[1+r] = NumberFormat.getNumberInstance().format(valuePlayer);
                 }
                 try {
                     csvPrinter.printRecord(objects);
