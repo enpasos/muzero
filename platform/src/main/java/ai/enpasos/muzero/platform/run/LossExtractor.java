@@ -55,33 +55,13 @@ public class LossExtractor {
                 //  , "actionPaths"
             ).build())) {
 
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                model.setBlock(block);
-                IntStream.range(1, 1000).forEach(
-                    i -> {
-                        try {
-                            model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
-                            int epoch = getEpoch(model);
-                            int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
-                            csvPrinter.printRecord(trainingSteps,
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanValueLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanPolicyLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanSimilarityLoss")),
-
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanValueLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanPolicyLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanSimilarityLoss"))
-                                //,
-                                //NumberFormat.getNumberInstance().format(getDoubleValue(model, "NumActionPaths"))
-                            );
-                        } catch (Exception ignored) {
-                            log.debug("player " + i + " model.load not successfull");
-                        }
-                    }
-                );
-            }
+            extractABlockOfLosses(block, csvPrinter, 1, 500);
+            extractABlockOfLosses(block, csvPrinter, 500, 1000);
+            extractABlockOfLosses(block, csvPrinter, 1000, 1500);
+            extractABlockOfLosses(block, csvPrinter, 1500, 2000);
+            extractABlockOfLosses(block, csvPrinter, 2000, 2500);
+            extractABlockOfLosses(block, csvPrinter, 2500, 3000);
+            extractABlockOfLosses(block, csvPrinter, 3000, 3500);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -89,6 +69,36 @@ public class LossExtractor {
         }
 
         System.out.println(stringWriter);
+    }
+
+    private void extractABlockOfLosses(MuZeroBlock block, CSVPrinter csvPrinter, int start, int end) {
+        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+            model.setBlock(block);
+            IntStream.range(start, end).forEach(
+                i -> {
+                    try {
+                        model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
+                        int epoch = getEpoch(model);
+                        int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
+                        csvPrinter.printRecord(trainingSteps,
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanLoss")),
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanValueLoss")),
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanPolicyLoss")),
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_DEPENDENTMeanSimilarityLoss")),
+
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanLoss")),
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanValueLoss")),
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanPolicyLoss")),
+                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanSimilarityLoss"))
+                            //,
+                            //NumberFormat.getNumberInstance().format(getDoubleValue(model, "NumActionPaths"))
+                        );
+                    } catch (Exception ignored) {
+                        log.debug("player " + i + " model.load not successfull");
+                    }
+                }
+            );
+        }
     }
 
 
