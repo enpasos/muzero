@@ -23,7 +23,7 @@ muzero:
       networkType: CON  # CON or FC
       networkWithRewardHead: false
       withRewardHead: false
-      values: [ -1,0,1 ]
+      valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
 

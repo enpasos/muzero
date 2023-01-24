@@ -16,7 +16,7 @@ public class ValueConverter {
     }
 
     @SuppressWarnings({"squid:S3740", "unchecked"})
-    public static int valueToClassIndex(double[] confValues, double value) {
+    public static int valueToClassIndex(int[] confValues, double value) {
         return (Integer) IntStream.range(0, confValues.length)
             .mapToObj(i -> new Pair(i, confValues[i]))
             .min(Comparator.comparing(p -> Math.abs((Double) p.getValue() - value)))
@@ -28,7 +28,7 @@ public class ValueConverter {
         return expectedValue(config.getValues(), ps);
     }
 
-    public static double expectedValue(double[] confValues, float[] ps) {
+    public static double expectedValue(int[] confValues, float[] ps) {
         if (confValues.length != ps.length) throw new MuZeroException("arrays need to have same size");
         return IntStream.range(0, confValues.length).mapToDouble(i -> confValues[i] * ps[i]).sum();
     }
