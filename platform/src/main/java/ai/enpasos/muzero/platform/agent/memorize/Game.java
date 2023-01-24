@@ -312,9 +312,6 @@ public abstract class Game {
     private double calculateValueFromReward(int currentIndex, int bootstrapIndex, double value) {
         if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
             int i = this.getGameDTO().getRewards().size()-1;
-//            if (this.getGameDTO().getRewards().get(i) != 0) {
-//                int k = 0;
-//            }
             value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
         } else {
             for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
