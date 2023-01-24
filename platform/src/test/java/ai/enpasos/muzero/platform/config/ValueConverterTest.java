@@ -8,7 +8,7 @@ class ValueConverterTest {
 
     @Test
     void valueToClassIndex() {
-        double[] confValues = {-1, 0, 1};
+        int[] confValues = {-1, 0, 1};
         assertEquals(0, ValueConverter.valueToClassIndex(confValues, -1));
         assertEquals(1, ValueConverter.valueToClassIndex(confValues, 0));
         assertEquals(2, ValueConverter.valueToClassIndex(confValues, 1));
