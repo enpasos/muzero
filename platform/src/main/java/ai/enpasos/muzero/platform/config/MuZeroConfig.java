@@ -15,6 +15,7 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.FROM_VALUES;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
@@ -177,12 +178,18 @@ public class MuZeroConfig {
         return getConf().numResidualsGeneration;
     }
 
-    public double[] getValues() {
-        return getConf().values;
+    public int[] getValues() {
+
+       int[]  result = new int[getValueSpan()+1];
+        int[] vs = getConf().getValueInterval();
+        IntStream.range(0, result.length).forEach(i -> result[i] =  vs[0] + i);
+        return result;
     }
 
-    public double getValueSpan() {
-        double[] vs = getConf().getValues();
+
+
+    public int getValueSpan() {
+        int[] vs = getConf().getValueInterval();
         return vs[vs.length - 1] - vs[0];
     }
 
@@ -534,7 +541,8 @@ public class MuZeroConfig {
         int cVisit;
         double cScale;
         int numPurePolicyPlays;
-        double[] values;
+        int[] valueInterval;
+
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {
