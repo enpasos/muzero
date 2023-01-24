@@ -34,8 +34,12 @@ public class GumbelAction {
         return logit;
     }
 
-    public void initGumbelValue() {
-        gumbelValue = drawGumble();
+    public void initGumbelValue(boolean withRandomness) {
+        if (withRandomness) {
+            gumbelValue = drawGumble();
+        } else {
+            gumbelValue = 0;
+        }
     }
 
 }
