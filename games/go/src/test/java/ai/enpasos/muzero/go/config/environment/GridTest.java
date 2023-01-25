@@ -128,24 +128,4 @@ class GridTest {
             .build();
     }
 
-    private GoString mediumWhiteString() {
-        return GoString.builder()
-            .player(WHITE_PLAYER)
-            .stones(new TreeSet<>(List.of(
-                new Point(1, 2),
-                new Point(2, 2),
-                new Point(3, 3),
-                new Point(2, 3)
-            )))
-            .liberties(new TreeSet<>(List.of(
-                new Point(1, 3),
-                new Point(2, 4),
-                new Point(4, 3)
-            )))
-            .build();
-    }
-
-    private Grid createGridWithStringAt22() {
-        return grid.updateStringWhenAddingStone(new Point(2, 2), simpleBlackString());
-    }
 }

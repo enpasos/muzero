@@ -58,14 +58,6 @@ public class OnnxBlock {
         this.getValueInfos().addAll(onnxBlockChild.getValueInfos());
     }
 
-    public List<Shape> getInputShapes() {
-        return getShapes(input);
-    }
-
-    public List<Shape> getOutputShapes() {
-        return getShapes(output);
-    }
-
     public List<String> getInputNames() {
         return getNames(input);
     }

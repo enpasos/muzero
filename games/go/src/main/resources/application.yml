@@ -28,8 +28,6 @@ muzero:
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
       networkWithRewardHead: false
-      withRewardHead: false
-      absorbingStateDropToZero: false
       inferenceDeviceType: GPU
 
       # game/environment
@@ -44,7 +42,6 @@ muzero:
       # network training
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
-      # windowValueSelfconsistencySize: 30000   <- postponed
       batchSize: 64
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
@@ -59,9 +56,7 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
-
 
       # Gumbel MuZero parameters
       initialGumbelM: 8
@@ -70,35 +65,17 @@ muzero:
 
       numChannels: 256     # 256 in the paper
       numBottleneckChannels: 128
-#      numResiduals: 12
-#      broadcastEveryN: 8  # broadcasting block in every 8th layer
 
+      numResiduals: 12
+      broadcastEveryN: 8  # out of range here
 
-      numResidualsRepresentation: 12
-      broadcastEveryNRepresentation: 8  # out of range here
-
-      numResidualsGeneration: 12
-      broadcastEveryNGeneration: 8 # out of range here
-
-      surpriseHandlingOn: false # false in paper
-      extraValueTrainingOn: false # false in paper
 
       valueLossWeight: 1.0
 
-      maxGameLiveTime: 10000000  # or 40000
-      surpriseCheckInterval: 50000
-
-      windowSizeStart: 40000
-      windowSizeIsDynamic: false
+      windowSize: 40000
 
       numberOfTrainingSteps: 1000000
     #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
-
-
-      numSimMin: 5
-      numSimWindow: 5
-      numSimMax: 800
-      numSimThreshold: 0.001
 
       numChannelsHiddenLayerSimilarity: 512
       numChannelsOutputLayerSimilarity: 1024
@@ -163,8 +140,6 @@ muzero:
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
       networkWithRewardHead: false
-      withRewardHead: false
-      absorbingStateDropToZero: false
       inferenceDeviceType: GPU
 
       # game/environment
@@ -207,31 +182,17 @@ muzero:
       numBottleneckChannels: 64
 
 
-      numResidualsRepresentation: 12
-      broadcastEveryNRepresentation: 8  # out of range here
+      numResiduals: 12
+      broadcastEveryN: 8
 
-      numResidualsGeneration: 12
-      broadcastEveryNGeneration: 8 # out of range here
-
-      surpriseHandlingOn: false # false in paper
-      extraValueTrainingOn: false # false in paper
 
       valueLossWeight: 1.0
 
-      maxGameLiveTime: 10000000  # or 40000
-      surpriseCheckInterval: 50000
 
-      windowSizeStart: 40000
-      windowSizeIsDynamic: false
+      windowSize: 40000
 
       numberOfTrainingSteps: 1000000
       #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
-
-
-      numSimMin: 5
-      numSimWindow: 5
-      numSimMax: 800
-      numSimThreshold: 0.001
 
       numChannelsHiddenLayerSimilarity: 512
       numChannelsOutputLayerSimilarity: 1024

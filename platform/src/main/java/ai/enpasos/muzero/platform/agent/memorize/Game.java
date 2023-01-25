@@ -20,7 +20,11 @@ package ai.enpasos.muzero.platform.agent.memorize;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MyL2Loss;
-import ai.enpasos.muzero.platform.agent.rational.*;
+import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.rational.ActionHistory;
+import ai.enpasos.muzero.platform.agent.rational.GumbelSearch;
+import ai.enpasos.muzero.platform.agent.rational.Node;
+import ai.enpasos.muzero.platform.agent.rational.Player;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
@@ -35,10 +39,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.calculateRunningVariance;
 
 /**
  * A single episode of interaction with the environment.
@@ -139,7 +146,6 @@ public abstract class Game {
 
     public void checkAssumptions() {
         assertTrue(this.getGameDTO().getPolicyTargets().size() == this.getGameDTO().getActions().size(), "policyTargets.size() == actions.size()");
-        assertTrue(this.getGameDTO().getSurprises().size() == this.getGameDTO().getActions().size(), "surprises.size() == actions.size()");
     }
 
     protected void assertTrue(boolean b, String s) {
@@ -189,11 +195,11 @@ public abstract class Game {
         return targets;
     }
 
+    @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, TrainingTypeKey trainingTypeKey) {
         int tdSteps = this.getGameDTO().getTdSteps();
         if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT) {
 
-            // only use the rewards (here we only take into account the final reward) TODO generalize this
             double value = MyL2Loss.NULL_VALUE;
 
             if (currentIndex >= this.getGameDTO().getRewards().size() - 1) {
@@ -219,7 +225,7 @@ public abstract class Game {
             }
 
             setValueOnTarget(target, value);
-            target.setReward(getLastReward(currentIndex));  // TODO: not really used here
+            target.setReward(getLastReward(currentIndex));
             target.setPolicy(legalActions2);
 
 
@@ -260,7 +266,7 @@ public abstract class Game {
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
                 Arrays.fill(target.getPolicy(), 0f);
             } else {
-                setValueOnTarget(target, config.isAbsorbingStateDropToZero() ? MyL2Loss.NULL_VALUE : (float) value);
+                setValueOnTarget(target, (float) value);
                 target.setReward(lastReward);
                 target.setPolicy(new float[this.actionSpaceSize]);
                 // the idea is not to put any force on the network to learn a particular action where it is not necessary
@@ -296,11 +302,6 @@ public abstract class Game {
                     value = MyL2Loss.NULL_VALUE;  // no value change force
                 }
 
-//                value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
-//            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
-//                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
-//            } else {
-
             }
         } else {
             value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
@@ -311,7 +312,7 @@ public abstract class Game {
 
     private double calculateValueFromReward(int currentIndex, int bootstrapIndex, double value) {
         if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
-            int i = this.getGameDTO().getRewards().size()-1;
+            int i = this.getGameDTO().getRewards().size() - 1;
             value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
         } else {
             for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
@@ -344,7 +345,7 @@ public abstract class Game {
     public abstract Player toPlay();
 
     public @NotNull ActionHistory actionHistory() {
-        return new ActionHistory(config, this.gameDTO.getActions(), actionSpaceSize);
+        return new ActionHistory(config, this.gameDTO.getActions());
     }
 
     public abstract String render();
@@ -385,18 +386,10 @@ public abstract class Game {
     }
 
 
-    public void afterReplay() {
-        this.setOriginalGameDTO(null);
-    }
-
     public abstract void initEnvironment();
 
     public void initSearchManager(double pRandomActionRawAverage) {
         searchManager = new GumbelSearch(config, this, debug, pRandomActionRawAverage);
-    }
-
-    public double calculateValueImprovementVariance(MuZeroConfig config) {
-        return calculateRunningVariance(this.getValueImprovements(), config);
     }
 
 

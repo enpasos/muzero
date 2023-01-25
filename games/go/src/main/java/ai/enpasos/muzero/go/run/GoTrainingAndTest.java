@@ -23,8 +23,7 @@ public class GoTrainingAndTest {
     private MuZeroConfig config;
     @Autowired
     private MuZero muZero;
-    @Autowired
-    private GoSurprise goSurprise;
+
 
     @SuppressWarnings({"squid:S125", "java:S2583", "java:S2589"})
     public void run() {

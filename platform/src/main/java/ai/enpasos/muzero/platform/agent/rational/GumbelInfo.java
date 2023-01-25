@@ -32,8 +32,6 @@ public class GumbelInfo {
     /**
      * @param n number of simulations, this value could be dynamic
      * @param m number of actions in the first phase - is changed to the next smaller powers of 2, that is smaller or equals k
-     * @param k
-     * @return
      */
     public static GumbelInfo initGumbelInfo(int n, int m, int k) {
 

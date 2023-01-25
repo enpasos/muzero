@@ -27,10 +27,8 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.dataset.Batch;
 import ai.djl.training.listener.DivergenceCheckTrainingListener;
-import ai.djl.training.listener.EpochTrainingListener;
 import ai.djl.training.listener.MemoryTrainingListener;
 import ai.djl.training.listener.TimeMeasureTrainingListener;
-import ai.djl.training.loss.IndexLoss;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
@@ -102,18 +100,18 @@ public class NetworkHelper {
 
     public int getEpoch(Model model) {
 
-            if (model.getBlock() == null) {
-                MuZeroBlock block = new MuZeroBlock(config);
-                model.setBlock(block);
-                try {
-                    model.load(Paths.get(config.getNetworkBaseDir()));
-                } catch (Exception e) {
-                    log.info("*** no existing model has been found ***");
-                }
+        if (model.getBlock() == null) {
+            MuZeroBlock block = new MuZeroBlock(config);
+            model.setBlock(block);
+            try {
+                model.load(Paths.get(config.getNetworkBaseDir()));
+            } catch (Exception e) {
+                log.info("*** no existing model has been found ***");
             }
+        }
 
 
-       return getEpochFromModel(model);
+        return getEpochFromModel(model);
     }
 
 
@@ -168,14 +166,14 @@ public class NetworkHelper {
 
         // policy
         log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss(  "loss_policy_" + 0, 1.0f, 1, false, true), k));
+        loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
         k++;
 
         // value
 
 
-            log.info("k={}: Value L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss( LOSS_VALUE + 0, config.getValueLossWeight()), k));
+        log.info("k={}: Value L2Loss", k);
+        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
 
         k++;
 
@@ -187,8 +185,8 @@ public class NetworkHelper {
             k++;
             // value
 
-                log.info("k={}: Value L2Loss", k);
-                loss.addLoss(new MyIndexLoss(new MyL2Loss( LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+            log.info("k={}: Value L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
 
             k++;
             // similarity

@@ -21,7 +21,7 @@ import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.EntropyExtractor;
-import ai.enpasos.muzero.platform.run.SurpriseExtractor;
+import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,13 +39,12 @@ public class TicTacToeEntropyExtractor {
     EntropyExtractor entropyExtractor;
 
 
-
     @Autowired
     ReplayBuffer replayBuffer;
 
 
     @Autowired
-    SurpriseExtractor surpriseExtractor;
+    GameProvider surpriseExtractor;
 
     public void run() {
 

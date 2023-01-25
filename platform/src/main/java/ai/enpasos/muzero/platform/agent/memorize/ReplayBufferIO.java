@@ -32,12 +32,22 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -86,7 +96,7 @@ public class ReplayBufferIO {
         ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
         replayBufferDTO.setGames(games);
 
-        saveState(replayBufferDTO, networkName );
+        saveState(replayBufferDTO, networkName);
 
     }
 
@@ -96,7 +106,7 @@ public class ReplayBufferIO {
         ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
         replayBufferDTO.setGames(games);
 
-        saveState(replayBufferDTO, networkName );
+        saveState(replayBufferDTO, networkName);
 
 
         return games;
@@ -179,7 +189,6 @@ public class ReplayBufferIO {
     }
 
 
-
     public List<Path> getBufferNames() {
         List<Path> paths = new ArrayList<>();
         Path gamesPath = Paths.get(config.getGamesBasedir());
@@ -229,13 +238,13 @@ public class ReplayBufferIO {
 
         String pathname = path.toString();
         log.info("loading ... " + pathname);
-        return loadFromProtobuf(pathname,  Optional.of(this::loadStateFromJson));
+        return loadFromProtobuf(pathname, Optional.of(this::loadStateFromJson));
 
     }
 
 
     @Nullable
-    private ReplayBufferDTO loadFromProtobuf(String pathname,  Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
+    private ReplayBufferDTO loadFromProtobuf(String pathname, Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
         ReplayBufferDTO dto = null;
 
 
@@ -271,13 +280,13 @@ public class ReplayBufferIO {
         return dto;
     }
 
-    private ReplayBufferDTO loadStateFromJson( String pathname) {
+    private ReplayBufferDTO loadStateFromJson(String pathname) {
         return loadStateFromJson(pathname, Optional.empty());
     }
 
     @Nullable
     // add a function as the second parameter
-    private ReplayBufferDTO loadStateFromJson( String pathname, Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
+    private ReplayBufferDTO loadStateFromJson(String pathname, Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
         ReplayBufferDTO dto = null;
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (ZipInputStream zis = new ZipInputStream(fis)) {

@@ -58,10 +58,10 @@ public final class TrainMnist {
         TrainMnist.runExample(args2);
     }
 
-    public static TrainingResult runExample(String[] args) throws IOException, TranslateException {
+    public static void runExample(String[] args) throws IOException, TranslateException {
         Arguments arguments = new Arguments().parseArgs(args);
         if (arguments == null) {
-            return null;
+            return;
         }
 
         // Construct neural network
@@ -92,7 +92,7 @@ public final class TrainMnist {
 
                 onnxExport(model, List.of(inputShape), "./models/mnist.onnx", "");
 
-                return trainer.getTrainingResult();
+                trainer.getTrainingResult();
             }
         }
     }

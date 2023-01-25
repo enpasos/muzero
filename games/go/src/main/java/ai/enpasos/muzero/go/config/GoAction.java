@@ -49,10 +49,6 @@ public class GoAction extends Action {
         this(config, row * config.getBoardWidth() + col);
     }
 
-    public static NDArray encodeEmptyNDArray(@NotNull MuZeroConfig config, @NotNull NDManager nd) {
-        return nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
-    }
-
 
     public static int getCol(@NotNull MuZeroConfig config, int index) {
         return index % config.getBoardWidth();

@@ -21,18 +21,18 @@ import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.run.SurpriseExtractor;
-import ai.enpasos.muzero.platform.run.ValueExtractor;
+import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -45,7 +45,7 @@ public class TicTacToeValueExtractor {
 
 
     @Autowired
-    SurpriseExtractor surpriseExtractor;
+    GameProvider gameProvider;
 
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
@@ -54,13 +54,11 @@ public class TicTacToeValueExtractor {
         // a double mistake game
         int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
         int start = 1;
-        int stop =  30;
+        int stop = 30;
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 
         List<Optional<Game>> games = IntStream.rangeClosed(start, stop)
-            .mapToObj(epoch -> {
-               return surpriseExtractor.getGameStartingWithActionsFromStartForEpoch(epoch, actions);
-            })
+            .mapToObj(epoch -> gameProvider.getGameStartingWithActionsFromStartForEpoch(epoch, actions))
             .toList();
 
         System.out.println(listValuesForTrainedNetworks(games, start, stop, actions.length + 1));
@@ -75,17 +73,15 @@ public class TicTacToeValueExtractor {
         header.add("t/epoch");
         IntStream.rangeClosed(start, stop).forEach(epoch -> header.add(epoch + ""));
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader((String[]) header.toArray(new String[0])).build())) {
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader(header.toArray(new String[0])).build())) {
 
             for (int t = 0; t < numValues; t++) {
                 Object[] objects = new Object[stop - start + 2];
                 objects[0] = t;
                 for (int epoch = start; epoch <= stop; epoch++) {
-                    Game game = games.get(epoch-start).get();
+                    Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
                     List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();
-                    float value = values.get(t);
-                    //float surpriseLocal = surprises.get(t);
-                    double valuePlayer = value;
+                    double valuePlayer = values.get(t);
                     if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                         valuePlayer *= Math.pow(-1, t);
                     }

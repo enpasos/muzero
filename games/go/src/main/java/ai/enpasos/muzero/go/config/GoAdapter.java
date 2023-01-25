@@ -55,17 +55,15 @@ public class GoAdapter {
                 if (goStringOptional.isPresent()) {
                     GoString goString = goStringOptional.get();
                     if (goString.getPlayer() == player) {
-                        result[index + row*boardWidth + col] = 1f;
+                        result[index + row * boardWidth + col] = 1f;
                     } else {
-                        result[index + opponentOffset +  row*boardWidth + col] = 1f;
+                        result[index + opponentOffset + row * boardWidth + col] = 1f;
                     }
                 }
             }
         }
 
     }
-
-
 
 
     public static Action translate(MuZeroConfig config, Move move) {

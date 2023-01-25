@@ -42,8 +42,8 @@ public class GameTree {
     List<DNode> terminalGameNodes;
     List<DNode> nonExpandedGameNodes;
 
-    Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
-    Set<DNode> nodesWhereADecisionMattersForPlayerB = new HashSet<>();
+    final Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
+    final Set<DNode> nodesWhereADecisionMattersForPlayerB = new HashSet<>();
     DNode rootNode;
 
     public GameTree(MuZeroConfig config) {
@@ -76,7 +76,7 @@ public class GameTree {
 
     }
 
-    public List<DNode> badDecisionFinder(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, Inference inference, int epoch) {
+    public List<DNode> badDecisionFinder(@NotNull GameTree gameTree, @NotNull OneOfTwoPlayer player, boolean withMCTS, Inference inference, int epoch) {
 
         Set<DNode> nodesWhereADecisionMatters;
         if (player == OneOfTwoPlayer.PLAYER_A) {
@@ -93,19 +93,18 @@ public class GameTree {
         if (epoch > 0) {
             map = Map.ofEntries(entry("epoch", epoch));
         }
-        int[] actions = inference.aiDecisionForGames(gameList, withMCTS, map);    // TODO: check draw vs max  ... to be deterministic it should be max
+        int[] actions = inference.aiDecisionForGames(gameList, withMCTS, false, map);
 
         List<DNode> badDecisionNodes = new ArrayList<>();
 
         for (int i = 0; i < actions.length; i++) {
             int action = actions[i];
             DNode node = nodeList.get(i);
-            if (node.getBestForceableValue(player) != node.getChild(action).getBestForceableValue(player)) {
+            if (!node.getBestForceableValue(player).equals(node.getChild(action).getBestForceableValue(player))) {
                 badDecisionNodes.add(node.getChild(action));
             }
         }
 
-        //gameTree.rootNode.collectGamesLost(player, gamesWithBadDecisionByPlayer);
         log.info("Games with bad decision by " + player + " with MCTS=" + withMCTS + ": " + badDecisionNodes.size());
 
         printActions(badDecisionNodes);

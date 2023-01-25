@@ -39,7 +39,7 @@ public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
 
         block
             .add(new StartResidualBlock(config.getNumChannels()))
-            .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResidualsGeneration(), config.getBroadcastEveryNGeneration()));
+            .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
 
         return block;
     }

@@ -17,7 +17,11 @@
 
 package ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions;
 
-import ai.enpasos.mnist.blocks.ext.*;
+import ai.enpasos.mnist.blocks.ext.ActivationExt;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
+import ai.enpasos.mnist.blocks.ext.LinearExt;
+import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
+import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -31,10 +35,10 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNetworkType(), config.getValues().length, config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
+        this(config.getNetworkType(), config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
     }
 
-    public PredictionBlock(NetworkType networkType, int numCategories, int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
+    public PredictionBlock(NetworkType networkType,  int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize) {
 
 
         SequentialBlockExt valueHead = new SequentialBlockExt();
@@ -48,13 +52,13 @@ public class PredictionBlock extends MySequentialBlock {
             .add(ActivationExt.reluBlock());
 
 
-            valueHead.add(LinearExt.builder()
-                .setUnits(1).build());
+        valueHead.add(LinearExt.builder()
+            .setUnits(1).build());
 
 
-            if (isPlayerModeTWOPLAYERS) {
-                valueHead.add(ActivationExt.tanhBlock());
-            }
+        if (isPlayerModeTWOPLAYERS) {
+            valueHead.add(ActivationExt.tanhBlock());
+        }
 
         SequentialBlockExt policyHead = new SequentialBlockExt();
         if (networkType == NetworkType.CON) {

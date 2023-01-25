@@ -39,9 +39,8 @@ public class OnnxExport {
 
     @SuppressWarnings("squid:S106")
     public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration) {
-        StringWriter stringWriter = new StringWriter();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').setHeader("trainingStep", "totalLoss", "valueLoss", "policyLoss").build())) {
+        try {
             FileUtils.forceMkdir(new File(config.getOutputDir() + "onnx"));
             try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
                 Network network = new Network(config, model);
