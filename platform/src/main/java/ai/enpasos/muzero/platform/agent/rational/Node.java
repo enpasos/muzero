@@ -142,13 +142,13 @@ public class Node {
         return children.get(index).getAction();
     }
 
-    public void initGumbelAction(int actionIndex, double policyValue) {
+    public void initGumbelAction(int actionIndex, double policyValue, boolean withRandomness) {
         gumbelAction = GumbelAction.builder()
             .policyValue(policyValue)
             .logit(this.logit)
             .actionIndex(actionIndex)
             .build();
-        gumbelAction.initGumbelValue();
+        gumbelAction.initGumbelValue(withRandomness);
         gumbelAction.setNode(this);
     }
 

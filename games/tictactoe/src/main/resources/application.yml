@@ -100,7 +100,7 @@ muzero:
           numSimulations: 20
           rootExplorationFraction: 0.0  # 0.0 means switched off
           temperatureRoot: 0.0
-          gumbelActionSelection: false
+          gumbelActionSelection: true
         HYBRID:
           forTraining: true
           numEpisodes: 1

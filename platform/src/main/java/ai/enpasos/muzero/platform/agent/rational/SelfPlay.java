@@ -210,9 +210,12 @@ public class SelfPlay {
 
     }
 
+    public void play(Network network,  boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
+        play(network, true, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions, pRandomActionRawAverage);
+    }
 
-    @SuppressWarnings("squid:S3776")
-    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
+        @SuppressWarnings("squid:S3776")
+    public void play(Network network, boolean withRandomness, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
 
         Game justOneOfTheGames = justOneOfTheGames();
         justOneOfTheGames.setRecordValueImprovements(true);
@@ -274,7 +277,7 @@ public class SelfPlay {
                 GumbelSearch sm = searchManagers.get(i);
                 sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : Objects.requireNonNull(networkOutputFinal).get(i));
                 if (!fastRuleLearning) sm.addExplorationNoise();
-                sm.gumbelActionsStart();
+                sm.gumbelActionsStart(withRandomness);
                 sm.drawCandidateAndAddValueStart();
 
             });

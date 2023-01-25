@@ -73,7 +73,7 @@ public class Inference {
                 network.initActionSpaceOnDevice(nDManager);
                 network.setHiddenStateNDManager(nDManager);
 
-                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, List.of(game)).stream()
+                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, true, List.of(game)).stream()
                     .mapToInt(Pair::getSecond).toArray();
 
             }
@@ -81,8 +81,11 @@ public class Inference {
         }
         return actionIndexesSelectedByNetwork[0];
     }
-
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
+        return aiDecisionForGames(games, withMCTS, true, options);
+    }
+
+    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, Map<String, ?> options) {
 
         int[] actionIndexesSelectedByNetwork;
 
@@ -95,7 +98,7 @@ public class Inference {
                 network.initActionSpaceOnDevice(nDManager);
                 network.setHiddenStateNDManager(nDManager);
 
-                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, games).stream()
+                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, withRandomness,  games).stream()
                     .mapToInt(Pair::getSecond).toArray();
 
             }
@@ -239,7 +242,7 @@ public class Inference {
 
 
     private Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
-        return aiDecision(network, withMCTS, List.of(game)).get(0);
+        return aiDecision(network, withMCTS,true, List.of(game)).get(0);
     }
 
 
@@ -250,30 +253,17 @@ public class Inference {
 
 
     @SuppressWarnings("java:S1135")
-    private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, List<Game> games) {
+    private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, boolean withRandomness, List<Game> gamesInput) {
+
+
+        List<Game> games = new ArrayList<>();
+        for (Game game : gamesInput) {
+            games.add(game.copy());
+        }
+
+
         List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
 
-        // intermediate test
-
-
-
-//        NDArray s = networkOutputList.get(0).getHiddenState();
-//        int action = 3;
-//
-//        NetworkIO networkIO = recurrentInference(network, s, action);
-//
-//
-//        Action action2;
-//        List<NDArray> actionList;
-//        List<NDArray> hiddenStateList;
-//        List<NetworkIO> networkOutputList2;
-//
-//        hiddenStateList = List.of(networkIO.getHiddenState());
-//   action2 = config.newAction(5);
-//          actionList = List.of(action2.encode(network.getNDManager()));
-//        networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
-
-        // intermediate test
 
         int actionIndexSelectedByNetwork;
 
@@ -306,7 +296,7 @@ public class Inference {
             // TODO: needs to be tested
 
             selfPlay.init(games);
-            selfPlay.play(network, false, false, false, false, 0);
+            selfPlay.play(network, false, false, false, false, false, 0);
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {
