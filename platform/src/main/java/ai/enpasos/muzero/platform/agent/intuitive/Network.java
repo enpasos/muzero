@@ -113,15 +113,6 @@ public class Network {
         return value;
     }
 
-    public NetworkIO recurrentInference(NDArray hiddenState, int action) {
-        List< NDArray > hiddenStateList = List.of(hiddenState);
-        Action action2 = config.newAction(action);
-        List<NDArray> actionList = List.of(action2.encode( getNDManager()));
-        List<NetworkIO> networkOutputList2 =  recurrentInferenceListDirect(  hiddenStateList,  actionList);
-        NetworkIO networkIO = networkOutputList2.get(0);
-        return networkIO;
-    }
-
     public static int getEpoch(@NotNull Model model) {
         int epoch = 0;
         String prop = model.getProperty("Epoch");
@@ -131,7 +122,6 @@ public class Network {
         return epoch;
     }
 
-
     @SuppressWarnings({"squid:S125", "EmptyMethod"})
     public static void debugDumpFromTrainer(Trainer trainer) {
         //  ((BaseNDManager) trainer.getModel().getNDManager()).debugDump(0);
@@ -140,6 +130,14 @@ public class Network {
     public static List<NDArray> getAllActionsOnDevice(MuZeroConfig config, @NotNull NDManager ndManager) {
         List<Action> actions = Objects.requireNonNull(config.newGame()).allActionsInActionSpace();
         return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
+    }
+
+    public NetworkIO recurrentInference(NDArray hiddenState, int action) {
+        List<NDArray> hiddenStateList = List.of(hiddenState);
+        Action action2 = config.newAction(action);
+        List<NDArray> actionList = List.of(action2.encode(getNDManager()));
+        List<NetworkIO> networkOutputList2 = recurrentInferenceListDirect(hiddenStateList, actionList);
+        return networkOutputList2.get(0);
     }
 
     public void initActionSpaceOnDevice(NDManager ndManager) {

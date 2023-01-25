@@ -22,7 +22,6 @@ muzero:
       playerMode: TWO_PLAYERS
       networkType: CON  # CON or FC
       networkWithRewardHead: false
-      withRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
@@ -35,7 +34,6 @@ muzero:
       discount: 1.0
       weightDecay: 0.0001
       lrInit: 0.0001
-      absorbingStateDropToZero: false # faster for integration test
 
       # numberTrainingStepsOnStart: 0
 
@@ -67,11 +65,7 @@ muzero:
       numResiduals: 6
       broadcastEveryN: 8  # out of range here
 
-      numResidualsRepresentation: 6
-      broadcastEveryNRepresentation: 8  # out of range here
 
-      numResidualsGeneration: 6    #
-      broadcastEveryNGeneration: 8 # out of range here
 
       numChannels: 256
       numBottleneckChannels: 128
@@ -80,16 +74,7 @@ muzero:
 
       numberOfTrainingSteps: 50000
 
-      windowSizeStart: 10000
-      windowSizeIsDynamic: false #
-      # windowSizeExponent: 0.8  # (sub)linear scaling of window size
-      # windowSizeSlope: 0.5
-
-
-      # numSimMin: 4
-      # numSimWindow: 4
-      # numSimMax: 100
-      # numSimThreshold: 0.001
+      windowSize: 10000
 
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500

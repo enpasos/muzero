@@ -51,11 +51,12 @@ public class TicTacToeTest {
     Inference inference;
 
     public int findBadDecisions() {
-        return findBadDecisions();
+        return findBadDecisions(-1);
     }
 
     /**
      * Returns the number of failures.
+     *
      * @return number of failures
      */
     public int findBadDecisions(int epoch) {
@@ -75,17 +76,17 @@ public class TicTacToeTest {
 
 
                 List<DNode> gamesWithBadDecisionByPlayerA =
-                    gameTree.badDecisionFinder(gameTree, network, OneOfTwoPlayer.PLAYER_A, false, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, false, inference, epoch);
 
                 List<DNode> gamesWithBadDecisionPlayerB =
-                    gameTree.badDecisionFinder(gameTree, network, OneOfTwoPlayer.PLAYER_B, false, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch);
 
 
                 List<DNode> gamesWithBadDecisionByPlayerA2 =
-                    gameTree.badDecisionFinder(gameTree, network, OneOfTwoPlayer.PLAYER_A, true, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch);
 
                 List<DNode> gamesWithBadDecisionByPlayerB2 =
-                    gameTree.badDecisionFinder(gameTree, network, OneOfTwoPlayer.PLAYER_B, true, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch);
 
 
                 return gamesWithBadDecisionByPlayerA.size() +
@@ -99,7 +100,7 @@ public class TicTacToeTest {
 
     @NotNull
     public GameTree prepareGameTree() {
-         config.setOutputDir("./memory/tictactoe-without-exploration/");
+        config.setOutputDir("./memory/tictactoe-without-exploration/");
 
         config.setPlayTypeKey(PLAYOUT);
 

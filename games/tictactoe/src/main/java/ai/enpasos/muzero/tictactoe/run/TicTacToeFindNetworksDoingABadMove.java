@@ -19,7 +19,7 @@ package ai.enpasos.muzero.tictactoe.run;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.SurpriseExtractor;
+import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ import static ai.enpasos.muzero.platform.config.PlayTypeKey.PLAYOUT;
 import static java.util.Map.entry;
 
 @Slf4j
-@SuppressWarnings("squid:S106")
+@SuppressWarnings({"squid:S106","java:S125"})
 @Component
 public class TicTacToeFindNetworksDoingABadMove {
     @Autowired
@@ -43,18 +43,17 @@ public class TicTacToeFindNetworksDoingABadMove {
 
 
     @Autowired
-    SurpriseExtractor surpriseExtractor;
+    GameProvider surpriseExtractor;
 
 
     public void run() {
 
         config.setPlayTypeKey(PLAYOUT);
 
-        int start = 365;
-        int stop = 365;   //1230;
+        int start = 1;
+        int stop = 1;   //1230;
         //config.setOutputDir("./memory/tictactoe-without-exploration/");
         config.setOutputDir("./memory/tictactoe/");
-
 
 
 //        int start = 1;
@@ -62,18 +61,18 @@ public class TicTacToeFindNetworksDoingABadMove {
 //        config.setOutputDir("./memory/tictactoe-with-exploration/");
 
 
-     //   List<Integer> startingActions = List.of(4, 5, 8, 0, 6, 2, 3, 1);
+        //   List<Integer> startingActions = List.of(4, 5, 8, 0, 6, 2, 3, 1);
         List<Integer> startingActions = List.of(4, 5, 8, 0, 6, 2);
         int nextBadAction = 3;
 
-     //   findNetworkDoingBadAction(startingActions, nextBadAction, start, stop, false);
+        //   findNetworkDoingBadAction(startingActions, nextBadAction, start, stop, false);
         findNetworkDoingBadAction(startingActions, nextBadAction, start, stop, true);
 
 
     }
 
     private void findNetworkDoingBadAction(List<Integer> startingActions, int nextBadAction, int start, int stop, boolean withMCTS) {
-        for(int epoch = start; epoch <= stop; epoch++) {
+        for (int epoch = start; epoch <= stop; epoch++) {
             if (nextBadAction == inference.aiDecisionForGame(startingActions, withMCTS, Map.ofEntries(entry("epoch", epoch + "")))) {
                 log.info("epoch with bad action {}, withMCTS {}", epoch, withMCTS);
             }

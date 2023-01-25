@@ -14,7 +14,7 @@ import java.util.TreeSet;
  * The set of stones and liberties are not changed inside GoString.
  * GoString is intended to be used immutable.
  * <p>
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @Data
 @Builder

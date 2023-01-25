@@ -67,7 +67,7 @@ public class PegSolitairGame extends Game {
 
     @Override
     public List<Action> allActionsInActionSpace() {
-        return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> config.newAction(i)).collect( Collectors.toList());
+        return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> config.newAction(i)).collect(Collectors.toList());
     }
 
 
@@ -85,22 +85,22 @@ public class PegSolitairGame extends Game {
 
         Board board = ((PegSolitairEnvironment) environment).getBoard();
 
-        return new Observation(getBoardPositions(board),new long[] {1L, 7L, 7L});
+        return new Observation(getBoardPositions(board), new long[]{1L, 7L, 7L});
     }
 
 
     private float[] getBoardPositions(Board board) {
         int size = 7;
-        float[]  boardtransfer = new float[size*size];
+        float[] boardtransfer = new float[size * size];
         for (int row = 1; row <= size; row++) {
             for (int col = 1; col <= size; col++) {
                 Point p = new Point(row, col);
                 if (board.getPegsOnTheBoard().contains(p)) {
-                    boardtransfer[(row - 1)*size + col - 1] = 1f;
+                    boardtransfer[(row - 1) * size + col - 1] = 1f;
                 } else if (board.getHolesOnTheBoard().contains(p)) {
-                    boardtransfer[(row - 1)*size + col - 1] = 0f;
+                    boardtransfer[(row - 1) * size + col - 1] = 0f;
                 } else if (!inRange(p)) {
-                    boardtransfer[(row - 1)*size + col - 1] = 0f;
+                    boardtransfer[(row - 1) * size + col - 1] = 0f;
                 }
             }
         }

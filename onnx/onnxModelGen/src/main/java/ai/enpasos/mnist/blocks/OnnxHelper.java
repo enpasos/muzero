@@ -36,10 +36,6 @@ public class OnnxHelper {
         return Arrays.asList(ArrayUtils.toObject(array));
     }
 
-    public static List<Float> convert(float[] array) {
-        return Arrays.asList(ArrayUtils.toObject(array));
-    }
-
 
     public static List<ValueInfoProto> createValueInfoProto(List<OnnxTensor> output) {
         return output.stream().map(OnnxHelper::createValueInfoProto).collect(Collectors.toList());

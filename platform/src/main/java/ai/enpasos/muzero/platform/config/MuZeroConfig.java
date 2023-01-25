@@ -29,6 +29,7 @@ import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 public class MuZeroConfig {
     public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
     public Map<GameType, Conf> games;
+    Action[] actions;
     private RunType run = RunType.NONE;
     private GameType activeGame;
 
@@ -50,7 +51,6 @@ public class MuZeroConfig {
         }
     }
 
-
     public KnownBounds getKnownBounds() {
         if (this.getKnownBoundsType() == MINUSONE_ONE) {
             return new KnownBounds(-1d, 1d);
@@ -70,10 +70,6 @@ public class MuZeroConfig {
         }
         return null;
     }
-
-
-
-    Action[] actions;
 
     public Action newAction(int index) {
         if (actions == null) {
@@ -130,8 +126,6 @@ public class MuZeroConfig {
     }
 
 
-
-
     public boolean isNetworkWithRewardHead() {
         return getConf().networkWithRewardHead;
     }
@@ -149,9 +143,6 @@ public class MuZeroConfig {
         getConf().setNetworkBaseDir(networkBaseDir);
     }
 
-    public boolean isWithRewardHead() {
-        return getConf().withRewardHead;
-    }
 
     public int getNumObservationLayers() {
         return getConf().numObservationLayers;
@@ -170,22 +161,18 @@ public class MuZeroConfig {
     }
 
 
-    public int getNumResidualsRepresentation() {
-        return getConf().numResidualsRepresentation;
+    public int getNumResiduals() {
+        return getConf().numResiduals;
     }
 
-    public int getNumResidualsGeneration() {
-        return getConf().numResidualsGeneration;
-    }
 
     public int[] getValues() {
 
-       int[]  result = new int[getValueSpan()+1];
+        int[] result = new int[getValueSpan() + 1];
         int[] vs = getConf().getValueInterval();
-        IntStream.range(0, result.length).forEach(i -> result[i] =  vs[0] + i);
+        IntStream.range(0, result.length).forEach(i -> result[i] = vs[0] + i);
         return result;
     }
-
 
 
     public int getValueSpan() {
@@ -201,10 +188,6 @@ public class MuZeroConfig {
         return getConf().numberOfTrainingStepsPerEpoch;
     }
 
-    public int getWindowValueSelfconsistencySize() {
-        return getConf().windowValueSelfconsistencySize;
-    }
-
 
     public int getBatchSize() {
         return getConf().batchSize;
@@ -213,6 +196,7 @@ public class MuZeroConfig {
     public int getNumUnrollSteps() {
         return getConf().numUnrollSteps;
     }
+
     public int getNumberOfEpisodesPerJVMStart() {
         return getConf().numberOfEpisodesPerJVMStart;
     }
@@ -239,9 +223,6 @@ public class MuZeroConfig {
         return getConf().lrInit;
     }
 
-    public boolean isAbsorbingStateDropToZero() {
-        return getConf().absorbingStateDropToZero;
-    }
 
     public int getSize() {
         return getConf().size;
@@ -267,9 +248,6 @@ public class MuZeroConfig {
         return getConf().numberTrainingStepsOnStart;
     }
 
-    public int getSurpriseCheckInterval() {
-        return getConf().surpriseCheckInterval;
-    }
 
     public double getRootDirichletAlpha() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
@@ -279,9 +257,6 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootExplorationFraction;
     }
 
-    public double getVariableStartFraction() {
-        return getConf().variableStartFraction;
-    }
 
     public KnownBoundsType getKnownBoundsType() {
         return getConf().knownBoundsType;
@@ -291,9 +266,6 @@ public class MuZeroConfig {
         return getConf().networkType;
     }
 
-    public double getGumbelScale() {
-        return getConf().gumbelScale;
-    }
 
     public DeviceType getInferenceDeviceType() {
         return getConf().inferenceDeviceType;
@@ -358,17 +330,6 @@ public class MuZeroConfig {
         return getConf().numSimThreshold;
     }
 
-    public int getNumSimMin() {
-        return getConf().numSimMin;
-    }
-
-    public int getNumSimMax() {
-        return getConf().numSimMax;
-    }
-
-    public int getNumSimWindow() {
-        return getConf().numSimWindow;
-    }
 
     public int getNumParallelGamesPlayed() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numParallelGamesPlayed;
@@ -391,12 +352,10 @@ public class MuZeroConfig {
     }
 
 
-    public int getBroadcastEveryNRepresentation() {
-        return getConf().broadcastEveryNRepresentation;
+    public int getBroadcastEveryN() {
+        return getConf().broadcastEveryN;
     }
-    public int getBroadcastEveryNGeneration() {
-        return getConf().broadcastEveryNGeneration;
-    }
+
 
     public PlayTypeKey getPlayTypeKey() {
         return getConf().getPlayTypeKey();
@@ -406,13 +365,7 @@ public class MuZeroConfig {
         getConf().setPlayTypeKey(trainingTypeKey);
     }
 
-    public boolean isExtraValueTrainingOn() {
-        return getConf().isExtraValueTrainingOn();
-    }
 
-    public boolean isSurpriseHandlingOn() {
-        return getConf().isSurpriseHandlingOn();
-    }
 
     public int getCVisit() {
         return getConf().cVisit;
@@ -422,9 +375,6 @@ public class MuZeroConfig {
         getConf().setCVisit(cVisit);
     }
 
-    public long getMaxGameLiveTime() {
-        return getConf().maxGameLiveTime;
-    }
 
     public double getCScale() {
         return getConf().cScale;
@@ -449,26 +399,21 @@ public class MuZeroConfig {
     public void setGameBufferWritingFormat(FileType fileType) {
         getConf().setGameBufferWritingFormat(fileType);
     }
+    public void setWindowSize(int windowSize) {
+        getConf().setWindowSize(windowSize);
+    }
 
     public PlayTypeKey getTrainingTypeKey() {
         return getConf().playTypeKey;
     }
 
-    public int getWindowSize(long gamesPlayed) {
-        int w0 = getConf().windowSizeStart;
-        if (!getConf().windowSizeIsDynamic) return w0;
-        double a = getConf().windowSizeExponent;
-        double b = getConf().windowSizeSlope;
-
-        int w = (int) (w0 * (1.0 + b * (Math.pow((double) gamesPlayed / w0, a) - 1) / a));
-
-        return Math.max(w0, w);
-
+    public int getWindowSize() {
+        return getConf().windowSize;
     }
 
     public Set<PlayTypeKey> getPlayTypeKeysForTraining() {
         return getConf().getPlayTypes().entrySet().stream()
-            .filter(entry -> entry.getValue().isForTraining() )
+            .filter(entry -> entry.getValue().isForTraining())
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
@@ -477,67 +422,61 @@ public class MuZeroConfig {
     @Data
     public static class Conf {
         public Map<PlayTypeKey, PlayType> playTypes;
-        protected boolean surpriseHandlingOn = false;
-        protected boolean extraValueTrainingOn = false;
+
         protected double numSimThreshold;
-        protected int numSimMin;
-        protected int numSimMax;
-        protected int numSimWindow;
+
         protected NetworkType networkType = NetworkType.CON;
         protected String modelName;
         protected String gameClassName;
         protected String actionClassName;
         protected PlayerMode playerMode;
         protected boolean networkWithRewardHead;
+
         protected SymmetryType symmetryType;
         protected String networkBaseDir;
-        protected boolean withRewardHead;
+
         protected int numObservationLayers;
         protected int numActionLayers;
         protected int numChannels;
-        protected int broadcastEveryNRepresentation;
-        protected int broadcastEveryNGeneration;
+
+        protected int broadcastEveryN;
         protected int numBottleneckChannels;
 
-        protected int numResidualsRepresentation;
-        protected int numResidualsGeneration;
+        protected int numResiduals;
+
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
-        protected int windowSizeStart;
-        protected boolean windowSizeIsDynamic = false;
-        protected double windowSizeExponent;
-        protected double windowSizeSlope;
+        protected int windowSize;
+
         protected int numChannelsHiddenLayerSimilarity;
         protected int numChannelsOutputLayerSimilarity;
         protected double fractionOfAlternativeActionGames;
-        protected int windowValueSelfconsistencySize;
+
         protected int batchSize;
         protected int numUnrollSteps;
         protected int numberOfEpisodesPerJVMStart;
-
 
 
         protected float discount;
         protected float weightDecay;
         protected float valueLossWeight;
         protected float lrInit;
-        protected boolean absorbingStateDropToZero;
         protected int size;
         protected int maxMoves;
         protected int boardHeight;
         protected int boardWidth;
         protected int actionSpaceSize;
         protected int numberTrainingStepsOnStart;
-        protected int surpriseCheckInterval;
+
         protected KnownBoundsType knownBoundsType;
-        protected double variableStartFraction;
+
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
         protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
-        protected long maxGameLiveTime;
+
         protected PlayTypeKey playTypeKey;
         int initialGumbelM;
-        double gumbelScale = 1;
+
         int cVisit;
         double cScale;
         int numPurePolicyPlays;

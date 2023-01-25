@@ -2,7 +2,6 @@ package ai.enpasos.muzero.platform.agent.rational;
 
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -17,7 +16,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.*;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.drawActions;
+import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInfo;
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.draw;
@@ -77,7 +78,7 @@ public class GumbelSearch {
 
     public void gumbelActionsStart(boolean withRandomness) {
         List<GumbelAction> gumbelActions = root.getChildren().stream().map(node -> {
-            node.initGumbelAction(node.getAction().getIndex(), node.getPrior(),  withRandomness);
+            node.initGumbelAction(node.getAction().getIndex(), node.getPrior(), withRandomness);
             return node.getGumbelAction();
         }).collect(Collectors.toList());
 
@@ -332,13 +333,6 @@ public class GumbelSearch {
         return action;
     }
 
-//    private Action getAction(double temperature, double[] raw, List<GumbelAction> gumbelActions) {
-//        Action action;
-//        double[] p = softmax(raw, temperature);
-//        int i = draw(p);
-//        action = config.newAction(gumbelActions.get(i).actionIndex);
-//        return action;
-//    }
 
 
     public void drawCandidateAndAddValue() {

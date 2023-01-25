@@ -114,10 +114,7 @@ public class InputOutputConstruction {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
                 .map(sample -> {
-                   Observation observation = sample.getObservations().get(kFinal);
-//                   if (observation == null) {
-//                       int i = 42;
-//                   }
+                    Observation observation = sample.getObservations().get(kFinal);
                     return observation.getNDArray(ndManager);
                 })
                 .collect(Collectors.toList());
@@ -137,7 +134,6 @@ public class InputOutputConstruction {
                     Action action = config.newAction(s.getActionsList().get(k));
                     aArray = action.encode(nd);
                 } else {
-                    // TODO: check
                     int a = ThreadLocalRandom.current().nextInt(0, config.getActionSpaceSize());
 
                     Action action = config.newAction(a);
@@ -154,6 +150,7 @@ public class InputOutputConstruction {
         }
     }
 
+    @SuppressWarnings("java:S2095")
     public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();

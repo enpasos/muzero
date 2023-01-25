@@ -29,7 +29,11 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.mnist.blocks.ext.*;
+import ai.enpasos.mnist.blocks.ext.ActivationExt;
+import ai.enpasos.mnist.blocks.ext.BlocksExt;
+import ai.enpasos.mnist.blocks.ext.LayerNormExt;
+import ai.enpasos.mnist.blocks.ext.ParallelBlockWithAddJoinExt;
+import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
