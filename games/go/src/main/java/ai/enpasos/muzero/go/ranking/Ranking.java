@@ -101,7 +101,7 @@ public class Ranking {
                     return Integer.parseInt(noStr);
                 })
                 .mapToObj(i -> i + "")
-                .collect( Collectors.toList());
+                .collect(Collectors.toList());
 
         } catch (IOException e) {
             log.error(e.getMessage(), e);

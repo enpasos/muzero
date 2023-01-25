@@ -30,7 +30,7 @@ public class TicTacToeTrainingAndTest {
 
         boolean startFromScratch = true;
 
-        if(startFromScratch) {
+        if (startFromScratch) {
             rmDir(config.getOutputDir());
         }
 
@@ -39,7 +39,7 @@ public class TicTacToeTrainingAndTest {
             .withoutFill(!startFromScratch)
             .build());
 
-        boolean passed = ticTacToeTest.findBadDecisions( ) == 0;
+        boolean passed = ticTacToeTest.findBadDecisions() == 0;
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");
         log.info(message);
     }

@@ -100,8 +100,7 @@ public class TicTacToeGame extends ZeroSumGame {
     public @NotNull Observation getObservation() {
 
 
-
-        float[] result = new float[config.getNumObservationLayers()*config.getBoardHeight()*config.getBoardWidth()];
+        float[] result = new float[config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth()];
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
         OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
@@ -110,10 +109,10 @@ public class TicTacToeGame extends ZeroSumGame {
 
         int index = 0;
         getBoardPositions(result, index, this.getEnvironment().currentImage(), currentPlayer.getValue());
-        index += config.getBoardHeight()*config.getBoardWidth();
+        index += config.getBoardHeight() * config.getBoardWidth();
 
         getBoardPositions(result, index, this.getEnvironment().currentImage(), opponentPlayer.getValue());
-        index += config.getBoardHeight()*config.getBoardWidth();
+        index += config.getBoardHeight() * config.getBoardWidth();
 
 
         float v = currentPlayer.getActionValue();
@@ -124,9 +123,8 @@ public class TicTacToeGame extends ZeroSumGame {
         }
 
 
-        return new Observation(result, new long[] {config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()} );
+        return new Observation(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
-
 
 
     @Override

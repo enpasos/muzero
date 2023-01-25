@@ -95,7 +95,7 @@ public class ReplayBufferDTO {
     }
 
     public int getWindowSize() {
-        return config.getWindowSize(this.getCounter());
+        return config.getWindowSize();
     }
 
     public void removeGame(Game game) {
@@ -118,6 +118,7 @@ public class ReplayBufferDTO {
         game.getGameDTO().setCount(counter);
         return !isBufferFilled();
     }
+
     public void addGame(@NotNull Game game, boolean atBeginning) {
 
         if (atBeginning) {

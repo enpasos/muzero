@@ -76,8 +76,6 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         NDArray v = list.get(2);
         float[] vArray = v.toFloatArray();
 
-        float[] vpArray = null;
-
         int n = (int) v.getShape().get(0);
 
         List<NetworkIO> networkIOs = IntStream.range(0, n)
@@ -89,13 +87,12 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
 
-                    double scale = config.getValueSpan() / 2.0;
-                    return NetworkIO.builder()
-                        .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
-                        .policyValues(ps)
-                        .logits(logits2)
-                        .build();
-
+                double scale = config.getValueSpan() / 2.0;
+                return NetworkIO.builder()
+                    .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
+                    .policyValues(ps)
+                    .logits(logits2)
+                    .build();
 
 
             })

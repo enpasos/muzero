@@ -15,7 +15,9 @@ public class MyEpochTrainingListener extends TrainingListenerAdapter {
     private long epochTime;
     private int numEpochs;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onEpoch(Trainer trainer) {
         Metrics metrics = trainer.getMetrics();
@@ -25,13 +27,18 @@ public class MyEpochTrainingListener extends TrainingListenerAdapter {
         epochTime = System.nanoTime();
         numEpochs++;
     }
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onTrainingBegin(Trainer trainer) {
         epochTime = System.nanoTime();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onTrainingEnd(Trainer trainer) {
         trainer.getModel().setProperty("Epoch", Integer.toString(numEpochs));

@@ -17,12 +17,6 @@
 
 package ai.enpasos.muzero.go.config;
 
-import ai.djl.Device;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
-import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.Observation;
@@ -103,7 +97,7 @@ public class GoGame extends ZeroSumGame {
         List<GameState> history = this.getEnvironment().getHistory();
         List<Optional<GameState>> relevantHistory = new ArrayList<>();
 
-        float[] result = new float[config.getNumObservationLayers()*config.getBoardHeight()*config.getBoardWidth()];
+        float[] result = new float[config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth()];
 
 
         for (int i = 7; i >= 0; i--) {
@@ -120,7 +114,7 @@ public class GoGame extends ZeroSumGame {
                 GameState gameState = optionalGameState.get();
                 GoAdapter.translate(config, result, index, gameState);
             }
-            index += 2*config.getBoardHeight()*config.getBoardWidth();
+            index += 2 * config.getBoardHeight() * config.getBoardWidth();
         }
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
@@ -129,9 +123,8 @@ public class GoGame extends ZeroSumGame {
             }
         }
 
-        return new Observation(result, new long[] {config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+        return new Observation(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
-
 
 
     @Override

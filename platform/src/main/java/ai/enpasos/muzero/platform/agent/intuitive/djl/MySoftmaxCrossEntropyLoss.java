@@ -22,7 +22,6 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.training.loss.Loss;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +40,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     private final boolean sparseLabel;
     private final boolean fromLogit;
 
-   private  boolean  useLabelAsLegalCategoriesFilter;
+    private boolean useLabelAsLegalCategoriesFilter;
 
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
@@ -70,7 +69,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      *                    false
      */
     public MySoftmaxCrossEntropyLoss(
-        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit ) {
+        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
@@ -88,16 +87,8 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
 
         if (fromLogit) {
             if (useLabelAsLegalCategoriesFilter) {
-              // normalize needs djl = "0.20.0" :-(  not used for now because of performance
-              //  lab = pred.softmax(classAxis).mul(lab).normalize(1, classAxis, 1e-12);
-                // therefore for now explicitly
+                  lab = pred.softmax(classAxis).mul(lab).normalize(1, classAxis, 1e-12);
 
-                lab = pred.stopGradient().mul(lab);
-                lab = lab.eq(0).mul(-1e12f).add(lab).softmax(classAxis);
-//
-//                ..softmax(classAxis);
-//                NDArray sum = lab.sum(new int[] {1}, true).add(1e-12);
-//                lab = lab.div(sum);
             }
             pred = pred.logSoftmax(classAxis);
 
@@ -125,6 +116,6 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     }
 
     public void setUseLabelAsLegalCategoriesFilter(boolean useLabelAsLegalCategoriesFilter) {
-       this.useLabelAsLegalCategoriesFilter = useLabelAsLegalCategoriesFilter;
+        this.useLabelAsLegalCategoriesFilter = useLabelAsLegalCategoriesFilter;
     }
 }

@@ -19,8 +19,6 @@ package ai.enpasos.muzero.platform.agent.rational;
 
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,49 +29,22 @@ public class ActionHistory {
 
 
     private final @NotNull List<Integer> actions;
-    private final int actionSpaceSize;
+
     private final MuZeroConfig config;
 
 
-    public ActionHistory(MuZeroConfig config, @NotNull List<Integer> history, int actionSpaceSize) {
+    public ActionHistory(MuZeroConfig config, @NotNull List<Integer> history) {
         this.config = config;
         this.actions = new ArrayList<>();
         this.actions.addAll(history);
-        this.actionSpaceSize = actionSpaceSize;
-    }
-
-    public static @NotNull List<Action> actionSpace(MuZeroConfig config) {
-        List<Action> actions = new ArrayList<>();
-        for (int i = 0; i < config.getActionSpaceSize(); i++) {
-            actions.add(config.newAction(i));
-        }
-        return actions;
     }
 
     public @NotNull List<Integer> getActionIndexList() {
         return actions;
     }
 
-    public @NotNull ActionHistory copy() {
-        return new ActionHistory(config, actions, actionSpaceSize);
-    }
-
-    public void addAction(@NotNull Action action) {
-        this.actions.add(action.getIndex());
-    }
-
     public @NotNull Action lastAction() {
         return config.newAction(actions.get(actions.size() - 1));
     }
 
-    public Player toPlay() {
-        if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-            int t = this.actions.size();
-            if (t % 2 == 0) return OneOfTwoPlayer.PLAYER_A;
-            else return OneOfTwoPlayer.PLAYER_B;
-        } else {
-            return null;
-        }
-
-    }
 }

@@ -25,7 +25,6 @@ import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -45,7 +44,10 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.*;
+import static ai.enpasos.muzero.platform.common.Functions.entropy;
+import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
 
@@ -104,6 +106,18 @@ public class SelfPlay {
             }
         }
         game.getGameDTO().getPolicyTargets().add(policyTarget);
+    }
+
+    private static void storeEntropyInfo(List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
+        IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
+            Game game = gamesToApplyAction.get(g);
+            List<Action> legalActions = game.legalActions();
+            game.getGameDTO().getMaxEntropies().add((float) Math.log(legalActions.size()));
+            if (networkOutputFinal != null) {
+                float[] ps = networkOutputFinal.get(g).getPolicyValues();
+                game.getGameDTO().getEntropies().add((float) entropy(toDouble(ps)));
+            }
+        });
     }
 
     @PostConstruct
@@ -169,7 +183,7 @@ public class SelfPlay {
             double value = Objects.requireNonNull(networkOutputFinal).get(g).getValue();
             root.setValueFromInitialInference(value);
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
-            calculateSurprise(value, game);
+
 
         });
 
@@ -197,24 +211,11 @@ public class SelfPlay {
 
     }
 
-    private void calculateSurprise(double value, Game game) {
-        int pos = game.getGameDTO().getSurprises().size() - 1;
-        boolean notUnexpectedSurprise = (pos == game.getGameDTO().getTStateA() - 1L);
-        if (game.getGameDTO().getRootValuesFromInitialInference().size() > pos && pos >= 0 && !notUnexpectedSurprise) {
-            double valueBefore = (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * game.getGameDTO().getRootValuesFromInitialInference().get(pos);
-            double deltaValue = value - valueBefore;
-            game.getGameDTO().getSurprises().add((float) (deltaValue * deltaValue));
-        } else {
-            game.getGameDTO().getSurprises().add(0f);
-        }
-
-    }
-
-    public void play(Network network,  boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
+    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
         play(network, true, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions, pRandomActionRawAverage);
     }
 
-        @SuppressWarnings("squid:S3776")
+    @SuppressWarnings("squid:S3776")
     public void play(Network network, boolean withRandomness, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions, double pRandomActionRawAverage) {
 
         Game justOneOfTheGames = justOneOfTheGames();
@@ -249,7 +250,7 @@ public class SelfPlay {
                 Game game = gamesToApplyAction.get(g);
                 double value = Objects.requireNonNull(networkOutputFinal).get(g).getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
-                calculateSurprise(value, game);
+
             });
         }
 
@@ -310,7 +311,7 @@ public class SelfPlay {
             }
             IntStream.range(0, nGames).forEach(i ->
 
-                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning )
+                searchManagers.get(i).selectAndApplyActionAndStoreSearchStatistics(render, fastRuleLearning)
 
             );
 
@@ -319,19 +320,6 @@ public class SelfPlay {
 
         keepTrackOfOpenGames();
     }
-
-    private static void storeEntropyInfo(List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
-        IntStream.range(0, gamesToApplyAction.size()).forEach(g -> {
-            Game game = gamesToApplyAction.get(g);
-            List<Action> legalActions = game.legalActions();
-            game.getGameDTO().getMaxEntropies().add((float)Math.log(legalActions.size()));
-            if(networkOutputFinal != null) {
-                float[] ps = networkOutputFinal.get(g).getPolicyValues();
-                game.getGameDTO().getEntropies().add((float)entropy(toDouble(ps)));
-            }
-        });
-    }
-
 
     @SuppressWarnings({"squid:S3740", "unchecked"})
     private void playAfterJustWithInitialInference(boolean fastRuleLearning, List<Game> gamesToApplyAction, List<NetworkIO> networkOutputFinal) {
@@ -518,7 +506,7 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public List<Game> playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
+    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean withRandomActions) {
         List<Game> games = new ArrayList<>();
         for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy, withRandomActions);
@@ -527,7 +515,6 @@ public class SelfPlay {
             games.addAll(gamesPart);
         }
         replayBuffer.addGames(network.getModel(), games, false);
-        return games;
     }
 
 

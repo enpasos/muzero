@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Maps a point on a board grid to a set of other points on that same grid.
  * <p>
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @Data
 public class NeighborMap {

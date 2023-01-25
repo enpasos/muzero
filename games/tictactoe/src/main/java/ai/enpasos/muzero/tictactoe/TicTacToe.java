@@ -4,7 +4,17 @@ package ai.enpasos.muzero.tictactoe;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
-import ai.enpasos.muzero.tictactoe.run.*;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeEntropyExtractor;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeFindNetworksDoingABadMove;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeInMindValues;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeInference;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeLossExtractor;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeOnnx;
+import ai.enpasos.muzero.tictactoe.run.TicTacToePolicyOnly;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeTestAllNetworks;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeTestComponent;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeTrainingAndTest;
+import ai.enpasos.muzero.tictactoe.run.TicTacToeValueExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,9 +29,6 @@ public class TicTacToe implements CommandLineRunner {
 
     @Autowired
     private TicTacToeTrainingAndTest trainingAndTest;
-
-    @Autowired
-    private TicTacToeSurpriseExtractor surpriseExtractor;
 
 
     @Autowired
@@ -104,9 +111,7 @@ public class TicTacToe implements CommandLineRunner {
             case ENTROPY:
                 entropyExtractor.run();
                 break;
-            case SURPRISEEXTRACT:
-                surpriseExtractor.run();
-                break;
+
             case NONE:
             default:
         }

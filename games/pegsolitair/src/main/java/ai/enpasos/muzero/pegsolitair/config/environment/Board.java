@@ -2,7 +2,11 @@ package ai.enpasos.muzero.pegsolitair.config.environment;
 
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.createNeighborMap;
 import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;

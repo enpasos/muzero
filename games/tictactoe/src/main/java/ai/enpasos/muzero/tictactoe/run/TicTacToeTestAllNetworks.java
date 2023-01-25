@@ -17,28 +17,15 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.tictactoe.run.test.GameTree;
 import ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.IntStream;
 
 @Slf4j
 @SuppressWarnings("squid:S106")
@@ -56,10 +43,10 @@ public class TicTacToeTestAllNetworks {
 
 
         int start = 101;
-        int stop =  1230;
+        int stop = 1230;
 
         Map<Integer, Integer> map = new TreeMap<>();
-        GameTree gameTree =  test.prepareGameTree();
+        GameTree gameTree = test.prepareGameTree();
 
         for (int epoch = start; epoch <= stop; epoch++) {
             int failures = test.findBadDecisions(epoch, gameTree);
@@ -67,7 +54,7 @@ public class TicTacToeTestAllNetworks {
         }
 
 
-        System.out.println( "epoch;failures" );
+        System.out.println("epoch;failures");
         for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
             System.out.println(entry.getKey() + ";" + entry.getValue());
         }

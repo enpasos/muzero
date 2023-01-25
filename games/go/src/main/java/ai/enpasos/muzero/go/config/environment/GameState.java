@@ -124,8 +124,6 @@ public class GameState {
             // Resign
             return Optional.of(GameResult.apply(board, komi, nextPlayer));
         }
-
-
     }
 
     public List<Move> getValidMoves() {

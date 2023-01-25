@@ -3,7 +3,6 @@ package ai.enpasos.muzero.platform;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.MainRepresentationOrDynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.BottleneckResidualBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.dlowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.NetworkType;
@@ -92,43 +91,27 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
 
-//    @Test
-//    void representationOrDynamicsZERO() throws Exception {
-//        boolean check = compareOnnxWithDJL(
-//            "./build/RepresentationOrDynamicsBlock.onnx",
-//            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64,8),
-//            List.of(new Shape(1, 3, 3, 3)),
-//            ZERO);
-//        Assertions.assertTrue(check);
-//    }
+
 
     @Test
     void predictionZERO() throws Exception {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(NetworkType.CON, 3, 128, true, 9 ),
+            new PredictionBlock(NetworkType.CON,   128, true, 9 ),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
     }
 
-//    @Test
-//    void representationOrDynamicsRANDOM() throws Exception {
-//        boolean check = compareOnnxWithDJL(
-//            "./build/RepresentationOrDynamicsBlock.onnx",
-//            new MainRepresentationOrDynamicsBlock(NetworkType.CON, 3, 3, 3, 128, 64, 8),
-//            List.of(new Shape(1, 3, 3, 3)),
-//            RANDOM);
-//        Assertions.assertTrue(check);
-//    }
+
 
     @Test
     void predictionRANDOM() throws Exception {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(NetworkType.CON, 3, 128, true, 9 ),
+            new PredictionBlock(NetworkType.CON,  128, true, 9 ),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

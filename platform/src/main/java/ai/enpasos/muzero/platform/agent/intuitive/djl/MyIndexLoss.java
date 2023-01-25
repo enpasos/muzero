@@ -10,14 +10,14 @@ import ai.djl.training.loss.Loss;
  */
 public class MyIndexLoss extends Loss {
 
-    private Loss loss;
-    private Integer predictionsIndex;
-    private Integer labelsIndex;
+    private final Loss loss;
+    private final Integer predictionsIndex;
+    private final Integer labelsIndex;
 
     /**
      * Constructs an {@link ai.djl.training.loss.IndexLoss} with the same index for both predictions and labels.
      *
-     * @param loss the base evaluator
+     * @param loss  the base evaluator
      * @param index the index for both predictions and labels
      */
     public MyIndexLoss(Loss loss, int index) {
@@ -27,9 +27,9 @@ public class MyIndexLoss extends Loss {
     /**
      * Constructs an {@link ai.djl.training.loss.IndexLoss}.
      *
-     * @param loss the base evaluator
+     * @param loss             the base evaluator
      * @param predictionsIndex the predictions index
-     * @param labelsIndex the labels index
+     * @param labelsIndex      the labels index
      */
     public MyIndexLoss(Loss loss, Integer predictionsIndex, Integer labelsIndex) {
         super(loss.getName());
@@ -38,7 +38,9 @@ public class MyIndexLoss extends Loss {
         this.labelsIndex = labelsIndex;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public NDArray evaluate(NDList labels, NDList predictions) {
         return loss.evaluate(getLabels(labels), getPredictions(predictions));

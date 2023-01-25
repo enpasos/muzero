@@ -25,8 +25,6 @@ public class TrainParams {
     @Builder.Default
     boolean freshBuffer = false;
 
-//    @Builder.Default
-//    int numberOfEpochs = 1;
 
     @Builder.Default
     boolean render = false;
