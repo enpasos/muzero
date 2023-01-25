@@ -27,7 +27,6 @@ import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +39,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.*;
+import static ai.enpasos.muzero.platform.common.Functions.entropy;
+import static ai.enpasos.muzero.platform.common.Functions.selectActionByMaxFromDistribution;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 import static java.util.Map.entry;
 
 @Component
@@ -81,6 +82,7 @@ public class Inference {
         }
         return actionIndexesSelectedByNetwork[0];
     }
+
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
         return aiDecisionForGames(games, withMCTS, true, options);
     }
@@ -98,7 +100,7 @@ public class Inference {
                 network.initActionSpaceOnDevice(nDManager);
                 network.setHiddenStateNDManager(nDManager);
 
-                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, withRandomness,  games).stream()
+                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, withRandomness, games).stream()
                     .mapToInt(Pair::getSecond).toArray();
 
             }
@@ -107,28 +109,26 @@ public class Inference {
         return actionIndexesSelectedByNetwork;
     }
 
-    public double[][] getInMindValues( int epoch, int[] actions, int extra, int actionspace) {
+    public double[][] getInMindValues(int epoch, int[] actions, int extra, int actionspace) {
         try (Model model = Model.newInstance(config.getModelName())) {
             Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
             try (NDManager nDManager = network.getNDManager().newSubManager()) {
                 network.initActionSpaceOnDevice(nDManager);
                 network.setHiddenStateNDManager(nDManager);
-                return getInMindValues( network,  actions,  extra,  actionspace);
+                return getInMindValues(network, actions, extra, actionspace);
             }
         }
     }
 
 
     private double[][] getInMindValues(Network network, int[] actions, int extra, int actionspace) {
-        double[][] values = new double[actions.length + 1 ][actions.length + 1+ extra];
+        double[][] values = new double[actions.length + 1][actions.length + 1 + extra];
         Game game = config.newGame();
         for (int t = 0; t <= actions.length; t++) {
             NetworkIO infResult = network.initialInferenceDirect(game);
             NDArray s = infResult.getHiddenState();
             values[actions.length][t] = infResult.getValue();
-            for (int r = 0; r <= t; r++) {
-                values[t][r] = values[actions.length][r];
-            }
+            System.arraycopy(values[actions.length], 0, values[t], 0, t + 1);
             for (int r = t; r < actions.length + extra; r++) {
                 int action;
                 if (r < actions.length) {
@@ -138,7 +138,7 @@ public class Inference {
                 }
                 infResult = network.recurrentInference(s, action);
                 s = infResult.getHiddenState();
-                values[t][r+1] = infResult.getValue();
+                values[t][r + 1] = infResult.getValue();
             }
             if (t < actions.length) game.apply(actions[t]);
         }
@@ -242,14 +242,8 @@ public class Inference {
 
 
     private Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
-        return aiDecision(network, withMCTS,true, List.of(game)).get(0);
+        return aiDecision(network, withMCTS, true, List.of(game)).get(0);
     }
-
-
-
-
-
-
 
 
     @SuppressWarnings("java:S1135")
@@ -309,18 +303,6 @@ public class Inference {
         return result;
     }
 
-//    public NetworkIO initialInference(Network network, Game game) {
-//        return network.initialInferenceDirect(game);
-//    }
-//
-//    public NetworkIO recurrentInference(Network network, NDArray hiddenState, int action) {
-//        List< NDArray > hiddenStateList = List.of(hiddenState);
-//        Action action2 = config.newAction(action);
-//        List<NDArray> actionList = List.of(action2.encode(network.getNDManager()));
-//        List<NetworkIO> networkOutputList2 = network.recurrentInferenceListDirect(  hiddenStateList,  actionList);
-//        NetworkIO networkIO = networkOutputList2.get(0);
-//        return networkIO;
-//    }
 
 
 }

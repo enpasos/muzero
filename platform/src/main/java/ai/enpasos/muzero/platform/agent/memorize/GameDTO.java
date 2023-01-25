@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.entropy;
-
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -46,7 +44,7 @@ public class GameDTO implements Comparable<GameDTO> {
     @EqualsAndHashCode.Include
     private List<Integer> actions;
     private List<Float> rewards;
-    private List<Float> surprises;
+
     private List<Float> entropies;
     private List<float[]> policyTargets;
 
@@ -67,7 +65,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
 
     private int tdSteps;
-    private List<Float>  maxEntropies;
+    private List<Float> maxEntropies;
 
     public GameDTO(List<Integer> actions) {
         this();
@@ -80,7 +78,6 @@ public class GameDTO implements Comparable<GameDTO> {
         this.policyTargets = new ArrayList<>();
         this.legalActions = new ArrayList<>();
         this.rootValueTargets = new ArrayList<>();
-        this.surprises = new ArrayList<>();
         this.entropies = new ArrayList<>();
         this.maxEntropies = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
@@ -94,28 +91,16 @@ public class GameDTO implements Comparable<GameDTO> {
 
     public double getAverageEntropy() {
         return IntStream.range(0, entropies.size())
-                .mapToDouble(i -> entropies.get(i))
-                .sum()/Math.max(1, entropies.size());
+            .mapToDouble(i -> entropies.get(i))
+            .sum() / Math.max(1, entropies.size());
     }
+
     public double getAverageMaxEntropy() {
         return IntStream.range(0, maxEntropies.size())
             .mapToDouble(i -> maxEntropies.get(i))
-            .sum()/Math.max(1, maxEntropies.size());
+            .sum() / Math.max(1, maxEntropies.size());
     }
 
-
-    public double getEntropySum() {
-        return entropies.stream().mapToDouble(Float::doubleValue).sum();
-    }
-    public double getMaxEntropySum() {
-        return maxEntropies.stream().mapToDouble(Float::doubleValue).sum();
-    }
-
-    public @NotNull String getActionHistoryAsString() {
-        StringBuilder buf = new StringBuilder(this.getActions().size());
-        this.actions.forEach(a -> buf.append(a.intValue()).append("."));
-        return buf.toString();
-    }
 
     public GameDTO copy(int toPosition) {
         GameDTO copy = new GameDTO();
@@ -134,7 +119,6 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         if (toPosition > 0) {
             copy.rewards.addAll(this.rewards.subList(0, toPosition));
-            copy.surprises.addAll(this.surprises.subList(0, toPosition));
             copy.entropies.addAll(this.entropies.subList(0, toPosition));
             copy.maxEntropies.addAll(this.maxEntropies.subList(0, toPosition));
             copy.actions.addAll(this.actions.subList(0, toPosition));
@@ -170,7 +154,6 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
-        copy.surprises.addAll(this.surprises);
         copy.entropies.addAll(this.entropies);
         copy.maxEntropies.addAll(this.maxEntropies);
         copy.actions.addAll(this.actions);
@@ -202,7 +185,6 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValueTargets(getRootValueTargets());
-        gameBuilder.addAllSurprises(getSurprises());
         gameBuilder.addAllEntropies(getEntropies());
         gameBuilder.addAllMaxEntropies(getMaxEntropies());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
@@ -214,10 +196,10 @@ public class GameDTO implements Comparable<GameDTO> {
             );
             gameBuilder.addPolicyTargets(b.build());
         });
-        getLegalActions().forEach(legalActions -> {
+        getLegalActions().forEach(legalActionsLocal -> {
             LegalActionProtos.Builder b = LegalActionProtos.newBuilder();
-            IntStream.range(0, legalActions.length).forEach(i ->
-                b.addLegalAction(legalActions[i])
+            IntStream.range(0, legalActionsLocal.length).forEach(i ->
+                b.addLegalAction(legalActionsLocal[i])
             );
             gameBuilder.addLegalActions(b.build());
         });
@@ -238,7 +220,6 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());
         this.setRewards(p.getRewardsList());
         this.setRootValueTargets(p.getRootValueTargetsList());
-        this.setSurprises(p.getSurprisesList());
         this.setEntropies(p.getEntropiesList());
         this.setMaxEntropies(p.getMaxEntropiesList());
         this.setLastValueError(p.getLastValueError());

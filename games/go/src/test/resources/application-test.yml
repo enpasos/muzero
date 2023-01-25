@@ -19,8 +19,6 @@ muzero:
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
       networkWithRewardHead: false
-      withRewardHead: false
-      absorbingStateDropToZero: false
       inferenceDeviceType: GPU
 
       # game/environment
@@ -35,7 +33,6 @@ muzero:
       # network training
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
-      # windowValueSelfconsistencySize: 30000   <- postponed
       batchSize: 128
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
@@ -65,15 +62,10 @@ muzero:
       broadcastEveryN: 8  # broadcasting block in every 8th layer
 
 
-      surpriseHandlingOn: false # false in paper
-      extraValueTrainingOn: false # false in paper
-
       valueLossWeight: 1.0
 
-      maxGameLiveTime: 10000000  # or 40000
-      surpriseCheckInterval: 50000
 
-      windowSizeStart: 10000
+      windowSize: 10000
       windowSizeDynamicFraction: 1.0  # 0 = off,1 = on
       windowSizeExponent: 0.8
 

@@ -8,14 +8,25 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
-import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.*;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.BLACK_STONE;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.BLACK_TERRITORY;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.CAPTURED_BLACK_STONE;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.CAPTURED_WHITE_STONE;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.DAME;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.WHITE_STONE;
+import static ai.enpasos.muzero.go.config.environment.scoring.VertexType.WHITE_TERRITORY;
 
 /**
- * adapted from https://github.com/maxpumperla/ScalphaGoZero
+ * adapted from <a href="https://github.com/maxpumperla/ScalphaGoZero">...</a>
  */
 @SuppressWarnings({"squid:S3776", "squid:S3358"})
 public class TerritoryCalculator {
@@ -115,7 +126,7 @@ public class TerritoryCalculator {
                 visitedPlayers.add(player.get());
 
             if (player.isEmpty() || statusMap.get(point).isTerritory()) {
-                var nextVisits = point.neighbors().stream().filter(board::inBounds).collect( Collectors.toList());
+                var nextVisits = point.neighbors().stream().filter(board::inBounds).collect(Collectors.toList());
                 nextVisits.removeAll(visitedPoints);
                 nextPoints = ListUtils.union(nextVisits, nextPoints);
                 visitedPoints.add(point);

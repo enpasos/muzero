@@ -29,15 +29,9 @@ public class DurAndMem {
     private long dur;
     private long mem;
 
-    public synchronized void reset() {
-        dur = 0;
-        mem = 0;
-    }
-
     public synchronized void on() {
         dur -= System.currentTimeMillis();
     }
-
 
 
     public synchronized void off() {

@@ -8,7 +8,7 @@ public class Elo {
     }
 
     /**
-     * (from https://europeangodatabase.eu/EGD/EGF_rating_system.php)
+     * (from <a href="https://europeangodatabase.eu/EGD/EGF_rating_system.php">...</a>)
      * <p>
      * The rating algorithm was updated starting 2021. The whole database from back in 1996 was recalculated with this algorithm. You can find the old algorithm here.
      * <p>

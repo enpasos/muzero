@@ -38,7 +38,13 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -49,22 +55,12 @@ import java.util.stream.Collectors;
 public class ReplayBuffer {
 
 
-    public static final String EPOCH = "Epoch";
+    public static final String EPOCH_STR = "Epoch";
+    String modelName;
+    int epoch;
     private int batchSize;
     private ReplayBufferDTO buffer;
-
-
-    public ReplayBufferDTO getBuffer() {
-        if (trainingTypeKey == TrainingTypeKey.POLICY_DEPENDENT) {
-            return this.buffer;
-        } else {
-            return this.allEpisodes;
-        }
-    }
-
     private ReplayBufferDTO allEpisodes;
-
-
     @Autowired
     private MuZeroConfig config;
     @Autowired
@@ -79,7 +75,6 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
-
     private TrainingTypeKey trainingTypeKey = TrainingTypeKey.POLICY_DEPENDENT;
 
     public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
@@ -95,7 +90,7 @@ public class ReplayBuffer {
         game.replayToPosition(gamePos);
 
         sample.getObservations().add(game.getObservation());
-        Observation lastObservation =  game.getObservation();
+        Observation lastObservation = game.getObservation();
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
         int originalActionSize = actions.size();
@@ -126,29 +121,49 @@ public class ReplayBuffer {
     }
 
     private static int getEpoch(Model model) {
-        String epochStr = model.getProperty("Epoch");
+        String epochStr = model.getProperty(EPOCH_STR);
         if (epochStr == null) {
             epochStr = "0";
         }
-        int epoch = Integer.parseInt(epochStr);
+        return Integer.parseInt(epochStr);
+    }
+
+    private static int getEpochFromPath(Path path) {
+        int epoch;
+        String fileName = path.getFileName().toString();
+        if (fileName.contains("-")) {
+            String[] split = fileName.split("-");
+            epoch = Integer.parseInt(split[split.length - 2]);
+        } else {
+            throw new MuZeroException("Could not find epoch in path " + path);
+        }
         return epoch;
+    }
+
+    public ReplayBufferDTO getBuffer() {
+        if (trainingTypeKey == TrainingTypeKey.POLICY_DEPENDENT) {
+            return this.buffer;
+        } else {
+            return this.allEpisodes;
+        }
     }
 
     public int getAverageGameLength() {
         return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).average().orElse(1000);
     }
+
     public int getMaxGameLength() {
-        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
     }
 
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
-        int epoch = 0;
+        int epochLocal = 0;
         if (model != null) {
-            String epochValue = model.getProperty("Epoch");
+            String epochValue = model.getProperty(ReplayBuffer.EPOCH_STR);
             Path modelPath = Paths.get(outputDir);
 
             try {
-                epoch = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
+                epochLocal = epochValue == null ? Utils.getCurrentEpoch(modelPath, modelName) + 1 : Integer.parseInt(epochValue);
             } catch (IOException e) {
                 throw new MuZeroException(e);
             }
@@ -156,11 +171,9 @@ public class ReplayBuffer {
             modelName = config.getModelName();
         }
         this.modelName = modelName;
-        this.epoch = epoch;
+        this.epoch = epochLocal;
     }
 
-    String modelName;
-    int epoch;
     public String getCurrentNetworkName() {
         return String.format(Locale.ROOT, "%s-%04d", modelName, epoch);
     }
@@ -248,34 +261,17 @@ public class ReplayBuffer {
         return games;
     }
 
-//    public void saveState() {
-//        replayBufferIO.saveState(this.getBuffer(), this.currentNetworkNameWithoutEpoch);
-//    }
-
     public void loadLatestState() {
         List<Path> paths = this.replayBufferIO.getBufferNames();
-        List<ReplayBufferDTO> buffers = new ArrayList<>();
         for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
             Path path = paths.get(paths.size() - 1 - h);
             ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
-            int epoch = getEpochFromPath(path);
-            if (h==0) {
-                this.epoch = epoch;
+            int epochLocal = getEpochFromPath(path);
+            if (h == 0) {
+                this.epoch = epochLocal;
             }
-            replayBufferDTO.getGames().forEach(game -> addGame(epoch, game, true));
+            replayBufferDTO.getGames().forEach(game -> addGame(epochLocal, game, true));
         }
-    }
-
-    private static int getEpochFromPath(Path path) {
-        int epoch;
-        String fileName = path.getFileName().toString();
-        if (fileName.contains("-")) {
-            String[] split = fileName.split("-");
-            epoch = Integer.parseInt(split[split.length - 2]);
-        } else {
-            throw new MuZeroException("Could not find epoch in path " + path);
-        }
-        return epoch;
     }
 
     public void sortGamesByLastValueError() {
@@ -308,25 +304,21 @@ public class ReplayBuffer {
             this.getCurrentNetworkName(), this.getConfig());
     }
 
-    private boolean addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
-        int epoch = getEpoch(model);
-        return addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.getCurrentNetworkName());
+    private void addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
+        int epochLocal = getEpoch(model);
+        addGameAndRemoveOldGameIfNecessary(epochLocal, game, atBeginning, this.getCurrentNetworkName());
     }
 
-    private boolean addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {
+    private void addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {
 
         memorizeEntropyInfo(game, epoch);
         game.getGameDTO().setNetworkName(networkName);
-        return buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
-        // allEpisodes.addGame(game);
+        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
     }
 
     private void addGame(int epoch, Game game, boolean atBeginning) {
-
         memorizeEntropyInfo(game, epoch);
-        //  game.getGameDTO().setNetworkName(this.currentNetworkName);
         buffer.addGame(game, atBeginning);
-        // allEpisodes.addGame(game);
     }
 
     private void memorizeEntropyInfo(Game game, int epoch) {
@@ -357,13 +349,13 @@ public class ReplayBuffer {
     @SuppressWarnings({"java:S106"})
     public void logEntropyInfo() {
         System.out.println("epoch;timestamp;entropyBestEffort;entropyExploration;maxEntropyBestEffort;maxEntropyExploration");
-        this.entropyBestEffortSum.keySet().stream().sorted().forEach(epoch -> {
+        this.entropyBestEffortSum.keySet().stream().sorted().forEach(epochLocal -> {
 
-            double entropyBestEffort = this.entropyBestEffortSum.get(epoch) / Math.max(1, this.entropyBestEffortCount.get(epoch));
-            double entropyExploration = this.entropyExplorationSum.get(epoch) / Math.max(1, this.entropyExplorationCount.get(epoch));
-            double maxEntropyBestEffort = this.maxEntropyBestEffortSum.get(epoch) / Math.max(1, this.maxEntropyBestEffortCount.get(epoch));
-            double maxEntropyExploration = this.maxEntropyExplorationSum.get(epoch) / Math.max(1, this.maxEntropyExplorationCount.get(epoch));
-            String message = String.format("%d; %d; %.4f; %.4f; %.4f; %.4f", epoch, this.timestamps.get(epoch), entropyBestEffort, entropyExploration, maxEntropyBestEffort, maxEntropyExploration);
+            double entropyBestEffort = this.entropyBestEffortSum.get(epochLocal) / Math.max(1, this.entropyBestEffortCount.get(epochLocal));
+            double entropyExploration = this.entropyExplorationSum.get(epochLocal) / Math.max(1, this.entropyExplorationCount.get(epochLocal));
+            double maxEntropyBestEffort = this.maxEntropyBestEffortSum.get(epochLocal) / Math.max(1, this.maxEntropyBestEffortCount.get(epochLocal));
+            double maxEntropyExploration = this.maxEntropyExplorationSum.get(epochLocal) / Math.max(1, this.maxEntropyExplorationCount.get(epochLocal));
+            String message = String.format("%d; %d; %.4f; %.4f; %.4f; %.4f", epochLocal, this.timestamps.get(epochLocal), entropyBestEffort, entropyExploration, maxEntropyBestEffort, maxEntropyExploration);
 
             System.out.println(message);
 

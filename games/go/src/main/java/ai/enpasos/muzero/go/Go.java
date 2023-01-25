@@ -1,6 +1,14 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.go.run.*;
+import ai.enpasos.muzero.go.run.GoArena;
+import ai.enpasos.muzero.go.run.GoElo;
+import ai.enpasos.muzero.go.run.GoEntropyExtractor;
+import ai.enpasos.muzero.go.run.GoLossExtractor;
+import ai.enpasos.muzero.go.run.GoOnnx;
+import ai.enpasos.muzero.go.run.GoRenderGame;
+import ai.enpasos.muzero.go.run.GoStartValueExtractor;
+import ai.enpasos.muzero.go.run.GoTrainingAndTest;
+import ai.enpasos.muzero.go.run.GoValueExtractor;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +35,6 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoLossExtractor lossExtractor;
 
-    @Autowired
-    private GoTest goTest;
-
 
     @Autowired
     private GoArena arena;
@@ -48,11 +53,6 @@ public class Go implements CommandLineRunner {
     private GoStartValueExtractor startValueExtractor;
 
 
-    @Autowired
-    private GoSurpriseExtractor goSurpriseExtractor;
-
-    @Autowired
-    private GoSurprise goSurprise;
     @Autowired
     private GoOnnx onnx;
 
@@ -98,15 +98,8 @@ public class Go implements CommandLineRunner {
             case ELO:
                 elo.run();
                 break;
-            case SURPRISEEXTRACT:
-                goSurpriseExtractor.run();
-                break;
-            case SURPRISE:
-                goSurprise.run();
-                break;
-            case TEST:
-                goTest.run();
-                break;
+
+
             case NONE:
             default:
         }
