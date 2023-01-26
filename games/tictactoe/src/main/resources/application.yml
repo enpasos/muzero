@@ -89,7 +89,7 @@ muzero:
         HYBRID:
           forTraining: true
           numEpisodes: 1
-          numParallelGamesPlayed: 1000
+          numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
@@ -107,6 +107,16 @@ muzero:
           temperatureRoot: 5.0
           gumbelActionSelection: false
 
+        REANALYSE:
+          forTraining: true
+          numEpisodes: 1
+          numParallelGamesPlayed: 500
+          tdSteps: 0
+          numSimulations: 20
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 1.2
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 #        BEST_EFFORT:
 #          forTraining: true
 #          numEpisodes: 1

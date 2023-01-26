@@ -75,14 +75,14 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
-    private TrainingTypeKey trainingTypeKey = TrainingTypeKey.POLICY_DEPENDENT;
+   // private TrainingTypeKey trainingTypeKey = TrainingTypeKey.POLICY_DEPENDENT;
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, boolean inWindow) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer, trainingTypeKey);
+        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer, inWindow);
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer, boolean inWindow) {
         Sample sample = new Sample();
         sample.setTrainingTypeKey(
             trainingTypeKey
@@ -140,8 +140,8 @@ public class ReplayBuffer {
         return epoch;
     }
 
-    public ReplayBufferDTO getBuffer() {
-        if (trainingTypeKey == TrainingTypeKey.POLICY_DEPENDENT) {
+    public ReplayBufferDTO getBuffer(boolean inWindow) {
+        if (inWindow) {
             return this.buffer;
         } else {
             return this.allEpisodes;
@@ -205,20 +205,19 @@ public class ReplayBuffer {
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps, TrainingTypeKey trainingTypeKey) {
+    public List<Sample> sampleBatch(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGames(trainingTypeKey).stream()
+            return sampleGames().stream()
                 //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
                 //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
-                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this, trainingTypeKey))
+                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
                 .collect(Collectors.toList());
         }
     }
 
-    // for "fair" training do train the strengths of PlayerA and PlayerB equally
-    public List<Game> sampleGames(TrainingTypeKey trainingTypeKey) {
+    public List<Game> sampleGames() {
 
-        List<Game> games = getGames(trainingTypeKey);
+        List<Game> games = getGames(true);
         Collections.shuffle(games);
 
 
@@ -249,10 +248,10 @@ public class ReplayBuffer {
     }
 
     @NotNull
-    public List<Game> getGames(TrainingTypeKey trainingTypeKey) {
+    public List<Game> getGames(boolean inWindow) {
         List<Game> games = new ArrayList<>();
 
-        if (trainingTypeKey == TrainingTypeKey.POLICY_DEPENDENT) {
+        if (inWindow) {
             games = new ArrayList<>(this.getBuffer().getGames());
         } else {
             games = new ArrayList<>(this.getBuffer().getGames());
