@@ -40,7 +40,6 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     private final boolean sparseLabel;
     private final boolean fromLogit;
 
-    private boolean useLabelAsLegalCategoriesFilter;
 
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
@@ -86,12 +85,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         NDArray lab = label.singletonOrThrow();
 
         if (fromLogit) {
-            if (useLabelAsLegalCategoriesFilter) {
-                  lab = pred.softmax(classAxis).mul(lab).normalize(1, classAxis, 1e-12);
-
-            }
             pred = pred.logSoftmax(classAxis);
-
         }
         NDArray loss;
 
@@ -111,11 +105,5 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         return loss.mean();
     }
 
-    public boolean isUseLabelAsLegalCategoriesFilter() {
-        return useLabelAsLegalCategoriesFilter;
-    }
 
-    public void setUseLabelAsLegalCategoriesFilter(boolean useLabelAsLegalCategoriesFilter) {
-        this.useLabelAsLegalCategoriesFilter = useLabelAsLegalCategoriesFilter;
-    }
 }
