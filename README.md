@@ -28,19 +28,6 @@ You can find out the inference time while running MuZero on your edge device:
 * [Go](https://enpasos.ai/muzero/Go)
 
 
-
-## Patch DJL
-A solution to the performance issue https://github.com/deepjavalibrary/djl/issues/2210
-is in the status of a pull request https://github.com/deepjavalibrary/djl/pull/2321
-```
-git clone https://github.com/enpasos/djl.git
-cd djl
-git checkout reference-counting
-gradlew build -x test
-gradlew publishToMavenLocal
-```
-
-
 ## Build
 
 ```
