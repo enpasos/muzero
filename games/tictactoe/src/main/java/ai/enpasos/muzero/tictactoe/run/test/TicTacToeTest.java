@@ -100,7 +100,7 @@ public class TicTacToeTest {
 
     @NotNull
     public GameTree prepareGameTree() {
-        config.setOutputDir("./memory/tictactoe-without-exploration/");
+      //  config.setOutputDir("./memory/tictactoe-without-exploration/");
 
         config.setPlayTypeKey(PLAYOUT);
 
