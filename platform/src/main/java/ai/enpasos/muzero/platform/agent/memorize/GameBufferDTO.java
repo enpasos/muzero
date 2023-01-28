@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.memorize;
 
 
-import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.GameBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuppressWarnings("squid:S2065")
-public class ReplayBufferDTO {
+public class GameBufferDTO {
 
     public static final double BUFFER_IO_VERSION = 1.0;
     transient List<Game> games = new ArrayList<>();
@@ -46,14 +46,14 @@ public class ReplayBufferDTO {
     private String gameClassName;
     private long counter;
 
-    public ReplayBufferDTO(MuZeroConfig config) {
+    public GameBufferDTO(MuZeroConfig config) {
         this.gameClassName = config.getGameClassName();
         this.config = config;
 
     }
 
-    public static ReplayBufferDTO deproto(ReplayBufferProto proto, MuZeroConfig config) {
-        ReplayBufferDTO dto = new ReplayBufferDTO(config);
+    public static GameBufferDTO deproto(GameBufferProto proto, MuZeroConfig config) {
+        GameBufferDTO dto = new GameBufferDTO(config);
         dto.setCounter(proto.getCounter());
 
 
@@ -73,8 +73,8 @@ public class ReplayBufferDTO {
         return games.stream().map(Game::getGameDTO).collect(Collectors.toSet()).size();
     }
 
-    public ReplayBufferDTO copyEnvelope() {
-        ReplayBufferDTO copy = new ReplayBufferDTO();
+    public GameBufferDTO copyEnvelope() {
+        GameBufferDTO copy = new GameBufferDTO();
 
         copy.counter = this.counter;
         copy.gameClassName = this.gameClassName;
@@ -146,8 +146,8 @@ public class ReplayBufferDTO {
         getInitialGameDTOList().clear();
     }
 
-    public ReplayBufferProto proto() {
-        ReplayBufferProto.Builder bufferBuilder = ReplayBufferProto.newBuilder()
+    public GameBufferProto proto() {
+        GameBufferProto.Builder bufferBuilder = GameBufferProto.newBuilder()
             .setVersion(1)
             .setCounter((int) getCounter())
 

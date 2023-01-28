@@ -4,7 +4,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -28,7 +28,7 @@ class ProtobufferTest {
 
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
     @Autowired
     MuZeroConfig config;
@@ -56,15 +56,15 @@ class ProtobufferTest {
         muZero.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            List<Game> games = selfPlay.playGame( network, false, true, false, false);
-            replayBuffer.init();
+            List<Game> games = selfPlay.playGame( network, false, true, false);
+            gameBuffer.init();
 
-            replayBuffer.getReplayBufferIO().saveGames(games, network.getModel().getName(), config);
+            gameBuffer.getGameBufferIO().saveGames(games, network.getModel().getName(), config);
 
-            List<Game> gamesOld = replayBuffer.getBuffer().getGames();
+            List<Game> gamesOld = gameBuffer.getBuffer().getGames();
 
 
-            IntStream.range(0, gamesOld.size()).forEach(i -> assertEquals(gamesOld.get(i), replayBuffer.getBuffer().getGames().get(i), "games should be the same"));
+            IntStream.range(0, gamesOld.size()).forEach(i -> assertEquals(gamesOld.get(i), gameBuffer.getBuffer().getGames().get(i), "games should be the same"));
         }
     }
 }

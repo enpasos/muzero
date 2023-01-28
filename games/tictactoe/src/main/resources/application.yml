@@ -79,6 +79,8 @@ muzero:
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500
 
+      replayFraction: 0.5
+
       playTypes:
         PLAYOUT:
           forTraining: false

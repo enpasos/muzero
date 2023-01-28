@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.memorize;
 
 
-import ai.enpasos.muzero.platform.agent.memory.protobuf.ReplayBufferProto;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.GameBufferProto;
 import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.FileType;
@@ -55,16 +55,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static ai.enpasos.muzero.platform.agent.memorize.ReplayBufferDTO.BUFFER_IO_VERSION;
+import static ai.enpasos.muzero.platform.agent.memorize.GameBufferDTO.BUFFER_IO_VERSION;
 
 
 @Data
 @Slf4j
 @Component
-public class ReplayBufferIO {
+public class GameBufferIO {
 
 
-    public static final String NODETREE_JSON = "nodetree.json";
+  //  public static final String NODETREE_JSON = "nodetree.json";
     @Autowired
     MuZeroConfig config;
 
@@ -86,35 +86,62 @@ public class ReplayBufferIO {
 
     }
 
-    public static @NotNull ReplayBufferDTO decodeReplayBufferDTO(byte @NotNull [] bytes) {
+    public static @NotNull GameBufferDTO decodeGameBufferDTO(byte @NotNull [] bytes) {
         String json = new String(bytes, StandardCharsets.UTF_8);
-        return getGson().fromJson(json, ReplayBufferDTO.class);
+        return getGson().fromJson(json, GameBufferDTO.class);
     }
 
     public void saveGames(List<Game> games, String networkName, MuZeroConfig config) {
 
-        ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
-        replayBufferDTO.setGames(games);
+        GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
+        gameBufferDTO.setGames(games);
 
-        saveState(replayBufferDTO, networkName);
-
-    }
-
-    public List<Game> loadGames(String networkName, MuZeroConfig config) {
-        List<Game> games = null;
-
-        ReplayBufferDTO replayBufferDTO = new ReplayBufferDTO(config);
-        replayBufferDTO.setGames(games);
-
-        saveState(replayBufferDTO, networkName);
-
-
-        return games;
+        saveState(gameBufferDTO, networkName);
 
     }
 
+//    public List<Game> loadGames(String networkName, MuZeroConfig config) {
+//        List<Game> games = null;
+//        GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
+//        gameBufferDTO.setGames(games);
+//        saveState(gameBufferDTO, networkName);
+//        return games;
+//    }
 
-    public void saveState(ReplayBufferDTO dto, String networkName) {
+    public List<Game> loadGamesForReplay(int n , List<String> networkNamesNotToLoad, MuZeroConfig config) {
+        List<Game> games = new ArrayList<>();
+        GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
+
+
+        List<Path> paths = this.getBufferNames();
+        List<Path> pathsNotToLoad = new ArrayList<>();
+        for (Path path : paths) {
+            for ( String networkName : networkNamesNotToLoad) {
+                if (path.toString().contains(networkName)) {
+                    pathsNotToLoad.add(path);
+                }
+            }
+         }
+
+        paths.removeAll(pathsNotToLoad);
+        Collections.shuffle(paths);
+        for (int h = 0; h < paths.size() && games.size() <= n; h++) {
+            Path path = paths.get(paths.size() - 1 - h);
+            GameBufferDTO gameBufferDTO2 = this.loadState(path);
+             games.addAll(gameBufferDTO.getGames());
+        }
+
+        return games.subList(0, Math.min(n, games.size()));
+    }
+
+//private int getEpochFromPath(Path path) {
+//        return Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", ""));
+//    }
+//    private int getNetworkNameFromPath(Path path) {
+//        return Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", ""));
+//    }
+
+    public void saveState(GameBufferDTO dto, String networkName) {
 
 
         String pathname = config.getGamesBasedir() + File.separator + networkName + "-jsonbuf.zip";
@@ -163,12 +190,12 @@ public class ReplayBufferIO {
                 try (BufferedOutputStream bos = new BufferedOutputStream(baos)) {
                     try (ZipOutputStream zos = new ZipOutputStream(baos)) {
                         for (String networkNameHere : networkNames) {
-                            ReplayBufferDTO dtoHere = dto.copyEnvelope();
+                            GameBufferDTO dtoHere = dto.copyEnvelope();
                             dto.games.stream()
                                 .filter(g -> g.getGameDTO().getNetworkName().equals(networkNameHere))
                                 .forEach(g -> dtoHere.getInitialGameDTOList().add(g.getGameDTO()));
 
-                            ReplayBufferProto proto = dto.proto();
+                            GameBufferProto proto = dto.proto();
                             input = proto.toByteArray();
 
                             ZipEntry entry = new ZipEntry(networkNameHere + ".dat");
@@ -234,7 +261,7 @@ public class ReplayBufferIO {
 
     }
 
-    public ReplayBufferDTO loadState(Path path) {
+    public GameBufferDTO loadState(Path path) {
 
         String pathname = path.toString();
         log.info("loading ... " + pathname);
@@ -244,8 +271,8 @@ public class ReplayBufferIO {
 
 
     @Nullable
-    private ReplayBufferDTO loadFromProtobuf(String pathname, Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
-        ReplayBufferDTO dto = null;
+    private GameBufferDTO loadFromProtobuf(String pathname, Optional<Function<String, GameBufferDTO>> optionalOtherLoader) {
+        GameBufferDTO dto = null;
 
 
         try (FileInputStream fis = new FileInputStream(pathname)) {
@@ -259,8 +286,8 @@ public class ReplayBufferIO {
                             log.info("load: " + filename);
                             byte[] bytes = zis.readAllBytes();
 
-                            ReplayBufferProto proto = ReplayBufferProto.parseFrom(bytes);
-                            ReplayBufferDTO dtoHere = ReplayBufferDTO.deproto(proto, config);
+                            GameBufferProto proto = GameBufferProto.parseFrom(bytes);
+                            GameBufferDTO dtoHere = GameBufferDTO.deproto(proto, config);
                             if (dto == null) {
                                 dto = dtoHere;
                             } else {
@@ -280,14 +307,14 @@ public class ReplayBufferIO {
         return dto;
     }
 
-    private ReplayBufferDTO loadStateFromJson(String pathname) {
+    private GameBufferDTO loadStateFromJson(String pathname) {
         return loadStateFromJson(pathname, Optional.empty());
     }
 
     @Nullable
     // add a function as the second parameter
-    private ReplayBufferDTO loadStateFromJson(String pathname, Optional<Function<String, ReplayBufferDTO>> optionalOtherLoader) {
-        ReplayBufferDTO dto = null;
+    private GameBufferDTO loadStateFromJson(String pathname, Optional<Function<String, GameBufferDTO>> optionalOtherLoader) {
+        GameBufferDTO dto = null;
         try (FileInputStream fis = new FileInputStream(pathname)) {
             try (ZipInputStream zis = new ZipInputStream(fis)) {
                 ZipEntry entry;
@@ -296,7 +323,7 @@ public class ReplayBufferIO {
                     if (filename.endsWith(".dat")) {
                         log.info("load: " + filename);
                         byte[] raw = zis.readAllBytes();
-                        ReplayBufferDTO dtoHere = decodeReplayBufferDTO(raw);
+                        GameBufferDTO dtoHere = decodeGameBufferDTO(raw);
                         if (dto == null) {
                             dto = dtoHere;
                         } else {

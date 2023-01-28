@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class ActionExtractor {
     MuZeroConfig config;
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
     @Autowired
     Inference inference;
@@ -52,14 +52,14 @@ public class ActionExtractor {
     @SuppressWarnings({"squid:S1141", "java:S106"})
     public void run() {
 
-        replayBuffer.loadLatestState();
+        gameBuffer.loadLatestState();
 
         StringWriter stringWriter = new StringWriter();
 
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').build())) {
 
             int count = 0;
-            for (Game game : replayBuffer.getBuffer().getGames()) {
+            for (Game game : gameBuffer.getBuffer().getGames()) {
                 List<String> valueList = new ArrayList<>();
                 valueList.add("" + count++);
                 valueList.addAll(game.getGameDTO().getActions().stream().map(a -> a + "").collect(Collectors.toList()));
@@ -82,7 +82,7 @@ public class ActionExtractor {
 
         System.out.println(stringWriter);
         int count = 0;
-        for (Game game : replayBuffer.getBuffer().getGames()) {
+        for (Game game : gameBuffer.getBuffer().getGames()) {
             System.out.println(count++);
             System.out.println(game.render());
         }

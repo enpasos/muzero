@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.pegsolitair.run;
 
 import ai.djl.util.Pair;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public class PegSolitairValueExtractor {
     ValueExtractor valueExtractor;
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
     @SuppressWarnings("squid:S3740")
     public void run() {
@@ -51,9 +51,9 @@ public class PegSolitairValueExtractor {
 
         System.out.println(valueExtractor.listValuesForTrainedNetworks(actionIndexList));
 
-        replayBuffer.loadLatestState();
+        gameBuffer.loadLatestState();
 
-        List<Pair> pairs = replayBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
+        List<Pair> pairs = gameBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
             .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
             .collect(Collectors.toList());
 

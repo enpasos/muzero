@@ -18,7 +18,6 @@
 package ai.enpasos.muzero.platform.agent.intuitive;
 
 import ai.enpasos.muzero.platform.agent.memorize.Target;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,6 +49,6 @@ public class Sample {
     @Builder.Default
     private List<Target> targetList = new ArrayList<>();
 
-    private TrainingTypeKey trainingTypeKey;
+
 
 }

@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class EntropyExtractor {
     MuZeroConfig config;
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
     @Autowired
     Inference inference;
@@ -80,9 +80,9 @@ public class EntropyExtractor {
     public List<Integer> getActionList() {
 
 
-        replayBuffer.loadLatestState();
+        gameBuffer.loadLatestState();
 
-        Game game = replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1);
+        Game game = gameBuffer.getBuffer().getGames().get(gameBuffer.getBuffer().getGames().size() - 1);
 
         List<Integer> actions = game.actionHistory().getActionIndexList();
         log.debug(actions.toString());
