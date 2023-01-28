@@ -23,7 +23,7 @@ import ai.djl.training.Trainer;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MySaveModelTrainingListener.class);
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
     private String outputDir;
     private int step;
     private String overrideModelName;
@@ -141,7 +141,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
                 onSaveModel.accept(trainer);
             }
             Path modelPath = Paths.get(outputDir);
-            replayBuffer.createNetworkNameFromModel(model, modelName, outputDir);
+            gameBuffer.createNetworkNameFromModel(model, modelName, outputDir);
 
             model.save(modelPath, modelName);
         } catch (IOException e) {

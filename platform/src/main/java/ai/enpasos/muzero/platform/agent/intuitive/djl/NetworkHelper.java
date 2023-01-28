@@ -35,9 +35,8 @@ import ai.djl.training.tracker.Tracker;
 import ai.enpasos.muzero.platform.agent.intuitive.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +56,7 @@ public class NetworkHelper {
     MuZeroConfig config;
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
     @Autowired
     InputOutputConstruction inputOutputConstruction;
@@ -116,7 +115,7 @@ public class NetworkHelper {
 
 
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
-        List<Sample> batch = replayBuffer.sampleBatch(config.getNumUnrollSteps());
+        List<Sample> batch = gameBuffer.sampleBatch(config.getNumUnrollSteps());
 
         NDManager nd = ndManager.newSubManager();
 
