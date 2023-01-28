@@ -42,8 +42,8 @@ public class TicTacToeTestAllNetworks {
     public void run() {
 
 
-        int start = 101;
-        int stop = 1230;
+        int start = 1;
+        int stop = 236;
 
         Map<Integer, Integer> map = new TreeMap<>();
         GameTree gameTree = test.prepareGameTree();

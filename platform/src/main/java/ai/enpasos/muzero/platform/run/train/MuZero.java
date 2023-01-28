@@ -22,7 +22,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
-import ai.djl.ndarray.refcount.RCScope;
+import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
@@ -119,7 +119,7 @@ public class MuZero {
             model.load(Paths.get(outputDir));
             replayBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
-            try (RCScope rcScope1 = new RCScope()) {
+            try (NDScope nDScope1 = new NDScope()) {
                 trainNetwork(model);
             }
             String outputDir = config.getNetworkBaseDir();
@@ -156,7 +156,7 @@ public class MuZero {
 
         loadBuffer(params.freshBuffer);
 
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 Network network = new Network(config, model);
                 if (!params.withoutFill) {
@@ -164,13 +164,13 @@ public class MuZero {
                 }
             }
         }
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 createNetworkModelIfNotExisting();
             }
         }
 
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
                 Network network = new Network(config, model);
@@ -188,7 +188,7 @@ public class MuZero {
 
                     if (!params.freshBuffer) {
 
-                        try (RCScope rcScope1 = new RCScope()) {
+                        try (NDScope nDScope1 = new NDScope()) {
                             for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                                 config.setPlayTypeKey(key);
                                 playGames(params.render, network, trainingStep);
@@ -207,7 +207,7 @@ public class MuZero {
                         log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
                     }
                     params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-                    try (RCScope rcScope1 = new RCScope()) {
+                    try (NDScope nDScope1 = new NDScope()) {
                         trainingStep = trainNetwork(model);
                     }
 
