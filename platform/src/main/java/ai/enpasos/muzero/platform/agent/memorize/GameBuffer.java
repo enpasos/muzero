@@ -217,29 +217,29 @@ public class GameBuffer {
         List<Game> games = getGames();
         Collections.shuffle(games);
 
-
+//
         List<Game> gamesToTrain = games.stream()
-            .filter(g -> {
-                if (g instanceof ZeroSumGame zeroSumGame) {
-                    Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_A;
-                } else {
-                    return true;
-                }
-            })
-            .limit(this.batchSize / 2).collect(Collectors.toList());
-        games.removeAll(gamesToTrain);  // otherwise, draw games could be selected again
-        gamesToTrain.addAll(games.stream()
-            .filter(g -> {
-                if (g instanceof ZeroSumGame zeroSumGame) {
-                    Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_B;
-                } else {
-                    return true;
-                }
-            })
-            .limit(this.batchSize / 2)
-            .collect(Collectors.toList()));
+//            .filter(g -> {
+//                if (g instanceof ZeroSumGame zeroSumGame) {
+//                    Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+//                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_A;
+//                } else {
+//                    return true;
+//                }
+//            })
+//            .limit(this.batchSize / 2).collect(Collectors.toList());
+//        games.removeAll(gamesToTrain);  // otherwise, draw games could be selected again
+//        gamesToTrain.addAll(games.stream()
+//            .filter(g -> {
+//                if (g instanceof ZeroSumGame zeroSumGame) {
+//                    Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+//                    return winner.isEmpty() || winner.get() == OneOfTwoPlayer.PLAYER_B;
+//                } else {
+//                    return true;
+//                }
+//            })
+            .limit(this.batchSize )
+            .collect(Collectors.toList());
         gamesToTrain.stream().forEach(g -> g.setPlayTypeKey(config.getPlayTypeKey()));
         return gamesToTrain;
     }
@@ -251,13 +251,16 @@ public class GameBuffer {
 
         int nReplayGames = (int)(gamesFromBuffer.size() * config.getReplayFraction());
         Collections.shuffle(gamesFromReplayBuffer);
+        int nGamesFromBuffer = gamesFromBuffer.size();
         List<Game> games =  gamesFromBuffer;
-        games.addAll(gamesFromReplayBuffer.subList(0, Math.min(nReplayGames, gamesFromReplayBuffer.size())));
+        List<Game> gamesFromReplay = gamesFromReplayBuffer.subList(0, Math.min(nReplayGames, gamesFromReplayBuffer.size()));
+        int nGamesFromReplay = gamesFromReplay.size();
+        games.addAll(gamesFromReplay);
         Collections.shuffle(games);
         // log how many games are from the replay buffer and how many from the buffer
         int nReplayGamesFromBuffer = (int) games.stream().filter(g -> g.getPlayTypeKey() == PlayTypeKey.REANALYSE).count();
-        int nGamesFromBuffer = games.size() - nReplayGamesFromBuffer;
-        log.info("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nReplayGamesFromBuffer);
+
+        log.info("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nGamesFromReplay);
 
         return games;
     }

@@ -110,7 +110,7 @@ public class GameBufferIO {
 
     public List<Game> loadGamesForReplay(int n , List<String> networkNamesNotToLoad, MuZeroConfig config) {
         List<Game> games = new ArrayList<>();
-        GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
+        //GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
 
 
         List<Path> paths = this.getBufferNames();
@@ -127,7 +127,7 @@ public class GameBufferIO {
         Collections.shuffle(paths);
         for (int h = 0; h < paths.size() && games.size() <= n; h++) {
             Path path = paths.get(paths.size() - 1 - h);
-            GameBufferDTO gameBufferDTO2 = this.loadState(path);
+            GameBufferDTO gameBufferDTO= this.loadState(path);
              games.addAll(gameBufferDTO.getGames());
         }
 
