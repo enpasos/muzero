@@ -8,7 +8,7 @@ option java_multiple_files = true;
 
 
 
-message ReplayBufferProto {
+message GameBufferProto {
   int32 version = 10;
   string game_class_name = 11;
   int32 counter = 12;

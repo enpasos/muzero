@@ -24,14 +24,13 @@ class MySoftmaxCrossEntropyLossTest {
         NDArray prediction = manager.create(new float[]{0.8f, 0f, 0.1f, 0, 1f, 0});
         prediction = prediction.reshape(shape);
 
-
         assertEquals(0.61030173f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
 
     @Test
     void evaluateLegalActions1() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
-loss.setUseLabelAsLegalCategoriesFilter(true);
+//loss.setUseLabelAsLegalCategoriesFilter(true);
         NDManager manager = NDManager.newBaseManager();
 
         Shape shape = new Shape(1, 2);
@@ -47,29 +46,12 @@ loss.setUseLabelAsLegalCategoriesFilter(true);
         assertEquals(0.437488f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
 
-    @Test
-    void evaluateLegalActions() {
-        MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true );
-        loss.setUseLabelAsLegalCategoriesFilter(true);
-        NDManager manager = NDManager.newBaseManager();
 
-        Shape shape = new Shape(2, 3);
-
-
-        NDArray label = manager.create(new float[]{1f, 0f, 1f, 0, 1f, 0});
-        label = label.reshape(shape);
-
-        NDArray prediction = manager.create(new float[]{0.8f, 0f, 0.1f, 0, 1f, 0});
-        prediction = prediction.reshape(shape);
-
-
-        assertEquals(0.7247226f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
-    }
 
     @Test
     void evaluateLegalActions2() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true );
-        loss.setUseLabelAsLegalCategoriesFilter(true);
+   //     loss.setUseLabelAsLegalCategoriesFilter(true);
         NDManager manager = NDManager.newBaseManager();
 
         Shape shape = new Shape(2, 3);

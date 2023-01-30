@@ -22,14 +22,17 @@ import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
+import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,20 +50,24 @@ public class GameProvider {
     MuZeroConfig config;
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
+
+
+    @Autowired
+    SelfPlay selfPlay;
 
 
     @NotNull
     public Optional<Game> getGame() {
-        replayBuffer.loadLatestState();
-        return Optional.of(replayBuffer.getBuffer().getGames().get(replayBuffer.getBuffer().getGames().size() - 1));
+        gameBuffer.loadLatestState();
+        return Optional.of(gameBuffer.getBuffer().getGames().get(gameBuffer.getBuffer().getGames().size() - 1));
 
     }
 
     @NotNull
     public Optional<Game> getGame(int no) {
-        replayBuffer.loadLatestState();
-        return Optional.of(replayBuffer.getBuffer().getGames().get(no));
+        gameBuffer.loadLatestState();
+        return Optional.of(gameBuffer.getBuffer().getGames().get(no));
     }
 
     public Optional<Game> getGameStartingWithActions(int... actions) {
@@ -69,8 +76,8 @@ public class GameProvider {
     }
 
     public Optional<Game> getGameStartingWithActions(List<Integer> actionsList) {
-        replayBuffer.loadLatestState();
-        List<Game> games = replayBuffer.getBuffer().getGames();
+        gameBuffer.loadLatestState();
+        List<Game> games = gameBuffer.getBuffer().getGames();
         return games.stream().filter(game ->
             // check if game.getGameDTO().getActions() starts with actionsList
             game.getGameDTO().getActions().stream().limit(actionsList.size()).collect(Collectors.toList()).equals(actionsList)
@@ -93,10 +100,30 @@ public class GameProvider {
                 network = new Network(config, model, Paths.get(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
             }
             game.setEpoch(NetworkHelper.getEpochFromModel(network.getModel()));
+            measureValueAndSurprise(network, List.of(game));
         } catch (Exception e) {
             return Optional.empty();
         }
         return Optional.of(game);
 
     }
+
+
+    public void measureValueAndSurprise(Network network, List<Game> games) {
+        games.forEach(Game::beforeReplayWithoutChangingActionHistory);
+        measureValueAndSurpriseMain(network, games);
+        games.forEach(Game::afterReplay);
+    }
+
+    private void measureValueAndSurpriseMain(Network network, List<Game> games) {
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+        List<Game> resultGames = new ArrayList<>();
+        int i = 1;
+        for (List<Game> gameList : gameBatches) {
+            log.debug("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
+            resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, gameList));
+        }
+
+    }
+
 }

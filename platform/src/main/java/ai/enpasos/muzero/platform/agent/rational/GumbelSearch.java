@@ -228,10 +228,10 @@ public class GumbelSearch {
 
         backUp(networkOutput.getValue(), node.getToPlay(), this.config.getDiscount());
 
-        if (game.isRecordValueImprovements()) {
-            double vImprovement = root.getImprovedValue() - root.getValueFromInitialInference();
-            game.getValueImprovements().add(vImprovement);
-        }
+//        if (game.isRecordValueImprovements()) {
+//            double vImprovement = root.getImprovedValue() - root.getValueFromInitialInference();
+//            game.getValueImprovements().add(vImprovement);
+//        }
 
     }
 
@@ -270,11 +270,20 @@ public class GumbelSearch {
         }
     }
 
-    public void selectAndApplyActionAndStoreSearchStatistics(boolean render, boolean fastRuleLearning) {
+    public void storeSearchStatictics(boolean render, boolean fastRuleLearning) {
+        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
+    }
+
+    public void selectAndApplyAction(boolean render, boolean fastRuleLearning, boolean replay ) {
 
         Action action = null;
 
-        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
+        if (replay) {
+//            int s = game.getGameDTO().getRootValueTargets().size();
+//            action = config.newAction(game.getGameDTO().getActions().get(s - 1));
+//            applyAction(render, action);
+            return;
+       }
 
         if (fastRuleLearning) {
             action = root.getRandomAction();
