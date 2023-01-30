@@ -22,26 +22,22 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
-import ai.djl.ndarray.refcount.RCScope;
+import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
-import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEpochTrainingListener;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.MyIndexLoss;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.MySoftmaxCrossEntropyLoss;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,32 +64,21 @@ public class MuZero {
     SelfPlay selfPlay;
 
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
 
     @Autowired
     NetworkHelper networkHelper;
 
-    private static void setTrainingTypeKeyOnTrainer(Trainer trainer, TrainingTypeKey trainingTypeKey) {
-        SimpleCompositeLoss loss = (SimpleCompositeLoss) trainer.getLoss();
-        List<MySoftmaxCrossEntropyLoss> losses = loss.getComponents().stream()
-            .map(c -> ((MyIndexLoss) c).getLoss())
-            .filter(c -> c.getName().contains("loss_policy")).map(c -> (MySoftmaxCrossEntropyLoss) c).toList();
-        losses.stream().forEach(l -> l.setUseLabelAsLegalCategoriesFilter(trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT));
-    }
 
-    public void play(Network network, boolean render, boolean justInitialInferencePolicy, boolean withRandomActions) {
-
-        selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy, withRandomActions);
-    }
 
     public void initialFillingBuffer(Network network) {
 
-        long startCounter = replayBuffer.getBuffer().getCounter();
+        long startCounter = gameBuffer.getBuffer().getCounter();
         int windowSize = config.getWindowSize();
-        while (replayBuffer.getBuffer().getCounter() - startCounter < windowSize) {
-            log.info(replayBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(network, false, true, false, false);
+        while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
+            log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
+            selfPlay.playMultipleEpisodes(network, false, true, false);
         }
     }
 
@@ -117,9 +102,9 @@ public class MuZero {
         try {
             String outputDir = config.getNetworkBaseDir();
             model.load(Paths.get(outputDir));
-            replayBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
+            gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
-            try (RCScope rcScope1 = new RCScope()) {
+            try (NDScope nDScope1 = new NDScope()) {
                 trainNetwork(model);
             }
             String outputDir = config.getNetworkBaseDir();
@@ -128,7 +113,7 @@ public class MuZero {
             } catch (Exception ex) {
                 throw new MuZeroException(ex);
             }
-            replayBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
+            gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         }
     }
 
@@ -156,7 +141,7 @@ public class MuZero {
 
         loadBuffer(params.freshBuffer);
 
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 Network network = new Network(config, model);
                 if (!params.withoutFill) {
@@ -164,13 +149,13 @@ public class MuZero {
                 }
             }
         }
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 createNetworkModelIfNotExisting();
             }
         }
 
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
                 Network network = new Network(config, model);
@@ -188,26 +173,28 @@ public class MuZero {
 
                     if (!params.freshBuffer) {
 
-                        try (RCScope rcScope1 = new RCScope()) {
+                        try (NDScope nDScope1 = new NDScope()) {
+                            PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                             for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                                 config.setPlayTypeKey(key);
                                 playGames(params.render, network, trainingStep);
                             }
+                            config.setPlayTypeKey(originalPlayTypeKey);
                         }
 
-                        int n = replayBuffer.getBuffer().getGames().size();
-                        int m = (int) replayBuffer.getBuffer().getGames().stream().filter(g ->
+                        int n = gameBuffer.getBuffer().getGames().size();
+                        int m = (int) gameBuffer.getBuffer().getGames().stream().filter(g ->
                             g.getGameDTO().getTStateB() != 0
                         ).count();
                         log.info("games with an alternative action " + m + " out of " + n);
-                        log.info("counter: " + replayBuffer.getBuffer().getCounter());
-                        log.info("window size: " + replayBuffer.getBuffer().getWindowSize());
+                        log.info("counter: " + gameBuffer.getBuffer().getCounter());
+                        log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
 
 
-                        log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
+                        log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
                     }
                     params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-                    try (RCScope rcScope1 = new RCScope()) {
+                    try (NDScope nDScope1 = new NDScope()) {
                         trainingStep = trainNetwork(model);
                     }
 
@@ -229,9 +216,9 @@ public class MuZero {
     }
 
     public void loadBuffer(boolean freshBuffer) {
-        replayBuffer.init();
+        gameBuffer.init();
         if (!freshBuffer) {
-            replayBuffer.loadLatestState();
+            gameBuffer.loadLatestState();
         }
     }
 
@@ -243,7 +230,6 @@ public class MuZero {
         int epoch;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         boolean withSymmetryEnrichment = true;
-        for (TrainingTypeKey trainingTypeKey : List.of(TrainingTypeKey.POLICY_DEPENDENT)) {
             epoch = getEpochFromModel(model);
             DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
             int finalEpoch = epoch;
@@ -253,16 +239,10 @@ public class MuZero {
             try (Trainer trainer = model.newTrainer(djlConfig)) {
                 Shape[] inputShapes = networkHelper.getInputShapes();
                 trainer.initialize(inputShapes);
-                setTrainingTypeKeyOnTrainer(trainer, trainingTypeKey);
-                replayBuffer.setTrainingTypeKey(trainingTypeKey);
-                if (trainingTypeKey == TrainingTypeKey.POLICY_INDEPENDENT
-                    && replayBuffer.getGames(trainingTypeKey).size() < config.getWindowSize()) {
-                    continue;
-                }
                 trainer.setMetrics(new Metrics());
 
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment, trainingTypeKey)) {
+                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
                         log.debug("trainBatch " + m);
                         MyEasyTrain.trainBatch(trainer, batch);
                         trainer.step();
@@ -270,33 +250,22 @@ public class MuZero {
                 }
 
                 // number of action paths
-                int numActionPaths = this.replayBuffer.getBuffer().getNumOfDifferentGames();
+                int numActionPaths = this.gameBuffer.getBuffer().getNumOfDifferentGames();
                 model.setProperty("NumActionPaths", Double.toString(numActionPaths));
                 log.info("NumActionPaths: " + numActionPaths);
 
-                handleMetrics(trainingTypeKey, trainer, model, epoch);
+                handleMetrics(trainer, model, epoch);
 
-                setTrainingTypeKeyOnTrainer(trainer, TrainingTypeKey.POLICY_DEPENDENT);
-                replayBuffer.setTrainingTypeKey(TrainingTypeKey.POLICY_DEPENDENT);
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
-        }
+       // }
         epoch = getEpochFromModel(model);
         return epoch * numberOfTrainingStepsPerEpoch;
 
     }
 
-    private void handleMetrics(TrainingTypeKey trainingTypeKey, Trainer trainer, Model model, int epoch) {
+    private void handleMetrics(Trainer trainer, Model model, int epoch) {
         Metrics metrics = trainer.getMetrics();
-        // number of action paths
-        int numActionPaths = this.replayBuffer.getBuffer().getNumOfDifferentGames();
-        model.setProperty(trainingTypeKey + "NumActionPaths", Double.toString(numActionPaths));
-        log.info("NumActionPaths: " + numActionPaths);
-        // mean loss
-        List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-        double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);
-        model.setProperty(trainingTypeKey + "MeanLoss", Double.toString(meanLoss));
-        log.info("MeanLoss: " + meanLoss);
 
         // mean value
         // loss
@@ -304,12 +273,12 @@ public class MuZero {
             .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        replayBuffer.putMeanValueLoss(epoch, meanValueLoss);
+        gameBuffer.putMeanValueLoss(epoch, meanValueLoss);
         meanValueLoss += metrics.getMetricNames().stream()
             .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        model.setProperty(trainingTypeKey + "MeanValueLoss", Double.toString(meanValueLoss));
+        model.setProperty( "MeanValueLoss", Double.toString(meanValueLoss));
         log.info("MeanValueLoss: " + meanValueLoss);
 
 
@@ -319,12 +288,12 @@ public class MuZero {
             .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        replayBuffer.putMeanValueLoss(epoch, meanSimLoss);
+        gameBuffer.putMeanValueLoss(epoch, meanSimLoss);
         meanSimLoss += metrics.getMetricNames().stream()
             .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        model.setProperty(trainingTypeKey + "MeanSimilarityLoss", Double.toString(meanSimLoss));
+        model.setProperty( "MeanSimilarityLoss", Double.toString(meanSimLoss));
         log.info("MeanSimilarityLoss: " + meanSimLoss);
 
         // mean policy loss
@@ -336,7 +305,7 @@ public class MuZero {
             .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        model.setProperty(trainingTypeKey + "MeanPolicyLoss", Double.toString(meanPolicyLoss));
+        model.setProperty(  "MeanPolicyLoss", Double.toString(meanPolicyLoss));
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
     }
 
@@ -347,7 +316,8 @@ public class MuZero {
             network.debugDump();
             boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
-            play(network, render, justInitialInferencePolicy, true);
+
+            selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
 
         }
     }

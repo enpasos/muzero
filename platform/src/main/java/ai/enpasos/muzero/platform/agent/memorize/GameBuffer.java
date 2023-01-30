@@ -26,7 +26,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.Observation;
 import ai.enpasos.muzero.platform.agent.intuitive.Sample;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.TrainingTypeKey;
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -52,19 +52,19 @@ import java.util.stream.Collectors;
 @Data
 @Slf4j
 @Component
-public class ReplayBuffer {
+public class GameBuffer {
 
 
     public static final String EPOCH_STR = "Epoch";
     String modelName;
     int epoch;
     private int batchSize;
-    private ReplayBufferDTO buffer;
-    private ReplayBufferDTO allEpisodes;
+    private GameBufferDTO buffer;
+    private GameBufferDTO replayBuffer;
     @Autowired
     private MuZeroConfig config;
     @Autowired
-    private ReplayBufferIO replayBufferIO;
+    private GameBufferIO gameBufferIO;
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     private Map<Integer, Double> entropyExplorationSum = new HashMap<>();
     private Map<Integer, Integer> entropyExplorationCount = new HashMap<>();
@@ -75,18 +75,15 @@ public class ReplayBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
-    private TrainingTypeKey trainingTypeKey = TrainingTypeKey.POLICY_DEPENDENT;
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, GameBuffer gameBuffer) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, replayBuffer, trainingTypeKey);
+        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, gameBuffer);
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, ReplayBuffer replayBuffer, TrainingTypeKey trainingTypeKey) {
+    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, GameBuffer gameBuffer) {
         Sample sample = new Sample();
-        sample.setTrainingTypeKey(
-            trainingTypeKey
-        );
+
         game.replayToPosition(gamePos);
 
         sample.getObservations().add(game.getObservation());
@@ -111,7 +108,7 @@ public class ReplayBuffer {
 
         }
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps, sample.getTrainingTypeKey()));
+        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps ));
 
         return sample;
     }
@@ -140,11 +137,11 @@ public class ReplayBuffer {
         return epoch;
     }
 
-    public ReplayBufferDTO getBuffer() {
-        if (trainingTypeKey == TrainingTypeKey.POLICY_DEPENDENT) {
-            return this.buffer;
+    public GameBufferDTO getBuffer() {
+        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            return this.replayBuffer;
         } else {
-            return this.allEpisodes;
+            return this.buffer;
         }
     }
 
@@ -159,7 +156,7 @@ public class ReplayBuffer {
     public void createNetworkNameFromModel(Model model, String modelName, String outputDir) {
         int epochLocal = 0;
         if (model != null) {
-            String epochValue = model.getProperty(ReplayBuffer.EPOCH_STR);
+            String epochValue = model.getProperty(GameBuffer.EPOCH_STR);
             Path modelPath = Paths.get(outputDir);
 
             try {
@@ -196,8 +193,8 @@ public class ReplayBuffer {
             });
             this.getBuffer().games.clear();
         }
-        this.buffer = new ReplayBufferDTO(config);
-        this.allEpisodes = new ReplayBufferDTO(config);
+        this.buffer = new GameBufferDTO(config);
+        this.replayBuffer = new GameBufferDTO(config);
         createNetworkNameFromModel(null, null, null);
 
     }
@@ -205,20 +202,19 @@ public class ReplayBuffer {
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps, TrainingTypeKey trainingTypeKey) {
+    public List<Sample> sampleBatch(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGames(trainingTypeKey).stream()
+            return sampleGames().stream()
                 //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
                 //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
-                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this, trainingTypeKey))
+                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
                 .collect(Collectors.toList());
         }
     }
 
-    // for "fair" training do train the strengths of PlayerA and PlayerB equally
-    public List<Game> sampleGames(TrainingTypeKey trainingTypeKey) {
+    public List<Game> sampleGames() {
 
-        List<Game> games = getGames(trainingTypeKey);
+        List<Game> games = getGames();
         Collections.shuffle(games);
 
 
@@ -249,28 +245,33 @@ public class ReplayBuffer {
     }
 
     @NotNull
-    public List<Game> getGames(TrainingTypeKey trainingTypeKey) {
-        List<Game> games = new ArrayList<>();
+    public List<Game> getGames() {
+        List<Game> gamesFromBuffer = new ArrayList<>(this.buffer.getGames());
+        List<Game> gamesFromReplayBuffer = new ArrayList<>(this.replayBuffer.getGames());
 
-        if (trainingTypeKey == TrainingTypeKey.POLICY_DEPENDENT) {
-            games = new ArrayList<>(this.getBuffer().getGames());
-        } else {
-            games = new ArrayList<>(this.getBuffer().getGames());
-            games.removeAll(this.buffer.getGames());
-        }
+        int nReplayGames = (int)(gamesFromBuffer.size() * config.getReplayFraction());
+        Collections.shuffle(gamesFromReplayBuffer);
+        List<Game> games =  gamesFromBuffer;
+        games.addAll(gamesFromReplayBuffer.subList(0, Math.min(nReplayGames, gamesFromReplayBuffer.size())));
+        Collections.shuffle(games);
+        // log how many games are from the replay buffer and how many from the buffer
+        int nReplayGamesFromBuffer = (int) games.stream().filter(g -> g.getPlayTypeKey() == PlayTypeKey.REANALYSE).count();
+        int nGamesFromBuffer = games.size() - nReplayGamesFromBuffer;
+        log.info("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nReplayGamesFromBuffer);
+
         return games;
     }
 
     public void loadLatestState() {
-        List<Path> paths = this.replayBufferIO.getBufferNames();
+        List<Path> paths = this.gameBufferIO.getBufferNames();
         for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
             Path path = paths.get(paths.size() - 1 - h);
-            ReplayBufferDTO replayBufferDTO = this.replayBufferIO.loadState(path);
+            GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
             int epochLocal = getEpochFromPath(path);
             if (h == 0) {
                 this.epoch = epochLocal;
             }
-            replayBufferDTO.getGames().forEach(game -> addGame(epochLocal, game, true));
+            gameBufferDTO.getGames().forEach(game -> addGame(epochLocal, game, true));
         }
     }
 
@@ -295,13 +296,18 @@ public class ReplayBuffer {
 
     public void addGames(Model model, List<Game> games, boolean atBeginning) {
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
-        this.timestamps.put(getEpoch(model), System.currentTimeMillis());
-        logEntropyInfo();
-        this.replayBufferIO.saveGames(
-            this.getBuffer().games.stream()
-                .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
-                .collect(Collectors.toList()),
-            this.getCurrentNetworkName(), this.getConfig());
+        if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            // do nothing more
+        } else {
+            this.timestamps.put(getEpoch(model), System.currentTimeMillis());
+            logEntropyInfo();
+            this.gameBufferIO.saveGames(
+                this.getBuffer().games.stream()
+                    .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
+                    .collect(Collectors.toList()),
+                this.getCurrentNetworkName(), this.getConfig());
+        }
+
     }
 
     private void addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
@@ -313,12 +319,12 @@ public class ReplayBuffer {
 
         memorizeEntropyInfo(game, epoch);
         game.getGameDTO().setNetworkName(networkName);
-        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+        getBuffer().addGameAndRemoveOldGameIfNecessary(game, atBeginning);
     }
 
     private void addGame(int epoch, Game game, boolean atBeginning) {
         memorizeEntropyInfo(game, epoch);
-        buffer.addGame(game, atBeginning);
+        getBuffer().addGame(game, atBeginning);
     }
 
     private void memorizeEntropyInfo(Game game, int epoch) {
@@ -375,5 +381,13 @@ public class ReplayBuffer {
     public double getDynamicRootTemperature() {
         return config.getTemperatureRoot();
 
+    }
+
+    public List<Game> getGamesToReanalyse() {
+        int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
+        List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
+        List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames, this.getConfig());
+        games.forEach(g -> g.setPlayTypeKey(PlayTypeKey.REANALYSE));
+        return games;
     }
 }

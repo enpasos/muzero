@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.go.run;
 
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
+import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.run.train.TrainParams;
@@ -18,7 +18,7 @@ public class GoTrainingAndTest {
     @Autowired
     GoStartValueExtractor goStartValueExtractor;
     @Autowired
-    ReplayBuffer replayBuffer;
+    GameBuffer gameBuffer;
     @Autowired
     private MuZeroConfig config;
     @Autowired
