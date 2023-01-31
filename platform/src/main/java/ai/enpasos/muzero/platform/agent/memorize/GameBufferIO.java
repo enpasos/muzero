@@ -248,7 +248,7 @@ public class GameBufferIO {
         }
         try (Stream<Path> walk = Files.walk(gamesPath)) {
             OptionalInt no = walk.filter(Files::isRegularFile)
-                .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", "")))
+                .mapToInt(path -> Integer.parseInt(path.toString().substring((config.getGamesBasedir() + "\\"  ).length()).replace("proto", "").replace(".zip", "").replace("buf", "").replace(config.getModelName(), "").replace("-", "")))
                 .max();
             if (no.isPresent()) {
                 return no.getAsInt();
