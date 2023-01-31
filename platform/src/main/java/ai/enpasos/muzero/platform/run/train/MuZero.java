@@ -267,6 +267,13 @@ public class MuZero {
     private void handleMetrics(Trainer trainer, Model model, int epoch) {
         Metrics metrics = trainer.getMetrics();
 
+
+        // mean loss
+        List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
+        double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);
+        model.setProperty("MeanLoss", Double.toString(meanLoss));
+        log.info("MeanLoss: " + meanLoss);
+
         // mean value
         // loss
         double meanValueLoss = metrics.getMetricNames().stream()

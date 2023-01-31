@@ -248,8 +248,10 @@ public class GameBuffer {
     public List<Game> getGames() {
         List<Game> gamesFromBuffer = new ArrayList<>(this.buffer.getGames());
         List<Game> gamesFromReplayBuffer = new ArrayList<>(this.replayBuffer.getGames());
+        double f = config.getReplayFraction();
+        int nReplayGames = (int)(gamesFromBuffer.size() * f / (1-f));
+        // TODO if f > 0.5
 
-        int nReplayGames = (int)(gamesFromBuffer.size() * config.getReplayFraction());
         Collections.shuffle(gamesFromReplayBuffer);
         int nGamesFromBuffer = gamesFromBuffer.size();
         List<Game> games =  gamesFromBuffer;

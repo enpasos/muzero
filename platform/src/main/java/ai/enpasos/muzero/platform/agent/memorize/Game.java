@@ -199,8 +199,11 @@ public abstract class Game {
         double value;
         int tdSteps = 0;
         if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-            if (currentIndex < this.getGameDTO().getRootValueTargets().size() ){
-                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+
+
+            if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
+                int i = this.getGameDTO().getRewards().size() - 1;
+                value = (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
             } else {
                 value = this.getGameDTO().getRootValueTargets().get( this.getGameDTO().getRootValueTargets().size()-1);
             }
