@@ -279,9 +279,6 @@ public class GumbelSearch {
         Action action = null;
 
         if (replay) {
-//            int s = game.getGameDTO().getRootValueTargets().size();
-//            action = config.newAction(game.getGameDTO().getActions().get(s - 1));
-//            applyAction(render, action);
             return;
        }
 
@@ -307,13 +304,13 @@ public class GumbelSearch {
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()) {
-                action = getAction(temperature, raw);
+                action = getAction(temperature, raw, game);
             } else {
                 //  the Gumbel selection
                 action = selectedAction;
             }
         } else {
-            action = getAction(temperature, raw);
+            action = getAction(temperature, raw, game);
         }
         applyAction(render, action);
 
@@ -334,9 +331,10 @@ public class GumbelSearch {
         }
     }
 
-    private Action getAction(double temperature, double[] raw) {
+    private Action getAction(double temperature, double[] raw, Game game) {
         Action action;
         double[] p = softmax(raw, temperature);
+        game.getPlayoutPolicy().add(p);
         int i = draw(p);
         action = config.newAction(i);
         return action;

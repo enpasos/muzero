@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sound.sampled.BooleanControl;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 
@@ -84,11 +86,14 @@ public abstract class Game {
 
     private PlayTypeKey playTypeKey;
 
+    private List<double[]> playoutPolicy;
+
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
         this.gameDTO = new GameDTO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
+        this.playoutPolicy = new ArrayList<>();
         r = new Random();
     }
 
@@ -97,6 +102,7 @@ public abstract class Game {
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
+        this.playoutPolicy = new ArrayList<>();
     }
 
     public static Game decode(@NotNull MuZeroConfig config, byte @NotNull [] bytes) {
@@ -205,13 +211,18 @@ public abstract class Game {
                 int i = this.getGameDTO().getRewards().size() - 1;
                 value = (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
             } else {
+                // TODO
+
                 value = this.getGameDTO().getRootValueTargets().get( this.getGameDTO().getRootValueTargets().size()-1);
             }
         } else {
-             tdSteps = this.getGameDTO().getTdSteps();
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-                tdSteps = 0;
+                int T = this.getGameDTO().getRewards().size() - 1;
+                tdSteps = getTdSteps(currentIndex, T);
+            } else {
+                tdSteps = this.getGameDTO().getTdSteps();
             }
+            // TODO is TDSteps == T handled correctly?
              value = calculateValue(tdSteps, currentIndex);
         }
 
@@ -252,6 +263,32 @@ public abstract class Game {
             Arrays.fill(target.getPolicy(), 0f);
         }
 
+    }
+
+    private int getTdSteps(int currentIndex, int T) {
+        int tdSteps;
+        tdSteps = 0;
+
+        double b = ThreadLocalRandom.current().nextDouble(0, 1);
+
+        for (int t = T; t >= currentIndex; t--) {
+
+            double pBase = 1;
+            for (int i = t; i <= T; i++) {
+                pBase *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+            }
+            double p = 1;
+            for (int i = t; i <= T; i++) {
+                p *= this.getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+            }
+            double pRatio = p / pBase;
+            if (pRatio > b) {
+                tdSteps = t - currentIndex;
+                break;
+            }
+
+        }
+        return tdSteps;
     }
 
     private void setValueOnTarget(Target target, double value) {
