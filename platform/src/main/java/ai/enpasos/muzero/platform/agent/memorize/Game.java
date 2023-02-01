@@ -274,7 +274,12 @@ public abstract class Game {
 
             double pBase = 1;
             for (int i = t; i <= T; i++) {
-                pBase *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+                try{
+                    pBase *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+              //  pBase *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double p = 1;
             for (int i = t; i <= T; i++) {

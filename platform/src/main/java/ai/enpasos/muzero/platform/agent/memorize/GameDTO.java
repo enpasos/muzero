@@ -192,10 +192,10 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.addAllEntropies(getEntropies());
         gameBuilder.addAllMaxEntropies(getMaxEntropies());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
-        getPlayoutPolicy().forEach(policyTarget -> {
+        getPlayoutPolicy().forEach(policy  -> {
             PolicyProtos.Builder b = PolicyProtos.newBuilder();
-            IntStream.range(0, policyTarget.length).forEach(i ->
-                b.addPolicy(policyTarget[i])
+            IntStream.range(0, policy.length).forEach(i ->
+                b.addPolicy(policy[i])
             );
             gameBuilder.addPlayoutPolicy(b.build());
         });
@@ -236,7 +236,18 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setCount(p.getCount());
         this.setNextSurpriseCheck(p.getNextSurpriseCheck());
-
+        if (p.getPolicyTargetsCount() > 0) {
+            this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policy -> {
+                        float[] result = new float[p.getPolicyTargets(0).getPolicyCount()];
+                        int i = 0;
+                        for (Float f : policy.getPolicyList()) {
+                            result[i++] = f;
+                        }
+                        return result;
+                    }
+                )
+                .collect(Collectors.toList()));
+        }
 
         if (p.getPlayoutPolicyCount() > 0) {
             this.setPlayoutPolicy(p.getPlayoutPolicyList().stream().map(policyProtos -> {
