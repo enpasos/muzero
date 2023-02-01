@@ -56,8 +56,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public abstract class Game {
 
-    //    @Builder.Default
-   // protected boolean recordValueImprovements = false;
+
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
@@ -86,14 +85,14 @@ public abstract class Game {
 
     private PlayTypeKey playTypeKey;
 
-    private List<double[]> playoutPolicy;
+
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
         this.gameDTO = new GameDTO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
-        this.playoutPolicy = new ArrayList<>();
+
         r = new Random();
     }
 
@@ -102,7 +101,6 @@ public abstract class Game {
         this.gameDTO = gameDTO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
-        this.playoutPolicy = new ArrayList<>();
     }
 
     public static Game decode(@NotNull MuZeroConfig config, byte @NotNull [] bytes) {
@@ -268,6 +266,7 @@ public abstract class Game {
     private int getTdSteps(int currentIndex, int T) {
         int tdSteps;
         tdSteps = 0;
+        if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
 
         double b = ThreadLocalRandom.current().nextDouble(0, 1);
 
@@ -279,7 +278,12 @@ public abstract class Game {
             }
             double p = 1;
             for (int i = t; i <= T; i++) {
-                p *= this.getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+                try{
+                    p *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+             //   p *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
             if (pRatio > b) {

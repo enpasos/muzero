@@ -23,6 +23,8 @@ import static ai.enpasos.muzero.platform.agent.rational.GumbelInfo.initGumbelInf
 import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.draw;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
+import static ai.enpasos.muzero.platform.common.Functions.toFloat;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
@@ -285,12 +287,14 @@ public class GumbelSearch {
         if (fastRuleLearning) {
             action = root.getRandomAction();
             applyAction(render, action);
+            this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
             return;
         }
 
         if (config.isGumbelActionSelection()) {
             action = selectedAction;
             applyAction(render, action);
+            this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
             return;
         }
 
@@ -308,6 +312,8 @@ public class GumbelSearch {
             } else {
                 //  the Gumbel selection
                 action = selectedAction;
+                this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
+
             }
         } else {
             action = getAction(temperature, raw, game);
@@ -334,7 +340,7 @@ public class GumbelSearch {
     private Action getAction(double temperature, double[] raw, Game game) {
         Action action;
         double[] p = softmax(raw, temperature);
-        game.getPlayoutPolicy().add(p);
+        game.getGameDTO().getPlayoutPolicy().add(toFloat(p));
         int i = draw(p);
         action = config.newAction(i);
         return action;
