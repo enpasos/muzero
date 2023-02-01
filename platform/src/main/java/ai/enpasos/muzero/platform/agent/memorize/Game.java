@@ -274,23 +274,17 @@ public abstract class Game {
 
             double pBase = 1;
             for (int i = t; i <= T; i++) {
-                try{
-                    pBase *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-              //  pBase *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+                pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double p = 1;
             for (int i = t; i <= T; i++) {
-                try{
-                    p *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-             //   p *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+                p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
+            System.out.println("pRatio: " + pRatio);
+            if (pRatio < 1) {
+                int i = 42;
+            }
             if (pRatio > b) {
                 tdSteps = t - currentIndex;
                 break;
