@@ -68,7 +68,13 @@ public class Functions {
     public static double[] toDouble(float[] ps) {
         return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
     }
-
+    public static float[] toFloat(double[] ps) {
+        float[] result = new float[ps.length];
+        for (int i = 0; i < ps.length; i++) {
+            result[i] = (float) ps[i];
+        }
+        return result;
+    }
     public static double entropy(double[] ps) {
         return Arrays.stream(ps).reduce(0d, (e, p) -> e + singleEntropySummand(p));
     }
