@@ -76,12 +76,12 @@ public class GameBuffer {
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, GameBuffer gameBuffer) {
+    public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, GameBuffer gameBuffer) {
         int gamePos = samplePosition(game);
         return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, gameBuffer);
     }
 
-    public static @NotNull Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, GameBuffer gameBuffer) {
+    public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, GameBuffer gameBuffer) {
         Sample sample = new Sample();
 
         game.replayToPosition(gamePos);
@@ -109,7 +109,7 @@ public class GameBuffer {
 
         }
 
-        sample.setTargetList(game.makeTarget(gamePos, numUnrollSteps ));
+        sample.setTargetList(game.makeTarget(this, gamePos, numUnrollSteps ));
 
         return sample;
     }
@@ -404,5 +404,19 @@ public class GameBuffer {
         List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames, this.getConfig());
         games.forEach(g -> g.setPlayTypeKey(PlayTypeKey.REANALYSE));
         return games;
+    }
+
+
+    double pRatioMaxTemp = 0.0;
+    double pRatioMax = 10.0;   // start value to be on the save side
+
+
+    public void enterPRatioMaxCandidate(double b) {
+        pRatioMaxTemp = Math.max(pRatioMaxTemp, b);
+
+    }
+    public void resetPRatioMax() {
+        pRatioMax = pRatioMaxTemp;
+        pRatioMaxTemp = 0.0;
     }
 }
