@@ -209,7 +209,7 @@ public abstract class Game {
                 int i = this.getGameDTO().getRewards().size() - 1;
                 value = (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
             } else {
-                // TODO
+                // TODO tdSteps
 
                 value = this.getGameDTO().getRootValueTargets().get( this.getGameDTO().getRootValueTargets().size()-1);
             }
@@ -266,6 +266,7 @@ public abstract class Game {
     private int getTdSteps(int currentIndex, int T) {
         int tdSteps;
         tdSteps = 0;
+        if (!config.offPolicyCorrectionOn()) return tdSteps;
         if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
 
         double b = ThreadLocalRandom.current().nextDouble(0, 1);
