@@ -216,38 +216,41 @@ public class GameBuffer {
 
         List<Game> games = getGames();
         Collections.shuffle(games);
-//
-//        long nDraw = games.stream().filter(g -> {
-//            if (g instanceof ZeroSumGame zeroSumGame) {
-//                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-//                return winner.isEmpty() ;
-//            } else {
-//                return false;
-//            }
-//        }).count();
-//
-//        long nWinB = games.stream().filter(g -> {
-//            if (g instanceof ZeroSumGame zeroSumGame) {
-//                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-//                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_B;
-//            } else {
-//                return false;
-//            }
-//        }).count();
-//        long nWinA = games.stream().filter(g -> {
-//            if (g instanceof ZeroSumGame zeroSumGame) {
-//                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-//                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_A;
-//            } else {
-//                return false;
-//            }
-//        }).count();
-//
-//        if (nDraw + nWinA + nWinB == games.size()) {
-//            log.info("{} draws, {} win A, {} win B", nDraw, nWinA, nWinB);
-//        }
-        games.stream().forEach(g -> g.setPlayTypeKey(config.getPlayTypeKey()));
-        return games;
+
+        long nDraw = games.stream().filter(g -> {
+            if (g instanceof ZeroSumGame zeroSumGame) {
+                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+                return winner.isEmpty() ;
+            } else {
+                return false;
+            }
+        }).count();
+
+        long nWinB = games.stream().filter(g -> {
+            if (g instanceof ZeroSumGame zeroSumGame) {
+                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_B;
+            } else {
+                return false;
+            }
+        }).count();
+        long nWinA = games.stream().filter(g -> {
+            if (g instanceof ZeroSumGame zeroSumGame) {
+                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_A;
+            } else {
+                return false;
+            }
+        }).count();
+
+        if (nDraw + nWinA + nWinB == games.size()) {
+            log.info("{} draws, {} win A, {} win B", nDraw, nWinA, nWinB);
+        }
+        List<Game> gamesToTrain = games.stream()
+                .limit(this.batchSize )
+                .collect(Collectors.toList());
+        gamesToTrain.stream().forEach(g -> g.setPlayTypeKey(config.getPlayTypeKey()));
+        return gamesToTrain;
     }
 
     @NotNull
