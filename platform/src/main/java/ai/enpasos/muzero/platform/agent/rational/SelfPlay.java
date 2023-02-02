@@ -397,6 +397,7 @@ public class SelfPlay {
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
             game.getGameDTO().getPolicyTargets().add(policyTarget);
+            game.getGameDTO().getPlayoutPolicy().add(policyTarget);
             if (render && game.isDebug()) {
                 game.renderMCTSSuggestion(config, policyTarget);
                 log.info("\n" + game.render());
