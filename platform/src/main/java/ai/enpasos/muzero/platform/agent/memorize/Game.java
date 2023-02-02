@@ -282,10 +282,10 @@ public abstract class Game {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            System.out.println("pRatio: " + pRatio);
-            if (pRatio < 1) {
-                int i = 42;
-            }
+//            System.out.println("pRatio: " + pRatio);
+//            if (pRatio < 1) {
+//                int i = 42;
+//            }
             if (pRatio > b) {
                 tdSteps = t - currentIndex;
                 break;

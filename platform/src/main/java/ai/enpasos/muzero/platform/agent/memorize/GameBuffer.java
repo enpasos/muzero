@@ -245,7 +245,7 @@ public class GameBuffer {
         }).count();
 
         if (nDraw + nWinA + nWinB == games.size()) {
-            log.info("{} draws, {} win A, {} win B", nDraw, nWinA, nWinB);
+            log.trace("{} draws, {} win A, {} win B", nDraw, nWinA, nWinB);
         }
         List<Game> gamesToTrain = games.stream()
                 .limit(this.batchSize )
@@ -272,7 +272,7 @@ public class GameBuffer {
         // log how many games are from the replay buffer and how many from the buffer
         int nReplayGamesFromBuffer = (int) games.stream().filter(g -> g.getPlayTypeKey() == PlayTypeKey.REANALYSE).count();
 
-        log.info("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nGamesFromReplay);
+        log.trace("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nGamesFromReplay);
 
         return games;
     }

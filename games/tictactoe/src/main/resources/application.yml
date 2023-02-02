@@ -77,9 +77,9 @@ muzero:
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500
 
-      replayFraction: 0.5
+      replayFraction: 0.0
 
-      offPolicyCorrectionOn: false
+      offPolicyCorrectionOn: true
 
       playTypes:
         PLAYOUT:
