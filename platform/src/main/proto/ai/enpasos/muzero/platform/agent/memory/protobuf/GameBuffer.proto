@@ -17,7 +17,8 @@ message GameBufferProto {
 message GameProto {
   repeated int32 actions = 1;
   repeated float rewards = 2;
-  repeated PolicyTargetProtos policy_targets = 3;
+  repeated PolicyProtos policy_targets = 3;
+  repeated PolicyProtos playout_policy = 25;
   repeated float root_value_targets = 4;
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;
@@ -39,8 +40,8 @@ message GameProto {
   repeated float maxEntropies = 24;
 
 }
-message PolicyTargetProtos {
-  repeated float policy_target = 1;
+message PolicyProtos {
+  repeated float policy = 1;
 }
 
 message LegalActionProtos {

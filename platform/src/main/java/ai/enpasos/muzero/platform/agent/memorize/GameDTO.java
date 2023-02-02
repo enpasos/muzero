@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.agent.memorize;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.LegalActionProtos;
-import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyTargetProtos;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -47,6 +47,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
     private List<Float> entropies;
     private List<float[]> policyTargets;
+    private List<float[]> playoutPolicy;
 
     private List<boolean[]> legalActions;
     private List<Float> rootValueTargets;
@@ -76,6 +77,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
+        this.playoutPolicy = new ArrayList<>();
         this.legalActions = new ArrayList<>();
         this.rootValueTargets = new ArrayList<>();
         this.entropies = new ArrayList<>();
@@ -124,6 +126,7 @@ public class GameDTO implements Comparable<GameDTO> {
             copy.actions.addAll(this.actions.subList(0, toPosition));
 
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+            this.playoutPolicy.subList(0, toPosition).forEach(pT -> copy.playoutPolicy.add(Arrays.copyOf(pT, pT.length)));
             this.legalActions.subList(0, toPosition).forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
             if (this.rootValueTargets.size() >= toPosition)
                 copy.rootValueTargets.addAll(this.rootValueTargets.subList(0, toPosition));
@@ -161,6 +164,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+        this.playoutPolicy.forEach(pT -> copy.playoutPolicy.add(Arrays.copyOf(pT, pT.length)));
         this.legalActions.forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
         copy.rootValueTargets.addAll(this.rootValueTargets);
         copy.rootValuesFromInitialInference.addAll(this.rootValuesFromInitialInference);
@@ -188,11 +192,17 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.addAllEntropies(getEntropies());
         gameBuilder.addAllMaxEntropies(getMaxEntropies());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
-
+        getPlayoutPolicy().forEach(policy  -> {
+            PolicyProtos.Builder b = PolicyProtos.newBuilder();
+            IntStream.range(0, policy.length).forEach(i ->
+                b.addPolicy(policy[i])
+            );
+            gameBuilder.addPlayoutPolicy(b.build());
+        });
         getPolicyTargets().forEach(policyTarget -> {
-            PolicyTargetProtos.Builder b = PolicyTargetProtos.newBuilder();
+            PolicyProtos.Builder b = PolicyProtos.newBuilder();
             IntStream.range(0, policyTarget.length).forEach(i ->
-                b.addPolicyTarget(policyTarget[i])
+                b.addPolicy(policyTarget[i])
             );
             gameBuilder.addPolicyTargets(b.build());
         });
@@ -226,13 +236,24 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setCount(p.getCount());
         this.setNextSurpriseCheck(p.getNextSurpriseCheck());
-
-
         if (p.getPolicyTargetsCount() > 0) {
-            this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policyTargetProtos -> {
-                        float[] result = new float[p.getPolicyTargets(0).getPolicyTargetCount()];
+            this.setPolicyTargets(p.getPolicyTargetsList().stream().map(policy -> {
+                        float[] result = new float[p.getPolicyTargets(0).getPolicyCount()];
                         int i = 0;
-                        for (Float f : policyTargetProtos.getPolicyTargetList()) {
+                        for (Float f : policy.getPolicyList()) {
+                            result[i++] = f;
+                        }
+                        return result;
+                    }
+                )
+                .collect(Collectors.toList()));
+        }
+
+        if (p.getPlayoutPolicyCount() > 0) {
+            this.setPlayoutPolicy(p.getPlayoutPolicyList().stream().map(policyProtos -> {
+                        float[] result = new float[p.getPlayoutPolicy(0).getPolicyCount()];
+                        int i = 0;
+                        for (Float f : policyProtos.getPolicyList()) {
                             result[i++] = f;
                         }
                         return result;
