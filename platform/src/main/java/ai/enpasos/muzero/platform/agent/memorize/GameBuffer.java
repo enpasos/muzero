@@ -86,8 +86,9 @@ public class GameBuffer {
 
         game.replayToPosition(gamePos);
 
-        sample.getObservations().add(game.getObservation());
         Observation lastObservation = game.getObservation();
+        sample.getObservations().add(lastObservation);
+
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
         int originalActionSize = actions.size();
