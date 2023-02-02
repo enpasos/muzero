@@ -79,6 +79,8 @@ muzero:
 
       replayFraction: 0.5
 
+      offPolicyCorrectionOn: false
+
       playTypes:
         PLAYOUT:
           forTraining: false
