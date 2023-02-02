@@ -130,6 +130,11 @@ public class MuZeroConfig {
         return getConf().networkWithRewardHead;
     }
 
+
+    public boolean offPolicyCorrectionOn() {
+        return getConf().offPolicyCorrectionOn;
+    }
+
     public SymmetryType getSymmetryType() {
         return getConf().symmetryType;
     }
@@ -487,6 +492,9 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
         int[] valueInterval;
+
+
+        boolean offPolicyCorrectionOn;
 
 
         public PlayTypeKey getPlayTypeKey() {
