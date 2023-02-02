@@ -417,6 +417,7 @@ public class GameBuffer {
     }
     public void resetPRatioMax() {
         pRatioMax = pRatioMaxTemp;
+        log.info(">>> pRatioMax: " + pRatioMax);
         pRatioMaxTemp = 0.0;
     }
 }
