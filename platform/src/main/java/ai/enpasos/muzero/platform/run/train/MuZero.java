@@ -172,7 +172,6 @@ public class MuZero {
                     int i = 0;
 
                     if (!params.freshBuffer) {
-                        gameBuffer.resetPRatioMax();
                         try (NDScope nDScope1 = new NDScope()) {
                             PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                             for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
