@@ -46,6 +46,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
+
 
 /**
  * A single episode of interaction with the environment.
@@ -186,7 +188,7 @@ public abstract class Game {
         this.getGameDTO().getActions().add(action.getIndex());
     }
 
-    public List<Target> makeTarget(double pRatioMax, int stateIndex, int numUnrollSteps ) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps ) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
@@ -412,5 +414,52 @@ public abstract class Game {
         searchManager = new GumbelSearch(config, this, debug, pRandomActionRawAverage);
     }
 
+    double pRatioMax;
+    public double getPRatioMax() {
+        int n = getGameDTO().getActions().size();
+        double[] pRatios = new double[n];
+        IntStream.range(0, n).forEach(i -> {
+            int a = getGameDTO().getActions().get(i);
+           if (getGameDTO().getPlayoutPolicy().isEmpty()) {
+               pRatios[i] = 1;
+           } else {
+               pRatios[i] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
+           }
+        });
+        return getProductPathMax(pRatios);
+    }
 
+
+
+//
+//        //  GameBuffer gameBuffer, int currentIndex, int T)
+//        int currentIndex =  gamePos;
+//        int T = game.getGameDTO().getActions().size() - 1;
+//        int tdSteps;
+//        tdSteps = 0;
+////            if (!config.offPolicyCorrectionOn()) return tdSteps;
+//        if (game.getGameDTO().getPlayoutPolicy().isEmpty()) return 1;
+//
+//        double pRatioMax = 0;
+//
+//        double b = ThreadLocalRandom.current().nextDouble(0, 1);
+//
+//        for (int t = T; t >= currentIndex; t--) {
+//
+//            double pBase = 1;
+//            for (int i = t; i <= T; i++) {
+//                pBase *=  game.getGameDTO().getPlayoutPolicy().get(i)[game.getGameDTO().getActions().get(i)];
+//            }
+//            double p = 1;
+//            for (int i = t; i <= T; i++) {
+//                p *= game.getGameDTO().getPolicyTargets().get(i)[game.getGameDTO().getActions().get(i)];
+//            }
+//            double pRatio = p / pBase;
+//            if (pRatio > pRatioMax) {
+//                pRatioMax = pRatio;
+//            }
+//        }
+//
+//        return pRatioMax;
+//    }
 }

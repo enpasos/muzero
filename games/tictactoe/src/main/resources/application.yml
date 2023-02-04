@@ -90,7 +90,7 @@ muzero:
           gumbelActionSelection: true
         HYBRID:
           forTraining: true
-          numEpisodes: 1
+          numEpisodes: 1 # TODO rethink the naming
           numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false

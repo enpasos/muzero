@@ -32,6 +32,7 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEpochTrainingListener;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.DurAndMem;
@@ -48,6 +49,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
@@ -222,46 +225,62 @@ public class MuZero {
     }
 
 
-
-
-
     int trainNetwork(Model model) {
+        if (config.offPolicyCorrectionOn()) {
+            determinePRatioMaxForCurrentEpoch(model);
+        }
+
         int epoch;
         int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
         boolean withSymmetryEnrichment = true;
-            epoch = getEpochFromModel(model);
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
-            int finalEpoch = epoch;
-            djlConfig.getTrainingListeners().stream()
-                .filter(MyEpochTrainingListener.class::isInstance)
-                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-            try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = networkHelper.getInputShapes();
-                trainer.initialize(inputShapes);
-                trainer.setMetrics(new Metrics());
+        epoch = getEpochFromModel(model);
+        DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+        int finalEpoch = epoch;
+        djlConfig.getTrainingListeners().stream()
+            .filter(MyEpochTrainingListener.class::isInstance)
+            .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+        try (Trainer trainer = model.newTrainer(djlConfig)) {
+            Shape[] inputShapes = networkHelper.getInputShapes();
+            trainer.initialize(inputShapes);
+            trainer.setMetrics(new Metrics());
 
-                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
-                        log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch);
-                        trainer.step();
-                    }
+            for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
+                    log.debug("trainBatch " + m);
+                    MyEasyTrain.trainBatch(trainer, batch);
+                    trainer.step();
                 }
-
-                // number of action paths
-                int numActionPaths = this.gameBuffer.getBuffer().getNumOfDifferentGames();
-                model.setProperty("NumActionPaths", Double.toString(numActionPaths));
-                log.info("NumActionPaths: " + numActionPaths);
-
-                handleMetrics(trainer, model, epoch);
-
-                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
-       // }
+
+            // number of action paths
+            int numActionPaths = this.gameBuffer.getBuffer().getNumOfDifferentGames();
+            model.setProperty("NumActionPaths", Double.toString(numActionPaths));
+            log.info("NumActionPaths: " + numActionPaths);
+
+            handleMetrics(trainer, model, epoch);
+
+            trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+        }
+        // }
         epoch = getEpochFromModel(model);
         return epoch * numberOfTrainingStepsPerEpoch;
 
     }
+
+    private void determinePRatioMaxForCurrentEpoch(Model model) {
+        int epoch = getEpochFromModel(model);
+        List<Game> games = this.gameBuffer.getGames().stream().filter(game -> game.getGameDTO().getTrainingEpoch() == epoch).collect(Collectors.toList());
+        double pRatioMax = determinePRatioMax(games);
+        log.info("pRatioMax({}): {}", epoch, pRatioMax);
+    }
+
+    private double determinePRatioMax(List<Game> games) {
+        double pRatioMax = games.stream().mapToDouble(Game::getPRatioMax).max().orElse(1.0);
+        games.stream().forEach(game -> game.setPRatioMax(pRatioMax));
+        return pRatioMax;
+    }
+
+
 
     private void handleMetrics(Trainer trainer, Model model, int epoch) {
         Metrics metrics = trainer.getMetrics();
