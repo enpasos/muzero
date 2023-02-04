@@ -65,6 +65,9 @@ public class GameDTO implements Comparable<GameDTO> {
     private long tStateB;
 
 
+    private int trainingEpoch;
+
+
     private int tdSteps;
     private List<Float> maxEntropies;
 
@@ -115,6 +118,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
+        copy.trainingEpoch = this.trainingEpoch;
         copy.count = this.count;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
@@ -157,6 +161,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateA = this.tStateA;
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
+        copy.trainingEpoch = this.trainingEpoch;
         copy.entropies.addAll(this.entropies);
         copy.maxEntropies.addAll(this.maxEntropies);
         copy.actions.addAll(this.actions);
@@ -184,6 +189,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTStateA(this.tStateA);
         gameBuilder.setTStateB(this.tStateB);
         gameBuilder.setTdSteps(this.tdSteps);
+        gameBuilder.setTrainingEpoch(this.trainingEpoch);
         gameBuilder.addAllActions(getActions());
         gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
@@ -225,6 +231,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTStateA(p.getTStateA());
         this.setTStateB(p.getTStateB());
         this.setTdSteps(p.getTdSteps());
+        this.setTrainingEpoch(p.getTrainingEpoch());
         this.setActions(p.getActionsList());
         this.setPRandomActionRawSum(p.getPRandomActionRawSum());
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());

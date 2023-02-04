@@ -112,7 +112,7 @@ public class GameBuffer {
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
 
-
+        sample.makeTarget();
         return sample;
     }
 
@@ -211,11 +211,7 @@ public class GameBuffer {
                 .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
                 .collect(Collectors.toList());
 
-
-            double pRatioMax = samples.stream().mapToDouble(Sample::getPRatioMax).max().orElse(1.0);
-
-
-            samples.stream().forEach(s -> s.makeTarget(pRatioMax));
+          //  samples.stream().forEach(s -> s.makeTarget());
             return samples;
         }
 
@@ -319,6 +315,10 @@ public class GameBuffer {
     }
 
     public void addGames(Model model, List<Game> games, boolean atBeginning) {
+
+
+
+
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
@@ -340,7 +340,7 @@ public class GameBuffer {
     }
 
     private void addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {
-
+        game.getGameDTO().setTrainingEpoch(epoch);
         memorizeEntropyInfo(game, epoch);
         game.getGameDTO().setNetworkName(networkName);
         getBuffer().addGameAndRemoveOldGameIfNecessary(game, atBeginning);
