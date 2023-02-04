@@ -83,6 +83,7 @@ public class GameBuffer {
 
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, GameBuffer gameBuffer) {
         Sample sample = new Sample();
+        sample.setGame(game);
 
         game.replayToPosition(gamePos);
 
@@ -108,9 +109,10 @@ public class GameBuffer {
 
 
         }
+        sample.setGamePos(gamePos);
+        sample.setNumUnrollSteps(numUnrollSteps);
 
-        sample.setTargetList(game.makeTarget(this, gamePos, numUnrollSteps ));
-
+        sample.makeTarget();
         return sample;
     }
 
@@ -205,12 +207,15 @@ public class GameBuffer {
      */
     public List<Sample> sampleBatch(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGames().stream()
-                //  .filter(game -> game.getGameDTO().getTStateA() < game.getGameDTO().getActions().size())
-                //  .filter(game -> game.getGameDTO().getTHybrid() < game.getGameDTO().getActions().size())
+            List<Sample> samples = sampleGames().stream()
                 .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
                 .collect(Collectors.toList());
+
+          //  samples.stream().forEach(s -> s.makeTarget());
+            return samples;
         }
+
+
     }
 
     public List<Game> sampleGames() {
@@ -310,6 +315,10 @@ public class GameBuffer {
     }
 
     public void addGames(Model model, List<Game> games, boolean atBeginning) {
+
+
+
+
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
@@ -331,7 +340,7 @@ public class GameBuffer {
     }
 
     private void addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {
-
+        game.getGameDTO().setTrainingEpoch(epoch);
         memorizeEntropyInfo(game, epoch);
         game.getGameDTO().setNetworkName(networkName);
         getBuffer().addGameAndRemoveOldGameIfNecessary(game, atBeginning);
@@ -407,17 +416,5 @@ public class GameBuffer {
     }
 
 
-    double pRatioMaxTemp = 0.0;
-    double pRatioMax = 10.0;   // start value to be on the save side
 
-
-    public void enterPRatioMaxCandidate(double b) {
-        pRatioMaxTemp = Math.max(pRatioMaxTemp, b);
-
-    }
-    public void resetPRatioMax() {
-        pRatioMax = pRatioMaxTemp;
-        log.info(">>> pRatioMax: " + pRatioMax);
-        pRatioMaxTemp = 0.0;
-    }
 }
