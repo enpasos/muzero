@@ -426,7 +426,11 @@ public abstract class Game {
                pRatios[i] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
            }
         });
-        return getProductPathMax(pRatios);
+        double prod =  getProductPathMax(pRatios);
+        if (prod > 100) {
+            int j = 42;
+        }
+        return prod;
     }
 
 

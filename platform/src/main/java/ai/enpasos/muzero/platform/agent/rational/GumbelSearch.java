@@ -291,7 +291,7 @@ public class GumbelSearch {
             return;
         }
 
-        if (config.isGumbelActionSelection()) {
+        if ( config.getTrainingTypeKey() != HYBRID && config.isGumbelActionSelection()) {
             action = selectedAction;
             applyAction(render, action);
             this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));

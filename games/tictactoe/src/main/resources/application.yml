@@ -79,7 +79,7 @@ muzero:
 
       replayFraction: 0.0
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
 
       playTypes:
         PLAYOUT:
@@ -106,8 +106,8 @@ muzero:
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (different from the paper)
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-          temperatureRoot: 5.0
-          gumbelActionSelection: false
+          temperatureRoot: 2.0   # was 5
+
 
 #        REANALYSE:
 #          forTraining: true
