@@ -338,6 +338,7 @@ public class GumbelSearch {
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
+                    game.getGameDTO().getPlayoutPolicy().add(toFloat(softmax(raw, temperature)));
                     action = selectedAction;
                 } else {
                     action = getAction(1d, raw, game);
