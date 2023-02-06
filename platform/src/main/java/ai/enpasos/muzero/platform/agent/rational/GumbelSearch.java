@@ -163,9 +163,9 @@ public class GumbelSearch {
                 }
             } );
         if (withGumbel) {
-            return add(add(logits, g), sigmas);
+            return add(logitsPlusSigmas, g);
         } else {
-            return add(logits, sigmas);
+            return logitsPlusSigmas;
         }
     }
 
