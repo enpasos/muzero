@@ -72,14 +72,14 @@ muzero:
 
       numberOfTrainingSteps: 50000
 
-      windowSize: 10000
+      windowSize: 1000
 
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500
 
       replayFraction: 0.0
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
 
       playTypes:
         PLAYOUT:
@@ -107,7 +107,7 @@ muzero:
           # before drawing the action from the policy target (different from the paper)
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
           temperatureRoot: 2.0   # was 5
-          gumbelActionSelection: false
+          gumbelActionSelection: true
 
 
 #        REANALYSE:
