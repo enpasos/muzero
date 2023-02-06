@@ -517,7 +517,7 @@ public class MuZeroConfig {
             protected int numSimulationsHybrid;
             protected double rootDirichletAlpha;
             protected double rootExplorationFraction;
-            double temperatureRoot = 0.0;
+            double temperatureRoot = 1.0;
 
             boolean gumbelActionSelection = true;
             boolean withGumbel = true;

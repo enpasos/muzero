@@ -311,7 +311,11 @@ public class GumbelSearch {
                 action = getAction(temperature, raw, game);
             } else {
                 //  the Gumbel selection
-                action = selectedAction;
+                if (config.isGumbelActionSelection()) {
+                    action = selectedAction;
+                } else {
+                    action = getAction(1d, raw, game);
+                }
                 this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
 
             }
