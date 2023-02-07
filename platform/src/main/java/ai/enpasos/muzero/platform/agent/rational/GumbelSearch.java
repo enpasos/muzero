@@ -344,8 +344,6 @@ public class GumbelSearch {
                 } else {
                     action = getAction(1d, raw, game);
                 }
-                this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
-
             }
         } else {
             action = getAction(temperature, raw, game);
