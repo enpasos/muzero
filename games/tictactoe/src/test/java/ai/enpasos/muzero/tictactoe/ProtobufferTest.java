@@ -52,7 +52,7 @@ class ProtobufferTest {
     }
 
     private void writeAndReadTest() {
-        config.setOutputDir("./memory/tictactoeTest/");
+        config.setOutputDir("./build/tictactoeTest/");
         muZero.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);

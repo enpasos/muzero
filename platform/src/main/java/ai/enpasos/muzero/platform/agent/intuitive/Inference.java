@@ -149,7 +149,9 @@ public class Inference {
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, DeviceType deviceType) {
 
         int actionIndexSelectedByNetwork;
-        config.setNetworkBaseDir(networkDir);
+        if(networkDir != null) {
+            config.setNetworkBaseDir(networkDir);
+        }
         config.setInferenceDeviceType(deviceType);
         Game game = getGame(actions);
 

@@ -4,8 +4,8 @@ muzero:
   games:
     GO_5:
       modelName: MuZero-Go-5
-      outputDir: ./memory/go5/
-      values: [ -25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25 ]
+      outputDir: ./build/goTest/
+      valueInterval: [ -25,25 ]
       komi: 0.5
       maxKomi: 6.5
       size: 5
@@ -33,7 +33,7 @@ muzero:
       # network training
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
-      batchSize: 128
+      batchSize: 12
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0
@@ -47,53 +47,67 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
-
 
       # Gumbel MuZero parameters
       initialGumbelM: 8
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 192     # 256 in the paper
-      numBottleneckChannels: 96
+      numChannels: 256     # 256 in the paper
+      numBottleneckChannels: 128
+
       numResiduals: 12
-      broadcastEveryN: 8  # broadcasting block in every 8th layer
+      broadcastEveryN: 8  # out of range here
 
 
       valueLossWeight: 1.0
 
+      windowSize: 500
 
-      windowSize: 10000
-      windowSizeDynamicFraction: 1.0  # 0 = off,1 = on
-      windowSizeExponent: 0.8
+      numberOfTrainingSteps: 500
+      #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
-      numberOfTrainingSteps: 100000
-
-      # alternativeActionsWeight: 0.001   # 0.0 means switched off
-
+      numChannelsHiddenLayerSimilarity: 512
+      numChannelsOutputLayerSimilarity: 1024
 
       playTypes:
         PLAYOUT:
           forTraining: false
-          numSimulations: 50
+          numSimulations: 3
           rootExplorationFraction: 0.0  # 0.0 means switched off
-          temperatureRoot: 0.0   # 0.0 means switched off
+          temperatureRoot: 0.0
+          gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numEpisodes: 4
-          numParallelGamesPlayed: 250
-          tdSteps: 10000
-
-          numSimulations: 50
+          numEpisodes: 1
+          numParallelGamesPlayed: 10
+          tdSteps:  10000
+          forTdStep0ValueTraining: false
+          forTdStep0PolicyTraining: true
+          numSimulations: 3
+          numSimulationsHybrid: 3
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
-          rootDirichletAlpha: 0.5
-          rootExplorationFraction: 0.0  # 0.0 means switched off
+          rootDirichletAlpha: 0.4
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (a little different from the paper)
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-          temperatureRoot: 1.0   # 0.0 means switched off
+          temperatureRoot: 2.0
+          gumbelActionSelection: false
+
+#        BEST_EFFORT:
+#          forTraining: true
+#          numEpisodes: 1
+#          numParallelGamesPlayed: 500
+#          tdSteps: 10000
+#          numSimulations: 30
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 0.4
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+#          gumbelActionSelection: true
+
