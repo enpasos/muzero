@@ -43,12 +43,13 @@ class GoInferenceTest {
     }
 
     private void init() {
-        if (!exists(config.getOutputDir())) {
-            muZero.train(TrainParams.builder()
-                .render(true)
-                .withoutFill(false)
-                .build());
-        }
+        config.setOutputDir("./build/goTest/");
+        rmDir(config.getOutputDir());
+        muZero.train(TrainParams.builder()
+            .render(true)
+            .withoutFill(false)
+            .build());
+
     }
 
 

@@ -32,8 +32,8 @@ muzero:
 
       # network training
       symmetryType: SQUARE
-      numberOfTrainingStepsPerEpoch: 100
-      batchSize: 12
+      numberOfTrainingStepsPerEpoch: 10
+      batchSize: 4
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0
@@ -54,22 +54,22 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 256     # 256 in the paper
-      numBottleneckChannels: 128
+      numChannels: 12     # 256 in the paper
+      numBottleneckChannels: 6
 
-      numResiduals: 12
-      broadcastEveryN: 8  # out of range here
+      numResiduals: 6
+      broadcastEveryN: 4  # out of range here
 
 
       valueLossWeight: 1.0
 
-      windowSize: 500
+      windowSize: 10
 
-      numberOfTrainingSteps: 500
+      numberOfTrainingSteps: 10
       #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
-      numChannelsHiddenLayerSimilarity: 512
-      numChannelsOutputLayerSimilarity: 1024
+      numChannelsHiddenLayerSimilarity: 32
+      numChannelsOutputLayerSimilarity: 64
 
       playTypes:
         PLAYOUT:
@@ -85,8 +85,8 @@ muzero:
           tdSteps:  10000
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
-          numSimulations: 3
-          numSimulationsHybrid: 3
+          numSimulations: 1
+          numSimulationsHybrid: 1
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts

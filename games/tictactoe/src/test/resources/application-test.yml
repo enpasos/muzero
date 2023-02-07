@@ -63,9 +63,9 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 100
+      numberOfTrainingSteps: 10
 
-      windowSize: 100
+      windowSize: 10
 
       numChannelsHiddenLayerSimilarity: 25
       numChannelsOutputLayerSimilarity: 50

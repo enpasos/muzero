@@ -5,10 +5,12 @@ import ai.enpasos.muzero.go.config.environment.basics.Point;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
 
 import static ai.enpasos.muzero.go.config.environment.basics.Player.BLACK_PLAYER;
 import static ai.enpasos.muzero.go.config.environment.basics.Player.WHITE_PLAYER;
 import static org.junit.jupiter.api.Assertions.assertSame;
+
 
 
 
