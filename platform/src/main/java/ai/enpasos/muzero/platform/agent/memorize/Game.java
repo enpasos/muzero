@@ -193,14 +193,14 @@ public abstract class Game {
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(pRatioMax, currentIndex, target );
+            fillTarget(currentIndex, target );
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(double pRatioMax, int currentIndex, Target target) {
+    private void fillTarget( int currentIndex, Target target) {
         double value;
         int tdSteps = 0;
         if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
@@ -217,7 +217,7 @@ public abstract class Game {
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
                 int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps( pRatioMax, currentIndex, T);
+                tdSteps = getTdSteps(   currentIndex, T);
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
             }
@@ -264,33 +264,41 @@ public abstract class Game {
 
     }
 
-    private int getTdSteps(double pRatioMax, int currentIndex, int T) {
+    public int getTdSteps(int currentIndex, int T) {
+        double b = ThreadLocalRandom.current().nextDouble(0, 1);
+        return getTdSteps(b, currentIndex, T);
+    }
+
+   public int getTdSteps(double b, int currentIndex, int T) {
+        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+
         int tdSteps;
         tdSteps = 0;
         if (!config.offPolicyCorrectionOn()) return tdSteps;
         if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
 
+        if (currentIndex == T) return 0;
 
-        double b = ThreadLocalRandom.current().nextDouble(0, 1);
 
-        for (int t = T; t >= currentIndex; t--) {
+        for (int t = T-1; t >= currentIndex; t--) {
 
             double pBase = 1;
-            for (int i = t; i <= T; i++) {
+            for (int i = currentIndex; i < t; i++) {
                 pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double p = 1;
-            for (int i = t; i <= T; i++) {
+            for (int i = currentIndex; i < t; i++) {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            if (pRatio > b*pRatioMax) {
+            System.out.println(pRatio);
+            if (pRatio > b*localPRatioMax) {
                 tdSteps = t - currentIndex;
-                break;
+                return tdSteps;
             }
 
         }
-        return tdSteps;
+        throw new MuZeroNoSampleMatch();
     }
 
     private void setValueOnTarget(Target target, double value) {

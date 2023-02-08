@@ -4,5 +4,7 @@ public enum GameType {
     PEG_SOLITAIR,
     TICTACTOE,
     GO_5,
-    GO_9
+    GO_9,
+
+    TEST
 }
