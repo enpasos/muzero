@@ -86,10 +86,11 @@ public class GameBuffer {
             } catch (MuZeroNoSampleMatch e) {
                 // ignore
                 count++;
+              //  System.out.println(count);
             }
         } while (sample == null);
-        if (count > 1000) {
-            log.debug("{} tries were necessary to get a sample. You could lower the config parameter offPolicyRatioLimit.");
+        if (count > 10000) {
+            log.debug("{} tries were necessary to get a sample. You could lower the config parameter offPolicyRatioLimit.", count);
         }
         return sample;
     }
