@@ -326,11 +326,11 @@ public abstract class Game {
 //            if (currentIndex >= this.getGameDTO().getRootValueTargets().size()) {
 //              //  value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
 //
-//              //  value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+  value = this.getGameDTO().getRootValueTargets().get(currentIndex);
 ////            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
 ////                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
 //          //  } else {
-            value = MyL2Loss.NULL_VALUE;  // no value change force
+          //  value = MyL2Loss.NULL_VALUE;  // no value change force
 //                value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
 //            }
 //        } else {
