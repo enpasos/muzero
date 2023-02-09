@@ -393,6 +393,10 @@ public class MuZeroConfig {
         return getConf().cScale;
     }
 
+    public double getOffPolicyRatioLimit() {
+        return getConf().offPolicyRatioLimit;
+    }
+
     public int getNumPurePolicyPlays() {
         return getConf().numPurePolicyPlays;
     }
@@ -500,7 +504,7 @@ public class MuZeroConfig {
 
 
         boolean offPolicyCorrectionOn;
-
+double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {

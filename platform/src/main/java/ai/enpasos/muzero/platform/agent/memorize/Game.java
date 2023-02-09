@@ -193,18 +193,17 @@ public abstract class Game {
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(pRatioMax, currentIndex, target );
+            fillTarget(currentIndex, target );
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(double pRatioMax, int currentIndex, Target target) {
+    private void fillTarget( int currentIndex, Target target) {
         double value;
         int tdSteps = 0;
         if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-
 
             if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
                 int i = this.getGameDTO().getRewards().size() - 1;
@@ -217,7 +216,7 @@ public abstract class Game {
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
                 int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps( pRatioMax, currentIndex, T);
+                tdSteps = getTdSteps(   currentIndex, T);
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
             }
@@ -264,33 +263,43 @@ public abstract class Game {
 
     }
 
-    private int getTdSteps(double pRatioMax, int currentIndex, int T) {
+    public int getTdSteps(int currentIndex, int T) {
+        if (!config.offPolicyCorrectionOn()) return 0;
+        if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
+        double b = ThreadLocalRandom.current().nextDouble(0, 1);
+        return getTdSteps(b, currentIndex, T);
+    }
+
+   public int getTdSteps(double b, int currentIndex, int T) {
+        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+
         int tdSteps;
         tdSteps = 0;
-        if (!config.offPolicyCorrectionOn()) return tdSteps;
-        if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
+//        if (!config.offPolicyCorrectionOn()) return tdSteps;
+//        if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
+
+        if (currentIndex >= T) return 0;
 
 
-        double b = ThreadLocalRandom.current().nextDouble(0, 1);
-
-        for (int t = T; t >= currentIndex; t--) {
+        for (int t = T-1; t >= currentIndex; t--) {
 
             double pBase = 1;
-            for (int i = t; i <= T; i++) {
+            for (int i = currentIndex; i < t; i++) {
                 pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double p = 1;
-            for (int i = t; i <= T; i++) {
+            for (int i = currentIndex; i < t; i++) {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            if (pRatio > b*pRatioMax) {
+          //  System.out.println(pRatio);
+            if (pRatio > b*localPRatioMax) {
                 tdSteps = t - currentIndex;
-                break;
+                return tdSteps;
             }
 
         }
-        return tdSteps;
+        throw new MuZeroNoSampleMatch();
     }
 
     private void setValueOnTarget(Target target, double value) {
@@ -312,24 +321,40 @@ public abstract class Game {
 
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
+        value = addValueFromReward(currentIndex, bootstrapIndex, value);
         if (gameDTO.isHybrid() && tdSteps == 0) {
             if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
                 value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
             } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
-                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
+                // this should not happen, but on random initialization
             } else {
+                log.debug("value = MyL2Loss.NULL_VALUE;");
                 value = MyL2Loss.NULL_VALUE;  // no value change force
             }
-        } else {
-            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
         }
+      //  if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+//            if (currentIndex >= this.getGameDTO().getRootValueTargets().size()) {
+//              //  value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
+//
+//            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
+//                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+//            }
+////            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
+////                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
+//          //  } else {
+          //  value = MyL2Loss.NULL_VALUE;  // no value change force
+//                value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
+//            }
+//        } else {
+//            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
+      //  }
         return value;
 
     }
 
 
-    private double calculateValueFromReward(int currentIndex, int bootstrapIndex, double value) {
-        if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
+    private double addValueFromReward(int currentIndex, int bootstrapIndex, double value) {
+        if (currentIndex > this.getGameDTO().getRewards().size() - 1) {
             int i = this.getGameDTO().getRewards().size() - 1;
             value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
         } else {

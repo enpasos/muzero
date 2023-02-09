@@ -78,7 +78,21 @@ public class GameBuffer {
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, GameBuffer gameBuffer) {
         int gamePos = samplePosition(game);
-        return sampleFromGame(numUnrollSteps, game, gamePos, ndManager, gameBuffer);
+        Sample sample = null;
+        long count = 0;
+        do {
+            try {
+                sample = sampleFromGame(numUnrollSteps, game, gamePos, ndManager, gameBuffer);
+            } catch (MuZeroNoSampleMatch e) {
+                // ignore
+                count++;
+              //  System.out.println(count);
+            }
+        } while (sample == null);
+        if (count > 10000) {
+            log.debug("{} tries were necessary to get a sample. You could lower the config parameter offPolicyRatioLimit.", count);
+        }
+        return sample;
     }
 
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, GameBuffer gameBuffer) {

@@ -46,6 +46,14 @@ dependencies {
 
     compileOnly(libs.jetbrains.annotations)
     testCompileOnly(libs.jetbrains.annotations)
+
+}
+
+configurations {
+    all {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+        exclude(group = "org.slf4j", module = "slf4j-simple")
+    }
 }
 
 description = "platform"
