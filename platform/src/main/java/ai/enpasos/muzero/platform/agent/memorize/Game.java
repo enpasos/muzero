@@ -322,6 +322,16 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
         value = addValueFromReward(currentIndex, bootstrapIndex, value);
+        if (gameDTO.isHybrid() && tdSteps == 0) {
+            if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
+                value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
+            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
+                // this should not happen, but on random initialization
+            } else {
+                log.debug("value = MyL2Loss.NULL_VALUE;");
+                value = MyL2Loss.NULL_VALUE;  // no value change force
+            }
+        }
       //  if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
 //            if (currentIndex >= this.getGameDTO().getRootValueTargets().size()) {
 //              //  value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
