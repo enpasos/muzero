@@ -322,11 +322,13 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = getBootstrapValue(tdSteps, bootstrapIndex);
         value = addValueFromReward(currentIndex, bootstrapIndex, value);
-        if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+      //  if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
 //            if (currentIndex >= this.getGameDTO().getRootValueTargets().size()) {
 //              //  value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
 //
-  value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+//            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
+//                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
+//            }
 ////            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
 ////                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
 //          //  } else {
@@ -335,7 +337,7 @@ public abstract class Game {
 //            }
 //        } else {
 //            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
-        }
+      //  }
         return value;
 
     }
