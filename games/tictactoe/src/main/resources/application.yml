@@ -79,7 +79,7 @@ muzero:
 
       replayFraction: 0.0
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
       offPolicyRatioLimit: 10.0
 
       playTypes:
