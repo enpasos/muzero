@@ -80,7 +80,8 @@ public class SelfPlay {
 
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
-        game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
+    //    game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
+        game.getGameDTO().getRootValueTargets().add((float) root.getVmix());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
