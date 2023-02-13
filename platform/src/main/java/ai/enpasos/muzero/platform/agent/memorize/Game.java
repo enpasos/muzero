@@ -268,10 +268,7 @@ public abstract class Game {
         if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
         double b = ThreadLocalRandom.current().nextDouble(0, 1);
         int tdSteps =  getTdSteps(b, currentIndex, T);
-//        if (currentIndex + tdSteps == T) {
-//            // TODO: better handling
-//            tdSteps--;
-//        }
+
         return tdSteps;
     }
 
@@ -280,13 +277,11 @@ public abstract class Game {
 
         int tdSteps;
         tdSteps = 0;
-//        if (!config.offPolicyCorrectionOn()) return tdSteps;
-//        if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
 
         if (currentIndex >= T) return 0;
 
 
-        for (int t = T-1; t >= currentIndex; t--) {
+        for (int t = T; t >= currentIndex; t--) {
 
             double pBase = 1;
             for (int i = currentIndex; i < t; i++) {
@@ -297,7 +292,7 @@ public abstract class Game {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-          //  System.out.println(pRatio);
+            //System.out.println((t - currentIndex) + "; " + pRatio);
             if (pRatio > b*localPRatioMax) {
                 tdSteps = t - currentIndex;
                 return tdSteps;

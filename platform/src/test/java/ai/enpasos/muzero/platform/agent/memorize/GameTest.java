@@ -37,7 +37,7 @@ class GameTest {
         game.getGameDTO().getPlayoutPolicy().add(new float[] {0f, 0f, 1f});
         game.getGameDTO().getPolicyTargets().add(new float[] {0f, 0f, 1f});
 
-        assertEquals(2, game.getTdSteps(0.9f, 0, T));
+        assertEquals(3, game.getTdSteps(0.9f, 0, T));
         assertEquals(0, game.getTdSteps(0.9f, T, T));
 
     }
@@ -66,7 +66,7 @@ class GameTest {
 //        0.8999999478459366  = 0.9
 //        1.0
 
-        assertEquals(2, game.getTdSteps(0.7f, 0, T));
+        assertEquals(3, game.getTdSteps(0.7f, 0, T));
         assertEquals(1, game.getTdSteps(0.82f, 0, T));
         assertEquals(0, game.getTdSteps(0.91f, 0, T));
 
