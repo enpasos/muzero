@@ -216,7 +216,7 @@ public abstract class Game {
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
                 int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps(   currentIndex, T);
+                tdSteps = getTdSteps(currentIndex, T);
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
             }
@@ -292,9 +292,14 @@ public abstract class Game {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            //System.out.println((t - currentIndex) + "; " + pRatio);
+            System.out.println((t - currentIndex) + "; " + pRatio);
             if (pRatio > b*localPRatioMax) {
                 tdSteps = t - currentIndex;
+                if (config.allOrNothingOn()) {
+                    if (tdSteps != T - currentIndex) { // test for all
+                        tdSteps = 0;   // if not all then nothing
+                    }
+                }
                 return tdSteps;
             }
 

@@ -8,6 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static ai.enpasos.muzero.platform.common.Functions.ln;
+import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
+import static ai.enpasos.muzero.platform.common.Functions.toFloat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -25,50 +29,61 @@ class GameTest {
         game.setPRatioMax(1);
         // action space: 0, 1, 2
         int T = 3;
+
+        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.7f, 0.1f, 0.1f});
+        game.getGameDTO().getPolicyTargets().add(new float[] {0.7f, 0.1f, 0.1f});
         game.apply(0);
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.1f, 0.2f, 0.7f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.1f, 0.2f, 0.7f});
 
+        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.0f, 0.8f, 0.2f});
+        game.getGameDTO().getPolicyTargets().add(new float[] {0.0f, 0.8f, 0.2f});
         game.apply(1);
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.1f, 0.2f, 0.7f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.1f, 0.2f, 0.7f});
 
-        game.apply(2);
         game.getGameDTO().getPlayoutPolicy().add(new float[] {0f, 0f, 1f});
         game.getGameDTO().getPolicyTargets().add(new float[] {0f, 0f, 1f});
+        game.apply(2);
 
         assertEquals(3, game.getTdSteps(0.9f, 0, T));
         assertEquals(0, game.getTdSteps(0.9f, T, T));
 
     }
 
+    @Test
+    void softmaxLnTest() {
+        double[] ps = {0.1, 0.1, 0.8};
+        double[] result = softmax(ln(ps));
+    }
+
 
     @Test
     void getTdStepsTest2() {
         Game game = config.newGame();
-        game.setPRatioMax(1.0);
+        game.setPRatioMax(1.5);
         // action space: 0, 1, 2
         int T = 3;
+        double temperature = 2;
+        float[] ps = {0.7f, 0.1f, 0.1f};
+        float[] ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
+        game.getGameDTO().getPlayoutPolicy().add(ps2);
+        game.getGameDTO().getPolicyTargets().add(ps);
         game.apply(0);
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.1f, 0.2f, 0.7f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.9f*0.1f, 0.9f*0.2f, 0.9f*0.7f});
 
+        ps = new float[] {0.0f, 0.8f, 0.2f};
+        ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
+        game.getGameDTO().getPlayoutPolicy().add(ps2);
+        game.getGameDTO().getPolicyTargets().add(ps);
         game.apply(1);
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.1f, 0.2f, 0.7f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.9f*0.1f, 0.9f*0.2f, 0.9f*0.7f});
 
+        ps = new float[] {0f, 0f, 1f};
+        ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
+        game.getGameDTO().getPlayoutPolicy().add(ps2);
+        game.getGameDTO().getPolicyTargets().add(ps);
         game.apply(2);
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0f, 0f, 1f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.9f*0f, 0.9f*0f, 0.9f*1f});
 
-//        pRatio:
-//        0.8099999061226886  = 0.9 * 0.9 = 0.81
-//        0.8999999478459366  = 0.9
-//        1.0
+
 
         assertEquals(3, game.getTdSteps(0.7f, 0, T));
-        assertEquals(1, game.getTdSteps(0.82f, 0, T));
-        assertEquals(0, game.getTdSteps(0.91f, 0, T));
+        assertEquals(3, game.getTdSteps(0.82f, 0, T));
+        assertEquals(3, game.getTdSteps(0.91f, 0, T));
 
         assertEquals(0, game.getTdSteps(0.9f, T, T));
 

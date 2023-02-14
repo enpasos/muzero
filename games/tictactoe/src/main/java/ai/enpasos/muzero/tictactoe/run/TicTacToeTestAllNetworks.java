@@ -42,14 +42,19 @@ public class TicTacToeTestAllNetworks {
     public void run() {
 
 
-        int start = 1;
-        int stop = 222;
+        int start = 1028;
+        int stop = 1028;
+
+        boolean onOptimalPathOnly = false;
+
+       // config.setOutputDir("./memory/tictactoe-without-exploration/");
+        config.setOutputDir("./memory/tictactoe-with-exploration/");
 
         Map<Integer, Integer> map = new TreeMap<>();
         GameTree gameTree = test.prepareGameTree();
 
         for (int epoch = start; epoch <= stop; epoch++) {
-            int failures = test.findBadDecisions(epoch, gameTree);
+            int failures = test.findBadDecisions(epoch, gameTree, onOptimalPathOnly);
             map.put(epoch, failures);
         }
 

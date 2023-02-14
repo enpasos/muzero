@@ -40,6 +40,11 @@ public class Functions {
         return softmax(raw, 1.0);
     }
 
+
+    public static double[] ln(double[] ps) {
+        return Arrays.stream(ps).map(x -> Math.log(x)).toArray();
+    }
+
     public static double[] softmax(double[] raw, double temperature) {
         if (temperature == 0) {
             return softmax0(raw);

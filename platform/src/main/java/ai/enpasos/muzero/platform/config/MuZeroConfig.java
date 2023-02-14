@@ -135,6 +135,11 @@ public class MuZeroConfig {
         return getConf().offPolicyCorrectionOn;
     }
 
+    public boolean allOrNothingOn() {
+        return getConf().allOrNothingOn;
+    }
+
+
     public SymmetryType getSymmetryType() {
         return getConf().symmetryType;
     }
@@ -504,6 +509,8 @@ public class MuZeroConfig {
 
 
         boolean offPolicyCorrectionOn;
+
+        boolean allOrNothingOn;
 double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {
