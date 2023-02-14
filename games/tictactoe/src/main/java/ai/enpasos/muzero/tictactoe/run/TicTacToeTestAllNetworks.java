@@ -44,12 +44,13 @@ public class TicTacToeTestAllNetworks {
 
         int start = 1;
         int stop = 1249;
+        boolean onOptimalPathOnly = false;
 
         Map<Integer, Integer> map = new TreeMap<>();
         GameTree gameTree = test.prepareGameTree();
 
         for (int epoch = start; epoch <= stop; epoch++) {
-            int failures = test.findBadDecisions(epoch, gameTree);
+            int failures = test.findBadDecisions(epoch, gameTree, onOptimalPathOnly);
             map.put(epoch, failures);
         }
 

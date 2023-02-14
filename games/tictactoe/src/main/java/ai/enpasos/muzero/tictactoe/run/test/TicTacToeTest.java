@@ -42,16 +42,14 @@ public class TicTacToeTest {
     @Autowired
     MuZeroConfig config;
 
-
     @Autowired
     SelfPlay selfPlay;
-
 
     @Autowired
     Inference inference;
 
     public int findBadDecisions() {
-        return findBadDecisions(-1);
+        return findBadDecisions(-1, false);
     }
 
     /**
@@ -59,13 +57,12 @@ public class TicTacToeTest {
      *
      * @return number of failures
      */
-    public int findBadDecisions(int epoch) {
+    public int findBadDecisions(int epoch, boolean onOptimalPathOnly) {
         GameTree gameTree = prepareGameTree();
-        return findBadDecisions(epoch, gameTree);
-
+        return findBadDecisions(epoch, gameTree, onOptimalPathOnly);
     }
 
-    public int findBadDecisions(int epoch, GameTree gameTree) {
+    public int findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
         try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
 
             Network network = new Network(config, model);
@@ -74,19 +71,28 @@ public class TicTacToeTest {
                 network.setHiddenStateNDManager(nDManager);
                 network.initActionSpaceOnDevice(nDManager);
 
+                log.info("nodes where a decision matters for player X {}, for player O {}",
+                    gameTree.nodesWhereADecisionMattersForPlayerA.size(),
+                    gameTree.nodesWhereADecisionMattersForPlayerB.size()
+                    );
+
+                log.info("nodes where a decision on optimal path matters for player X {}, for player O {}",
+                    gameTree.nodesWhereADecisionMattersForPlayerAOnOptimalPath.size(),
+                    gameTree.nodesWhereADecisionMattersForPlayerBOnOptimalPath.size()
+                );
 
                 List<DNode> gamesWithBadDecisionByPlayerA =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, false, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, false, inference, epoch, onOptimalPathOnly);
 
                 List<DNode> gamesWithBadDecisionPlayerB =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch, onOptimalPathOnly);
 
 
                 List<DNode> gamesWithBadDecisionByPlayerA2 =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
 
                 List<DNode> gamesWithBadDecisionByPlayerB2 =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch);
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
 
 
                 return gamesWithBadDecisionByPlayerA.size() +
