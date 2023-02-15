@@ -553,7 +553,9 @@ public class SelfPlay {
         List<Game>  gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
              gamesToReanalyse = gameBuffer.getGamesToReanalyse();
-
+             if (!gamesToReanalyse.isEmpty()) {
+                 int i = 42;
+             }
         }
         for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> gamesPart;

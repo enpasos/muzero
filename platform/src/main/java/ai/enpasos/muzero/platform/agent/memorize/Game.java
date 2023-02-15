@@ -204,14 +204,11 @@ public abstract class Game {
         double value;
         int tdSteps = 0;
         if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-
-            if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
-                int i = this.getGameDTO().getRewards().size() - 1;
-                value = (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+                tdSteps = 0;
             } else {
-                // TODO tdSteps
-
-                value = this.getGameDTO().getRootValueTargets().get( this.getGameDTO().getRootValueTargets().size()-1);
+                int T = this.getGameDTO().getRewards().size() - 1;
+                tdSteps = getTdSteps(currentIndex, T);
             }
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
@@ -220,10 +217,8 @@ public abstract class Game {
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
             }
-            // TODO is TDSteps == T handled correctly?
-             value = calculateValue(tdSteps, currentIndex);
         }
-
+        value = calculateValue(tdSteps, currentIndex);
 
         float lastReward = getLastReward(currentIndex);
 
@@ -267,9 +262,7 @@ public abstract class Game {
         if (!config.offPolicyCorrectionOn()) return 0;
         if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
         double b = ThreadLocalRandom.current().nextDouble(0, 1);
-        int tdSteps =  getTdSteps(b, currentIndex, T);
-
-        return tdSteps;
+        return getTdSteps(b, currentIndex, T);
     }
 
    public int getTdSteps(double b, int currentIndex, int T) {
@@ -277,6 +270,8 @@ public abstract class Game {
 
         int tdSteps;
         tdSteps = 0;
+//        if (!config.offPolicyCorrectionOn()) return tdSteps;
+//        if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
 
         if (currentIndex >= T) return 0;
 
@@ -292,7 +287,7 @@ public abstract class Game {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            System.out.println((t - currentIndex) + "; " + pRatio);
+          //  System.out.println(pRatio);
             if (pRatio > b*localPRatioMax) {
                 tdSteps = t - currentIndex;
                 if (config.allOrNothingOn()) {
