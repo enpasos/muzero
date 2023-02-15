@@ -202,22 +202,7 @@ public abstract class Game {
     @SuppressWarnings("java:S3776")
     private void fillTarget( int currentIndex, Target target) {
         double value;
-        int tdSteps = 0;
-        if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-                tdSteps = 0;
-            } else {
-                int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps(currentIndex, T);
-            }
-        } else {
-            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-                int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps(currentIndex, T);
-            } else {
-                tdSteps = this.getGameDTO().getTdSteps();
-            }
-        }
+        int tdSteps = getTdSteps(currentIndex);
         value = calculateValue(tdSteps, currentIndex);
 
         float lastReward = getLastReward(currentIndex);
@@ -256,6 +241,27 @@ public abstract class Game {
             Arrays.fill(target.getPolicy(), 0f);
         }
 
+    }
+
+    private int getTdSteps(int currentIndex) {
+        int tdSteps;
+        if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+                tdSteps = 0;
+            } else {
+                int T = this.getGameDTO().getRewards().size() - 1;
+                tdSteps = getTdSteps(currentIndex, T);
+            }
+        } else {
+            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+//                int T = this.getGameDTO().getRewards().size() - 1;
+//                tdSteps = getTdSteps(currentIndex, T);
+                tdSteps = 0;
+            } else {
+                tdSteps = this.getGameDTO().getTdSteps();
+            }
+        }
+        return tdSteps;
     }
 
     public int getTdSteps(int currentIndex, int T) {
@@ -324,39 +330,7 @@ public abstract class Game {
         value = addValueFromReward(currentIndex, tdSteps, value);
 
 
-        // TODO repair the handling
-//        if (this.getGameDTO().getRewards().size() - 1 == currentIndex + tdSteps) {
-//            int bootstrapI = currentIndex + tdSteps;
-//            value = (double) this.getGameDTO().getRewards().get(bootstrapI) * Math.pow(this.discount, bootstrapI) * getPerspective(tdSteps);
-//        }
 
-
-//        if (gameDTO.isHybrid() && tdSteps == 0) {
-//            if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-//                value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
-//            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
-//                // this should not happen, but on random initialization
-//            } else {
-//                log.debug("value = MyL2Loss.NULL_VALUE;");
-//                value = MyL2Loss.NULL_VALUE;  // no value change force
-//            }
-//        }
-      //  if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-//            if (currentIndex >= this.getGameDTO().getRootValueTargets().size()) {
-//              //  value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
-//
-//            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
-//                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
-//            }
-////            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
-////                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
-//          //  } else {
-          //  value = MyL2Loss.NULL_VALUE;  // no value change force
-//                value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
-//            }
-//        } else {
-//            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
-      //  }
         return value;
 
     }

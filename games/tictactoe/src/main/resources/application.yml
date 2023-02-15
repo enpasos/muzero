@@ -72,7 +72,7 @@ muzero:
 
       numberOfTrainingSteps: 50000
 
-      windowSize: 5000
+      windowSize: 10000
 
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500
