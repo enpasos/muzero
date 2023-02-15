@@ -329,10 +329,6 @@ public class GameBuffer {
     }
 
     public void addGames(Model model, List<Game> games, boolean atBeginning) {
-
-
-
-
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
@@ -342,6 +338,7 @@ public class GameBuffer {
             this.gameBufferIO.saveGames(
                 this.getBuffer().games.stream()
                     .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
+                    .filter(g -> g.getPlayTypeKey() != PlayTypeKey.REANALYSE)
                     .collect(Collectors.toList()),
                 this.getCurrentNetworkName(), this.getConfig());
         }

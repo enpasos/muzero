@@ -202,28 +202,8 @@ public abstract class Game {
     @SuppressWarnings("java:S3776")
     private void fillTarget( int currentIndex, Target target) {
         double value;
-        int tdSteps = 0;
-        if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-
-            if (!config.isNetworkWithRewardHead() && currentIndex > this.getGameDTO().getRewards().size() - 1) {
-                int i = this.getGameDTO().getRewards().size() - 1;
-                value = (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
-            } else {
-                // TODO tdSteps
-
-                value = this.getGameDTO().getRootValueTargets().get( this.getGameDTO().getRootValueTargets().size()-1);
-            }
-        } else {
-            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-                int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps(currentIndex, T);
-            } else {
-                tdSteps = this.getGameDTO().getTdSteps();
-            }
-            // TODO is TDSteps == T handled correctly?
-             value = calculateValue(tdSteps, currentIndex);
-        }
-
+        int tdSteps = getTdSteps(currentIndex);
+        value = calculateValue(tdSteps, currentIndex);
 
         float lastReward = getLastReward(currentIndex);
 
@@ -263,13 +243,32 @@ public abstract class Game {
 
     }
 
+    private int getTdSteps(int currentIndex) {
+        int tdSteps;
+        if (this.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+                tdSteps = 0;
+            } else {
+                int T = this.getGameDTO().getRewards().size() - 1;
+                tdSteps = getTdSteps(currentIndex, T);
+            }
+        } else {
+            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+//                int T = this.getGameDTO().getRewards().size() - 1;
+//                tdSteps = getTdSteps(currentIndex, T);
+                tdSteps = 0;
+            } else {
+                tdSteps = this.getGameDTO().getTdSteps();
+            }
+        }
+        return tdSteps;
+    }
+
     public int getTdSteps(int currentIndex, int T) {
         if (!config.offPolicyCorrectionOn()) return 0;
         if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
         double b = ThreadLocalRandom.current().nextDouble(0, 1);
-        int tdSteps =  getTdSteps(b, currentIndex, T);
-
-        return tdSteps;
+        return getTdSteps(b, currentIndex, T);
     }
 
    public int getTdSteps(double b, int currentIndex, int T) {
@@ -277,6 +276,8 @@ public abstract class Game {
 
         int tdSteps;
         tdSteps = 0;
+//        if (!config.offPolicyCorrectionOn()) return tdSteps;
+//        if (this.getGameDTO().getPlayoutPolicy() == null) return tdSteps;
 
         if (currentIndex >= T) return 0;
 
@@ -292,7 +293,7 @@ public abstract class Game {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            System.out.println((t - currentIndex) + "; " + pRatio);
+          //  System.out.println(pRatio);
             if (pRatio > b*localPRatioMax) {
                 tdSteps = t - currentIndex;
                 if (config.allOrNothingOn()) {
@@ -329,39 +330,7 @@ public abstract class Game {
         value = addValueFromReward(currentIndex, tdSteps, value);
 
 
-        // TODO repair the handling
-//        if (this.getGameDTO().getRewards().size() - 1 == currentIndex + tdSteps) {
-//            int bootstrapI = currentIndex + tdSteps;
-//            value = (double) this.getGameDTO().getRewards().get(bootstrapI) * Math.pow(this.discount, bootstrapI) * getPerspective(tdSteps);
-//        }
 
-
-//        if (gameDTO.isHybrid() && tdSteps == 0) {
-//            if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-//                value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
-//            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
-//                // this should not happen, but on random initialization
-//            } else {
-//                log.debug("value = MyL2Loss.NULL_VALUE;");
-//                value = MyL2Loss.NULL_VALUE;  // no value change force
-//            }
-//        }
-      //  if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-//            if (currentIndex >= this.getGameDTO().getRootValueTargets().size()) {
-//              //  value = this.getGameDTO().getRootValuesFromInitialInference().get(currentIndex);
-//
-//            if (currentIndex < this.getGameDTO().getRootValueTargets().size()) {
-//                value = this.getGameDTO().getRootValueTargets().get(currentIndex);
-//            }
-////            } else if (this.getGameDTO().getRootValuesFromInitialInference().size() == 0) {
-////                value = calculateValueFromReward(currentIndex, bootstrapIndex, value); // this should not happen, only on random initialization
-//          //  } else {
-          //  value = MyL2Loss.NULL_VALUE;  // no value change force
-//                value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
-//            }
-//        } else {
-//            value = calculateValueFromReward(currentIndex, bootstrapIndex, value);
-      //  }
         return value;
 
     }
