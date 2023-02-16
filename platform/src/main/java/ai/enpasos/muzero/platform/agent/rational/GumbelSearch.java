@@ -303,8 +303,11 @@ public class GumbelSearch {
         Action action = null;
 
         if (replay) {
-            action = config.newAction(game.getOriginalGameDTO().getActions().get(game.getGameDTO().getRootValuesFromInitialInference().size() - 1));
-            applyAction(render, action);
+            int a = game.getGameDTO().getRootValuesFromInitialInference().size() - 1;
+            if (a < game.getOriginalGameDTO().getActions().size()) {
+                action = config.newAction(game.getOriginalGameDTO().getActions().get(a));
+                applyAction(render, action);
+            }
             return;
        }
 

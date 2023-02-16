@@ -170,7 +170,8 @@ public class SelfPlay {
             game.getGameDTO().setEntropies(new ArrayList<>());
             game.getGameDTO().setMaxEntropies(new ArrayList<>());
             game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
-
+            game.getGameDTO().setActions(new ArrayList<>());
+            game.getGameDTO().setRewards(new ArrayList<>());
             game.replayToPosition(0);
         });
     }
@@ -239,9 +240,7 @@ public class SelfPlay {
     @SuppressWarnings("squid:S3776")
     public void play(Network network, boolean withRandomness, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, double pRandomActionRawAverage, boolean replay) {
 
-        if (replay) {
-            int i = 42;
-        }
+
 
         Game justOneOfTheGames = justOneOfTheGames();
       //  justOneOfTheGames.setRecordValueImprovements(true);
@@ -428,7 +427,7 @@ public class SelfPlay {
         gameList.forEach(game -> game.setDone(
             !replay && game.terminal()
                 || !replay && game.getGameDTO().getActions().size() >= config.getMaxMoves()
-                || replay && game.getGameDTO().getActions().size() <= game.getGameDTO().getRootValueTargets().size()
+                || replay && game.getOriginalGameDTO().getActions().size() == game.getGameDTO().getActions().size()
         ));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
