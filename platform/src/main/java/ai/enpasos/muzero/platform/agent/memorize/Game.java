@@ -298,7 +298,7 @@ private boolean reanalyse;
                     }
                 }
                 if (tdSteps > 0)
-                    log.debug("tdSteps (>0): " + tdSteps);
+                    log.trace("tdSteps (>0): " + tdSteps);
                 return tdSteps;
             }
         }
