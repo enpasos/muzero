@@ -297,6 +297,8 @@ private boolean reanalyse;
                         tdSteps = 0;   // if not all then nothing
                     }
                 }
+                if (tdSteps > 0)
+                    log.debug("tdSteps (>0): " + tdSteps);
                 return tdSteps;
             }
         }
@@ -351,7 +353,7 @@ private boolean reanalyse;
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
         if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
-            if (gameDTO.isHybrid()) {
+            if (gameDTO.isHybrid() || isReanalyse()) {
                 if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
                     value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                 }
