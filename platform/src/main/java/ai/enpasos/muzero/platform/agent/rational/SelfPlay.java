@@ -164,12 +164,14 @@ public class SelfPlay {
 
     private void reanalyseConfiguration() {
         gameList.forEach(game -> {
+            game.setOriginalGameDTO(game.getGameDTO().copy());
             game.getGameDTO().getPolicyTargets().clear();
             game.getGameDTO().setRootValueTargets(new ArrayList<>());
             game.getGameDTO().setEntropies(new ArrayList<>());
             game.getGameDTO().setMaxEntropies(new ArrayList<>());
-             game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
-             game.replayToPosition(0);
+            game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
+
+            game.replayToPosition(0);
         });
     }
 
@@ -336,9 +338,9 @@ public class SelfPlay {
             }
             IntStream.range(0, nGames).forEach(i -> {
                     searchManagers.get(i).storeSearchStatictics(render, fastRuleLearning);
-                    if (!replay) {
+                    //if (!replay) {
                         searchManagers.get(i).selectAndApplyAction(render, fastRuleLearning, replay);
-                    }
+                   // }
                 }
             );
         }
@@ -376,9 +378,6 @@ public class SelfPlay {
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
 
-        if (replay) {
-            int i = 42;
-        }
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
@@ -389,9 +388,9 @@ public class SelfPlay {
         IntStream.range(0, gamesWithOnlyOneAllowedAction.size()).forEach(g -> {
             Game game = gamesWithOnlyOneAllowedAction.get(g);
             Action action = game.legalActions().get(0);
-            if (!replay) {
+         //   if (!replay) {
                 game.apply(action);
-            }
+           // }
 
 
             float value = 0f;
@@ -562,6 +561,9 @@ public class SelfPlay {
         List<Game>  gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
              gamesToReanalyse = gameBuffer.getGamesToReanalyse();
+             if (gamesToReanalyse.size() > 0) {
+                 int i = 42;
+             }
         }
         for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> gamesPart;

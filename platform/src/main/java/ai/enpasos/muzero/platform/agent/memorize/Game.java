@@ -352,20 +352,15 @@ private boolean reanalyse;
     private double getBootstrapValue(int currentIndex, int tdSteps) {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
-        if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
-            if (gameDTO.isHybrid() || isReanalyse()) {
-                if (currentIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-                    value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-                }
-            } else {
-                value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+        if (gameDTO.isHybrid() || isReanalyse()) {
+            if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
+                value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
-            value = 0;
+            if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
+                value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+            }
         }
-
-
-
         return value;
     }
 
