@@ -423,7 +423,8 @@ public class GameBuffer {
         int n = config.getNumEpisodes() * config.getNumParallelGamesPlayed();
         List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
         List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames, this.getConfig());
-        games.forEach(g -> g.setPlayTypeKey(PlayTypeKey.REANALYSE));
+        //games.forEach(g -> g.setPlayTypeKey(PlayTypeKey.REANALYSE));
+        games.forEach(g -> g.setReanalyse(true));
         return games;
     }
 
