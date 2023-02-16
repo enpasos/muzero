@@ -372,8 +372,13 @@ public class SelfPlay {
     }
 
     private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning, Network network, boolean replay) {
+
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
+
+        if (replay) {
+            int i = 42;
+        }
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
@@ -384,7 +389,9 @@ public class SelfPlay {
         IntStream.range(0, gamesWithOnlyOneAllowedAction.size()).forEach(g -> {
             Game game = gamesWithOnlyOneAllowedAction.get(g);
             Action action = game.legalActions().get(0);
-            game.apply(action);
+            if (!replay) {
+                game.apply(action);
+            }
 
 
             float value = 0f;
@@ -397,7 +404,9 @@ public class SelfPlay {
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
             game.getGameDTO().getPolicyTargets().add(policyTarget);
-            game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+            if (!replay) {
+                game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+            }
             if (render && game.isDebug()) {
                 game.renderMCTSSuggestion(config, policyTarget);
                 log.info("\n" + game.render());

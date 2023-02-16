@@ -269,8 +269,16 @@ public class MuZero {
 
     private void determinePRatioMaxForCurrentEpoch(Model model) {
         int epoch = getEpochFromModel(model);
-        List<Game> games = this.gameBuffer.getGames().stream().filter(game -> game.getGameDTO().getTrainingEpoch() == epoch).collect(Collectors.toList());
+        List<Game> games = this.gameBuffer.getGames().stream()
+            .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() == PlayTypeKey.REANALYSE)
+            .collect(Collectors.toList());
         double pRatioMax = determinePRatioMax(games);
+        log.info("pRatioMaxREANALYSE({}): {}", epoch, pRatioMax);
+
+        List<Game> games2 = this.gameBuffer.getGames().stream()
+            .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() != PlayTypeKey.REANALYSE)
+            .collect(Collectors.toList());
+        double pRatioMax2 = determinePRatioMax(games2);
         log.info("pRatioMax({}): {}", epoch, pRatioMax);
     }
 
@@ -335,7 +343,7 @@ public class MuZero {
     }
 
     void playGames(boolean render, Network network, int trainingStep) {
-        if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
+        //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
             log.info("last training step = {}", trainingStep);
             log.info("numSimulations: " + config.getNumSimulations());
             network.debugDump();
@@ -344,7 +352,7 @@ public class MuZero {
 
             selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
 
-        }
+       // }
     }
 
 

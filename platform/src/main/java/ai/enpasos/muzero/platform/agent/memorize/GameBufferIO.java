@@ -124,13 +124,19 @@ public class GameBufferIO {
          }
 
         paths.removeAll(pathsNotToLoad);
-        Collections.shuffle(paths);
-        for (int h = 0; h < paths.size() && games.size() <= n; h++) {
-            Path path = paths.get(paths.size() - 1 - h);
-            GameBufferDTO gameBufferDTO= this.loadState(path);
-             games.addAll(gameBufferDTO.getGames());
-        }
 
+if (paths.size() > 0) {
+    Collections.shuffle(paths);
+//    List<Path> pathsSelected = List.of(paths.get(0));
+//    for (int h = 0; h < pathsSelected.size() && games.size() <= n; h++) {
+//        Path path = pathsSelected.get(paths.size() - 1 - h);
+//        GameBufferDTO gameBufferDTO = this.loadState(path);
+//        games.addAll(gameBufferDTO.getGames());
+//    }
+    Path path =  paths.get(0);
+            GameBufferDTO gameBufferDTO = this.loadState(path);
+        games.addAll(gameBufferDTO.getGames());
+}
         return games.subList(0, Math.min(n, games.size()));
     }
 

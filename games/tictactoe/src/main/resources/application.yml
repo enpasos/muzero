@@ -118,7 +118,7 @@ muzero:
           forTraining: true
           numEpisodes: 1
           numParallelGamesPlayed: 500
-          tdSteps: 0
+          tdSteps: 9
           numSimulations: 20
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts

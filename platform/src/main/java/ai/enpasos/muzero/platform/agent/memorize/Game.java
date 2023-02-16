@@ -436,19 +436,19 @@ public abstract class Game {
     double pRatioMax;
     public double getPRatioMax() {
         int n = getGameDTO().getActions().size();
-        double[] pRatios = new double[n];
-        IntStream.range(0, n).forEach(i -> {
+        int tStart = (int)this.getGameDTO().getTHybrid();
+        if (tStart >= n) return 1d;
+        double[] pRatios = new double[n-tStart];
+
+        IntStream.range(tStart, n).forEach(i -> {
             int a = getGameDTO().getActions().get(i);
            if (getGameDTO().getPlayoutPolicy().isEmpty()) {
-               pRatios[i] = 1;
+               pRatios[i-tStart] = 1;
            } else {
-               pRatios[i] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
+               pRatios[i-tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
            }
         });
         double prod =  getProductPathMax(pRatios);
-        if (prod > 100) {
-            int j = 42;
-        }
         return prod;
     }
 

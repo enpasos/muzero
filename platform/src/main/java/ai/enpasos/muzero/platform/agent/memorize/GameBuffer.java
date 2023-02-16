@@ -329,6 +329,7 @@ public class GameBuffer {
     }
 
     public void addGames(Model model, List<Game> games, boolean atBeginning) {
+
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
@@ -354,7 +355,7 @@ public class GameBuffer {
         game.getGameDTO().setTrainingEpoch(epoch);
         memorizeEntropyInfo(game, epoch);
         game.getGameDTO().setNetworkName(networkName);
-        getBuffer().addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
     }
 
     private void addGame(int epoch, Game game, boolean atBeginning) {
