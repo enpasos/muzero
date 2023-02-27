@@ -25,11 +25,14 @@ public class TicTacToeOnnx {
         long hs = config.getNumChannels();
         long a = config.getNumActionLayers();
         long o = config.getNumObservationLayers();
+        long s = config.getNumChannelsOutputLayerSimilarity();
 
         List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
         List<Shape> inputPrediction = List.of(new Shape(1L, hs, w, h));
+        List<Shape> inputSimilarityProjection = List.of(new Shape(1L, hs, w, h));
+        List<Shape> inputSimilarityPrediction = List.of(new Shape(1L, s));
         List<Shape> inputGeneration = List.of(new Shape(1L, hs, w, h), new Shape(1L, a, w, h));
-        onnxExport.run(inputRepresentation, inputPrediction, inputGeneration);
+        onnxExport.run(inputRepresentation, inputPrediction, inputGeneration, inputSimilarityPrediction, inputSimilarityProjection);
     }
 
 }

@@ -7,6 +7,8 @@ import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.binference.InitialInferenceBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.binference.RecurrentInferenceBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.SimilarityPredictorBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.SimilarityProjectorBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +40,7 @@ public class OnnxExport {
     }
 
     @SuppressWarnings("squid:S106")
-    public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration) {
+    public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration, List<Shape> inputSimilarityPredictor, List<Shape> inputSimilarityProjector) {
 
         try {
             FileUtils.forceMkdir(new File(config.getOutputDir() + "onnx"));
@@ -46,6 +48,9 @@ public class OnnxExport {
                 Network network = new Network(config, model);
                 InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock) network.getInitialInference().getBlock();
                 RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock) network.getRecurrentInference().getBlock();
+                SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) network.getPredictor().getBlock();
+                SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) network.getProjector().getBlock();
+
 
                 onnxExport(initialInferenceBlock, inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-InitialInference.onnx", "I_");
 
@@ -54,6 +59,9 @@ public class OnnxExport {
                 onnxExport(initialInferenceBlock.getH(), inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-Representation.onnx", "H_");
                 onnxExport(initialInferenceBlock.getF(), inputPrediction, config.getOutputDir() + ONNX + config.getModelName() + "-Prediction.onnx", "F_");
                 onnxExport(recurrentInferenceBlock.getG(), inputGeneration, config.getOutputDir() + ONNX + config.getModelName() + "-Generation.onnx", "G_");
+
+                onnxExport(similarityPredictorBlock, inputSimilarityPredictor, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityPredictor.onnx", "SPRE_");
+                onnxExport(similarityProjectorBlock, inputSimilarityProjector, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityProjector.onnx", "SPRO_");
             }
 
         } catch (Exception e) {

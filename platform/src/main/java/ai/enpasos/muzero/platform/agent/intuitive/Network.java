@@ -36,6 +36,8 @@ import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.binference.Recurren
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.RepresentationBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.SimilarityPredictorBlock;
+import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.cmainfunctions.SimilarityProjectorBlock;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
 import ai.enpasos.muzero.platform.agent.rational.Node;
@@ -67,6 +69,10 @@ public class Network {
     private SubModel initialInference;
     private SubModel recurrentInference;
 
+
+    private SubModel projector;
+    private SubModel predictor;
+
     private List<NDArray> actionSpaceOnDevice;
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
@@ -91,13 +97,18 @@ public class Network {
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
         DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
+        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("04Projector");
+        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("05Predictor");
 
         representation = new SubModel("representation", model, representationBlock, config);
         prediction = new SubModel("prediction", model, predictionBlock, config);
         dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
+        projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
+        predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
+
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {
