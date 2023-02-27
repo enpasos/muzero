@@ -81,7 +81,7 @@ muzero:
 
       offPolicyCorrectionOn: true
       allOrNothingOn: true
-      offPolicyRatioLimit: 5.0
+      offPolicyRatioLimit: 1.0
 
       playTypes:
         PLAYOUT:
@@ -112,7 +112,7 @@ muzero:
           gumbelActionSelection: true
           gumbelActionSelectionOnExploring: false
 
-          #isReanalyseOn: true
+
 
         REANALYSE:
           forTraining: true

@@ -296,6 +296,8 @@ public class GameBuffer {
         return games;
     }
 
+
+
     public void loadLatestState() {
         List<Path> paths = this.gameBufferIO.getBufferNames();
         for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
