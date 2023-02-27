@@ -277,22 +277,22 @@ public class GameBuffer {
     public List<Game> getGames() {
         List<Game> gamesFromBuffer = new ArrayList<>(this.buffer.getGames());
         List<Game> gamesFromReplayBuffer = new ArrayList<>(this.replayBuffer.getGames());
-        double f = config.getReplayFraction();
-        int nReplayGames = (int)(gamesFromBuffer.size() * f / (1-f));
-        // TODO if f > 0.5
+        //double f = config.getReplayFraction();
+       // int nReplayGames = (int)(gamesFromBuffer.size() * f / (1-f));
+
 
         Collections.shuffle(gamesFromReplayBuffer);
         int nGamesFromBuffer = gamesFromBuffer.size();
         List<Game> games =  gamesFromBuffer;
-        List<Game> gamesFromReplay = gamesFromReplayBuffer.subList(0, Math.min(nReplayGames, gamesFromReplayBuffer.size()));
-        int nGamesFromReplay = gamesFromReplay.size();
-        games.addAll(gamesFromReplay);
+       // List<Game> gamesFromReplay = gamesFromReplayBuffer.subList(0, Math.min(nReplayGames, gamesFromReplayBuffer.size()));
+     //   int nGamesFromReplay = gamesFromReplay.size();
+       // games.addAll(gamesFromReplay);
         Collections.shuffle(games);
         // log how many games are from the replay buffer and how many from the buffer
         int nReplayGamesFromBuffer = (int) games.stream().filter(g -> g.getPlayTypeKey() == PlayTypeKey.REANALYSE).count();
 
-        log.trace("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nGamesFromReplay);
-
+      //  log.trace("Games from buffer: {}, games from replay buffer: {}", nGamesFromBuffer, nGamesFromReplay);
+        log.trace("Games from buffer: {}",  nGamesFromBuffer );
         return games;
     }
 

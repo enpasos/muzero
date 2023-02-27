@@ -219,9 +219,8 @@ public class MuZeroConfig {
     public float getDiscount() {
         return getConf().discount;
     }
-    public float getReplayFraction() {
-        return getConf().replayFraction;
-    }
+
+
 
 
     public float getWeightDecay() {
@@ -478,8 +477,6 @@ public class MuZeroConfig {
         protected int numUnrollSteps;
         protected int numberOfEpisodesPerJVMStart;
 
-
-        protected float replayFraction;
 
 
         protected float discount;
