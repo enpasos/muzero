@@ -246,17 +246,17 @@ private boolean reanalyse;
     private int getTdSteps(int currentIndex) {
         int tdSteps;
         if (this.reanalyse) {
-            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-                tdSteps = 0;
-            } else {
+//            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+//                tdSteps = 0;
+//            } else {
                 int T = this.getGameDTO().getRewards().size() - 1;
                 tdSteps = getTdSteps(currentIndex, T);
-            }
+//            }
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-//                int T = this.getGameDTO().getRewards().size() - 1;
-//                tdSteps = getTdSteps(currentIndex, T);
-                tdSteps = 0;
+                int T = this.getGameDTO().getRewards().size() - 1;
+                tdSteps = getTdSteps(currentIndex, T);
+             //   tdSteps = 0;
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
             }
