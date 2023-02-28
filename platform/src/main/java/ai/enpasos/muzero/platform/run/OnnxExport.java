@@ -20,9 +20,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static ai.enpasos.mnist.blocks.OnnxIOExport.onnxExport;
+import static java.util.Map.entry;
 
 @Slf4j
 @Component
@@ -40,12 +43,17 @@ public class OnnxExport {
     }
 
     @SuppressWarnings("squid:S106")
-    public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration, List<Shape> inputSimilarityPredictor, List<Shape> inputSimilarityProjector) {
+    public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration, List<Shape> inputSimilarityPredictor, List<Shape> inputSimilarityProjector, int epoch) {
 
         try {
             FileUtils.forceMkdir(new File(config.getOutputDir() + "onnx"));
             try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
-                Network network = new Network(config, model);
+                Network network = null;
+                if (epoch == -1) {
+                    network = new Network(config, model);
+                } else {
+                    network = new Network(config, model, Paths.get(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
+                }
                 InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock) network.getInitialInference().getBlock();
                 RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock) network.getRecurrentInference().getBlock();
                 SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) network.getPredictor().getBlock();

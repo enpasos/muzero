@@ -20,6 +20,9 @@ public class GoOnnx {
     private OnnxExport onnxExport;
 
     public void run() {
+
+        config.setNetworkBaseDir("./memory/go5 - Kopie (2)/networks");
+        int epoch = 685;
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();
         long hs = config.getNumChannels();
@@ -32,7 +35,7 @@ public class GoOnnx {
         List<Shape> inputSimilarityProjection = List.of(new Shape(1L, hs, w, h));
         List<Shape> inputSimilarityPrediction = List.of(new Shape(1L, s));
         List<Shape> inputGeneration = List.of(new Shape(1L, hs, w, h), new Shape(1L, a, w, h));
-        onnxExport.run(inputRepresentation, inputPrediction, inputGeneration, inputSimilarityPrediction, inputSimilarityProjection);
+        onnxExport.run(inputRepresentation, inputPrediction, inputGeneration, inputSimilarityPrediction, inputSimilarityProjection, epoch);
     }
 
 }
