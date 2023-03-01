@@ -327,6 +327,7 @@ public class GameBuffer {
     public double getPRandomActionRawAverage() {
         double sum = this.getBuffer().games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
         long count = this.getBuffer().games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
+        if (count == 0) return 1;
         return sum / count;
     }
 

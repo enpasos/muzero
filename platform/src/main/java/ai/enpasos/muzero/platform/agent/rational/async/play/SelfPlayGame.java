@@ -32,8 +32,6 @@ public class SelfPlayGame {
         boolean fastRulesLearning = playParameters.isFastRulesLearning();
         boolean untilEnd = playParameters.isUntilEnd();
         boolean justInitialInferencePolicy = playParameters.isJustInitialInferencePolicy();
-       // boolean withRandomActions = true;
-
 
         game.getGameDTO().setTdSteps(config.getTdSteps());
 
@@ -45,20 +43,15 @@ public class SelfPlayGame {
             }
         }
 
-
         int count = 1;
-
         while (!game.isDone() && (count == 1 || untilEnd)) {
-
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
                 playAction.playAction(game, render, fastRulesLearning, justInitialInferencePolicy,  playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
             }
-
             count++;
         }
-
     }
 
 

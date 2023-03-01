@@ -350,20 +350,7 @@ public class GumbelSearch {
 
     }
 
-    public void applyAction(boolean render, Action action) {
-        if (action == null) {
-            throw new MuZeroException("action must not be null");
-        }
 
-        game.apply(action);
-
-        if (render && debug) {
-            List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();
-            float[] policyTarget = policyTargets.get(policyTargets.size() - 1);
-            game.renderMCTSSuggestion(config, policyTarget);
-            log.info("\n" + game.render());
-        }
-    }
 
     private Action getAction(double temperature, double[] raw, Game game) {
         Action action;

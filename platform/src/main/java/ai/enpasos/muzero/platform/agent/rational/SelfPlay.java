@@ -45,6 +45,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
+import static ai.enpasos.muzero.platform.agent.rational.async.play.PlayAction.applyAction;
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
@@ -240,17 +241,9 @@ public class SelfPlay {
     @SuppressWarnings("squid:S3776")
     public void play(Network network, boolean withRandomness, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, double pRandomActionRawAverage, boolean replay) {
 
-
-
         Game justOneOfTheGames = justOneOfTheGames();
-      //  justOneOfTheGames.setRecordValueImprovements(true);
 
         int indexOfJustOneOfTheGames = getGameList().indexOf(justOneOfTheGames);
-//        getGameList().stream().forEach(g -> {
-//            if (g.isRecordValueImprovements()) {
-//                g.getValueImprovements().add(10d);
-//            }
-//        });
 
         List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
         gamesToApplyAction.forEach(game -> game.setActionApplied(false));
@@ -260,7 +253,6 @@ public class SelfPlay {
             networkOutput = initialInference(network, gamesToApplyAction, render, false, indexOfJustOneOfTheGames);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
-
 
         storeEntropyInfo(gamesToApplyAction, networkOutputFinal);
 
@@ -339,7 +331,8 @@ public class SelfPlay {
                     searchManagers.get(i).storeSearchStatictics(render, fastRuleLearning);
                     //if (!replay) {
                     Action action =     searchManagers.get(i).selectAction( fastRuleLearning, replay);
-                searchManagers.get(i).applyAction(render, action);
+                    applyAction(render, action, searchManagers.get(i).game, searchManagers.get(i).debug, config);
+                //searchManagers.get(i).applyAction(render, action);
                    // }
                 }
             );
@@ -425,11 +418,11 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGames(boolean replay) {
-        gameList.forEach(game -> game.setDone(
-            !replay && game.terminal()
-                || !replay && game.getGameDTO().getActions().size() >= config.getMaxMoves()
-                || replay && game.getOriginalGameDTO().getActions().size() == game.getGameDTO().getActions().size()
-        ));
+//        gameList.forEach(game -> game.setDone(
+//            !replay && game.terminal()
+//                || !replay && game.getGameDTO().getActions().size() >= config.getMaxMoves()
+//                || replay && game.getOriginalGameDTO().getActions().size() == game.getGameDTO().getActions().size()
+//        ));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
@@ -438,7 +431,9 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGamesReplay() {
-        gameList.forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
+      //  gameList.forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
+
+
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());

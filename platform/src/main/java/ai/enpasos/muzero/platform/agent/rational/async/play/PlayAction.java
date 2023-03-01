@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
@@ -33,14 +34,14 @@ public class PlayAction {
 
 
     @Autowired
-    ModelService inferenceDispatcher;
+    ModelService modelService;
 
 
     public void justReplayActionWithInitialInference(Game game) {
         log.trace("justReplayActionWithInitialInference");
 
 
-        NetworkIO networkOutput = inferenceDispatcher.initialInference(game).join();
+        NetworkIO networkOutput = modelService.initialInference(game).join();
 
         Node root = new Node(config, 0, true);
         double value = Objects.requireNonNull(networkOutput).getValue();
@@ -73,19 +74,42 @@ public class PlayAction {
         double pRandomActionRawAverage,
         boolean drawNotMaxWhenJustWithInitialInference
     ) {
-        game.initSearchManager(pRandomActionRawAverage);
-        GumbelSearch sm = game.getSearchManager();
+        Action action;
+        if (game.legalActions().size() == 1) {
+            action = game.legalActions().get(game.legalActions().size() - 1);
+            if (!fastRuleLearning) {
+                NetworkIO networkOutput = modelService.initialInference(game).join();
+                double value =  Objects.requireNonNull(networkOutput).getValue();
+                game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+                game.getGameDTO().getRootValueTargets().add((float)value);
+            }
+            float[] policyTarget = new float[config.getActionSpaceSize()];
+            policyTarget[action.getIndex()] = 1f;
+            game.getGameDTO().getPolicyTargets().add(policyTarget);
+            if (!game.isReanalyse()) {
+                game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+            }
+            if (render && game.isDebug()) {
+                game.renderMCTSSuggestion(config, policyTarget);
+                log.info("\n" + game.render());
+            }
+            game.setActionApplied(true);
 
+        } else {
+            game.initSearchManager(pRandomActionRawAverage);
+            GumbelSearch sm = game.getSearchManager();
+            search(game, sm, fastRuleLearning, justInitialInferencePolicy, render);
 
-        search(game, sm, fastRuleLearning, justInitialInferencePolicy, render);
+            if (!justInitialInferencePolicy) {
+                sm.storeSearchStatictics(render, fastRuleLearning);
+            }
 
-        if (!justInitialInferencePolicy ) {
-            sm.storeSearchStatictics(render, fastRuleLearning);
+            boolean replay = false;
+            action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);// sm.selectAction( fastRuleLearning, replay);
+
         }
+        applyAction(render, action, game, game.isDebug(), config);
 
-        boolean replay = false;
-        Action action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);// sm.selectAction( fastRuleLearning, replay);
-        sm.applyAction(render, action);
         GameDTO dto = game.getGameDTO();
         if (dto.getPlayoutPolicy().size() < dto.getPolicyTargets().size()) {
             dto.getPlayoutPolicy().add( dto.getPolicyTargets().get( dto.getPolicyTargets().size() - 1));
@@ -93,14 +117,27 @@ public class PlayAction {
 
     }
 
+    public static void applyAction(boolean render, Action action, Game game, boolean debug, MuZeroConfig config) {
+        if (action == null) {
+            throw new MuZeroException("action must not be null");
+        }
 
+        game.apply(action);
+
+        if (render && debug) {
+            List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();
+            float[] policyTarget = policyTargets.get(policyTargets.size() - 1);
+            game.renderMCTSSuggestion(config, policyTarget);
+            log.info("\n" + game.render());
+        }
+    }
     public void search(Game game, GumbelSearch sm, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean render) {
         log.trace("search");
         double value = 0;
         boolean withRandomness = false;
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
-            networkOutput = inferenceDispatcher.initialInference(game).join();
+            networkOutput = modelService.initialInference(game).join();
             value =  Objects.requireNonNull(networkOutput).getValue();
             //game.getGameDTO().getRootValueTargets().add((float)value);
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
@@ -135,7 +172,7 @@ public class PlayAction {
         if (!fastRuleLearning) {
             do {
                 List<Node> searchPath = sm.search();
-                networkOutput = inferenceDispatcher.recurrentInference(searchPath).join();
+                networkOutput = modelService.recurrentInference(searchPath).join();
                 sm.expandAndBackpropagate(Objects.requireNonNull(networkOutput));
                 sm.next();
                 sm.drawCandidateAndAddValue();
@@ -148,6 +185,8 @@ public class PlayAction {
     public Action selectAction(Game game, GumbelSearch sm,  boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean drawNotMaxWhenJustWithInitialInference, boolean render, boolean replay) {
         if (game.legalActions().size() == 1) {
             return game.legalActions().get(0);
+        } else if (fastRuleLearning) {
+            return sm.getRoot().getRandomAction();
         } else if (justInitialInferencePolicy) {
             return selectActionAfterJustWithInitialInference(sm.getRoot(), drawNotMaxWhenJustWithInitialInference);
         }

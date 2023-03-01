@@ -72,7 +72,20 @@ public abstract class Game {
     double surpriseMean;
     double surpriseMax;
 
-    boolean done;
+   // boolean done;
+
+
+    public boolean isDone() {
+        return isDone(false);
+    }
+    public boolean isDone(boolean replay) {
+        return              !replay &&  terminal()
+            || !replay &&  getGameDTO().getActions().size() >= config.getMaxMoves()
+            || replay &&  getOriginalGameDTO().getActions().size() ==   getGameDTO().getActions().size();
+    }
+
+
+
 
     int epoch;
 

@@ -82,6 +82,7 @@ class AsyncTest {
     @Test
     void testMultiGameStarter() throws ExecutionException, InterruptedException {
         config.setOutputDir("./build/tictactoeTest/");
+
         rmDir(config.getOutputDir());
         modelService.loadLatestModelOrCreateIfNotExisting().get();
 //        TrainParams params = TrainParams.builder()

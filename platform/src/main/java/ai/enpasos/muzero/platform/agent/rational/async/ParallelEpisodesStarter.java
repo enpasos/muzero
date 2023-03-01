@@ -1,8 +1,5 @@
 package ai.enpasos.muzero.platform.agent.rational.async;
 
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -18,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
+import static ai.enpasos.muzero.platform.config.PlayTypeKey.REANALYSE;
 
 @Component
 @Slf4j
@@ -30,7 +28,7 @@ public class ParallelEpisodesStarter {
     GlobalState globalState;
 
     @Autowired
-    GameBuffer replayBuffer;
+    GameBuffer gameBuffer;
 
 
     @Autowired
@@ -43,14 +41,21 @@ public class ParallelEpisodesStarter {
             Game game = config.newGame();
             games.add(game);
         }
+        games.stream().forEach(game -> {
+            game.getGameDTO().setTdSteps(config.getTdSteps());
+            game.setPlayTypeKey(this.config.getPlayTypeKey());
+        });
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration(games);
+        }
+        if (config.getPlayTypeKey() == REANALYSE) {
+            reanalyseConfiguration(games);
         }
         return playGames( games, playParameters);
     }
 
     private void hybridConfiguration(List<Game> games) {
-        int gameLength = replayBuffer.getAverageGameLength();
+        int gameLength = gameBuffer.getAverageGameLength();
         hybridConfiguration(games, gameLength);
     }
 
@@ -62,16 +67,28 @@ public class ParallelEpisodesStarter {
             }
         });
     }
+    private void reanalyseConfiguration(List<Game> games) {
+        games.forEach(game -> {
+            game.setOriginalGameDTO(game.getGameDTO().copy());
+            game.getGameDTO().getPolicyTargets().clear();
+            game.getGameDTO().setRootValueTargets(new ArrayList<>());
+            game.getGameDTO().setEntropies(new ArrayList<>());
+            game.getGameDTO().setMaxEntropies(new ArrayList<>());
+            game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
+            game.getGameDTO().setActions(new ArrayList<>());
+            game.getGameDTO().setRewards(new ArrayList<>());
+            game.replayToPosition(0);
+        });
+    }
 
 
 
 
     public List<Game> playGames(  List<Game> games, PlayParameters playParameters) {
 
-
         giveOneOfTheGamesADebugFlag(games);
-        int averageGameLength = replayBuffer.getAverageGameLength();
-        playParameters.setPRandomActionRawAverage(this.replayBuffer.getPRandomActionRawAverage());
+        int averageGameLength = gameBuffer.getAverageGameLength();
+        playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
         playParameters.setAverageGameLength(averageGameLength);
 
         CompletableFuture<Game>[] futures = games.stream().map(g ->

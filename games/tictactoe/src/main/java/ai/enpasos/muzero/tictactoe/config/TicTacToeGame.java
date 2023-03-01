@@ -210,17 +210,17 @@ public class TicTacToeGame extends ZeroSumGame {
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
             float value = 0f;
-            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
+            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElse(new Node(config, 0f)).getPrior();
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
         log.info(EnvironmentBase.render(config, values));
-        if (boardSize < config.getActionSpaceSize()) {
-            Action a = config.newAction(boardSize);
-            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
-            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
-        }
+//        if (boardSize < config.getActionSpaceSize()) {
+//            Action a = config.newAction(boardSize);
+//            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
+//            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
+//        }
     }
 
 
