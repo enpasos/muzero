@@ -298,31 +298,24 @@ public class GumbelSearch {
         storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
     }
 
-    public void selectAndApplyAction(boolean render, boolean fastRuleLearning, boolean replay ) {
+    public Action selectAction( boolean fastRuleLearning, boolean replay ) {
 
         Action action = null;
 
         if (replay) {
             int a = game.getGameDTO().getRootValuesFromInitialInference().size() - 1;
             if (a < game.getOriginalGameDTO().getActions().size()) {
-                action = config.newAction(game.getOriginalGameDTO().getActions().get(a));
-                applyAction(render, action);
+                return config.newAction(game.getOriginalGameDTO().getActions().get(a));
             }
-            return;
        }
 
         if (fastRuleLearning) {
-            action = root.getRandomAction();
-            applyAction(render, action);
-            this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
-            return;
+            return root.getRandomAction();
         }
 
         if ( config.getTrainingTypeKey() != HYBRID && config.isGumbelActionSelection()) {
-            action = selectedAction;
-            applyAction(render, action);
-            this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
-            return;
+            return selectedAction;
+
         }
 
 
@@ -353,11 +346,11 @@ public class GumbelSearch {
         } else {
             action = getAction(temperature, raw, game);
         }
-        applyAction(render, action);
+        return action;
 
     }
 
-    private void applyAction(boolean render, Action action) {
+    public void applyAction(boolean render, Action action) {
         if (action == null) {
             throw new MuZeroException("action must not be null");
         }

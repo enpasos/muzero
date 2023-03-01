@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -85,7 +84,7 @@ public class MuZero {
         }
     }
 
-    public void createNetworkModelIfNotExisting() {
+    public void loadOrCreateNetworkModelIfNotExisting() {
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             if (model.getBlock() == null) {
                 MuZeroBlock block = new MuZeroBlock(config);
@@ -154,7 +153,7 @@ public class MuZero {
         }
         try (NDScope nDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                createNetworkModelIfNotExisting();
+                loadOrCreateNetworkModelIfNotExisting();
             }
         }
 
@@ -162,7 +161,7 @@ public class MuZero {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
                 Network network = new Network(config, model);
-                createNetworkModelIfNotExisting();
+                loadOrCreateNetworkModelIfNotExisting();
 
                 epoch = NetworkHelper.getEpochFromModel(model);
                 int epochStart = epoch;

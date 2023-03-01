@@ -338,7 +338,8 @@ public class SelfPlay {
             IntStream.range(0, nGames).forEach(i -> {
                     searchManagers.get(i).storeSearchStatictics(render, fastRuleLearning);
                     //if (!replay) {
-                        searchManagers.get(i).selectAndApplyAction(render, fastRuleLearning, replay);
+                    Action action =     searchManagers.get(i).selectAction( fastRuleLearning, replay);
+                searchManagers.get(i).applyAction(render, action);
                    // }
                 }
             );

@@ -33,7 +33,7 @@ muzero:
       knownBoundsType: FROM_VALUES
 
       inferenceDeviceType: GPU
-      outputDir: ./memory/tictactoe/
+      outputDir: ../../memory/tictactoe/
       size: 3
       maxMoves: 9  # size*size
       boardHeight: 3 # size
@@ -75,6 +75,9 @@ muzero:
       offPolicyCorrectionOn: false
       allOrNothingOn: true
       offPolicyRatioLimit: 4.0
+
+      numParallelInferences: 1000
+
 
       playTypes:
         PLAYOUT:

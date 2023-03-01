@@ -248,4 +248,7 @@ public class Network {
         return recurrentInferenceListDirect(hiddenStateList, actionList);
     }
 
+
+
+
 }

@@ -405,6 +405,10 @@ public class MuZeroConfig {
         return getConf().numPurePolicyPlays;
     }
 
+    public int getNumParallelInferences() {
+        return getConf().numParallelInferences;
+    }
+
     public int getNumChannelsHiddenLayerSimilarity() {
         return getConf().numChannelsHiddenLayerSimilarity;
     }
@@ -503,7 +507,7 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
         int[] valueInterval;
-
+        int numParallelInferences;
 
         boolean offPolicyCorrectionOn;
 
