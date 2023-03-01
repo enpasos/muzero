@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.rational;
 
 import lombok.Builder;
 import lombok.Data;
@@ -26,5 +26,8 @@ public class PlayParameters {
     int averageGameLength;
 
     double pRandomActionRawAverage;
+
+
+    boolean replay;
 
 }

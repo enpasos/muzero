@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.intuitive.service;
 
 public enum ControllerTaskType {
     loadLatestModel, loadLatestModelOrCreateIfNotExisting, trainModel

@@ -1,8 +1,8 @@
-package ai.enpasos.muzero.platform.agent.rational.async.play;
+package ai.enpasos.muzero.platform.agent.rational.service;
 
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.rational.async.PlayParameters;
+import ai.enpasos.muzero.platform.agent.rational.PlayParameters;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

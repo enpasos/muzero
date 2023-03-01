@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.intuitive.service;
 
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;

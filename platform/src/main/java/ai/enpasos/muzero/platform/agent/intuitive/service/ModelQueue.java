@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.intuitive.service;
 
 
 import jakarta.annotation.PostConstruct;
@@ -86,6 +86,9 @@ public class ModelQueue {
         controllerTasks.remove(task);
     }
 
+    public void addInitialInferenceTasks(List<InitialInferenceTask> tasks) {
+        initialInferenceTasks.addAll(tasks);
+    }
 
     public void addInitialInferenceTask(InitialInferenceTask task) {
         initialInferenceTasks.add(task);

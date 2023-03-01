@@ -1,7 +1,8 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.rational.service;
 
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
+import ai.enpasos.muzero.platform.agent.rational.PlayParameters;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +20,12 @@ import static ai.enpasos.muzero.platform.config.PlayTypeKey.REANALYSE;
 
 @Component
 @Slf4j
-public class ParallelEpisodesStarter {
+public class PlayService {
 
     @Autowired
     EpisodeRunner episodeRunner;
 
-    @Autowired
-    GlobalState globalState;
+
 
     @Autowired
     GameBuffer gameBuffer;

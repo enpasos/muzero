@@ -1,11 +1,11 @@
-package ai.enpasos.muzero.platform.agent.rational.async.play;
+package ai.enpasos.muzero.platform.agent.rational.service;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
 import ai.enpasos.muzero.platform.agent.rational.*;
-import ai.enpasos.muzero.platform.agent.rational.async.ModelService;
+import ai.enpasos.muzero.platform.agent.intuitive.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;

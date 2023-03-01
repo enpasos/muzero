@@ -45,7 +45,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.rational.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.agent.rational.async.play.PlayAction.applyAction;
+import static ai.enpasos.muzero.platform.agent.rational.service.PlayAction.applyAction;
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;

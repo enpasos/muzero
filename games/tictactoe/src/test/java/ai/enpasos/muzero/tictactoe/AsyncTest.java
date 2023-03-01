@@ -1,26 +1,18 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.djl.Device;
-import ai.djl.Model;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
 import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
 import ai.enpasos.muzero.platform.agent.rational.Node;
-import ai.enpasos.muzero.platform.agent.rational.async.GlobalState;
-import ai.enpasos.muzero.platform.agent.rational.async.ModelQueue;
-import ai.enpasos.muzero.platform.agent.rational.async.ModelService;
-import ai.enpasos.muzero.platform.agent.rational.async.ParallelEpisodesStarter;
-import ai.enpasos.muzero.platform.agent.rational.async.PlayParameters;
-import ai.enpasos.muzero.platform.agent.rational.async.play.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.intuitive.service.ModelQueue;
+import ai.enpasos.muzero.platform.agent.intuitive.service.ModelService;
+import ai.enpasos.muzero.platform.agent.rational.service.PlayService;
+import ai.enpasos.muzero.platform.agent.rational.PlayParameters;
+import ai.enpasos.muzero.platform.agent.rational.service.SelfPlayGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
-import ai.enpasos.muzero.platform.run.train.TrainParams;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AsyncTest {
 
     @Autowired
-    ParallelEpisodesStarter multiGameStarter;
+    PlayService multiGameStarter;
 
 
     @Autowired
@@ -75,8 +67,6 @@ class AsyncTest {
     @Autowired
     ModelService modelService;
 
-    @Autowired
-    GlobalState globalState;
 
 
     @Test

@@ -20,11 +20,16 @@ package ai.enpasos.muzero.platform.agent.intuitive;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
+import ai.enpasos.muzero.platform.agent.intuitive.service.ModelService;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.rational.PlayParameters;
 import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.rational.service.PlayService;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,20 +40,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByMaxFromDistribution;
 import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 import static java.util.Map.entry;
 
 @Component
+@Slf4j
 public class Inference {
 
     @Autowired
     MuZeroConfig config;
+
+
+    @Autowired
+    PlayService playService;
+
+    @Autowired
+    ModelService modelService;
 
 
     @Autowired
@@ -63,24 +78,35 @@ public class Inference {
 
         Game game = getGame(actions);
 
-        int[] actionIndexesSelectedByNetwork;
+        try {
 
-        try (Model model = Model.newInstance(config.getModelName())) {
-
-            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
-
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-
-                network.initActionSpaceOnDevice(nDManager);
-                network.setHiddenStateNDManager(nDManager);
-
-                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, true, List.of(game)).stream()
-                    .mapToInt(Pair::getSecond).toArray();
-
-            }
-
+//            config.setInferenceDeviceType(deviceType);
+//            Game game = getGame(actions);
+            modelService.loadLatestModel().get();  // TODO options
+            return aiDecision(withMCTS, game).getSecond();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new MuZeroException(e);
         }
-        return actionIndexesSelectedByNetwork[0];
+
+//        int[] actionIndexesSelectedByNetwork;
+//
+//        try (Model model = Model.newInstance(config.getModelName())) {
+//
+//            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
+//
+//            try (NDManager nDManager = network.getNDManager().newSubManager()) {
+//
+//                network.initActionSpaceOnDevice(nDManager);
+//                network.setHiddenStateNDManager(nDManager);
+//
+//                actionIndexesSelectedByNetwork = aiDecision(withMCTS, true, List.of(game)).stream()
+//                    .mapToInt(Pair::getSecond).toArray();
+//
+//            }
+//
+//        }
+//        return actionIndexesSelectedByNetwork[0];
     }
 
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
@@ -88,25 +114,36 @@ public class Inference {
     }
 
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, Map<String, ?> options) {
+        try {
 
-        int[] actionIndexesSelectedByNetwork;
-
-        try (Model model = Model.newInstance(config.getModelName())) {
-
-            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
-
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-
-                network.initActionSpaceOnDevice(nDManager);
-                network.setHiddenStateNDManager(nDManager);
-
-                actionIndexesSelectedByNetwork = aiDecision(network, withMCTS, withRandomness, games).stream()
-                    .mapToInt(Pair::getSecond).toArray();
-
-            }
-
+//            config.setInferenceDeviceType(deviceType);
+//            Game game = getGame(actions);
+            modelService.loadLatestModel().get();  // TODO options
+            return aiDecision(withMCTS, games).stream().mapToInt(p -> p.getSecond() ).toArray();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new MuZeroException(e);
         }
-        return actionIndexesSelectedByNetwork;
+
+
+//        int[] actionIndexesSelectedByNetwork;
+//
+//        try (Model model = Model.newInstance(config.getModelName())) {
+//
+//            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
+//
+//            try (NDManager nDManager = network.getNDManager().newSubManager()) {
+//
+//                network.initActionSpaceOnDevice(nDManager);
+//                network.setHiddenStateNDManager(nDManager);
+//
+//                actionIndexesSelectedByNetwork = aiDecision(withMCTS, withRandomness, games).stream()
+//                    .mapToInt(Pair::getSecond).toArray();
+//
+//            }
+//
+//        }
+//        return actionIndexesSelectedByNetwork;
     }
 
     public double[][] getInMindValues(int epoch, int[] actions, int extra, int actionspace) {
@@ -147,40 +184,42 @@ public class Inference {
 
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, DeviceType deviceType) {
-
-        int actionIndexSelectedByNetwork;
-        if(networkDir != null) {
-            config.setNetworkBaseDir(networkDir);
-        }
-        config.setInferenceDeviceType(deviceType);
-        Game game = getGame(actions);
-
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-
-            Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-
-                network.initActionSpaceOnDevice(nDManager);
-                network.setHiddenStateNDManager(nDManager);
-
-                actionIndexSelectedByNetwork = aiDecision(network, withMCTS, game).getSecond();
+        try {
+            if (networkDir != null) {
+                config.setNetworkBaseDir(networkDir);
             }
-
+            config.setInferenceDeviceType(deviceType);
+            Game game = getGame(actions);
+            modelService.loadLatestModel().get();
+            return aiDecision(withMCTS, game).getSecond();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new MuZeroException(e);
         }
-        return actionIndexSelectedByNetwork;
     }
 
     public double aiStartValue(int epoch) {
-        double valueByNetwork;
         Game game = config.newGame();
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-                network.setHiddenStateNDManager(nDManager);
-                valueByNetwork = aiDecision(network, false, game).getFirst();
-            }
+        try {
+
+//            config.setInferenceDeviceType(deviceType);
+//            Game game = getGame(actions);
+            modelService.loadLatestModel().get();  // TODO options
+            return aiDecision(false, game).getFirst();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new MuZeroException(e);
         }
-        return valueByNetwork;
+//        double valueByNetwork;
+//        Game game = config.newGame();
+//        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
+//            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
+//            try (NDManager nDManager = network.getNDManager().newSubManager()) {
+//                network.setHiddenStateNDManager(nDManager);
+//                valueByNetwork = aiDecision(network, false, game).getFirst();
+//            }
+//        }
+//        return valueByNetwork;
     }
 
     public double aiEntropy(List<Integer> actions, String networkDir) {
@@ -243,13 +282,13 @@ public class Inference {
     }
 
 
-    private Pair<Double, Integer> aiDecision(@NotNull Network network, boolean withMCTS, Game game) {
-        return aiDecision(network, withMCTS, true, List.of(game)).get(0);
+    private Pair<Double, Integer> aiDecision( boolean withMCTS, Game game) {
+        return aiDecision( withMCTS, List.of(game)).get(0);
     }
 
 
     @SuppressWarnings("java:S1135")
-    private List<Pair<Double, Integer>> aiDecision(@NotNull Network network, boolean withMCTS, boolean withRandomness, List<Game> gamesInput) {
+    private List<Pair<Double, Integer>> aiDecision( boolean withMCTS, List<Game> gamesInput) {
 
 
         List<Game> games = new ArrayList<>();
@@ -257,8 +296,15 @@ public class Inference {
             games.add(game.copy());
         }
 
-
-        List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
+        List<NetworkIO> networkOutputList = null;
+        try {
+            networkOutputList = modelService.initialInference(games).get();
+        } catch (InterruptedException e) {
+            throw new MuZeroException(e);
+        } catch (ExecutionException e) {
+            throw new MuZeroException(e);
+        }
+        //List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
 
 
         int actionIndexSelectedByNetwork;
@@ -291,8 +337,19 @@ public class Inference {
         } else {
             // TODO: needs to be tested
 
-            selfPlay.init(games);
-            selfPlay.play(network, false, false, false, false,   0, false);
+//            selfPlay.init(games);
+       //     selfPlay.play(network, false, false, false, false,   0, false);
+
+
+            playService.playGames(games,
+                PlayParameters.builder()
+                    .render(false)
+                    .fastRulesLearning(false)
+                    .justInitialInferencePolicy(false)
+                    .pRandomActionRawAverage(0)
+                    .replay(false)
+                    .build());
+
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {

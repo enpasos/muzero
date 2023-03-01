@@ -1,8 +1,7 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.rational.service;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
 import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.async.play.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.rational.PlayParameters;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ public class EpisodeRunner {
 
 
     @Async()
-    CompletableFuture<Game> playGame( PlayParameters playParameters, Game game) {
+    CompletableFuture<Game> playGame(PlayParameters playParameters, Game game) {
         log.trace("playGame");
 
         selfPlayer.play(game, playParameters);

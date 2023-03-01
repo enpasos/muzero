@@ -1,6 +1,8 @@
 package ai.enpasos.muzero.go;
 
 import ai.enpasos.muzero.platform.agent.intuitive.Inference;
+import ai.enpasos.muzero.platform.agent.intuitive.service.ModelService;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
@@ -14,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static ai.enpasos.muzero.platform.common.FileUtils.exists;
 import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
@@ -34,6 +37,9 @@ class GoInferenceTest {
     @Autowired
     private MuZero muZero;
 
+    @Autowired
+    ModelService modelService;
+
     @Test
     void aiDecisionGoFast() {
         init();
@@ -45,10 +51,13 @@ class GoInferenceTest {
     private void init() {
         config.setOutputDir("./build/goTest/");
         rmDir(config.getOutputDir());
-        muZero.train(TrainParams.builder()
-            .render(true)
-            .withoutFill(false)
-            .build());
+        try {
+            modelService.loadLatestModelOrCreateIfNotExisting().get();
+        } catch (InterruptedException e) {
+            throw new MuZeroException(e);
+        } catch (ExecutionException e) {
+            throw new MuZeroException(e);
+        }
 
     }
 

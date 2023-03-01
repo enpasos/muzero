@@ -507,7 +507,7 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
         int[] valueInterval;
-        int numParallelInferences;
+        int numParallelInferences = 1;
 
         boolean offPolicyCorrectionOn;
 

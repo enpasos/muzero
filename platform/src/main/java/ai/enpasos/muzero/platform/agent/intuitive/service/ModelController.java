@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.rational.async;
+package ai.enpasos.muzero.platform.agent.intuitive.service;
 
 import ai.djl.Device;
 import ai.djl.Model;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
-import static ai.enpasos.muzero.platform.agent.rational.async.ModelService.INTERRUPTED;
+import static ai.enpasos.muzero.platform.agent.intuitive.service.ModelService.INTERRUPTED;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
 
