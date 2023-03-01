@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.platform.environment;
 
-import ai.enpasos.muzero.platform.agent.rational.Player;
+import ai.enpasos.muzero.platform.agent.b_planning.Player;
 import ai.enpasos.muzero.platform.common.Constants;
 import org.jetbrains.annotations.NotNull;
 

@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.pegsolitair.run;
 
 import ai.djl.util.Pair;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;

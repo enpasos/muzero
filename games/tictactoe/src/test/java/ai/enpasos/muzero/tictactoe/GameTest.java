@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;

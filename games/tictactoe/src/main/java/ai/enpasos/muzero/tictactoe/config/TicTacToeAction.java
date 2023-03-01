@@ -21,7 +21,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
-import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.b_planning.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.platform.run.train;
 
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
+import ai.enpasos.muzero.platform.agent.c_model.Network;
 import lombok.Builder;
 import lombok.Data;
 

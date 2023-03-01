@@ -1,15 +1,15 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.rational.Node;
-import ai.enpasos.muzero.platform.agent.intuitive.service.ModelQueue;
-import ai.enpasos.muzero.platform.agent.intuitive.service.ModelService;
-import ai.enpasos.muzero.platform.agent.rational.service.PlayService;
-import ai.enpasos.muzero.platform.agent.rational.PlayParameters;
-import ai.enpasos.muzero.platform.agent.rational.service.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.b_planning.Node;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelQueue;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
+import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
+import ai.enpasos.muzero.platform.agent.b_planning.service.SelfPlayGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import lombok.extern.slf4j.Slf4j;

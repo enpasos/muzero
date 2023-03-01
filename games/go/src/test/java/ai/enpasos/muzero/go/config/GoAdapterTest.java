@@ -3,7 +3,7 @@ package ai.enpasos.muzero.go.config;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
-import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.b_planning.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

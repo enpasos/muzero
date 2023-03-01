@@ -17,10 +17,9 @@
 
 package ai.enpasos.muzero.tictactoe.run.test;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
