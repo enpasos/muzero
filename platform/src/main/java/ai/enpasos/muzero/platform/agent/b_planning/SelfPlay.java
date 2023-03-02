@@ -564,28 +564,28 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
-        List<Game> games = new ArrayList<>();
-        List<Game>  gamesToReanalyse = null;
-        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-             gamesToReanalyse = gameBuffer.getGamesToReanalyse();
-             if (gamesToReanalyse.size() > 0) {
-                 int i = 42;
-             }
-        }
-        for (int i = 0; i < config.getNumEpisodes(); i++) {
-            List<Game> gamesPart;
-            if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-                gamesPart = replayGames(network, gamesToReanalyse);
-            } else {
-                gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
-            }
-
-            log.info("Played {} games parallel, round {}", gamesPart.size(), i);
-            games.addAll(gamesPart);
-        }
-        gameBuffer.addGames(getEpoch(network.getModel()), games, false);
-    }
+//    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+//        List<Game> games = new ArrayList<>();
+//        List<Game>  gamesToReanalyse = null;
+//        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+//             gamesToReanalyse = gameBuffer.getGamesToReanalyse();
+//             if (gamesToReanalyse.size() > 0) {
+//                 int i = 42;
+//             }
+//        }
+//        for (int i = 0; i < config.getNumEpisodes(); i++) {
+//            List<Game> gamesPart;
+//            if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+//                gamesPart = replayGames(network, gamesToReanalyse);
+//            } else {
+//                gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
+//            }
+//
+//            log.info("Played {} games parallel, round {}", gamesPart.size(), i);
+//            games.addAll(gamesPart);
+//        }
+//        gameBuffer.addGames(getEpoch(network.getModel()), games, false);
+//    }
 
 
     public void playMultipleEpisodes2(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {

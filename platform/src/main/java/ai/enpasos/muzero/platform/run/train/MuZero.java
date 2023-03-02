@@ -276,18 +276,18 @@ public class MuZero {
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
     }
 
-    void playGames(boolean render, Network network, int trainingStep) {
-        //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
-            log.info("last training step = {}", trainingStep);
-            log.info("numSimulations: " + config.getNumSimulations());
-            network.debugDump();
-            boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
-
-
-            selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
-
-       // }
-    }
+//    void playGames(boolean render, Network network, int trainingStep) {
+//        //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
+//            log.info("last training step = {}", trainingStep);
+//            log.info("numSimulations: " + config.getNumSimulations());
+//            network.debugDump();
+//            boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
+//
+//
+//            selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
+//
+//       // }
+//    }
     void playGames2(boolean render,  int trainingStep) {
         //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
         log.info("last training step = {}", trainingStep);

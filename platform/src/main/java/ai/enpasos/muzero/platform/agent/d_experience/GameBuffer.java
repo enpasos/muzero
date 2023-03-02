@@ -331,30 +331,31 @@ public class GameBuffer {
         return sum / count;
     }
 
-    public void addGames(int epoch, List<Game> games, boolean atBeginning) {
-
-        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning));
-        if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-            // do nothing more
-        } else {
-            this.timestamps.put(epoch, System.currentTimeMillis());
-            logEntropyInfo();
-            this.gameBufferIO.saveGames(
-                this.getBuffer().games.stream()
-                    .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
-                    .filter(g -> g.getPlayTypeKey() != PlayTypeKey.REANALYSE)
-                    .collect(Collectors.toList()),
-                this.getCurrentNetworkName(), this.getConfig());
-        }
-
-    }
+//    public void addGames(int epoch, List<Game> games, boolean atBeginning) {
+//
+//        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning));
+//        if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+//            // do nothing more
+//        } else {
+//            this.timestamps.put(epoch, System.currentTimeMillis());
+//            logEntropyInfo();
+//            this.gameBufferIO.saveGames(
+//                this.getBuffer().games.stream()
+//                    .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
+//                //    .filter(g -> g.getGameDTO().getTrainingEpoch() == this.getEpoch())
+//                    .filter(g -> g.getPlayTypeKey() != PlayTypeKey.REANALYSE)
+//                    .collect(Collectors.toList()),
+//                this.getCurrentNetworkName(), this.getConfig());
+//        }
+//
+//    }
 
 
 
 
     public void addGames2(List<Game> games, boolean atBeginning) {
 
-        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning));
+        games.forEach(game -> addGameAndRemoveOldGameIfNecessary2(game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
         } else {
