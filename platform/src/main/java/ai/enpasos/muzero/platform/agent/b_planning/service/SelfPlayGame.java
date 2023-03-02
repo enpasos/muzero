@@ -35,13 +35,13 @@ public class SelfPlayGame {
 
         game.getGameDTO().setTdSteps(config.getTdSteps());
 
-        if (config.getTrainingTypeKey() == HYBRID) {
-            int gameLength = playParameters.getAverageGameLength();
-            game.getGameDTO().setHybrid(true);
-            if (game.getGameDTO().getTHybrid() == -1) {
-                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
-            }
-        }
+//        if (config.getTrainingTypeKey() == HYBRID) {
+//            int gameLength = playParameters.getAverageGameLength();
+//            game.getGameDTO().setHybrid(true);
+//            if (game.getGameDTO().getTHybrid() == -1) {
+//                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
+//            }
+//        }
 
         int count = 1;
         while (!game.isDone() && (count == 1 || untilEnd)) {

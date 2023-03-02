@@ -56,7 +56,7 @@ public class PlayService {
     }
 
     private void hybridConfiguration(List<Game> games) {
-        int gameLength = gameBuffer.getAverageGameLength();
+        int gameLength = gameBuffer.getMaxGameLength();
         hybridConfiguration(games, gameLength);
     }
 
@@ -89,9 +89,9 @@ public class PlayService {
         List<Game> gamesReturn = new ArrayList<>();
         try (NDScope nDScope = new NDScope()) {
             giveOneOfTheGamesADebugFlag(games);
-            int averageGameLength = gameBuffer.getAverageGameLength();
+            int gameLength = gameBuffer.getMaxGameLength();
             playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
-            playParameters.setAverageGameLength(averageGameLength);
+            playParameters.setAverageGameLength(gameLength);  // TODO rename
 
             CompletableFuture<Game>[] futures = games.stream().map(g ->
                 episodeRunner.playGame(playParameters, g)

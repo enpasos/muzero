@@ -23,7 +23,6 @@ import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.training.Trainer;
 import ai.enpasos.muzero.platform.agent.c_model.ModelState;
-import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
@@ -126,7 +125,7 @@ public class MuZero {
                     PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                     for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                         config.setPlayTypeKey(key);
-                        playGames2(params.render, trainingStep);
+                        playGames(params.render, trainingStep);
                     }
                     config.setPlayTypeKey(originalPlayTypeKey);
                 }
@@ -296,7 +295,7 @@ public class MuZero {
 //
 //       // }
 //    }
-    void playGames2(boolean render,  int trainingStep) {
+    void playGames(boolean render, int trainingStep) {
         //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());

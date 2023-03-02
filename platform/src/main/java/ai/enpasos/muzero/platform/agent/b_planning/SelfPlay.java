@@ -605,8 +605,8 @@ public class SelfPlay {
               //  gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
                 gamesPart = multiGameStarter.playNewGames( config.getNumParallelGamesPlayed(),
                     PlayParameters.builder()
-                        .render(false)
-                        .fastRulesLearning(true)
+                        .render(render)
+                        .fastRulesLearning(fastRuleLearning)
                         .build());
             }
 

@@ -45,11 +45,11 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Integer> actions;
     private List<Float> rewards;
 
-    private List<Float> entropies;
+    private List<Float> entropies; // obsolete ??
     private List<float[]> policyTargets;
     private List<float[]> playoutPolicy;
 
-    private List<boolean[]> legalActions;
+    private List<boolean[]> legalActions;  // obsolete
     private List<Float> rootValueTargets;
     private List<Float> rootValuesFromInitialInference;
     private float lastValueError;
@@ -61,15 +61,15 @@ public class GameDTO implements Comparable<GameDTO> {
     private boolean hybrid;
     private long tSurprise;
     private long tHybrid = -1;
-    private long tStateA;
-    private long tStateB;
+    private long tStateA;  // obsolete
+    private long tStateB;  // obsolete
 
 
     private int trainingEpoch;
 
 
     private int tdSteps;
-    private List<Float> maxEntropies;
+    private List<Float> maxEntropies;  // obsolete ??
 
     public GameDTO(List<Integer> actions) {
         this();
