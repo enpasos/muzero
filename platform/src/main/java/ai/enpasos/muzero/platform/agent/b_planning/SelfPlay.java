@@ -129,23 +129,28 @@ public class SelfPlay {
     }
 
     public void init() {
-        start = System.currentTimeMillis();
-        inferenceDuration = new Duration();
-        gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
-            .mapToObj(i -> config.newGame())
-            .collect(Collectors.toList());
-        gameList.stream().forEach(game -> {
-            game.getGameDTO().setTdSteps(config.getTdSteps());
-            game.setPlayTypeKey(this.config.getPlayTypeKey());
-        });
-        if (config.getTrainingTypeKey() == HYBRID) {
-            hybridConfiguration();
+        try {
+            start = System.currentTimeMillis();
+            inferenceDuration = new Duration();
+            gameList = IntStream.rangeClosed(1, config.getNumParallelGamesPlayed())
+                .mapToObj(i -> config.newGame())
+                .collect(Collectors.toList());
+            gameList.stream().forEach(game -> {
+                game.getGameDTO().setTdSteps(config.getTdSteps());
+                game.setPlayTypeKey(this.config.getPlayTypeKey());
+            });
+            if (config.getTrainingTypeKey() == HYBRID) {
+                hybridConfiguration();
+            }
+            gameList.get(0).setDebug(true);
+            gamesDoneList = new ArrayList<>();
+        } catch (Exception e) {
+            log.error("Error in init", e);
         }
-        gameList.get(0).setDebug(true);
-        gamesDoneList = new ArrayList<>();
     }
 
     public void init(List<Game> inputGames) {
+        try {
         start = System.currentTimeMillis();
         inferenceDuration = new Duration();
         gameList = new ArrayList<>();
@@ -161,6 +166,9 @@ public class SelfPlay {
             reanalyseConfiguration();
         }
         gamesDoneList = new ArrayList<>();
+        } catch (Exception e) {
+            log.error("Error in init", e);
+        }
     }
 
     private void reanalyseConfiguration() {
