@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
@@ -43,6 +44,7 @@ import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
 
 @Component
 @Slf4j
+
 public class ModelController {
 
     @Autowired
@@ -70,7 +72,7 @@ public class ModelController {
 
     private DurAndMem inferenceDuration = new DurAndMem();
 
-       // @Scheduled(fixedDelay = 10)
+
     public void run()  {
         log.info("ModelController started.");
         try {
@@ -83,8 +85,7 @@ public class ModelController {
             }
         } catch (Exception e) {
             log.error("ModelController stopped.");
-           // e.printStackTrace();
-          //  throw new MuZeroException(e);
+            e.printStackTrace();
         } finally {
             network.getModel().close();
             nDManager.close();

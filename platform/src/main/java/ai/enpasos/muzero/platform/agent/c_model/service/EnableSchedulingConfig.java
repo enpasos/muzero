@@ -31,13 +31,15 @@ public class EnableSchedulingConfig implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.setScheduler(scheduledTaskExecutor());
+
+
         taskRegistrar.addFixedDelayTask(
             () -> {
-
                     modelController.run();
-
             },
-            Duration.ofMillis(1)
+
+            Duration.ofMillis(Long.MAX_VALUE)
+           // Duration.ofMillis(10)
         );
     }
 

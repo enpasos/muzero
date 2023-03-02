@@ -323,7 +323,7 @@ public class GameBuffer {
         for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
             Path path = paths.get(paths.size() - 1 - h);
             GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
-          //  epoch = getEpochFromPath( path);
+            this.modelState.setEpoch(getEpochFromPath(path));
             gameBufferDTO.getGames().forEach(game -> addGame(game, true));
         }
     }
