@@ -45,8 +45,6 @@ public class NetworkIO {
     private Action action;
     private MuZeroConfig config;
 
-    private int epoch;
-
 
     private List<NDArray> actionList;
 

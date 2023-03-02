@@ -141,7 +141,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
                 onSaveModel.accept(trainer);
             }
             Path modelPath = Paths.get(outputDir);
-            gameBuffer.createNetworkNameFromModel(model, modelName, outputDir);
+            //gameBuffer.createNetworkNameFromModel(model, modelName, outputDir);
 
             model.save(modelPath, modelName);
         } catch (IOException e) {

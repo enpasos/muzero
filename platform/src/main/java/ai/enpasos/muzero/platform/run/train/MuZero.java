@@ -22,6 +22,7 @@ import ai.djl.Model;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.training.Trainer;
+import ai.enpasos.muzero.platform.agent.c_model.ModelState;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
@@ -68,6 +69,10 @@ public class MuZero {
     @Autowired
     ModelService modelService;
 
+
+    @Autowired
+    ModelState modelState;
+
     public void initialFillingBuffer() {
 
         long startCounter = gameBuffer.getBuffer().getCounter();
@@ -107,7 +112,7 @@ public class MuZero {
         initialFillingBuffer();
 
         modelService.loadLatestModelOrCreateIfNotExisting().get();
-        epoch = modelService.getEpoch().get().intValue();
+        epoch = modelState.getEpoch();
         int epochStart = epoch;
 
         while (trainingStep < config.getNumberOfTrainingSteps() &&
@@ -117,12 +122,14 @@ public class MuZero {
             duration.on();
 
             if (!params.freshBuffer) {
-                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                    config.setPlayTypeKey(key);
-                    playGames2(params.render, trainingStep);
+                if (epoch != 0) {
+                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey(key);
+                        playGames2(params.render, trainingStep);
+                    }
+                    config.setPlayTypeKey(originalPlayTypeKey);
                 }
-                config.setPlayTypeKey(originalPlayTypeKey);
 
                 log.info("counter: " + gameBuffer.getBuffer().getCounter());
                 log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
@@ -130,9 +137,10 @@ public class MuZero {
                 log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
             }
 
-            modelService.trainModel();
+            modelService.trainModel().get();
 
-            epoch = modelService.getEpoch().get().intValue();
+            epoch = modelState.getEpoch();
+
             trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
             duration.off();

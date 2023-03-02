@@ -78,7 +78,7 @@ public class PlayAction {
             action = game.legalActions().get(game.legalActions().size() - 1);
             if (!fastRuleLearning) {
                 NetworkIO networkOutput = modelService.initialInference(game).join();
-                game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
+               // game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
                 double value =  Objects.requireNonNull(networkOutput).getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
                 game.getGameDTO().getRootValueTargets().add((float)value);
@@ -138,6 +138,7 @@ public class PlayAction {
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
+       //     game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
             value =  Objects.requireNonNull(networkOutput).getValue();
             //game.getGameDTO().getRootValueTargets().add((float)value);
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);

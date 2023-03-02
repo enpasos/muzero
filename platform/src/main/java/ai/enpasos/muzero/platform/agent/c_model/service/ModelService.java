@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Component
@@ -39,6 +40,7 @@ public class ModelService {
                 Thread.currentThread().interrupt();
             }
         }
+    //    game.getGameDTO().setTrainingEpoch(task.getNetworkOutput().getEpoch());
         modelQueue.removeInitialInferenceTask(task);
         return CompletableFuture.completedFuture(task.getNetworkOutput());
     }
@@ -60,6 +62,7 @@ public class ModelService {
         }
         tasks.forEach(task -> modelQueue.removeInitialInferenceTask(task));
         List<NetworkIO> results = tasks.stream().map(InitialInferenceTask::getNetworkOutput).collect(Collectors.toList());
+   //     IntStream.range(0, games.size()).forEach(i -> games.get(i).getGameDTO().setTrainingEpoch(results.get(i).getEpoch()));
         return CompletableFuture.completedFuture(results);
     }
 
@@ -71,7 +74,7 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Integer> getEpoch() {
+    public CompletableFuture<Void> getEpoch() {
         ControllerTask task = new ControllerTask(ControllerTaskType.getEpoch);
         modelQueue.addControllerTask(task);
         while (!task.isDone()) {
@@ -83,7 +86,7 @@ public class ModelService {
             }
         }
         modelQueue.removeControllerTask(task);
-        return CompletableFuture.completedFuture(task.epoch);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async()
