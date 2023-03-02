@@ -267,7 +267,7 @@ public class ModelController {
             model.load(Paths.get(outputDir));
             gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
-        //    try (NDScope nDScope = new NDScope()) {
+
                 final int epoch = -1;
                 int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                 boolean withSymmetryEnrichment = true;
@@ -284,7 +284,7 @@ public class ModelController {
                 gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
             }
 
-        //}
+
     }
 
     private void initialInferences(int numParallelInferences) {

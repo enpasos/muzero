@@ -81,6 +81,9 @@ muzero:
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
 
+
+      numParallelInferences: 1000
+
       playTypes:
         PLAYOUT:
           forTraining: false
@@ -91,7 +94,7 @@ muzero:
         HYBRID:
           forTraining: true
           numEpisodes: 1 # TODO rethink the naming
-          numParallelGamesPlayed: 500
+          numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
@@ -112,16 +115,19 @@ muzero:
 
 
 
-        REANALYSE:
-          forTraining: true
-          numEpisodes: 1
-          numParallelGamesPlayed: 500
-          tdSteps: 9
-          numSimulations: 20
-          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-          # dirichlet noise is added before mcts
-          rootDirichletAlpha: 1.2
-          rootExplorationFraction: 0.25  # 0.0 means switched off
+#        REANALYSE:
+#          forTraining: true
+#          numEpisodes: 1
+#          numParallelGamesPlayed: 500
+#          tdSteps: 9
+#          numSimulations: 20
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+
+
+
 #        BEST_EFFORT:
 #          forTraining: true
 #          numEpisodes: 1

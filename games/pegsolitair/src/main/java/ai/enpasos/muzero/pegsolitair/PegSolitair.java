@@ -65,5 +65,6 @@ public class PegSolitair implements CommandLineRunner {
             case NONE:
             default:
         }
+        System.exit(0);
     }
 }
