@@ -30,7 +30,7 @@ public class GoTrainingAndTest {
 
     @SuppressWarnings({"squid:S125", "java:S2583", "java:S2589"})
     public void run() {
-        boolean startFromScratch = false;
+        boolean startFromScratch = true;
 
         if (startFromScratch) {
             rmDir(config.getOutputDir());

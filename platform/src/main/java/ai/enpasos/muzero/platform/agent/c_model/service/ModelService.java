@@ -35,7 +35,7 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                log.warn(INTERRUPTED, e);
+                log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -54,7 +54,7 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                log.warn(INTERRUPTED, e);
+                log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -78,7 +78,7 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                log.warn(INTERRUPTED, e);
+                log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -99,7 +99,7 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                log.warn(INTERRUPTED, e);
+                log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -120,7 +120,7 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                log.warn(INTERRUPTED, e);
+                log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
