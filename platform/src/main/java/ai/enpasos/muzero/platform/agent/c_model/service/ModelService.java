@@ -71,6 +71,22 @@ public class ModelService {
     }
 
     @Async()
+    public CompletableFuture<Integer> getEpoch() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.getEpoch);
+        modelQueue.addControllerTask(task);
+        while (!task.isDone()) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                log.warn(INTERRUPTED, e);
+                Thread.currentThread().interrupt();
+            }
+        }
+        modelQueue.removeControllerTask(task);
+        return CompletableFuture.completedFuture(task.epoch);
+    }
+
+    @Async()
     public CompletableFuture<Void> loadLatestModelOrCreateIfNotExisting() {
         ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModelOrCreateIfNotExisting);
         return handleControllerTask(task);

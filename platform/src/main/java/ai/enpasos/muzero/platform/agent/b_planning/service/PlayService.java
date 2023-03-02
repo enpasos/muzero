@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.b_planning.service;
 
+import ai.djl.ndarray.NDScope;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
@@ -85,33 +86,34 @@ public class PlayService {
 
 
     public List<Game> playGames(  List<Game> games, PlayParameters playParameters) {
-
-        giveOneOfTheGamesADebugFlag(games);
-        int averageGameLength = gameBuffer.getAverageGameLength();
-        playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
-        playParameters.setAverageGameLength(averageGameLength);
-
-        CompletableFuture<Game>[] futures = games.stream().map(g ->
-            episodeRunner.playGame( playParameters, g)
-        ).toArray(CompletableFuture[]::new);
-
-        // wait for all futures to complete
-        CompletableFuture.allOf(futures).join();
-
-
-        // collect games from futures
         List<Game> gamesReturn = new ArrayList<>();
-        for (CompletableFuture<Game> future : futures) {
-            try {
-                gamesReturn.add(future.get());
-            } catch (InterruptedException e) {
-                log.warn("Interrupted!", e);
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                throw new MuZeroException(e);
+        try (NDScope nDScope = new NDScope()) {
+            giveOneOfTheGamesADebugFlag(games);
+            int averageGameLength = gameBuffer.getAverageGameLength();
+            playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
+            playParameters.setAverageGameLength(averageGameLength);
+
+            CompletableFuture<Game>[] futures = games.stream().map(g ->
+                episodeRunner.playGame(playParameters, g)
+            ).toArray(CompletableFuture[]::new);
+
+            // wait for all futures to complete
+            CompletableFuture.allOf(futures).join();
+
+
+            // collect games from futures
+
+            for (CompletableFuture<Game> future : futures) {
+                try {
+                    gamesReturn.add(future.get());
+                } catch (InterruptedException e) {
+                    log.warn("Interrupted!", e);
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    throw new MuZeroException(e);
+                }
             }
         }
-
         return gamesReturn;
     }
 

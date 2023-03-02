@@ -331,13 +331,13 @@ public class GameBuffer {
         return sum / count;
     }
 
-    public void addGames(Model model, List<Game> games, boolean atBeginning) {
+    public void addGames(int epoch, List<Game> games, boolean atBeginning) {
 
-        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(model, game, atBeginning));
+        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
         } else {
-            this.timestamps.put(getEpoch(model), System.currentTimeMillis());
+            this.timestamps.put(epoch, System.currentTimeMillis());
             logEntropyInfo();
             this.gameBufferIO.saveGames(
                 this.getBuffer().games.stream()
@@ -349,9 +349,39 @@ public class GameBuffer {
 
     }
 
-    private void addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {
-        int epochLocal = getEpoch(model);
-        addGameAndRemoveOldGameIfNecessary(epochLocal, game, atBeginning, this.getCurrentNetworkName());
+
+
+
+    public void addGames2(List<Game> games, boolean atBeginning) {
+
+        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning));
+        if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            // do nothing more
+        } else {
+            this.timestamps.put(games.get(0).getEpoch(), System.currentTimeMillis());
+            logEntropyInfo();
+            this.gameBufferIO.saveGames(
+                this.getBuffer().games.stream()
+                    .filter(g -> g.getGameDTO().getNetworkName().equals(this.getCurrentNetworkName()))
+                    .filter(g -> g.getPlayTypeKey() != PlayTypeKey.REANALYSE)
+                    .collect(Collectors.toList()),
+                this.getCurrentNetworkName(), this.getConfig());
+        }
+
+    }
+
+    private void addGameAndRemoveOldGameIfNecessary2(Game game, boolean atBeginning) {
+        addGameAndRemoveOldGameIfNecessary2(game, atBeginning, this.getCurrentNetworkName());
+    }
+
+    private void addGameAndRemoveOldGameIfNecessary2(Game game, boolean atBeginning, String networkName) {
+        //game.getGameDTO().setTrainingEpoch(epoch);
+        memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
+        game.getGameDTO().setNetworkName(networkName);
+        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+    }
+    private void addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning) {
+        addGameAndRemoveOldGameIfNecessary(epoch, game, atBeginning, this.getCurrentNetworkName());
     }
 
     private void addGameAndRemoveOldGameIfNecessary(int epoch, Game game, boolean atBeginning, String networkName) {

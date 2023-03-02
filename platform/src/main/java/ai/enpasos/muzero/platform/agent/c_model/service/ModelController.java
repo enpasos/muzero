@@ -5,6 +5,7 @@ import ai.djl.Model;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
@@ -23,6 +24,7 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.agent.c_model.Network.getEpoch;
 import static ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.agent.c_model.service.ModelService.INTERRUPTED;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
@@ -60,9 +63,6 @@ public class ModelController {
     GameBuffer gameBuffer;
 
 
-
-//    @Autowired
-//    GlobalState globalState;
 
     private DurAndMem inferenceDuration = new DurAndMem();
 
@@ -131,7 +131,10 @@ public class ModelController {
                     break;
                 case trainModel:
                     trainNetwork(network.getModel());
-
+                    break;
+                case getEpoch:
+                    task.epoch = getEpoch(network.getModel());
+                    break;
             }
             task.setDone(true);
         }
@@ -140,45 +143,46 @@ public class ModelController {
 
 
     private void trainNetwork(Model model) {
-        if (config.offPolicyCorrectionOn()) {
-            determinePRatioMaxForCurrentEpoch(model);
-        }
-
-        int epoch;
-        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-        boolean withSymmetryEnrichment = true;
-        epoch = getEpochFromModel(model);
-        DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
-        int finalEpoch = epoch;
-        djlConfig.getTrainingListeners().stream()
-            .filter(MyEpochTrainingListener.class::isInstance)
-            .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-        try (Trainer trainer = model.newTrainer(djlConfig)) {
-            Shape[] inputShapes = networkHelper.getInputShapes();
-            trainer.initialize(inputShapes);
-            trainer.setMetrics(new Metrics());
-
-            for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
-                    log.debug("trainBatch " + m);
-                    MyEasyTrain.trainBatch(trainer, batch);
-                    trainer.step();
-                }
+       try (NDScope nDScope = new NDScope()) {
+            if (config.offPolicyCorrectionOn()) {
+                determinePRatioMaxForCurrentEpoch(model);
             }
 
-            // number of action paths
-            int numActionPaths = this.gameBuffer.getBuffer().getNumOfDifferentGames();
-            model.setProperty("NumActionPaths", Double.toString(numActionPaths));
-            log.info("NumActionPaths: " + numActionPaths);
+            int epoch;
+            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+            boolean withSymmetryEnrichment = true;
+            epoch = getEpochFromModel(model);
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+            int finalEpoch = epoch;
+            djlConfig.getTrainingListeners().stream()
+                .filter(MyEpochTrainingListener.class::isInstance)
+                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+                Shape[] inputShapes = networkHelper.getInputShapes();
+                trainer.initialize(inputShapes);
+                trainer.setMetrics(new Metrics());
 
-            handleMetrics(trainer, model, epoch);
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
+                        log.debug("trainBatch " + m);
+                        MyEasyTrain.trainBatch(trainer, batch);
+                        trainer.step();
+                    }
+                }
 
-            trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-        }
-        // }
+                // number of action paths
+                int numActionPaths = this.gameBuffer.getBuffer().getNumOfDifferentGames();
+                model.setProperty("NumActionPaths", Double.toString(numActionPaths));
+                log.info("NumActionPaths: " + numActionPaths);
+
+                handleMetrics(trainer, model, epoch);
+
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+            }
+             }
 //        epoch = getEpochFromModel(model);
 //        return epoch * numberOfTrainingStepsPerEpoch;
-
+      //  }
     }
 
     private void determinePRatioMaxForCurrentEpoch(Model model) {
@@ -193,7 +197,7 @@ public class ModelController {
             .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() != PlayTypeKey.REANALYSE)
             .collect(Collectors.toList());
         double pRatioMax2 = determinePRatioMax(games2);
-        log.info("pRatioMax({}): {}", epoch, pRatioMax);
+        log.info("pRatioMax({}): {}", epoch, pRatioMax2);
     }
 
     private double determinePRatioMax(List<Game> games) {
@@ -263,69 +267,78 @@ public class ModelController {
             model.load(Paths.get(outputDir));
             gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
+        //    try (NDScope nDScope = new NDScope()) {
+                final int epoch = -1;
+                int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+                boolean withSymmetryEnrichment = true;
+                DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
-            final int epoch = -1;
-            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-            boolean withSymmetryEnrichment = true;
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
-
-            djlConfig.getTrainingListeners().stream()
-                .filter(MyEpochTrainingListener.class::isInstance)
-                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
-            try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = networkHelper.getInputShapes();
-                trainer.initialize(inputShapes);
-                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                djlConfig.getTrainingListeners().stream()
+                    .filter(MyEpochTrainingListener.class::isInstance)
+                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
+                try (Trainer trainer = model.newTrainer(djlConfig)) {
+                    Shape[] inputShapes = networkHelper.getInputShapes();
+                    trainer.initialize(inputShapes);
+                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                }
+                gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
             }
-            gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
 
-        }
+        //}
     }
 
     private void initialInferences(int numParallelInferences) {
 
-        List<InitialInferenceTask> localInitialInferenceTaskList =
-            modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
+            List<InitialInferenceTask> localInitialInferenceTaskList =
+                modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
 
-        if (localInitialInferenceTaskList.isEmpty()) return ;
+            if (localInitialInferenceTaskList.isEmpty()) return;
 
-        log.info("runInitialInference() for {} games", localInitialInferenceTaskList.size());
+            log.info("runInitialInference() for {} games", localInitialInferenceTaskList.size());
 
-        List<Game> games = localInitialInferenceTaskList.stream().map(InitialInferenceTask::getGame).collect(Collectors.toList());
+            List<Game> games = localInitialInferenceTaskList.stream().map(InitialInferenceTask::getGame).collect(Collectors.toList());
 
-        inferenceDuration.on();
-        List<NetworkIO>  networkOutput =  network.initialInferenceListDirect(games);
-        inferenceDuration.off();
+            inferenceDuration.on();
+            List<NetworkIO> networkOutput = network.initialInferenceListDirect(games);
+            inferenceDuration.off();
 
-        IntStream.range(0, localInitialInferenceTaskList.size()).forEach(g -> {
-            InitialInferenceTask task = localInitialInferenceTaskList.get(g);
-            task.setNetworkOutput(networkOutput.get(g));
-            task.setDone(true);
-        });
+            int epoch = getEpoch(network.getModel());
+            networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
+
+            IntStream.range(0, localInitialInferenceTaskList.size()).forEach(g -> {
+                InitialInferenceTask task = localInitialInferenceTaskList.get(g);
+                task.setNetworkOutput(networkOutput.get(g));
+                task.setDone(true);
+            });
+
 
     }
 
     private void recurrentInferences(int numParallelInferences) {
 
-        List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
-            modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
+            List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
+                modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
 
-        if (localRecurrentInferenceTaskList.isEmpty()) return;
+            if (localRecurrentInferenceTaskList.isEmpty()) return;
 
-        log.info("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
+            log.info("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
 
-        List<List<Node>> searchPathList = localRecurrentInferenceTaskList.stream().map(RecurrentInferenceTask::getSearchPath).collect(Collectors.toList());
+            List<List<Node>> searchPathList = localRecurrentInferenceTaskList.stream().map(RecurrentInferenceTask::getSearchPath).collect(Collectors.toList());
 
 
-        inferenceDuration.on();
-        List<NetworkIO>  networkOutput =  network.recurrentInference(searchPathList);
-        inferenceDuration.off();
+            inferenceDuration.on();
+            List<NetworkIO> networkOutput = network.recurrentInference(searchPathList);
+            inferenceDuration.off();
 
-        IntStream.range(0, localRecurrentInferenceTaskList.size()).forEach(g -> {
-            RecurrentInferenceTask task = localRecurrentInferenceTaskList.get(g);
-            task.setNetworkOutput(networkOutput.get(g));
-            task.setDone(true);
-        });
+            int epoch = getEpoch(network.getModel());
+            networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
+
+            IntStream.range(0, localRecurrentInferenceTaskList.size()).forEach(g -> {
+                RecurrentInferenceTask task = localRecurrentInferenceTaskList.get(g);
+                task.setNetworkOutput(networkOutput.get(g));
+                task.setDone(true);
+            });
+
     }
 
 

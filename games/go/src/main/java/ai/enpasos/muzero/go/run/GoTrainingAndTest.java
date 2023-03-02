@@ -1,12 +1,15 @@
 package ai.enpasos.muzero.go.run;
 
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.run.train.TrainParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ExecutionException;
 
 import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 
@@ -33,10 +36,14 @@ public class GoTrainingAndTest {
             rmDir(config.getOutputDir());
         }
 
-        muZero.train(TrainParams.builder()
-            .render(true)
-            .withoutFill(!startFromScratch)
-            .build());
+        try {
+            muZero.train(TrainParams.builder()
+                .render(true)
+                .withoutFill(!startFromScratch)
+                .build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.b_planning;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
@@ -46,6 +47,7 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.b_planning.service.PlayAction.applyAction;
+import static ai.enpasos.muzero.platform.agent.c_model.Network.getEpoch;
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByDrawingFromDistribution;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
@@ -58,6 +60,9 @@ import static ai.enpasos.muzero.platform.config.PlayTypeKey.REANALYSE;
 @Component
 @Data
 public class SelfPlay {
+
+    @Autowired
+    PlayService multiGameStarter;
 
     @Autowired
     MuZeroConfig config;
@@ -579,7 +584,36 @@ public class SelfPlay {
             log.info("Played {} games parallel, round {}", gamesPart.size(), i);
             games.addAll(gamesPart);
         }
-        gameBuffer.addGames(network.getModel(), games, false);
+        gameBuffer.addGames(getEpoch(network.getModel()), games, false);
+    }
+
+
+    public void playMultipleEpisodes2(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+        List<Game> games = new ArrayList<>();
+        List<Game>  gamesToReanalyse = null;
+        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            gamesToReanalyse = gameBuffer.getGamesToReanalyse();
+            if (gamesToReanalyse.size() > 0) {
+                int i = 42;
+            }
+        }
+        for (int i = 0; i < config.getNumEpisodes(); i++) {
+            List<Game> gamesPart = new ArrayList<>();
+            if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+               // gamesPart = replayGames(network, gamesToReanalyse);
+            } else {
+              //  gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
+                gamesPart = multiGameStarter.playNewGames( config.getNumParallelGamesPlayed(),
+                    PlayParameters.builder()
+                        .render(false)
+                        .fastRulesLearning(true)
+                        .build());
+            }
+
+            log.info("Played {} games parallel, round {}", gamesPart.size(), i);
+            games.addAll(gamesPart);
+        }
+        gameBuffer.addGames2( games, false);
     }
 
 

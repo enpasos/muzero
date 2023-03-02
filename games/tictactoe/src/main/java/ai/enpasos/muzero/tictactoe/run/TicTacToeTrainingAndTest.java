@@ -33,11 +33,14 @@ public class TicTacToeTrainingAndTest {
         if (startFromScratch) {
             rmDir(config.getOutputDir());
         }
-
+try{
         muZero.train(TrainParams.builder()
             .render(true)
             .withoutFill(!startFromScratch)
             .build());
+} catch (Exception e) {
+    e.printStackTrace();
+}
 
         boolean passed = ticTacToeTest.findBadDecisions() == 0;
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");

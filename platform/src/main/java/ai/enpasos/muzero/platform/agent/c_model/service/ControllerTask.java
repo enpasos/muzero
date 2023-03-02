@@ -11,6 +11,8 @@ public class ControllerTask {
     private NetworkIO networkOutput;
     private boolean done;
 
+    int epoch;
+
 public ControllerTask(ControllerTaskType taskType) {
     this.taskType = taskType;
 }
