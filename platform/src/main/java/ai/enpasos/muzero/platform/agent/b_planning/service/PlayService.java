@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.b_planning.service;
 
 import ai.djl.ndarray.NDScope;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
@@ -26,7 +27,8 @@ public class PlayService {
     @Autowired
     EpisodeRunner episodeRunner;
 
-
+    @Autowired
+    ModelService modelService;
 
     @Autowired
     GameBuffer gameBuffer;
@@ -87,7 +89,9 @@ public class PlayService {
 
     public List<Game> playGames(  List<Game> games, PlayParameters playParameters) {
         List<Game> gamesReturn = new ArrayList<>();
-        try (NDScope nDScope = new NDScope()) {
+
+        modelService.startScope();
+
             giveOneOfTheGamesADebugFlag(games);
             int gameLength = gameBuffer.getMaxGameLength();
             playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
@@ -113,7 +117,9 @@ public class PlayService {
                     throw new MuZeroException(e);
                 }
             }
-        }
+
+        modelService.endScope();
+
         return gamesReturn;
     }
 

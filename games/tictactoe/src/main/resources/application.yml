@@ -10,7 +10,6 @@ logging:
     ai.enpasos: DEBUG
     ai.djl: INFO
 
-
 muzero:
   activeGame: TICTACTOE
   run: train
@@ -81,7 +80,6 @@ muzero:
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
 
-
       numParallelInferences: 1000
 
       playTypes:
@@ -112,8 +110,6 @@ muzero:
           temperatureRoot: 5.0   # was 5
           gumbelActionSelection: true
           gumbelActionSelectionOnExploring: false
-
-
 
 #        REANALYSE:
 #          forTraining: true

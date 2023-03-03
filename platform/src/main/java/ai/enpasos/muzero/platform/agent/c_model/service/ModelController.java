@@ -73,6 +73,9 @@ public class ModelController {
     private DurAndMem inferenceDuration = new DurAndMem();
 
 
+    private NDScope ndScope;
+
+
     public void run()  {
         log.info("ModelController started.");
         try {
@@ -138,6 +141,17 @@ public class ModelController {
                     break;
                 case trainModel:
                       trainNetwork(network.getModel());
+                    break;
+                case startScope:
+                    if (ndScope != null) {
+                        ndScope.close();
+                    }
+                    ndScope = new NDScope();
+                    break;
+                case endScope:
+                    if (ndScope != null) {
+                        ndScope.close();
+                    }
                     break;
 //                case getEpoch:
 //                    task.epoch = getEpoch(network.getModel());

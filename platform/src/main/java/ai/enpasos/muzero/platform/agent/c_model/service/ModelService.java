@@ -139,4 +139,16 @@ public class ModelService {
         ControllerTask task = new ControllerTask(ControllerTaskType.trainModel);
         return handleControllerTask(task);
     }
+
+    @Async()
+    public CompletableFuture<Void> startScope() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.startScope);
+        return handleControllerTask(task);
+    }
+
+    @Async()
+    public CompletableFuture<Void> endScope() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.endScope);
+        return handleControllerTask(task);
+    }
 }
