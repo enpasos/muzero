@@ -86,8 +86,9 @@ public class ModelController {
                 recurrentInferences(numParallelInferences);
                 Thread.sleep(1);
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("ModelController stopped.");
+        }  catch (Exception e) {
             e.printStackTrace();
         } finally {
             network.getModel().close();
@@ -319,7 +320,7 @@ public class ModelController {
 
             if (localInitialInferenceTaskList.isEmpty()) return;
 
-            log.info("runInitialInference() for {} games", localInitialInferenceTaskList.size());
+            log.debug("runInitialInference() for {} games", localInitialInferenceTaskList.size());
 
             List<Game> games = localInitialInferenceTaskList.stream().map(InitialInferenceTask::getGame).collect(Collectors.toList());
 
@@ -346,7 +347,7 @@ public class ModelController {
 
             if (localRecurrentInferenceTaskList.isEmpty()) return;
 
-            log.info("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
+            log.debug("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
 
             List<List<Node>> searchPathList = localRecurrentInferenceTaskList.stream().map(RecurrentInferenceTask::getSearchPath).collect(Collectors.toList());
 

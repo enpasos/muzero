@@ -8,6 +8,7 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
+    ai.enpasos.muzero.platform.agent.c_model.service.ModelController: INFO
     ai.djl: INFO
 
 muzero:
@@ -76,7 +77,7 @@ muzero:
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500
 
-      offPolicyCorrectionOn: false
+      offPolicyCorrectionOn: true
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
 
@@ -92,7 +93,7 @@ muzero:
         HYBRID:
           forTraining: true
           numEpisodes: 1 # TODO rethink the naming
-          numParallelGamesPlayed: 1000
+          numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
@@ -111,16 +112,16 @@ muzero:
           gumbelActionSelection: true
           gumbelActionSelectionOnExploring: false
 
-#        REANALYSE:
-#          forTraining: true
-#          numEpisodes: 1
-#          numParallelGamesPlayed: 500
-#          tdSteps: 9
-#          numSimulations: 20
-#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-#          # dirichlet noise is added before mcts
-#          rootDirichletAlpha: 1.2
-#          rootExplorationFraction: 0.25  # 0.0 means switched off
+        REANALYSE:
+          forTraining: true
+          numEpisodes: 1
+          numParallelGamesPlayed: 500
+          tdSteps: 9
+          numSimulations: 20
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 1.2
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 
 
