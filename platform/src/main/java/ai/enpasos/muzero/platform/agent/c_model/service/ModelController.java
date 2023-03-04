@@ -51,8 +51,6 @@ import static java.util.Map.entry;
 @Slf4j
 public class ModelController  implements DisposableBean, Runnable  {
 
-
-
     @Autowired
     ModelQueue modelQueue;
 
@@ -61,28 +59,19 @@ public class ModelController  implements DisposableBean, Runnable  {
 
     private Network network;
 
-
     NDManager nDManager;
-
 
     @Autowired
     NetworkHelper networkHelper;
 
     @Autowired
     GameBuffer gameBuffer;
-
-   // int epoch;
-
     @Autowired
     private ModelState modelState;
 
-
-
     private DurAndMem inferenceDuration = new DurAndMem();
 
-
     private NDScope ndScope;
-
 
     private Thread thread;
     private volatile boolean running;
@@ -104,7 +93,6 @@ public class ModelController  implements DisposableBean, Runnable  {
                     controllerTasks();
                     initialInferences(numParallelInferences);
                     recurrentInferences(numParallelInferences);
-                    //System.out.println("Hi");
                     Thread.sleep(1);
                 } catch( InterruptedException e) {
                     Thread.currentThread().interrupt();
