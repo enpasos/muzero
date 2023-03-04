@@ -107,16 +107,16 @@ public class Inference {
 //        return actionIndexesSelectedByNetwork[0];
     }
 
-    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, Map<String, ?> options) {
-        return aiDecisionForGames(games, withMCTS, true, options);
+    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, int epoch) {
+        return aiDecisionForGames(games, withMCTS, true, epoch);
     }
 
-    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, Map<String, ?> options) {
+
+    // TODO withRandomness
+    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, int epoch) {
         try {
 
-//            config.setInferenceDeviceType(deviceType);
-//            Game game = getGame(actions);
-            modelService.loadLatestModel().get();  // TODO options
+            modelService.loadLatestModel(epoch).get();
             return aiDecision(withMCTS, games).stream().mapToInt(p -> p.getSecond() ).toArray();
         } catch (Exception e) {
             log.error(e.getMessage());

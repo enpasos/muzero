@@ -49,6 +49,7 @@ class ActionDecisionTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, false, null);
         assertTrue(nextMoveInt >= 0);
+       // modelService.shutdown();
     }
 
     private void init() throws ExecutionException, InterruptedException {

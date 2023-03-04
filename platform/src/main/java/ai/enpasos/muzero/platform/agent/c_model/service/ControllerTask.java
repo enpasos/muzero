@@ -13,7 +13,7 @@ public class ControllerTask {
 
 
 
-    //int epoch;
+    int epoch = -1;
 
 public ControllerTask(ControllerTaskType taskType) {
     this.taskType = taskType;

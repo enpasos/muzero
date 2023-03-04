@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
@@ -63,6 +64,9 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeInference inference;
 
+    @Autowired
+    private ModelService modelService;
+
     public static void main(String[] args) {
         SpringApplication.run(TicTacToe.class, args);
     }
@@ -89,7 +93,6 @@ public class TicTacToe implements CommandLineRunner {
             case TEST:
                 test.run();
                 break;
-
             case TESTNETWORKS:
                 testAllNetworks.run();
                 break;
@@ -107,14 +110,13 @@ public class TicTacToe implements CommandLineRunner {
             case VALUE:
                 valueExtractor.run();
                 break;
-
             case ENTROPY:
                 entropyExtractor.run();
                 break;
-
             case NONE:
             default:
         }
-        System.exit(0);
+        modelService.shutdown();
+
     }
 }

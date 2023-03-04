@@ -67,11 +67,7 @@ public class ModelService {
     }
 
 
-    @Async()
-    public CompletableFuture<Void> loadLatestModel() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModel);
-        return handleControllerTask(task);
-    }
+
 
     @Async()
     public CompletableFuture<Void> getEpoch() {
@@ -95,6 +91,30 @@ public class ModelService {
         return handleControllerTask(task);
     }
 
+    @Async()
+    public CompletableFuture<Void> shutdown() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.shutdown);
+        return handleControllerTask(task);
+    }
+
+    @Async()
+    public CompletableFuture<Void> loadLatestModel() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModel);
+        return handleControllerTask(task);
+    }
+    @Async()
+    public CompletableFuture<Void> loadLatestModelOrCreateIfNotExisting(int epoch) {
+        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModelOrCreateIfNotExisting);
+        task.epoch = epoch;
+        return handleControllerTask(task);
+    }
+
+    @Async()
+    public CompletableFuture<Void> loadLatestModel(int epoch) {
+        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModel);
+        task.epoch = epoch;
+        return handleControllerTask(task);
+    }
     @NotNull
     private CompletableFuture<Void> handleControllerTask(ControllerTask task) {
         modelQueue.addControllerTask(task);

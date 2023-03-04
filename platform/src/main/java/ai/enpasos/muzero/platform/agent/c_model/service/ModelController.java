@@ -28,10 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,6 +42,7 @@ import static ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper.getEpoc
 import static ai.enpasos.muzero.platform.agent.c_model.service.ModelService.INTERRUPTED;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
+import static java.util.Map.entry;
 
 
 @Component
@@ -70,13 +73,15 @@ public class ModelController {
     @Autowired
     private ModelState modelState;
 
+
+
     private DurAndMem inferenceDuration = new DurAndMem();
 
 
     private NDScope ndScope;
 
 
-    public void run()  {
+    public void run()    {
         log.info("ModelController started.");
         try {
             while (true) {
@@ -87,12 +92,15 @@ public class ModelController {
                 Thread.sleep(1);
             }
         } catch (InterruptedException e) {
+           // e.printStackTrace();
             log.error("ModelController stopped.");
         }  catch (Exception e) {
             e.printStackTrace();
         } finally {
-            network.getModel().close();
-            nDManager.close();
+            if (network != null)
+                network.getModel().close();
+            if (nDManager != null)
+                nDManager.close();
         }
 
     }
@@ -108,11 +116,11 @@ public class ModelController {
         }
     }
 
-    private void controllerTasks() {
+    private void controllerTasks() throws InterruptedException {
 
         List<ControllerTask> localControllerTaskList = modelQueue.getControllerTasksNotStarted();
 
-        if (localControllerTaskList.isEmpty()) return;
+        if (localControllerTaskList.isEmpty());
 
 
 
@@ -121,7 +129,14 @@ public class ModelController {
                 case loadLatestModel:
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
                     log.info("loadLatestModel with model name {}", config.getModelName());
-                    network = new Network(config, model);
+                    if (task.epoch == -1) {
+                        network = new Network(config, model);
+                    } else {
+                        network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
+                            Map.ofEntries(entry("epoch", task.epoch + "")));;
+                    }
+                    network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
+                        Map.ofEntries(entry("epoch", task.epoch + "")));
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
                     network.setHiddenStateNDManager(nDManager);
@@ -134,7 +149,12 @@ public class ModelController {
                         model.setBlock(block);
                         loadModelParametersOrCreateIfNotExisting(model);
                     }
-                    network = new Network(config, model);
+                    if (task.epoch == -1) {
+                        network = new Network(config, model);
+                    } else {
+                        network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
+                            Map.ofEntries(entry("epoch", task.epoch + "")));;
+                    }
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
                     network.setHiddenStateNDManager(nDManager);
@@ -154,6 +174,8 @@ public class ModelController {
                         ndScope.close();
                     }
                     break;
+                case shutdown:
+                    throw new InterruptedException();
 //                case getEpoch:
 //                    task.epoch = getEpoch(network.getModel());
 //                    break;

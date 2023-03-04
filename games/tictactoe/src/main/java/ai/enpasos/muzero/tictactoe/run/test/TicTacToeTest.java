@@ -63,13 +63,6 @@ public class TicTacToeTest {
     }
 
     public int findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-
-            Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-
-                network.setHiddenStateNDManager(nDManager);
-                network.initActionSpaceOnDevice(nDManager);
 
                 log.info("nodes where a decision matters for player X {}, for player O {}",
                     gameTree.nodesWhereADecisionMattersForPlayerA.size(),
@@ -99,9 +92,7 @@ public class TicTacToeTest {
                     gamesWithBadDecisionPlayerB.size() +
                     gamesWithBadDecisionByPlayerA2.size() +
                     gamesWithBadDecisionByPlayerB2.size();
-            }
 
-        }
     }
 
     @NotNull
