@@ -10,6 +10,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
+import ai.enpasos.muzero.platform.agent.b_planning.Node;
 import ai.enpasos.muzero.platform.agent.c_model.ModelState;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
@@ -19,17 +20,13 @@ import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -39,9 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.c_model.Network.getEpoch;
 import static ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper.getEpochFromModel;
-import static ai.enpasos.muzero.platform.agent.c_model.service.ModelService.INTERRUPTED;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
 import static java.util.Map.entry;
@@ -49,23 +44,19 @@ import static java.util.Map.entry;
 
 @Component
 @Slf4j
-public class ModelController  implements DisposableBean, Runnable  {
+public class ModelController implements DisposableBean, Runnable {
 
     @Autowired
     ModelQueue modelQueue;
 
     @Autowired
     MuZeroConfig config;
-
-    private Network network;
-
     NDManager nDManager;
-
     @Autowired
     NetworkHelper networkHelper;
-
     @Autowired
     GameBuffer gameBuffer;
+    private Network network;
     @Autowired
     private ModelState modelState;
 
@@ -85,31 +76,27 @@ public class ModelController  implements DisposableBean, Runnable  {
     }
 
     @Override
-    public void run()    {
+    public void run() {
         log.trace("ModelController started.");
-            while (running) {
-                try {
-                    int numParallelInferences = config.getNumParallelInferences();
-                    controllerTasks();
-                    initialInferences(numParallelInferences);
-                    recurrentInferences(numParallelInferences);
-                    Thread.sleep(1);
-                } catch( InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        while (running) {
+            try {
+                int numParallelInferences = config.getNumParallelInferences();
+                controllerTasks();
+                initialInferences(numParallelInferences);
+                recurrentInferences(numParallelInferences);
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-
+        }
     }
 
 
-
-    private void controllerTasks()   {
+    private void controllerTasks() {
 
         List<ControllerTask> localControllerTaskList = modelQueue.getControllerTasksNotStarted();
 
-        if (localControllerTaskList.isEmpty());
-
-
+        if (localControllerTaskList.isEmpty()) ;
 
         for (ControllerTask task : localControllerTaskList) {
             switch (task.getTaskType()) {
@@ -120,7 +107,8 @@ public class ModelController  implements DisposableBean, Runnable  {
                         network = new Network(config, model);
                     } else {
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
-                            Map.ofEntries(entry("epoch", task.epoch + "")));;
+                            Map.ofEntries(entry("epoch", task.epoch + "")));
+                        ;
                     }
                     network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                         Map.ofEntries(entry("epoch", task.epoch + "")));
@@ -140,7 +128,8 @@ public class ModelController  implements DisposableBean, Runnable  {
                         network = new Network(config, model);
                     } else {
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
-                            Map.ofEntries(entry("epoch", task.epoch + "")));;
+                            Map.ofEntries(entry("epoch", task.epoch + "")));
+                        ;
                     }
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
@@ -148,7 +137,7 @@ public class ModelController  implements DisposableBean, Runnable  {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case trainModel:
-                      trainNetwork(network.getModel());
+                    trainNetwork(network.getModel());
                     break;
                 case startScope:
                     if (ndScope != null) {
@@ -209,9 +198,9 @@ public class ModelController  implements DisposableBean, Runnable  {
         }
         // epoch = getEpochFromModel(model);
         //System.out.println(">>>>>>> epoch = " + epoch);
-       // gameBuffer.setEpoch(epoch);
-         modelState.setEpoch(getEpochFromModel(model));
-       // return epoch;
+        // gameBuffer.setEpoch(epoch);
+        modelState.setEpoch(getEpochFromModel(model));
+        // return epoch;
 //        return epoch * numberOfTrainingStepsPerEpoch;
         //  }
     }
@@ -258,7 +247,7 @@ public class ModelController  implements DisposableBean, Runnable  {
             .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        model.setProperty( "MeanValueLoss", Double.toString(meanValueLoss));
+        model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
         log.info("MeanValueLoss: " + meanValueLoss);
 
 
@@ -273,7 +262,7 @@ public class ModelController  implements DisposableBean, Runnable  {
             .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        model.setProperty( "MeanSimilarityLoss", Double.toString(meanSimLoss));
+        model.setProperty("MeanSimilarityLoss", Double.toString(meanSimLoss));
         log.info("MeanSimilarityLoss: " + meanSimLoss);
 
         // mean policy loss
@@ -285,10 +274,9 @@ public class ModelController  implements DisposableBean, Runnable  {
             .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
             .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
             .sum();
-        model.setProperty(  "MeanPolicyLoss", Double.toString(meanPolicyLoss));
+        model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
     }
-
 
 
     private void loadModelParametersOrCreateIfNotExisting(Model model) {
@@ -296,79 +284,79 @@ public class ModelController  implements DisposableBean, Runnable  {
             String outputDir = config.getNetworkBaseDir();
             mkDir(outputDir);
             model.load(Paths.get(outputDir));
-          //  gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
+            //  gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
 
-                final int epoch = -1;
-                int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-                boolean withSymmetryEnrichment = true;
-                DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+            final int epoch = -1;
+            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+            boolean withSymmetryEnrichment = true;
+            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
 
-                djlConfig.getTrainingListeners().stream()
-                    .filter(MyEpochTrainingListener.class::isInstance)
-                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
-                try (Trainer trainer = model.newTrainer(djlConfig)) {
-                    Shape[] inputShapes = networkHelper.getInputShapes();
-                    trainer.initialize(inputShapes);
-                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                }
-              //  gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
+            djlConfig.getTrainingListeners().stream()
+                .filter(MyEpochTrainingListener.class::isInstance)
+                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+                Shape[] inputShapes = networkHelper.getInputShapes();
+                trainer.initialize(inputShapes);
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
+            //  gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
+        }
 
 
     }
 
     private void initialInferences(int numParallelInferences) {
 
-            List<InitialInferenceTask> localInitialInferenceTaskList =
-                modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
+        List<InitialInferenceTask> localInitialInferenceTaskList =
+            modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
 
-            if (localInitialInferenceTaskList.isEmpty()) return;
+        if (localInitialInferenceTaskList.isEmpty()) return;
 
-            log.debug("runInitialInference() for {} games", localInitialInferenceTaskList.size());
+        log.debug("runInitialInference() for {} games", localInitialInferenceTaskList.size());
 
-            List<Game> games = localInitialInferenceTaskList.stream().map(InitialInferenceTask::getGame).collect(Collectors.toList());
+        List<Game> games = localInitialInferenceTaskList.stream().map(InitialInferenceTask::getGame).collect(Collectors.toList());
 
-            inferenceDuration.on();
-            List<NetworkIO> networkOutput = network.initialInferenceListDirect(games);
-            inferenceDuration.off();
+        inferenceDuration.on();
+        List<NetworkIO> networkOutput = network.initialInferenceListDirect(games);
+        inferenceDuration.off();
 
         //    int epoch = getEpoch(network.getModel());
-           // networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
+        // networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
 
-            IntStream.range(0, localInitialInferenceTaskList.size()).forEach(g -> {
-                InitialInferenceTask task = localInitialInferenceTaskList.get(g);
-                task.setNetworkOutput(networkOutput.get(g));
-                task.setDone(true);
-            });
+        IntStream.range(0, localInitialInferenceTaskList.size()).forEach(g -> {
+            InitialInferenceTask task = localInitialInferenceTaskList.get(g);
+            task.setNetworkOutput(networkOutput.get(g));
+            task.setDone(true);
+        });
 
 
     }
 
     private void recurrentInferences(int numParallelInferences) {
 
-            List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
-                modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
+        List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
+            modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
 
-            if (localRecurrentInferenceTaskList.isEmpty()) return;
+        if (localRecurrentInferenceTaskList.isEmpty()) return;
 
-            log.debug("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
+        log.debug("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
 
-            List<List<Node>> searchPathList = localRecurrentInferenceTaskList.stream().map(RecurrentInferenceTask::getSearchPath).collect(Collectors.toList());
+        List<List<Node>> searchPathList = localRecurrentInferenceTaskList.stream().map(RecurrentInferenceTask::getSearchPath).collect(Collectors.toList());
 
 
-            inferenceDuration.on();
-            List<NetworkIO> networkOutput = network.recurrentInference(searchPathList);
-            inferenceDuration.off();
+        inferenceDuration.on();
+        List<NetworkIO> networkOutput = network.recurrentInference(searchPathList);
+        inferenceDuration.off();
 
         //    int epoch = getEpoch(network.getModel());
         //    networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
 
-            IntStream.range(0, localRecurrentInferenceTaskList.size()).forEach(g -> {
-                RecurrentInferenceTask task = localRecurrentInferenceTaskList.get(g);
-                task.setNetworkOutput(networkOutput.get(g));
-                task.setDone(true);
-            });
+        IntStream.range(0, localRecurrentInferenceTaskList.size()).forEach(g -> {
+            RecurrentInferenceTask task = localRecurrentInferenceTaskList.get(g);
+            task.setNetworkOutput(networkOutput.get(g));
+            task.setDone(true);
+        });
 
     }
 
