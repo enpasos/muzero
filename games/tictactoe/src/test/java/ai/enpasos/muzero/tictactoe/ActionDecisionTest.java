@@ -41,6 +41,7 @@ class ActionDecisionTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true, null);
         assertTrue(nextMoveInt >= 0);
+      //  modelService.shutdown();
     }
 
     @Test
@@ -49,6 +50,7 @@ class ActionDecisionTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, false, null);
         assertTrue(nextMoveInt >= 0);
+
        // modelService.shutdown();
     }
 
@@ -56,6 +58,7 @@ class ActionDecisionTest {
         config.setOutputDir("./build/tictactoeTest/");
         rmDir(config.getOutputDir());
         modelService.loadLatestModelOrCreateIfNotExisting().get();
+        int i = 42;
 //        muZero.train(TrainParams.builder()
 //            .render(true)
 //            .withoutFill(false)

@@ -5,7 +5,7 @@ logging:
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: WARN
-    ai.enpasos: INFO
+    ai.enpasos: DEBUG
 
 muzero:
   activeGame: GO_5

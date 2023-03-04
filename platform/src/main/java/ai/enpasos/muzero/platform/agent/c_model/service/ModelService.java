@@ -25,7 +25,10 @@ public class ModelService {
     ModelQueue modelQueue;
 
     @Autowired
-    EnableSchedulingConfig enableSchedulingConfig;
+    ModelController modelController;
+
+//    @Autowired
+//    EnableSchedulingConfig enableSchedulingConfig;
 
     @Async()
     public CompletableFuture<NetworkIO> initialInference(Game game) {
@@ -91,10 +94,13 @@ public class ModelService {
         return handleControllerTask(task);
     }
 
-    @Async()
-    public CompletableFuture<Void> shutdown() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.shutdown);
-        return handleControllerTask(task);
+
+    public void shutdown() {
+        try {
+            modelController.destroy();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Async()

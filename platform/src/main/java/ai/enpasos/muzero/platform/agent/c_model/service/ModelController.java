@@ -26,11 +26,13 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +49,9 @@ import static java.util.Map.entry;
 
 @Component
 @Slf4j
+public class ModelController  implements DisposableBean, Runnable  {
 
-public class ModelController {
+
 
     @Autowired
     ModelQueue modelQueue;
@@ -81,42 +84,38 @@ public class ModelController {
     private NDScope ndScope;
 
 
+    private Thread thread;
+    private volatile boolean running;
+
+
+    @PostConstruct
+    void init() {
+        this.running = true;
+        this.thread = new Thread(this, "model");
+        this.thread.start();
+    }
+
+    @Override
     public void run()    {
-        log.info("ModelController started.");
-        try {
-            while (true) {
-                int numParallelInferences = config.getNumParallelInferences();
-                controllerTasks();
-                initialInferences(numParallelInferences);
-                recurrentInferences(numParallelInferences);
-                Thread.sleep(1);
+        log.trace("ModelController started.");
+            while (running) {
+                try {
+                    int numParallelInferences = config.getNumParallelInferences();
+                    controllerTasks();
+                    initialInferences(numParallelInferences);
+                    recurrentInferences(numParallelInferences);
+                    //System.out.println("Hi");
+                    Thread.sleep(1);
+                } catch( InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
-        } catch (InterruptedException e) {
-           // e.printStackTrace();
-            log.error("ModelController stopped.");
-        }  catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (network != null)
-                network.getModel().close();
-            if (nDManager != null)
-                nDManager.close();
-        }
 
     }
 
-    private static void waitToFillUp(int numParallelInferences, long c, int waitMillis) {
-        if (c >0 && c < numParallelInferences) {
-            try {
-                Thread.sleep(waitMillis);
-            } catch (InterruptedException e) {
-                log.warn(INTERRUPTED, e);
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
 
-    private void controllerTasks() throws InterruptedException {
+
+    private void controllerTasks()   {
 
         List<ControllerTask> localControllerTaskList = modelQueue.getControllerTasksNotStarted();
 
@@ -174,11 +173,7 @@ public class ModelController {
                         ndScope.close();
                     }
                     break;
-                case shutdown:
-                    throw new InterruptedException();
-//                case getEpoch:
-//                    task.epoch = getEpoch(network.getModel());
-//                    break;
+
             }
             task.setDone(true);
         }
@@ -393,4 +388,12 @@ public class ModelController {
     public DurAndMem getInferenceDuration() {
         return inferenceDuration;
     }
+
+    @Override
+    public void destroy() throws Exception {
+        log.trace("ModelController stopped.");
+        running = false;
+    }
+
+
 }

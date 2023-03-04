@@ -107,6 +107,6 @@ public class Go implements CommandLineRunner {
             case NONE:
             default:
         }
-        // modelService.shutdown().get();
+        modelService.shutdown();
     }
 }

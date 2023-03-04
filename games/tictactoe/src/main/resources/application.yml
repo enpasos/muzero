@@ -3,12 +3,12 @@ logging:
     name: logs/muzero-tictactoe.log
     max-size: 10 MB
   pattern:
-    console: "%d %-5level %logger{0} : %msg%n"
+    console: "%d %-5level [%thread] %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: WARN
     ai.enpasos: DEBUG
-    ai.enpasos.muzero.platform.agent.c_model.service.ModelController: INFO
+    # ai.enpasos.muzero.platform.agent.c_model.service.ModelController: INFO
     ai.djl: INFO
 
 muzero:

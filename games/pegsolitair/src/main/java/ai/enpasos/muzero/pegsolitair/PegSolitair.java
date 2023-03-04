@@ -70,6 +70,6 @@ public class PegSolitair implements CommandLineRunner {
             default:
         }
 
-       // modelService.shutdown();
+       modelService.shutdown();
     }
 }
