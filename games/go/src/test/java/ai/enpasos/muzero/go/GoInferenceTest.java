@@ -45,7 +45,7 @@ class GoInferenceTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, false, null,  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
-        terminate();
+
     }
 
     private void init() {
@@ -59,9 +59,6 @@ class GoInferenceTest {
             throw new MuZeroException(e);
         }
     }
-    private void terminate() {
-        modelService.shutdown();
-    }
 
 
     @Test
@@ -70,7 +67,7 @@ class GoInferenceTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true,  null,  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
-        terminate();
+
     }
 
 
@@ -80,7 +77,7 @@ class GoInferenceTest {
         List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25);
         int nextMoveInt = inference.aiDecision(actions, true,  null,  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
-        terminate();
+
     }
 
     @Test
@@ -89,7 +86,7 @@ class GoInferenceTest {
         List<Integer> actions = List.of(12, 16);
         int nextMoveInt = inference.aiDecision(actions, false, null,  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
-        terminate();
+
     }
 
 

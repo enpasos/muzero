@@ -88,6 +88,8 @@ public class ModelController implements DisposableBean, Runnable {
             }
         } catch (InterruptedException e) {
             // Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            log.error("ModelController error", e);
         }
         log.info("ModelController stopped.");
     }

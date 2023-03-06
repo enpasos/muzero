@@ -9,7 +9,7 @@ public class ControllerTask {
 
     private ControllerTaskType taskType;
     private NetworkIO networkOutput;
-    private boolean done;
+    volatile private boolean done;
 
 
 

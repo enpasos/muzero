@@ -4,6 +4,7 @@ import ai.enpasos.muzero.platform.agent.c_model.Inference;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Slf4j
 class ActionDecisionTest {
 
     @Autowired
@@ -37,11 +39,12 @@ class ActionDecisionTest {
 
     @Test
     void aiDecisionTicTacToeSlow() throws ExecutionException, InterruptedException {
+
         init();
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true, null);
         assertTrue(nextMoveInt >= 0);
-        terminate();
+
     }
 
     @Test
@@ -50,12 +53,9 @@ class ActionDecisionTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, false, null);
         assertTrue(nextMoveInt >= 0);
-        terminate();
+
     }
 
-    private void terminate() {
-        modelService.shutdown();
-    }
 
     private void init() throws ExecutionException, InterruptedException {
         config.setOutputDir("./build/tictactoeTest/");

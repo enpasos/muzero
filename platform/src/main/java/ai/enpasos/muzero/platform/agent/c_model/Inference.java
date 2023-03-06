@@ -302,6 +302,7 @@ public class Inference {
         List<Pair<Double, Integer>> result = new ArrayList<>();
 
         if (!withMCTS) {
+            modelService.startScope();
             try {
                 networkOutputList = modelService.initialInference(games).get();
             } catch (InterruptedException e) {
@@ -309,6 +310,7 @@ public class Inference {
             } catch (ExecutionException e) {
                 throw new MuZeroException(e);
             }
+            modelService.endScope();
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);
                 List<Action> legalActions = game.legalActions();
@@ -332,7 +334,7 @@ public class Inference {
             }
 
         } else {
-
+            System.out.println("Control Point 3");
             playService.playGames(games,
                 PlayParameters.builder()
                     .render(false)
@@ -343,6 +345,7 @@ public class Inference {
                     .replay(false)
                     .build());
 
+            System.out.println("Control Point 4");
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {
