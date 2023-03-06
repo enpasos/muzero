@@ -38,7 +38,6 @@ public class PlayService {
 
     public List<Game> playNewGames( int numGames, PlayParameters playParameters) {
         List<Game> games = new ArrayList<>();
-
         for (int i = 0; i < numGames; i++) {
             Game game = config.newGame();
             games.add(game);
@@ -50,27 +49,29 @@ public class PlayService {
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration(games);
         }
-        if (config.getPlayTypeKey() == REANALYSE) {
-            reanalyseConfiguration(games);
-        }
 
         return playGames( games, playParameters);
     }
 
     public List<Game> reanalyseGames(int numGames, PlayParameters playParameters, List<Game> games) {
-       // List<Game> games = new ArrayList<>();
 
-//        for (int i = 0; i < numGames; i++) {
-//            Game game = config.newGame();
-//            games.add(game);
-//        }
-//        games.stream().forEach(game -> {
-//            game.getGameDTO().setTdSteps(config.getTdSteps());
-//            game.setPlayTypeKey(this.config.getPlayTypeKey());
-//        });
-//
+        games.stream().forEach(game -> {
+            game.getGameDTO().setTdSteps(config.getTdSteps());
+            game.setPlayTypeKey(this.config.getPlayTypeKey());
+        });
+
         if (config.getPlayTypeKey() == REANALYSE) {
-            reanalyseConfiguration(games);
+            games.forEach(game -> {
+                game.setOriginalGameDTO(game.getGameDTO().copy());
+                game.getGameDTO().getPolicyTargets().clear();
+                game.getGameDTO().setRootValueTargets(new ArrayList<>());
+                game.getGameDTO().setEntropies(new ArrayList<>());
+                game.getGameDTO().setMaxEntropies(new ArrayList<>());
+                game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
+                game.getGameDTO().setActions(new ArrayList<>());
+                game.getGameDTO().setRewards(new ArrayList<>());
+                game.replayToPosition(0);
+            });
         }
 
         return  playGames( games, playParameters);
@@ -99,19 +100,7 @@ public class PlayService {
             }
         });
     }
-    private void reanalyseConfiguration(List<Game> games) {
-        games.forEach(game -> {
-            game.setOriginalGameDTO(game.getGameDTO().copy());
-            game.getGameDTO().getPolicyTargets().clear();
-            game.getGameDTO().setRootValueTargets(new ArrayList<>());
-            game.getGameDTO().setEntropies(new ArrayList<>());
-            game.getGameDTO().setMaxEntropies(new ArrayList<>());
-            game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
-            game.getGameDTO().setActions(new ArrayList<>());
-            game.getGameDTO().setRewards(new ArrayList<>());
-            game.replayToPosition(0);
-        });
-    }
+
 
 
 

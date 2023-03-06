@@ -70,39 +70,19 @@ public class Inference {
     }
 
 
-    public int aiDecisionForGame(List<Integer> actions, boolean withMCTS, Map<String, ?> options) {
+    public int aiDecisionForGame(List<Integer> actions, boolean withMCTS, int epoch) {
 
         Game game = getGame(actions);
 
         try {
 
-//            config.setInferenceDeviceType(deviceType);
-//            Game game = getGame(actions);
-            modelService.loadLatestModel().get();  // TODO options
+            modelService.loadLatestModel(epoch).get();  // TODO options
             return aiDecision(withMCTS, game).getSecond();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new MuZeroException(e);
         }
 
-//        int[] actionIndexesSelectedByNetwork;
-//
-//        try (Model model = Model.newInstance(config.getModelName())) {
-//
-//            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
-//
-//            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-//
-//                network.initActionSpaceOnDevice(nDManager);
-//                network.setHiddenStateNDManager(nDManager);
-//
-//                actionIndexesSelectedByNetwork = aiDecision(withMCTS, true, List.of(game)).stream()
-//                    .mapToInt(Pair::getSecond).toArray();
-//
-//            }
-//
-//        }
-//        return actionIndexesSelectedByNetwork[0];
     }
 
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, int epoch) {

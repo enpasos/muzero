@@ -47,10 +47,7 @@ public class TicTacToeEntropyExtractor {
     GameProvider surpriseExtractor;
 
     public void run() {
-
-
         List<Integer> actionIndexList = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8).orElseThrow(MuZeroException::new).actionHistory().getActionIndexList();
-
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
     }
 
