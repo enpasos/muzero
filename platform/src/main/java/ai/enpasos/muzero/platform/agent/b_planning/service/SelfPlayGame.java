@@ -35,13 +35,6 @@ public class SelfPlayGame {
 
         game.getGameDTO().setTdSteps(config.getTdSteps());
 
-//        if (config.getTrainingTypeKey() == HYBRID) {
-//            int gameLength = playParameters.getAverageGameLength();
-//            game.getGameDTO().setHybrid(true);
-//            if (game.getGameDTO().getTHybrid() == -1) {
-//                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
-//            }
-//        }
 
         int count = 1;
         while ( (!untilEnd && count == 1) || (untilEnd && !game.isDone()) ) {
@@ -52,6 +45,11 @@ public class SelfPlayGame {
             }
             count++;
         }
+
+        if (playParameters.isJustReplayWithInitialReference()) {
+            playAction.justReplayActionWithInitialInference(game);
+        }
+
     }
 
 

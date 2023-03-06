@@ -26,7 +26,6 @@ public class EpisodeRunner {
     @Async()
     CompletableFuture<Game> playGame(PlayParameters playParameters, Game game) {
         log.trace("playGame");
-
         selfPlayer.play(game, playParameters);
         return CompletableFuture.completedFuture(game);
 
