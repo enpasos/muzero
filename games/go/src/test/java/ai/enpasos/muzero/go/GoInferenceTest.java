@@ -6,6 +6,7 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -44,6 +45,7 @@ class GoInferenceTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, false, null,  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
+        terminate();
     }
 
     private void init() {
@@ -56,7 +58,9 @@ class GoInferenceTest {
         } catch (ExecutionException e) {
             throw new MuZeroException(e);
         }
-
+    }
+    private void terminate() {
+        modelService.shutdown();
     }
 
 
@@ -66,6 +70,7 @@ class GoInferenceTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true,  null,  DeviceType.GPU);
         assertTrue(nextMoveInt >= 0);
+        terminate();
     }
 
 
@@ -73,23 +78,18 @@ class GoInferenceTest {
     void aiDecisionSlowLongerGame() {
         init();
         List<Integer> actions = List.of(12, 8, 13, 11, 6, 7, 16, 18, 17, 22, 10, 19, 21, 1, 14, 2, 9, 23, 24, 18, 19, 25, 23, 5, 0, 25, 3, 25);
-
         int nextMoveInt = inference.aiDecision(actions, true,  null,  DeviceType.GPU);
-
         assertTrue(nextMoveInt >= 0);
-
+        terminate();
     }
 
     @Test
     void aiDecisionFastLongerGame2() {
         init();
-
         List<Integer> actions = List.of(12, 16);
-
         int nextMoveInt = inference.aiDecision(actions, false, null,  DeviceType.GPU);
-
         assertTrue(nextMoveInt >= 0);
-
+        terminate();
     }
 
 

@@ -77,8 +77,11 @@ muzero:
       numberOfTrainingSteps: 1000000
     #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
-      numChannelsHiddenLayerSimilarity: 512
-      numChannelsOutputLayerSimilarity: 1024
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
 
       offPolicyCorrectionOn: true
       allOrNothingOn: true
@@ -206,8 +209,10 @@ muzero:
       numberOfTrainingSteps: 1000000
       #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
-      numChannelsHiddenLayerSimilarity: 512
-      numChannelsOutputLayerSimilarity: 1024
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
 
 
       offPolicyCorrectionOn: true

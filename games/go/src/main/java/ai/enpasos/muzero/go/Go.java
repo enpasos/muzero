@@ -102,9 +102,8 @@ public class Go implements CommandLineRunner {
             case ELO:
                 elo.run();
                 break;
-
-
             case NONE:
+                return;
             default:
         }
         modelService.shutdown();

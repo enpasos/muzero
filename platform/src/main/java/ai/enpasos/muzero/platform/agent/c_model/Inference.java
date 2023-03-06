@@ -295,14 +295,6 @@ public class Inference {
         }
 
         List<NetworkIO> networkOutputList = null;
-        try {
-            networkOutputList = modelService.initialInference(games).get();
-        } catch (InterruptedException e) {
-            throw new MuZeroException(e);
-        } catch (ExecutionException e) {
-            throw new MuZeroException(e);
-        }
-        //List<NetworkIO> networkOutputList = network.initialInferenceListDirect(games);
 
 
         int actionIndexSelectedByNetwork;
@@ -310,6 +302,13 @@ public class Inference {
         List<Pair<Double, Integer>> result = new ArrayList<>();
 
         if (!withMCTS) {
+            try {
+                networkOutputList = modelService.initialInference(games).get();
+            } catch (InterruptedException e) {
+                throw new MuZeroException(e);
+            } catch (ExecutionException e) {
+                throw new MuZeroException(e);
+            }
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);
                 List<Action> legalActions = game.legalActions();
@@ -333,11 +332,6 @@ public class Inference {
             }
 
         } else {
-            // TODO: needs to be tested
-
-//            selfPlay.init(games);
-       //     selfPlay.play(network, false, false, false, false,   0, false);
-
 
             playService.playGames(games,
                 PlayParameters.builder()
@@ -345,15 +339,18 @@ public class Inference {
                     .fastRulesLearning(false)
                     .justInitialInferencePolicy(false)
                     .pRandomActionRawAverage(0)
+                    .untilEnd(false)
                     .replay(false)
                     .build());
 
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {
+                Game game = games.get(g);
                 Action action = actions.get(g);
                 actionIndexSelectedByNetwork = action.getIndex();
-                double aiValue = Objects.requireNonNull(networkOutputList).get(0).getValue();
+                List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();
+                double aiValue =  values.get(values.size()-1);
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
         }

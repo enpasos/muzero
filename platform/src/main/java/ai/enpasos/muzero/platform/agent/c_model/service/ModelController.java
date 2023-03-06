@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
-import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.mkDir;
 import static java.util.Map.entry;
 
 
@@ -77,18 +77,19 @@ public class ModelController implements DisposableBean, Runnable {
 
     @Override
     public void run() {
-        log.trace("ModelController started.");
-        while (running) {
-            try {
+        log.info("ModelController started.");
+        try {
+            while (running) {
                 int numParallelInferences = config.getNumParallelInferences();
                 controllerTasks();
                 initialInferences(numParallelInferences);
                 recurrentInferences(numParallelInferences);
                 Thread.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            // Thread.currentThread().interrupt();
         }
+        log.info("ModelController stopped.");
     }
 
 
@@ -108,7 +109,6 @@ public class ModelController implements DisposableBean, Runnable {
                     } else {
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                             Map.ofEntries(entry("epoch", task.epoch + "")));
-                        ;
                     }
                     network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                         Map.ofEntries(entry("epoch", task.epoch + "")));
@@ -129,7 +129,6 @@ public class ModelController implements DisposableBean, Runnable {
                     } else {
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                             Map.ofEntries(entry("epoch", task.epoch + "")));
-                        ;
                     }
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
@@ -367,7 +366,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     @Override
     public void destroy() throws Exception {
-        log.trace("ModelController stopped.");
+       // log.info("ModelController destroy.");
         running = false;
     }
 

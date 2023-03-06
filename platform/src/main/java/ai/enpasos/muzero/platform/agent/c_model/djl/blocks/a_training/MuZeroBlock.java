@@ -63,9 +63,9 @@ public class MuZeroBlock extends AbstractBlock {
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
         similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
-            config.getNumChannelsHiddenLayerSimilarity(), config.getNumChannelsOutputLayerSimilarity()));
+            config.getNumChannelsHiddenLayerSimilarityProjector(), config.getNumChannelsOutputLayerSimilarityProjector()));
         similarityPredictorBlock = this.addChildBlock("Predictor", SimilarityPredictorBlock.newPredictorBlock(
-            config.getNumChannelsHiddenLayerSimilarity(), config.getNumChannelsOutputLayerSimilarity()));
+            config.getNumChannelsHiddenLayerSimilarityPredictor(), config.getNumChannelsOutputLayerSimilarityPredictor()));
 
 
         inputNames = new ArrayList<>();

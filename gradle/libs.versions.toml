@@ -1,6 +1,6 @@
 [versions]
 lombok = "1.18.26"
-djl = "0.22.0-SNAPSHOT"
+djl = "0.21.0"
 pytorch = "1.13.1"
 
 slf4j = "2.0.6"
@@ -31,6 +31,8 @@ commons-io = { module = "commons-io:commons-io", version = "2.11.0" }
 commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.12.0" }
 commons-collections = { module = "org.apache.commons:commons-collections4", version = "4.4" }
 
+
+
 springboot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springboot" }
 springboot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springboot" }
 
@@ -57,7 +59,7 @@ stochasticsimulation = { module = "ca.umontreal.iro.simul:ssj", version = "3.3.2
 
 [bundles]
 djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu117"]
-commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-lang", "commons-collections"]
+commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-lang", "commons-collections" ]
 
 
 [plugins]

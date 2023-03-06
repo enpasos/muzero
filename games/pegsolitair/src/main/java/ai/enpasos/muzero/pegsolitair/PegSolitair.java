@@ -67,6 +67,7 @@ public class PegSolitair implements CommandLineRunner {
                 valueExtractor.run();
                 break;
             case NONE:
+                return;
             default:
         }
 

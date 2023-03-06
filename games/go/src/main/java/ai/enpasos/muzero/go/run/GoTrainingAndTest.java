@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 
 
 @Slf4j

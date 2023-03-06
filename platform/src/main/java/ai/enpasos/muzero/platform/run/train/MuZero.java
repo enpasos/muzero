@@ -33,9 +33,9 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ai.enpasos.muzero.platform.common.FileUtils2;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,17 +86,13 @@ public class MuZero {
 
 
     public void deleteNetworksAndGames() {
-        try {
-            FileUtils.forceDelete(new File(config.getOutputDir()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            FileUtils.forceMkdir(new File(config.getNetworkBaseDir()));
-            FileUtils.forceMkdir(new File(config.getGamesBasedir()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+            FileUtils2.rmDir(config.getOutputDir());
+
+
+            FileUtils2.mkDir( config.getNetworkBaseDir());
+            FileUtils2.mkDir( config.getGamesBasedir());
+
     }
 
     @SuppressWarnings("java:S106")

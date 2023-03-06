@@ -25,7 +25,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;

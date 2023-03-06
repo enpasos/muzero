@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
@@ -41,7 +41,7 @@ class ActionDecisionTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, true, null);
         assertTrue(nextMoveInt >= 0);
-      //  modelService.shutdown();
+        terminate();
     }
 
     @Test
@@ -50,19 +50,17 @@ class ActionDecisionTest {
         List<Integer> actions = new ArrayList<>();
         int nextMoveInt = inference.aiDecision(actions, false, null);
         assertTrue(nextMoveInt >= 0);
+        terminate();
+    }
 
-       // modelService.shutdown();
+    private void terminate() {
+        modelService.shutdown();
     }
 
     private void init() throws ExecutionException, InterruptedException {
         config.setOutputDir("./build/tictactoeTest/");
         rmDir(config.getOutputDir());
         modelService.loadLatestModelOrCreateIfNotExisting().get();
-        int i = 42;
-//        muZero.train(TrainParams.builder()
-//            .render(true)
-//            .withoutFill(false)
-//            .build());
     }
 
 

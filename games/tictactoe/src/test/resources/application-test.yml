@@ -67,8 +67,11 @@ muzero:
 
       windowSize: 10
 
-      numChannelsHiddenLayerSimilarity: 25
-      numChannelsOutputLayerSimilarity: 50
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
 
       replayFraction: 0.0
 

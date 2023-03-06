@@ -409,12 +409,19 @@ public class MuZeroConfig {
         return getConf().numParallelInferences;
     }
 
-    public int getNumChannelsHiddenLayerSimilarity() {
-        return getConf().numChannelsHiddenLayerSimilarity;
+    public int getNumChannelsHiddenLayerSimilarityProjector() {
+        return getConf().numChannelsHiddenLayerSimilarityProjector;
     }
 
-    public int getNumChannelsOutputLayerSimilarity() {
-        return getConf().numChannelsOutputLayerSimilarity;
+    public int getNumChannelsOutputLayerSimilarityProjector() {
+        return getConf().numChannelsOutputLayerSimilarityProjector;
+    }
+    public int getNumChannelsHiddenLayerSimilarityPredictor() {
+        return getConf().numChannelsHiddenLayerSimilarityPredictor;
+    }
+
+    public int getNumChannelsOutputLayerSimilarityPredictor() {
+        return getConf().numChannelsOutputLayerSimilarityPredictor;
     }
 
     public FileType getGameBufferWritingFormat() {
@@ -473,8 +480,11 @@ public class MuZeroConfig {
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSize;
 
-        protected int numChannelsHiddenLayerSimilarity;
-        protected int numChannelsOutputLayerSimilarity;
+        protected int numChannelsHiddenLayerSimilarityProjector;
+        protected int numChannelsOutputLayerSimilarityProjector;
+
+        protected int numChannelsHiddenLayerSimilarityPredictor;
+        protected int numChannelsOutputLayerSimilarityPredictor;
         protected double fractionOfAlternativeActionGames;
 
         protected int batchSize;

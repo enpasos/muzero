@@ -44,7 +44,7 @@ public class SelfPlayGame {
 //        }
 
         int count = 1;
-        while (!game.isDone() && (count == 1 || untilEnd)) {
+        while ( (!untilEnd && count == 1) || (untilEnd && !game.isDone()) ) {
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
