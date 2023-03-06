@@ -143,13 +143,7 @@ public class Network {
         return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
     }
 
-    public NetworkIO recurrentInference(NDArray hiddenState, int action) {
-        List<NDArray> hiddenStateList = List.of(hiddenState);
-        Action action2 = config.newAction(action);
-        List<NDArray> actionList = List.of(action2.encode(getNDManager()));
-        List<NetworkIO> networkOutputList2 = recurrentInferenceListDirect(hiddenStateList, actionList);
-        return networkOutputList2.get(0);
-    }
+
 
     public void initActionSpaceOnDevice(NDManager ndManager) {
         actionSpaceOnDevice = getAllActionsOnDevice(config, ndManager);
@@ -159,18 +153,7 @@ public class Network {
         setHiddenStateNDManager(hiddenStateNDManager, true);
     }
 
-    public void createAndSetHiddenStateNDManager(NDManager parentNDManager, boolean force) {
-        if (force || initialInference.getHiddenStateNDManager() == null) {
-            NDManager newHiddenStateNDManager;
-            if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU) {
-                newHiddenStateNDManager = parentNDManager.newSubManager(Device.gpu());
-            } else {
-                newHiddenStateNDManager = parentNDManager.newSubManager(Device.cpu());
-            }
-            initialInference.setHiddenStateNDManager(newHiddenStateNDManager);
-            recurrentInference.setHiddenStateNDManager(newHiddenStateNDManager);
-        }
-    }
+
 
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager, boolean force) {
         if (force || initialInference.getHiddenStateNDManager() == null) {
@@ -183,9 +166,6 @@ public class Network {
         return model.getNDManager();
     }
 
-    public NetworkIO initialInferenceDirect(@NotNull Game game) {
-        return Objects.requireNonNull(initialInferenceListDirect(List.of(game))).get(0);
-    }
 
     public @Nullable List<NetworkIO> initialInferenceListDirect(List<Game> gameList) {
 

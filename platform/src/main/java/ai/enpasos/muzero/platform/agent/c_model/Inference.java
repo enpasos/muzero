@@ -24,7 +24,6 @@ import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.b_planning.Action;
 import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
-import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
@@ -64,8 +63,7 @@ public class Inference {
     ModelService modelService;
 
 
-    @Autowired
-    SelfPlay selfPlay;
+
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir) {
         return aiDecision(actions, withMCTS, networkDir, DeviceType.CPU);
@@ -140,7 +138,7 @@ public class Inference {
         double[][] values = new double[actions.length + 1][actions.length + 1 + extra];
         Game game = config.newGame();
         for (int t = 0; t <= actions.length; t++) {
-            NetworkIO infResult = network.initialInferenceDirect(game);
+            NetworkIO infResult = modelService.initialInference(game).join();
             NDArray s = infResult.getHiddenState();
             values[actions.length][t] = infResult.getValue();
             System.arraycopy(values[actions.length], 0, values[t], 0, t + 1);
@@ -151,7 +149,7 @@ public class Inference {
                 } else {
                     action = ThreadLocalRandom.current().nextInt(actionspace);
                 }
-                infResult = network.recurrentInference(s, action);
+                infResult = modelService.recurrentInference(s, action).join();
                 s = infResult.getHiddenState();
                 values[t][r + 1] = infResult.getValue();
             }
@@ -178,26 +176,8 @@ public class Inference {
 
     public double aiStartValue(int epoch) {
         Game game = config.newGame();
-        try {
-
-//            config.setInferenceDeviceType(deviceType);
-//            Game game = getGame(actions);
-            modelService.loadLatestModel().get();  // TODO options
-            return aiDecision(false, game).getFirst();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new MuZeroException(e);
-        }
-//        double valueByNetwork;
-//        Game game = config.newGame();
-//        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-//            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
-//            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-//                network.setHiddenStateNDManager(nDManager);
-//                valueByNetwork = aiDecision(network, false, game).getFirst();
-//            }
-//        }
-//        return valueByNetwork;
+        modelService.loadLatestModel(epoch).join();
+        return aiDecision(false, game).getFirst();
     }
 
     public double aiEntropy(List<Integer> actions, String networkDir) {
@@ -215,42 +195,17 @@ public class Inference {
     }
 
     public double[] aiEntropy(List<Game> games) {
-        double[] valueByNetwork;
-        try (Model model = Model.newInstance(config.getModelName())) {
-            Network network = new Network(config, model);
-            valueByNetwork = aiEntropy(network, games);
-        }
-        return valueByNetwork;
+        modelService.loadLatestModel(-1).join();
+        List<NetworkIO> networkOutputs = modelService.initialInference(games).join();
+        return Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getPolicyValues()))).toArray();
     }
 
     public double[] aiValue(List<Game> games) {
-        double[] valueByNetwork;
-        try (Model model = Model.newInstance(config.getModelName())) {
-            Network network = new Network(config, model);
-            valueByNetwork = aiValue(network, games);
-        }
-        return valueByNetwork;
+        modelService.loadLatestModel(-1).join();
+        List<NetworkIO> networkOutputs = modelService.initialInference(games).join();
+        return Objects.requireNonNull(networkOutputs).stream().mapToDouble(NetworkIO::getValue).toArray();
     }
 
-    public double[] aiValue(Network network, List<Game> games) {
-        double[] valueByNetwork;
-        try (NDManager nDManager = network.getNDManager().newSubManager()) {
-            network.setHiddenStateNDManager(nDManager);
-            List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            valueByNetwork = Objects.requireNonNull(networkOutputs).stream().mapToDouble(NetworkIO::getValue).toArray();
-        }
-        return valueByNetwork;
-    }
-
-    public double[] aiEntropy(Network network, List<Game> games) {
-        double[] entropyByNetwork;
-        try (NDManager nDManager = network.getNDManager().newSubManager()) {
-            network.setHiddenStateNDManager(nDManager);
-            List<NetworkIO> networkOutputs = network.initialInferenceListDirect(games);
-            entropyByNetwork = Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getPolicyValues()))).toArray();
-        }
-        return entropyByNetwork;
-    }
 
 
     public Game getGame(List<Integer> actions) {

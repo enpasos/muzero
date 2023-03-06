@@ -1,8 +1,10 @@
 package ai.enpasos.muzero.platform.agent.c_model.service;
 
+import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.b_planning.Node;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class ModelService {
 
     @Autowired
     ModelController modelController;
+
+    @Autowired
+    MuZeroConfig config;
 
 //    @Autowired
 //    EnableSchedulingConfig enableSchedulingConfig;
@@ -128,7 +133,6 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-              //  log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -139,6 +143,29 @@ public class ModelService {
 
 
 
+    @Async()
+    public CompletableFuture<NetworkIO> recurrentInference(NDArray hiddenState, int action) {
+            Node node = Node.builder()
+        .hiddenState(hiddenState)
+        .build();
+        Node node2 = Node.builder()
+            .action(config.newAction(4))
+            .build();
+         List<Node> searchPath = List.of(node, node2);
+
+        RecurrentInferenceTask task = new RecurrentInferenceTask(searchPath);
+        modelQueue.addRecurrentInferenceTask(task);
+
+        while (!task.isDone()) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        modelQueue.removeRecurrentInferenceTask(task);
+        return CompletableFuture.completedFuture(task.getNetworkOutput());
+    }
 
     @Async()
     public CompletableFuture<NetworkIO> recurrentInference(List<Node> searchPath) {
@@ -154,9 +181,6 @@ public class ModelService {
             }
         }
         modelQueue.removeRecurrentInferenceTask(task);
-
-    //    throw new MuZeroException("hallo");
-
         return CompletableFuture.completedFuture(task.getNetworkOutput());
     }
 

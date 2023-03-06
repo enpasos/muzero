@@ -7,7 +7,6 @@ import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
@@ -38,8 +37,6 @@ class ProtobufferTest {
     @Autowired
     MuZero muZero;
 
-    @Autowired
-    SelfPlay selfPlay;
 
     @Autowired
     PlayService playService;

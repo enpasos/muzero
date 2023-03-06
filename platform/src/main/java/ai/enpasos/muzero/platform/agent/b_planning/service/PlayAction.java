@@ -197,12 +197,6 @@ public class PlayAction {
     }
 
 
-    @Nullable
-    private List<NetworkIO> initialInference(Network network, List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning, int indexOfJustOneOfTheGames) {
-        List<NetworkIO> networkOutput = fastRuleLearning ? null : network.initialInferenceListDirect(gamesToApplyAction);
-        return networkOutput;
-    }
-
 
     private static void storeEntropyInfo(Game game, NetworkIO networkOutput) {
         List<Action> legalActions = game.legalActions();

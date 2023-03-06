@@ -62,10 +62,6 @@ public class TicTacToeValueExtractor {
         int start = 1;
         int stop =  replayBufferIO.getLatestNetworkEpoch();
 
-
-
-
-
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 
         List<Optional<Game>> games = IntStream.rangeClosed(start, stop)

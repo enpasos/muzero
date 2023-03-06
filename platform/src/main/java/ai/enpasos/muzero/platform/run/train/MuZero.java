@@ -18,18 +18,14 @@
 package ai.enpasos.muzero.platform.run.train;
 
 
-import ai.djl.Model;
-import ai.djl.metric.Metric;
-import ai.djl.metric.Metrics;
-import ai.djl.training.Trainer;
+import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
 import ai.enpasos.muzero.platform.agent.c_model.ModelState;
 import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.common.DurAndMem;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -37,15 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ai.enpasos.muzero.platform.common.FileUtils2;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 
 @Slf4j
 @Component
@@ -54,15 +45,10 @@ public class MuZero {
     @Autowired
     MuZeroConfig config;
 
-    @Autowired
-    SelfPlay selfPlay;
 
     @Autowired
     GameBuffer gameBuffer;
 
-
-    @Autowired
-    NetworkHelper networkHelper;
 
 
     @Autowired
@@ -72,13 +58,16 @@ public class MuZero {
     @Autowired
     ModelState modelState;
 
+    @Autowired
+    PlayService multiGameStarter;
+
     public void initialFillingBuffer() {
 
         long startCounter = gameBuffer.getBuffer().getCounter();
         int windowSize = config.getWindowSize();
         while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes2(false, true, false);
+             playMultipleEpisodes(false, true, false);
 
 
         }
@@ -165,10 +154,36 @@ public class MuZero {
         boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
 
-        selfPlay.playMultipleEpisodes2(render, false, justInitialInferencePolicy);
+        playMultipleEpisodes(render, false, justInitialInferencePolicy);
 
         // }
     }
 
+
+    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+        List<Game> games = new ArrayList<>();
+        List<Game> gamesToReanalyse = null;
+        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            gamesToReanalyse = gameBuffer.getGamesToReanalyse();
+        }
+        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            games = multiGameStarter.reanalyseGames(config.getNumParallelGamesPlayed(),
+                PlayParameters.builder()
+                    .render(render)
+                    .fastRulesLearning(fastRuleLearning)
+                    .build(),
+                gamesToReanalyse);
+        } else {
+            games = multiGameStarter.playNewGames(config.getNumParallelGamesPlayed(),
+                PlayParameters.builder()
+                    .render(render)
+                    .fastRulesLearning(fastRuleLearning)
+                    .build());
+        }
+
+        log.info("Played {} games parallel", games.size());
+
+        gameBuffer.addGames2(games, false);
+    }
 
 }

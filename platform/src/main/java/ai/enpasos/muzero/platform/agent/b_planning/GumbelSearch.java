@@ -7,6 +7,7 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,6 @@ import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.drawActions;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelInfo.initGumbelInfo;
-import static ai.enpasos.muzero.platform.agent.b_planning.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.draw;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.common.Functions.toFloat;
@@ -64,6 +64,38 @@ public class GumbelSearch {
 
         rootChildrenCandidates = new HashMap<>();
         IntStream.range(0, this.gumbelInfo.getPhaseNum()).forEach(i -> rootChildrenCandidates.put(i, new ArrayList<>()));
+    }
+
+    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
+
+        game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
+
+        float[] policyTarget = new float[config.getActionSpaceSize()];
+        if (justPriorValues) {
+            root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());
+        } else if (root.getChildren().size() == 1) {
+            policyTarget[selectedAction.getIndex()] = 1f;
+        } else {
+
+            double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
+
+            double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
+
+            int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
+
+            int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+            double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
+
+            double[] improvedPolicy = softmax(raw);
+
+
+            for (int i = 0; i < raw.length; i++) {
+                int action = actions[i];
+                double v = improvedPolicy[i];
+                policyTarget[action] = (float) v;
+            }
+        }
+        game.getGameDTO().getPolicyTargets().add(policyTarget);
     }
 
 

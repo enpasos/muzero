@@ -17,15 +17,10 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.djl.Device;
-import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
-import ai.enpasos.muzero.platform.agent.c_model.Network;
-import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -101,8 +96,8 @@ public class GameProvider {
 
         modelService.loadLatestModel(epoch).join();
 
-            game.setEpoch(epoch);
-            measureValueAndSurprise(List.of(game));
+        game.setEpoch(epoch);
+        measureValueAndSurprise(List.of(game));
 
         return Optional.of(game);
 
