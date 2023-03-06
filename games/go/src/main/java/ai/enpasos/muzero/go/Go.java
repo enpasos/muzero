@@ -65,7 +65,7 @@ public class Go implements CommandLineRunner {
     private GoElo elo;
 
     public static void main(String[] args) {
-        SpringApplication.run(Go.class, args);
+        SpringApplication.run(Go.class, args).close();
     }
 
 

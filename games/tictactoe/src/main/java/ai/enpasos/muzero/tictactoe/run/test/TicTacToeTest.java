@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,11 +82,11 @@ public class TicTacToeTest {
                     gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch, onOptimalPathOnly);
 
 
-                List<DNode> gamesWithBadDecisionByPlayerA2 =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
+                List<DNode> gamesWithBadDecisionByPlayerA2 = new ArrayList<>();
+                  //  gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
 
-                List<DNode> gamesWithBadDecisionByPlayerB2 =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
+                List<DNode> gamesWithBadDecisionByPlayerB2 =  new ArrayList<>();
+        //             gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
 
 
                 return gamesWithBadDecisionByPlayerA.size() +

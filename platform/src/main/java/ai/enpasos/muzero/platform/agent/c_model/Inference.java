@@ -115,7 +115,6 @@ public class Inference {
     // TODO withRandomness
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, int epoch) {
         try {
-
             modelService.loadLatestModel(epoch).get();
             return aiDecision(withMCTS, games).stream().mapToInt(p -> p.getSecond() ).toArray();
         } catch (Exception e) {
@@ -310,7 +309,7 @@ public class Inference {
             } catch (ExecutionException e) {
                 throw new MuZeroException(e);
             }
-            modelService.endScope();
+
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);
                 List<Action> legalActions = game.legalActions();
@@ -332,9 +331,10 @@ public class Inference {
                 double aiValue = networkOutputList.get(g).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
+            modelService.endScope();
 
         } else {
-            System.out.println("Control Point 3");
+
             playService.playGames(games,
                 PlayParameters.builder()
                     .render(false)
@@ -345,7 +345,6 @@ public class Inference {
                     .replay(false)
                     .build());
 
-            System.out.println("Control Point 4");
             List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {

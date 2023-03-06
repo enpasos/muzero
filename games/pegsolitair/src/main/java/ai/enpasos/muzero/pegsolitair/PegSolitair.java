@@ -42,7 +42,7 @@ public class PegSolitair implements CommandLineRunner {
 
 
     public static void main(String[] args) {
-        SpringApplication.run(PegSolitair.class, args);
+        SpringApplication.run(PegSolitair.class, args).close();
     }
 
 

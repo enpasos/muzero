@@ -22,8 +22,6 @@ djl-pytorch-native-cu117 = { module = "ai.djl.pytorch:pytorch-native-cu117", ver
 djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", version.ref = "djl" }
 
 
-
-
 commons-math = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
 commons-csv = { module = "org.apache.commons:commons-csv", version = "1.10.0" }
 commons-cli = { module = "commons-cli:commons-cli", version = "1.5.0" }

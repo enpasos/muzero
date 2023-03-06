@@ -68,7 +68,7 @@ public class TicTacToe implements CommandLineRunner {
     private ModelService modelService;
 
     public static void main(String[] args) {
-        SpringApplication.run(TicTacToe.class, args);
+        SpringApplication.run(TicTacToe.class, args).close();
     }
 
 
@@ -119,6 +119,7 @@ public class TicTacToe implements CommandLineRunner {
             default:
         }
         modelService.shutdown();
+
 
 
     }
