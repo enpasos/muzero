@@ -123,18 +123,12 @@ public class Inference {
     }
 
     public double[][] getInMindValues(int epoch, int[] actions, int extra, int actionspace) {
-        try (Model model = Model.newInstance(config.getModelName())) {
-            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-                network.initActionSpaceOnDevice(nDManager);
-                network.setHiddenStateNDManager(nDManager);
-                return getInMindValues(network, actions, extra, actionspace);
-            }
-        }
+        modelService.loadLatestModel(epoch).join();
+        return getInMindValues( actions, extra, actionspace);
     }
 
 
-    private double[][] getInMindValues(Network network, int[] actions, int extra, int actionspace) {
+    private double[][] getInMindValues(  int[] actions, int extra, int actionspace) {
         double[][] values = new double[actions.length + 1][actions.length + 1 + extra];
         Game game = config.newGame();
         for (int t = 0; t <= actions.length; t++) {
