@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.c_model.service;
 
+import ai.djl.BaseModel;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.metric.Metric;
@@ -101,6 +102,7 @@ public class ModelController implements DisposableBean, Runnable {
             nDManager.close();
         if (network != null && network.getModel() != null)
             network.getModel().close();
+
     }
 
 
@@ -122,8 +124,6 @@ public class ModelController implements DisposableBean, Runnable {
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                             Map.ofEntries(entry("epoch", task.epoch + "")));
                     }
-                    network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
-                        Map.ofEntries(entry("epoch", task.epoch + "")));
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
                     network.setHiddenStateNDManager(nDManager);

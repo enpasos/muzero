@@ -54,9 +54,9 @@ public class PlayService {
         if (config.getPlayTypeKey() == REANALYSE) {
             reanalyseConfiguration(games);
         }
-        modelService.startScope().join();
+
         List<Game> resultGames =  playGames( games, playParameters);
-        modelService.endScope().join();
+     //   modelService.endScope().join();
         return resultGames;
     }
 
@@ -93,7 +93,7 @@ public class PlayService {
     public List<Game> playGames(  List<Game> games, PlayParameters playParameters ) {
         List<Game> gamesReturn = new ArrayList<>();
 
-
+        modelService.startScope();
 
             giveOneOfTheGamesADebugFlag(games);
             int gameLength = gameBuffer.getMaxGameLength();
@@ -120,6 +120,9 @@ public class PlayService {
                     throw new MuZeroException(e);
                 }
             }
+
+
+        modelService.endScope();
 
 
         return gamesReturn;

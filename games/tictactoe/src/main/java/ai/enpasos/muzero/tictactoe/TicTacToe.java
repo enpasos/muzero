@@ -120,7 +120,5 @@ public class TicTacToe implements CommandLineRunner {
         }
         modelService.shutdown();
 
-
-
     }
 }
