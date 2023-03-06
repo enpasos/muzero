@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.platform.agent.b_planning.service;
 
-import ai.djl.ndarray.NDScope;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
@@ -55,9 +54,36 @@ public class PlayService {
             reanalyseConfiguration(games);
         }
 
-        List<Game> resultGames =  playGames( games, playParameters);
-     //   modelService.endScope().join();
-        return resultGames;
+        return playGames( games, playParameters);
+    }
+
+    public List<Game> reanalyseGames(int numGames, PlayParameters playParameters, List<Game> games) {
+       // List<Game> games = new ArrayList<>();
+
+//        for (int i = 0; i < numGames; i++) {
+//            Game game = config.newGame();
+//            games.add(game);
+//        }
+//        games.stream().forEach(game -> {
+//            game.getGameDTO().setTdSteps(config.getTdSteps());
+//            game.setPlayTypeKey(this.config.getPlayTypeKey());
+//        });
+//
+        if (config.getPlayTypeKey() == REANALYSE) {
+            reanalyseConfiguration(games);
+        }
+
+        return  playGames( games, playParameters);
+    }
+
+    public List<Game> justReplayGamesWithInitialInference(List<Game> games) {
+
+        return  playGames( games,
+            PlayParameters.builder()
+            .render(false)
+            .fastRulesLearning(false)
+            .justReplayWithInitialReference(true)
+            .build());
     }
 
     private void hybridConfiguration(List<Game> games) {
