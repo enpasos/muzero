@@ -54,7 +54,10 @@ public class PlayService {
         if (config.getPlayTypeKey() == REANALYSE) {
             reanalyseConfiguration(games);
         }
-        return playGames( games, playParameters);
+        modelService.startScope().join();
+        List<Game> resultGames =  playGames( games, playParameters);
+        modelService.endScope().join();
+        return resultGames;
     }
 
     private void hybridConfiguration(List<Game> games) {
@@ -87,10 +90,10 @@ public class PlayService {
 
 
 
-    public List<Game> playGames(  List<Game> games, PlayParameters playParameters) {
+    public List<Game> playGames(  List<Game> games, PlayParameters playParameters ) {
         List<Game> gamesReturn = new ArrayList<>();
 
-        modelService.startScope();
+
 
             giveOneOfTheGamesADebugFlag(games);
             int gameLength = gameBuffer.getMaxGameLength();
@@ -118,7 +121,6 @@ public class PlayService {
                 }
             }
 
-        modelService.endScope();
 
         return gamesReturn;
     }

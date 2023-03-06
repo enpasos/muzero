@@ -75,24 +75,24 @@ public class TicTacToeTest {
                     gameTree.nodesWhereADecisionMattersForPlayerBOnOptimalPath.size()
                 );
 
-                List<DNode> gamesWithBadDecisionByPlayerA =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, false, inference, epoch, onOptimalPathOnly);
+//                List<DNode> gamesWithBadDecisionByPlayerA =
+//                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, false, inference, epoch, onOptimalPathOnly);
+//
+//                List<DNode> gamesWithBadDecisionPlayerB =
+//                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch, onOptimalPathOnly);
 
-                List<DNode> gamesWithBadDecisionPlayerB =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch, onOptimalPathOnly);
+//
+                List<DNode> gamesWithBadDecisionByPlayerA2 =
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
 
+//                List<DNode> gamesWithBadDecisionByPlayerB2 =
+//                     gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
+        return  0;
 
-                List<DNode> gamesWithBadDecisionByPlayerA2 = new ArrayList<>();
-                  //  gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
-
-                List<DNode> gamesWithBadDecisionByPlayerB2 =  new ArrayList<>();
-        //             gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
-
-
-                return gamesWithBadDecisionByPlayerA.size() +
-                    gamesWithBadDecisionPlayerB.size() +
-                    gamesWithBadDecisionByPlayerA2.size() +
-                    gamesWithBadDecisionByPlayerB2.size();
+//                return gamesWithBadDecisionByPlayerA.size() +
+//                    gamesWithBadDecisionPlayerB.size() +
+//                    gamesWithBadDecisionByPlayerA2.size() +
+//                    gamesWithBadDecisionByPlayerB2.size();
 
     }
 

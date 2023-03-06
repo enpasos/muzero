@@ -122,25 +122,6 @@ public class Inference {
             throw new MuZeroException(e);
         }
 
-
-//        int[] actionIndexesSelectedByNetwork;
-//
-//        try (Model model = Model.newInstance(config.getModelName())) {
-//
-//            Network network = new Network(config, model, Path.of(config.getNetworkBaseDir()), options);
-//
-//            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-//
-//                network.initActionSpaceOnDevice(nDManager);
-//                network.setHiddenStateNDManager(nDManager);
-//
-//                actionIndexesSelectedByNetwork = aiDecision(withMCTS, withRandomness, games).stream()
-//                    .mapToInt(Pair::getSecond).toArray();
-//
-//            }
-//
-//        }
-//        return actionIndexesSelectedByNetwork;
     }
 
     public double[][] getInMindValues(int epoch, int[] actions, int extra, int actionspace) {
@@ -301,7 +282,7 @@ public class Inference {
         List<Pair<Double, Integer>> result = new ArrayList<>();
 
         if (!withMCTS) {
-            modelService.startScope();
+         //   modelService.startScope();
             try {
                 networkOutputList = modelService.initialInference(games).get();
             } catch (InterruptedException e) {
@@ -331,7 +312,7 @@ public class Inference {
                 double aiValue = networkOutputList.get(g).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
-            modelService.endScope();
+        //    modelService.endScope();
 
         } else {
 

@@ -90,8 +90,17 @@ public class ModelController implements DisposableBean, Runnable {
             // Thread.currentThread().interrupt();
         } catch (Exception e) {
             log.error("ModelController error", e);
+        } finally {
+            close();
         }
         log.info("ModelController stopped.");
+    }
+
+    private void close() {
+        if (nDManager != null)
+            nDManager.close();
+        if (network != null && network.getModel() != null)
+            network.getModel().close();
     }
 
 
@@ -104,6 +113,7 @@ public class ModelController implements DisposableBean, Runnable {
         for (ControllerTask task : localControllerTaskList) {
             switch (task.getTaskType()) {
                 case loadLatestModel:
+                    close();
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
                     log.info("loadLatestModel with model name {}", config.getModelName());
                     if (task.epoch == -1) {
@@ -120,6 +130,7 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case loadLatestModelOrCreateIfNotExisting:
+                    close();
                     model = Model.newInstance(config.getModelName(), Device.gpu());
                     if (model.getBlock() == null) {
                         MuZeroBlock block = new MuZeroBlock(config);
