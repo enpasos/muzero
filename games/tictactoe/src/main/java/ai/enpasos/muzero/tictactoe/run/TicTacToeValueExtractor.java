@@ -59,7 +59,7 @@ public class TicTacToeValueExtractor {
 
         // a double mistake game
         int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-        int start = 1;
+        int start = 0;
         int stop =  replayBufferIO.getLatestNetworkEpoch();
 
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
