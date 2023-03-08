@@ -1,5 +1,8 @@
-# MuZero on DJL
+# branch one-thread
+whole custom java code is on one thread.
 
+
+# MuZero on DJL
 ## About
 
 We have implemented
