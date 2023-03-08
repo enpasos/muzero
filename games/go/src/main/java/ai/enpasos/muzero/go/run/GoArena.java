@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.go.run;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -55,7 +55,7 @@ public class GoArena {
         List<Game> runningGames = new ArrayList<>(gameList);
         String currentPlayer = startingPlayerA ? playerA : playerB;
         while (!runningGames.isEmpty()) {
-            move(runningGames, currentPlayer);
+          //  move(runningGames, currentPlayer);  // TODO
             runningGames = runningGames.stream().filter(g -> !g.terminal()).collect(Collectors.toList());
             currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         }
@@ -67,8 +67,8 @@ public class GoArena {
             .toArray();
     }
 
-    private void move(List<Game> games, String player) {
-        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("epoch", player)));
+    private void move(List<Game> games, int epoch) {
+        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, epoch);
         for (int g = 0; g < games.size(); g++) {
             games.get(g).apply(actionsSelectedByAI[g]);
         }

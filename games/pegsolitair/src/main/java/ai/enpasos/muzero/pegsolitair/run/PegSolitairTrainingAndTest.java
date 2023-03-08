@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 
 
 @Slf4j
@@ -26,9 +26,13 @@ public class PegSolitairTrainingAndTest {
 
         rmDir(config.getOutputDir());
 
-        muZero.train(TrainParams.builder()
-            .render(true)
-            .build());
+        try {
+            muZero.train(TrainParams.builder()
+                .render(true)
+                .build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

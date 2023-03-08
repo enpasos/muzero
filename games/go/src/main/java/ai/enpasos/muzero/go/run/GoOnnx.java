@@ -21,14 +21,14 @@ public class GoOnnx {
 
     public void run() {
 
-        config.setNetworkBaseDir("./memory/go5 - Kopie (2)/networks");
+       // config.setNetworkBaseDir("./memory/go5 - Kopie (2)/networks");
         int epoch = 685;
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();
         long hs = config.getNumChannels();
         long a = config.getNumActionLayers();
         long o = config.getNumObservationLayers();
-        long s = config.getNumChannelsOutputLayerSimilarity();
+        long s = config.getNumChannelsOutputLayerSimilarityProjector();
 
         List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
         List<Shape> inputPrediction = List.of(new Shape(1L, hs, w, h));

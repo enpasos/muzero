@@ -13,9 +13,6 @@ public class FileUtils {
     private FileUtils() {
     }
 
-
-
-
     public static boolean exists(String pathStr) {
         Path path = Paths.get(pathStr);
         return Files.exists(path);

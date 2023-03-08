@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +51,9 @@ public class TicTacToeFindNetworksDoingABadMove {
         config.setPlayTypeKey(PLAYOUT);
 
         int start = 1;
-        int stop = 1;   //1230;
+        int stop = 26;   //1230;
         //config.setOutputDir("./memory/tictactoe-without-exploration/");
-        config.setOutputDir("./memory/tictactoe/");
+   //     config.setOutputDir("./memory/tictactoe/");
 
 
 //        int start = 1;
@@ -73,7 +73,7 @@ public class TicTacToeFindNetworksDoingABadMove {
 
     private void findNetworkDoingBadAction(List<Integer> startingActions, int nextBadAction, int start, int stop, boolean withMCTS) {
         for (int epoch = start; epoch <= stop; epoch++) {
-            if (nextBadAction == inference.aiDecisionForGame(startingActions, withMCTS, Map.ofEntries(entry("epoch", epoch + "")))) {
+            if (nextBadAction == inference.aiDecisionForGame(startingActions, withMCTS, epoch)) {
                 log.info("epoch with bad action {}, withMCTS {}", epoch, withMCTS);
             }
         }

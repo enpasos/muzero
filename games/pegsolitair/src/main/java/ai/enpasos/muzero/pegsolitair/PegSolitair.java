@@ -5,6 +5,7 @@ import ai.enpasos.muzero.pegsolitair.run.PegSolitairOnnx;
 import ai.enpasos.muzero.pegsolitair.run.PegSolitairRenderGame;
 import ai.enpasos.muzero.pegsolitair.run.PegSolitairTrainingAndTest;
 import ai.enpasos.muzero.pegsolitair.run.PegSolitairValueExtractor;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,12 @@ public class PegSolitair implements CommandLineRunner {
     @Autowired
     private PegSolitairOnnx onnx;
 
+    @Autowired
+    private ModelService modelService;
+
 
     public static void main(String[] args) {
-        SpringApplication.run(PegSolitair.class, args);
+        SpringApplication.run(PegSolitair.class, args).close();
     }
 
 
@@ -63,7 +67,10 @@ public class PegSolitair implements CommandLineRunner {
                 valueExtractor.run();
                 break;
             case NONE:
+                return;
             default:
         }
+
+       modelService.shutdown();
     }
 }

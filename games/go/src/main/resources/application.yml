@@ -5,7 +5,7 @@ logging:
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: WARN
-    ai.enpasos: INFO
+    ai.enpasos: DEBUG
 
 muzero:
   activeGame: GO_5
@@ -77,8 +77,11 @@ muzero:
       numberOfTrainingSteps: 1000000
     #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
-      numChannelsHiddenLayerSimilarity: 512
-      numChannelsOutputLayerSimilarity: 1024
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
 
       offPolicyCorrectionOn: true
       allOrNothingOn: true
@@ -111,14 +114,14 @@ muzero:
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
           temperatureRoot: 2.0
           gumbelActionSelection: false
-        REANALYSE:
-          forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 500
-          tdSteps: 10000
-          numSimulations: 30
-          rootDirichletAlpha: 0.4
-          rootExplorationFraction: 0.25  # 0.0 means switched off
+#        REANALYSE:
+#          forTraining: true
+#          numEpisodes: 2
+#          numParallelGamesPlayed: 500
+#          tdSteps: 10000
+#          numSimulations: 30
+#          rootDirichletAlpha: 0.4
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 #        BEST_EFFORT:
 #          forTraining: true
@@ -206,8 +209,10 @@ muzero:
       numberOfTrainingSteps: 1000000
       #  numberOfEpisodesPerJVMStart: 40 # 50 would be ok
 
-      numChannelsHiddenLayerSimilarity: 512
-      numChannelsOutputLayerSimilarity: 1024
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
 
 
       offPolicyCorrectionOn: true

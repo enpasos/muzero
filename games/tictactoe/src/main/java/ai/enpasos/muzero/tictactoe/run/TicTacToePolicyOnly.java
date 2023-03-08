@@ -24,12 +24,14 @@ public class TicTacToePolicyOnly {
     private MuZero muZero;
 
     public void run() {
-
+try{
         muZero.train(TrainParams.builder()
             .render(true)
             .freshBuffer(true)
             .build());
-
+} catch (Exception e) {
+    e.printStackTrace();
+}
 
     }
 

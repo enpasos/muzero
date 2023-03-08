@@ -19,9 +19,8 @@ package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
+import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,8 +42,6 @@ public class TicTacToeTest {
     @Autowired
     MuZeroConfig config;
 
-    @Autowired
-    SelfPlay selfPlay;
 
     @Autowired
     Inference inference;
@@ -63,13 +61,6 @@ public class TicTacToeTest {
     }
 
     public int findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-
-            Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-
-                network.setHiddenStateNDManager(nDManager);
-                network.initActionSpaceOnDevice(nDManager);
 
                 log.info("nodes where a decision matters for player X {}, for player O {}",
                     gameTree.nodesWhereADecisionMattersForPlayerA.size(),
@@ -92,16 +83,14 @@ public class TicTacToeTest {
                     gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
 
                 List<DNode> gamesWithBadDecisionByPlayerB2 =
-                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
+                     gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
 
 
                 return gamesWithBadDecisionByPlayerA.size() +
                     gamesWithBadDecisionPlayerB.size() +
                     gamesWithBadDecisionByPlayerA2.size() +
                     gamesWithBadDecisionByPlayerB2.size();
-            }
 
-        }
     }
 
     @NotNull

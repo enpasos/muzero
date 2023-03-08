@@ -17,13 +17,10 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.djl.Device;
-import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -54,7 +51,10 @@ public class GameProvider {
 
 
     @Autowired
-    SelfPlay selfPlay;
+    PlayService playService;
+
+    @Autowired
+    ModelService modelService;
 
 
     @NotNull
@@ -92,36 +92,31 @@ public class GameProvider {
 
         Game game = this.config.newGame();
         game.apply(actions);
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            Network network = null;
-            if (epoch == -1) {
-                network = new Network(config, model);
-            } else {
-                network = new Network(config, model, Paths.get(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
-            }
-            game.setEpoch(NetworkHelper.getEpochFromModel(network.getModel()));
-            measureValueAndSurprise(network, List.of(game));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+
+
+        modelService.loadLatestModel(epoch).join();
+
+        game.setEpoch(epoch);
+        measureValueAndSurprise(List.of(game));
+
         return Optional.of(game);
 
     }
 
 
-    public void measureValueAndSurprise(Network network, List<Game> games) {
+    public void measureValueAndSurprise(List<Game> games) {
         games.forEach(Game::beforeReplayWithoutChangingActionHistory);
-        measureValueAndSurpriseMain(network, games);
+        measureValueAndSurpriseMain(games);
         games.forEach(Game::afterReplay);
     }
 
-    private void measureValueAndSurpriseMain(Network network, List<Game> games) {
+    private void measureValueAndSurpriseMain(List<Game> games) {
         List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
         List<Game> resultGames = new ArrayList<>();
         int i = 1;
         for (List<Game> gameList : gameBatches) {
             log.debug("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
-            resultGames.addAll(selfPlay.justReplayGamesWithInitialInference(network, gameList));
+            resultGames.addAll(playService.justReplayGamesWithInitialInference(gameList));
         }
 
     }

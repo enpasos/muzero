@@ -23,9 +23,9 @@ import ai.djl.ndarray.NDList;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.intuitive.Observation;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.c_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

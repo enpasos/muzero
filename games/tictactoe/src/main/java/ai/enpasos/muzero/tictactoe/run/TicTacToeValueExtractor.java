@@ -17,12 +17,10 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.memorize.GameBufferIO;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBufferIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +59,8 @@ public class TicTacToeValueExtractor {
 
         // a double mistake game
         int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-        int start = 1;
+        int start = 0;
         int stop =  replayBufferIO.getLatestNetworkEpoch();
-
-
-
-
 
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 

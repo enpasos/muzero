@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe.run;
 
 
-import ai.enpasos.muzero.platform.agent.memorize.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.RenderGame;
 import org.springframework.beans.factory.annotation.Autowired;

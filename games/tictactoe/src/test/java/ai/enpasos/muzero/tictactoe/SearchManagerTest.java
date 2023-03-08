@@ -22,11 +22,12 @@ import ai.djl.MalformedModelException;
 import ai.djl.Model;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.GumbelSearch;
+import ai.enpasos.muzero.platform.agent.c_model.Network;
+import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.b_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ConstantConditions")
@@ -52,9 +55,18 @@ class SearchManagerTest {
     @Autowired
     MuZeroConfig config;
 
+    @Autowired
+    ModelService modelService;
+
+
+    private void init() throws InterruptedException, ExecutionException {
+        config.setOutputDir("./build/tictactoeTest/");
+        rmDir(config.getOutputDir());
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
+    }
+
     @Test
     void searchManagerTest() {
-        config.setNetworkBaseDir("./pretrained");
         int n = 200;
         config.setNumSimulations(  n);
         config.setCVisit(16);
@@ -62,28 +74,16 @@ class SearchManagerTest {
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         game.initSearchManager(0);
         GumbelSearch searchManager = game.getSearchManager();
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            MuZeroBlock block = new MuZeroBlock(config);
-            model.setBlock(block);
-            model.load(Paths.get(config.getNetworkBaseDir()));
-            Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-                List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
-                network.setActionSpaceOnDevice(actionSpaceOnDevice);
-                network.createAndSetHiddenStateNDManager(nDManager, true);
-                List<NetworkIO> networkOutput = network.initialInferenceListDirect(List.of(game));
-                searchManager.expandRootNode(false, networkOutput.get(0));
-                searchManager.gumbelActionsStart(true);
-                for (int i = 0; i < 2 * n; i++) {
-                    System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
-                    assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations( )) ||
-                        (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations( )));
-                    searchManager.next();
-                }
-            }
-        } catch (MalformedModelException | IOException e) {
-            e.printStackTrace();
+        NetworkIO networkIO = modelService.initialInference(game).join();
+        searchManager.expandRootNode(false, networkIO);
+        searchManager.gumbelActionsStart(true);
+        for (int i = 0; i < 2 * n; i++) {
+            System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
+            assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
+                (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
+            searchManager.next();
         }
+
 
     }
 }

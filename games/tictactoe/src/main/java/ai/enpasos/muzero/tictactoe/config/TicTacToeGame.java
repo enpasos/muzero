@@ -17,13 +17,13 @@
 
 package ai.enpasos.muzero.tictactoe.config;
 
-import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
-import ai.enpasos.muzero.platform.agent.intuitive.Observation;
-import ai.enpasos.muzero.platform.agent.memorize.GameDTO;
-import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.agent.rational.Node;
-import ai.enpasos.muzero.platform.agent.rational.Player;
+import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.c_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.b_planning.Action;
+import ai.enpasos.muzero.platform.agent.b_planning.Node;
+import ai.enpasos.muzero.platform.agent.b_planning.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -210,17 +210,17 @@ public class TicTacToeGame extends ZeroSumGame {
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
             float value = 0f;
-            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
+            value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElse(new Node(config, 0f)).getPrior();
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
         log.info(EnvironmentBase.render(config, values));
-        if (boardSize < config.getActionSpaceSize()) {
-            Action a = config.newAction(boardSize);
-            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
-            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
-        }
+//        if (boardSize < config.getActionSpaceSize()) {
+//            Action a = config.newAction(boardSize);
+//            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
+//            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
+//        }
     }
 
 
