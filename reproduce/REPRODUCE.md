@@ -23,3 +23,12 @@
 gradlew build
 ```
 
+
+## Run 1
+
+Hybrid Policy
+Epochs: 50000/40 = 1250
+
+```
+java -jar games/tictactoe/build/libs/tictactoe-0.5.0-SNAPSHOT-exec.jar --spring.config.location=file:./reproduce/run1/
+```
