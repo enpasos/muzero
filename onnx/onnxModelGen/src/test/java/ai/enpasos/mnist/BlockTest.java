@@ -29,6 +29,17 @@ class BlockTest {
         Assertions.assertTrue(check);
     }
 
+    void layerNorm2ZERO2() throws Exception {
+        boolean check =
+            compareOnnxWithDJL(
+                "./build/LayerNorm2.onnx",
+                LayerNormExt.builder().build(),
+                List.of(new Shape(1, 500)),
+                ZERO
+            );
+        Assertions.assertTrue(check);
+    }
+
 
     @Test
     void layerNorm2RANDOM() throws Exception {
@@ -41,7 +52,17 @@ class BlockTest {
             );
         Assertions.assertTrue(check);
     }
-
+    @Test
+    void layerNorm2RANDOM2() throws Exception {
+        boolean check =
+            compareOnnxWithDJL(
+                "./build/LayerNorm2.onnx",
+                LayerNormExt.builder().build(),
+                List.of(new Shape(1, 500)),
+                RANDOM
+            );
+        Assertions.assertTrue(check);
+    }
     @Test
     void layerNormZERO() throws Exception {
         boolean check =

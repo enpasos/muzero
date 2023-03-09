@@ -82,7 +82,7 @@ public class LayerNormExt extends LayerNorm implements OnnxIO {
                     .addAttribute(AttributeProto.newBuilder()
                         .setType(AttributeProto.AttributeType.INT)
                         .setName("axis")
-                        .setI(-3)
+                        .setI(1)
                         .build())
                     .addInput(input.get(0).getName())
                     .addInput(gammaName)
