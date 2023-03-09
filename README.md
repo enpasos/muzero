@@ -1,4 +1,4 @@
-# MuZero on DJL
+# MuZero implemented in Java based on DJL and PyTorch
 
 ## About
 

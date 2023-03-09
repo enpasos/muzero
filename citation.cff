@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "MuZero implemented in Java based on DJL and PyTorch"
+authors:
+- family-names: "Unverzagt"
+  given-names: "Matthias"
+  orcid: "https://orcid.org/0009-0006-6685-2208"
+doi: 10.5281/zenodo.7711864
+date-released: 2023-03-09
+message: "If you use this implementation in your research, please cite it using these metadata."
+url: "https://github.com/enpasos/muzero"
