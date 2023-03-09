@@ -37,7 +37,7 @@ gradlew build
 ## Run integration test on tictactoc
 
 ``` 
-java -jar games/tictactoe/build/libs/tictactoe-0.5.0-SNAPSHOT-exec.jar  
+java -jar games/tictactoe/build/libs/tictactoe-0.5.0-exec.jar  
 ```
 
 ## Further info
