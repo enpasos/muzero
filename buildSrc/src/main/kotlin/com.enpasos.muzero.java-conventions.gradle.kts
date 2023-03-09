@@ -23,7 +23,7 @@ repositories {
 }
 
 group = "com.enpasos.muzero"
-version = "0.5.0"
+version = "0.6.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 publishing {
