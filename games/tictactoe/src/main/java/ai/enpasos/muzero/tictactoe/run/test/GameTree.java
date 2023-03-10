@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.tictactoe.run.test;
 
-import ai.enpasos.muzero.platform.agent.c_model.Inference;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Map.entry;
 
 @Slf4j
 public class GameTree {

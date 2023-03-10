@@ -10,9 +10,9 @@ muzero:
   games:
     TEST:
       modelName: MuZero-Test
-      gameClassName: ai.enpasos.muzero.platform.agent.d_experience.TestGame
+      gameClassName: ai.enpasos.muzero.platform.agent.e_experience.TestGame
 
-      actionClassName: ai.enpasos.muzero.platform.agent.d_experience.TestAction
+      actionClassName: ai.enpasos.muzero.platform.agent.e_experience.TestAction
       playerMode: TWO_PLAYERS
       networkType: CON  # CON or FC
       networkWithRewardHead: false

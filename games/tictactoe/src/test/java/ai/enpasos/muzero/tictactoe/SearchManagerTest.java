@@ -17,17 +17,10 @@
 
 package ai.enpasos.muzero.tictactoe;
 
-import ai.djl.Device;
-import ai.djl.MalformedModelException;
-import ai.djl.Model;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.c_model.Network;
-import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.b_planning.GumbelSearch;
+import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,13 +29,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ConstantConditions")

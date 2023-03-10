@@ -17,13 +17,13 @@
 
 package ai.enpasos.muzero.tictactoe.config;
 
-import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.c_model.Observation;
-import ai.enpasos.muzero.platform.agent.d_experience.GameDTO;
-import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
-import ai.enpasos.muzero.platform.agent.b_planning.Player;
+import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;

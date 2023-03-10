@@ -1,12 +1,11 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.platform.agent.c_model.Inference;
-import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.train.MuZero;
-import org.junit.jupiter.api.Disabled;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 

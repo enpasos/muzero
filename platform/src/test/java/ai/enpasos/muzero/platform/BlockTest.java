@@ -2,9 +2,9 @@ package ai.enpasos.muzero.platform;
 
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
-import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.d_lowerlevel.BottleneckResidualBlock;
-import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.d_lowerlevel.ResidualTower;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.BottleneckResidualBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;

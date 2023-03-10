@@ -1,9 +1,9 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.c_model.Inference;
-import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.train.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
