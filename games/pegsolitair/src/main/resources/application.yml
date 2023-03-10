@@ -10,7 +10,6 @@ muzero:
       outputDir: ./memory/pegsolitair/
       values: [ -25,25 ]
 
-      numEpisodes: 1
       numSimulations: 100
       numParallelGamesPlayed: 1000
 

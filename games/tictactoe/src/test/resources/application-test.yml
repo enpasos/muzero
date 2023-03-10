@@ -13,7 +13,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      networkType: CON  # CON or FC
       networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
@@ -91,7 +90,6 @@ muzero:
           gumbelActionSelection: true
         HYBRID:
           forTraining: true
-          numEpisodes: 1 # TODO rethink the naming
           numParallelGamesPlayed: 10
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
@@ -114,7 +112,6 @@ muzero:
 
 #        REANALYSE:
 #          forTraining: true
-#          numEpisodes: 1
 #          numParallelGamesPlayed: 1000
 #          tdSteps: 0
 #          numSimulations: 20
@@ -124,7 +121,6 @@ muzero:
 #          rootExplorationFraction: 0.25  # 0.0 means switched off
 #        BEST_EFFORT:
 #          forTraining: true
-#          numEpisodes: 1
 #          numParallelGamesPlayed: 1000
 #          tdSteps: 9 # 9 # size * size
 #          numSimulations: 20

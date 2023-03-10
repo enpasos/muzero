@@ -8,7 +8,7 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
-    # ai.enpasos.muzero.platform.agent.c_model.service.ModelController: INFO
+    # ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
     ai.djl: INFO
 
 muzero:
@@ -20,7 +20,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      networkType: CON  # CON or FC
       networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
@@ -95,7 +94,6 @@ muzero:
           gumbelActionSelection: true
         HYBRID:
           forTraining: true
-          numEpisodes: 1 # TODO rethink the naming
           numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
@@ -117,7 +115,6 @@ muzero:
 
         REANALYSE:
           forTraining: true
-          numEpisodes: 1
           numParallelGamesPlayed: 500
           tdSteps: 9
           numSimulations: 20
@@ -130,7 +127,6 @@ muzero:
 
 #        BEST_EFFORT:
 #          forTraining: true
-#          numEpisodes: 1
 #          numParallelGamesPlayed: 1000
 #          tdSteps: 9 # 9 # size * size
 #          numSimulations: 20

@@ -5,7 +5,6 @@ import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.BottleneckResidualBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
-import ai.enpasos.muzero.platform.config.NetworkType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -98,7 +97,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(NetworkType.CON,   128, true, 9 ),
+            new PredictionBlock(128, true, 9 ),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -111,7 +110,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(NetworkType.CON,  128, true, 9 ),
+            new PredictionBlock(128, true, 9 ),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

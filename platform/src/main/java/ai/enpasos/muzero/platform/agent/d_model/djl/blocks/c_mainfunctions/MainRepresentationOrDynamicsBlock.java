@@ -21,7 +21,6 @@ import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.NetworkType;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
@@ -36,17 +35,12 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getNetworkType(), config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannels(), config.getNumBottleneckChannels(), broadcastEveryN);
+        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannels(), config.getNumBottleneckChannels(), broadcastEveryN);
     }
 
     @java.lang.SuppressWarnings("java:S107")
-    public MainRepresentationOrDynamicsBlock(NetworkType networkType, int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN) {
-        this
-//                .add(inputChannelsEqualsNumChannels ?
-//                    new StartResidualBlock(numChannels) :
-//                    Conv3x3.builder().channels(numChannels).build()
-//                    )
-            .add(ResidualTower.builder()
+    public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN) {
+        this.add(ResidualTower.builder()
                 .numResiduals(numResiduals)
                 .numChannels(numChannels)
                 .numBottleneckChannels(numBottleneckChannels)

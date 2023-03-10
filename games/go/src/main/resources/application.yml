@@ -96,8 +96,7 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 500
+          numParallelGamesPlayed: 1000
           tdSteps:  10000
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
@@ -116,8 +115,7 @@ muzero:
           gumbelActionSelection: false
 #        REANALYSE:
 #          forTraining: true
-#          numEpisodes: 2
-#          numParallelGamesPlayed: 500
+#          numParallelGamesPlayed: 1000
 #          tdSteps: 10000
 #          numSimulations: 30
 #          rootDirichletAlpha: 0.4
@@ -125,7 +123,6 @@ muzero:
 
 #        BEST_EFFORT:
 #          forTraining: true
-#          numEpisodes: 1
 #          numParallelGamesPlayed: 500
 #          tdSteps: 10000
 #          numSimulations: 30
@@ -228,8 +225,7 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 250
+          numParallelGamesPlayed: 500
           tdSteps:  10000
           forTdStep0ValueTraining: false
           forTdStep0PolicyTraining: true
@@ -243,16 +239,14 @@ muzero:
           gumbelActionSelection: false
         REANALYSE:
           forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 250
+          numParallelGamesPlayed: 500
           tdSteps: 10000
           numSimulations: 50
           rootDirichletAlpha: 0.1
           rootExplorationFraction: 0.25  # 0.0 means switched off
         BEST_EFFORT:
           forTraining: true
-          numEpisodes: 2
-          numParallelGamesPlayed: 250
+          numParallelGamesPlayed: 500
           tdSteps:  10000
           numSimulations: 50
           rootExplorationFraction: 0.0  # 0.0 means switched off

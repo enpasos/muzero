@@ -274,9 +274,7 @@ public class MuZeroConfig {
         return getConf().knownBoundsType;
     }
 
-    public NetworkType getNetworkType() {
-        return getConf().networkType;
-    }
+
 
 
     public DeviceType getInferenceDeviceType() {
@@ -309,9 +307,6 @@ public class MuZeroConfig {
         getConf().setOutputDir(outputDir);
     }
 
-    public int getNumEpisodes() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numEpisodes;
-    }
 
     public int getInitialGumbelM() {
         return getConf().initialGumbelM;
@@ -457,7 +452,7 @@ public class MuZeroConfig {
 
         protected double numSimThreshold;
 
-        protected NetworkType networkType = NetworkType.CON;
+
         protected String modelName;
         protected String gameClassName;
         protected String actionClassName;
@@ -534,7 +529,7 @@ double offPolicyRatioLimit;
 
         @Data
         public static class PlayType {
-            protected int numEpisodes;
+
             protected int numParallelGamesPlayed;
 
             protected boolean forTdStep0ValueTraining = true;

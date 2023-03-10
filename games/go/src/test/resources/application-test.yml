@@ -82,7 +82,6 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numEpisodes: 1
           numParallelGamesPlayed: 10
           tdSteps:  10000
           forTdStep0ValueTraining: false
@@ -103,7 +102,6 @@ muzero:
 
 #        BEST_EFFORT:
 #          forTraining: true
-#          numEpisodes: 1
 #          numParallelGamesPlayed: 500
 #          tdSteps: 10000
 #          numSimulations: 30
