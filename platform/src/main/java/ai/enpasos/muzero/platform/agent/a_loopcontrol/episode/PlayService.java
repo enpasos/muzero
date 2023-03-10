@@ -63,6 +63,10 @@ public class PlayService {
             game.getGameDTO().setMaxEntropies(new ArrayList<>());
             game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
             game.getGameDTO().setActions(new ArrayList<>());
+            game.getGameDTO().setRewards(new ArrayList<>());
+            game.getGameDTO().setObservations(new ArrayList<>());
+            game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(0));
+
         });
 
         return playGames(games, playParameters);

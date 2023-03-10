@@ -197,12 +197,14 @@ private boolean reanalyse;
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
         this.getGameDTO().getRewards().add(reward);
-        this.getGameDTO().getObservations().add(this.environment.getObservation());
         this.getGameDTO().getActions().add(action.getIndex());
-         setActionApplied(true);
+        this.getGameDTO().getObservations().add(this.environment.getObservation());
+        setActionApplied(true);
     }
     public void pseudoApplyFromOriginalGame(Action action) {
         this.getGameDTO().getActions().add(action.getIndex());
+        this.getGameDTO().getRewards().add(this.getOriginalGameDTO().getRewards().get(this.getGameDTO().getRewards().size()));
+        this.getGameDTO().getObservations().add(this.getOriginalGameDTO().getObservations().get(this.getGameDTO().getObservations().size()));
         setActionApplied(true);
     }
 
