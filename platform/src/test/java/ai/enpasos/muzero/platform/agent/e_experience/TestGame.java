@@ -19,9 +19,9 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.Observation;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Player;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

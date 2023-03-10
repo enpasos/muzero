@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.agent.d_model;
 
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

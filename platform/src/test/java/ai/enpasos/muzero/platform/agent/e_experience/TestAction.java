@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

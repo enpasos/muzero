@@ -1,15 +1,15 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.PlayParameters;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.service.PlayService;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.service.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayParameters;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayService;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.SelfPlayGame;
 import ai.enpasos.muzero.platform.agent.d_model.djl.NetworkHelper;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelQueue;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +44,7 @@ class PlayTest {
 
 
     @Autowired
-    MuZero muzero;
+    MuZeroLoop muzero;
 
 
     @Autowired

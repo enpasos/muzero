@@ -3,7 +3,7 @@ package ai.enpasos.muzero.pegsolitair.config;
 import ai.enpasos.muzero.pegsolitair.config.environment.Direction;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
 import ai.enpasos.muzero.pegsolitair.config.environment.Point;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 
 import java.util.ArrayList;

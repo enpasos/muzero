@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;

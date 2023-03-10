@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

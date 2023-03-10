@@ -18,8 +18,8 @@
 package ai.enpasos.muzero.platform.agent.c_planning;
 
 import ai.djl.ndarray.NDArray;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Player;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.common.Functions;
 import ai.enpasos.muzero.platform.common.MuZeroException;

@@ -38,7 +38,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.Repre
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;

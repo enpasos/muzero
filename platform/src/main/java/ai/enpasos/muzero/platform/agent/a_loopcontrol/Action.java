@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform.agent.a_loopcontrol.play;
+package ai.enpasos.muzero.platform.agent.a_loopcontrol;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;

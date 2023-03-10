@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.environment;
 
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 
 import java.util.List;
 

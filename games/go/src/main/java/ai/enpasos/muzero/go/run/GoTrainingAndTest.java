@@ -2,7 +2,7 @@ package ai.enpasos.muzero.go.run;
 
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.TrainParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class GoTrainingAndTest {
     @Autowired
     private MuZeroConfig config;
     @Autowired
-    private MuZero muZero;
+    private MuZeroLoop muZero;
 
 
     @SuppressWarnings({"squid:S125", "java:S2583", "java:S2589"})

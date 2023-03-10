@@ -2,7 +2,7 @@ package ai.enpasos.muzero.pegsolitair.run;
 
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.TrainParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class PegSolitairTrainingAndTest {
 
 
     @Autowired
-    private MuZero muZero;
+    private MuZeroLoop muZero;
 
     public void run() {
 

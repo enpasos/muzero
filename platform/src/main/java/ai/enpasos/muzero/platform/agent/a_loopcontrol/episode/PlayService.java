@@ -1,9 +1,8 @@
-package ai.enpasos.muzero.platform.agent.a_loopcontrol.play.service;
+package ai.enpasos.muzero.platform.agent.a_loopcontrol.episode;
 
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.PlayParameters;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;

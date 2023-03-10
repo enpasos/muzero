@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.a_loopcontrol.play;
+package ai.enpasos.muzero.platform.agent.a_loopcontrol.episode;
 
 import lombok.Builder;
 import lombok.Data;

@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.service.PlayService;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayService;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;

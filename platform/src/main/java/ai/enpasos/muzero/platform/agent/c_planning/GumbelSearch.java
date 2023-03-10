@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.platform.agent.c_planning;
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Action;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.Player;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;

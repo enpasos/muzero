@@ -5,7 +5,7 @@ import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ class GoInferenceTest {
     MuZeroConfig config;
 
     @Autowired
-    private MuZero muZero;
+    private MuZeroLoop muZero;
 
     @Autowired
     ModelService modelService;

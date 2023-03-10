@@ -3,7 +3,7 @@ package ai.enpasos.muzero.tictactoe;
 import ai.enpasos.muzero.platform.agent.d_model.Inference;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ class ActionDecisionTest {
     MuZeroConfig config;
 
     @Autowired
-    private MuZero muZero;
+    private MuZeroLoop muZero;
 
     @Autowired
     ModelService modelService;

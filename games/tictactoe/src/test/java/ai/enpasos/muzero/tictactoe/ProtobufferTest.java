@@ -2,14 +2,15 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.PlayParameters;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.play.service.PlayService;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Play;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayParameters;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayService;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,10 @@ class ProtobufferTest {
     MuZeroConfig config;
 
     @Autowired
-    MuZero muZero;
+    MuZeroLoop muZero;
+
+    @Autowired
+    Play play;
 
 
     @Autowired
@@ -55,7 +59,7 @@ class ProtobufferTest {
 
     private void writeAndReadTest() {
         config.setOutputDir("./build/tictactoeTest/");
-        muZero.deleteNetworksAndGames();
+        play.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
             List<Game> games =   playService.playNewGames( 1,

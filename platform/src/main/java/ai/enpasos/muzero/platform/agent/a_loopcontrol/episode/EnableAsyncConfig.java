@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.a_loopcontrol.play.service;
+package ai.enpasos.muzero.platform.agent.a_loopcontrol.episode;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
