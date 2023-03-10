@@ -2,7 +2,7 @@ package ai.enpasos.muzero.tictactoe.run;
 
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.train.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZero;
 import ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

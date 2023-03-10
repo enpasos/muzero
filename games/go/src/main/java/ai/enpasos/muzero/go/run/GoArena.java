@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.go.run;
 
-import ai.enpasos.muzero.platform.agent.c_model.Inference;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -11,11 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Map.entry;
 
 @Component
 @Slf4j

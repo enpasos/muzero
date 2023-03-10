@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.enpasos.muzero.platform.agent.c_model.Inference;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;

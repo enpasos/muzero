@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 
-import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
