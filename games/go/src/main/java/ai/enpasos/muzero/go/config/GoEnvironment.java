@@ -55,7 +55,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     }
 
     @Override
-    public @NotNull List<Action> legalActions() {
+    public @NotNull List<Action> getLegalActions() {
         return state.getValidMoves().stream()
             .filter(m -> !(m instanceof Resign))  // muzero is not resigning :-)
             .map(move -> translate(this.config, move)).collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
 
         float reward = 0f;
 
-        if (terminal()) {
+        if (isTerminal()) {
             setResult(GameResult.apply(state.getBoard(), 6.5f));
             log.debug(getResult().toString());
             reward = (float) getResult().blackPoints() - getResult().whitePoints();
@@ -106,18 +106,19 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     }
 
     @Override
-    public int[][] currentImage() {
-        throw new NotImplementedException("swapPlayer() is not implemented");
+    public float[] getObservation() {
+
+        return GoAdapter.translateToObservation(config,  history.get(history.size() -1));
     }
 
     @Override
-    public boolean terminal() {
+    public boolean isTerminal() {
         return this.state.isOver();
     }
 
     @Override
     public boolean hasPlayerWon(OneOfTwoPlayer player) {
-        if (!terminal()) return false;
+        if (!isTerminal()) return false;
         return player == translate(getResult().winner());
     }
 

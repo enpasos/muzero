@@ -80,24 +80,21 @@ public class EnvironmentBase implements Environment {
     }
 
     @Override
-    public int[][] currentImage() {
+    public float[] getObservation() {
         throw new NotImplementedException("currentImage() not implemented, yet.");
     }
 
     @Override
-    public boolean terminal() {
+    public boolean isTerminal() {
         throw new NotImplementedException("terminal() not implemented, yet.");
     }
 
     @Override
-    public @NotNull List<Action> legalActions() {
+    public @NotNull List<Action> getLegalActions() {
         throw new NotImplementedException("legalActions() not implemented, yet.");
     }
 
-    @Override
-    public @NotNull List<Action> allActionsInActionSpace() {
-        throw new NotImplementedException("allActionsInActionSpace() not implemented, yet.");
-    }
+
 
 
 }

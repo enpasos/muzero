@@ -24,7 +24,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,8 +77,8 @@ public class NaiveInitialInferenceListTranslator implements Translator<List<Game
     public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Game> gameList) {
 
 
-        List<Observation> observations = gameList.stream()
-            .map(Game::getObservation)
+        List<ObservationModelInput> observations = gameList.stream()
+            .map(Game::getObservationModelInput)
             .collect(Collectors.toList());
 
         return new NDList(NDArrays.stack(new NDList(

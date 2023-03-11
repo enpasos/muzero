@@ -72,7 +72,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     }
 
     @Override
-    public @NotNull List<Action> legalActions() {
+    public @NotNull List<Action> getLegalActions() {
         List<Action> legal = new ArrayList<>();
         for (int col = 0; col < config.getBoardWidth(); col++) {
             for (int row = 0; row < config.getBoardHeight(); row++) {
@@ -85,12 +85,12 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     }
 
     @Override
-    public int[][] currentImage() {
-        return this.board;
+    public float[] getObservation() {
+        return TicTacToeAdapter.translateToObservation(config, board);
     }
 
     @Override
-    public boolean terminal() {
+    public boolean isTerminal() {
         return hasPlayerWon(OneOfTwoPlayer.PLAYER_A) || hasPlayerWon(OneOfTwoPlayer.PLAYER_B);
     }
 
@@ -103,7 +103,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
         return render(config, preRender());
     }
 
-    public boolean checkIfPlayerHasWon(@NotNull OneOfTwoPlayer player, int[][] b) {
+    private boolean checkIfPlayerHasWon(@NotNull OneOfTwoPlayer player, int[][] b) {
         int p = player.getValue();
         return horizontalCheck(b, p)
             || verticalCheck(b, p)

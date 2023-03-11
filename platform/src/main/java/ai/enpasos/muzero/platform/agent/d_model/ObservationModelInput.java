@@ -26,11 +26,11 @@ import org.jetbrains.annotations.NotNull;
 
 @Data
 @EqualsAndHashCode
-public class Observation {
+public class ObservationModelInput {
     private float[] value;
     private long[] shape;
 
-    public Observation(float[] value, long[] shape) {
+    public ObservationModelInput(float[] value, long[] shape) {
         this.value = value;
         this.shape = shape;
     }

@@ -32,9 +32,10 @@ public class SelfPlayGame {
 
         game.getGameDTO().setTdSteps(config.getTdSteps());
 
+        boolean replay = playParameters.isReplay() || playParameters.isJustReplayWithInitialReference();
 
         int count = 1;
-        while ( (!untilEnd && count == 1) || (untilEnd && !game.isDone()) ) {
+        while ( (!untilEnd && count == 1) || (untilEnd && !game.isDone(replay)) ) {
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
@@ -48,6 +49,7 @@ public class SelfPlayGame {
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);
         }
+        if (untilEnd) game.setEnvironment(null);
 
     }
 

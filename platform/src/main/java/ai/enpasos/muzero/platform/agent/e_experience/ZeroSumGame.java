@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
@@ -17,17 +18,13 @@ public abstract class ZeroSumGame extends Game {
         super(config, gameDTO);
     }
 
-    public Optional<OneOfTwoPlayer> whoWonTheGame() {
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A)) return Optional.of(OneOfTwoPlayer.PLAYER_A);
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B)) return Optional.of(OneOfTwoPlayer.PLAYER_B);
-        return Optional.empty();
+
+    public @NotNull ObservationModelInput getObservationModelInput() {
+        return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
     }
 
-    public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
-        EnvironmentZeroSumBase env = this.getEnvironment();
-        // won or draw but not lost
-        return !env.hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
-    }
+
+
 
     @Override
     public EnvironmentZeroSumBase getEnvironment() {

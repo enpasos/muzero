@@ -20,7 +20,7 @@ package ai.enpasos.muzero.pegsolitair.config;
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
@@ -56,13 +56,13 @@ public class PegSolitairGame extends Game {
 
     @Override
     public boolean terminal() {
-        return this.getEnvironment().terminal();
+        return this.getEnvironment().isTerminal();
     }
 
 
     @Override
     public List<Action> legalActions() {
-        return this.getEnvironment().legalActions();
+        return this.getEnvironment().getLegalActions();
     }
 
     @Override
@@ -71,7 +71,22 @@ public class PegSolitairGame extends Game {
     }
 
 
-    public void replayToPosition(int stateIndex) {
+
+
+
+    // TODO handle position
+    public @NotNull ObservationModelInput getObservationModelInput(int position) {
+
+        Board board = ((PegSolitairEnvironment) environment).getBoard();
+
+        return new ObservationModelInput(getBoardPositions(board), new long[]{1L, 7L, 7L});
+    }
+    public @NotNull ObservationModelInput getObservationModelInput() {
+        return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
+    }
+
+    @Override
+    public void replayToPositionInEnvironment(int stateIndex) {
         environment = new PegSolitairEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
@@ -79,15 +94,6 @@ public class PegSolitairGame extends Game {
             environment.step(action);
         }
     }
-
-
-    public @NotNull Observation getObservation() {
-
-        Board board = ((PegSolitairEnvironment) environment).getBoard();
-
-        return new Observation(getBoardPositions(board), new long[]{1L, 7L, 7L});
-    }
-
 
     private float[] getBoardPositions(Board board) {
         int size = 7;

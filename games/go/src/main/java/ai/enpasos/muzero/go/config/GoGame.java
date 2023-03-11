@@ -19,7 +19,7 @@ package ai.enpasos.muzero.go.config;
 
 import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
@@ -57,13 +57,13 @@ public class GoGame extends ZeroSumGame {
 
     @Override
     public boolean terminal() {
-        return this.getEnvironment().terminal();
+        return this.getEnvironment().isTerminal();
     }
 
 
     @Override
     public List<Action> legalActions() {
-        return this.getEnvironment().legalActions();
+        return this.getEnvironment().getLegalActions();
     }
 
     @Override
@@ -72,7 +72,7 @@ public class GoGame extends ZeroSumGame {
     }
 
 
-    public void replayToPosition(int stateIndex) {
+    public void replayToPositionInEnvironment(int stateIndex) {
         environment = new GoEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
@@ -81,15 +81,18 @@ public class GoGame extends ZeroSumGame {
         }
     }
 
-    @Override
-    public void checkAssumptions() {
-        super.checkAssumptions();
-        assertTrue(((GoEnvironment) this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,
-            "environment history does not have the right size");
-    }
+//    @Override
+//    public void checkAssumptions() {
+//        super.checkAssumptions();
+//        assertTrue(((GoEnvironment) this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,
+//            "environment history does not have the right size");
+//    }
 
 
-    public @NotNull Observation getObservation() {
+
+
+    // TODO handle position
+    public @NotNull ObservationModelInput getObservationModelInput(int position) {
 
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
@@ -123,7 +126,7 @@ public class GoGame extends ZeroSumGame {
             }
         }
 
-        return new Observation(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+        return new ObservationModelInput(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
 
 
@@ -137,18 +140,7 @@ public class GoGame extends ZeroSumGame {
         return ((GoEnvironment) environment).render();
     }
 
-    @Override
-    public Optional<OneOfTwoPlayer> whoWonTheGame() {
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A)) return Optional.of(OneOfTwoPlayer.PLAYER_A);
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B)) return Optional.of(OneOfTwoPlayer.PLAYER_B);
-        return Optional.empty();
-    }
 
-    @Override
-    public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
-        // won or draw but not lost
-        return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
-    }
 
     @Override
     public GoEnvironment getEnvironment() {

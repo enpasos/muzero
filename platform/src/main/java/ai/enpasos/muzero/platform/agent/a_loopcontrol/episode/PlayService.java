@@ -69,7 +69,7 @@ public class PlayService {
                 game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
                 game.getGameDTO().setActions(new ArrayList<>());
                 game.getGameDTO().setRewards(new ArrayList<>());
-                game.replayToPosition(0);
+              //  game.replayToPosition(0);
             });
         }
 
@@ -77,7 +77,6 @@ public class PlayService {
     }
 
     public List<Game> justReplayGamesWithInitialInference(List<Game> games) {
-
         return  playGames( games,
             PlayParameters.builder()
             .render(false)

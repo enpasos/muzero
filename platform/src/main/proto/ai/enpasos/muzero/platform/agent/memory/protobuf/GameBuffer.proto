@@ -19,6 +19,7 @@ message GameProto {
   repeated float rewards = 2;
   repeated PolicyProtos policy_targets = 3;
   repeated PolicyProtos playout_policy = 25;
+  repeated ObservationProtos observations = 27;
   repeated float root_value_targets = 4;
   repeated float root_values_from_initial_inference = 5;
   float last_value_error = 6;
@@ -43,6 +44,9 @@ message GameProto {
 }
 message PolicyProtos {
   repeated float policy = 1;
+}
+message ObservationProtos {
+  repeated float observation = 1;
 }
 
 message LegalActionProtos {

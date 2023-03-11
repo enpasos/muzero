@@ -250,7 +250,7 @@ public class Inference {
                     .replay(false)
                     .build());
 
-            List<Action> actions = games.stream().map(g -> g.actionHistory().lastAction()).collect(Collectors.toList());
+            List<Action> actions = games.stream().map(g -> config.newAction(g.getGameDTO().getActions().get(g.getGameDTO().getActions().size()-1))).collect(Collectors.toList());
 
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);

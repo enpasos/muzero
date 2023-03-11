@@ -106,9 +106,9 @@ public class GameBufferDTO {
         while (isBufferFilled()) {
             games.remove(0);
         }
-        if (!game.terminal()) {
-            game.replayToPosition(game.actionHistory().getActionIndexList().size());
-        }
+//        if (!game.terminal()) {
+//            game.replayToPosition(game.actionHistory().getActionIndexList().size());
+//        }
         if (atBeginning) {
             games.add(0, game);
         } else {
@@ -132,19 +132,19 @@ public class GameBufferDTO {
     }
 
 
-    public void rebuildGames(MuZeroConfig config, boolean withReplay) {
-        log.info("rebuildGames");
-        games = new ArrayList<>();
-        for (GameDTO gameDTO : getInitialGameDTOList()) {
-            Game game = config.newGame();
-            game.setGameDTO(gameDTO);
-            if (!game.terminal() && withReplay) {
-                game.replayToPosition(game.actionHistory().getActionIndexList().size());
-            }
-            games.add(game);
-        }
-        getInitialGameDTOList().clear();
-    }
+//    public void rebuildGames(MuZeroConfig config, boolean withReplay) {
+//        log.info("rebuildGames");
+//        games = new ArrayList<>();
+//        for (GameDTO gameDTO : getInitialGameDTOList()) {
+//            Game game = config.newGame();
+//            game.setGameDTO(gameDTO);
+//            if (!game.terminal() && withReplay) {
+//                game.replayToPosition(game.actionHistory().getActionIndexList().size());
+//            }
+//            games.add(game);
+//        }
+//        getInitialGameDTOList().clear();
+//    }
 
     public GameBufferProto proto() {
         GameBufferProto.Builder bufferBuilder = GameBufferProto.newBuilder()

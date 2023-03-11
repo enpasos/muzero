@@ -327,7 +327,7 @@ public class GameBufferIO {
 
                         }
                     }
-                    Objects.requireNonNull(dto).rebuildGames(config, false);
+                  //  Objects.requireNonNull(dto).rebuildGames(config, false);
                 }
             }
         } catch (Exception e) {
@@ -362,7 +362,7 @@ public class GameBufferIO {
                         }
                     }
                 }
-                Objects.requireNonNull(dto).rebuildGames(config, false);
+               // Objects.requireNonNull(dto).rebuildGames(config, false);
             }
         } catch (Exception e2) {
             log.warn(e2.getMessage());

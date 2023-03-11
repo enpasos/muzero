@@ -21,7 +21,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -99,9 +99,9 @@ public class GameBuffer {
         Sample sample = new Sample();
         sample.setGame(game);
 
-        game.replayToPosition(gamePos);
+     //   game.replayToPosition(gamePos);
 
-        Observation lastObservation = game.getObservation();
+        ObservationModelInput lastObservation = game.getObservationModelInput(gamePos);
         sample.getObservations().add(lastObservation);
 
 
@@ -116,8 +116,8 @@ public class GameBuffer {
             sample.getActionsList().add(actionIndex);
 
             if (gamePos + i < originalActionSize) {
-                game.replayToPosition(gamePos + i);
-                lastObservation = game.getObservation();
+               // game.replayToPosition(gamePos + i);
+                lastObservation = game.getObservationModelInput(gamePos + i);
             }
             sample.getObservations().add(lastObservation);
 
@@ -250,35 +250,35 @@ public class GameBuffer {
         List<Game> games = getGames();
         Collections.shuffle(games);
 
-        long nDraw = games.stream().filter(g -> {
-            if (g instanceof ZeroSumGame zeroSumGame) {
-                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-                return winner.isEmpty() ;
-            } else {
-                return false;
-            }
-        }).count();
+//        long nDraw = games.stream().filter(g -> {
+//            if (g instanceof ZeroSumGame zeroSumGame) {
+//                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+//                return winner.isEmpty() ;
+//            } else {
+//                return false;
+//            }
+//        }).count();
 
-        long nWinB = games.stream().filter(g -> {
-            if (g instanceof ZeroSumGame zeroSumGame) {
-                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_B;
-            } else {
-                return false;
-            }
-        }).count();
-        long nWinA = games.stream().filter(g -> {
-            if (g instanceof ZeroSumGame zeroSumGame) {
-                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
-                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_A;
-            } else {
-                return false;
-            }
-        }).count();
-
-        if (nDraw + nWinA + nWinB == games.size()) {
-            log.trace("{} draws, {} win A, {} win B", nDraw, nWinA, nWinB);
-        }
+//        long nWinB = games.stream().filter(g -> {
+//            if (g instanceof ZeroSumGame zeroSumGame) {
+//                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+//                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_B;
+//            } else {
+//                return false;
+//            }
+//        }).count();
+//        long nWinA = games.stream().filter(g -> {
+//            if (g instanceof ZeroSumGame zeroSumGame) {
+//                Optional<OneOfTwoPlayer> winner = zeroSumGame.whoWonTheGame();
+//                return   !winner.isEmpty() && winner.get() == OneOfTwoPlayer.PLAYER_A;
+//            } else {
+//                return false;
+//            }
+//        }).count();
+//
+//        if (nDraw + nWinA + nWinB == games.size()) {
+//            log.trace("{} draws, {} win A, {} win B", nDraw, nWinA, nWinB);
+//        }
         List<Game> gamesToTrain = games.stream()
                 .limit(this.batchSize )
                 .collect(Collectors.toList());

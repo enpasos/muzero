@@ -65,6 +65,35 @@ public class GoAdapter {
 
     }
 
+    public static float[] translateToObservation(MuZeroConfig config, GameState gameState) {
+
+        float[] observation = new float[config.getBoardHeight() * config.getBoardWidth()];
+
+        Player player = gameState.getNextPlayer();
+
+        // values in the range [0, 1]
+        // 8 historic boards needed
+
+        int boardHeight = config.getBoardHeight();
+        int boardWidth = config.getBoardWidth();
+        int opponentOffset = boardHeight * boardWidth;
+
+        for (int row = 0; row < config.getBoardHeight(); row++) {
+            for (int col = 0; col < config.getBoardWidth(); col++) {
+                var p = new Point(row + 1, col + 1);
+                Optional<GoString> goStringOptional = gameState.getBoard().getGoString(p);
+                if (goStringOptional.isPresent()) {
+                    GoString goString = goStringOptional.get();
+                    if (goString.getPlayer() == player) {
+                        observation[ row * boardWidth + col] = 1f;
+                    } else {
+                        observation[ opponentOffset + row * boardWidth + col] = 1f;
+                    }
+                }
+            }
+        }
+        return observation;
+    }
 
     public static Action translate(MuZeroConfig config, Move move) {
         if (move instanceof Play play) {

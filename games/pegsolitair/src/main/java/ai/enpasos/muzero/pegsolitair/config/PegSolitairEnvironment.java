@@ -59,7 +59,7 @@ public class PegSolitairEnvironment implements Environment {
     }
 
     @Override
-    public @NotNull List<Action> legalActions() {
+    public @NotNull List<Action> getLegalActions() {
         return board.getLegalJumps().stream()
             .map(j -> ActionAdapter.getAction(config, j))
             .collect(Collectors.toList());
@@ -67,23 +67,20 @@ public class PegSolitairEnvironment implements Environment {
     }
 
     @Override
-    public int[][] currentImage() {
+    public float[] getObservation() {
         throw new NotImplementedException("currentImage() not implemented.");
     }
 
     @Override
-    public boolean terminal() {
-        return legalActions().isEmpty();
+    public boolean isTerminal() {
+        return getLegalActions().isEmpty();
     }
 
     public @NotNull String render() {
         return board.render();
     }
 
-    @Override
-    public @NotNull List<Action> allActionsInActionSpace() {
-        throw new NotImplementedException("allActionsInActionSpace() not implemented, yet.");
-    }
+
 
 
 }

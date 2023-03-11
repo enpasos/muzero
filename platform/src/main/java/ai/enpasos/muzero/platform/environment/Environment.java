@@ -36,13 +36,10 @@ public interface Environment {
 
 
     // the environment reveals the following information abouts its state
-    int[][] currentImage();
+    float[] getObservation();
 
-    boolean terminal();
+    boolean isTerminal();
 
-    List<Action> legalActions();
+    List<Action> getLegalActions();
 
-
-    // general information about the environment
-    List<Action> allActionsInActionSpace();
 }

@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
@@ -49,6 +49,9 @@ public class TestGame extends Game {
         return null;
     }
 
+
+
+
     @Override
     public List<Action> allActionsInActionSpace() {
         return null;
@@ -65,14 +68,22 @@ public class TestGame extends Game {
     }
 
     @Override
-    public Observation getObservation() {
+    public ObservationModelInput getObservationModelInput() {
         return null;
     }
 
     @Override
-    public void replayToPosition(int stateIndex) {
+    public void replayToPositionInEnvironment(int stateIndex) {
 
     }
+
+
+    @Override
+    public ObservationModelInput getObservationModelInput(int gamePosition) {
+        return null;
+    }
+
+
 
     @Override
     public void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkIO, boolean b) {

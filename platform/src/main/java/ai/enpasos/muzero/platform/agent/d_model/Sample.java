@@ -42,7 +42,7 @@ public class Sample {
 
 
     @Builder.Default
-    private List<Observation> observations = new ArrayList<>();
+    private List<ObservationModelInput> observations = new ArrayList<>();
 
 
     @Builder.Default

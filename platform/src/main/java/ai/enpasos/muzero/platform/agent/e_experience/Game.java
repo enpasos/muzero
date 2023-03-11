@@ -18,9 +18,8 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.ActionHistory;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
@@ -144,7 +143,8 @@ private boolean reanalyse;
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
-        copy.replayToPosition(copy.getGameDTO().getActions().size());
+             copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
+
         return copy;
     }
 
@@ -155,14 +155,16 @@ private boolean reanalyse;
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
-        copy.replayToPosition(copy.getGameDTO().getActions().size());
+
+            copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
+
         return copy;
     }
 
 
-    public void checkAssumptions() {
-        assertTrue(this.getGameDTO().getPolicyTargets().size() == this.getGameDTO().getActions().size(), "policyTargets.size() == actions.size()");
-    }
+//    public void checkAssumptions() {
+//        assertTrue(this.getGameDTO().getPolicyTargets().size() == this.getGameDTO().getActions().size(), "policyTargets.size() == actions.size()");
+//    }
 
     protected void assertTrue(boolean b, String s) {
         if (b) return;
@@ -195,8 +197,9 @@ private boolean reanalyse;
 
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
-
         this.getGameDTO().getRewards().add(reward);
+
+        this.getGameDTO().getObservations().add(this.environment.getObservation());
         this.getGameDTO().getActions().add(action.getIndex());
          setActionApplied(true);
     }
@@ -380,15 +383,14 @@ private boolean reanalyse;
 
     public abstract Player toPlay();
 
-    public @NotNull ActionHistory actionHistory() {
-        return new ActionHistory(config, this.gameDTO.getActions());
-    }
 
     public abstract String render();
 
-    public abstract Observation getObservation();
+    public abstract ObservationModelInput getObservationModelInput(int gamePosision);
 
-    public abstract void replayToPosition(int stateIndex);
+    public abstract ObservationModelInput getObservationModelInput();
+
+    public abstract void replayToPositionInEnvironment(int stateIndex);
 
     public @NotNull List<Integer> getRandomActionsIndices(int i) {
 
@@ -410,15 +412,17 @@ private boolean reanalyse;
         this.originalGameDTO = this.gameDTO;
         this.gameDTO = this.gameDTO.copyWithoutActions();
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
-        this.initEnvironment();
+        this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
+      //  this.initEnvironment();
     }
 
     public void beforeReplayWithoutChangingActionHistory(int backInTime) {
         this.originalGameDTO = this.gameDTO;
         this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
-        this.initEnvironment();
-        this.replayToPosition(getGameDTO().getActions().size());
+        this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
+     //   this.initEnvironment();
+      //  this.replayToPosition(getGameDTO().getActions().size());
     }
 
 
