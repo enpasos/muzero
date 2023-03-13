@@ -143,8 +143,8 @@ private boolean reanalyse;
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
+        if (environment != null)
              copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
-
         return copy;
     }
 
@@ -155,9 +155,8 @@ private boolean reanalyse;
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
-
+        if (environment != null)
             copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
-
         return copy;
     }
 
