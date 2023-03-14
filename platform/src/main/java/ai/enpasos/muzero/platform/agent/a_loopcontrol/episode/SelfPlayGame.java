@@ -40,7 +40,12 @@ public class SelfPlayGame {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
                 Action action = playAction.planAction(game, render, fastRulesLearning, justInitialInferencePolicy,  playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
+
+
+                //TODO: apply(action) should not be correct for Reanalyse
                 game.apply(action);
+
+
 
             }
             count++;

@@ -83,7 +83,6 @@ public class Play {
 
 
     public void playGames(boolean render, int trainingStep) {
-        //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());
        // network.debugDump();
@@ -107,6 +106,9 @@ public class Play {
                     .fastRulesLearning(fastRuleLearning)
                     .build(),
                 gamesToReanalyse);
+            if (games.size() > 0) {
+                int i = 42;
+            }
         } else {
             games = playService.playNewGames(config.getNumParallelGamesPlayed(),
                 PlayParameters.builder()
