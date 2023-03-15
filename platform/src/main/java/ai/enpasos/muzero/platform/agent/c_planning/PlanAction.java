@@ -46,7 +46,7 @@ public class PlanAction {
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         //calculateSurprise(value, game, config);
 
-        int nActionsReplayed = game.actionHistory().getActionIndexList().size();
+        int nActionsReplayed = game.getGameDTO().getActions().size();
         if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
             int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
 

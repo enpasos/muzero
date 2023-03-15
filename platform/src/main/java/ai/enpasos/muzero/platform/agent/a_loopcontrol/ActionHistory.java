@@ -17,19 +17,15 @@
 
 package ai.enpasos.muzero.platform.agent.a_loopcontrol;
 
-
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ActionHistory {
 
-
     private final @NotNull List<Integer> actions;
-
     private final MuZeroConfig config;
 
 

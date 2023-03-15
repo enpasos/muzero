@@ -8,7 +8,7 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
-    # ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
+    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
     ai.djl: INFO
 
 muzero:
@@ -97,7 +97,6 @@ muzero:
           numParallelGamesPlayed: 500
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
-          forTdStep0PolicyTraining: true
           numSimulations: 20
           numSimulationsHybrid: 20
 
