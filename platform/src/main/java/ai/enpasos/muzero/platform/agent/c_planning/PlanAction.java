@@ -76,7 +76,6 @@ public class PlanAction {
             action = game.legalActions().get(game.legalActions().size() - 1);
             if (!fastRuleLearning) {
                 NetworkIO networkOutput = modelService.initialInference(game).join();
-               // game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
                 double value =  Objects.requireNonNull(networkOutput).getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
                 game.getGameDTO().getRootValueTargets().add((float)value);
@@ -100,8 +99,8 @@ public class PlanAction {
                 sm.storeSearchStatictics(render, fastRuleLearning);
             }
 
-            boolean replay = false;
-            action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);// sm.selectAction( fastRuleLearning, replay);
+            boolean replay = game.isReanalyse();
+            action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);
 
         }
        // applyAction(render, action, game, game.isDebug(), config);
@@ -136,9 +135,7 @@ public class PlanAction {
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
-       //     game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
             value =  Objects.requireNonNull(networkOutput).getValue();
-            //game.getGameDTO().getRootValueTargets().add((float)value);
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         }
 

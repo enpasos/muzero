@@ -58,7 +58,7 @@ public class Play {
     public void initialFillingBuffer() {
         long startCounter = gameBuffer.getBuffer().getCounter();
         int windowSize = config.getWindowSize();
-        while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
+        while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
              playMultipleEpisodes(false, true, false);
         }

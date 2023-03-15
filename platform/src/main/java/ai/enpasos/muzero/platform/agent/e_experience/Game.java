@@ -201,6 +201,12 @@ private boolean reanalyse;
          setActionApplied(true);
     }
 
+    public void pseudoApplyFromOriginalGame(Action action) {
+        this.getGameDTO().getActions().add(action.getIndex());
+        this.getGameDTO().getRewards().add(this.getOriginalGameDTO().getRewards().get(this.getGameDTO().getRewards().size()));
+        setActionApplied(true);
+    }
+
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps ) {
         List<Target> targets = new ArrayList<>();
 
@@ -224,13 +230,8 @@ private boolean reanalyse;
 
             setValueOnTarget(target, value);
             target.setReward(lastReward);
-            if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
-                target.setPolicy(new float[this.actionSpaceSize]);
-                // the idea is not to put any force on the network to learn a particular action where it is not necessary
-                Arrays.fill(target.getPolicy(), 0f);
-            } else {
-                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-            }
+            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -344,10 +345,10 @@ private boolean reanalyse;
         int bootstrapIndex = currentIndex + tdSteps;
         if (currentIndex > this.getGameDTO().getRewards().size() - 1) {
             int i = this.getGameDTO().getRewards().size() - 1;
-            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - currentIndex) * getPerspective(i - currentIndex);
         } else {
             for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i) * getPerspective(i - currentIndex);
+                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - currentIndex) * getPerspective(i - currentIndex);
             }
         }
         return value;

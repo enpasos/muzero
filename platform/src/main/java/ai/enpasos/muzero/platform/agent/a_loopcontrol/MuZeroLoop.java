@@ -70,8 +70,7 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
         int epochStart = epoch;
 
-        while (trainingStep < config.getNumberOfTrainingSteps() &&
-            (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
+        while (trainingStep < config.getNumberOfTrainingSteps()) {
 
             DurAndMem duration = new DurAndMem();
             duration.on();

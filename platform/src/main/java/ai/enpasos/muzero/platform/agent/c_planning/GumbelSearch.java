@@ -93,8 +93,7 @@ public class GumbelSearch {
 
             for (int i = 0; i < raw.length; i++) {
                 int action = actions[i];
-                double v = improvedPolicy[i];
-                policyTarget[action] = (float) v;
+                policyTarget[action] = (float) improvedPolicy[i];
             }
         }
         game.getGameDTO().getPolicyTargets().add(policyTarget);

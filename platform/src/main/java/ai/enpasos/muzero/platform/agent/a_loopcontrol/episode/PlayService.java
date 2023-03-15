@@ -57,6 +57,7 @@ public class PlayService {
         games.stream().forEach(game -> {
             game.getGameDTO().setTdSteps(config.getTdSteps());
             game.setPlayTypeKey(this.config.getPlayTypeKey());
+            game.setReanalyse(true);
         });
 
         if (config.getPlayTypeKey() == REANALYSE) {
