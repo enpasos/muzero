@@ -164,14 +164,14 @@ public class NetworkHelper {
         int k = 0;
 
         // policy
-        log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
+        log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
         loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
         k++;
 
         // value
 
 
-        log.info("k={}: Value L2Loss", k);
+        log.trace("k={}: Value L2Loss", k);
         loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
 
         k++;
@@ -179,17 +179,17 @@ public class NetworkHelper {
 
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
-            log.info("k={}: Policy SoftmaxCrossEntropyLoss", k);
+            log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
             loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
             // value
 
-            log.info("k={}: Value L2Loss", k);
+            log.trace("k={}: Value L2Loss", k);
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
 
             k++;
             // similarity
-            log.info("k={}: Similarity L2Loss", k);
+            log.trace("k={}: Similarity L2Loss", k);
             loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, 2 * gradientScale), k));
 
             k++;

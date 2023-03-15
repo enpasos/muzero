@@ -87,7 +87,6 @@ muzero:
           numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
-          forTdStep0PolicyTraining: true
           numSimulations: 20
           numSimulationsHybrid: 20
 

@@ -207,9 +207,9 @@ public class MuZeroConfig {
         return getConf().numUnrollSteps;
     }
 
-    public int getNumberOfEpisodesPerJVMStart() {
-        return getConf().numberOfEpisodesPerJVMStart;
-    }
+//    public int getNumberOfEpisodesPerJVMStart() {
+//        return getConf().numberOfEpisodesPerJVMStart;
+//    }
 
 
     public int getTdSteps() {
@@ -346,9 +346,6 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0ValueTraining;
     }
 
-    public boolean isForTdStep0PolicyTraining() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0PolicyTraining;
-    }
 
     public boolean isGumbelActionSelection() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelection;
@@ -484,7 +481,7 @@ public class MuZeroConfig {
 
         protected int batchSize;
         protected int numUnrollSteps;
-        protected int numberOfEpisodesPerJVMStart;
+      //  protected int numberOfEpisodesPerJVMStart;
 
 
 
@@ -533,7 +530,6 @@ double offPolicyRatioLimit;
             protected int numParallelGamesPlayed;
 
             protected boolean forTdStep0ValueTraining = true;
-            protected boolean forTdStep0PolicyTraining = true;
             protected int tdSteps;
             protected int numSimulations;
             protected int numSimulationsHybrid;

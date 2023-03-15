@@ -272,10 +272,10 @@ public class GameDTO implements Comparable<GameDTO> {
                 .collect(Collectors.toList()));
         }
         if (p.getObservationsCount() > 0) {
-            this.setObservations(p.getObservationsList().stream().map(policy -> {
+            this.setObservations(p.getObservationsList().stream().map(observations -> {
                         float[] result = new float[p.getObservations(0).getObservationCount()];
                         int i = 0;
-                        for (Float f : policy.getObservationList()) {
+                        for (Float f : observations.getObservationList()) {
                             result[i++] = f;
                         }
                         return result;

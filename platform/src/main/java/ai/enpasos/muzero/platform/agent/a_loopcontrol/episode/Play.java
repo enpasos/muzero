@@ -58,7 +58,7 @@ public class Play {
     public void initialFillingBuffer() {
         long startCounter = gameBuffer.getBuffer().getCounter();
         int windowSize = config.getWindowSize();
-        while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
+        while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
              playMultipleEpisodes(false, true, false);
         }
@@ -104,6 +104,7 @@ public class Play {
                 PlayParameters.builder()
                     .render(render)
                     .fastRulesLearning(fastRuleLearning)
+                    .replay(true)
                     .build(),
                 gamesToReanalyse);
             if (games.size() > 0) {
@@ -119,7 +120,7 @@ public class Play {
 
         log.info("Played {} games parallel", games.size());
 
-        gameBuffer.addGames2(games, false);
+        gameBuffer.addGames(games, false);
     }
 
 }

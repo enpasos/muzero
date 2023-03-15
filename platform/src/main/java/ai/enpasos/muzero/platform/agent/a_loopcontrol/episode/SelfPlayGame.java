@@ -32,23 +32,26 @@ public class SelfPlayGame {
 
         game.getGameDTO().setTdSteps(config.getTdSteps());
 
-        boolean replay = playParameters.isReplay() || playParameters.isJustReplayWithInitialReference();
 
         int count = 1;
-        while ( (!untilEnd && count == 1) || (untilEnd && !game.isDone(replay)) ) {
+        while ((!untilEnd && count == 1)
+                || (untilEnd && !game.isDone(
+                playParameters.isReplay() || playParameters.isJustReplayWithInitialReference())
+        )) {
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
-                Action action = playAction.planAction(game, render, fastRulesLearning, justInitialInferencePolicy,  playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
-
-
-                //TODO: apply(action) should not be correct for Reanalyse
-                game.apply(action);
-
-
-
+                Action action = playAction.planAction(game, render, fastRulesLearning, justInitialInferencePolicy, playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
+                if (playParameters.isReplay()) {
+                    game.pseudoApplyFromOriginalGame(action);
+                } else {
+                    game.apply(action);
+                }
             }
             count++;
+        }
+        if (playParameters.isReplay()) {
+            int i = 42;
         }
 
         if (playParameters.isJustReplayWithInitialReference()) {
@@ -57,7 +60,6 @@ public class SelfPlayGame {
         if (untilEnd) game.setEnvironment(null);
 
     }
-
 
 
 }

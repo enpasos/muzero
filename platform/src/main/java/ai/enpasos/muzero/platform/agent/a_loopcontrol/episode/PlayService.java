@@ -43,7 +43,7 @@ public class PlayService {
         }
         games.stream().forEach(game -> {
             game.getGameDTO().setTdSteps(config.getTdSteps());
-            game.setPlayTypeKey(this.config.getPlayTypeKey());
+           // game.setPlayTypeKey(this.config.getPlayTypeKey());
         });
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration(games);
@@ -54,26 +54,18 @@ public class PlayService {
 
     public List<Game> reanalyseGames(int numGames, PlayParameters playParameters, List<Game> games) {
 
-        games.stream().forEach(game -> {
+        games.forEach(game -> {
             game.getGameDTO().setTdSteps(config.getTdSteps());
-            game.setPlayTypeKey(this.config.getPlayTypeKey());
+            game.setOriginalGameDTO(game.getGameDTO().copy());
+            game.getGameDTO().getPolicyTargets().clear();
+            game.getGameDTO().setRootValueTargets(new ArrayList<>());
+            game.getGameDTO().setEntropies(new ArrayList<>());
+            game.getGameDTO().setMaxEntropies(new ArrayList<>());
+            game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
+            game.getGameDTO().setActions(new ArrayList<>());
         });
 
-        if (config.getPlayTypeKey() == REANALYSE) {
-            games.forEach(game -> {
-                game.setOriginalGameDTO(game.getGameDTO().copy());
-                game.getGameDTO().getPolicyTargets().clear();
-                game.getGameDTO().setRootValueTargets(new ArrayList<>());
-                game.getGameDTO().setEntropies(new ArrayList<>());
-                game.getGameDTO().setMaxEntropies(new ArrayList<>());
-                game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
-                game.getGameDTO().setActions(new ArrayList<>());
-                game.getGameDTO().setRewards(new ArrayList<>());
-              //  game.replayToPosition(0);
-            });
-        }
-
-        return  playGames( games, playParameters);
+        return playGames(games, playParameters);
     }
 
     public List<Game> justReplayGamesWithInitialInference(List<Game> games) {
@@ -103,36 +95,36 @@ public class PlayService {
 
 
 
-    public List<Game> playGames(  List<Game> games, PlayParameters playParameters ) {
+    public List<Game> playGames(List<Game> games, PlayParameters playParameters) {
         List<Game> gamesReturn = new ArrayList<>();
 
         modelService.startScope();
 
-            giveOneOfTheGamesADebugFlag(games);
-            int gameLength = gameBuffer.getMaxGameLength();
-            playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
-            playParameters.setAverageGameLength(gameLength);  // TODO rename
+        giveOneOfTheGamesADebugFlag(games);
+        int gameLength = gameBuffer.getMaxGameLength();
+        playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
+        playParameters.setAverageGameLength(gameLength);  // TODO rename
 
-            CompletableFuture<Game>[] futures = games.stream().map(g ->
+        CompletableFuture<Game>[] futures = games.stream().map(g ->
                 episodeRunner.playGame(playParameters, g)
-            ).toArray(CompletableFuture[]::new);
+        ).toArray(CompletableFuture[]::new);
 
-            // wait for all futures to complete
-            CompletableFuture.allOf(futures).join();
+        // wait for all futures to complete
+        CompletableFuture.allOf(futures).join();
 
 
-            // collect games from futures
+        // collect games from futures
 
-            for (CompletableFuture<Game> future : futures) {
-                try {
-                    gamesReturn.add(future.get());
-                } catch (InterruptedException e) {
-                    log.warn("Interrupted!", e);
-                    Thread.currentThread().interrupt();
-                } catch (ExecutionException e) {
-                    throw new MuZeroException(e);
-                }
+        for (CompletableFuture<Game> future : futures) {
+            try {
+                gamesReturn.add(future.get());
+            } catch (InterruptedException e) {
+                log.warn("Interrupted!", e);
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                throw new MuZeroException(e);
             }
+        }
 
 
         modelService.endScope();
