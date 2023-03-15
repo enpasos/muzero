@@ -21,12 +21,11 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +39,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -95,7 +93,7 @@ public class GameBuffer {
 
         game.replayToPosition(gamePos);
 
-        Observation lastObservation = game.getObservation();
+        ObservationModelInput lastObservation = game.getObservationModelInput();
         sample.getObservations().add(lastObservation);
 
 
@@ -111,7 +109,7 @@ public class GameBuffer {
 
             if (gamePos + i < originalActionSize) {
                 game.replayToPosition(gamePos + i);
-                lastObservation = game.getObservation();
+                lastObservation = game.getObservationModelInput();
             }
             sample.getObservations().add(lastObservation);
 

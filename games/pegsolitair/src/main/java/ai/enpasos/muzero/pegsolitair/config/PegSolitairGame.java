@@ -20,7 +20,7 @@ package ai.enpasos.muzero.pegsolitair.config;
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
@@ -81,11 +81,11 @@ public class PegSolitairGame extends Game {
     }
 
 
-    public @NotNull Observation getObservation() {
+    public @NotNull ObservationModelInput getObservationModelInput() {
 
         Board board = ((PegSolitairEnvironment) environment).getBoard();
 
-        return new Observation(getBoardPositions(board), new long[]{1L, 7L, 7L});
+        return new ObservationModelInput(getBoardPositions(board), new long[]{1L, 7L, 7L});
     }
 
 

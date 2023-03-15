@@ -19,7 +19,7 @@ package ai.enpasos.muzero.go.config;
 
 import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
@@ -89,7 +89,7 @@ public class GoGame extends ZeroSumGame {
     }
 
 
-    public @NotNull Observation getObservation() {
+    public @NotNull ObservationModelInput getObservationModelInput() {
 
 
         OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
@@ -123,7 +123,7 @@ public class GoGame extends ZeroSumGame {
             }
         }
 
-        return new Observation(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+        return new ObservationModelInput(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
 
 

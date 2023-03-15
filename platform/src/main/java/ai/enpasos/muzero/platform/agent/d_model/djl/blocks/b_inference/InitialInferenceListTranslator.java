@@ -26,7 +26,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.Observation;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
@@ -120,8 +120,8 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
     public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Game> gameList) {
 
 
-        List<Observation> observations = gameList.stream()
-            .map(Game::getObservation)
+        List<ObservationModelInput> observations = gameList.stream()
+            .map(Game::getObservationModelInput)
             .collect(Collectors.toList());
 
         return new NDList(NDArrays.stack(new NDList(
