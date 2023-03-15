@@ -104,7 +104,7 @@ public class Play {
                 PlayParameters.builder()
                     .render(render)
                     .fastRulesLearning(fastRuleLearning)
-                    .replay(true)
+                   // .replay(true)
                     .build(),
                 gamesToReanalyse);
         } else {
