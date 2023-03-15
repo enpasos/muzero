@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.LegalActionProtos;
+import ai.enpasos.muzero.platform.agent.memory.protobuf.ObservationProtos;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyProtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,6 +48,11 @@ public class GameDTO implements Comparable<GameDTO> {
 
     private List<Float> entropies; // obsolete ??
     private List<float[]> policyTargets;
+
+
+    private List<float[]> observations;
+
+
     private List<float[]> playoutPolicy;
 
     private List<boolean[]> legalActions;  // obsolete
@@ -80,6 +86,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.actions = new ArrayList<>();
         this.rewards = new ArrayList<>();
         this.policyTargets = new ArrayList<>();
+        this.observations = new ArrayList<>();
         this.playoutPolicy = new ArrayList<>();
         this.legalActions = new ArrayList<>();
         this.rootValueTargets = new ArrayList<>();
@@ -130,6 +137,7 @@ public class GameDTO implements Comparable<GameDTO> {
             copy.actions.addAll(this.actions.subList(0, toPosition));
 
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+            this.observations.subList(0, toPosition).forEach(pT -> copy.observations.add(Arrays.copyOf(pT, pT.length)));
             this.playoutPolicy.subList(0, toPosition).forEach(pT -> copy.playoutPolicy.add(Arrays.copyOf(pT, pT.length)));
             this.legalActions.subList(0, toPosition).forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
             if (this.rootValueTargets.size() >= toPosition)
@@ -169,6 +177,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         this.policyTargets.forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
+        this.observations.forEach(pT -> copy.observations.add(Arrays.copyOf(pT, pT.length)));
         this.playoutPolicy.forEach(pT -> copy.playoutPolicy.add(Arrays.copyOf(pT, pT.length)));
         this.legalActions.forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
         copy.rootValueTargets.addAll(this.rootValueTargets);
@@ -211,6 +220,13 @@ public class GameDTO implements Comparable<GameDTO> {
                 b.addPolicy(policyTarget[i])
             );
             gameBuilder.addPolicyTargets(b.build());
+        });
+        getObservations().forEach(observations -> {
+            ObservationProtos.Builder b = ObservationProtos.newBuilder();
+            IntStream.range(0, observations.length).forEach(i ->
+                b.addObservation(observations[i])
+            );
+            gameBuilder.addObservations(b.build());
         });
         getLegalActions().forEach(legalActionsLocal -> {
             LegalActionProtos.Builder b = LegalActionProtos.newBuilder();
@@ -255,7 +271,18 @@ public class GameDTO implements Comparable<GameDTO> {
                 )
                 .collect(Collectors.toList()));
         }
-
+        if (p.getObservationsCount() > 0) {
+            this.setObservations(p.getObservationsList().stream().map(observations -> {
+                        float[] result = new float[p.getObservations(0).getObservationCount()];
+                        int i = 0;
+                        for (Float f : observations.getObservationList()) {
+                            result[i++] = f;
+                        }
+                        return result;
+                    }
+                )
+                .collect(Collectors.toList()));
+        }
         if (p.getPlayoutPolicyCount() > 0) {
             this.setPlayoutPolicy(p.getPlayoutPolicyList().stream().map(policyProtos -> {
                         float[] result = new float[p.getPlayoutPolicy(0).getPolicyCount()];

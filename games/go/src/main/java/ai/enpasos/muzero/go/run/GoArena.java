@@ -59,7 +59,7 @@ public class GoArena {
         currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         return gameList.stream()
             .mapToDouble(game -> (startingPlayerA ? 1f : -1f)
-                * (game.actionHistory().getActionIndexList().size() % 2 == 0 ? -1f : 1f)
+                * (game.getGameDTO().getActions().size() % 2 == 0 ? -1f : 1f)
                 * game.getLastReward())
             .toArray();
     }
