@@ -55,7 +55,7 @@ public class GameTree {
         nonExpandedGameNodes = new ArrayList<>();
 
         // fully expand the game tree
-        rootNode = new DNode((ZeroSumGame) config.newGame());
+        rootNode = new DNode((ZeroSumGame) config.newGame(true, true));
         nonExpandedGameNodes.add(rootNode);
         while (!nonExpandedGameNodes.isEmpty()) {
             List<DNode> loopGameNodes = new ArrayList<>(nonExpandedGameNodes);

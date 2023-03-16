@@ -47,8 +47,9 @@ public class GoArena {
 
 
     // 1f player1 wins, -1f player2 wins - no draw here
+    // TODO review and test
     private double[] play(boolean startingPlayerA, String playerA, String playerB, int n) {
-        List<Game> gameList = IntStream.range(0, n).mapToObj(i -> config.newGame()).collect(Collectors.toList());
+        List<Game> gameList = IntStream.range(0, n).mapToObj(i -> config.newGame(true,true)).collect(Collectors.toList());
         List<Game> runningGames = new ArrayList<>(gameList);
         String currentPlayer = startingPlayerA ? playerA : playerB;
         while (!runningGames.isEmpty()) {

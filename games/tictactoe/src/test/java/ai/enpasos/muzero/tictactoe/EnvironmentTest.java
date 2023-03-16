@@ -42,15 +42,15 @@ class EnvironmentTest {
 
     @Test
     void checkIfPlayerHasWon() {
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         assertEquals(1f, game.getLastReward(), 0.0);
 
-        game = config.newGame();
+        game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
         assertEquals(0f, game.getLastReward(), 0.0);
 
-        game = config.newGame();
+        game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 1, 2, 4, 8, 7);
         assertEquals(1f, game.getLastReward(), 0.0);
     }

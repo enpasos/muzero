@@ -38,13 +38,11 @@ public class PlayService {
     public List<Game> playNewGames( int numGames, PlayParameters playParameters) {
         List<Game> games = new ArrayList<>();
         for (int i = 0; i < numGames; i++) {
-            Game game = config.newGame();
+            Game game = config.newGame(true,true);
             games.add(game);
         }
         games.stream().forEach(game -> {
             game.getGameDTO().setTdSteps(config.getTdSteps());
-         //   game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(0));
-           // game.setPlayTypeKey(this.config.getPlayTypeKey());
         });
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration(games);

@@ -86,7 +86,7 @@ public class GameProvider {
 
     public Optional<Game> getGameStartingWithActionsFromStartForEpoch(int epoch, int... actions) {
 
-        Game game = this.config.newGame();
+        Game game = this.config.newGame(true, true);
         game.apply(actions);
 
 

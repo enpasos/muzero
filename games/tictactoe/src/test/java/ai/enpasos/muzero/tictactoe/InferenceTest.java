@@ -75,7 +75,7 @@ class InferenceTest {
     void testInference() throws ExecutionException, InterruptedException {
 
         init();
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
             NetworkIO networkIO = modelService.initialInference(game).get();
             Node node = Node.builder()
                 .hiddenState(networkIO.getHiddenState())

@@ -61,10 +61,13 @@ public class MuZeroConfig {
         return new KnownBounds();
     }
 
-    public Game newGame() {
+    public Game newGame(boolean connectToEnvironment, boolean withFirstObservation) {
         try {
             Constructor<?> constructor = this.getGameClass().getConstructor(MuZeroConfig.class);
-            return (Game) constructor.newInstance(this);
+            Game game =  (Game) constructor.newInstance(this);
+            if (connectToEnvironment) {game.connectToEnvironment();}
+            if (withFirstObservation) {game.addObservationFromEnvironment();}
+            return game;
         } catch (Exception e) {
             e.printStackTrace();
         }

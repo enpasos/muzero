@@ -105,7 +105,7 @@ public class Inference {
 
     private double[][] getInMindValues(  int[] actions, int extra, int actionspace) {
         double[][] values = new double[actions.length + 1][actions.length + 1 + extra];
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         for (int t = 0; t <= actions.length; t++) {
             NetworkIO infResult = modelService.initialInference(game).join();
             NDArray s = infResult.getHiddenState();
@@ -144,7 +144,7 @@ public class Inference {
     }
 
     public double aiStartValue(int epoch) {
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         modelService.loadLatestModel(epoch).join();
         return aiDecision(false, game).getFirst();
     }
@@ -178,7 +178,7 @@ public class Inference {
 
 
     public Game getGame(List<Integer> actions) {
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         actions.forEach(a -> game.apply(config.newAction(a)));
         return game;
     }

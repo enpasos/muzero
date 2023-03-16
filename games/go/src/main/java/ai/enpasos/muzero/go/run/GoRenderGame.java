@@ -41,7 +41,7 @@ public class GoRenderGame {
         List<Integer> actions = List.of(12, 17, 13, 11, 6, 16, 18, 7, 8, 5, 2, 1, 7, 3, 0, 9, 4, 1, 14, 19, 0, 23, 10, 15, 21, 5, 24, 1, 22, 10, 0, 25, 20, 11, 17, 25, 16, 25, 15, 25, 10, 25, 1, 25, 25);
 
 
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         actions.forEach(
             a -> renderGame.applyAction(game, a));
 

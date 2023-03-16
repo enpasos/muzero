@@ -60,7 +60,7 @@ class SearchManagerTest {
         int n = 200;
         config.setNumSimulations(  n);
         config.setCVisit(16);
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
         game.initSearchManager(0);
         GumbelSearch searchManager = game.getSearchManager();

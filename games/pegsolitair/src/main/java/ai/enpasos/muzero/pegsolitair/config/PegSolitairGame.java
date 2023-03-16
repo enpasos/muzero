@@ -17,8 +17,6 @@
 
 package ai.enpasos.muzero.pegsolitair.config;
 
-import ai.enpasos.muzero.pegsolitair.config.environment.Board;
-import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
@@ -28,7 +26,6 @@ import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +34,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
 import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 public class PegSolitairGame extends Game {
@@ -45,12 +41,12 @@ public class PegSolitairGame extends Game {
 
     public PegSolitairGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        initEnvironment();
+
     }
 
     public PegSolitairGame(@NotNull MuZeroConfig config) {
         super(config);
-        initEnvironment();
+
     }
 
     @Override
@@ -118,9 +114,9 @@ public class PegSolitairGame extends Game {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
         environment = new PegSolitairEnvironment(config);
-        gameDTO.getObservations().add(environment.getObservation());
+      //  gameDTO.getObservations().add(environment.getObservation());
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

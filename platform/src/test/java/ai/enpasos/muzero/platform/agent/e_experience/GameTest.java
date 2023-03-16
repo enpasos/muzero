@@ -24,7 +24,7 @@ class GameTest {
 
     @Test
     void getTdStepsTest() {
-        Game game = config.newGame();
+        Game game = config.newGame(true, true);
         game.setPRatioMax(1);
         // action space: 0, 1, 2
         int T = 3;
@@ -55,7 +55,7 @@ class GameTest {
 
     @Test
     void getTdStepsTest2() {
-        Game game = config.newGame();
+        Game game = config.newGame(true, true);
         game.setPRatioMax(1.5);
         // action space: 0, 1, 2
         int T = 3;

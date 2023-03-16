@@ -41,7 +41,7 @@ public class RenderGame {
     }
 
     public void renderGame(@NotNull Game game) {
-        Game replayGame = config.newGame();
+        Game replayGame = config.newGame(true, true);
 
         log.info("\n" + Objects.requireNonNull(replayGame).render());
         for (int i = 0; i < game.getGameDTO().getActions().size(); i++) {

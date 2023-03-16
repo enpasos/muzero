@@ -51,12 +51,12 @@ public class GoGame extends ZeroSumGame {
 
     public GoGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        initEnvironment();
+
     }
 
     public GoGame(@NotNull MuZeroConfig config) {
         super(config);
-        initEnvironment();
+
     }
 
 
@@ -161,9 +161,8 @@ public class GoGame extends ZeroSumGame {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
         environment = new GoEnvironment(config);
-        gameDTO.getObservations().add(environment.getObservation());
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

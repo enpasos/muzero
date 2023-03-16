@@ -25,7 +25,6 @@ import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.Environment;
 import lombok.Data;
@@ -108,6 +107,7 @@ private boolean reanalyse;
         r = new Random();
     }
 
+
     protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
         this.gameDTO = gameDTO;
@@ -119,7 +119,7 @@ private boolean reanalyse;
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         try (ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
             GameDTO dto = (GameDTO) objectInputStream.readObject();
-            Game game = config.newGame();
+            Game game = config.newGame(false,false);
             Objects.requireNonNull(game).setGameDTO(dto);
             return game;
         } catch (Exception e) {
@@ -138,7 +138,7 @@ private boolean reanalyse;
     }
 
     public @NotNull Game copy() {
-        Game copy = getConfig().newGame();
+        Game copy = getConfig().newGame(this.environment != null, false);
         copy.setGameDTO(this.gameDTO.copy());
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
@@ -150,7 +150,7 @@ private boolean reanalyse;
 
 
     public @NotNull Game copy(int numberOfActions) {
-        Game copy = getConfig().newGame();
+        Game copy = getConfig().newGame(this.environment != null, false);
         copy.setGameDTO(this.gameDTO.copy(numberOfActions));
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
@@ -198,7 +198,7 @@ private boolean reanalyse;
         float reward = this.environment.step(action);
         this.getGameDTO().getRewards().add(reward);
         this.getGameDTO().getActions().add(action.getIndex());
-        this.getGameDTO().getObservations().add(this.environment.getObservation());
+        addObservationFromEnvironment();
         setActionApplied(true);
     }
     public void pseudoApplyFromOriginalGame(Action action) {
@@ -400,6 +400,11 @@ private boolean reanalyse;
         return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
     }
 
+    public void addObservationFromEnvironment() {
+        gameDTO.getObservations().add(environment.getObservation());
+    }
+
+
     public abstract void replayToPositionInEnvironment(int stateIndex);
 
     public @NotNull List<Integer> getRandomActionsIndices(int i) {
@@ -440,7 +445,7 @@ private boolean reanalyse;
         this.setOriginalGameDTO(null);
     }
 
-    public abstract void initEnvironment();
+    public abstract void connectToEnvironment();
 
     public void initSearchManager(double pRandomActionRawAverage) {
         searchManager = new GumbelSearch(config, this, debug, pRandomActionRawAverage);

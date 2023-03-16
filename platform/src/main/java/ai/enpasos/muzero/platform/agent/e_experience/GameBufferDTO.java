@@ -127,7 +127,7 @@ public class GameBufferDTO {
         log.info("rebuildGames");
         games = new ArrayList<>();
         for (GameDTO gameDTO : getInitialGameDTOList()) {
-            Game game = config.newGame();
+            Game game = config.newGame(false,false);
             game.setGameDTO(gameDTO);
 //            if (!game.terminal() && withReplay) {
 //                game.replayToPosition(game.actionHistory().getActionIndexList().size());

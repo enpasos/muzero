@@ -20,7 +20,6 @@ package ai.enpasos.muzero.tictactoe.config;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
-import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
@@ -50,13 +49,11 @@ public class TicTacToeGame extends ZeroSumGame {
 
     public TicTacToeGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        initEnvironment();
 
     }
 
     public TicTacToeGame(@NotNull MuZeroConfig config) {
         super(config);
-        initEnvironment();
     }
 
     @Override
@@ -172,9 +169,8 @@ public class TicTacToeGame extends ZeroSumGame {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
         environment = new TicTacToeEnvironment(config);
-        gameDTO.getObservations().add(environment.getObservation());
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

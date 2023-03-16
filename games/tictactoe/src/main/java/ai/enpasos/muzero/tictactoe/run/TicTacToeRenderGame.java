@@ -37,7 +37,7 @@ public class TicTacToeRenderGame {
     public void run() {
 
 
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         renderGame.applyAction(game, 0);
         renderGame.applyAction(game, 5);
         renderGame.applyAction(game, 8);

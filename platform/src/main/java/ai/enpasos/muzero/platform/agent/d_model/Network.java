@@ -138,7 +138,7 @@ public class Network {
     }
 
     public static List<NDArray> getAllActionsOnDevice(MuZeroConfig config, @NotNull NDManager ndManager) {
-        List<Action> actions = Objects.requireNonNull(config.newGame()).allActionsInActionSpace();
+        List<Action> actions = Objects.requireNonNull(config.newGame(true,true)).allActionsInActionSpace();
         return actions.stream().map(action -> action.encode(ndManager)).collect(Collectors.toList());
     }
 

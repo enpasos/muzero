@@ -49,7 +49,7 @@ public class DJLTicTacToeTest implements CommandLineRunner {
 
             var predictor = model.newPredictor(new NaiveInitialInferenceListTranslator());
             try {
-                Game game = conf.newGame();
+                Game game = conf.newGame(true,true);
                 var result = predictor.predict(List.of(game));
 
 

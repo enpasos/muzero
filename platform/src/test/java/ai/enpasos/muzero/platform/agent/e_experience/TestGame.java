@@ -98,7 +98,7 @@ public class TestGame extends Game {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
 
     }
 }
