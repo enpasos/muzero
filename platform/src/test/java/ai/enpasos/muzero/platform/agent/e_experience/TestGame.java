@@ -44,11 +44,6 @@ public class TestGame extends Game {
         return false;
     }
 
-    @Override
-    public List<Action> legalActions() {
-        return null;
-    }
-
 
 
 

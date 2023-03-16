@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -92,7 +93,7 @@ public class EnvironmentBase implements Environment {
 
     @Override
     public @NotNull List<Action> getLegalActions() {
-        throw new NotImplementedException("legalActions() not implemented, yet.");
+        return new ArrayList<>();
     }
 
 

@@ -66,7 +66,10 @@ public class MuZeroConfig {
             Constructor<?> constructor = this.getGameClass().getConstructor(MuZeroConfig.class);
             Game game =  (Game) constructor.newInstance(this);
             if (connectToEnvironment) {game.connectToEnvironment();}
-            if (withFirstObservation) {game.addObservationFromEnvironment();}
+            if (withFirstObservation) {
+                game.addObservationFromEnvironment();
+                game.addLegalActionFromEnvironment();
+            }
             return game;
         } catch (Exception e) {
             e.printStackTrace();

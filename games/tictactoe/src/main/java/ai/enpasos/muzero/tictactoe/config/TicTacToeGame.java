@@ -68,11 +68,6 @@ public class TicTacToeGame extends ZeroSumGame {
 
 
     @Override
-    public List<Action> legalActions() {
-        return this.getEnvironment().getLegalActions();
-    }
-
-    @Override
     public List<Action> allActionsInActionSpace() {
         return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> config.newAction(i)).collect(Collectors.toList());
     }

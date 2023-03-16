@@ -178,7 +178,19 @@ private boolean reanalyse;
 
     public abstract boolean terminal();
 
-    public abstract List<Action> legalActions();
+
+
+    // TODO simplify Action handling
+    public   List<Action> legalActions() {
+       List<Action>  actionList = new ArrayList<>();
+      boolean[] b =  this.gameDTO.getLegalActions().get(this.gameDTO.getLegalActions().size()-1);
+      for (int i = 0; i < actionSpaceSize; i++) {
+          if (b[i]) {
+              actionList.add(config.newAction(i));
+          }
+      }
+      return actionList;
+    }
 
     public abstract List<Action> allActionsInActionSpace();
 
@@ -199,6 +211,7 @@ private boolean reanalyse;
         this.getGameDTO().getRewards().add(reward);
         this.getGameDTO().getActions().add(action.getIndex());
         addObservationFromEnvironment();
+        addLegalActionFromEnvironment();
         setActionApplied(true);
     }
     public void pseudoApplyFromOriginalGame(Action action) {
@@ -403,7 +416,14 @@ private boolean reanalyse;
     public void addObservationFromEnvironment() {
         gameDTO.getObservations().add(environment.getObservation());
     }
-
+    public void addLegalActionFromEnvironment() {
+        int[] actions = environment.getLegalActions().stream().mapToInt(a -> a.getIndex()).toArray();
+        boolean[] result = new boolean[actionSpaceSize];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = Arrays.binarySearch(actions, i) >= 0;
+        }
+        gameDTO.getLegalActions().add(result);
+    }
 
     public abstract void replayToPositionInEnvironment(int stateIndex);
 

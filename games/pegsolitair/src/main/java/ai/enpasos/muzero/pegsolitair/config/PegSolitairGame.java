@@ -60,10 +60,7 @@ public class PegSolitairGame extends Game {
     }
 
 
-    @Override
-    public List<Action> legalActions() {
-        return this.getEnvironment().getLegalActions();
-    }
+
 
     @Override
     public List<Action> allActionsInActionSpace() {
