@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.environment;
 
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface Environment {
 
 
     // the environment reveals the following information abouts its state
-    float[] getObservation();
+    Observation getObservation();
 
     boolean isTerminal();
 

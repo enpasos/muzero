@@ -20,6 +20,7 @@ package ai.enpasos.muzero.tictactoe.config;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -31,10 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 @Slf4j
 @SuppressWarnings("squid:S2160")
@@ -97,29 +101,24 @@ public class TicTacToeGame extends ZeroSumGame {
     @SuppressWarnings("squid:S2095")
     public @NotNull ObservationModelInput getObservationModelInput(int position) {
 
-        // values in the range [0, 1]
-        float[] result = new float[config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth()];
+        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
 
+        BitSet rawResult = new BitSet(n);
 
         OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
-       // OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
         int index = 0;
-        float[] observation = this.gameDTO.getObservations().get(position);
-        if (currentPlayer != OneOfTwoPlayer.PLAYER_A) {
-            observation = TicTacToeAdapter.changePlayerPerspective(config, observation);
-        }
-        System.arraycopy(observation, 0, result, 0, observation.length);
-        index += observation.length;
+        Observation observation = this.gameDTO.getObservations().get(position);
+        index = observation.addTo(rawResult, index, currentPlayer);
 
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
             for (int j = 0; j < config.getBoardWidth(); j++) {
-                result[index++] = v;
+                rawResult.set(index++, v == 1f);
             }
         }
 
-        return new ObservationModelInput(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
 
 

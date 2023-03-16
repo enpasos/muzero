@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.tictactoe.config;
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
@@ -85,7 +86,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     }
 
     @Override
-    public float[] getObservation() {
+    public Observation getObservation() {
         return TicTacToeAdapter.translateToObservation(config, board);
     }
 

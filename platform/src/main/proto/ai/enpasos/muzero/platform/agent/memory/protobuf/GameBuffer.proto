@@ -27,6 +27,7 @@ message GameProto {
   int64 count = 8;
   int32 tdSteps = 9;
   int32 trainingEpoch = 26;
+  int32 observationPartSize = 28;
   repeated float surprises = 10;
   bool surprised = 11;
   int64 tSurprise = 12;
@@ -46,7 +47,7 @@ message PolicyProtos {
   repeated float policy = 1;
 }
 message ObservationProtos {
-  repeated float observation = 1;
+  bytes observation = 1;
 }
 
 message LegalActionProtos {

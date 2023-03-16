@@ -10,6 +10,7 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Pass;
 import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -65,7 +66,7 @@ public class GoAdapter {
 
     }
 
-    public static float[] translateToObservation(MuZeroConfig config, GameState gameState) {
+    public static Observation translateToObservation(MuZeroConfig config, GameState gameState) {
 
         float[] observation = new float[config.getBoardHeight() * config.getBoardWidth()];
 
@@ -92,7 +93,8 @@ public class GoAdapter {
                 }
             }
         }
-        return observation;
+      //  return observation;
+        return null;
     }
 
     public static Action translate(MuZeroConfig config, Move move) {

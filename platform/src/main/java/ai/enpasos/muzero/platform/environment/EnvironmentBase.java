@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.environment;
 
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -80,7 +81,7 @@ public class EnvironmentBase implements Environment {
     }
 
     @Override
-    public float[] getObservation() {
+    public Observation getObservation() {
         throw new NotImplementedException("currentImage() not implemented, yet.");
     }
 

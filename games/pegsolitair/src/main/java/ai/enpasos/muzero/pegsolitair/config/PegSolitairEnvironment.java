@@ -20,6 +20,7 @@ package ai.enpasos.muzero.pegsolitair.config;
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.Environment;
 import lombok.Data;
@@ -67,7 +68,7 @@ public class PegSolitairEnvironment implements Environment {
     }
 
     @Override
-    public float[] getObservation() {
+    public Observation getObservation() {
         throw new NotImplementedException("currentImage() not implemented.");
     }
 

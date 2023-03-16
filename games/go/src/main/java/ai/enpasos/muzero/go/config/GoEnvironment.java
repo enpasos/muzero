@@ -25,6 +25,7 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.go.config.environment.scoring.GameResult;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentZeroSumBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -106,7 +107,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     }
 
     @Override
-    public float[] getObservation() {
+    public Observation getObservation() {
 
         return GoAdapter.translateToObservation(config,  history.get(history.size() -1));
     }
