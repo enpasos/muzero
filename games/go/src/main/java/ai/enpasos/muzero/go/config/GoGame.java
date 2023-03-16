@@ -21,6 +21,8 @@ import ai.enpasos.muzero.go.config.environment.GameState;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
+import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -33,10 +35,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 @Slf4j
 public class GoGame extends ZeroSumGame {
@@ -81,53 +86,46 @@ public class GoGame extends ZeroSumGame {
         }
     }
 
-//    @Override
-//    public void checkAssumptions() {
-//        super.checkAssumptions();
-//        assertTrue(((GoEnvironment) this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,
-//            "environment history does not have the right size");
-//    }
 
 
 
-
-    // TODO handle position
     public @NotNull ObservationModelInput getObservationModelInput(int position) {
+        int n0 =   config.getBoardHeight() * config.getBoardWidth();
+        int n = config.getNumObservationLayers() * n0;
+        BitSet rawResult = new BitSet(n);
 
+        OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
-        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
+//        int s = this.gameDTO.getObservations().size();
+//        if ( position > s-1) {
+//            int i = 42;
+//        }
 
-        List<GameState> history = this.getEnvironment().getHistory();
-        List<Optional<GameState>> relevantHistory = new ArrayList<>();
-
-        float[] result = new float[config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth()];
-
-
-        for (int i = 7; i >= 0; i--) {
-            Optional<GameState> state = Optional.empty();
-            if (history.size() > i) {
-                state = Optional.of(history.get(history.size() - 1 - i));
-            }
-            relevantHistory.add(state);
-        }
 
         int index = 0;
-        for (Optional<GameState> optionalGameState : relevantHistory) {
-            if (!optionalGameState.isEmpty()) {
-                GameState gameState = optionalGameState.get();
-                GoAdapter.translate(config, result, index, gameState);
-            }
-            index += 2 * config.getBoardHeight() * config.getBoardWidth();
+        for (int i = 7; i >= 0; i--) {
+            ObservationTwoPlayers observation =
+                    position-i >= 0 ?
+                    (ObservationTwoPlayers)this.gameDTO.getObservations().get(position-i) :
+                    ObservationTwoPlayers.builder()
+                                    .partSize(n0)
+                                    .partA(new BitSet(n0))
+                                    .partB(new BitSet(n0))
+                                    .build();
+               observation.setCurrentPlayer(currentPlayer);
+            index = observation.addTo(rawResult, index);
         }
+
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
             for (int j = 0; j < config.getBoardWidth(); j++) {
-                result[index++] = v;
+                rawResult.set(index++, v == 1f);
             }
         }
 
-        return new ObservationModelInput(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
-    }
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+
+     }
 
 
     @Override
@@ -165,6 +163,7 @@ public class GoGame extends ZeroSumGame {
     @Override
     public void initEnvironment() {
         environment = new GoEnvironment(config);
+        gameDTO.getObservations().add(environment.getObservation());
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, @NotNull Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

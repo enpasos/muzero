@@ -19,13 +19,13 @@ class ObservationTest {
         BitSet b = new BitSet(partSize);
         b.set(1);
 
-        Observation observation = Observation.builder()
+        Observation observation = ObservationTwoPlayers.builder()
                 .partSize(partSize)
                 .partA(a)
                 .partB(b)
                 .build();
 
-        Observation observation2 = Observation.fromByteStringAndPartSize(observation.toByteString(), partSize);
+        Observation observation2 = ObservationTwoPlayers.fromByteStringAndPartSize(observation.toByteString(), partSize);
 
         assertEquals(observation, observation2);
     }

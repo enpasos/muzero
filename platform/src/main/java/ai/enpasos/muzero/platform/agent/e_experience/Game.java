@@ -396,7 +396,9 @@ private boolean reanalyse;
 
     public abstract ObservationModelInput getObservationModelInput(int gamePosision);
 
-    public abstract ObservationModelInput getObservationModelInput();
+    public ObservationModelInput getObservationModelInput() {
+        return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
+    }
 
     public abstract void replayToPositionInEnvironment(int stateIndex);
 

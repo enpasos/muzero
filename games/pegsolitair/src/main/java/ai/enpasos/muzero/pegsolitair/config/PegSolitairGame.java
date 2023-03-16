@@ -26,15 +26,19 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
+import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 public class PegSolitairGame extends Game {
 
@@ -73,17 +77,18 @@ public class PegSolitairGame extends Game {
 
 
 
-
-    // TODO handle position
     public @NotNull ObservationModelInput getObservationModelInput(int position) {
 
-        Board board = ((PegSolitairEnvironment) environment).getBoard();
+        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
+        BitSet rawResult = new BitSet(n);
 
-        return new ObservationModelInput(getBoardPositions(board), new long[]{1L, 7L, 7L});
+        Observation observation = this.gameDTO.getObservations().get(position);
+         observation.addTo(rawResult, 0 );
+
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+
     }
-    public @NotNull ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
-    }
+
 
     @Override
     public void replayToPositionInEnvironment(int stateIndex) {
@@ -95,23 +100,6 @@ public class PegSolitairGame extends Game {
         }
     }
 
-    private float[] getBoardPositions(Board board) {
-        int size = 7;
-        float[] boardtransfer = new float[size * size];
-        for (int row = 1; row <= size; row++) {
-            for (int col = 1; col <= size; col++) {
-                Point p = new Point(row, col);
-                if (board.getPegsOnTheBoard().contains(p)) {
-                    boardtransfer[(row - 1) * size + col - 1] = 1f;
-                } else if (board.getHolesOnTheBoard().contains(p)) {
-                    boardtransfer[(row - 1) * size + col - 1] = 0f;
-                } else if (!inRange(p)) {
-                    boardtransfer[(row - 1) * size + col - 1] = 0f;
-                }
-            }
-        }
-        return boardtransfer;
-    }
 
 
     @Override
@@ -132,6 +120,7 @@ public class PegSolitairGame extends Game {
     @Override
     public void initEnvironment() {
         environment = new PegSolitairEnvironment(config);
+        gameDTO.getObservations().add(environment.getObservation());
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

@@ -19,9 +19,7 @@ public abstract class ZeroSumGame extends Game {
     }
 
 
-    public @NotNull ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
-    }
+
 
 
 

@@ -21,6 +21,7 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 @Slf4j
@@ -34,5 +35,10 @@ public class TestEnvironment extends EnvironmentBase {
 
     public float step(Action action) {
         return 0f;
+    }
+
+    @Override
+    public Observation getObservation() {
+        return ObservationTwoPlayers.builder().build();
     }
 }

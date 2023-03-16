@@ -1,39 +1,23 @@
 package ai.enpasos.muzero.tictactoe.config;
 
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
+import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 
-import java.util.Arrays;
 import java.util.BitSet;
 
 public class TicTacToeAdapter {
 
     public static Observation translateToObservation(MuZeroConfig config, int[][] board) {
         int n = config.getBoardHeight() * config.getBoardWidth();
-        return Observation.builder()
+        return ObservationTwoPlayers.builder()
                 .partSize(n)
                 .partA(getBoardPositions(n, board, OneOfTwoPlayer.PLAYER_A.getValue()))
                 .partB(getBoardPositions(n, board, OneOfTwoPlayer.PLAYER_B.getValue()))
                 .build();
 
     }
-
-    public static float[] changePlayerPerspective(MuZeroConfig config, float[] observation) {
-
-        float[] observationChanged = new float[observation.length];
-        int n = config.getBoardHeight() * config.getBoardWidth();
-
-        for (int i = 0; i < n; i++) {
-            observationChanged[i+n] = observation[i] == 0f ? 1f : 0f;
-        }
-        for (int i = n; i < observationChanged.length; i++) {
-            observationChanged[i-n] = observation[i] == 0f ? 1f : 0f;
-        }
-
-        return observationChanged;
-    }
-
 
 
     private static BitSet getBoardPositions(int n, int[][] board, int p) {

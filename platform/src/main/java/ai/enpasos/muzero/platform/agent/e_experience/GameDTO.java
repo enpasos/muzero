@@ -276,7 +276,7 @@ public class GameDTO implements Comparable<GameDTO> {
         if (p.getObservationsCount() > 0) {
             this.setObservations(
                     p.getObservationsList().stream()
-                            .map(o -> Observation.fromByteStringAndPartSize(o.getObservation(), this.observationPartSize))
+                            .map(o -> ObservationTwoPlayers.fromByteStringAndPartSize(o.getObservation(), this.observationPartSize))
                             .collect(Collectors.toList())
             );
         }

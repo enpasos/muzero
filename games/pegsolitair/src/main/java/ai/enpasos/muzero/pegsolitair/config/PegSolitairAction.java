@@ -50,7 +50,7 @@ public class PegSolitairAction extends Action {
 
 
     public Jump getJump() {
-        return ActionAdapter.getJump(this);
+        return PegSolitairAdapter.getJump(this);
     }
 
 

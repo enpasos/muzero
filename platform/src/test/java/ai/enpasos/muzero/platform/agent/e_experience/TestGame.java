@@ -67,10 +67,7 @@ public class TestGame extends Game {
         return null;
     }
 
-    @Override
-    public ObservationModelInput getObservationModelInput() {
-        return null;
-    }
+
 
     @Override
     public void replayToPositionInEnvironment(int stateIndex) {

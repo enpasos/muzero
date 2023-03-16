@@ -21,6 +21,7 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
+import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -108,8 +109,9 @@ public class TicTacToeGame extends ZeroSumGame {
         OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
         int index = 0;
-        Observation observation = this.gameDTO.getObservations().get(position);
-        index = observation.addTo(rawResult, index, currentPlayer);
+        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.gameDTO.getObservations().get(position);
+        observation.setCurrentPlayer(currentPlayer);
+        index = observation.addTo(rawResult, index);
 
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {

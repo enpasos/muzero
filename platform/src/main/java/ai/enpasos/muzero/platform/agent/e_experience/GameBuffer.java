@@ -90,8 +90,8 @@ public class GameBuffer {
         Sample sample = new Sample();
         sample.setGame(game);
 
-        ObservationModelInput lastObservation = game.getObservationModelInput(gamePos);
-        sample.getObservations().add(lastObservation);
+        ObservationModelInput observation = game.getObservationModelInput(gamePos);
+        sample.getObservations().add(observation);
 
 
         List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
@@ -105,9 +105,9 @@ public class GameBuffer {
             sample.getActionsList().add(actionIndex);
 
             if (gamePos + i < originalActionSize) {
-                lastObservation = game.getObservationModelInput(gamePos + i);
+                observation = game.getObservationModelInput(gamePos + i);
             }
-            sample.getObservations().add(lastObservation);
+            sample.getObservations().add(observation);
 
 
         }

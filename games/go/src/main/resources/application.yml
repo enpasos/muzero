@@ -42,7 +42,7 @@ muzero:
       # network training
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
-      batchSize: 64
+      batchSize: 50 #64
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0

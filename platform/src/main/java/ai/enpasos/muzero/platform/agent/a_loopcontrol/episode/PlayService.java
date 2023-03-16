@@ -43,6 +43,7 @@ public class PlayService {
         }
         games.stream().forEach(game -> {
             game.getGameDTO().setTdSteps(config.getTdSteps());
+         //   game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(0));
            // game.setPlayTypeKey(this.config.getPlayTypeKey());
         });
         if (config.getTrainingTypeKey() == HYBRID) {
@@ -65,8 +66,8 @@ public class PlayService {
             game.getGameDTO().setActions(new ArrayList<>());
             game.getGameDTO().setRewards(new ArrayList<>());
             game.getGameDTO().setObservations(new ArrayList<>());
-            game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(0));
 
+            game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(0));
         });
 
         return playGames(games, playParameters);

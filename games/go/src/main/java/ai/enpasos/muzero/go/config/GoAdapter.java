@@ -11,11 +11,13 @@ import ai.enpasos.muzero.go.config.environment.basics.move.Play;
 import ai.enpasos.muzero.go.config.environment.basics.move.Resign;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
+import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.common.Constants;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 
+import java.util.BitSet;
 import java.util.Optional;
 
 public class GoAdapter {
@@ -38,63 +40,64 @@ public class GoAdapter {
         }
     }
 
-    public static void translate(MuZeroConfig config, float[] result, int index, GameState gameState) {
+//    public static void translate(MuZeroConfig config, float[] result, int index, GameState gameState) {
+//
+//        Player player = gameState.getNextPlayer();
+//
+//        // values in the range [0, 1]
+//        // 8 historic boards needed
+//
+//        int boardHeight = config.getBoardHeight();
+//        int boardWidth = config.getBoardWidth();
+//        int opponentOffset = boardHeight * boardWidth;
+//
+//        for (int row = 0; row < config.getBoardHeight(); row++) {
+//            for (int col = 0; col < config.getBoardWidth(); col++) {
+//                var p = new Point(row + 1, col + 1);
+//                Optional<GoString> goStringOptional = gameState.getBoard().getGoString(p);
+//                if (goStringOptional.isPresent()) {
+//                    GoString goString = goStringOptional.get();
+//                    if (goString.getPlayer() == player) {
+//                        result[index + row * boardWidth + col] = 1f;
+//                    } else {
+//                        result[index + opponentOffset + row * boardWidth + col] = 1f;
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
 
-        Player player = gameState.getNextPlayer();
-
-        // values in the range [0, 1]
-        // 8 historic boards needed
-
-        int boardHeight = config.getBoardHeight();
-        int boardWidth = config.getBoardWidth();
-        int opponentOffset = boardHeight * boardWidth;
-
-        for (int row = 0; row < config.getBoardHeight(); row++) {
-            for (int col = 0; col < config.getBoardWidth(); col++) {
-                var p = new Point(row + 1, col + 1);
-                Optional<GoString> goStringOptional = gameState.getBoard().getGoString(p);
-                if (goStringOptional.isPresent()) {
-                    GoString goString = goStringOptional.get();
-                    if (goString.getPlayer() == player) {
-                        result[index + row * boardWidth + col] = 1f;
-                    } else {
-                        result[index + opponentOffset + row * boardWidth + col] = 1f;
-                    }
-                }
-            }
-        }
-
-    }
 
     public static Observation translateToObservation(MuZeroConfig config, GameState gameState) {
 
-        float[] observation = new float[config.getBoardHeight() * config.getBoardWidth()];
-
+        int n = config.getBoardHeight() * config.getBoardWidth();
         Player player = gameState.getNextPlayer();
 
-        // values in the range [0, 1]
-        // 8 historic boards needed
+        return ObservationTwoPlayers.builder()
+                .partSize(n)
+                .partA(getBoardPositions(config, gameState, n, player))
+                .partB(getBoardPositions(config, gameState, n, player.other()))
+                .build();
+    }
 
+    private static BitSet getBoardPositions(MuZeroConfig config, GameState gameState, int n, Player player) {
+        BitSet positions = new BitSet(n);
         int boardHeight = config.getBoardHeight();
         int boardWidth = config.getBoardWidth();
-        int opponentOffset = boardHeight * boardWidth;
-
-        for (int row = 0; row < config.getBoardHeight(); row++) {
-            for (int col = 0; col < config.getBoardWidth(); col++) {
+        for (int row = 0; row < boardHeight; row++) {
+            for (int col = 0; col < boardWidth; col++) {
                 var p = new Point(row + 1, col + 1);
                 Optional<GoString> goStringOptional = gameState.getBoard().getGoString(p);
                 if (goStringOptional.isPresent()) {
                     GoString goString = goStringOptional.get();
                     if (goString.getPlayer() == player) {
-                        observation[ row * boardWidth + col] = 1f;
-                    } else {
-                        observation[ opponentOffset + row * boardWidth + col] = 1f;
+                        positions.set(row * boardWidth + col);
                     }
                 }
             }
         }
-      //  return observation;
-        return null;
+        return positions;
     }
 
     public static Action translate(MuZeroConfig config, Move move) {
