@@ -69,19 +69,17 @@ public abstract class Game {
     double surpriseMean;
     double surpriseMax;
 
-   // boolean done;
+    // boolean done;
 
 
-//    public boolean isDone() {
+    //    public boolean isDone() {
 //        return isDone(false);
 //    }
     public boolean isDone(boolean replay) {
-        return              !replay &&  terminal()
-            || !replay &&  getGameDTO().getActions().size() >= config.getMaxMoves()
-            || replay &&  getOriginalGameDTO().getActions().size() ==   getGameDTO().getActions().size();
+        return !replay && terminal()
+                || !replay && getGameDTO().getActions().size() >= config.getMaxMoves()
+                || replay && getOriginalGameDTO().getActions().size() == getGameDTO().getActions().size();
     }
-
-
 
 
     int epoch;
@@ -94,9 +92,9 @@ public abstract class Game {
 
     private boolean actionApplied;
 
- //   private PlayTypeKey playTypeKey;
+    //   private PlayTypeKey playTypeKey;
 
-private boolean reanalyse;
+    private boolean reanalyse;
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
@@ -119,7 +117,7 @@ private boolean reanalyse;
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         try (ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
             GameDTO dto = (GameDTO) objectInputStream.readObject();
-            Game game = config.newGame(false,false);
+            Game game = config.newGame(false, false);
             Objects.requireNonNull(game).setGameDTO(dto);
             return game;
         } catch (Exception e) {
@@ -131,7 +129,7 @@ private boolean reanalyse;
         this.error = 0;
         for (int i = 0; i < this.originalGameDTO.getRootValuesFromInitialInference().size(); i++) {
             double d = this.originalGameDTO.getRootValuesFromInitialInference().get(i)
-                - this.getGameDTO().getRootValuesFromInitialInference().get(i);
+                    - this.getGameDTO().getRootValuesFromInitialInference().get(i);
             this.error += d * d;
         }
         return this.error;
@@ -144,7 +142,7 @@ private boolean reanalyse;
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         if (environment != null)
-             copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
+            copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
         return copy;
     }
 
@@ -179,30 +177,29 @@ private boolean reanalyse;
     public abstract boolean terminal();
 
 
-
     // TODO simplify Action handling
-    public   List<Action> legalActions() {
-       List<Action>  actionList = new ArrayList<>();
-      boolean[] b =  this.gameDTO.getLegalActions().get(this.gameDTO.getLegalActions().size()-1);
-      for (int i = 0; i < actionSpaceSize; i++) {
-          if (b[i]) {
-              actionList.add(config.newAction(i));
-          }
-      }
-      return actionList;
+    public List<Action> legalActions() {
+        List<Action> actionList = new ArrayList<>();
+        boolean[] b = this.gameDTO.getLegalActions().get(this.gameDTO.getLegalActions().size() - 1);
+        for (int i = 0; i < actionSpaceSize; i++) {
+            if (b[i]) {
+                actionList.add(config.newAction(i));
+            }
+        }
+        return actionList;
     }
 
     public abstract List<Action> allActionsInActionSpace();
 
     public void apply(int @NotNull ... actionIndex) {
         Arrays.stream(actionIndex).forEach(
-            i -> apply(config.newAction(i))
+                i -> apply(config.newAction(i))
         );
     }
 
     public void apply(List<Integer> actions) {
         actions.forEach(
-            i -> apply(config.newAction(i))
+                i -> apply(config.newAction(i))
         );
     }
 
@@ -214,27 +211,29 @@ private boolean reanalyse;
         addLegalActionFromEnvironment();
         setActionApplied(true);
     }
+
     public void pseudoApplyFromOriginalGame(Action action) {
         this.getGameDTO().getActions().add(action.getIndex());
         this.getGameDTO().getRewards().add(this.getOriginalGameDTO().getRewards().get(this.getGameDTO().getRewards().size()));
         this.getGameDTO().getObservations().add(this.getOriginalGameDTO().getObservations().get(this.getGameDTO().getObservations().size()));
+        this.getGameDTO().getLegalActions().add(this.getOriginalGameDTO().getLegalActions().get(this.getGameDTO().getLegalActions().size()));
         setActionApplied(true);
     }
 
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps ) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target );
+            fillTarget(currentIndex, target);
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget( int currentIndex, Target target) {
+    private void fillTarget(int currentIndex, Target target) {
         if (this.isReanalyse()) {
             int i = 42;
         }
@@ -253,8 +252,8 @@ private boolean reanalyse;
 //                // the idea is not to put any force on the network to learn a particular action where it is not necessary
 //                Arrays.fill(target.getPolicy(), 0f);
 //            } else {
-                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-       //     }
+            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            //     }
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -308,7 +307,7 @@ private boolean reanalyse;
         return getTdSteps(b, currentIndex, T);
     }
 
-   public int getTdSteps(double b, int currentIndex, int T) {
+    public int getTdSteps(double b, int currentIndex, int T) {
         double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
 
         int tdSteps;
@@ -326,8 +325,8 @@ private boolean reanalyse;
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-          //  System.out.println(pRatio);
-            if (pRatio > b*localPRatioMax) {
+            //  System.out.println(pRatio);
+            if (pRatio > b * localPRatioMax) {
                 tdSteps = t - currentIndex;
                 if (config.allOrNothingOn()) {
                     if (tdSteps != T - currentIndex) { // test for all
@@ -410,17 +409,18 @@ private boolean reanalyse;
     public abstract ObservationModelInput getObservationModelInput(int gamePosision);
 
     public ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.gameDTO.getObservations().size()-1);
+        return this.getObservationModelInput(this.gameDTO.getObservations().size() - 1);
     }
 
     public void addObservationFromEnvironment() {
         gameDTO.getObservations().add(environment.getObservation());
     }
+
     public void addLegalActionFromEnvironment() {
-        int[] actions = environment.getLegalActions().stream().mapToInt(a -> a.getIndex()).toArray();
+        List<Action> actions = environment.getLegalActions();
         boolean[] result = new boolean[actionSpaceSize];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = Arrays.binarySearch(actions, i) >= 0;
+        for (int i = 0; i < actions.size(); i++) {
+            result[actions.get(i).getIndex()] = true;
         }
         gameDTO.getLegalActions().add(result);
     }
@@ -448,7 +448,7 @@ private boolean reanalyse;
         this.gameDTO = this.gameDTO.copyWithoutActions();
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
-      //  this.initEnvironment();
+        //  this.initEnvironment();
     }
 
     public void beforeReplayWithoutChangingActionHistory(int backInTime) {
@@ -456,8 +456,8 @@ private boolean reanalyse;
         this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
-     //   this.initEnvironment();
-      //  this.replayToPosition(getGameDTO().getActions().size());
+        //   this.initEnvironment();
+        //  this.replayToPosition(getGameDTO().getActions().size());
     }
 
 
@@ -472,24 +472,24 @@ private boolean reanalyse;
     }
 
     double pRatioMax;
+
     public double getPRatioMax() {
         int n = getGameDTO().getActions().size();
-        int tStart = (int)this.getGameDTO().getTHybrid();
+        int tStart = (int) this.getGameDTO().getTHybrid();
         if (tStart >= n) return 1d;
-        double[] pRatios = new double[n-tStart];
+        double[] pRatios = new double[n - tStart];
 
         IntStream.range(tStart, n).forEach(i -> {
             int a = getGameDTO().getActions().get(i);
-           if (getGameDTO().getPlayoutPolicy().isEmpty()) {
-               pRatios[i-tStart] = 1;
-           } else {
-               pRatios[i-tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
-           }
+            if (getGameDTO().getPlayoutPolicy().isEmpty()) {
+                pRatios[i - tStart] = 1;
+            } else {
+                pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
+            }
         });
-        double prod =  getProductPathMax(pRatios);
+        double prod = getProductPathMax(pRatios);
         return prod;
     }
-
 
 
 }

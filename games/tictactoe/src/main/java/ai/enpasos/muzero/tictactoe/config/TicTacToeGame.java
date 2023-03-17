@@ -118,13 +118,13 @@ public class TicTacToeGame extends ZeroSumGame {
 
     @Override
     public Player toPlay() {
-        return this.getEnvironment().getPlayerToMove();
+        return this.getGameDTO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
     }
 
 
     @Override
     public String render() {
-
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";  // TODO: environment decoupling needed
         String r = this.getGameDTO().getActions().size() + ": ";
         OneOfTwoPlayer player = null;
         if (!this.getGameDTO().getActions().isEmpty()) {
@@ -135,7 +135,8 @@ public class TicTacToeGame extends ZeroSumGame {
             r += player.getSymbol() + " move (" + (((TicTacToeAction) action).getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
         }
         r += "\n";
-        r += getEnvironment().render();
+
+            r += getEnvironment().render();
         if (terminal() && !this.getGameDTO().getRewards().isEmpty()) {
             if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
                 r += "\ndraw";

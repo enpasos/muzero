@@ -127,7 +127,7 @@ public class GoGame extends ZeroSumGame {
 
     @Override
     public Player toPlay() {
-        return this.getEnvironment().getPlayerToMove();
+        return this.getGameDTO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
     }
 
     @Override
