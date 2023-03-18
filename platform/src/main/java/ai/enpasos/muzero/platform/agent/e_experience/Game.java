@@ -43,6 +43,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss.NULL_VALUE;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
 
@@ -232,6 +233,10 @@ public abstract class Game {
         return targets;
     }
 
+
+    static List<Double> v0s = new ArrayList<>();
+
+
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target) {
         if (this.isReanalyse()) {
@@ -242,6 +247,22 @@ public abstract class Game {
         value = calculateValue(tdSteps, currentIndex);
 
         float lastReward = getLastReward(currentIndex);
+
+        if (currentIndex == 0 ) {
+            if (tdSteps != 0) {
+                v0s.add(value);
+                if (v0s.size() > 1000) {
+                    v0s.remove(0);
+                }
+                //System.out.println(">> rawvalue = " + value);
+            } else {
+                if (v0s.size() > 0) {
+                    value = v0s.stream().reduce(0d, Double::sum) / v0s.size();
+                 //   System.out.println(">> value calculated = " + value);
+                }
+            }
+        }
+
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
 
@@ -390,7 +411,8 @@ public abstract class Game {
         double value = 0;
         if (gameDTO.isHybrid() || isReanalyse()) {
             if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-                value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                //value = NULL_VALUE;
+               value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
             if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {

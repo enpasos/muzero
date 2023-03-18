@@ -340,7 +340,8 @@ public class GameBuffer {
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
-        List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
+  //      List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
+        List<String> networkNames = new ArrayList<>();
         List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames, this.getConfig());
         games.forEach(g -> g.setReanalyse(true));
         return games;
