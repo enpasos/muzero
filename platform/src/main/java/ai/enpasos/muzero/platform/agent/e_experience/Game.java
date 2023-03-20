@@ -248,20 +248,20 @@ public abstract class Game {
 
         float lastReward = getLastReward(currentIndex);
 
-        if (currentIndex == 0 ) {
-            if (tdSteps != 0) {
-                v0s.add(value);
-                if (v0s.size() > 1000) {
-                    v0s.remove(0);
-                }
-                //System.out.println(">> rawvalue = " + value);
-            } else {
-                if (v0s.size() > 0) {
-                    value = v0s.stream().reduce(0d, Double::sum) / v0s.size();
-                 //   System.out.println(">> value calculated = " + value);
-                }
-            }
-        }
+//        if (currentIndex == 0 ) {
+//            if (tdSteps != 0) {
+//                v0s.add(value);
+//                if (v0s.size() > 1000) {
+//                    v0s.remove(0);
+//                }
+//                //System.out.println(">> rawvalue = " + value);
+//            } else {
+//                if (v0s.size() > 0) {
+//                    value = v0s.stream().reduce(0d, Double::sum) / v0s.size();
+//                 //   System.out.println(">> value calculated = " + value);
+//                }
+//            }
+//        }
 
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
