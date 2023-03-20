@@ -31,15 +31,12 @@ public class ModelService {
     @Autowired
     MuZeroConfig config;
 
-//    @Autowired
-//    EnableSchedulingConfig enableSchedulingConfig;
-
     @Async()
     public CompletableFuture<NetworkIO> initialInference(Game game) {
         InitialInferenceTask task = new InitialInferenceTask(game);
         modelQueue.addInitialInferenceTask(task);
 
-        while (!task.isDone()) {
+        while (task.isDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -59,7 +56,7 @@ public class ModelService {
         games.forEach(game -> tasks.add(new InitialInferenceTask(game)));
         modelQueue.addInitialInferenceTasks(tasks);
 
-        while (tasks.stream().anyMatch(task -> !task.isDone())) {
+        while (tasks.stream().anyMatch(InitialInferenceTask::isDone)) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -78,9 +75,9 @@ public class ModelService {
 
     @Async()
     public CompletableFuture<Void> getEpoch() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.getEpoch);
+        ControllerTask task = new ControllerTask(ControllerTaskType.GET_EPOCH);
         modelQueue.addControllerTask(task);
-        while (!task.isDone()) {
+        while (task.isDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -94,7 +91,7 @@ public class ModelService {
 
     @Async()
     public CompletableFuture<Void> loadLatestModelOrCreateIfNotExisting() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModelOrCreateIfNotExisting);
+        ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL_OR_CREATE_IF_NOT_EXISTING);
         return handleControllerTask(task);
     }
 
@@ -109,26 +106,26 @@ public class ModelService {
 
     @Async()
     public CompletableFuture<Void> loadLatestModel() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModel);
+        ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL);
         return handleControllerTask(task);
     }
     @Async()
     public CompletableFuture<Void> loadLatestModelOrCreateIfNotExisting(int epoch) {
-        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModelOrCreateIfNotExisting);
+        ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL_OR_CREATE_IF_NOT_EXISTING);
         task.epoch = epoch;
         return handleControllerTask(task);
     }
 
     @Async()
     public CompletableFuture<Void> loadLatestModel(int epoch) {
-        ControllerTask task = new ControllerTask(ControllerTaskType.loadLatestModel);
+        ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL);
         task.epoch = epoch;
         return handleControllerTask(task);
     }
     @NotNull
     private CompletableFuture<Void> handleControllerTask(ControllerTask task) {
         modelQueue.addControllerTask(task);
-        while (!task.isDone()) {
+        while (task.isDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -185,19 +182,19 @@ public class ModelService {
 
     @Async()
     public CompletableFuture<Void> trainModel() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.trainModel);
+        ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL);
         return handleControllerTask(task);
     }
 
 
     public void startScope() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.startScope);
+        ControllerTask task = new ControllerTask(ControllerTaskType.START_SCOPE);
           handleControllerTask(task).join();
     }
 
 
     public void  endScope() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.endScope);
+        ControllerTask task = new ControllerTask(ControllerTaskType.END_SCOPE);
          handleControllerTask(task).join();
     }
 }

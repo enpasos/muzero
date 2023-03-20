@@ -47,7 +47,6 @@ public class SimilarityPredictorBlock extends MySequentialBlock {
             .add(LinearExt.builder()
                 .setUnits(outputChannels)
                 .build());
-          //  .add(LayerNormExt.builder().build());
 
         return instance;
     }

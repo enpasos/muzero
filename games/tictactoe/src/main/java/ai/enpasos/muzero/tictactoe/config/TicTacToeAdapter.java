@@ -9,6 +9,9 @@ import java.util.BitSet;
 
 public class TicTacToeAdapter {
 
+    private TicTacToeAdapter() {
+    }
+
     public static Observation translateToObservation(MuZeroConfig config, int[][] board) {
         int n = config.getBoardHeight() * config.getBoardWidth();
         return ObservationTwoPlayers.builder()

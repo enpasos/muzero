@@ -113,7 +113,6 @@ public class PegSolitairGame extends Game {
     @Override
     public void connectToEnvironment() {
         environment = new PegSolitairEnvironment(config);
-      //  gameDTO.getObservations().add(environment.getObservation());
     }
 
     public void renderNetworkGuess(@NotNull MuZeroConfig config, Player toPlay, @Nullable NetworkIO networkOutput, boolean gameOver) {

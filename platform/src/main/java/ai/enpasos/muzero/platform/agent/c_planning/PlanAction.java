@@ -22,6 +22,7 @@ import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas
 //import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.calculateSurprise;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
+@SuppressWarnings("unchecked")
 @Component
 @Slf4j
 public class PlanAction {
@@ -143,12 +144,6 @@ public class PlanAction {
         }
 
         storeEntropyInfo(game, networkOutput);
-
-
-//        if (!fastRuleLearning) {
-//            calculateSurprise(value, game, config);
-//        }
-
 
 
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {

@@ -63,7 +63,6 @@ import static ai.enpasos.muzero.platform.agent.e_experience.GameBufferDTO.BUFFER
 public class GameBufferIO {
 
 
-  //  public static final String NODETREE_JSON = "nodetree.json";
     @Autowired
     MuZeroConfig config;
 
@@ -99,18 +98,9 @@ public class GameBufferIO {
 
     }
 
-//    public List<Game> loadGames(String networkName, MuZeroConfig config) {
-//        List<Game> games = null;
-//        GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
-//        gameBufferDTO.setGames(games);
-//        saveState(gameBufferDTO, networkName);
-//        return games;
-//    }
 
     public List<Game> loadGamesForReplay(int n , List<String> networkNamesNotToLoad, MuZeroConfig config) {
         List<Game> games = new ArrayList<>();
-        //GameBufferDTO gameBufferDTO = new GameBufferDTO(config);
-
 
         List<Path> paths = this.getBufferNames();
         List<Path> pathsNotToLoad = new ArrayList<>();
@@ -124,7 +114,7 @@ public class GameBufferIO {
 
         paths.removeAll(pathsNotToLoad);
 
-        if (paths.size() > 0) {
+        if (!paths.isEmpty()) {
             Collections.shuffle(paths);
             for (int h = 0; h < paths.size() && games.size() < n; h++) {
                 Path path = paths.get(h);
@@ -132,16 +122,10 @@ public class GameBufferIO {
                 games.addAll(gameBufferDTO.getGames());
             }
         }
-   //     Collections.shuffle(games);
         return games.subList(0, Math.min(n, games.size()));
     }
 
-//private int getEpochFromPath(Path path) {
-//        return Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", ""));
-//    }
-//    private int getNetworkNameFromPath(Path path) {
-//        return Integer.parseInt(path.toString().substring((config.getGamesBasedir() + Constants.BUFFER_DIR).length()).replace("proto", "").replace(".zip", ""));
-//    }
+
 
     public void saveState(GameBufferDTO dto, String networkName) {
 

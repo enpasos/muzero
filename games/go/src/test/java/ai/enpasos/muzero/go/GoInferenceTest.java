@@ -52,9 +52,7 @@ class GoInferenceTest {
         rmDir(config.getOutputDir());
         try {
             modelService.loadLatestModelOrCreateIfNotExisting().get();
-        } catch (InterruptedException e) {
-            throw new MuZeroException(e);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new MuZeroException(e);
         }
     }

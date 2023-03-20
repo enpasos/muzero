@@ -43,7 +43,6 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss.NULL_VALUE;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
 
@@ -70,12 +69,8 @@ public abstract class Game {
     double surpriseMean;
     double surpriseMax;
 
-    // boolean done;
 
 
-    //    public boolean isDone() {
-//        return isDone(false);
-//    }
     public boolean isDone(boolean replay) {
         return !replay && terminal()
                 || !replay && getGameDTO().getActions().size() >= config.getMaxMoves()
@@ -93,7 +88,6 @@ public abstract class Game {
 
     private boolean actionApplied;
 
-    //   private PlayTypeKey playTypeKey;
 
     private boolean reanalyse;
 
@@ -159,10 +153,6 @@ public abstract class Game {
         return copy;
     }
 
-
-//    public void checkAssumptions() {
-//        assertTrue(this.getGameDTO().getPolicyTargets().size() == this.getGameDTO().getActions().size(), "policyTargets.size() == actions.size()");
-//    }
 
     protected void assertTrue(boolean b, String s) {
         if (b) return;
@@ -239,42 +229,17 @@ public abstract class Game {
 
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target) {
-        if (this.isReanalyse()) {
-            int i = 42;
-        }
         double value;
         int tdSteps = getTdSteps(currentIndex);
         value = calculateValue(tdSteps, currentIndex);
 
         float lastReward = getLastReward(currentIndex);
 
-//        if (currentIndex == 0 ) {
-//            if (tdSteps != 0) {
-//                v0s.add(value);
-//                if (v0s.size() > 1000) {
-//                    v0s.remove(0);
-//                }
-//                //System.out.println(">> rawvalue = " + value);
-//            } else {
-//                if (v0s.size() > 0) {
-//                    value = v0s.stream().reduce(0d, Double::sum) / v0s.size();
-//                 //   System.out.println(">> value calculated = " + value);
-//                }
-//            }
-//        }
-
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-
             setValueOnTarget(target, value);
             target.setReward(lastReward);
-//            if (gameDTO.isHybrid() && tdSteps == 0 && !config.isForTdStep0PolicyTraining()) {
-//                target.setPolicy(new float[this.actionSpaceSize]);
-//                // the idea is not to put any force on the network to learn a particular action where it is not necessary
-//                Arrays.fill(target.getPolicy(), 0f);
-//            } else {
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-            //     }
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -311,8 +276,6 @@ public abstract class Game {
             }
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
-//                int T = this.getGameDTO().getRewards().size() - 1;
-//                tdSteps = getTdSteps(currentIndex, T);
                 tdSteps = 0;
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
@@ -346,7 +309,6 @@ public abstract class Game {
                 p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
             }
             double pRatio = p / pBase;
-            //  System.out.println(pRatio);
             if (pRatio > b * localPRatioMax) {
                 tdSteps = t - currentIndex;
                 if (config.allOrNothingOn()) {
@@ -411,7 +373,6 @@ public abstract class Game {
         double value = 0;
         if (gameDTO.isHybrid() || isReanalyse()) {
             if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-                //value = NULL_VALUE;
                value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
@@ -441,8 +402,8 @@ public abstract class Game {
     public void addLegalActionFromEnvironment() {
         List<Action> actions = environment.getLegalActions();
         boolean[] result = new boolean[actionSpaceSize];
-        for (int i = 0; i < actions.size(); i++) {
-            result[actions.get(i).getIndex()] = true;
+        for (Action action : actions) {
+            result[action.getIndex()] = true;
         }
         gameDTO.getLegalActions().add(result);
     }
@@ -470,7 +431,6 @@ public abstract class Game {
         this.gameDTO = this.gameDTO.copyWithoutActions();
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
-        //  this.initEnvironment();
     }
 
     public void beforeReplayWithoutChangingActionHistory(int backInTime) {
@@ -478,8 +438,6 @@ public abstract class Game {
         this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
         this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
         this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
-        //   this.initEnvironment();
-        //  this.replayToPosition(getGameDTO().getActions().size());
     }
 
 
@@ -509,8 +467,7 @@ public abstract class Game {
                 pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
             }
         });
-        double prod = getProductPathMax(pRatios);
-        return prod;
+        return getProductPathMax(pRatios);
     }
 
 

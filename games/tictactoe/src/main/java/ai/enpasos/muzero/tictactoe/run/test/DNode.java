@@ -182,12 +182,8 @@ public class DNode {
         return null;
     }
 
-//    public void findNodesWhereADecisionMattersOnTheOptimalPath() {
-//       this.markOptimalPath();
-//    }
-
     public  boolean isOnOptimalPath(DNode root) {
-        return this.bestForceableValuePlayerA == root.bestForceableValuePlayerA
-            && this.bestForceableValuePlayerB == root.bestForceableValuePlayerB;
+        return this.bestForceableValuePlayerA.equals(root.bestForceableValuePlayerA)
+            && this.bestForceableValuePlayerB.equals(root.bestForceableValuePlayerB);
     }
 }

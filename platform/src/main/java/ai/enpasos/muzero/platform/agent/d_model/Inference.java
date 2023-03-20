@@ -89,7 +89,7 @@ public class Inference {
     public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, int epoch) {
         try {
             modelService.loadLatestModel(epoch).get();
-            return aiDecision(withMCTS, games).stream().mapToInt(p -> p.getSecond() ).toArray();
+            return aiDecision(withMCTS, games).stream().mapToInt(Pair::getSecond).toArray();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new MuZeroException(e);
@@ -209,9 +209,7 @@ public class Inference {
          //   modelService.startScope();
             try {
                 networkOutputList = modelService.initialInference(games).get();
-            } catch (InterruptedException e) {
-                throw new MuZeroException(e);
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 throw new MuZeroException(e);
             }
 

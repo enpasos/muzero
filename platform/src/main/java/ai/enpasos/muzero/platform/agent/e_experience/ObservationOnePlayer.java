@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
-import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import com.google.protobuf.ByteString;
 import lombok.Builder;
 import lombok.Data;

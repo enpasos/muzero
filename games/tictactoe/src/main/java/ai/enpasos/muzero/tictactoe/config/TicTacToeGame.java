@@ -82,14 +82,6 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
-    private void getBoardPositions(float[] result, int index, int[][] board, int p) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                result[index + i * board.length + j] = board[i][j] == p ? 1f : 0f;
-            }
-        }
-    }
-
 
     @SuppressWarnings("squid:S2095")
     public @NotNull ObservationModelInput getObservationModelInput(int position) {
@@ -200,18 +192,13 @@ public class TicTacToeGame extends ZeroSumGame {
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
-            float value = 0f;
+            float value;
             value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElse(new Node(config, 0f)).getPrior();
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
         log.info(EnvironmentBase.render(config, values));
-//        if (boardSize < config.getActionSpaceSize()) {
-//            Action a = config.newAction(boardSize);
-//            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
-//            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
-//        }
     }
 
 

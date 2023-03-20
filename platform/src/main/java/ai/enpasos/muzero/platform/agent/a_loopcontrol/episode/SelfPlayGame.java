@@ -50,9 +50,6 @@ public class SelfPlayGame {
             }
             count++;
         }
-        if (playParameters.isReplay()) {
-            int i = 42;
-        }
 
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);

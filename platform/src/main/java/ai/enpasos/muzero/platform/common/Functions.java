@@ -42,7 +42,7 @@ public class Functions {
 
 
     public static double[] ln(double[] ps) {
-        return Arrays.stream(ps).map(x -> Math.log(x)).toArray();
+        return Arrays.stream(ps).map(Math::log).toArray();
     }
 
     public static double[] softmax(double[] raw, double temperature) {

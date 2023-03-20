@@ -7,9 +7,9 @@ import lombok.ToString;
 
 public class ControllerTask {
 
-    private ControllerTaskType taskType;
+    private final ControllerTaskType taskType;
     private NetworkIO networkOutput;
-    volatile private boolean done;
+    private volatile boolean done;
 
 
 
@@ -22,7 +22,7 @@ public ControllerTask(ControllerTaskType taskType) {
 
     synchronized
     public boolean isDone() {
-        return done;
+        return !done;
     }
 
     synchronized

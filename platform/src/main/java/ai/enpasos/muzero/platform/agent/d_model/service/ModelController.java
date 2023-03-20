@@ -23,7 +23,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,19 +59,18 @@ public class ModelController implements DisposableBean, Runnable {
     @Autowired
     private ModelState modelState;
 
-    private DurAndMem inferenceDuration = new DurAndMem();
+    private final DurAndMem inferenceDuration = new DurAndMem();
 
     private NDScope ndScope;
 
-    private Thread thread;
     private volatile boolean running;
 
 
     @PostConstruct
     void init() {
         this.running = true;
-        this.thread = new Thread(this, "model");
-        this.thread.start();
+        Thread thread = new Thread(this, "model");
+        thread.start();
     }
 
     @Override
@@ -113,7 +111,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         for (ControllerTask task : localControllerTaskList) {
             switch (task.getTaskType()) {
-                case loadLatestModel:
+                case LOAD_LATEST_MODEL:
                     close();
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
                     log.info("loadLatestModel with model name {}", config.getModelName());
@@ -128,7 +126,7 @@ public class ModelController implements DisposableBean, Runnable {
                     network.setHiddenStateNDManager(nDManager);
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
-                case loadLatestModelOrCreateIfNotExisting:
+                case LOAD_LATEST_MODEL_OR_CREATE_IF_NOT_EXISTING:
                     close();
                     model = Model.newInstance(config.getModelName(), Device.gpu());
                     if (model.getBlock() == null) {
@@ -147,16 +145,16 @@ public class ModelController implements DisposableBean, Runnable {
                     network.setHiddenStateNDManager(nDManager);
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
-                case trainModel:
+                case TRAIN_MODEL:
                     trainNetwork(network.getModel());
                     break;
-                case startScope:
+                case START_SCOPE:
                     if (ndScope != null) {
                         ndScope.close();
                     }
                     ndScope = new NDScope();
                     break;
-                case endScope:
+                case END_SCOPE:
                     if (ndScope != null) {
                         ndScope.close();
                     }
@@ -198,18 +196,12 @@ public class ModelController implements DisposableBean, Runnable {
                 }
 
                 // number of action paths
-//                int numActionPaths = this.gameBuffer.getBuffer().getNumOfDifferentGames();
-//                model.setProperty("NumActionPaths", Double.toString(numActionPaths));
-//                log.info("NumActionPaths: " + numActionPaths);
 
                 handleMetrics(trainer, model, epochLocal);
 
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
         }
-        // epoch = getEpochFromModel(model);
-        //System.out.println(">>>>>>> epoch = " + epoch);
-        // gameBuffer.setEpoch(epoch);
         modelState.setEpoch(getEpochFromModel(model));
         // return epoch;
 //        return epoch * numberOfTrainingStepsPerEpoch;
@@ -332,9 +324,6 @@ public class ModelController implements DisposableBean, Runnable {
         List<NetworkIO> networkOutput = network.initialInferenceListDirect(games);
         inferenceDuration.off();
 
-        //    int epoch = getEpoch(network.getModel());
-        // networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
-
         IntStream.range(0, localInitialInferenceTaskList.size()).forEach(g -> {
             InitialInferenceTask task = localInitialInferenceTaskList.get(g);
             task.setNetworkOutput(networkOutput.get(g));
@@ -360,9 +349,6 @@ public class ModelController implements DisposableBean, Runnable {
         List<NetworkIO> networkOutput = network.recurrentInference(searchPathList);
         inferenceDuration.off();
 
-        //    int epoch = getEpoch(network.getModel());
-        //    networkOutput.stream().forEach(networkIO -> networkIO.setEpoch(epoch));
-
         IntStream.range(0, localRecurrentInferenceTaskList.size()).forEach(g -> {
             RecurrentInferenceTask task = localRecurrentInferenceTaskList.get(g);
             task.setNetworkOutput(networkOutput.get(g));
@@ -377,7 +363,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
        // log.info("ModelController destroy.");
         running = false;
     }

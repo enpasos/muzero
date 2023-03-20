@@ -173,11 +173,10 @@ public class GameBuffer {
      */
     public List<Sample> sampleBatch(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            List<Sample> samples = sampleGames().stream()
+            return sampleGames().stream()
                 .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
                 .collect(Collectors.toList());
 
-            return samples;
         }
 
 
@@ -188,10 +187,9 @@ public class GameBuffer {
         List<Game> games = getGames();
         Collections.shuffle(games);
 
-        List<Game> gamesToTrain = games.stream()
+        return games.stream()
                 .limit(this.batchSize)
                 .collect(Collectors.toList());
-        return gamesToTrain;
     }
 
     @NotNull
@@ -209,9 +207,7 @@ public class GameBuffer {
         for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
             Path path = paths.get(paths.size() - 1 - h);
             GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
-            if (gameBufferDTO == null) {
-                int i = 42;
-            }
+
             epochMax = Math.max(getEpochFromPath(path), epochMax);
             gameBufferDTO.getGames().forEach(game -> addGame(game, true));
         }
@@ -251,11 +247,8 @@ public class GameBuffer {
         } else {
             this.timestamps.put(games.get(0).getGameDTO().getTrainingEpoch(), System.currentTimeMillis());
             logEntropyInfo();
-          //  String currentNetworkNameWithEpoch = this.getCurrentNetworkNameWithEpoch();
             int epoch = this.getModelState().getEpoch();
-            if (epoch != 0) {
-                int j = 42;
-            }
+
             this.gameBufferIO.saveGames(
                 this.getBuffer().games.stream()
                     .filter(g -> g.getGameDTO().getTrainingEpoch() == epoch)
@@ -280,7 +273,6 @@ public class GameBuffer {
 
     private void addGame(Game game, boolean atBeginning) {
         memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
-     //   System.out.println(game.getGameDTO().getNetworkName() + "; " + game.getGameDTO().getTrainingEpoch());
         getBuffer().addGame(game, atBeginning);
     }
 

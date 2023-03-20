@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
-import static ai.enpasos.muzero.platform.config.PlayTypeKey.REANALYSE;
 
 @Component
 @Slf4j
@@ -41,9 +40,7 @@ public class PlayService {
             Game game = config.newGame(true,true);
             games.add(game);
         }
-        games.stream().forEach(game -> {
-            game.getGameDTO().setTdSteps(config.getTdSteps());
-        });
+        games.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration(games);
         }
@@ -100,6 +97,7 @@ public class PlayService {
 
 
 
+    @SuppressWarnings("unchecked")
     public List<Game> playGames(List<Game> games, PlayParameters playParameters) {
         List<Game> gamesReturn = new ArrayList<>();
 

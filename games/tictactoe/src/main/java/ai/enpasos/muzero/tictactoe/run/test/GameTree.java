@@ -38,9 +38,9 @@ public class GameTree {
     List<DNode> terminalGameNodes;
     List<DNode> nonExpandedGameNodes;
 
-     Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
+     final Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
     Set<DNode> nodesWhereADecisionMattersForPlayerAOnOptimalPath = new HashSet<>();
-    Set<DNode> nodesWhereADecisionMattersForPlayerB = new HashSet<>();
+    final Set<DNode> nodesWhereADecisionMattersForPlayerB = new HashSet<>();
      Set<DNode> nodesWhereADecisionMattersForPlayerBOnOptimalPath = new HashSet<>();
     DNode rootNode;
 
@@ -76,12 +76,12 @@ public class GameTree {
 
         nodesWhereADecisionMattersForPlayerAOnOptimalPath
             = nodesWhereADecisionMattersForPlayerA.stream().filter(
-                dNode ->  this.isOnOptimalPath(dNode)
+                this::isOnOptimalPath
         ).collect(Collectors.toSet());
 
         nodesWhereADecisionMattersForPlayerBOnOptimalPath
             = nodesWhereADecisionMattersForPlayerB.stream().filter(
-            dNode ->  this.isOnOptimalPath(dNode)
+                this::isOnOptimalPath
         ).collect(Collectors.toSet());
     }
 

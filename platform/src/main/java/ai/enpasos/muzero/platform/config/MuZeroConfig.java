@@ -213,10 +213,6 @@ public class MuZeroConfig {
         return getConf().numUnrollSteps;
     }
 
-//    public int getNumberOfEpisodesPerJVMStart() {
-//        return getConf().numberOfEpisodesPerJVMStart;
-//    }
-
 
     public int getTdSteps() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getTdSteps();

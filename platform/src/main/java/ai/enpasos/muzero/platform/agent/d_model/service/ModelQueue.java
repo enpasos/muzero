@@ -21,7 +21,7 @@ public class ModelQueue {
         synchronized(initialInferenceTasks) {
          //   return initialInferenceTasks.size();
             return initialInferenceTasks.stream()
-                .filter(task -> !task.isDone())
+                .filter(InitialInferenceTask::isDone)
                 .count();
 
         }
@@ -37,7 +37,7 @@ public class ModelQueue {
     public List<InitialInferenceTask> getInitialInferenceTasksNotStarted(int num) {
         synchronized(initialInferenceTasks) {
             return initialInferenceTasks.stream()
-                .filter(task -> !task.isDone())
+                .filter(InitialInferenceTask::isDone)
                 .limit(num)  // as we use a list this should be the first once entered in the list (FIFO) - but we should test this
                 .collect(Collectors.toList());
         }
@@ -46,7 +46,7 @@ public class ModelQueue {
     public List<ControllerTask> getControllerTasksNotStarted() {
         synchronized(controllerTasks) {
             return controllerTasks.stream()
-                .filter(task -> !task.isDone())
+                .filter(ControllerTask::isDone)
                 .collect(Collectors.toList());
         }
     }

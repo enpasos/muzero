@@ -107,9 +107,6 @@ public class Play {
                     .replay(true)
                     .build(),
                 gamesToReanalyse);
-            if (games.size() > 0) {
-                int i = 42;
-            }
         } else {
             games = playService.playNewGames(config.getNumParallelGamesPlayed(),
                 PlayParameters.builder()

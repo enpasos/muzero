@@ -19,7 +19,6 @@ package ai.enpasos.muzero.pegsolitair.config;
 
 import ai.enpasos.muzero.pegsolitair.config.environment.Board;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
-import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -31,8 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
 
 @Data
 @SuppressWarnings("squid:S2065")

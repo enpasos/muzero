@@ -7,7 +7,6 @@ import ai.enpasos.muzero.pegsolitair.config.environment.Point;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
-import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 
 import java.util.*;
@@ -65,18 +64,12 @@ public class PegSolitairAdapter {
     private static BitSet getBoardPositions(int n, Board board) {
         BitSet bitSet = new BitSet(n);
         int size = 7;
-       // float[] boardtransfer = new float[size * size];
         for (int row = 1; row <= size; row++) {
             for (int col = 1; col <= size; col++) {
                 Point p = new Point(row, col);
                 if (board.getPegsOnTheBoard().contains(p)) {
                     bitSet.set((row - 1) * size + col - 1);
                 }
-//                else if (board.getHolesOnTheBoard().contains(p)) {
-//                    boardtransfer[(row - 1) * size + col - 1] = 0f;
-//                } else if (!inRange(p)) {
-//                    boardtransfer[(row - 1) * size + col - 1] = 0f;
-//                }
             }
         }
         return bitSet;
