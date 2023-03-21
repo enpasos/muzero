@@ -20,13 +20,11 @@ public ControllerTask(ControllerTaskType taskType) {
 }
 
 
-    synchronized
-    public boolean isDone() {
+    public synchronized boolean isDone() {
         return !done;
     }
 
-    synchronized
-    public void setDone(boolean done) {
+    public synchronized void setDone(boolean done) {
         this.done = done;
     }
 

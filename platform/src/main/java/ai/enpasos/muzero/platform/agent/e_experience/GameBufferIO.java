@@ -99,7 +99,7 @@ public class GameBufferIO {
     }
 
 
-    public List<Game> loadGamesForReplay(int n , List<String> networkNamesNotToLoad, MuZeroConfig config) {
+    public List<Game> loadGamesForReplay(int n , List<String> networkNamesNotToLoad ) {
         List<Game> games = new ArrayList<>();
 
         List<Path> paths = this.getBufferNames();

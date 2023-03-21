@@ -68,7 +68,6 @@ public class MuZeroLoop {
 
         modelService.loadLatestModelOrCreateIfNotExisting().get();
         epoch = modelState.getEpoch();
-        int epochStart = epoch;
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 

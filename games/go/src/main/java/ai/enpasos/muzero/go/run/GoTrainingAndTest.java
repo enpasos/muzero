@@ -43,7 +43,8 @@ public class GoTrainingAndTest {
                 .withoutFill(!startFromScratch)
                 .build());
         } catch (InterruptedException e) {
-            throw new MuZeroException(e);
+            log.error("Interrupted", e);
+            Thread.interrupted();
         } catch (ExecutionException e) {
             throw new MuZeroException(e);
         }

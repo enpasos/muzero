@@ -69,13 +69,13 @@ public class GameBuffer {
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
 
-    public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, NDManager ndManager, GameBuffer gameBuffer) {
+    public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
         int gamePos = samplePosition(game);
         Sample sample = null;
         long count = 0;
         do {
             try {
-                sample = sampleFromGame(numUnrollSteps, game, gamePos, ndManager, gameBuffer);
+                sample = sampleFromGame(numUnrollSteps, game, gamePos );
             } catch (MuZeroNoSampleMatch e) {
                 count++;
             }
@@ -86,7 +86,7 @@ public class GameBuffer {
         return sample;
     }
 
-    public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, NDManager ndManager, GameBuffer gameBuffer) {
+    public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
 
@@ -174,7 +174,7 @@ public class GameBuffer {
     public List<Sample> sampleBatch(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
             return sampleGames().stream()
-                .map(game -> sampleFromGame(numUnrollSteps, game, ndManager, this))
+                .map(game -> sampleFromGame(numUnrollSteps, game))
                 .collect(Collectors.toList());
 
         }
@@ -334,7 +334,7 @@ public class GameBuffer {
         int n =   config.getNumParallelGamesPlayed();
   //      List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
         List<String> networkNames = new ArrayList<>();
-        List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames, this.getConfig());
+        List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames );
         games.forEach(g -> g.setReanalyse(true));
         return games;
     }

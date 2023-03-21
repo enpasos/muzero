@@ -69,33 +69,24 @@ public class Inference {
 
         Game game = getGame(actions);
 
-        try {
+        int action = -1;
 
+        try {
             modelService.loadLatestModel(epoch).get();  // TODO options
-            return aiDecision(withMCTS, game).getSecond();
-        } catch (Exception e) {
-            log.error(e.getMessage());
+            action = aiDecision(withMCTS, game).getSecond();
+        } catch (InterruptedException e) {
+            log.error("Interrupted", e);
+            Thread.interrupted();
+        } catch ( Exception e) {
             throw new MuZeroException(e);
         }
-
-    }
-
-    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, int epoch) {
-        return aiDecisionForGames(games, withMCTS, true, epoch);
+        return action;
     }
 
 
-    // TODO withRandomness
-    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS, boolean withRandomness, int epoch) {
-        try {
-            modelService.loadLatestModel(epoch).get();
-            return aiDecision(withMCTS, games).stream().mapToInt(Pair::getSecond).toArray();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new MuZeroException(e);
-        }
 
-    }
+
+
 
     public double[][] getInMindValues(int epoch, int[] actions, int extra, int actionspace) {
         modelService.loadLatestModel(epoch).join();
@@ -127,6 +118,18 @@ public class Inference {
         return values;
     }
 
+    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS,  int epoch) {
+        try {
+            modelService.loadLatestModel(epoch).get();
+            return aiDecision(withMCTS, games).stream().mapToInt(Pair::getSecond).toArray();
+        } catch (ExecutionException e) {
+            throw new MuZeroException(e);
+        } catch (InterruptedException e) {
+            log.error("Interrupted", e);
+            Thread.interrupted();
+        }
+        return new int[] {};
+    }
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, DeviceType deviceType) {
         try {
@@ -137,10 +140,13 @@ public class Inference {
             Game game = getGame(actions);
             modelService.loadLatestModel().get();
             return aiDecision(withMCTS, game).getSecond();
+        } catch (InterruptedException e) {
+            log.error("Interrupted", e);
+            Thread.interrupted();
         } catch (Exception e) {
-            log.error(e.getMessage());
             throw new MuZeroException(e);
         }
+        return -1;
     }
 
     public double aiStartValue(int epoch) {
@@ -206,11 +212,13 @@ public class Inference {
         List<Pair<Double, Integer>> result = new ArrayList<>();
 
         if (!withMCTS) {
-         //   modelService.startScope();
             try {
                 networkOutputList = modelService.initialInference(games).get();
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (  ExecutionException e) {
                 throw new MuZeroException(e);
+            } catch (InterruptedException e) {
+                log.error("Interrupted", e);
+                Thread.interrupted();
             }
 
             for (int g = 0; g < games.size(); g++) {
@@ -234,7 +242,6 @@ public class Inference {
                 double aiValue = networkOutputList.get(g).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
             }
-        //    modelService.endScope();
 
         } else {
 

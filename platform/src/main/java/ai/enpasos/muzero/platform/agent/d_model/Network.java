@@ -171,8 +171,8 @@ public class Network {
         List<NetworkIO> networkOutputFromInitialInference = null;
 
         InitialInferenceListTranslator translator = new InitialInferenceListTranslator();
-        try (Predictor<List<Game>, List<NetworkIO>> predictor = initialInference.newPredictor(translator)) {
-            networkOutputFromInitialInference = predictor.predict(gameList);
+        try (Predictor<List<Game>, List<NetworkIO>> djlPredictor = initialInference.newPredictor(translator)) {
+            networkOutputFromInitialInference = djlPredictor.predict(gameList);
 
         } catch (TranslateException e) {
             e.printStackTrace();

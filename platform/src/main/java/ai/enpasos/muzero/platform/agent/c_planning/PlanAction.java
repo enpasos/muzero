@@ -100,7 +100,7 @@ public class PlanAction {
             search(game, sm, fastRuleLearning, justInitialInferencePolicy, render);
 
             if (!justInitialInferencePolicy) {
-                sm.storeSearchStatictics(render, fastRuleLearning);
+                sm.storeSearchStatictics( fastRuleLearning);
             }
 
             boolean replay = game.isReanalyse();

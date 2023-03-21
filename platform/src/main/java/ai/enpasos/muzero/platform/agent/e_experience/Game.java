@@ -271,8 +271,8 @@ public abstract class Game {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
                 tdSteps = 0;
             } else {
-                int T = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps(currentIndex, T);
+                int tMaxHorizon = this.getGameDTO().getRewards().size() - 1;
+                tdSteps = getTdSteps(currentIndex, tMaxHorizon);
             }
         } else {
             if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
@@ -284,21 +284,21 @@ public abstract class Game {
         return tdSteps;
     }
 
-    public int getTdSteps(int currentIndex, int T) {
+    public int getTdSteps(int currentIndex, int tMaxHorizon) {
         if (!config.offPolicyCorrectionOn()) return 0;
         if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
         double b = ThreadLocalRandom.current().nextDouble(0, 1);
-        return getTdSteps(b, currentIndex, T);
+        return getTdSteps(b, currentIndex, tMaxHorizon);
     }
 
-    public int getTdSteps(double b, int currentIndex, int T) {
+    public int getTdSteps(double b, int currentIndex, int tMaxHorizon) {
         double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
 
         int tdSteps;
 
-        if (currentIndex >= T) return 0;
+        if (currentIndex >= tMaxHorizon) return 0;
 
-        for (int t = T; t >= currentIndex; t--) {
+        for (int t = tMaxHorizon; t >= currentIndex; t--) {
 
             double pBase = 1;
             for (int i = currentIndex; i < t; i++) {
@@ -311,10 +311,8 @@ public abstract class Game {
             double pRatio = p / pBase;
             if (pRatio > b * localPRatioMax) {
                 tdSteps = t - currentIndex;
-                if (config.allOrNothingOn()) {
-                    if (tdSteps != T - currentIndex) { // test for all
-                        tdSteps = 0;   // if not all then nothing
-                    }
+                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
+                    tdSteps = 0;   // if not all then nothing
                 }
                 if (tdSteps > 0)
                     log.trace("tdSteps (>0): " + tdSteps);
@@ -350,10 +348,10 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         if (currentIndex > this.getGameDTO().getRewards().size() - 1) {
             int i = this.getGameDTO().getRewards().size() - 1;
-            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - currentIndex) * getPerspective(i - currentIndex);
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex) * getPerspective(i - currentIndex);
         } else {
             for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - currentIndex) * getPerspective(i - currentIndex);
+                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex) * getPerspective(i - currentIndex);
             }
         }
         return value;

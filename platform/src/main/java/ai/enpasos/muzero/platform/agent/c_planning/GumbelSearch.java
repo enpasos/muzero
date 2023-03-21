@@ -319,7 +319,7 @@ public class GumbelSearch {
         }
     }
 
-    public void storeSearchStatictics(boolean render, boolean fastRuleLearning) {
+    public void storeSearchStatictics(  boolean fastRuleLearning) {
         storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStats);
     }
 

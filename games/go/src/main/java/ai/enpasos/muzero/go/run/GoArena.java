@@ -57,7 +57,6 @@ public class GoArena {
             runningGames = runningGames.stream().filter(g -> !g.terminal()).collect(Collectors.toList());
             currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         }
-        currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         return gameList.stream()
             .mapToDouble(game -> (startingPlayerA ? 1f : -1f)
                 * (game.getGameDTO().getActions().size() % 2 == 0 ? -1f : 1f)

@@ -50,6 +50,10 @@ class GameTest {
     void softmaxLnTest() {
         double[] ps = {0.1, 0.1, 0.8};
         double[] result = softmax(ln(ps));
+        // assertArrayEquals but allow for small differences
+        for (int i = 0; i < result.length; i++) {
+            assertEquals(ps[i], result[i], 0.0000001);
+        } 
     }
 
 

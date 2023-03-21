@@ -483,10 +483,6 @@ public class MuZeroConfig {
 
         protected int batchSize;
         protected int numUnrollSteps;
-      //  protected int numberOfEpisodesPerJVMStart;
-
-
-
         protected float discount;
         protected float weightDecay;
         protected float valueLossWeight;
