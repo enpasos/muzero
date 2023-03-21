@@ -266,7 +266,7 @@ public class GumbelSearch {
     }
 
 
-    public void expandAndBackpropagate(NetworkIO networkOutput) {
+    public void expand(NetworkIO networkOutput) {
         List<Node> searchPath = getCurrentSearchPath();
         Node node = searchPath.get(searchPath.size() - 1);
         Player toPlayOnNode = node.getParent().getToPlay();
@@ -280,19 +280,19 @@ public class GumbelSearch {
             log.trace("value from network at backUp: " + networkOutput.getValue());
         }
 
-        backUp(networkOutput.getValue(), node.getToPlay(), this.config.getDiscount());
+
 
     }
 
 
-    public void backUp(double value, Player toPlay, double discount) {
+    public void backpropagate(double value, double discount) {
         List<Node> searchPath = getCurrentSearchPath();
-
+        Node node1 = searchPath.get(searchPath.size() - 1);
+        Player toPlay = node1.getParent().getToPlay();
         if (debug) {
             log.trace("player at root: " + toPlay);
             log.trace("player at node: " + searchPath.get(searchPath.size() - 1).getToPlay());
         }
-
 
         boolean start = true;
 
@@ -309,7 +309,6 @@ public class GumbelSearch {
                 node.calculateVmix();
                 node.calculateImprovedPolicy(minMaxStats);
                 node.calculateImprovedValue();
-
             }
 
             value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;

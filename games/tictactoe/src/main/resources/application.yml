@@ -85,6 +85,8 @@ muzero:
 
       numParallelInferences: 1000
 
+      entropyContributionToReward: 0.01
+
       playTypes:
         PLAYOUT:
           forTraining: false
@@ -112,16 +114,16 @@ muzero:
           gumbelActionSelection: true
           gumbelActionSelectionOnExploring: false
 
-        REANALYSE:
-          forTraining: true
-          numParallelGamesPlayed: 500
-          tdSteps: 9
-          numSimulations: 20
-          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-          # dirichlet noise is added before mcts
-          rootDirichletAlpha: 1.2
-          rootExplorationFraction: 0.25  # 0.0 means switched off
-
+#        REANALYSE:
+#          forTraining: true
+#          numParallelGamesPlayed: 500
+#          tdSteps: 9
+#          numSimulations: 20
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+#
 
 
 #        BEST_EFFORT:

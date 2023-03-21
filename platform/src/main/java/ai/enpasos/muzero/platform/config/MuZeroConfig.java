@@ -395,6 +395,12 @@ public class MuZeroConfig {
         return getConf().offPolicyRatioLimit;
     }
 
+    public double getEntropyContributionToReward() {
+        return getConf().entropyContributionToReward;
+    }
+
+
+
     public int getNumPurePolicyPlays() {
         return getConf().numPurePolicyPlays;
     }
@@ -512,7 +518,9 @@ public class MuZeroConfig {
         boolean offPolicyCorrectionOn;
 
         boolean allOrNothingOn;
-double offPolicyRatioLimit;
+        double offPolicyRatioLimit;
+
+        double entropyContributionToReward;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {

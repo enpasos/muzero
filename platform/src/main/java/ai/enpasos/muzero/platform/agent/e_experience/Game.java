@@ -160,7 +160,7 @@ public abstract class Game {
         throw new MuZeroException("assertion violated: " + s);
     }
 
-    public @Nullable Float getLastReward() {
+    public @Nullable Float getReward() {
         if (getGameDTO().getRewards().size() == 0) return null;
         return getGameDTO().getRewards().get(getGameDTO().getRewards().size() - 1);
     }
@@ -233,12 +233,12 @@ public abstract class Game {
         int tdSteps = getTdSteps(currentIndex);
         value = calculateValue(tdSteps, currentIndex);
 
-        float lastReward = getLastReward(currentIndex);
+       float reward = getReward(currentIndex);
 
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
             setValueOnTarget(target, value);
-            target.setReward(lastReward);
+            target.setReward(reward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
@@ -251,13 +251,13 @@ public abstract class Game {
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
             setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
-            target.setReward(lastReward);
+            target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
             setValueOnTarget(target, (float) value);
-            target.setReward(lastReward);
+            target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
@@ -326,14 +326,14 @@ public abstract class Game {
         target.setValue((float) value);
     }
 
-    private float getLastReward(int currentIndex) {
-        float lastReward;
+    private float getReward(int currentIndex) {
+        float reward;
         if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
-            lastReward = this.getGameDTO().getRewards().get(currentIndex - 1);
+            reward = this.getGameDTO().getRewards().get(currentIndex-1);
         } else {
-            lastReward = 0f;
+            reward = 0f;
         }
-        return lastReward;
+        return reward;
     }
 
 

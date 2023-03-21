@@ -84,6 +84,8 @@ public class PlanAction {
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
                 game.getGameDTO().getRootValueTargets().add((float)value);
             }
+            game.getGameDTO().getMaxEntropies().add(0f);
+            game.getGameDTO().getEntropies().add(0f);
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
             game.getGameDTO().getPolicyTargets().add(policyTarget);
@@ -105,15 +107,11 @@ public class PlanAction {
 
             boolean replay = game.isReanalyse();
             action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);
-
         }
-       // applyAction(render, action, game, game.isDebug(), config);
 
         if (action == null) {
             throw new MuZeroException("action must not be null");
         }
-
-
 
 
         if (render && game.isDebug()) {
@@ -143,14 +141,13 @@ public class PlanAction {
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         }
 
-        storeEntropyInfo(game, networkOutput);
-
-
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
             expandRootNodeAfterJustWithInitialInference(sm, fastRuleLearning, game, networkOutput);
         } else {
             sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : Objects.requireNonNull(networkOutput));
         }
+        storeEntropyInfo(game, sm.getRoot());
+
         if(!fastRuleLearning && game.isDebug() && render) {
             game.renderSuggestionFromPriors( config, sm.getRoot());
         }
@@ -167,7 +164,8 @@ public class PlanAction {
             do {
                 List<Node> searchPath = sm.search();
                 networkOutput = modelService.recurrentInference(searchPath).join();
-                sm.expandAndBackpropagate(Objects.requireNonNull(networkOutput));
+                sm.expand(Objects.requireNonNull(networkOutput));
+                sm.backpropagate(networkOutput.getValue(), this.config.getDiscount());
                 sm.next();
                 sm.drawCandidateAndAddValue();
             } while (!sm.isSimulationsFinished());
@@ -191,12 +189,14 @@ public class PlanAction {
 
 
 
-    private static void storeEntropyInfo(Game game, NetworkIO networkOutput) {
+    private static void storeEntropyInfo(Game game, Node node) {
         List<Action> legalActions = game.legalActions();
         game.getGameDTO().getMaxEntropies().add((float) Math.log(legalActions.size()));
-        if (networkOutput != null) {
-            float[] ps = networkOutput.getPolicyValues();
-            game.getGameDTO().getEntropies().add((float) entropy(toDouble(ps)));
+        if (!node.getChildren().isEmpty()) {
+            double[] ps = node.getChildren().stream().mapToDouble(n -> n.getPrior()).toArray();
+            double entropy = entropy(ps);
+            node.setEntropy(entropy);
+            game.getGameDTO().getEntropies().add((float)  entropy);
         }
     }
 

@@ -60,7 +60,7 @@ public class GoArena {
         return gameList.stream()
             .mapToDouble(game -> (startingPlayerA ? 1f : -1f)
                 * (game.getGameDTO().getActions().size() % 2 == 0 ? -1f : 1f)
-                * game.getLastReward())
+                * game.getReward())
             .toArray();
     }
 

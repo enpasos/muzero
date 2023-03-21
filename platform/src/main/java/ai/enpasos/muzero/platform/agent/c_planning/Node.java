@@ -41,7 +41,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @Data
 @Builder
@@ -54,6 +54,7 @@ public class Node {
     private Player toPlay;
     private double logit;
     private double pseudoLogit;
+    private double entropy;
     private double prior;
     private double valueFromNetwork;
     private double improvedValue;
@@ -183,7 +184,8 @@ public class Node {
             throw new MuZeroException("networkOutput must not be null");
         setValueFromInitialInference(networkOutput.getValue());
         setHiddenState(networkOutput.getHiddenState());
-        setReward(networkOutput.getReward());
+
+
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
@@ -193,10 +195,8 @@ public class Node {
                 )
             );
         }
-
         renormPrior(policyMap);
-
-
+        setReward(networkOutput.getReward() + config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
     }
 
     private void renormPrior(Map<Action, Pair<Float, Float>> policyMap) {
