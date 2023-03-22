@@ -24,6 +24,7 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.common.Functions;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -185,7 +186,8 @@ public class Node {
         setValueFromInitialInference(networkOutput.getValue());
         setHiddenState(networkOutput.getHiddenState());
 
-
+//        double entropy = entropy(toDouble(networkOutput.getPolicyValues()));
+//        node.setEntropy(entropy);
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
@@ -196,7 +198,7 @@ public class Node {
             );
         }
         renormPrior(policyMap);
-        setReward(networkOutput.getReward() + config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
+        setRewardFromModel(networkOutput);
     }
 
     private void renormPrior(Map<Action, Pair<Float, Float>> policyMap) {
@@ -225,7 +227,8 @@ public class Node {
             }
             setValueFromInitialInference(networkOutput.getValue());
             setHiddenState(networkOutput.getHiddenState());
-            setReward(networkOutput.getReward());
+
+            setRewardFromModel(networkOutput);
         }
         if (fastRuleLearning) {
             double p = 1d / actions.size();
@@ -245,6 +248,11 @@ public class Node {
             renormPrior(policy);
 
         }
+    }
+
+    private void setRewardFromModel(NetworkIO networkOutput) {
+        setReward(networkOutput.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1)
+                * config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
     }
 
     public double comparisonValue(int nSum) {

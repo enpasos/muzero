@@ -311,7 +311,8 @@ public class GumbelSearch {
                 node.calculateImprovedValue();
             }
 
-            value = node.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
+            value =  node.getReward()
+                    + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
             node.setQValueSum(node.getQValueSum() + value);
             minMaxStats.update(value);
