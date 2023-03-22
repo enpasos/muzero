@@ -102,6 +102,7 @@ public class PegSolitairGame extends Game {
 
     @Override
     public String render() {
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";
         return ((PegSolitairEnvironment) environment).render();
     }
 

@@ -123,6 +123,7 @@ public class GoGame extends ZeroSumGame {
 
     @Override
     public String render() {
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";
         return ((GoEnvironment) environment).render();
     }
 
