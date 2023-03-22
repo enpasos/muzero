@@ -90,6 +90,8 @@ muzero:
 
       numParallelInferences: 1000
 
+      entropyContributionToReward: 0.01
+
       playTypes:
         PLAYOUT:
           forTraining: false
