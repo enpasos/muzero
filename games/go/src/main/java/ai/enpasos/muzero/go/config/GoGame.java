@@ -182,7 +182,7 @@ public class GoGame extends ZeroSumGame {
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         log.debug("\n");
-        log.debug("with exploration noise suggestion:");
+        log.debug("suggestion from priors:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);

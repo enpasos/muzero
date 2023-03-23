@@ -18,6 +18,8 @@ public class GumbelAction {
     double gumbelValue;
     double logit;
     double qValue;
+    double entropyValue;
+
     int visitCount;
 
     public double getQValue() {
@@ -25,6 +27,13 @@ public class GumbelAction {
             return node.getQValue();
         }
         return qValue;
+    }
+
+    public double getEntropyValue() {
+        if (node != null) {
+            return node.getEntropyValue();
+        }
+        return entropyValue;
     }
 
     public double getLogit() {

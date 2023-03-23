@@ -184,6 +184,15 @@ public class GumbelSearch {
             .map(v -> minMaxStats.normalize(v))
             .toArray();
 
+
+        double scale = config.getEntropyContributionToReward();
+        double[] scaledEntropyValue = gumbelActions.stream()
+                .mapToDouble(GumbelAction::getEntropyValue)
+                .map(v -> scale * v)
+                .toArray();
+
+        qs = add(qs, scaledEntropyValue);
+
         double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
         double[] logitsPlusSigmas = new double[logits.length];
             IntStream.range(0, logits.length).forEach(i -> {
@@ -285,7 +294,9 @@ public class GumbelSearch {
     }
 
 
-    public void backpropagate(double value, double discount) {
+    public void backpropagate(NetworkIO networkOutput,  double discount) {
+        double value = networkOutput.getValue();
+        double entropyValue = networkOutput.getEntropyValue();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -314,7 +325,9 @@ public class GumbelSearch {
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
+            entropyValue += node.getEntropyReward();
             node.setQValueSum(node.getQValueSum() + value);
+            node.setEntropyValueSum(node.getEntropyValueSum() + entropyValue);
             minMaxStats.update(value);
         }
     }

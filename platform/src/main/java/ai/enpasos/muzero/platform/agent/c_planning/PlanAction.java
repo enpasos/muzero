@@ -165,7 +165,7 @@ public class PlanAction {
                 List<Node> searchPath = sm.search();
                 networkOutput = modelService.recurrentInference(searchPath).join();
                 sm.expand(Objects.requireNonNull(networkOutput));
-                sm.backpropagate(networkOutput.getValue(), this.config.getDiscount());
+                sm.backpropagate(networkOutput, this.config.getDiscount());
                 sm.next();
                 sm.drawCandidateAndAddValue();
             } while (!sm.isSimulationsFinished());

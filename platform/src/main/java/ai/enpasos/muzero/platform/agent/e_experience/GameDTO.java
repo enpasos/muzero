@@ -46,7 +46,7 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Integer> actions;
     private List<Float> rewards;
 
-    private List<Float> entropies; // obsolete ??
+    private List<Float> entropies;
     private List<float[]> policyTargets;
 
     private int observationPartSize;

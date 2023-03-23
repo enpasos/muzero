@@ -24,7 +24,6 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.common.Functions;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -62,8 +61,10 @@ public class Node {
     private double valueFromInitialInference;
     private NDArray hiddenState;
     private double reward;
+    private double entropyReward;
     private double multiplierLambda;
     private double qValueSum;
+    private double entropyValueSum;
     private double vmix;
     private Action action;
     private int visitCount;
@@ -174,6 +175,13 @@ public class Node {
         return this.getQValueSum() / this.visitCount;
     }
 
+    public double getEntropyValue() {
+        if (visitCount == 0) {
+            return 0.0;
+        }
+        return this.getEntropyValueSum() / this.visitCount;
+    }
+
 
     public void expand(Player toPlay, NetworkIO networkOutput) {
         if (networkOutput != null)
@@ -199,6 +207,8 @@ public class Node {
         }
         renormPrior(policyMap);
         setRewardFromModel(networkOutput);
+
+        setEntropyRewardFromModel(networkOutput);
     }
 
     private void renormPrior(Map<Action, Pair<Float, Float>> policyMap) {
@@ -251,9 +261,16 @@ public class Node {
     }
 
     private void setRewardFromModel(NetworkIO networkOutput) {
-        setReward(networkOutput.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1)
-                * config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
+        setReward(networkOutput.getReward()); // + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1)
+            //    + config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
     }
+
+
+    private void setEntropyRewardFromModel(NetworkIO networkOutput) {
+        setEntropyReward(networkOutput.getEntropyReward()); // + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1)
+        //    + config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
+    }
+
 
     public double comparisonValue(int nSum) {
         return improvedPolicyValue - visitCount / (1.0 + nSum);

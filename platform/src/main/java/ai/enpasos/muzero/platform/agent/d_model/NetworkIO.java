@@ -28,6 +28,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.common.Functions.entropy;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
+
 
 @Data
 @Builder
@@ -39,6 +42,8 @@ public class NetworkIO {
     private float[] valueDistribution;
     private double value;
 
+    private double entropyValue;
+
     private double reward;
 
     private NDArray hiddenState;
@@ -47,5 +52,10 @@ public class NetworkIO {
 
 
     private List<NDArray> actionList;
+
+
+    public double getEntropyReward() {
+        return entropy(toDouble(policyValues));
+    }
 
 }
