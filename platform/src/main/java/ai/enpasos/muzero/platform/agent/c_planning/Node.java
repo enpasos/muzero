@@ -215,7 +215,7 @@ public class Node {
     public double getEntropyQValue() {
         if (visitCount == 0) {
             if (this.isRoot()) return 0.0;
-            return this.parent.getVmix();
+            return this.parent.getVEntropyMix();
         }
         return this.getEntropyQValueSum() / this.visitCount;
     }

@@ -76,6 +76,10 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         NDArray v = list.get(2);
         float[] vArray = v.toFloatArray();
 
+
+        NDArray vEntropy = list.get(3);
+        float[] vEntropyArray = vEntropy.toFloatArray();
+
         int n = (int) v.getShape().get(0);
 
         List<NetworkIO> networkIOs = IntStream.range(0, n)
@@ -90,6 +94,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 double scale = config.getValueSpan() / 2.0;
                 return NetworkIO.builder()
                     .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
+                    .entropyValue(vEntropyArray[i])
                     .policyValues(ps)
                     .logits(logits2)
                     .build();

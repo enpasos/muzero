@@ -151,18 +151,16 @@ public class PlanAction {
 
     public void search(Game game, GumbelSearch sm, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean render) {
         log.trace("search");
-        double value = 0;
+
         boolean withRandomness = false;
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
-            value =  Objects.requireNonNull(networkOutput).getValue();
+            double value =  Objects.requireNonNull(networkOutput).getValue();
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
 
             double entropyValue = networkOutput.getEntropyValue();
             game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
-        } else {
-
         }
 
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {

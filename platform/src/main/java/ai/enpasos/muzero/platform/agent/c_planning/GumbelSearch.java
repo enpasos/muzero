@@ -196,9 +196,8 @@ public class GumbelSearch {
                 .map(v -> scale * v)
                 .toArray();
 
-        qs = add(qs, scaledEntropyValue);
 
-        double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
+        double[] sigmas = sigmas(add(qs, scaledEntropyValue), maxActionVisitCount, cVisit, cScale);
         double[] logitsPlusSigmas = new double[logits.length];
             IntStream.range(0, logits.length).forEach(i -> {
                 logitsPlusSigmas[i] = logits[i] + sigmas[i];
@@ -318,6 +317,7 @@ public class GumbelSearch {
 
             if (start) {
                 node.setValueFromInference(value);
+                node.setEntropyValueFromInference(entropyValue);
                 node.setImprovedValue(node.getValueFromInference());
                 node.setImprovedEntropyValue(node.getEntropyValueFromInference());
                 node.setImprovedPolicyValue(node.getPrior());
@@ -333,7 +333,7 @@ public class GumbelSearch {
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
-            entropyValue += node.getEntropyReward();
+            entropyValue = node.getEntropyReward() + discount * entropyValue;
 
             node.setQValueSum(node.getQValueSum() + value);
             node.setEntropyQValueSum(node.getEntropyQValueSum() + entropyValue);
