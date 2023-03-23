@@ -29,9 +29,9 @@ public class GumbelAction {
         return qValue;
     }
 
-    public double getEntropyValue() {
+    public double getEntropyQValue() {
         if (node != null) {
-            return node.getEntropyValue();
+            return node.getEntropyQValue();
         }
         return entropyValue;
     }

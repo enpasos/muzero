@@ -42,9 +42,14 @@ public class PlanAction {
         NetworkIO networkOutput = modelService.initialInference(game).join();
 
         Node root = new Node(config, 0, true);
-        double value = Objects.requireNonNull(networkOutput).getValue();
-        root.setValueFromInitialInference(value);
+        double value = networkOutput.getValue();
+        root.setValueFromInference(value);
+        double entropyValue = networkOutput.getEntropyValue();
+        root.setEntropyValueFromInference(entropyValue);
+
+
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
         //calculateSurprise(value, game, config);
 
         int nActionsReplayed = game.getGameDTO().getActions().size();
@@ -80,9 +85,23 @@ public class PlanAction {
             action = game.legalActions().get(game.legalActions().size() - 1);
             if (!fastRuleLearning) {
                 NetworkIO networkOutput = modelService.initialInference(game).join();
-                double value =  Objects.requireNonNull(networkOutput).getValue();
+
+                double value =   networkOutput.getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
                 game.getGameDTO().getRootValueTargets().add((float)value);
+
+                double entropyValue = networkOutput.getEntropyValue();
+                game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
+                game.getGameDTO().getRootEntropyValueTargets().add((float)entropyValue);
+
+            }  else {
+                double value =   0;
+                game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+                game.getGameDTO().getRootValueTargets().add((float)value);
+
+                double entropyValue = 0;  // just some value
+                game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
+                game.getGameDTO().getRootEntropyValueTargets().add((float)entropyValue);
             }
             game.getGameDTO().getMaxEntropies().add(0f);
             game.getGameDTO().getEntropies().add(0f);
@@ -139,6 +158,11 @@ public class PlanAction {
             networkOutput = modelService.initialInference(game).join();
             value =  Objects.requireNonNull(networkOutput).getValue();
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+
+            double entropyValue = networkOutput.getEntropyValue();
+            game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
+        } else {
+
         }
 
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
@@ -158,7 +182,7 @@ public class PlanAction {
 
         if (!fastRuleLearning) sm.addExplorationNoise();
         sm.gumbelActionsStart(withRandomness);
-        sm.drawCandidateAndAddValueStart();
+      //  sm.drawCandidateAndAddValueStart();
 
         if (!fastRuleLearning) {
             do {
@@ -242,6 +266,7 @@ public class PlanAction {
             double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
 
             double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
+            double[] completedEntropyQsNormalized = root.getCompletedQEntropyValuesNormalized();
 
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
@@ -251,7 +276,7 @@ public class PlanAction {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
+            double[] raw = add(logits, sigmas(add(completedQsNormalized, completedEntropyQsNormalized), maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
 
