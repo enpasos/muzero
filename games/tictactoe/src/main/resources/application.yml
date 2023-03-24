@@ -68,7 +68,6 @@ muzero:
       numBottleneckChannels: 128
 
       valueLossWeight: 1
-      entropyValueLossWeight: 0.2
 
       numberOfTrainingSteps: 50000
 
@@ -87,6 +86,7 @@ muzero:
       numParallelInferences: 1000
 
       entropyContributionToReward: 0.1
+      entropyValueLossWeight: 0.2
 
       playTypes:
         PLAYOUT:
