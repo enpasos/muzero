@@ -23,6 +23,7 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -229,15 +230,17 @@ public abstract class Game {
 
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target) {
-        double value;
+
         int tdSteps = getTdSteps(currentIndex);
-        value = calculateValue(tdSteps, currentIndex);
+        double value = calculateValue(tdSteps, currentIndex);
+        double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
+        float reward = getReward(currentIndex);
 
-       float reward = getReward(currentIndex);
-
+        entropyValue = MyL2Loss.NULL_VALUE;   // no force for now
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-            setValueOnTarget(target, value);
+            target.setEntropyValue((float) entropyValue);
+            target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
@@ -250,13 +253,15 @@ public abstract class Game {
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-            setValueOnTarget(target, value); // this is not really the value, it is taking the role of the reward here
+            target.setEntropyValue((float) entropyValue);
+            target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-            setValueOnTarget(target, (float) value);
+            target.setEntropyValue((float) entropyValue);
+            target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
@@ -322,9 +327,7 @@ public abstract class Game {
         throw new MuZeroNoSampleMatch();
     }
 
-    private void setValueOnTarget(Target target, double value) {
-        target.setValue((float) value);
-    }
+
 
     private float getReward(int currentIndex) {
         float reward;
@@ -342,7 +345,41 @@ public abstract class Game {
         value = addValueFromReward(currentIndex, tdSteps, value);
         return value;
     }
+    private double calculateEntropyValue(int tdSteps, int currentIndex) {
+        double value = getBootstrapEntropyValue(currentIndex, tdSteps);
+    //     value = addEntropyValueFromReward(currentIndex, tdSteps, value);
+        return value;
+    }
 
+    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
+        int bootstrapIndex = currentIndex + tdSteps;
+        double value = 0;
+//        if (gameDTO.isHybrid() || isReanalyse()) {
+//            if (bootstrapIndex < this.getGameDTO().getEntropies().size()) {
+//                value = this.getGameDTO().getRootEntropyValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+//            }
+//        } else {
+//            if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
+//                value = this.getGameDTO().getRootEntropyValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+//            }
+//        }
+        return value;
+    }
+
+
+    // TODO there should be a special discount parameter
+    private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
+        int bootstrapIndex = currentIndex + tdSteps;
+//        if (currentIndex < this.getGameDTO().getEntropies().size() - 1) {
+//            int i = this.getGameDTO().getgetRewards().size() - 1;
+//            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex)  ;
+//        } else {
+            for (int i = currentIndex+1; i < this.getGameDTO().getEntropies().size() && i < bootstrapIndex; i++) {
+                value += (double) this.getGameDTO().getEntropies().get(i) * Math.pow(this.discount, i - (double)currentIndex)  ;
+            }
+//        }
+        return value;
+    }
 
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;

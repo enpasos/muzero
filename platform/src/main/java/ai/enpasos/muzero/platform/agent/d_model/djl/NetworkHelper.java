@@ -51,6 +51,7 @@ import java.util.List;
 public class NetworkHelper {
 
     public static final String LOSS_VALUE = "loss_value_";
+    public static final String ENTROPY_LOSS_VALUE = "entropy_loss_value_";
     public static final String LOSS_SIMILARITY = "loss_similarity_";
     @Autowired
     MuZeroConfig config;
@@ -97,21 +98,21 @@ public class NetworkHelper {
         return epoch;
     }
 
-    public int getEpoch(Model model) {
-
-        if (model.getBlock() == null) {
-            MuZeroBlock block = new MuZeroBlock(config);
-            model.setBlock(block);
-            try {
-                model.load(Paths.get(config.getNetworkBaseDir()));
-            } catch (Exception e) {
-                log.info("*** no existing model has been found ***");
-            }
-        }
-
-
-        return getEpochFromModel(model);
-    }
+//    public int getEpoch(Model model) {
+//
+//        if (model.getBlock() == null) {
+//            MuZeroBlock block = new MuZeroBlock(config);
+//            model.setBlock(block);
+//            try {
+//                model.load(Paths.get(config.getNetworkBaseDir()));
+//            } catch (Exception e) {
+//                log.info("*** no existing model has been found ***");
+//            }
+//        }
+//
+//
+//        return getEpochFromModel(model);
+//    }
 
 
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
@@ -169,11 +170,13 @@ public class NetworkHelper {
         k++;
 
         // value
-
-
         log.trace("k={}: Value L2Loss", k);
         loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
+        k++;
 
+        // entropyValue
+        log.trace("k={}: EntropyValue L2Loss", k);
+        loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + 0, config.getValueLossWeight()), k));
         k++;
 
 
@@ -182,12 +185,17 @@ public class NetworkHelper {
             log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
             loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
             k++;
-            // value
 
+            // value
             log.trace("k={}: Value L2Loss", k);
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
-
             k++;
+
+            // entropyValue
+            log.trace("k={}: EntropyValue L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+            k++;
+
             // similarity
             log.trace("k={}: Similarity L2Loss", k);
             loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, 2 * gradientScale), k));
