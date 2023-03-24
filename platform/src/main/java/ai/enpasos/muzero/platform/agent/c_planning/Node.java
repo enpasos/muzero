@@ -62,9 +62,12 @@ public class Node {
     private double valueFromInitialInference;
     private NDArray hiddenState;
     private double reward;
+    private double entropyReward;
     private double multiplierLambda;
     private double qValueSum;
+    private double entropyQValueSum;
     private double vmix;
+    private double vEntropyMix;
     private Action action;
     private int visitCount;
     @Builder.Default

@@ -85,7 +85,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      entropyContributionToReward: 0.00
+      entropyContributionToReward: 0.0
 
       playTypes:
         PLAYOUT:

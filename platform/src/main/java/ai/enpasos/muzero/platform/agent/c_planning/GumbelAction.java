@@ -18,6 +18,8 @@ public class GumbelAction {
     double gumbelValue;
     double logit;
     double qValue;
+    double entropyValue;
+
     int visitCount;
 
     public double getQValue() {
