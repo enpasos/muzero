@@ -95,7 +95,7 @@ public class GumbelSearch {
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
             int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-            double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
+            double[] raw = add(logits, sigmas(add(completedQsNormalized, completedEntropyQsNormalized), maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
 
@@ -193,7 +193,16 @@ public class GumbelSearch {
             .map(v -> minMaxStatsQValues.normalize(v))
             .toArray();
 
-        double[] sigmas = sigmas(qs, maxActionVisitCount, cVisit, cScale);
+
+        double scale = config.getEntropyContributionToReward();
+        double[] scaledEntropyValue = gumbelActions.stream()
+                .mapToDouble(GumbelAction::getEntropyQValue)
+                .map(v -> minMaxStatsEntropyQValues.normalize(v))
+                .map(v -> scale * v)
+                .toArray();
+
+
+        double[] sigmas = sigmas(add(qs, scaledEntropyValue), maxActionVisitCount, cVisit, cScale);
         double[] logitsPlusSigmas = new double[logits.length];
             IntStream.range(0, logits.length).forEach(i -> {
                 logitsPlusSigmas[i] = logits[i] + sigmas[i];

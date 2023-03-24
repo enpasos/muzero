@@ -179,9 +179,7 @@ public class Node {
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
         double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
 
-      //  double[] raw = add(logits, sigmas(add(completedQsNormalized,completedEntropyQsNormalized) , maxActionVisitCount, config.getCVisit(), config.getCScale()));
-        double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
-
+        double[] raw = add(logits, sigmas(add(completedQsNormalized,completedEntropyQsNormalized) , maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw);
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
     }

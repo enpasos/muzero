@@ -236,7 +236,6 @@ public abstract class Game {
         double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
-        entropyValue = MyL2Loss.NULL_VALUE;   // no force for now
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
             target.setEntropyValue((float) entropyValue);
