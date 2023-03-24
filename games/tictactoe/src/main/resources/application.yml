@@ -85,7 +85,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      entropyContributionToReward: 0.01
+      entropyContributionToReward: 0.00
 
       playTypes:
         PLAYOUT:
@@ -96,7 +96,7 @@ muzero:
           gumbelActionSelection: true
         HYBRID:
           forTraining: true
-          numParallelGamesPlayed: 500
+          numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
           numSimulations: 20
