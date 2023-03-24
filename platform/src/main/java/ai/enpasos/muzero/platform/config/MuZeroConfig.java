@@ -500,8 +500,8 @@ public class MuZeroConfig {
         protected int numUnrollSteps;
         protected float discount;
         protected float weightDecay;
-        protected float valueLossWeight = 1;
-        protected float entropyValueLossWeight = 1;
+        protected float valueLossWeight;
+        protected float entropyValueLossWeight;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
