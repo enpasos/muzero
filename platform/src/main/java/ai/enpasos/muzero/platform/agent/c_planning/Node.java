@@ -274,7 +274,6 @@ public class Node {
             if (networkOutput == null) {
                 throw new MuZeroException("networkOutput must not be null here");
             }
-        //    setValueFromInitialInference(networkOutput.getValue());
             setHiddenState(networkOutput.getHiddenState());
 
             setRewardFromModel(networkOutput);

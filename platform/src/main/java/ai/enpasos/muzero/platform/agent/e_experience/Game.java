@@ -23,6 +23,7 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -233,7 +234,7 @@ public abstract class Game {
         int tdSteps = getTdSteps(currentIndex);
         double value = calculateValue(tdSteps, currentIndex);
         double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
-       float reward = getReward(currentIndex);
+        float reward = getReward(currentIndex);
 
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
