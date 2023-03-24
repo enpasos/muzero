@@ -61,6 +61,11 @@ public class MuZeroConfig {
         return new KnownBounds();
     }
 
+
+    public KnownBounds getKnownBoundsEntropyQValues() {
+            return new KnownBounds();
+    }
+
     public Game newGame(boolean connectToEnvironment, boolean withFirstObservation) {
         try {
             Constructor<?> constructor = this.getGameClass().getConstructor(MuZeroConfig.class);
@@ -231,6 +236,10 @@ public class MuZeroConfig {
 
     public float getValueLossWeight() {
         return getConf().valueLossWeight;
+    }
+
+    public float getEntropyValueLossWeight() {
+        return getConf().entropyValueLossWeight;
     }
 
     public float getLrInit() {
@@ -491,7 +500,8 @@ public class MuZeroConfig {
         protected int numUnrollSteps;
         protected float discount;
         protected float weightDecay;
-        protected float valueLossWeight;
+        protected float valueLossWeight = 1;
+        protected float entropyValueLossWeight = 1;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
