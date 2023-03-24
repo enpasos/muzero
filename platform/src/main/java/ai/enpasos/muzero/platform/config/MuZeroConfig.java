@@ -61,6 +61,11 @@ public class MuZeroConfig {
         return new KnownBounds();
     }
 
+
+    public KnownBounds getKnownBoundsEntropyQValues() {
+            return new KnownBounds();
+    }
+
     public Game newGame(boolean connectToEnvironment, boolean withFirstObservation) {
         try {
             Constructor<?> constructor = this.getGameClass().getConstructor(MuZeroConfig.class);

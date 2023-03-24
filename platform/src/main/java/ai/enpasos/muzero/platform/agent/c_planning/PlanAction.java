@@ -248,7 +248,7 @@ public class PlanAction {
     }
 
 
-    public static void storeSearchResults(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
+    public static void storeSearchResults(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
 
 
 
@@ -264,7 +264,7 @@ public class PlanAction {
             double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
 
             double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
-            double[] completedEntropyQsNormalized = root.getCompletedQEntropyValuesNormalized();
+            double[] completedEntropyQsNormalized = root.getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
 
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 

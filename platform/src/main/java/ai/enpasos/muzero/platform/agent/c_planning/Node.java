@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.math3.analysis.function.Min;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -144,7 +145,7 @@ public class Node {
 
 
 
-    public double[] getCompletedQEntropyValuesNormalized() {
+    public double[] getCompletedQEntropyValuesNormalized(MinMaxStats minMaxStatsEntropyQValues) {
         double scale = config.getEntropyContributionToReward();
         return children.stream().mapToDouble(node -> {
                     if (node.getVisitCount() > 0) {
@@ -153,7 +154,8 @@ public class Node {
                         return getVEntropyMix();
                     }
                 })
-                .map(v -> scale * v)
+                .map(minMaxStatsEntropyQValues::normalize)
+                .map(v -> v* scale)
                 .toArray();
     }
 
@@ -170,12 +172,12 @@ public class Node {
             .toArray();
     }
 
-    public void calculateImprovedPolicy(MinMaxStats minMaxStats) {
+    public void calculateImprovedPolicy(MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
-        double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized();
+        double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
 
         double[] raw = add(logits, sigmas(add(completedQsNormalized,completedEntropyQsNormalized) , maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw);
