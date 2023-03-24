@@ -176,7 +176,7 @@ public class NetworkHelper {
 
         // entropyValue
         log.trace("k={}: EntropyValue L2Loss", k);
-        loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + 0, config.getValueLossWeight()), k));
+        loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + 0, config.getEntropyValueLossWeight()), k));
         k++;
 
 
@@ -193,7 +193,7 @@ public class NetworkHelper {
 
             // entropyValue
             log.trace("k={}: EntropyValue L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + i, config.getEntropyValueLossWeight() * gradientScale), k));
             k++;
 
             // similarity

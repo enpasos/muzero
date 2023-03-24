@@ -238,6 +238,10 @@ public class MuZeroConfig {
         return getConf().valueLossWeight;
     }
 
+    public float getEntropyValueLossWeight() {
+        return getConf().entropyValueLossWeight;
+    }
+
     public float getLrInit() {
         return getConf().lrInit;
     }
@@ -496,7 +500,8 @@ public class MuZeroConfig {
         protected int numUnrollSteps;
         protected float discount;
         protected float weightDecay;
-        protected float valueLossWeight;
+        protected float valueLossWeight = 1;
+        protected float entropyValueLossWeight = 1;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
