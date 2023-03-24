@@ -42,9 +42,14 @@ public class PlanAction {
         NetworkIO networkOutput = modelService.initialInference(game).join();
 
         Node root = new Node(config, 0, true);
-        double value = Objects.requireNonNull(networkOutput).getValue();
-        root.setValueFromInitialInference(value);
+        double value = networkOutput.getValue();
+        root.setValueFromInference(value);
+        double entropyValue = networkOutput.getEntropyValue();
+        root.setEntropyValueFromInference(entropyValue);
+
+
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
         //calculateSurprise(value, game, config);
 
         int nActionsReplayed = game.getGameDTO().getActions().size();
@@ -80,9 +85,15 @@ public class PlanAction {
             action = game.legalActions().get(game.legalActions().size() - 1);
             if (!fastRuleLearning) {
                 NetworkIO networkOutput = modelService.initialInference(game).join();
-                double value =  Objects.requireNonNull(networkOutput).getValue();
+
+                double value =   networkOutput.getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
                 game.getGameDTO().getRootValueTargets().add((float)value);
+
+                double entropyValue = networkOutput.getEntropyValue();
+                game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
+                game.getGameDTO().getRootEntropyValueTargets().add((float)entropyValue);
+
             }
             game.getGameDTO().getMaxEntropies().add(0f);
             game.getGameDTO().getEntropies().add(0f);
@@ -132,13 +143,16 @@ public class PlanAction {
 
     public void search(Game game, GumbelSearch sm, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean render) {
         log.trace("search");
-        double value = 0;
+
         boolean withRandomness = false;
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
-            value =  Objects.requireNonNull(networkOutput).getValue();
+            double value =  Objects.requireNonNull(networkOutput).getValue();
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+
+            double entropyValue = networkOutput.getEntropyValue();
+            game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
         }
 
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
@@ -158,14 +172,14 @@ public class PlanAction {
 
         if (!fastRuleLearning) sm.addExplorationNoise();
         sm.gumbelActionsStart(withRandomness);
-        sm.drawCandidateAndAddValueStart();
+      //  sm.drawCandidateAndAddValueStart();
 
         if (!fastRuleLearning) {
             do {
                 List<Node> searchPath = sm.search();
                 networkOutput = modelService.recurrentInference(searchPath).join();
                 sm.expand(Objects.requireNonNull(networkOutput));
-                sm.backpropagate(networkOutput.getValue(), this.config.getDiscount());
+                sm.backpropagate(networkOutput, this.config.getDiscount());
                 sm.next();
                 sm.drawCandidateAndAddValue();
             } while (!sm.isSimulationsFinished());

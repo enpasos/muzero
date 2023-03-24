@@ -285,7 +285,9 @@ public class GumbelSearch {
     }
 
 
-    public void backpropagate(double value, double discount) {
+    public void backpropagate(NetworkIO networkOutput,  double discount) {
+        double value = networkOutput.getValue();
+        double entropyValue = networkOutput.getEntropyValue();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -301,20 +303,28 @@ public class GumbelSearch {
             node.setVisitCount(node.getVisitCount() + 1);
 
             if (start) {
-                node.setValueFromNetwork(value);
-                node.setImprovedValue(node.getValueFromNetwork());
+                node.setValueFromInference(value);
+                node.setEntropyValueFromInference(entropyValue);
+                node.setImprovedValue(node.getValueFromInference());
+                node.setImprovedEntropyValue(node.getEntropyValueFromInference());
                 node.setImprovedPolicyValue(node.getPrior());
                 start = false;
             } else {
                 node.calculateVmix();
+                node.calculateEntropyVmix();
                 node.calculateImprovedPolicy(minMaxStats);
                 node.calculateImprovedValue();
+                node.calculateImprovedEntropyValue();
             }
 
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
+            entropyValue = node.getEntropyReward() + discount * entropyValue;
+
             node.setQValueSum(node.getQValueSum() + value);
+            node.setEntropyQValueSum(node.getEntropyQValueSum() + entropyValue);
+
             minMaxStats.update(value);
         }
     }
@@ -394,11 +404,11 @@ public class GumbelSearch {
         drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
     }
 
-    public void drawCandidateAndAddValueStart() {
-        List<Float> vs = new ArrayList<>();
-        float v = (float) this.root.getValueFromNetwork();
-        vs.add(v);
-    }
+//    public void drawCandidateAndAddValueStart() {
+//        List<Float> vs = new ArrayList<>();
+//        float v = (float) this.root.getValueFromInference();
+//        vs.add(v);
+//    }
 
     public void addExplorationNoise() {
         root.addExplorationNoise(config);

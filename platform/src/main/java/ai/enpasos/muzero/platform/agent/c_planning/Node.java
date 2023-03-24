@@ -59,7 +59,9 @@ public class Node {
     private double prior;
     private double valueFromNetwork;
     private double improvedValue;
-    private double valueFromInitialInference;
+    private double improvedEntropyValue;
+    private double valueFromInference;
+    private double entropyValueFromInference;
     private NDArray hiddenState;
     private double reward;
     private double entropyReward;
@@ -81,7 +83,7 @@ public class Node {
     public Node(MuZeroConfig config, double prior, boolean root) {
         this(config, prior);
         this.root = root;
-        this.valueFromInitialInference = 0f;
+        this.valueFromInference = 0f;
 
     }
 
@@ -92,7 +94,7 @@ public class Node {
         this.children = new ArrayList<>();
         hiddenState = null;
         reward = 0.0;
-        this.valueFromInitialInference = 0f;
+        this.valueFromInference = 0f;
     }
 
     public void setVisitCount(int visitCount) {
@@ -103,11 +105,7 @@ public class Node {
     }
 
     public void calculateVmix() {
-        if (this.isRoot() && this.valueFromNetwork != this.valueFromInitialInference) {
-            throw new MuZeroException("root node valueFromNetwork != valueFromInitialInference");
-        }
-
-        double vHat = this.getValueFromNetwork();
+        double vHat = this.getValueFromInference();
         vmix = vHat;
         if (this.getVisitCount() == 0) return;
 
@@ -124,6 +122,42 @@ public class Node {
             vmix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
         }
     }
+
+    public void calculateEntropyVmix() {
+        double vHat = this.getEntropyValueFromInference();
+        vEntropyMix = vHat;
+        if (this.getVisitCount() == 0) return;
+
+        double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
+                .mapToDouble(node -> node.getPrior() * node.getEntropyQValue()).sum();
+        double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
+                .mapToDouble(Node::getPrior).sum();
+        int d = this.getChildren().stream()
+                .mapToInt(Node::getVisitCount).sum();
+
+        if (d == 0d) {
+            vEntropyMix = vHat;
+        } else {
+            vEntropyMix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
+        }
+    }
+
+
+
+
+    public double[] getCompletedQEntropyValuesNormalized() {
+        double scale = config.getEntropyContributionToReward();
+        return children.stream().mapToDouble(node -> {
+                    if (node.getVisitCount() > 0) {
+                        return node.getEntropyQValue();
+                    } else {
+                        return getVEntropyMix();
+                    }
+                })
+                .map(v -> scale * v)
+                .toArray();
+    }
+
 
     public double[] getCompletedQValuesNormalized(MinMaxStats minMaxStats) {
         return children.stream().mapToDouble(node -> {
@@ -142,7 +176,11 @@ public class Node {
 
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
+        double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized();
+
+      //  double[] raw = add(logits, sigmas(add(completedQsNormalized,completedEntropyQsNormalized) , maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] raw = add(logits, sigmas(completedQsNormalized, maxActionVisitCount, config.getCVisit(), config.getCScale()));
+
         double[] improvedPolicy = softmax(raw);
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
     }
@@ -177,20 +215,29 @@ public class Node {
         return this.getQValueSum() / this.visitCount;
     }
 
+    public double getEntropyQValue() {
+        if (visitCount == 0) {
+            if (this.isRoot()) return 0.0;
+            return this.parent.getVEntropyMix();
+        }
+        return this.getEntropyQValueSum() / this.visitCount;
+    }
+
 
     public void expand(Player toPlay, NetworkIO networkOutput) {
-        if (networkOutput != null)
-            setValueFromNetwork(networkOutput.getValue());
-
+        if (networkOutput != null) {
+            setValueFromInference(networkOutput.getValue());
+            setEntropyValueFromInference(networkOutput.getEntropyValue());
+        }
         setToPlay(toPlay);
 
         if (networkOutput == null)
             throw new MuZeroException("networkOutput must not be null");
-        setValueFromInitialInference(networkOutput.getValue());
+//        setValueFromInitialInference(networkOutput.getValue());
+//        setEntropyValueFromInitialInference(networkOutput.getEntropyValue());
+
         setHiddenState(networkOutput.getHiddenState());
 
-//        double entropy = entropy(toDouble(networkOutput.getPolicyValues()));
-//        node.setEntropy(entropy);
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
@@ -202,6 +249,7 @@ public class Node {
         }
         renormPrior(policyMap);
         setRewardFromModel(networkOutput);
+        setEntropyRewardFromModel(networkOutput);
     }
 
     private void renormPrior(Map<Action, Pair<Float, Float>> policyMap) {
@@ -220,18 +268,19 @@ public class Node {
     public void expandRootNode(Player toPlay, @NotNull List<Action> actions, NetworkIO networkOutput,
                                boolean fastRuleLearning) {
         if (!this.root) throw new MuZeroException("expandRootNode should only be called on the root node");
-        if (networkOutput != null)
-            setValueFromNetwork(networkOutput.getValue());
-
+        if (networkOutput != null) {
+            setValueFromInference(networkOutput.getValue());
+            setEntropyValueFromInference(networkOutput.getEntropyValue());
+        }
         setToPlay(toPlay);
         if (!fastRuleLearning) {
             if (networkOutput == null) {
                 throw new MuZeroException("networkOutput must not be null here");
             }
-            setValueFromInitialInference(networkOutput.getValue());
             setHiddenState(networkOutput.getHiddenState());
 
             setRewardFromModel(networkOutput);
+            setEntropyRewardFromModel(networkOutput);
         }
         if (fastRuleLearning) {
             double p = 1d / actions.size();
@@ -254,9 +303,14 @@ public class Node {
     }
 
     private void setRewardFromModel(NetworkIO networkOutput) {
-        setReward(networkOutput.getReward() + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1)
-                * config.getEntropyContributionToReward() * entropy(toDouble(networkOutput.getPolicyValues())));
+        setReward(networkOutput.getReward());
     }
+
+
+    private void setEntropyRewardFromModel(NetworkIO networkOutput) {
+        setEntropyReward(networkOutput.getEntropyReward());
+    }
+
 
     public double comparisonValue(int nSum) {
         return improvedPolicyValue - visitCount / (1.0 + nSum);
@@ -274,11 +328,15 @@ public class Node {
 
 
     public void calculateImprovedValue() {
-
-
         this.improvedValue = this.getChildren().stream()
             .mapToDouble(node -> node.getImprovedPolicyValue() * node.getQValue())
             .sum();
+    }
+
+    public void calculateImprovedEntropyValue() {
+        this.improvedEntropyValue = this.getChildren().stream()
+                .mapToDouble(node -> node.getImprovedPolicyValue() * node.getEntropyQValue())
+                .sum();
     }
 
 
