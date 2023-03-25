@@ -90,7 +90,9 @@ muzero:
 
       numParallelInferences: 1000
 
-      entropyContributionToReward: 0.05
+
+      entropyContributionToReward: 0.1
+      entropyValueLossWeight: 0.1
 
       playTypes:
         PLAYOUT:
@@ -101,7 +103,7 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numParallelGamesPlayed: 500
+          numParallelGamesPlayed: 1000
           tdSteps:  10000
           forTdStep0ValueTraining: false
           numSimulations: 30
@@ -117,13 +119,13 @@ muzero:
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
           temperatureRoot: 2.0
           gumbelActionSelection: false
-        REANALYSE:
-          forTraining: true
-          numParallelGamesPlayed: 500
-          tdSteps: 10000
-          numSimulations: 30
-          rootDirichletAlpha: 0.4
-          rootExplorationFraction: 0.25  # 0.0 means switched off
+#        REANALYSE:
+#          forTraining: true
+#          numParallelGamesPlayed: 500
+#          tdSteps: 10000
+#          numSimulations: 30
+#          rootDirichletAlpha: 0.4
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 #        BEST_EFFORT:
 #          forTraining: true
