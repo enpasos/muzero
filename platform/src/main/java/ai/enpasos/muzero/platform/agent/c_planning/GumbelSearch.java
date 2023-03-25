@@ -77,8 +77,8 @@ public class GumbelSearch {
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
         game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
 
-        game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInference());
-        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) root.getEntropyValueFromInference());
+//        game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInference());
+//        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) root.getEntropyValueFromInference());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
