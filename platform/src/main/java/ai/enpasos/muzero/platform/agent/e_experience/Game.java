@@ -354,11 +354,11 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
         if (gameDTO.isHybrid() || isReanalyse()) {
-            if (bootstrapIndex < this.getGameDTO().getEntropies().size()) {
+            if (bootstrapIndex < this.getGameDTO().getRootEntropyValuesFromInitialInference().size()) {
                 value = this.getGameDTO().getRootEntropyValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
-            if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
+            if (bootstrapIndex < this.getGameDTO().getRootEntropyValueTargets().size()) {
                 value = this.getGameDTO().getRootEntropyValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         }

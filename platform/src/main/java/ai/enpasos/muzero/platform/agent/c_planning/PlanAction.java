@@ -94,6 +94,14 @@ public class PlanAction {
                 game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
                 game.getGameDTO().getRootEntropyValueTargets().add((float)entropyValue);
 
+            }  else {
+                double value =   0;
+                game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+                game.getGameDTO().getRootValueTargets().add((float)value);
+
+                double entropyValue = 0;  // just some value
+                game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
+                game.getGameDTO().getRootEntropyValueTargets().add((float)entropyValue);
             }
             game.getGameDTO().getMaxEntropies().add(0f);
             game.getGameDTO().getEntropies().add(0f);
