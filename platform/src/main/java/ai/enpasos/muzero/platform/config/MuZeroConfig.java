@@ -337,7 +337,7 @@ public class MuZeroConfig {
 
     public int getNumSimulations(Game game) {
         if (this.getTrainingTypeKey() == HYBRID &&
-            game.getGameDTO().getActions().size() < game.getGameDTO().getTHybrid()) {
+                game.isItExplorationTime(game.getGameDTO().getActions().size())  ) {
             return getNumSimulationsHybrid();
         } else {
             return getNumSimulations();

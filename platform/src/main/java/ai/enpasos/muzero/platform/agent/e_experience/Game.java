@@ -213,12 +213,12 @@ public abstract class Game {
     }
 
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target);
+            fillTarget(currentIndex, target,  isEntropyContributingToReward);
             targets.add(target);
         });
         return targets;
@@ -229,7 +229,7 @@ public abstract class Game {
 
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target) {
+    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward) {
 
         int tdSteps = getTdSteps(currentIndex);
         double value = calculateValue(tdSteps, currentIndex);
@@ -241,7 +241,12 @@ public abstract class Game {
             target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
-            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            if ( isEntropyContributingToReward  && isItExplorationTime(currentIndex)) {
+                Arrays.fill(target.getPolicy(), 0f);
+            } else {
+                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            }
+
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -272,14 +277,14 @@ public abstract class Game {
     private int getTdSteps(int currentIndex) {
         int tdSteps;
         if (this.reanalyse) {
-            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)  ) {
                 tdSteps = 0;
             } else {
                 int tMaxHorizon = this.getGameDTO().getRewards().size() - 1;
                 tdSteps = getTdSteps(currentIndex, tMaxHorizon);
             }
         } else {
-            if (gameDTO.isHybrid() && currentIndex < this.getGameDTO().getTHybrid()) {
+            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)) {
                 tdSteps = 0;
             } else {
                 tdSteps = this.getGameDTO().getTdSteps();
@@ -505,4 +510,10 @@ public abstract class Game {
     }
 
 
+    public boolean isItExplorationTime() {
+        return isItExplorationTime(this.getGameDTO().getActions().size());
+    }
+    public boolean isItExplorationTime(int t) {
+        return t < this.getGameDTO().getTHybrid();
+    }
 }

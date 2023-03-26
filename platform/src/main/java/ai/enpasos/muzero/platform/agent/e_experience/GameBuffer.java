@@ -115,7 +115,7 @@ public class GameBuffer {
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
 
-        sample.makeTarget();
+        sample.makeTarget(config.getEntropyContributionToReward() != 0d);
         return sample;
     }
 

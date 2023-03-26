@@ -95,7 +95,9 @@ public class GumbelSearch {
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
             int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
-            double[] raw = add(logits, sigmas(add(completedQsNormalized, completedEntropyQsNormalized), maxActionVisitCount, config.getCVisit(), config.getCScale()));
+            double[] raw = add(logits, sigmas(
+                    game.isItExplorationTime() ?  add(completedQsNormalized, completedEntropyQsNormalized) : completedQsNormalized
+                    , maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
 
@@ -330,7 +332,7 @@ public class GumbelSearch {
             } else {
                 node.calculateVmix();
                 node.calculateEntropyVmix();
-                node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues);
+                node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues, game.isItExplorationTime());
                 node.calculateImprovedValue();
                 node.calculateImprovedEntropyValue();
             }
@@ -381,7 +383,7 @@ public class GumbelSearch {
             raw[i] = Math.log(policyTarget[i]);
         }
         if (config.getTrainingTypeKey() == HYBRID) {
-            if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()) {
+            if (this.game.isItExplorationTime()) {
                 if (config.isGumbelActionSelectionOnExploring()) {
                     game.getGameDTO().getPlayoutPolicy().add(toFloat(softmax(raw, temperature)));
                     action = config.newAction(drawGumbelActionFromAllRootChildren(temperature));

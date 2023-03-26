@@ -274,7 +274,11 @@ public class PlanAction {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            double[] raw = add(logits, sigmas(add(completedQsNormalized, completedEntropyQsNormalized), maxActionVisitCount, config.getCVisit(), config.getCScale()));
+
+
+            double[] raw = add(logits, sigmas(
+                    game.isItExplorationTime() ?  add(completedQsNormalized, completedEntropyQsNormalized) : completedQsNormalized
+                    , maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
             double[] improvedPolicy = softmax(raw);
 
