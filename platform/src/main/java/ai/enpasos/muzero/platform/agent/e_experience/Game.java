@@ -242,6 +242,7 @@ public abstract class Game {
             target.setValue((float) value);
             target.setReward(reward);
             if ( isEntropyContributingToReward  && isItExplorationTime(currentIndex)) {
+                target.setPolicy(new float[this.actionSpaceSize]);
                 Arrays.fill(target.getPolicy(), 0f);
             } else {
                 target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
