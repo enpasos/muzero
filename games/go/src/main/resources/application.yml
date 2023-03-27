@@ -6,6 +6,8 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
+    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
+    ai.djl: INFO
 
 muzero:
   activeGame: GO_5
@@ -91,8 +93,8 @@ muzero:
       numParallelInferences: 1000
 
 
-      entropyContributionToReward: 0.1
-      entropyValueLossWeight: 0.1
+      entropyContributionToReward: 0.01
+      entropyValueLossWeight: 0.01
 
       playTypes:
         PLAYOUT:
