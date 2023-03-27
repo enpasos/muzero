@@ -80,6 +80,9 @@ public class PlanAction {
         double pRandomActionRawAverage,
         boolean drawNotMaxWhenJustWithInitialInference
     ) {
+        if (render && game.isDebug()) {
+            log.info("\n" + game.render());
+        }
         Action action;
         if (game.legalActions().size() == 1) {
             action = game.legalActions().get(game.legalActions().size() - 1);
@@ -111,10 +114,7 @@ public class PlanAction {
             if (!game.isReanalyse()) {
                 game.getGameDTO().getPlayoutPolicy().add(policyTarget);
             }
-            if (render && game.isDebug()) {
-                game.renderMCTSSuggestion(config, policyTarget);
-                log.info("\n" + game.render());
-            }
+
         } else {
             game.initSearchManager(pRandomActionRawAverage);
             GumbelSearch sm = game.getSearchManager();
@@ -137,7 +137,6 @@ public class PlanAction {
             List<float[]> policyTargets = game.getGameDTO().getPolicyTargets();
             float[] policyTarget = policyTargets.get(policyTargets.size() - 1);
             game.renderMCTSSuggestion(config, policyTarget);
-            log.info("\n" + game.render());
         }
 
         GameDTO dto = game.getGameDTO();
