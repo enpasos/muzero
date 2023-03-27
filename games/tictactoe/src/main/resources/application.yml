@@ -85,13 +85,13 @@ muzero:
 
       numParallelInferences: 1000
 
-      entropyContributionToReward: 0.5
-      entropyValueLossWeight: 0.5
+      entropyContributionToReward: 0.0
+      entropyValueLossWeight: 0.0
 
       playTypes:
         PLAYOUT:
           forTraining: false
-          numSimulations: 20
+          numSimulations: 31
           rootExplorationFraction: 0.0  # 0.0 means switched off
           temperatureRoot: 0.0
           gumbelActionSelection: true
@@ -100,13 +100,13 @@ muzero:
           numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
-          numSimulations: 20
-          numSimulationsHybrid: 20
+          numSimulations: 31
+          numSimulationsHybrid: 31
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
-          rootDirichletAlpha: 1.2
-          rootExplorationFraction: 0.25  # 0.0 means switched off
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
 
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (different from the paper)
