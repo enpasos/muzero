@@ -1,11 +1,10 @@
 package ai.enpasos.muzero.platform.agent.c_planning;
 
-import ai.enpasos.muzero.platform.agent.c_planning.GumbelAction;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.drawGumbelActions;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

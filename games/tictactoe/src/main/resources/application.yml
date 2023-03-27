@@ -57,7 +57,7 @@ muzero:
       gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
 
       # Gumbel MuZero parameters
-      initialGumbelM: 4
+      initialGumbelM: 9
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 

@@ -27,7 +27,6 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.commons.math3.analysis.function.Min;
 import org.apache.commons.math3.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +39,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 

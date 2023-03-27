@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 //import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.calculateSurprise;
 import static ai.enpasos.muzero.platform.common.Functions.*;

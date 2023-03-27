@@ -18,10 +18,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.add;
+import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.drawActions;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelInfo.initGumbelInfo;
+import static ai.enpasos.muzero.platform.agent.c_planning.SequentialHalving.initGumbelInfo;
 import static ai.enpasos.muzero.platform.common.Functions.draw;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
 import static ai.enpasos.muzero.platform.common.Functions.toFloat;
@@ -36,7 +36,7 @@ import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 public class GumbelSearch {
     Node root;
 
-    GumbelInfo gumbelInfo;
+    SequentialHalving sequentialHalfingInfo;
     boolean simulationsFinished = false;
 
     Game game;
@@ -63,13 +63,13 @@ public class GumbelSearch {
         int n = config.getNumSimulations(game);
         int m = config.getInitialGumbelM();
         int k = game.legalActions().size();
-        this.gumbelInfo = initGumbelInfo(n, m, k);
-        if (debug) log.trace(gumbelInfo.toString());
+        this.sequentialHalfingInfo = initGumbelInfo(n, m, k);
+        if (debug) log.trace(sequentialHalfingInfo.toString());
 
         currentPhase = 0;
 
         rootChildrenCandidates = new HashMap<>();
-        IntStream.range(0, this.gumbelInfo.getPhaseNum()).forEach(i -> rootChildrenCandidates.put(i, new ArrayList<>()));
+        IntStream.range(0, this.sequentialHalfingInfo.getPhaseNum()).forEach(i -> rootChildrenCandidates.put(i, new ArrayList<>()));
     }
 
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
@@ -127,7 +127,7 @@ public class GumbelSearch {
         }).collect(Collectors.toList());
 
         // drawing m actions out of the allowed actions (from root) for each parallel played game
-        gumbelActions = drawGumbelActionsInitially(gumbelActions, gumbelInfo.getM());
+        gumbelActions = drawGumbelActionsInitially(gumbelActions, sequentialHalfingInfo.getM());
 
         List<GumbelAction> gumbelActionsFinal = gumbelActions;
         rootChildrenCandidates.put(currentPhase,
@@ -153,7 +153,7 @@ public class GumbelSearch {
         int maxActionVisitCount = rootChildrenCandidates.get(currentPhase).stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
         // drawing m actions out of the candidate actions (from root) for each parallel played game
-        gumbelActions = drawGumbelActions(1d, gumbelActions, gumbelInfo.getM(), config.getCVisit(), config.getCScale(), maxActionVisitCount);
+        gumbelActions = drawGumbelActions(1d, gumbelActions, sequentialHalfingInfo.getM(), config.getCVisit(), config.getCScale(), maxActionVisitCount);
 
         List<GumbelAction> gumbelActionsFinal = gumbelActions;
         currentPhase++;
@@ -220,7 +220,7 @@ public class GumbelSearch {
     }
 
     public Node getCurrentRootChild() {
-        return rootChildrenCandidates.get(currentPhase).get(this.gumbelInfo.im);
+        return rootChildrenCandidates.get(currentPhase).get(this.sequentialHalfingInfo.im);
     }
 
     public List<Node> getCurrentSearchPath() {
@@ -243,12 +243,12 @@ public class GumbelSearch {
 
     public void next() {
         if (this.debug)
-            log.trace(this.getGumbelInfo().toString());
-        this.gumbelInfo.next();
+            log.trace(this.getSequentialHalfingInfo().toString());
+        this.sequentialHalfingInfo.next();
         if (this.debug) {
-            log.trace(this.getGumbelInfo().toString());
+            log.trace(this.getSequentialHalfingInfo().toString());
         }
-        if (gumbelInfo.isFinished()) {
+        if (sequentialHalfingInfo.isFinished()) {
             gumbelActionsOnPhaseChange();
             if (this.getRootChildrenCandidates().get(currentPhase).size() > 1) {
                 // find the phaseNum with the most visited actions
@@ -265,7 +265,7 @@ public class GumbelSearch {
             }
             if (debug) log.debug("simulation finished");
         } else {
-            if (this.gumbelInfo.isPhaseChanged()) {
+            if (this.sequentialHalfingInfo.isPhaseChanged()) {
                 gumbelActionsOnPhaseChange();
             }
         }
