@@ -21,7 +21,7 @@ public class GoOnnx {
 
     public void run() {
 
-        int epoch = 685;
+        int epoch = -1;
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();
         long hs = config.getNumChannels();
