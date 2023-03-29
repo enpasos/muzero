@@ -94,7 +94,7 @@ muzero:
 
 
       entropyContributionToReward: 0.0
-      entropyValueLossWeight: 0.0
+      entropyValueLossWeight: 0.01
 
       playTypes:
         PLAYOUT:
