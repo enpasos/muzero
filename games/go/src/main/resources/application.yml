@@ -85,9 +85,9 @@ muzero:
       numChannelsOutputLayerSimilarityPredictor: 500
 
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
       allOrNothingOn: true
-      offPolicyRatioLimit: 5.0
+      offPolicyRatioLimit: 1.0
 
 
       numParallelInferences: 1000
