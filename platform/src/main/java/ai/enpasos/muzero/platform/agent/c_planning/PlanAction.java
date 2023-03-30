@@ -169,15 +169,23 @@ public class PlanAction {
         }
         storeEntropyInfo(game, sm.getRoot());
 
-        if(!fastRuleLearning && game.isDebug() && render) {
-            game.renderSuggestionFromPriors( config, sm.getRoot());
-        }
+
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
+            if(!fastRuleLearning && game.isDebug() && render) {
+                game.renderSuggestionFromPriors( config, sm.getRoot());
+            }
             return;
         }
 
 
         if (!fastRuleLearning) sm.addExplorationNoise();
+
+        if(!fastRuleLearning && game.isDebug() && render) {
+            game.renderSuggestionFromPriors( config, sm.getRoot());
+        }
+
+
+
         sm.gumbelActionsStart(withRandomness);
 
         if (!fastRuleLearning) {
