@@ -241,12 +241,12 @@ public abstract class Game {
             target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
-            if ( isEntropyContributingToReward  && isItExplorationTime(currentIndex)) {
-                target.setPolicy(new float[this.actionSpaceSize]);
-                Arrays.fill(target.getPolicy(), 0f);
-            } else {
+//            if ( isEntropyContributingToReward  && isItExplorationTime(currentIndex)) {
+//                target.setPolicy(new float[this.actionSpaceSize]);
+//                Arrays.fill(target.getPolicy(), 0f);
+//            } else {
                 target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-            }
+//            }
 
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)

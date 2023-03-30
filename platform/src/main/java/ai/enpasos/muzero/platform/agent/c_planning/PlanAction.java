@@ -179,7 +179,6 @@ public class PlanAction {
 
         if (!fastRuleLearning) sm.addExplorationNoise();
         sm.gumbelActionsStart(withRandomness);
-      //  sm.drawCandidateAndAddValueStart();
 
         if (!fastRuleLearning) {
             do {
