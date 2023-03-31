@@ -2,7 +2,7 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.d_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -29,7 +29,7 @@ public class LossExtractor {
     MuZeroConfig config;
 
     @Autowired
-    NetworkHelper networkHelfer;
+    BatchFactory networkHelfer;
 
 
     private LossExtractor() {

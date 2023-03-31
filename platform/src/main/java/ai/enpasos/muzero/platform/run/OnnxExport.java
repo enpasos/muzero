@@ -4,7 +4,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
-import ai.enpasos.muzero.platform.agent.d_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
@@ -33,7 +33,7 @@ public class OnnxExport {
     MuZeroConfig config;
 
     @Autowired
-    NetworkHelper networkHelfer;
+    BatchFactory networkHelfer;
 
 
     private OnnxExport() {

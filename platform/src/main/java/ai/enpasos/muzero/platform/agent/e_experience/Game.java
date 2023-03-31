@@ -218,7 +218,7 @@ public abstract class Game {
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target,  isEntropyContributingToReward);
+            fillTarget(currentIndex, target, isEntropyContributingToReward);
             targets.add(target);
         });
         return targets;

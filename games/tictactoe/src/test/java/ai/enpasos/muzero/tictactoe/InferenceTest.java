@@ -1,7 +1,7 @@
 package ai.enpasos.muzero.tictactoe;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -55,7 +55,7 @@ class InferenceTest {
 
 
     @Autowired
-    NetworkHelper networkHelper;
+    BatchFactory batchFactory;
 
     @Autowired
     ModelQueue inferenceQueue;

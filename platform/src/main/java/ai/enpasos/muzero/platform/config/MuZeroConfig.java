@@ -146,6 +146,10 @@ public class MuZeroConfig {
         return getConf().offPolicyCorrectionOn;
     }
 
+    public boolean isWithEntropyValuePrediction() {
+        return getConf().withEntropyValuePrediction;
+    }
+
     public boolean allOrNothingOn() {
         return getConf().allOrNothingOn;
     }
@@ -528,6 +532,9 @@ public class MuZeroConfig {
         boolean offPolicyCorrectionOn;
 
         boolean allOrNothingOn;
+
+
+        boolean withEntropyValuePrediction;
         double offPolicyRatioLimit;
 
         double entropyContributionToReward;

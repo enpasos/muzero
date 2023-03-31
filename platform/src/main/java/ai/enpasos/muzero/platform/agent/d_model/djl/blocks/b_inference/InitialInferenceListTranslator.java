@@ -76,9 +76,9 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         NDArray v = list.get(2);
         float[] vArray = v.toFloatArray();
 
+        boolean  withEntropyValuePrediction = list.size() > 3;
 
-        NDArray vEntropy = list.get(3);
-        float[] vEntropyArray = vEntropy.toFloatArray();
+        final float[] vEntropyArrayFinal = withEntropyValuePrediction ? list.get(3).toFloatArray() : null;
 
         int n = (int) v.getShape().get(0);
 
@@ -92,13 +92,13 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
 
                 double scale = config.getValueSpan() / 2.0;
+
                 return NetworkIO.builder()
                     .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
-                    .entropyValue(vEntropyArray[i])
+                    .entropyValue(withEntropyValuePrediction ? vEntropyArrayFinal[i] : 0f)
                     .policyValues(ps)
                     .logits(logits2)
                     .build();
-
 
             })
             .collect(Collectors.toList());

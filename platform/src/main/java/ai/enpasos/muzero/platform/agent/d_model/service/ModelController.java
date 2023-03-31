@@ -14,9 +14,10 @@ import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEpochTrainingListener;
-import ai.enpasos.muzero.platform.agent.d_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.d_model.djl.TrainingConfigFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
@@ -35,7 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.d_model.djl.NetworkHelper.getEpochFromModel;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.EpochHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
 import static java.util.Map.entry;
@@ -52,7 +53,10 @@ public class ModelController implements DisposableBean, Runnable {
     MuZeroConfig config;
     NDManager nDManager;
     @Autowired
-    NetworkHelper networkHelper;
+    BatchFactory batchFactory;
+
+    @Autowired
+    TrainingConfigFactory trainingConfigFactory;
     @Autowired
     GameBuffer gameBuffer;
     private Network network;
@@ -177,20 +181,20 @@ public class ModelController implements DisposableBean, Runnable {
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
             boolean withSymmetryEnrichment = true;
             epochLocal = getEpochFromModel(model);
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epochLocal);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal);
             int finalEpoch = epochLocal;
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)
                 .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = networkHelper.getInputShapes();
+                Shape[] inputShapes = batchFactory.getInputShapes();
                 trainer.initialize(inputShapes);
                 trainer.setMetrics(new Metrics());
 
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
+                    try (Batch batch = batchFactory.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
                         log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch);
+                        MyEasyTrain.trainBatch(trainer, batch, config.isWithEntropyValuePrediction());
                         trainer.step();
                     }
                 }
@@ -306,13 +310,13 @@ public class ModelController implements DisposableBean, Runnable {
             final int epoch = -1;
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
             boolean withSymmetryEnrichment = true;
-            DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch);
 
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)
                 .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = networkHelper.getInputShapes();
+                Shape[] inputShapes = batchFactory.getInputShapes();
                 trainer.initialize(inputShapes);
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }

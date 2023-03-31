@@ -143,7 +143,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9 ),
+            new PredictionBlock(128, true, 9, true ),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -156,7 +156,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9 ),
+            new PredictionBlock(128, true, 9, true ),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
