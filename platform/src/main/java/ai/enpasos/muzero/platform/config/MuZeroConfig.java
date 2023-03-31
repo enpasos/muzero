@@ -61,6 +61,11 @@ public class MuZeroConfig {
         return new KnownBounds();
     }
 
+
+    public KnownBounds getKnownBoundsEntropyQValues() {
+            return new KnownBounds();
+    }
+
     public Game newGame(boolean connectToEnvironment, boolean withFirstObservation) {
         try {
             Constructor<?> constructor = this.getGameClass().getConstructor(MuZeroConfig.class);
@@ -139,6 +144,10 @@ public class MuZeroConfig {
 
     public boolean offPolicyCorrectionOn() {
         return getConf().offPolicyCorrectionOn;
+    }
+
+    public boolean isWithEntropyValuePrediction() {
+        return getConf().withEntropyValuePrediction;
     }
 
     public boolean allOrNothingOn() {
@@ -231,6 +240,10 @@ public class MuZeroConfig {
 
     public float getValueLossWeight() {
         return getConf().valueLossWeight;
+    }
+
+    public float getEntropyValueLossWeight() {
+        return getConf().entropyValueLossWeight;
     }
 
     public float getLrInit() {
@@ -328,7 +341,7 @@ public class MuZeroConfig {
 
     public int getNumSimulations(Game game) {
         if (this.getTrainingTypeKey() == HYBRID &&
-            game.getGameDTO().getActions().size() < game.getGameDTO().getTHybrid()) {
+                game.isItExplorationTime(game.getGameDTO().getActions().size())  ) {
             return getNumSimulationsHybrid();
         } else {
             return getNumSimulations();
@@ -492,6 +505,7 @@ public class MuZeroConfig {
         protected float discount;
         protected float weightDecay;
         protected float valueLossWeight;
+        protected float entropyValueLossWeight;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -518,6 +532,9 @@ public class MuZeroConfig {
         boolean offPolicyCorrectionOn;
 
         boolean allOrNothingOn;
+
+
+        boolean withEntropyValuePrediction;
         double offPolicyRatioLimit;
 
         double entropyContributionToReward;

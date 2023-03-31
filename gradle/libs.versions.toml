@@ -4,7 +4,7 @@ djl = "0.21.0"
 pytorch = "1.13.1"
 
 slf4j = "2.0.7"
-springboot = "3.0.4"
+springboot = "3.0.5"
 protobuf = "3.22.2"
 
 

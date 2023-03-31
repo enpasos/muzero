@@ -42,9 +42,8 @@ public class GoAdapter {
 
 
     public static Observation translateToObservation(MuZeroConfig config, GameState gameState) {
-
         int n = config.getBoardHeight() * config.getBoardWidth();
-        Player player = gameState.getNextPlayer();
+        Player player = Player.BLACK_PLAYER; //gameState.getNextPlayer();
 
         return ObservationTwoPlayers.builder()
                 .partSize(n)

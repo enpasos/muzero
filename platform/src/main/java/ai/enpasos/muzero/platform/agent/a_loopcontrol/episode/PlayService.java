@@ -55,9 +55,11 @@ public class PlayService {
             game.setOriginalGameDTO(game.getGameDTO().copy());
             game.getGameDTO().getPolicyTargets().clear();
             game.getGameDTO().setRootValueTargets(new ArrayList<>());
+            game.getGameDTO().setRootEntropyValueTargets(new ArrayList<>());
             game.getGameDTO().setEntropies(new ArrayList<>());
             game.getGameDTO().setMaxEntropies(new ArrayList<>());
             game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
+            game.getGameDTO().setRootEntropyValuesFromInitialInference(new ArrayList<>());
             game.getGameDTO().setActions(new ArrayList<>());
             game.getGameDTO().setRewards(new ArrayList<>());
             game.getGameDTO().setObservations(new ArrayList<>());

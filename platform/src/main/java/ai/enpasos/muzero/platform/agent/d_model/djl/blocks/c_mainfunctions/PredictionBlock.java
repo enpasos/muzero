@@ -34,44 +34,53 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(  config.getNumChannels(), config.getPlayerMode() == PlayerMode.TWO_PLAYERS, config.getActionSpaceSize());
+        this(config.getNumChannels(),
+                config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
+                config.getActionSpaceSize(),
+                config.isWithEntropyValuePrediction());
     }
 
-    public PredictionBlock(  int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize) {
+    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean isWithEntropyValuePrediction) {
 
 
         SequentialBlockExt valueHead = new SequentialBlockExt();
-
-            valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+        valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock());
-
         valueHead.add(LinearExt.builder()
-                .setUnits(numChannels) // config.getNumChannels())  // originally 256
-                .build())
-            .add(ActivationExt.reluBlock());
-
-
+                        .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                        .build())
+                .add(ActivationExt.reluBlock());
         valueHead.add(LinearExt.builder()
-            .setUnits(1).build());
-
-
+                .setUnits(1).build());
         if (isPlayerModeTWOPLAYERS) {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
-        SequentialBlockExt policyHead = new SequentialBlockExt();
+        SequentialBlockExt entropyValueHead = null;
+        if (isWithEntropyValuePrediction) {
+            entropyValueHead = new SequentialBlockExt();
+            entropyValueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+                    .add(BlocksExt.batchFlattenBlock());
+            entropyValueHead.add(LinearExt.builder()
+                            .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                            .build())
+                    .add(ActivationExt.reluBlock());
+            entropyValueHead.add(LinearExt.builder()
+                    .setUnits(1).build());
+        }
 
-            policyHead
+        SequentialBlockExt policyHead = new SequentialBlockExt();
+        policyHead
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())
                 .add(BlocksExt.batchFlattenBlock());
-
         policyHead.add(LinearExt.builder()
-            .setUnits(actionSpaceSize)
-            .build());
+                .setUnits(actionSpaceSize)
+                .build());
 
 
         add(new ParallelBlockWithCollectChannelJoinExt(
-            Arrays.asList(policyHead, valueHead))
+                isWithEntropyValuePrediction ?
+                        Arrays.asList(policyHead, valueHead, entropyValueHead) : Arrays.asList(policyHead, valueHead))
         );
     }
 

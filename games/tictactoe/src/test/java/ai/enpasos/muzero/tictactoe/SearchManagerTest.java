@@ -68,9 +68,9 @@ class SearchManagerTest {
         searchManager.expandRootNode(false, networkIO);
         searchManager.gumbelActionsStart(true);
         for (int i = 0; i < 2 * n; i++) {
-            System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getGumbelInfo());
-            assertTrue((searchManager.getGumbelInfo().isFinished() && i >= config.getNumSimulations()) ||
-                (!searchManager.getGumbelInfo().isFinished() && i < config.getNumSimulations()));
+            System.out.println("i:" + i + ", isSimulationsFinished?" + searchManager.isSimulationsFinished() + "... " + searchManager.getSequentialHalfingInfo());
+            assertTrue((searchManager.getSequentialHalfingInfo().isFinished() && i >= config.getNumSimulations()) ||
+                (!searchManager.getSequentialHalfingInfo().isFinished() && i < config.getNumSimulations()));
             searchManager.next();
         }
 

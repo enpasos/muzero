@@ -13,9 +13,9 @@ class GoBoardSerializerTest {
     void serializeABoard1() {
         var board = new GoBoard(9);
 
-        board = board.placeStone(BLACK_PLAYER, new Point(2, 2));
-        board = board.placeStone(WHITE_PLAYER, new Point(3, 3));
-        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(8, 2));
+        board = board.placeStone(BLACK_PLAYER, new Point(8, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(7, 3));
         board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
 
         assertEquals("""
@@ -38,9 +38,9 @@ class GoBoardSerializerTest {
     void serializeABoard2() {
         var board = new GoBoard(9);
 
-        board = board.placeStone(BLACK_PLAYER, new Point(1, 1));
-        board = board.placeStone(WHITE_PLAYER, new Point(3, 3));
-        board = board.placeStone(BLACK_PLAYER, new Point(2, 3));
+        board = board.placeStone(BLACK_PLAYER, new Point(9, 1));
+        board = board.placeStone(BLACK_PLAYER, new Point(8, 3));
+        board = board.placeStone(WHITE_PLAYER, new Point(7, 3));
         board = board.placeStone(WHITE_PLAYER, new Point(5, 4));
 
 

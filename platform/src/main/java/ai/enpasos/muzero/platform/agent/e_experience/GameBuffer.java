@@ -59,6 +59,7 @@ public class GameBuffer {
     @Autowired
     private GameBufferIO gameBufferIO;
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
+    private Map<Integer, Double> meanEntropyValuesLosses = new HashMap<>();
     private Map<Integer, Double> entropyExplorationSum = new HashMap<>();
     private Map<Integer, Integer> entropyExplorationCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyExplorationSum = new HashMap<>();
@@ -114,7 +115,7 @@ public class GameBuffer {
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
 
-        sample.makeTarget();
+        sample.makeTarget(config.getEntropyContributionToReward() != 0d);
         return sample;
     }
 
@@ -318,6 +319,9 @@ public class GameBuffer {
 
     public void putMeanValueLoss(int epoch, double meanValueLoss) {
         meanValuesLosses.put(epoch, meanValueLoss);
+    }
+    public void putMeanEntropyValueLoss(int epoch, double meanValueLoss) {
+        meanEntropyValuesLosses.put(epoch, meanValueLoss);
     }
 
     public Double getMaxMeanValueLoss() {

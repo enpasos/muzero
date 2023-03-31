@@ -6,6 +6,8 @@ logging:
   level:
     root: WARN
     ai.enpasos: DEBUG
+    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
+    ai.djl: INFO
 
 muzero:
   activeGame: GO_5
@@ -42,7 +44,7 @@ muzero:
       # network training
       symmetryType: SQUARE
       numberOfTrainingStepsPerEpoch: 100
-      batchSize: 50 #64
+      batchSize: 64
       numUnrollSteps: 5
       # tdSteps: 10000 # here equals max moves
       discount: 1.0
@@ -83,14 +85,16 @@ muzero:
       numChannelsOutputLayerSimilarityPredictor: 500
 
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
       allOrNothingOn: true
-      offPolicyRatioLimit: 5.0
+      offPolicyRatioLimit: 1.0
 
 
       numParallelInferences: 1000
 
-      entropyContributionToReward: 0.01
+      withEntropyValuePrediction: true
+      entropyContributionToReward: 0.0001
+      entropyValueLossWeight: 0.001
 
       playTypes:
         PLAYOUT:
@@ -101,7 +105,7 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numParallelGamesPlayed: 500
+          numParallelGamesPlayed: 1000
           tdSteps:  10000
           forTdStep0ValueTraining: false
           numSimulations: 30
@@ -117,13 +121,13 @@ muzero:
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
           temperatureRoot: 2.0
           gumbelActionSelection: false
-        REANALYSE:
-          forTraining: true
-          numParallelGamesPlayed: 500
-          tdSteps: 10000
-          numSimulations: 30
-          rootDirichletAlpha: 0.4
-          rootExplorationFraction: 0.25  # 0.0 means switched off
+#        REANALYSE:
+#          forTraining: true
+#          numParallelGamesPlayed: 500
+#          tdSteps: 10000
+#          numSimulations: 30
+#          rootDirichletAlpha: 0.4
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 #        BEST_EFFORT:
 #          forTraining: true
@@ -216,12 +220,16 @@ muzero:
       numChannelsOutputLayerSimilarityPredictor: 500
 
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
       allOrNothingOn: true
       offPolicyRatioLimit: 5.0
 
 
       numParallelInferences: 1000
+
+      withEntropyValuePrediction: false
+      entropyContributionToReward: 0.0001
+      entropyValueLossWeight: 0.001
 
       playTypes:
         PLAYOUT:

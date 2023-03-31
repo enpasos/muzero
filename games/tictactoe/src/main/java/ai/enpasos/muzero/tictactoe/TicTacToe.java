@@ -5,17 +5,7 @@ import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeEntropyExtractor;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeFindNetworksDoingABadMove;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeInMindValues;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeInference;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeLossExtractor;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeOnnx;
-import ai.enpasos.muzero.tictactoe.run.TicTacToePolicyOnly;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeTestAllNetworks;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeTestComponent;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeTrainingAndTest;
-import ai.enpasos.muzero.tictactoe.run.TicTacToeValueExtractor;
+import ai.enpasos.muzero.tictactoe.run.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -53,6 +43,8 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeValueExtractor valueExtractor;
 
+    @Autowired
+    private TicTacToeEntropyValueExtractor entropyValueExtractor;
 
     @Autowired
     private TicTacToeFindNetworksDoingABadMove badAction;
@@ -109,6 +101,9 @@ public class TicTacToe implements CommandLineRunner {
                 throw new MuZeroException("RENDER not implemented yet.");
             case VALUE:
                 valueExtractor.run();
+                break;
+            case ENTROPYVALUE:
+                entropyValueExtractor.run();
                 break;
             case ENTROPY:
                 entropyExtractor.run();

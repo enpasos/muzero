@@ -4,12 +4,12 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Builder;
 import lombok.Data;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.extraPhaseVisitsToUpdateQPerPhase;
+import static ai.enpasos.muzero.platform.agent.c_planning.SequentialHalving.extraPhaseVisitsToUpdateQPerPhase;
 import static ai.enpasos.muzero.platform.common.Functions.log2;
 
 @Data
 @Builder
-public class GumbelInfo {
+public class SequentialHalving {
 
     @Builder.Default
     boolean phaseChanged = false;
@@ -30,29 +30,56 @@ public class GumbelInfo {
 
 
     /**
-     * @param n number of simulations, this value could be dynamic
-     * @param m number of actions in the first phase - is changed to the next smaller powers of 2, that is smaller or equals k
+     * @param n number of simulations
+     * @param m number of actions in the first phase - if larger than k it is changed to k
      */
-    public static GumbelInfo initGumbelInfo(int n, int m, int k) {
+    public static SequentialHalving initGumbelInfo(int n, int m, int k) {
 
 
-        m -= m % 2;   // make m a power of 2
+       // m -= m % 2;   // make m a power of 2
         if (k >= 2) {  // make m smaller or equals k
-            while (m > k) {
-                m /= 2;
+            if (m>k) {
+                m = k;
             }
+
+//            while (m > k) {
+//                m /= 2;
+//            }
         } else {
             throw new MuZeroException("k < 2 needs to be handled");
         }
-        return GumbelInfo.builder()
+        int phases = (int)Math.ceil(log2(m));
+        return SequentialHalving.builder()
             .k(k)
             .n(n)
             .remainingBudget(n)
             .m(m)
-            .phaseNum((int) log2(m))
-            .extraVisitsPerPhase(extraPhaseVisitsToUpdateQPerPhase(n, m))
+            .phaseNum(phases)
+            .extraVisitsPerPhase(extraPhaseVisitsToUpdateQPerPhase(n, m, phases))
             .build();
 
+    }
+
+    public static int[] extraPhaseVisitsToUpdateQPerPhase(int budget, int m) {
+        return extraPhaseVisitsToUpdateQPerPhase(budget, m,(int) Math.ceil(log2(m)));
+    }
+
+    public static int[] extraPhaseVisitsToUpdateQPerPhase(int budget, int m, int phases) {
+        int remainingBudget = budget;
+
+        int[] result = new int[phases];
+        for (int p = 0; p < phases; p++) {
+            int na = (int) Math.floor((double) budget / phases / m);
+            na = Math.max(1, na);
+            if (p < phases - 1) {
+                result[p] = na;
+                remainingBudget -= na * m;
+            } else {
+                result[p] = Math.max(1, remainingBudget / m);
+            }
+            m /= 2;
+        }
+        return result;
     }
 
 

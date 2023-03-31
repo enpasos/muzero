@@ -85,9 +85,9 @@ public class MuZeroBlock extends AbstractBlock {
         NDArray state = representationResult.get(0);
 
         NDList predictionResult = predictionBlock.forward(parameterStore, representationResult, training, params);
-        combinedResult.add(predictionResult.get(0));
-        combinedResult.add(predictionResult.get(1));
-
+        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+            combinedResult.add(prediction);
+        }
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
@@ -112,8 +112,9 @@ public class MuZeroBlock extends AbstractBlock {
             NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
-            combinedResult.add(predictionResult.get(0));
-            combinedResult.add(predictionResult.get(1));
+            for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+                combinedResult.add(prediction);
+            }
             combinedResult.add(similarityPredictorResult);
             combinedResult.add(similarityProjectorResultLabel);
 

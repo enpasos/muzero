@@ -134,4 +134,12 @@ public class Functions {
     }
 
 
+    public static double[] add(double[] a, double[] b) {
+        if (a.length != b.length) {
+            throw new MuZeroException("vectors in add operation should have the same length");
+        }
+        return IntStream.range(0, a.length).mapToDouble(
+            i -> a[i] + b[i]
+        ).toArray();
+    }
 }
