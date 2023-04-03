@@ -40,7 +40,7 @@ public class GoTrainingAndTest {
         try {
             muZero.train(TrainParams.builder()
                 .render(true)
-                .withoutFill(!startFromScratch)
+                .randomFill(false)
                 .build());
         } catch (InterruptedException e) {
             log.error("Interrupted", e);

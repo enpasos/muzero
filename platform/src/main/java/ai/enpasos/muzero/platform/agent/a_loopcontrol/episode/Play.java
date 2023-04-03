@@ -55,11 +55,11 @@ public class Play {
     @Autowired
     PlayService playService;
 
-    public void fillingBuffer() {
+    public void fillingBuffer(boolean isRandomFill) {
         int windowSize = config.getWindowSize();
         while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-             playMultipleEpisodes(false, true, false);
+             playMultipleEpisodes(false, isRandomFill, false);
         }
     }
 

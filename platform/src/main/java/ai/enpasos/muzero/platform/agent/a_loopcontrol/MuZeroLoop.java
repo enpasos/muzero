@@ -64,14 +64,13 @@ public class MuZeroLoop {
         List<DurAndMem> durations = new ArrayList<>();
 
         gameBuffer.loadLatestStateIfExists();
-        play.fillingBuffer();
+        play.fillingBuffer(params.isRandomFill());
 
         modelService.loadLatestModelOrCreateIfNotExisting().get();
         epoch = modelState.getEpoch();
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
-          //  gameBuffer.loadLatestStateIfExists();
 
             DurAndMem duration = new DurAndMem();
             duration.on();
