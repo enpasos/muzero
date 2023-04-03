@@ -60,7 +60,7 @@ muzero:
 
 
       # Gumbel MuZero parameters
-      initialGumbelM: 8
+      initialGumbelM: 16
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
@@ -107,8 +107,8 @@ muzero:
           numParallelGamesPlayed: 1000
           tdSteps:  10000
           forTdStep0ValueTraining: false
-          numSimulations: 30
-          numSimulationsHybrid: 30
+          numSimulations: 50
+          numSimulationsHybrid: 50
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
