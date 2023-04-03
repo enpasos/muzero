@@ -1,14 +1,7 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.go.run.GoArena;
-import ai.enpasos.muzero.go.run.GoElo;
-import ai.enpasos.muzero.go.run.GoEntropyExtractor;
-import ai.enpasos.muzero.go.run.GoLossExtractor;
-import ai.enpasos.muzero.go.run.GoOnnx;
-import ai.enpasos.muzero.go.run.GoRenderGame;
-import ai.enpasos.muzero.go.run.GoStartValueExtractor;
-import ai.enpasos.muzero.go.run.GoTrainingAndTest;
-import ai.enpasos.muzero.go.run.GoValueExtractor;
+import ai.enpasos.muzero.go.run.*;
+import ai.enpasos.muzero.go.run.test.GoTest;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
@@ -26,6 +19,10 @@ public class Go implements CommandLineRunner {
 
     @Autowired
     private GoTrainingAndTest trainingAndTest;
+
+
+    @Autowired
+    private GoTestComponent goTestComponent;
 
     @Autowired
     private ActionExtractor actionExtractor;
@@ -79,6 +76,9 @@ public class Go implements CommandLineRunner {
 
             case TRAIN:
                 trainingAndTest.run();
+                break;
+            case TEST:
+                goTestComponent.run();
                 break;
             case LOSS:
                 lossExtractor.run();

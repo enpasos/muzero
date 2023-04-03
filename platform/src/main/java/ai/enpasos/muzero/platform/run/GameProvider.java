@@ -55,14 +55,14 @@ public class GameProvider {
 
     @NotNull
     public Optional<Game> getGame() {
-        gameBuffer.loadLatestState();
+        gameBuffer.loadLatestStateIfExists();
         return Optional.of(gameBuffer.getBuffer().getGames().get(gameBuffer.getBuffer().getGames().size() - 1));
 
     }
 
     @NotNull
     public Optional<Game> getGame(int no) {
-        gameBuffer.loadLatestState();
+        gameBuffer.loadLatestStateIfExists();
         return Optional.of(gameBuffer.getBuffer().getGames().get(no));
     }
 
@@ -72,7 +72,7 @@ public class GameProvider {
     }
 
     public Optional<Game> getGameStartingWithActions(List<Integer> actionsList) {
-        gameBuffer.loadLatestState();
+        gameBuffer.loadLatestStateIfExists();
         List<Game> games = gameBuffer.getBuffer().getGames();
         return games.stream().filter(game ->
             // check if game.getGameDTO().getActions() starts with actionsList

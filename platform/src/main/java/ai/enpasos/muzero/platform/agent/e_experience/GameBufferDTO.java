@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Data
@@ -117,8 +118,12 @@ public class GameBufferDTO {
             } else {
                 games.add(game);
             }
-            counter++;
-            game.getGameDTO().setCount(counter);
+            if (game.getGameDTO().getCount() == 0 ) {
+                counter++;
+                game.getGameDTO().setCount(counter);
+            } else {
+                counter = Math.max(counter, game.getGameDTO().getCount());
+            }
         }
     }
 
@@ -147,4 +152,18 @@ public class GameBufferDTO {
     }
 
 
+    public boolean deepEquals(GameBufferDTO dtoNew) {
+        // implement a deep equals
+        boolean base = this.config.equals(dtoNew.config)
+                && this.counter == dtoNew.counter
+                && this.gameClassName.equals(dtoNew.gameClassName)
+                && this.games.size() == dtoNew.games.size();
+
+        if (!base) return false;
+
+        for (int i = 0; i < this.games.size(); i++) {
+            if (!this.games.get(i).deepEquals(dtoNew.getGames().get(i))) return false;
+        }
+        return true;
+    }
 }

@@ -55,8 +55,7 @@ public class Play {
     @Autowired
     PlayService playService;
 
-    public void initialFillingBuffer() {
-        long startCounter = gameBuffer.getBuffer().getCounter();
+    public void fillingBuffer() {
         int windowSize = config.getWindowSize();
         while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
@@ -72,13 +71,13 @@ public class Play {
     }
 
 
-    public void loadBuffer(boolean freshBuffer) {
-        gameBuffer.init();
-        if (!freshBuffer) {
-            gameBuffer.loadLatestState();
-        }
-    }
-
+//    public void loadBuffer(boolean emptyBuffer) {
+//        gameBuffer.init();
+//        if (!emptyBuffer) {
+//            gameBuffer.loadLatestState();
+//        }
+//    }
+//
 
 
 

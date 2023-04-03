@@ -23,7 +23,7 @@ public class TrainParams {
     };
 
     @Builder.Default
-    boolean freshBuffer = false;
+    boolean doNotLoadLatestState = false;
 
 
     @Builder.Default

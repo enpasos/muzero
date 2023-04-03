@@ -52,7 +52,7 @@ public class ActionExtractor {
     @SuppressWarnings({"squid:S1141", "java:S106"})
     public void run() {
 
-        gameBuffer.loadLatestState();
+        gameBuffer.loadLatestStateIfExists();
 
         StringWriter stringWriter = new StringWriter();
 

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -136,20 +137,27 @@ public class ModelController implements DisposableBean, Runnable {
                     if (model.getBlock() == null) {
                         MuZeroBlock block = new MuZeroBlock(config);
                         model.setBlock(block);
-                        loadModelParametersOrCreateIfNotExisting(model);
+                        if (task.epoch == -1) {
+                            loadModelParametersOrCreateIfNotExisting(model);
+                        } else {
+                            loadModelParametersOrCreateIfNotExisting(model, Paths.get(config.getNetworkBaseDir()),
+                                    Map.ofEntries(entry("epoch", task.epoch + "")));
+                        }
                     }
-                    if (task.epoch == -1) {
-                        network = new Network(config, model);
-                    } else {
-                        network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
-                            Map.ofEntries(entry("epoch", task.epoch + "")));
-                    }
+                    network = new Network(config, model);
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
                     network.setHiddenStateNDManager(nDManager);
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
+//                    close();
+//                    model = Model.newInstance(config.getModelName(), Device.gpu());
+//                    network = new Network(config, model);
+//                    nDManager = network.getNDManager().newSubManager();
+//                    network.initActionSpaceOnDevice(nDManager);
+//                    network.setHiddenStateNDManager(nDManager);
+//                    this.modelState.setEpoch(getEpochFromModel(model));
                     trainNetwork(network.getModel());
                     break;
                 case START_SCOPE:
@@ -298,18 +306,20 @@ public class ModelController implements DisposableBean, Runnable {
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
     }
 
-
     private void loadModelParametersOrCreateIfNotExisting(Model model) {
+        loadModelParametersOrCreateIfNotExisting(model,  null,  null);
+    }
+    private void loadModelParametersOrCreateIfNotExisting(Model model, Path modelPath, Map<String, ?> options) {
         try {
             String outputDir = config.getNetworkBaseDir();
             mkDir(outputDir);
-            model.load(Paths.get(outputDir));
+            model.load(modelPath == null ? Paths.get(outputDir) : modelPath,  null,  options);
             //  gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
 
             final int epoch = -1;
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-            boolean withSymmetryEnrichment = true;
+           // boolean withSymmetryEnrichment = true;
             DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch);
 
             djlConfig.getTrainingListeners().stream()
@@ -322,7 +332,6 @@ public class ModelController implements DisposableBean, Runnable {
             }
             //  gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
         }
-
 
     }
 

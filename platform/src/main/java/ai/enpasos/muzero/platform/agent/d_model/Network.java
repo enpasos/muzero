@@ -114,6 +114,9 @@ public class Network {
         this(config, model, Paths.get(config.getNetworkBaseDir()));
     }
 
+
+
+
     public static double getDoubleValue(@NotNull Model model, String name) {
         double value = 0;
         String prop = model.getProperty(name);

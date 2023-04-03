@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import com.google.protobuf.ByteString;
 import lombok.Builder;
@@ -15,14 +16,14 @@ public class ObservationTwoPlayers implements Observation {
     private BitSet partA;
     private BitSet partB;
 
-    OneOfTwoPlayer currentPlayer;
 
 
     @Override
-    public int addTo(BitSet rawResult, int index) {
+    public int addTo(Player player, BitSet rawResult, int index) {
         BitSet a = partA;
         BitSet b = partB;
-        boolean flip = currentPlayer != OneOfTwoPlayer.PLAYER_A;
+        OneOfTwoPlayer currentPlayer = (OneOfTwoPlayer) player;
+        boolean flip = currentPlayer != null && currentPlayer != OneOfTwoPlayer.PLAYER_A;
         for (int i = 0; i < partSize; i++) {
             rawResult.set(index + i, flip ? b.get(i) : a.get(i));
         }
@@ -45,16 +46,33 @@ public class ObservationTwoPlayers implements Observation {
 
 
     @Override
-    public ByteString toByteString() {
-         return ByteString.copyFrom(partA.toByteArray()).concat(ByteString.copyFrom(partB.toByteArray()));
+    public ByteString toByteStringA() {
+        return  ByteString.copyFrom(partA.toByteArray());
+    }
+    @Override
+    public ByteString toByteStringB() {
+        return  ByteString.copyFrom(partB.toByteArray());
     }
 
-    static Observation fromByteStringAndPartSize(ByteString input, int partSize) {
-        int n = input.size() / 2;
+    static Observation fromByteStringAndPartSize(ByteString inputA, ByteString inputB, int partSize) {
+
         return ObservationTwoPlayers.builder()
                 .partSize(partSize)
-                .partA(BitSet.valueOf(input.substring(0, n).toByteArray()))
-                .partB(BitSet.valueOf(input.substring(n).toByteArray()))
+                .partA(BitSet.valueOf(inputA.toByteArray()))
+                .partB(BitSet.valueOf(inputB.toByteArray()))
                 .build();
     }
+
+    // implement equals method
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ObservationTwoPlayers that = (ObservationTwoPlayers) o;
+        return partSize == that.partSize &&
+                partA.equals(that.partA) &&
+                partB.equals(that.partB);
+    }
+
+
 }

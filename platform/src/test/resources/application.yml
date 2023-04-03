@@ -48,7 +48,7 @@ muzero:
       symmetryType: SQUARE
       batchSize: 256
 
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
 
       # Gumbel MuZero parameters
       initialGumbelM: 4

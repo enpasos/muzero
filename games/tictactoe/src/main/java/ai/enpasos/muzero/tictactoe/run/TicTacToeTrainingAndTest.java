@@ -31,7 +31,7 @@ public class TicTacToeTrainingAndTest {
     @SuppressWarnings({"java:S2583", "java:S2589"})
     public void run() {
 
-        boolean startFromScratch = true;
+        boolean startFromScratch = false;
 
         if (startFromScratch) {
             rmDir(config.getOutputDir());
@@ -40,7 +40,6 @@ public class TicTacToeTrainingAndTest {
         try {
             muZero.train(TrainParams.builder()
                 .render(true)
-                .withoutFill(!startFromScratch)
                 .build());
         } catch (InterruptedException e) {
             throw new MuZeroException(e);

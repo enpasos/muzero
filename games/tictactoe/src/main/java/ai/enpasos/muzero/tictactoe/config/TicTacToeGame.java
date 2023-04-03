@@ -94,8 +94,8 @@ public class TicTacToeGame extends ZeroSumGame {
 
         int index = 0;
         ObservationTwoPlayers observation = (ObservationTwoPlayers)this.gameDTO.getObservations().get(position);
-        observation.setCurrentPlayer(currentPlayer);
-        index = observation.addTo(rawResult, index);
+
+        index = observation.addTo(currentPlayer, rawResult, index);
 
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {

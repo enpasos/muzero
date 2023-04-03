@@ -231,7 +231,9 @@ public class MuZeroConfig {
         return getConf().discount;
     }
 
-
+    public float getKomi() {
+        return getConf().komi;
+    }
 
 
     public float getWeightDecay() {
@@ -437,13 +439,7 @@ public class MuZeroConfig {
         return getConf().numChannelsOutputLayerSimilarityPredictor;
     }
 
-    public FileType getGameBufferWritingFormat() {
-        return getConf().gameBufferWritingFormat;
-    }
 
-    public void setGameBufferWritingFormat(FileType fileType) {
-        getConf().setGameBufferWritingFormat(fileType);
-    }
     public void setWindowSize(int windowSize) {
         getConf().setWindowSize(windowSize);
     }
@@ -503,6 +499,7 @@ public class MuZeroConfig {
         protected int batchSize;
         protected int numUnrollSteps;
         protected float discount;
+        protected float komi;
         protected float weightDecay;
         protected float valueLossWeight;
         protected float entropyValueLossWeight;
@@ -518,7 +515,7 @@ public class MuZeroConfig {
 
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
-        protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
+
 
         protected PlayTypeKey playTypeKey;
         int initialGumbelM;

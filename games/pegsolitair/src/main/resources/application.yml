@@ -60,6 +60,6 @@ muzero:
       knownBoundsType: NONE
 
 
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
 
 

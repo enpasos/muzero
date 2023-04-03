@@ -17,8 +17,7 @@ muzero:
       modelName: MuZero-Go-5
       outputDir: ./memory/go5/
       valueInterval: [ -25,25 ]
-      komi: 0.5
-      maxKomi: 6.5
+      komi: 24.5
       size: 5
       boardHeight: 5 # size
       boardWidth: 5 # size
@@ -58,7 +57,7 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
 
       # Gumbel MuZero parameters
       initialGumbelM: 8
@@ -146,8 +145,7 @@ muzero:
       valueInterval: [ -81,81 ]
       outputDir: ./memory/go9/
 
-      komi: 0.5
-      maxKomi: 6.5
+      komi: 6.5
       size: 9
       boardHeight: 9 # size
       boardWidth: 9 # size
@@ -190,7 +188,7 @@ muzero:
       knownBoundsType: FROM_VALUES
 
 
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
 
 
       # Gumbel MuZero parameters
@@ -220,7 +218,7 @@ muzero:
       numChannelsOutputLayerSimilarityPredictor: 500
 
 
-      offPolicyCorrectionOn: false
+      offPolicyCorrectionOn: true
       allOrNothingOn: true
       offPolicyRatioLimit: 5.0
 

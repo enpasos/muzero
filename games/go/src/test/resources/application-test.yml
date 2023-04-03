@@ -47,7 +47,7 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
 
       # Gumbel MuZero parameters
       initialGumbelM: 8

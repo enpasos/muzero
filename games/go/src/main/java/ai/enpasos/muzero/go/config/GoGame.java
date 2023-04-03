@@ -100,8 +100,8 @@ public class GoGame extends ZeroSumGame {
                                     .partA(new BitSet(n0))
                                     .partB(new BitSet(n0))
                                     .build();
-               observation.setCurrentPlayer(currentPlayer);
-            index = observation.addTo(rawResult, index);
+
+            index = observation.addTo(currentPlayer, rawResult, index);
         }
 
         float v = currentPlayer.getActionValue();

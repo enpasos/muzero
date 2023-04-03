@@ -49,7 +49,7 @@ public class GameDTO implements Comparable<GameDTO> {
     private List<Float> entropies;
     private List<float[]> policyTargets;
 
-    private int observationPartSize;
+  //  private int observationPartSize;
     private List<Observation> observations;
 
 
@@ -131,7 +131,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.trainingEpoch = this.trainingEpoch;
-        copy.observationPartSize = this.observationPartSize;
+      //  copy.observationPartSize = this.observationPartSize;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
@@ -180,7 +180,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.trainingEpoch = this.trainingEpoch;
-        copy.observationPartSize = this.observationPartSize;
+  //      copy.observationPartSize = this.observationPartSize;
         copy.entropies.addAll(this.entropies);
         copy.maxEntropies.addAll(this.maxEntropies);
         copy.actions.addAll(this.actions);
@@ -198,6 +198,9 @@ public class GameDTO implements Comparable<GameDTO> {
     }
 
     public GameProto proto() {
+        final int observationPartSize = observations.isEmpty() ? 0 : observations.get(0).getPartSize();
+
+
         GameProto.Builder gameBuilder = GameProto.newBuilder();
         gameBuilder.setNetworkName(this.networkName);
         gameBuilder.setLastValueError(this.lastValueError);
@@ -211,7 +214,6 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setTStateB(this.tStateB);
         gameBuilder.setTdSteps(this.tdSteps);
         gameBuilder.setTrainingEpoch(this.trainingEpoch);
-        gameBuilder.setObservationPartSize(this.observationPartSize);
         gameBuilder.addAllActions(getActions());
         gameBuilder.setPRandomActionRawSum(this.pRandomActionRawSum);
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
@@ -238,7 +240,10 @@ public class GameDTO implements Comparable<GameDTO> {
         });
         getObservations().forEach(observation -> {
             ObservationProtos.Builder b = ObservationProtos.newBuilder();
-            b.setObservation(observation.toByteString());
+            b.setObservationPartA(observation.toByteStringA());
+            b.setObservationPartB(observation.toByteStringB());
+            b.setObservationPartSize(observationPartSize);
+            b.setTwoPlayer(observation instanceof ObservationTwoPlayers);
             gameBuilder.addObservations(b.build());
         });
         getLegalActions().forEach(legalActionsLocal -> {
@@ -261,7 +266,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setTStateB(p.getTStateB());
         this.setTdSteps(p.getTdSteps());
         this.setTrainingEpoch(p.getTrainingEpoch());
-        this.setObservationPartSize(p.getObservationPartSize());
+
         this.setActions(p.getActionsList());
         this.setPRandomActionRawSum(p.getPRandomActionRawSum());
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());
@@ -290,7 +295,14 @@ public class GameDTO implements Comparable<GameDTO> {
         if (p.getObservationsCount() > 0) {
             this.setObservations(
                     p.getObservationsList().stream()
-                            .map(o -> ObservationTwoPlayers.fromByteStringAndPartSize(o.getObservation(), this.observationPartSize))
+                            .map(o -> {
+                                    if (o.getTwoPlayer()) {
+                                        return ObservationTwoPlayers.fromByteStringAndPartSize(o.getObservationPartA(),o.getObservationPartB(), o.getObservationPartSize() );
+                                    } else {
+                                        return ObservationOnePlayer.fromByteStringAndPartSize(o.getObservationPartA(),o.getObservationPartSize() );
+                                    }
+
+                            })
                             .collect(Collectors.toList())
             );
         }
@@ -326,5 +338,60 @@ public class GameDTO implements Comparable<GameDTO> {
     public int compareTo(@NotNull GameDTO o) {
         return Long.compare(this.getCount(), o.getCount());
     }
+
+    public boolean deepEquals(GameDTO gameDTO) {
+        // implement an equals method that compares all fields
+        return this.networkName.equals(gameDTO.getNetworkName())
+                && this.tSurprise == gameDTO.getTSurprise()
+                && this.tHybrid == gameDTO.getTHybrid()
+                && this.tStateA == gameDTO.getTStateA()
+                && this.tStateB == gameDTO.getTStateB()
+                && this.tdSteps == gameDTO.getTdSteps()
+                && this.trainingEpoch == gameDTO.getTrainingEpoch()
+           //     && this.observationPartSize == gameDTO.getObservationPartSize()
+                && this.actions.equals(gameDTO.getActions())
+                && this.pRandomActionRawSum == gameDTO.getPRandomActionRawSum()
+                && this.pRandomActionRawCount == gameDTO.getPRandomActionRawCount()
+                && this.rewards.equals(gameDTO.getRewards())
+                && this.rootValueTargets.equals(gameDTO.getRootValueTargets())
+                && this.rootEntropyValueTargets.equals(gameDTO.getRootEntropyValueTargets())
+                && this.entropies.equals(gameDTO.getEntropies())
+                && this.maxEntropies.equals(gameDTO.getMaxEntropies())
+                && this.rootValuesFromInitialInference.equals(gameDTO.getRootValuesFromInitialInference())
+                && this.rootEntropyValuesFromInitialInference.equals(gameDTO.getRootEntropyValuesFromInitialInference())
+                && this.count == gameDTO.getCount()
+                && this.nextSurpriseCheck == gameDTO.getNextSurpriseCheck()
+                // finish and remind that policyTargets is a list of float arrays
+                && this.policyTargets.size() == gameDTO.getPolicyTargets().size()
+                && this.observations.size() == gameDTO.getObservations().size()
+                && this.legalActions.size() == gameDTO.getLegalActions().size()
+                && this.playoutPolicy.size() == gameDTO.getPlayoutPolicy().size()
+                // also compare for content of the arrays
+                && this.policyTargets.stream().allMatch(
+                        policy -> gameDTO.getPolicyTargets().stream().anyMatch(
+                                policy2 -> Arrays.equals(policy, policy2)
+                        )
+                )
+                && this.observations.stream().allMatch(
+                        observation -> gameDTO.getObservations().stream().anyMatch(
+                                observation2 -> observation.equals(observation2)
+                        )
+                )
+                && this.legalActions.stream().allMatch(
+                        legalAction -> gameDTO.getLegalActions().stream().anyMatch(
+                                legalAction2 -> Arrays.equals(legalAction, legalAction2)
+                        )
+                )
+                && this.playoutPolicy.stream().allMatch(
+                        playoutPolicy -> gameDTO.getPlayoutPolicy().stream().anyMatch(
+                                playoutPolicy2 -> Arrays.equals(playoutPolicy, playoutPolicy2)
+                        )
+                )
+                && this.lastValueError == gameDTO.getLastValueError()
+                && this.surprised == gameDTO.isSurprised()
+
+                && this.hybrid == gameDTO.isHybrid();
+    }
+
 }
 

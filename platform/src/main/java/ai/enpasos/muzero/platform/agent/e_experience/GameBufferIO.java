@@ -20,7 +20,6 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameBufferProto;
 import ai.enpasos.muzero.platform.common.MuZeroException;
-import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -136,36 +135,6 @@ public class GameBufferIO {
 
         List<String> networkNames = dto.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
 
-        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_JSON) {
-            log.info("saving ... " + pathname);
-            try (FileOutputStream baos = new FileOutputStream(pathname)) {
-                try (BufferedOutputStream bos = new BufferedOutputStream(baos)) {
-
-                    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                        for (String networkNameHere : networkNames) {
-                            dto.games.stream()
-                                .filter(g -> g.getGameDTO().getNetworkName().equals(networkNameHere))
-                                .forEach(g -> dto.getInitialGameDTOList().add(g.getGameDTO()));
-                            input = encodeDTO(dto);
-                            dto.getInitialGameDTOList().clear();
-
-                            ZipEntry entry = new ZipEntry(networkNameHere + ".json");
-                            entry.setSize(input.length);
-                            zos.putNextEntry(entry);
-                            zos.write(input);
-                            zos.closeEntry();
-                        }
-
-                    }
-                }
-            } catch (Exception e) {
-                throw new MuZeroException(e);
-            }
-
-        }
-
-
-        if (config.getGameBufferWritingFormat() == FileType.ZIPPED_PROTOCOL_BUFFERS) {
 
             pathname = config.getGamesBasedir() + File.separator + networkName + "-protobuf.zip";
             log.info("saving ... " + pathname);
@@ -197,7 +166,6 @@ public class GameBufferIO {
             } catch (Exception e) {
                 throw new MuZeroException(e);
             }
-        }
 
     }
 

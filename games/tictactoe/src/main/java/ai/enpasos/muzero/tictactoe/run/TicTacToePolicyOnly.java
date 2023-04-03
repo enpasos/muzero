@@ -31,7 +31,7 @@ public class TicTacToePolicyOnly {
         try {
             muZero.train(TrainParams.builder()
                 .render(true)
-                .freshBuffer(true)
+                .doNotLoadLatestState(true)
                 .build());
         } catch (InterruptedException e) {
             throw new MuZeroException(e);

@@ -63,32 +63,32 @@ public class MuZeroLoop {
 
         List<DurAndMem> durations = new ArrayList<>();
 
-        play.loadBuffer(params.isFreshBuffer());
-        play.initialFillingBuffer();
+        gameBuffer.loadLatestStateIfExists();
+        play.fillingBuffer();
 
         modelService.loadLatestModelOrCreateIfNotExisting().get();
         epoch = modelState.getEpoch();
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
+          //  gameBuffer.loadLatestStateIfExists();
+
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-            if (!params.isFreshBuffer()) {
-                if (epoch != 0) {
-                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                        config.setPlayTypeKey(key);
-                        play.playGames(params.isRender(), trainingStep);
-                    }
-                    config.setPlayTypeKey(originalPlayTypeKey);
+            if (epoch != 0) {
+                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                    config.setPlayTypeKey(key);
+                    play.playGames(params.isRender(), trainingStep);
                 }
-
-                log.info("counter: " + gameBuffer.getBuffer().getCounter());
-                log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-
-                log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+                config.setPlayTypeKey(originalPlayTypeKey);
             }
+
+            log.info("game counter: " + gameBuffer.getBuffer().getCounter());
+            log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
+            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+
 
             modelService.trainModel().get();
 

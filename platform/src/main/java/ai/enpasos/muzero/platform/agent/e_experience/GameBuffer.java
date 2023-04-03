@@ -202,7 +202,8 @@ public class GameBuffer {
 
 
 
-    public void loadLatestState() {
+    public void loadLatestStateIfExists() {
+        init();
         List<Path> paths = this.gameBufferIO.getBufferNames();
         int epochMax = 0;
         for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {

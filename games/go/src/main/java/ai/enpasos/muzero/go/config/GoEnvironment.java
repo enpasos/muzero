@@ -48,11 +48,14 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     private GameState state;
     private GameResult result;
 
+    private float komi;
+
     public GoEnvironment(@NotNull MuZeroConfig config) {
         super(config);
         history = new ArrayList<>();
         state = GameState.newGame(config.getBoardWidth());
         history.add(state);
+        komi = config.getKomi();
     }
 
     @Override
@@ -79,7 +82,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
         float reward = 0f;
 
         if (isTerminal()) {
-            setResult(GameResult.apply(state.getBoard(), 6.5f));
+            setResult(GameResult.apply(state.getBoard(), komi));
             log.trace(getResult().toString());
             reward = (float) getResult().blackPoints() - getResult().whitePoints();
             if (thisPlayer == Player.WHITE_PLAYER) {

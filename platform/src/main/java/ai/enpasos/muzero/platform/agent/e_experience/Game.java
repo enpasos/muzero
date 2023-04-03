@@ -517,4 +517,8 @@ public abstract class Game {
     public boolean isItExplorationTime(int t) {
         return t < this.getGameDTO().getTHybrid();
     }
+
+    public boolean deepEquals(Game game) {
+        return this.getGameDTO().deepEquals(game.getGameDTO());
+    }
 }
