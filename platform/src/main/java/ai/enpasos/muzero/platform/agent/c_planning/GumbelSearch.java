@@ -384,12 +384,7 @@ public class GumbelSearch {
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
-                if (config.isGumbelActionSelectionOnExploring()) {
-                    game.getGameDTO().getPlayoutPolicy().add(toFloat(softmax(raw, temperature)));
-                    action = config.newAction(drawGumbelActionFromAllRootChildren(temperature));
-                } else {
                     action = getAction(temperature, raw, game);
-                }
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {

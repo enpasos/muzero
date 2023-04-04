@@ -367,9 +367,7 @@ public class MuZeroConfig {
     public boolean isGumbelActionSelection() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelection;
     }
-    public boolean isGumbelActionSelectionOnExploring() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelectionOnExploring;
-    }
+
 
 
 
@@ -558,7 +556,7 @@ public class MuZeroConfig {
             double temperatureRoot = 1.0;
 
             boolean gumbelActionSelection = true;
-            boolean gumbelActionSelectionOnExploring = true;
+
             boolean withGumbel = true;
 
             boolean forTraining = true;
