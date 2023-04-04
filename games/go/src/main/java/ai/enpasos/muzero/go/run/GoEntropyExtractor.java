@@ -43,7 +43,8 @@ public class GoEntropyExtractor {
     @SuppressWarnings("squid:S125")
     public void run() {
 
-        List<Integer> actionIndexList = entropyExtractor.getActionList();
+     //   List<Integer> actionIndexList = entropyExtractor.getActionList();
+        List<Integer> actionIndexList = List.of(12, 16, 17, 6, 11, 7, 13, 3, 8, 10, 22, 19, 15, 20, 21, 15, 5, 15, 1, 18, 2, 14, 7);
 
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
 
