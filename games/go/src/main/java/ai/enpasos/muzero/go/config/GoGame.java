@@ -138,7 +138,7 @@ public class GoGame extends ZeroSumGame {
     public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
 
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        log.debug("\nmcts suggestion:");
+        log.debug("\nfrom planning:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             values[GoAction.getRow(config, i)][GoAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
