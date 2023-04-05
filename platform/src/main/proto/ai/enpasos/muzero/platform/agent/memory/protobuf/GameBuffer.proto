@@ -34,8 +34,8 @@ message GameProto {
   repeated float surprises = 10;
   bool surprised = 11;
   int64 tSurprise = 12;
-  int64 tStateA = 13;
-  int64 tStateB = 14;
+//  int64 tStateA = 13;
+//  int64 tStateB = 14;
   string networkName = 15;
   float pRandomActionRawSum = 16;
   int32 pRandomActionRawCount = 17;

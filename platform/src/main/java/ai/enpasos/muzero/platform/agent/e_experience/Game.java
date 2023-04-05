@@ -56,6 +56,7 @@ import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax
 public abstract class Game {
 
 
+    static List<Double> v0s = new ArrayList<>();
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected GameDTO gameDTO;
@@ -69,28 +70,17 @@ public abstract class Game {
     boolean playedMoreThanOnce;
     double surpriseMean;
     double surpriseMax;
-
-
-
-    public boolean isDone(boolean replay) {
-        return !replay && terminal()
-                || !replay && getGameDTO().getActions().size() >= config.getMaxMoves()
-                || replay && getOriginalGameDTO().getActions().size() == getGameDTO().getActions().size();
-    }
-
-
     int epoch;
 
 
     GumbelSearch searchManager;
+    double pRatioMax;
     private Random r;
     private float error;
     private boolean debug;
-
     private boolean actionApplied;
-
-
     private boolean reanalyse;
+
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
@@ -100,7 +90,6 @@ public abstract class Game {
 
         r = new Random();
     }
-
 
     protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         this.config = config;
@@ -119,6 +108,12 @@ public abstract class Game {
         } catch (Exception e) {
             throw new MuZeroException(e);
         }
+    }
+
+    public boolean isDone(boolean replay) {
+        return !replay && terminal()
+                || !replay && getGameDTO().getActions().size() >= config.getMaxMoves()
+                || replay && getOriginalGameDTO().getActions().size() == getGameDTO().getActions().size();
     }
 
     public float calculateSquaredDistanceBetweenOriginalAndCurrentValue() {
@@ -142,7 +137,6 @@ public abstract class Game {
         return copy;
     }
 
-
     public @NotNull Game copy(int numberOfActions) {
         Game copy = getConfig().newGame(this.environment != null, false);
         copy.setGameDTO(this.gameDTO.copy(numberOfActions));
@@ -153,7 +147,6 @@ public abstract class Game {
             copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
         return copy;
     }
-
 
     protected void assertTrue(boolean b, String s) {
         if (b) return;
@@ -167,7 +160,6 @@ public abstract class Game {
     }
 
     public abstract boolean terminal();
-
 
     // TODO simplify Action handling
     public List<Action> legalActions() {
@@ -212,7 +204,6 @@ public abstract class Game {
         setActionApplied(true);
     }
 
-
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward) {
         List<Target> targets = new ArrayList<>();
 
@@ -223,10 +214,6 @@ public abstract class Game {
         });
         return targets;
     }
-
-
-    static List<Double> v0s = new ArrayList<>();
-
 
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward) {
@@ -245,7 +232,7 @@ public abstract class Game {
 //                target.setPolicy(new float[this.actionSpaceSize]);
 //                Arrays.fill(target.getPolicy(), 0f);
 //            } else {
-                target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
+            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
 //            }
 
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
@@ -278,7 +265,7 @@ public abstract class Game {
     private int getTdSteps(int currentIndex) {
         int tdSteps;
         if (this.reanalyse) {
-            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)  ) {
+            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)) {
                 tdSteps = 0;
             } else {
                 int tMaxHorizon = this.getGameDTO().getRewards().size() - 1;
@@ -332,24 +319,22 @@ public abstract class Game {
         throw new MuZeroNoSampleMatch();
     }
 
-
-
     private float getReward(int currentIndex) {
         float reward;
         if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
-            reward = this.getGameDTO().getRewards().get(currentIndex-1);
+            reward = this.getGameDTO().getRewards().get(currentIndex - 1);
         } else {
             reward = 0f;
         }
         return reward;
     }
 
-
     private double calculateValue(int tdSteps, int currentIndex) {
         double value = getBootstrapValue(currentIndex, tdSteps);
         value = addValueFromReward(currentIndex, tdSteps, value);
         return value;
     }
+
     private double calculateEntropyValue(int tdSteps, int currentIndex) {
         double value = getBootstrapEntropyValue(currentIndex, tdSteps);
         value = addEntropyValueFromReward(currentIndex, tdSteps, value);
@@ -371,7 +356,6 @@ public abstract class Game {
         return value;
     }
 
-
     // TODO there should be a special discount parameter
     private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
@@ -379,9 +363,9 @@ public abstract class Game {
 //            int i = this.getGameDTO().getgetRewards().size() - 1;
 //            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex)  ;
 //        } else {
-            for (int i = currentIndex+1; i < this.getGameDTO().getEntropies().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getEntropies().get(i) * Math.pow(this.discount, i - (double)currentIndex)  ;
-            }
+        for (int i = currentIndex + 1; i < this.getGameDTO().getEntropies().size() && i < bootstrapIndex; i++) {
+            value += (double) this.getGameDTO().getEntropies().get(i) * Math.pow(this.discount, i - (double) currentIndex);
+        }
 //        }
         return value;
     }
@@ -390,10 +374,10 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         if (currentIndex > this.getGameDTO().getRewards().size() - 1) {
             int i = this.getGameDTO().getRewards().size() - 1;
-            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex) * getPerspective(i - currentIndex);
+            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
         } else {
             for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex) * getPerspective(i - currentIndex);
+                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
             }
         }
         return value;
@@ -413,7 +397,7 @@ public abstract class Game {
         double value = 0;
         if (gameDTO.isHybrid() || isReanalyse()) {
             if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-               value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
             if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
@@ -423,9 +407,7 @@ public abstract class Game {
         return value;
     }
 
-
     public abstract Player toPlay();
-
 
     public abstract String render();
 
@@ -459,7 +441,6 @@ public abstract class Game {
         return actionList;
     }
 
-
     public abstract void renderNetworkGuess(MuZeroConfig config, Player toPlay, NetworkIO networkIO, boolean b);
 
     public abstract void renderSuggestionFromPriors(MuZeroConfig config, Node node);
@@ -480,7 +461,6 @@ public abstract class Game {
         this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
     }
 
-
     public void afterReplay() {
         this.setOriginalGameDTO(null);
     }
@@ -490,8 +470,6 @@ public abstract class Game {
     public void initSearchManager(double pRandomActionRawAverage) {
         searchManager = new GumbelSearch(config, this, debug, pRandomActionRawAverage);
     }
-
-    double pRatioMax;
 
     public double getPRatioMax() {
         int n = getGameDTO().getActions().size();
@@ -514,6 +492,7 @@ public abstract class Game {
     public boolean isItExplorationTime() {
         return isItExplorationTime(this.getGameDTO().getActions().size());
     }
+
     public boolean isItExplorationTime(int t) {
         return t < this.getGameDTO().getTHybrid();
     }
