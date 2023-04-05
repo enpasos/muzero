@@ -42,9 +42,6 @@ public class SequentialHalving {
                 m = k;
             }
 
-//            while (m > k) {
-//                m /= 2;
-//            }
         } else {
             throw new MuZeroException("k < 2 needs to be handled");
         }

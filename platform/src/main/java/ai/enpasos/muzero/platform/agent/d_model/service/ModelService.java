@@ -40,11 +40,9 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                // log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
-    //    game.getGameDTO().setTrainingEpoch(task.getNetworkOutput().getEpoch());
         modelQueue.removeInitialInferenceTask(task);
         return CompletableFuture.completedFuture(task.getNetworkOutput());
     }
@@ -60,13 +58,11 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-               // log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
         tasks.forEach(task -> modelQueue.removeInitialInferenceTask(task));
         List<NetworkIO> results = tasks.stream().map(InitialInferenceTask::getNetworkOutput).collect(Collectors.toList());
-   //     IntStream.range(0, games.size()).forEach(i -> games.get(i).getGameDTO().setTrainingEpoch(results.get(i).getEpoch()));
         return CompletableFuture.completedFuture(results);
     }
 
@@ -81,7 +77,6 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-              //  log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -172,7 +167,6 @@ public class ModelService {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-             //   log.error("ModelServices has been stopped.");
                 Thread.currentThread().interrupt();
             }
         }

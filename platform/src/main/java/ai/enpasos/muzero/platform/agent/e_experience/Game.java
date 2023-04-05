@@ -23,7 +23,6 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
-import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -228,13 +227,7 @@ public abstract class Game {
             target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
-//            if ( isEntropyContributingToReward  && isItExplorationTime(currentIndex)) {
-//                target.setPolicy(new float[this.actionSpaceSize]);
-//                Arrays.fill(target.getPolicy(), 0f);
-//            } else {
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-//            }
-
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -359,14 +352,9 @@ public abstract class Game {
     // TODO there should be a special discount parameter
     private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
-//        if (currentIndex < this.getGameDTO().getEntropies().size() - 1) {
-//            int i = this.getGameDTO().getgetRewards().size() - 1;
-//            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double)currentIndex)  ;
-//        } else {
         for (int i = currentIndex + 1; i < this.getGameDTO().getEntropies().size() && i < bootstrapIndex; i++) {
             value += (double) this.getGameDTO().getEntropies().get(i) * Math.pow(this.discount, i - (double) currentIndex);
         }
-//        }
         return value;
     }
 

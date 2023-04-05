@@ -53,7 +53,6 @@ public class GoArena {
         List<Game> runningGames = new ArrayList<>(gameList);
         String currentPlayer = startingPlayerA ? playerA : playerB;
         while (!runningGames.isEmpty()) {
-          //  move(runningGames, currentPlayer);  // TODO
             runningGames = runningGames.stream().filter(g -> !g.terminal()).collect(Collectors.toList());
             currentPlayer = changePlayer(currentPlayer, playerA, playerB);
         }
@@ -64,12 +63,12 @@ public class GoArena {
             .toArray();
     }
 
-    private void move(List<Game> games, int epoch) {
-        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, epoch);
-        for (int g = 0; g < games.size(); g++) {
-            games.get(g).apply(actionsSelectedByAI[g]);
-        }
-    }
+//    private void move(List<Game> games, int epoch) {
+//        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, epoch);
+//        for (int g = 0; g < games.size(); g++) {
+//            games.get(g).apply(actionsSelectedByAI[g]);
+//        }
+//    }
 
     private String changePlayer(String currentPlayer, String playerA, String playerB) {
         return currentPlayer.equals(playerA) ? playerB : playerA;

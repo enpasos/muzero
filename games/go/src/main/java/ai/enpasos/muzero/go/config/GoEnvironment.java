@@ -48,7 +48,7 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
     private GameState state;
     private GameResult result;
 
-    private float komi;
+    private final float komi;
 
     public GoEnvironment(@NotNull MuZeroConfig config) {
         super(config);

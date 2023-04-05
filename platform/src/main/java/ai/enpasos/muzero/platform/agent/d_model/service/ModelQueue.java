@@ -19,7 +19,6 @@ public class ModelQueue {
 
     public long countInitialInferenceTasksNotStarted() {
         synchronized(initialInferenceTasks) {
-         //   return initialInferenceTasks.size();
             return initialInferenceTasks.stream()
                 .filter(InitialInferenceTask::isDone)
                 .count();
@@ -28,7 +27,6 @@ public class ModelQueue {
     }
     public long countRecurrentInferenceTasksNotStarted() {
         synchronized(recurrentInferenceTasks) {
-           // return recurrentInferenceTasks.size();
             return recurrentInferenceTasks.stream()
                 .filter(task -> !task.isDone())
                 .count();

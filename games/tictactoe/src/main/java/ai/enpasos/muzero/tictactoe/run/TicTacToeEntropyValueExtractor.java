@@ -21,7 +21,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBufferIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -94,9 +93,6 @@ public class TicTacToeEntropyValueExtractor {
                     Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
                     List<Float> values = game.getGameDTO().getRootEntropyValuesFromInitialInference();
                     double valuePlayer = values.get(t);
-//                    if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-//                        valuePlayer *= Math.pow(-1, t);
-//                    }
                     objects[1 + epoch - start] = NumberFormat.getNumberInstance().format(valuePlayer);
                 }
                 try {

@@ -66,10 +66,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
 
     private boolean hybrid;
-    private long tSurprise;
     private long tHybrid = -1;
-//    private long tStateA;  // obsolete
-//    private long tStateB;  // obsolete
 
 
     private int trainingEpoch;
@@ -123,13 +120,9 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.networkName = this.networkName;
         copy.surprised = this.surprised;
         copy.hybrid = this.hybrid;
-        copy.tSurprise = this.tSurprise;
         copy.tHybrid = this.tHybrid;
-//        copy.tStateA = this.tStateA;
-//        copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.trainingEpoch = this.trainingEpoch;
-        //  copy.observationPartSize = this.observationPartSize;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
@@ -172,13 +165,9 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.rewards.addAll(this.rewards);
         copy.surprised = this.surprised;
         copy.hybrid = this.hybrid;
-        copy.tSurprise = this.tSurprise;
         copy.tHybrid = this.tHybrid;
-//        copy.tStateA = this.tStateA;
-//        copy.tStateB = this.tStateB;
         copy.tdSteps = this.tdSteps;
         copy.trainingEpoch = this.trainingEpoch;
-        //      copy.observationPartSize = this.observationPartSize;
         copy.entropies.addAll(this.entropies);
         copy.maxEntropies.addAll(this.maxEntropies);
         copy.actions.addAll(this.actions);
@@ -206,10 +195,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setNextSurpriseCheck(this.nextSurpriseCheck);
         gameBuilder.setSurprised(this.surprised);
         gameBuilder.setHybrid(this.hybrid);
-        gameBuilder.setTSurprise(this.tSurprise);
         gameBuilder.setTHybrid(this.tHybrid);
-//        gameBuilder.setTStateA(this.tStateA);
-//        gameBuilder.setTStateB(this.tStateB);
         gameBuilder.setTdSteps(this.tdSteps);
         gameBuilder.setTrainingEpoch(this.trainingEpoch);
         gameBuilder.addAllActions(getActions());
@@ -258,10 +244,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setNetworkName(p.getNetworkName());
         this.setSurprised(p.getSurprised());
         this.setHybrid(p.getHybrid());
-        this.setTSurprise(p.getTSurprise());
         this.setTHybrid(p.getTHybrid());
-//        this.setTStateA(p.getTStateA());
-//        this.setTStateB(p.getTStateB());
         this.setTdSteps(p.getTdSteps());
         this.setTrainingEpoch(p.getTrainingEpoch());
 
@@ -340,7 +323,7 @@ public class GameDTO implements Comparable<GameDTO> {
     public boolean deepEquals(GameDTO gameDTO) {
         // implement an equals method that compares all fields
         return this.networkName.equals(gameDTO.getNetworkName())
-                && this.tSurprise == gameDTO.getTSurprise()
+          //      && this.tSurprise == gameDTO.getTSurprise()
                 && this.tHybrid == gameDTO.getTHybrid()
 //                && this.tStateA == gameDTO.getTStateA()
 //                && this.tStateB == gameDTO.getTStateB()
@@ -372,7 +355,7 @@ public class GameDTO implements Comparable<GameDTO> {
         )
                 && this.observations.stream().allMatch(
                 observation -> gameDTO.getObservations().stream().anyMatch(
-                        observation2 -> observation.equals(observation2)
+                        observation::equals
                 )
         )
                 && this.legalActions.stream().allMatch(
@@ -381,8 +364,8 @@ public class GameDTO implements Comparable<GameDTO> {
                 )
         )
                 && this.playoutPolicy.stream().allMatch(
-                playoutPolicy -> gameDTO.getPlayoutPolicy().stream().anyMatch(
-                        playoutPolicy2 -> Arrays.equals(playoutPolicy, playoutPolicy2)
+                playoutPolicy_ -> gameDTO.getPlayoutPolicy().stream().anyMatch(
+                        playoutPolicy2 -> Arrays.equals(playoutPolicy_, playoutPolicy2)
                 )
         )
                 && this.lastValueError == gameDTO.getLastValueError()

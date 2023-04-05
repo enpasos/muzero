@@ -39,7 +39,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
@@ -56,7 +55,6 @@ public class Node {
     private double pseudoLogit;
     private double entropy;
     private double prior;
-   // private double valueFromNetwork;
     private double improvedValue;
     private double improvedEntropyValue;
     private double valueFromInference;
@@ -233,8 +231,6 @@ public class Node {
 
         if (networkOutput == null)
             throw new MuZeroException("networkOutput must not be null");
-//        setValueFromInitialInference(networkOutput.getValue());
-//        setEntropyValueFromInitialInference(networkOutput.getEntropyValue());
 
         setHiddenState(networkOutput.getHiddenState());
 

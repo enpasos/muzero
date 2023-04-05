@@ -150,7 +150,6 @@ public final class MyEasyTrain {
         IntStream.range(0, numRolloutSteps).forEach(i -> {
                     int extra = withEntropyValuePrediction ? 1 : 0;
                     input.getLeft().remove(5 + 2 * extra + (3 + extra) * i);
-                  //  input.getLeft().remove(7 + 4 * i);
                 }
         );
 

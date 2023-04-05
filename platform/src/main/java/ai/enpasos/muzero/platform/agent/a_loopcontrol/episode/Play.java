@@ -59,7 +59,7 @@ public class Play {
         int windowSize = config.getWindowSize();
         while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-             playMultipleEpisodes(false, isRandomFill, false);
+             playMultipleEpisodes(false, isRandomFill);
         }
     }
 
@@ -71,29 +71,17 @@ public class Play {
     }
 
 
-//    public void loadBuffer(boolean emptyBuffer) {
-//        gameBuffer.init();
-//        if (!emptyBuffer) {
-//            gameBuffer.loadLatestState();
-//        }
-//    }
-//
-
-
-
     public void playGames(boolean render, int trainingStep) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());
-       // network.debugDump();
-        boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
-        playMultipleEpisodes(render, false, justInitialInferencePolicy);
+        playMultipleEpisodes(render, false);
 
     }
 
 
-    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
-        List<Game> games = new ArrayList<>();
+    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning) {
+        List<Game> games;
         List<Game> gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             gamesToReanalyse = gameBuffer.getGamesToReanalyse();

@@ -17,33 +17,33 @@ public class InitialInferenceTask {
     private boolean done;
 
 
-    synchronized
-    public Game getGame() {
+
+    public synchronized Game getGame() {
         return game;
     }
 
-    synchronized
-    public void setGame(Game game) {
+
+    public synchronized void setGame(Game game) {
         this.game = game;
     }
 
-    synchronized
-    public NetworkIO getNetworkOutput() {
+
+    public synchronized NetworkIO getNetworkOutput() {
         return networkOutput;
     }
 
-    synchronized
-    public void setNetworkOutput(NetworkIO networkOutput) {
+
+    public synchronized void setNetworkOutput(NetworkIO networkOutput) {
         this.networkOutput = networkOutput;
     }
 
-    synchronized
-    public boolean isDone() {
+
+    public synchronized boolean isDone() {
         return !done;
     }
 
-    synchronized
-    public void setDone(boolean done) {
+
+    public synchronized void setDone(boolean done) {
         this.done = done;
     }
 }

@@ -77,9 +77,6 @@ public class GumbelSearch {
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
         game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
 
-//        game.getGameDTO().getRootValuesFromInitialInference().add((float) root.getValueFromInference());
-//        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) root.getEntropyValueFromInference());
-
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
             root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());
@@ -420,11 +417,6 @@ public class GumbelSearch {
         drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
     }
 
-//    public void drawCandidateAndAddValueStart() {
-//        List<Float> vs = new ArrayList<>();
-//        float v = (float) this.root.getValueFromInference();
-//        vs.add(v);
-//    }
 
     public void addExplorationNoise() {
         root.addExplorationNoise(config);

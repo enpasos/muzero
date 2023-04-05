@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
-//import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.calculateSurprise;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @SuppressWarnings("unchecked")
@@ -50,14 +48,11 @@ public class PlanAction {
 
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
-        //calculateSurprise(value, game, config);
 
         int nActionsReplayed = game.getGameDTO().getActions().size();
         if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
-            int actionIndex = game.getOriginalGameDTO().getActions().get(nActionsReplayed);
 
             try {
-                //game.apply(actionIndex);
                 game.getGameDTO().getActions().add(game.getOriginalGameDTO().getActions().get(nActionsReplayed));
                 game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(1+nActionsReplayed));
 
@@ -125,7 +120,7 @@ public class PlanAction {
             }
 
             boolean replay = game.isReanalyse();
-            action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);
+            action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, replay);
         }
 
         if (action == null) {
@@ -208,7 +203,7 @@ public class PlanAction {
     }
 
 
-    public Action selectAction(Game game, GumbelSearch sm,  boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean drawNotMaxWhenJustWithInitialInference, boolean render, boolean replay) {
+    public Action selectAction(Game game, GumbelSearch sm, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean drawNotMaxWhenJustWithInitialInference, boolean replay) {
         if (game.legalActions().size() == 1) {
             return game.legalActions().get(0);
         } else if (fastRuleLearning) {
@@ -227,7 +222,7 @@ public class PlanAction {
         List<Action> legalActions = game.legalActions();
         game.getGameDTO().getMaxEntropies().add((float) Math.log(legalActions.size()));
         if (!node.getChildren().isEmpty()) {
-            double[] ps = node.getChildren().stream().mapToDouble(n -> n.getPrior()).toArray();
+            double[] ps = node.getChildren().stream().mapToDouble(Node::getPrior).toArray();
             double entropy = entropy(ps);
             node.setEntropy(entropy);
             game.getGameDTO().getEntropies().add((float)  entropy);

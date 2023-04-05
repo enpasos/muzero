@@ -112,7 +112,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         List<ControllerTask> localControllerTaskList = modelQueue.getControllerTasksNotStarted();
 
-        if (localControllerTaskList.isEmpty()) ;
+        if (localControllerTaskList.isEmpty()) return;
 
         for (ControllerTask task : localControllerTaskList) {
             switch (task.getTaskType()) {
@@ -151,13 +151,6 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
-//                    close();
-//                    model = Model.newInstance(config.getModelName(), Device.gpu());
-//                    network = new Network(config, model);
-//                    nDManager = network.getNDManager().newSubManager();
-//                    network.initActionSpaceOnDevice(nDManager);
-//                    network.setHiddenStateNDManager(nDManager);
-//                    this.modelState.setEpoch(getEpochFromModel(model));
                     trainNetwork(network.getModel());
                     break;
                 case START_SCOPE:
@@ -182,7 +175,7 @@ public class ModelController implements DisposableBean, Runnable {
     private void trainNetwork(Model model) {
         try (NDScope nDScope = new NDScope()) {
             if (config.offPolicyCorrectionOn()) {
-                determinePRatioMaxForCurrentEpoch(model);
+                determinePRatioMaxForCurrentEpoch();
             }
 
             int epochLocal;
@@ -215,12 +208,10 @@ public class ModelController implements DisposableBean, Runnable {
             }
         }
         modelState.setEpoch(getEpochFromModel(model));
-        // return epoch;
-//        return epoch * numberOfTrainingStepsPerEpoch;
-        //  }
+
     }
 
-    private void determinePRatioMaxForCurrentEpoch(Model model) {
+    private void determinePRatioMaxForCurrentEpoch() {
         int epoch = this.modelState.getEpoch();
         List<Game> games = this.gameBuffer.getGames().stream()
             .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.isReanalyse() )
@@ -314,12 +305,9 @@ public class ModelController implements DisposableBean, Runnable {
             String outputDir = config.getNetworkBaseDir();
             mkDir(outputDir);
             model.load(modelPath == null ? Paths.get(outputDir) : modelPath,  null,  options);
-            //  gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
 
             final int epoch = -1;
-            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-           // boolean withSymmetryEnrichment = true;
             DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch);
 
             djlConfig.getTrainingListeners().stream()
@@ -330,7 +318,6 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.initialize(inputShapes);
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
-            //  gameBuffer.createNetworkNameFromModel(model, model.getName(), config.getNetworkBaseDir());
         }
 
     }
@@ -390,7 +377,6 @@ public class ModelController implements DisposableBean, Runnable {
 
     @Override
     public void destroy() {
-       // log.info("ModelController destroy.");
         running = false;
     }
 
