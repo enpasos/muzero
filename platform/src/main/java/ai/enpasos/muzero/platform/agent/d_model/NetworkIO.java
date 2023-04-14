@@ -54,7 +54,7 @@ public class NetworkIO {
     private List<NDArray> actionList;
 
 
-    public double getEntropyReward() {
+    public double getEntropyFromPolicyValues() {
         return entropy(toDouble(policyValues));
     }
 

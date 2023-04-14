@@ -304,7 +304,7 @@ public class Node {
 
 
     private void setEntropyRewardFromModel(NetworkIO networkOutput) {
-        setEntropyReward(networkOutput.getEntropyReward());
+        setEntropyReward(networkOutput.getEntropyFromPolicyValues());
     }
 
 

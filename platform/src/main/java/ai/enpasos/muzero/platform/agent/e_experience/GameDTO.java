@@ -73,7 +73,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
 
     private int tdSteps;
-    private List<Float> maxEntropies;  // obsolete ??
+    private List<Float> legalActionMaxEntropies;
 
     public GameDTO(List<Integer> actions) {
         this();
@@ -90,7 +90,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.rootValueTargets = new ArrayList<>();
         this.rootEntropyValueTargets = new ArrayList<>();
         this.entropies = new ArrayList<>();
-        this.maxEntropies = new ArrayList<>();
+        this.legalActionMaxEntropies = new ArrayList<>();
         this.rootValuesFromInitialInference = new ArrayList<>();
         this.rootEntropyValuesFromInitialInference = new ArrayList<>();
         this.surprised = false;
@@ -100,17 +100,21 @@ public class GameDTO implements Comparable<GameDTO> {
     public boolean hasExploration() {
         return tHybrid > 0;
     }
-
+//    public double getAverageEntropyFromInitialInference() {
+//        return IntStream.range(0, rootEntropyValuesFromInitialInference.size())
+//                .mapToDouble(i -> rootEntropyValuesFromInitialInference.get(i))
+//                .sum() / Math.max(1, rootEntropyValuesFromInitialInference.size());
+//    }
     public double getAverageEntropy() {
         return IntStream.range(0, entropies.size())
                 .mapToDouble(i -> entropies.get(i))
                 .sum() / Math.max(1, entropies.size());
     }
 
-    public double getAverageMaxEntropy() {
-        return IntStream.range(0, maxEntropies.size())
-                .mapToDouble(i -> maxEntropies.get(i))
-                .sum() / Math.max(1, maxEntropies.size());
+    public double getAverageActionMaxEntropy() {
+        return IntStream.range(0, legalActionMaxEntropies.size())
+                .mapToDouble(i -> legalActionMaxEntropies.get(i))
+                .sum() / Math.max(1, legalActionMaxEntropies.size());
     }
 
 
@@ -129,7 +133,7 @@ public class GameDTO implements Comparable<GameDTO> {
         if (toPosition > 0) {
             copy.rewards.addAll(this.rewards.subList(0, toPosition));
             copy.entropies.addAll(this.entropies.subList(0, toPosition));
-            copy.maxEntropies.addAll(this.maxEntropies.subList(0, toPosition));
+            copy.legalActionMaxEntropies.addAll(this.legalActionMaxEntropies.subList(0, toPosition));
             copy.actions.addAll(this.actions.subList(0, toPosition));
 
             this.policyTargets.subList(0, toPosition).forEach(pT -> copy.policyTargets.add(Arrays.copyOf(pT, pT.length)));
@@ -169,7 +173,7 @@ public class GameDTO implements Comparable<GameDTO> {
         copy.tdSteps = this.tdSteps;
         copy.trainingEpoch = this.trainingEpoch;
         copy.entropies.addAll(this.entropies);
-        copy.maxEntropies.addAll(this.maxEntropies);
+        copy.legalActionMaxEntropies.addAll(this.legalActionMaxEntropies);
         copy.actions.addAll(this.actions);
 
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
@@ -205,7 +209,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.addAllRootValueTargets(getRootValueTargets());
         gameBuilder.addAllRootEntropyValueTargets(getRootEntropyValueTargets());
         gameBuilder.addAllEntropies(getEntropies());
-        gameBuilder.addAllMaxEntropies(getMaxEntropies());
+        gameBuilder.addAllMaxEntropies(getLegalActionMaxEntropies());
         gameBuilder.addAllRootValuesFromInitialInference(getRootValuesFromInitialInference());
         gameBuilder.addAllRootEntropyValuesFromInitialInference(getRootEntropyValuesFromInitialInference());
         getPlayoutPolicy().forEach(policy -> {
@@ -255,7 +259,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setRootValueTargets(p.getRootValueTargetsList());
         this.setRootEntropyValueTargets(p.getRootEntropyValueTargetsList());
         this.setEntropies(p.getEntropiesList());
-        this.setMaxEntropies(p.getMaxEntropiesList());
+        this.setLegalActionMaxEntropies(p.getMaxEntropiesList());
         this.setLastValueError(p.getLastValueError());
         this.setRootValuesFromInitialInference(p.getRootValuesFromInitialInferenceList());
         this.setRootEntropyValuesFromInitialInference(p.getRootEntropyValuesFromInitialInferenceList());
@@ -337,7 +341,7 @@ public class GameDTO implements Comparable<GameDTO> {
                 && this.rootValueTargets.equals(gameDTO.getRootValueTargets())
                 && this.rootEntropyValueTargets.equals(gameDTO.getRootEntropyValueTargets())
                 && this.entropies.equals(gameDTO.getEntropies())
-                && this.maxEntropies.equals(gameDTO.getMaxEntropies())
+                && this.legalActionMaxEntropies.equals(gameDTO.getLegalActionMaxEntropies())
                 && this.rootValuesFromInitialInference.equals(gameDTO.getRootValuesFromInitialInference())
                 && this.rootEntropyValuesFromInitialInference.equals(gameDTO.getRootEntropyValuesFromInitialInference())
                 && this.count == gameDTO.getCount()
