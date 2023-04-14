@@ -65,7 +65,9 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
             .map(move -> translate(this.config, move)).collect(Collectors.toList());
     }
 
-
+public GameState getState() {
+        return state;
+    }
     List<GameState> getHistory() {
         return this.history;
     }
