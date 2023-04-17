@@ -101,7 +101,7 @@ public class PlanAction {
                 game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
                 game.getGameDTO().getRootEntropyValueTargets().add((float)entropyValue);
             }
-            game.getGameDTO().getMaxEntropies().add(0f);
+            game.getGameDTO().getLegalActionMaxEntropies().add(0f);
             game.getGameDTO().getEntropies().add(0f);
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
