@@ -135,8 +135,10 @@ public class PlanAction {
 
             if (!game.isReanalyse()) {
                 List<float[]> playoutPolicys = game.getGameDTO().getPlayoutPolicy();
-                float[] playoutPolicy = playoutPolicys.get(playoutPolicys.size() - 1);
-                game.renderMCTSSuggestion(config, playoutPolicy);
+                if (playoutPolicys.size() != 0) {
+                    float[] playoutPolicy = playoutPolicys.get(playoutPolicys.size() - 1);
+                    game.renderMCTSSuggestion(config, playoutPolicy);
+                }
             }
         }
 
