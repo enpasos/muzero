@@ -135,7 +135,7 @@ public class PlanAction {
 
             if (!game.isReanalyse()) {
                 List<float[]> playoutPolicys = game.getGameDTO().getPlayoutPolicy();
-                if (playoutPolicys.size() != 0) {
+                if (playoutPolicys.size() > 0) {
                     float[] playoutPolicy = playoutPolicys.get(playoutPolicys.size() - 1);
                     game.renderMCTSSuggestion(config, playoutPolicy);
                 }
@@ -170,7 +170,7 @@ public class PlanAction {
         } else {
             sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : Objects.requireNonNull(networkOutput));
         }
-        storeEntropyInfo(game, sm.getRoot());
+        storeEntropyInfo(game, sm.getRoot(), networkOutput);
 
 
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
@@ -220,15 +220,22 @@ public class PlanAction {
 
 
 
-    private static void storeEntropyInfo(Game game, Node node) {
+    private static void storeEntropyInfo(Game game, Node node, NetworkIO networkOutput) {
         List<Action> legalActions = game.legalActions();
-        game.getGameDTO().getMaxEntropies().add((float) Math.log(legalActions.size()));
-        if (!node.getChildren().isEmpty()) {
-            double[] ps = node.getChildren().stream().mapToDouble(Node::getPrior).toArray();
-            double entropy = entropy(ps);
-            node.setEntropy(entropy);
-            game.getGameDTO().getEntropies().add((float)  entropy);
+        game.getGameDTO().getLegalActionMaxEntropies().add((float) Math.log(legalActions.size()));
+        double entropy = 0f;
+        if (networkOutput != null) {
+            entropy = networkOutput.getEntropyFromPolicyValues();
         }
+        node.setEntropy(entropy);
+        game.getGameDTO().getEntropies().add((float)  entropy);
+
+//        if (!node.getChildren().isEmpty()) {
+//            double[] ps = node.getChildren().stream().mapToDouble(Node::getPrior).toArray();
+//            double entropy = entropy(ps);
+//            node.setEntropy(entropy);
+//            game.getGameDTO().getEntropies().add((float)  entropy);
+//        }
     }
 
 

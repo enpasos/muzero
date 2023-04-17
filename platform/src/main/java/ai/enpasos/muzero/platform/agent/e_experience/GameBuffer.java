@@ -125,7 +125,7 @@ public class GameBuffer {
 
 
 
-    private static int getEpochFromPath(Path path) {
+    public static int getEpochFromPath(Path path) {
         int epoch;
         String fileName = path.getFileName().toString();
         if (fileName.contains("-")) {
@@ -290,12 +290,12 @@ public class GameBuffer {
         if (game.getGameDTO().hasExploration()) {
             this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getGameDTO().getAverageEntropy());
             this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
-            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getGameDTO().getAverageMaxEntropy());
+            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getGameDTO().getAverageActionMaxEntropy());
             this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
         } else {
             this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageEntropy());
             this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
-            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageMaxEntropy());
+            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageActionMaxEntropy());
             this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
         }
     }
