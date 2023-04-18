@@ -63,16 +63,6 @@ public class ObservationTwoPlayers implements Observation {
                 .build();
     }
 
-    // implement equals method
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        ObservationTwoPlayers that = (ObservationTwoPlayers) o;
-//        return partSize == that.partSize &&
-//                partA.equals(that.partA) &&
-//                partB.equals(that.partB);
-//    }
 
 
 }

@@ -165,10 +165,6 @@ public class PlanAction {
             game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
         }
 
-//        else {
-//            game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) Math.log(config.getActionSpaceSize()));
-//        }
-
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
             expandRootNodeAfterJustWithInitialInference(sm, fastRuleLearning, game, networkOutput);
         } else {
