@@ -30,6 +30,8 @@ You can find out the inference time while running MuZero on your edge device:
 
 ## Build
 
+We are using PyTorch 2.x. Be aware of the following issue [https://github.com/deepjavalibrary/djl/issues/2552](https://github.com/deepjavalibrary/djl/issues/2552).
+
 ```
 gradlew build
 ```
