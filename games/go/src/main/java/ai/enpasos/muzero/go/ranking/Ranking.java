@@ -183,7 +183,7 @@ public class Ranking {
     public void fillMissingRankingsByLinearInterpolation() {
         int high = selectPlayerWithHighestEpoch();
         int low = selectPlayerWithLowestEpoch();
-        int next = low;
+        int next;
         do {
             next = findNextPlayerWithElo(low, high);
             interpolateElo(low, next);

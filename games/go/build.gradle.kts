@@ -20,21 +20,21 @@ tasks.named<Jar>("jar") {
 
 
 
-repeat(200) { i ->
-    tasks.register<JavaExec>("runJar-" + i) {
-        if (i != 0) dependsOn("runJar-" + (i-1) )
-        dependsOn("jar")
-        this.workingDir("$projectDir/../..")
-        this.setClasspath( files("${project.buildDir}/libs/${project.name}-${project.version}-exec.jar"))
-        this.setArgsString("")
-    }
-}
-
-
-
-tasks.register("run") {
-    dependsOn("runJar-199")
-}
+//repeat(200) { i ->
+//    tasks.register<JavaExec>("runJar-" + i) {
+//        if (i != 0) dependsOn("runJar-" + (i-1) )
+//        dependsOn("jar")
+//        this.workingDir("$projectDir/../..")
+//        this.setClasspath( files("${project.buildDir}/libs/${project.name}-${project.version}-exec.jar"))
+//        this.setArgsString("")
+//    }
+//}
+//
+//
+//
+//tasks.register("run") {
+//    dependsOn("runJar-199")
+//}
 
 
 dependencies {

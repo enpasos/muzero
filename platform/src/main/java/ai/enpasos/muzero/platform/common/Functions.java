@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.platform.common;
 
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
@@ -42,7 +42,7 @@ public class Functions {
 
 
     public static double[] ln(double[] ps) {
-        return Arrays.stream(ps).map(x -> Math.log(x)).toArray();
+        return Arrays.stream(ps).map(Math::log).toArray();
     }
 
     public static double[] softmax(double[] raw, double temperature) {
@@ -134,4 +134,12 @@ public class Functions {
     }
 
 
+    public static double[] add(double[] a, double[] b) {
+        if (a.length != b.length) {
+            throw new MuZeroException("vectors in add operation should have the same length");
+        }
+        return IntStream.range(0, a.length).mapToDouble(
+            i -> a[i] + b[i]
+        ).toArray();
+    }
 }

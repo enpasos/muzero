@@ -17,14 +17,14 @@
 
 package ai.enpasos.muzero.go.config;
 
-import ai.enpasos.muzero.go.config.environment.GameState;
-import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.c_model.Observation;
-import ai.enpasos.muzero.platform.agent.d_experience.GameDTO;
-import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
-import ai.enpasos.muzero.platform.agent.b_planning.Player;
+import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
+import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
+import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -32,11 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 @Slf4j
 public class GoGame extends ZeroSumGame {
@@ -46,25 +47,22 @@ public class GoGame extends ZeroSumGame {
 
     public GoGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        initEnvironment();
+
     }
 
     public GoGame(@NotNull MuZeroConfig config) {
         super(config);
-        initEnvironment();
+
     }
 
 
     @Override
     public boolean terminal() {
-        return this.getEnvironment().terminal();
+        return this.getEnvironment().isTerminal();
     }
 
 
-    @Override
-    public List<Action> legalActions() {
-        return this.getEnvironment().legalActions();
-    }
+
 
     @Override
     public List<Action> allActionsInActionSpace() {
@@ -72,7 +70,7 @@ public class GoGame extends ZeroSumGame {
     }
 
 
-    public void replayToPosition(int stateIndex) {
+    public void replayToPositionInEnvironment(int stateIndex) {
         environment = new GoEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
@@ -81,74 +79,55 @@ public class GoGame extends ZeroSumGame {
         }
     }
 
-    @Override
-    public void checkAssumptions() {
-        super.checkAssumptions();
-        assertTrue(((GoEnvironment) this.environment).getHistory().size() == this.gameDTO.getActions().size() + 1,
-            "environment history does not have the right size");
-    }
 
 
-    public @NotNull Observation getObservation() {
 
+    public @NotNull ObservationModelInput getObservationModelInput(int position) {
+        int n0 =   config.getBoardHeight() * config.getBoardWidth();
+        int n = config.getNumObservationLayers() * n0;
+        BitSet rawResult = new BitSet(n);
 
-        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
+        OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
-        List<GameState> history = this.getEnvironment().getHistory();
-        List<Optional<GameState>> relevantHistory = new ArrayList<>();
-
-        float[] result = new float[config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth()];
-
-
-        for (int i = 7; i >= 0; i--) {
-            Optional<GameState> state = Optional.empty();
-            if (history.size() > i) {
-                state = Optional.of(history.get(history.size() - 1 - i));
-            }
-            relevantHistory.add(state);
-        }
 
         int index = 0;
-        for (Optional<GameState> optionalGameState : relevantHistory) {
-            if (!optionalGameState.isEmpty()) {
-                GameState gameState = optionalGameState.get();
-                GoAdapter.translate(config, result, index, gameState);
-            }
-            index += 2 * config.getBoardHeight() * config.getBoardWidth();
+        for (int i = 7; i >= 0; i--) {
+            ObservationTwoPlayers observation =
+                    position-i >= 0 ?
+                    (ObservationTwoPlayers)this.gameDTO.getObservations().get(position-i) :
+                    ObservationTwoPlayers.builder()
+                                    .partSize(n0)
+                                    .partA(new BitSet(n0))
+                                    .partB(new BitSet(n0))
+                                    .build();
+
+            index = observation.addTo(currentPlayer, rawResult, index);
         }
+
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
             for (int j = 0; j < config.getBoardWidth(); j++) {
-                result[index++] = v;
+                rawResult.set(index++, v == 1f);
             }
         }
 
-        return new Observation(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
-    }
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+
+     }
 
 
     @Override
     public Player toPlay() {
-        return this.getEnvironment().getPlayerToMove();
+        return this.getGameDTO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
     }
 
     @Override
     public String render() {
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";
         return ((GoEnvironment) environment).render();
     }
 
-    @Override
-    public Optional<OneOfTwoPlayer> whoWonTheGame() {
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A)) return Optional.of(OneOfTwoPlayer.PLAYER_A);
-        if (this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B)) return Optional.of(OneOfTwoPlayer.PLAYER_B);
-        return Optional.empty();
-    }
 
-    @Override
-    public boolean hasPositiveOutcomeFor(OneOfTwoPlayer player) {
-        // won or draw but not lost
-        return !this.getEnvironment().hasPlayerWon(OneOfTwoPlayer.otherPlayer(player));
-    }
 
     @Override
     public GoEnvironment getEnvironment() {
@@ -159,7 +138,7 @@ public class GoGame extends ZeroSumGame {
     public void renderMCTSSuggestion(@NotNull MuZeroConfig config, float @NotNull [] childVisits) {
 
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
-        log.debug("\nmcts suggestion:");
+        log.debug("\nfrom planning:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             values[GoAction.getRow(config, i)][GoAction.getCol(config, i)] = String.format("%2d", Math.round(100.0 * childVisits[i])) + "%";
@@ -171,7 +150,7 @@ public class GoGame extends ZeroSumGame {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
         environment = new GoEnvironment(config);
     }
 
@@ -203,11 +182,11 @@ public class GoGame extends ZeroSumGame {
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
         log.debug("\n");
-        log.debug("with exploration noise suggestion:");
+        log.debug("suggestion from priors:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
-            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
+            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElse(new Node(config, 0f)).getPrior();
             values[GoAction.getRow(config, i)][GoAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }

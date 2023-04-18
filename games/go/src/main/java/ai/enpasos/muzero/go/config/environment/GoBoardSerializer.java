@@ -18,9 +18,8 @@ public class GoBoardSerializer {
     public static String serialize(GoBoard board) {
         StringBuilder s = new StringBuilder("-".repeat(board.getSize() * 3 + 3) + "\n");
 
-        for (int i = 1; i <= board.getSize(); i++) {
-            var rowNum = board.getSize() + 1 - i;
-            s.append((rowNum < 10) ? " " : "").append(rowNum).append(" ");
+        for (int i = board.getSize(); i > 0; i--) {
+            s.append((i < 10) ? " " : "").append(i).append(" ");
             for (int j = 1; j <= board.getSize(); j++) {
                 var player = board.getPlayer(new Point(i, j));
                 String symbol;

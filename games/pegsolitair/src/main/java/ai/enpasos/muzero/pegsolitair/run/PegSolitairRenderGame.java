@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.pegsolitair.run;
 
 
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.RenderGame;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ public class PegSolitairRenderGame {
         List<Integer> actions = List.of(173, 72, 108, 64, 73, 174, 100, 37, 38, 115, 77, 178, 180, 23, 46, 93, 80, 181, 151, 100, 123, 109, 167, 46, 25, 112, 77);
 
 
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         actions.forEach(
             a -> renderGame.applyAction(game, a));
 

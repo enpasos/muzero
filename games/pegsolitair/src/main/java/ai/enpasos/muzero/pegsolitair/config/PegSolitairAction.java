@@ -23,7 +23,7 @@ import ai.djl.ndarray.index.NDIndex;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.pegsolitair.config.environment.Direction;
 import ai.enpasos.muzero.pegsolitair.config.environment.Jump;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,7 +50,7 @@ public class PegSolitairAction extends Action {
 
 
     public Jump getJump() {
-        return ActionAdapter.getJump(this);
+        return PegSolitairAdapter.getJump(this);
     }
 
 

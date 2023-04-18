@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.tictactoe.run;
 
 
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.RenderGame;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class TicTacToeRenderGame {
     public void run() {
 
 
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         renderGame.applyAction(game, 0);
         renderGame.applyAction(game, 5);
         renderGame.applyAction(game, 8);

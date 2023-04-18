@@ -3,7 +3,7 @@ package ai.enpasos.mnist.inference;
 
 import ai.djl.Model;
 import ai.djl.engine.Engine;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.tictactoe.TicTacToe;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ public class DJLTicTacToeTest implements CommandLineRunner {
 
             var predictor = model.newPredictor(new NaiveInitialInferenceListTranslator());
             try {
-                Game game = conf.newGame();
+                Game game = conf.newGame(true,true);
                 var result = predictor.predict(List.of(game));
 
 

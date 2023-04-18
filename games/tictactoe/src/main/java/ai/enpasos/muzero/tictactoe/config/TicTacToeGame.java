@@ -17,13 +17,14 @@
 
 package ai.enpasos.muzero.tictactoe.config;
 
-import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.c_model.Observation;
-import ai.enpasos.muzero.platform.agent.d_experience.GameDTO;
-import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
-import ai.enpasos.muzero.platform.agent.b_planning.Player;
+import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
+import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
+import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -31,29 +32,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 @Slf4j
 @SuppressWarnings("squid:S2160")
 public class TicTacToeGame extends ZeroSumGame {
 
     public static final String PASS = "pass: ";
-    final float[] @NotNull [] boardtransfer;
 
 
     public TicTacToeGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        initEnvironment();
-        boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
+
     }
 
     public TicTacToeGame(@NotNull MuZeroConfig config) {
         super(config);
-        environment = new TicTacToeEnvironment(config);
-        boardtransfer = new float[config.getBoardHeight()][config.getBoardWidth()];
     }
 
     @Override
@@ -63,14 +63,9 @@ public class TicTacToeGame extends ZeroSumGame {
 
     @Override
     public boolean terminal() {
-        return this.getEnvironment().terminal();
+        return this.getEnvironment().isTerminal();
     }
 
-
-    @Override
-    public List<Action> legalActions() {
-        return this.getEnvironment().legalActions();
-    }
 
     @Override
     public List<Action> allActionsInActionSpace() {
@@ -78,7 +73,7 @@ public class TicTacToeGame extends ZeroSumGame {
     }
 
 
-    public void replayToPosition(int stateIndex) {
+    public void replayToPositionInEnvironment(int stateIndex) {
         environment = new TicTacToeEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
@@ -87,54 +82,41 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
-    private void getBoardPositions(float[] result, int index, int[][] board, int p) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                result[index + i * board.length + j] = board[i][j] == p ? 1f : 0f;
-            }
-        }
-    }
-
 
     @SuppressWarnings("squid:S2095")
-    public @NotNull Observation getObservation() {
+    public @NotNull ObservationModelInput getObservationModelInput(int position) {
 
+        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
 
-        float[] result = new float[config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth()];
+        BitSet rawResult = new BitSet(n);
 
-        OneOfTwoPlayer currentPlayer = this.getEnvironment().getPlayerToMove();
-        OneOfTwoPlayer opponentPlayer = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
-
-        // values in the range [0, 1]
+        OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
         int index = 0;
-        getBoardPositions(result, index, this.getEnvironment().currentImage(), currentPlayer.getValue());
-        index += config.getBoardHeight() * config.getBoardWidth();
+        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.gameDTO.getObservations().get(position);
 
-        getBoardPositions(result, index, this.getEnvironment().currentImage(), opponentPlayer.getValue());
-        index += config.getBoardHeight() * config.getBoardWidth();
-
+        index = observation.addTo(currentPlayer, rawResult, index);
 
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
             for (int j = 0; j < config.getBoardWidth(); j++) {
-                result[index++] = v;
+                rawResult.set(index++, v == 1f);
             }
         }
 
-
-        return new Observation(result, new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
     }
 
 
     @Override
     public Player toPlay() {
-        return this.getEnvironment().getPlayerToMove();
+        return this.getGameDTO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
     }
+
 
     @Override
     public String render() {
-
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";  // TODO: environment decoupling needed
         String r = this.getGameDTO().getActions().size() + ": ";
         OneOfTwoPlayer player = null;
         if (!this.getGameDTO().getActions().isEmpty()) {
@@ -145,7 +127,8 @@ public class TicTacToeGame extends ZeroSumGame {
             r += player.getSymbol() + " move (" + (((TicTacToeAction) action).getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
         }
         r += "\n";
-        r += getEnvironment().render();
+
+            r += getEnvironment().render();
         if (terminal() && !this.getGameDTO().getRewards().isEmpty()) {
             if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
                 r += "\ndraw";
@@ -174,7 +157,7 @@ public class TicTacToeGame extends ZeroSumGame {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
         environment = new TicTacToeEnvironment(config);
     }
 
@@ -205,22 +188,17 @@ public class TicTacToeGame extends ZeroSumGame {
     public void renderSuggestionFromPriors(@NotNull MuZeroConfig config, @NotNull Node node) {
         String[][] values = new String[config.getBoardHeight()][config.getBoardWidth()];
 
-        log.info("\nwith exploration noise suggestion:");
+        log.info("\nsuggestion from priors:");
         int boardSize = config.getBoardHeight() * config.getBoardWidth();
         for (int i = 0; i < boardSize; i++) {
             Action a = config.newAction(i);
-            float value = 0f;
+            float value;
             value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElse(new Node(config, 0f)).getPrior();
             values[TicTacToeAction.getRow(config, i)][TicTacToeAction.getCol(config, i)]
                 = String.format("%2d", Math.round(100.0 * value)) + "%";
         }
 
         log.info(EnvironmentBase.render(config, values));
-//        if (boardSize < config.getActionSpaceSize()) {
-//            Action a = config.newAction(boardSize);
-//            float value = (float) node.getChildren().stream().filter(n -> n.getAction().equals(a)).findFirst().orElseThrow().getPrior();
-//            log.info(PASS + String.format("%2d", Math.round(100.0 * value)) + "%");
-//        }
     }
 
 

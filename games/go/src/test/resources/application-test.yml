@@ -47,7 +47,7 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-      gameBufferWritingFormat: ZIPPED_PROTOCOL_BUFFERS # alternative: ZIPPED_JSON
+
 
       # Gumbel MuZero parameters
       initialGumbelM: 8
@@ -82,11 +82,9 @@ muzero:
           gumbelActionSelection: false
         HYBRID:
           forTraining: true
-          numEpisodes: 1
           numParallelGamesPlayed: 10
           tdSteps:  10000
           forTdStep0ValueTraining: false
-          forTdStep0PolicyTraining: true
           numSimulations: 1
           numSimulationsHybrid: 1
 
@@ -103,7 +101,6 @@ muzero:
 
 #        BEST_EFFORT:
 #          forTraining: true
-#          numEpisodes: 1
 #          numParallelGamesPlayed: 500
 #          tdSteps: 10000
 #          numSimulations: 30

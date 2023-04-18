@@ -1,9 +1,9 @@
 package ai.enpasos.muzero.platform.config;
 
 import ai.djl.Device;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
-import ai.enpasos.muzero.platform.agent.b_planning.KnownBounds;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.c_planning.KnownBounds;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -61,10 +61,21 @@ public class MuZeroConfig {
         return new KnownBounds();
     }
 
-    public Game newGame() {
+
+    public KnownBounds getKnownBoundsEntropyQValues() {
+            return new KnownBounds();
+    }
+
+    public Game newGame(boolean connectToEnvironment, boolean withFirstObservation) {
         try {
             Constructor<?> constructor = this.getGameClass().getConstructor(MuZeroConfig.class);
-            return (Game) constructor.newInstance(this);
+            Game game =  (Game) constructor.newInstance(this);
+            if (connectToEnvironment) {game.connectToEnvironment();}
+            if (withFirstObservation) {
+                game.addObservationFromEnvironment();
+                game.addLegalActionFromEnvironment();
+            }
+            return game;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,6 +144,10 @@ public class MuZeroConfig {
 
     public boolean offPolicyCorrectionOn() {
         return getConf().offPolicyCorrectionOn;
+    }
+
+    public boolean isWithEntropyValuePrediction() {
+        return getConf().withEntropyValuePrediction;
     }
 
     public boolean allOrNothingOn() {
@@ -207,10 +222,6 @@ public class MuZeroConfig {
         return getConf().numUnrollSteps;
     }
 
-    public int getNumberOfEpisodesPerJVMStart() {
-        return getConf().numberOfEpisodesPerJVMStart;
-    }
-
 
     public int getTdSteps() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getTdSteps();
@@ -220,7 +231,9 @@ public class MuZeroConfig {
         return getConf().discount;
     }
 
-
+    public float getKomi() {
+        return getConf().komi;
+    }
 
 
     public float getWeightDecay() {
@@ -229,6 +242,10 @@ public class MuZeroConfig {
 
     public float getValueLossWeight() {
         return getConf().valueLossWeight;
+    }
+
+    public float getEntropyValueLossWeight() {
+        return getConf().entropyValueLossWeight;
     }
 
     public float getLrInit() {
@@ -274,9 +291,7 @@ public class MuZeroConfig {
         return getConf().knownBoundsType;
     }
 
-    public NetworkType getNetworkType() {
-        return getConf().networkType;
-    }
+
 
 
     public DeviceType getInferenceDeviceType() {
@@ -309,9 +324,6 @@ public class MuZeroConfig {
         getConf().setOutputDir(outputDir);
     }
 
-    public int getNumEpisodes() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).numEpisodes;
-    }
 
     public int getInitialGumbelM() {
         return getConf().initialGumbelM;
@@ -331,7 +343,7 @@ public class MuZeroConfig {
 
     public int getNumSimulations(Game game) {
         if (this.getTrainingTypeKey() == HYBRID &&
-            game.getGameDTO().getActions().size() < game.getGameDTO().getTHybrid()) {
+                game.isItExplorationTime(game.getGameDTO().getActions().size())  ) {
             return getNumSimulationsHybrid();
         } else {
             return getNumSimulations();
@@ -351,16 +363,11 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0ValueTraining;
     }
 
-    public boolean isForTdStep0PolicyTraining() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).forTdStep0PolicyTraining;
-    }
 
     public boolean isGumbelActionSelection() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelection;
     }
-    public boolean isGumbelActionSelectionOnExploring() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).gumbelActionSelectionOnExploring;
-    }
+
 
 
 
@@ -401,6 +408,12 @@ public class MuZeroConfig {
         return getConf().offPolicyRatioLimit;
     }
 
+    public double getEntropyContributionToReward() {
+        return getConf().entropyContributionToReward;
+    }
+
+
+
     public int getNumPurePolicyPlays() {
         return getConf().numPurePolicyPlays;
     }
@@ -424,13 +437,7 @@ public class MuZeroConfig {
         return getConf().numChannelsOutputLayerSimilarityPredictor;
     }
 
-    public FileType getGameBufferWritingFormat() {
-        return getConf().gameBufferWritingFormat;
-    }
 
-    public void setGameBufferWritingFormat(FileType fileType) {
-        getConf().setGameBufferWritingFormat(fileType);
-    }
     public void setWindowSize(int windowSize) {
         getConf().setWindowSize(windowSize);
     }
@@ -457,7 +464,7 @@ public class MuZeroConfig {
 
         protected double numSimThreshold;
 
-        protected NetworkType networkType = NetworkType.CON;
+
         protected String modelName;
         protected String gameClassName;
         protected String actionClassName;
@@ -489,13 +496,11 @@ public class MuZeroConfig {
 
         protected int batchSize;
         protected int numUnrollSteps;
-        protected int numberOfEpisodesPerJVMStart;
-
-
-
         protected float discount;
+        protected float komi;
         protected float weightDecay;
         protected float valueLossWeight;
+        protected float entropyValueLossWeight;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -508,7 +513,7 @@ public class MuZeroConfig {
 
         protected DeviceType inferenceDeviceType;
         protected String outputDir;
-        protected FileType gameBufferWritingFormat = FileType.ZIPPED_PROTOCOL_BUFFERS;
+
 
         protected PlayTypeKey playTypeKey;
         int initialGumbelM;
@@ -522,7 +527,12 @@ public class MuZeroConfig {
         boolean offPolicyCorrectionOn;
 
         boolean allOrNothingOn;
-double offPolicyRatioLimit;
+
+
+        boolean withEntropyValuePrediction;
+        double offPolicyRatioLimit;
+
+        double entropyContributionToReward;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {
@@ -534,11 +544,10 @@ double offPolicyRatioLimit;
 
         @Data
         public static class PlayType {
-            protected int numEpisodes;
+
             protected int numParallelGamesPlayed;
 
             protected boolean forTdStep0ValueTraining = true;
-            protected boolean forTdStep0PolicyTraining = true;
             protected int tdSteps;
             protected int numSimulations;
             protected int numSimulationsHybrid;
@@ -547,7 +556,7 @@ double offPolicyRatioLimit;
             double temperatureRoot = 1.0;
 
             boolean gumbelActionSelection = true;
-            boolean gumbelActionSelectionOnExploring = true;
+
             boolean withGumbel = true;
 
             boolean forTraining = true;

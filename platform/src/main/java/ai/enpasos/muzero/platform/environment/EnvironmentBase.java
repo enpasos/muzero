@@ -18,13 +18,15 @@
 package ai.enpasos.muzero.platform.environment;
 
 
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -80,24 +82,21 @@ public class EnvironmentBase implements Environment {
     }
 
     @Override
-    public int[][] currentImage() {
+    public Observation getObservation() {
         throw new NotImplementedException("currentImage() not implemented, yet.");
     }
 
     @Override
-    public boolean terminal() {
+    public boolean isTerminal() {
         throw new NotImplementedException("terminal() not implemented, yet.");
     }
 
     @Override
-    public @NotNull List<Action> legalActions() {
-        throw new NotImplementedException("legalActions() not implemented, yet.");
+    public @NotNull List<Action> getLegalActions() {
+        return new ArrayList<>();
     }
 
-    @Override
-    public @NotNull List<Action> allActionsInActionSpace() {
-        throw new NotImplementedException("allActionsInActionSpace() not implemented, yet.");
-    }
+
 
 
 }

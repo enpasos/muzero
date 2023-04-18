@@ -2,14 +2,16 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
-import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
-import ai.enpasos.muzero.platform.agent.c_model.Network;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.config.FileType;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Play;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayParameters;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayService;
+import ai.enpasos.muzero.platform.agent.d_model.ModelState;
+import ai.enpasos.muzero.platform.agent.d_model.Network;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBufferDTO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.train.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
@@ -35,44 +36,77 @@ class ProtobufferTest {
     MuZeroConfig config;
 
     @Autowired
-    MuZero muZero;
+    MuZeroLoop muZero;
+
+    @Autowired
+    private ModelState modelState;
+
+    @Autowired
+    Play play;
 
 
     @Autowired
     PlayService playService;
 
-    @Test
-    void writeAndReadZippedJsonTest() {
-        config.setGameBufferWritingFormat(FileType.ZIPPED_JSON);
-        writeAndReadTest();
-    }
+
 
     @Test
     void writeAndReadProtoBufTest() {
-        config.setGameBufferWritingFormat(FileType.ZIPPED_PROTOCOL_BUFFERS);
+
         writeAndReadTest();
     }
 
+    @Test
+    void writeAndReadProtoBuf2Test() {
+
+        writeAndRead2Test();
+    }
+
     private void writeAndReadTest() {
+        gameBuffer.init();
         config.setOutputDir("./build/tictactoeTest/");
-        muZero.deleteNetworksAndGames();
+        play.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            List<Game> games =   playService.playNewGames( 1,
-                PlayParameters.builder()
-                    .render(false)
-                    .fastRulesLearning(true)
-                    .justInitialInferencePolicy(false)
-                    .build());
-           // List<Game> games = selfPlay.playGame( network, false, true, false);
-            gameBuffer.init();
+            List<Game> games = playService.playNewGames(1,
+                    PlayParameters.builder()
+                            .render(false)
+                            .fastRulesLearning(true)
+                            .justInitialInferencePolicy(false)
+                            .build());
+           // System.out.println(games.get(0).getGameDTO().getActions());
+            modelState.setEpoch(10);
+            gameBuffer.addGames(games, false);
 
-            gameBuffer.getGameBufferIO().saveGames(games, network.getModel().getName(), config);
+            GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
 
-            List<Game> gamesOld = gameBuffer.getBuffer().getGames();
+            gameBuffer.setBuffer(null);
+            gameBuffer.loadLatestStateIfExists();
+            GameBufferDTO dtoNew = gameBuffer.getBuffer();
+            assertTrue(dtoOriginal.deepEquals(dtoNew), "game buffers should be the same");
 
+        }
+    }
 
-            IntStream.range(0, gamesOld.size()).forEach(i -> assertEquals(gamesOld.get(i), gameBuffer.getBuffer().getGames().get(i), "games should be the same"));
+    private void writeAndRead2Test() {
+        gameBuffer.init();
+        config.setOutputDir("./build/tictactoeTest2/");
+        play.deleteNetworksAndGames();
+        try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
+            Network network = new Network(config, model);
+            Game game = config.newGame(true, true);
+            game.apply(5, 6, 2, 0, 3, 4, 1, 7, 8);
+            List<Game> games = List.of(game);
+
+            modelState.setEpoch(10);
+            gameBuffer.addGames(games, false);
+
+            GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
+            gameBuffer.setBuffer(null);
+            gameBuffer.loadLatestStateIfExists();
+            GameBufferDTO dtoNew = gameBuffer.getBuffer();
+            assertTrue(dtoOriginal.deepEquals(dtoNew), "game buffers should be the same");
+
         }
     }
 }

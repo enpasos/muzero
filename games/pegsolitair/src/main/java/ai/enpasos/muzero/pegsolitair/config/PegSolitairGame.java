@@ -17,36 +17,36 @@
 
 package ai.enpasos.muzero.pegsolitair.config;
 
-import ai.enpasos.muzero.pegsolitair.config.environment.Board;
-import ai.enpasos.muzero.pegsolitair.config.environment.Point;
-import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.c_model.Observation;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.GameDTO;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
-import ai.enpasos.muzero.platform.agent.b_planning.Player;
+import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
+import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.pegsolitair.config.environment.NeighborMap.inRange;
+import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetToFloatArray;
 
 public class PegSolitairGame extends Game {
 
 
     public PegSolitairGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
         super(config, gameDTO);
-        initEnvironment();
+
     }
 
     public PegSolitairGame(@NotNull MuZeroConfig config) {
         super(config);
-        initEnvironment();
+
     }
 
     @Override
@@ -56,14 +56,11 @@ public class PegSolitairGame extends Game {
 
     @Override
     public boolean terminal() {
-        return this.getEnvironment().terminal();
+        return this.getEnvironment().isTerminal();
     }
 
 
-    @Override
-    public List<Action> legalActions() {
-        return this.getEnvironment().legalActions();
-    }
+
 
     @Override
     public List<Action> allActionsInActionSpace() {
@@ -71,7 +68,23 @@ public class PegSolitairGame extends Game {
     }
 
 
-    public void replayToPosition(int stateIndex) {
+
+
+    public @NotNull ObservationModelInput getObservationModelInput(int position) {
+
+        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
+        BitSet rawResult = new BitSet(n);
+
+        Observation observation = this.gameDTO.getObservations().get(position);
+         observation.addTo(null, rawResult, 0 );
+
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+
+    }
+
+
+    @Override
+    public void replayToPositionInEnvironment(int stateIndex) {
         environment = new PegSolitairEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
@@ -81,32 +94,6 @@ public class PegSolitairGame extends Game {
     }
 
 
-    public @NotNull Observation getObservation() {
-
-        Board board = ((PegSolitairEnvironment) environment).getBoard();
-
-        return new Observation(getBoardPositions(board), new long[]{1L, 7L, 7L});
-    }
-
-
-    private float[] getBoardPositions(Board board) {
-        int size = 7;
-        float[] boardtransfer = new float[size * size];
-        for (int row = 1; row <= size; row++) {
-            for (int col = 1; col <= size; col++) {
-                Point p = new Point(row, col);
-                if (board.getPegsOnTheBoard().contains(p)) {
-                    boardtransfer[(row - 1) * size + col - 1] = 1f;
-                } else if (board.getHolesOnTheBoard().contains(p)) {
-                    boardtransfer[(row - 1) * size + col - 1] = 0f;
-                } else if (!inRange(p)) {
-                    boardtransfer[(row - 1) * size + col - 1] = 0f;
-                }
-            }
-        }
-        return boardtransfer;
-    }
-
 
     @Override
     public Player toPlay() {
@@ -115,6 +102,7 @@ public class PegSolitairGame extends Game {
 
     @Override
     public String render() {
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";
         return ((PegSolitairEnvironment) environment).render();
     }
 
@@ -124,7 +112,7 @@ public class PegSolitairGame extends Game {
     }
 
     @Override
-    public void initEnvironment() {
+    public void connectToEnvironment() {
         environment = new PegSolitairEnvironment(config);
     }
 

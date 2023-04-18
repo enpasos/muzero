@@ -17,8 +17,8 @@
 
 package ai.enpasos.muzero.tictactoe.run.test;
 
-import ai.enpasos.muzero.platform.agent.d_experience.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.b_planning.Action;
+import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -175,19 +175,15 @@ public class DNode {
 
     public DNode getChild(int action) {
         for (DNode n : children) {
-            if (n.game.actionHistory().lastAction().getIndex() == action) {
+            if (n.game.getGameDTO().getActions().get(n.game.getGameDTO().getActions().size()-1) == action) {
                 return n;
             }
         }
         return null;
     }
 
-//    public void findNodesWhereADecisionMattersOnTheOptimalPath() {
-//       this.markOptimalPath();
-//    }
-
     public  boolean isOnOptimalPath(DNode root) {
-        return this.bestForceableValuePlayerA == root.bestForceableValuePlayerA
-            && this.bestForceableValuePlayerB == root.bestForceableValuePlayerB;
+        return this.bestForceableValuePlayerA.equals(root.bestForceableValuePlayerA)
+            && this.bestForceableValuePlayerB.equals(root.bestForceableValuePlayerB);
     }
 }

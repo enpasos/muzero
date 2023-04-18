@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.pegsolitair.run;
 
 import ai.djl.util.Pair;
-import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ValueExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +51,9 @@ public class PegSolitairValueExtractor {
 
         System.out.println(valueExtractor.listValuesForTrainedNetworks(actionIndexList));
 
-        gameBuffer.loadLatestState();
+        gameBuffer.loadLatestStateIfExists();
 
-        List<Pair> pairs = gameBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.actionHistory().getActionIndexList(), g.getLastReward()))
+        List<Pair> pairs = gameBuffer.getBuffer().getGames().stream().map(g -> new Pair(g.getGameDTO().getActions(), g.getReward()))
             .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))
             .collect(Collectors.toList());
 

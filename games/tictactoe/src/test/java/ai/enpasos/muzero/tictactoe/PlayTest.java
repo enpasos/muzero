@@ -1,17 +1,15 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
-import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
-import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
-import ai.enpasos.muzero.platform.agent.b_planning.service.SelfPlayGame;
-import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.c_model.service.ModelQueue;
-import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayParameters;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayService;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelQueue;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.train.MuZero;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,9 +23,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
@@ -46,7 +43,7 @@ class PlayTest {
 
 
     @Autowired
-    MuZero muzero;
+    MuZeroLoop muzero;
 
 
     @Autowired
@@ -58,7 +55,7 @@ class PlayTest {
 
 
     @Autowired
-    NetworkHelper networkHelper;
+    BatchFactory batchFactory;
 
     @Autowired
     ModelQueue inferenceQueue;

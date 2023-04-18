@@ -19,18 +19,23 @@ message GameProto {
   repeated float rewards = 2;
   repeated PolicyProtos policy_targets = 3;
   repeated PolicyProtos playout_policy = 25;
+  repeated ObservationProtos observations = 27;
   repeated float root_value_targets = 4;
   repeated float root_values_from_initial_inference = 5;
+
+  repeated float root_entropy_value_targets = 29;
+  repeated float root_entropy_values_from_initial_inference = 30;
   float last_value_error = 6;
   repeated float entropies = 7;
   int64 count = 8;
   int32 tdSteps = 9;
   int32 trainingEpoch = 26;
+
   repeated float surprises = 10;
   bool surprised = 11;
-  int64 tSurprise = 12;
-  int64 tStateA = 13;
-  int64 tStateB = 14;
+//  int64 tSurprise = 12;
+//  int64 tStateA = 13;
+//  int64 tStateB = 14;
   string networkName = 15;
   float pRandomActionRawSum = 16;
   int32 pRandomActionRawCount = 17;
@@ -43,6 +48,12 @@ message GameProto {
 }
 message PolicyProtos {
   repeated float policy = 1;
+}
+message ObservationProtos {
+  bytes observationPartA = 1;
+  bytes observationPartB = 2;
+  int32 observationPartSize = 3;
+  bool twoPlayer = 4;
 }
 
 message LegalActionProtos {

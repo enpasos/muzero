@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.enpasos.muzero.platform.agent.c_model.Inference;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -84,12 +84,12 @@ public class ValueExtractor {
     public List<Integer> getActionList() {
 
 
-        gameBuffer.loadLatestState();
+        gameBuffer.loadLatestStateIfExists();
 
         Game game = gameBuffer.getBuffer().getGames().get(gameBuffer.getBuffer().getGames().size() - 1);
 
 
-        List<Integer> actions = game.actionHistory().getActionIndexList();
+        List<Integer> actions = game.getGameDTO().getActions();
         log.debug(actions.toString());
         return actions;
     }

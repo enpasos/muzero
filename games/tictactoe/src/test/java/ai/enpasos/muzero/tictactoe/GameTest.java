@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -60,7 +59,7 @@ class GameTest {
 
 
     private void check(int @NotNull [] actions) {
-        Game game = config.newGame();
+        Game game = config.newGame(true,true);
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];
             Objects.requireNonNull(game).apply(config.newAction(a));

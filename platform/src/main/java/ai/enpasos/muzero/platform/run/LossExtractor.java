@@ -2,8 +2,8 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +18,8 @@ import java.text.NumberFormat;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.c_model.Network.getDoubleValue;
-import static ai.enpasos.muzero.platform.agent.c_model.Network.getEpoch;
+import static ai.enpasos.muzero.platform.agent.d_model.Network.getDoubleValue;
+import static ai.enpasos.muzero.platform.agent.d_model.Network.getEpoch;
 
 @Slf4j
 @Component
@@ -29,7 +29,7 @@ public class LossExtractor {
     MuZeroConfig config;
 
     @Autowired
-    NetworkHelper networkHelfer;
+    BatchFactory networkHelfer;
 
 
     private LossExtractor() {
@@ -45,6 +45,7 @@ public class LossExtractor {
             .setHeader("trainingStep"
                 , "totalLoss"
                 , "valueLoss"
+                    , "entropyValueLoss"
                 , "policyLoss"
                 , "similarityLoss"
 
@@ -78,7 +79,8 @@ public class LossExtractor {
                         int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                         csvPrinter.printRecord(trainingSteps,
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
-                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanEntropyValueLoss")),
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss")),
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanSimilarityLoss"))
                             //,
