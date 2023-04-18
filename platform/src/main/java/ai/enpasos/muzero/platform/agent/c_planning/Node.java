@@ -336,8 +336,6 @@ public class Node {
     }
 
 
-    // prior maybe not perfect therefore some part of numsim and some fallback to random distribution is invested
-    // even for gumbel muzero
     public void addExplorationNoise(MuZeroConfig config) {
         if (!this.isRoot()) throw new MuZeroException("functionality not prepared to add noise at non root");
 
