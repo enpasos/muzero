@@ -30,3 +30,10 @@ Hybrid Policy, T=5
 ```
 java -jar games/tictactoe/build/libs/tictactoe-0.6.0-SNAPSHOT-exec.jar --spring.config.location=file:./reproduce/run1/
 ```
+
+## Run 2
+
+Best Effort, T=5
+```
+java -jar games/tictactoe/build/libs/tictactoe-0.6.0-SNAPSHOT-exec.jar --spring.config.location=file:./reproduce/run2/
+```
