@@ -65,11 +65,12 @@ class BlockTestHelper {
             // no training here - loss function is a dummy
             try (Trainer trainer = model.newTrainer(new DefaultTrainingConfig(Loss.l2Loss()))) {
                 outputDJL = trainer.forward(input).toDevice(Device.cpu(), true);
+                onnxExport(model, inputShapes, modelPath, "");
             } catch (Exception e) {
                 // ignore
             }
 
-            onnxExport(model, inputShapes, modelPath, "");
+
 
         } catch (Exception e) {
             e.printStackTrace();

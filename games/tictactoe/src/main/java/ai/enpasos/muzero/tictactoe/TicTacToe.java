@@ -108,7 +108,6 @@ public class TicTacToe implements CommandLineRunner {
             case ENTROPY:
                 entropyExtractor.run();
                 break;
-
             case NONE:
                 return;
             default:
