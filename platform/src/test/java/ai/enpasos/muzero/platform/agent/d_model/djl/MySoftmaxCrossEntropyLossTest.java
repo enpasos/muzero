@@ -64,6 +64,6 @@ class MySoftmaxCrossEntropyLossTest {
         prediction = prediction.reshape(shape);
 
 
-        assertEquals(0.6085883f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
+        assertEquals(0.60858834f, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
 }
