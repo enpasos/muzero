@@ -1,0 +1,139 @@
+logging:
+  file:
+    name: logs/muzero-tictactoe.log
+    max-size: 10 MB
+  pattern:
+    console: "%d %-5level [%thread] %logger{0} : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    root: WARN
+    ai.enpasos: DEBUG
+    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
+    ai.djl: INFO
+
+muzero:
+  activeGame: TICTACTOE
+  run: train
+  games:
+    TICTACTOE:
+      modelName: MuZero-TicTacToe
+      gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
+      actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
+      playerMode: TWO_PLAYERS
+      networkWithRewardHead: false
+      valueInterval: [ -1,1 ]
+      numObservationLayers: 3
+      numActionLayers: 1
+
+
+      numberOfTrainingStepsPerEpoch: 40
+
+      numUnrollSteps: 5
+
+      discount: 1.0
+      weightDecay: 0.0001
+      lrInit: 0.0001
+
+      # numberTrainingStepsOnStart: 0
+
+      knownBoundsType: FROM_VALUES
+
+      inferenceDeviceType: GPU
+      outputDir: ./memory/tictactoe/
+      size: 3
+      maxMoves: 9  # size*size
+      boardHeight: 3 # size
+      boardWidth: 3 # size
+      actionSpaceSize: 9  # size*size
+
+      # without symmetry usage
+      # symmetryType: NONE
+      # batchSize: 2048
+
+      # using the square symmetry of the board
+      symmetryType: SQUARE
+      batchSize: 256
+
+
+
+      # Gumbel MuZero parameters
+      initialGumbelM: 4
+      cVisit: 20  # 50 in paper
+      cScale: 1.0  # 1.0 in paper
+
+      numResiduals: 6
+      broadcastEveryN: 8  # out of range here
+
+      numChannels: 256
+      numBottleneckChannels: 128
+
+      valueLossWeight: 1
+
+      numberOfTrainingSteps: 50000
+
+      windowSize: 10000
+
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
+
+      offPolicyCorrectionOn: false
+      allOrNothingOn: true
+      offPolicyRatioLimit: 1.0
+
+      numParallelInferences: 1000
+
+      withEntropyValuePrediction: false
+      entropyContributionToReward: 0.1
+      entropyValueLossWeight: 0.5
+
+      playTypes:
+        PLAYOUT:
+          forTraining: false
+          numSimulations: 20
+          rootExplorationFraction: 0.0  # 0.0 means switched off
+          temperatureRoot: 0.0
+          gumbelActionSelection: true
+#        HYBRID:
+#          forTraining: true
+#          numParallelGamesPlayed: 1000
+#          tdSteps: 9 # 9 # size * size
+#          forTdStep0ValueTraining: false
+#          numSimulations: 20
+#          numSimulationsHybrid: 20
+#
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+#
+#          # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
+#          # before drawing the action from the policy target (different from the paper)
+#          # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
+#          temperatureRoot: 5.0   # was 5
+#          gumbelActionSelection: true
+        #        REANALYSE:
+        #          forTraining: true
+        #          numParallelGamesPlayed: 500
+        #          tdSteps: 9
+        #          numSimulations: 20
+        #          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+        #          # dirichlet noise is added before mcts
+        #          rootDirichletAlpha: 1.2
+        #          rootExplorationFraction: 0.25  # 0.0 means switched off
+        BEST_EFFORT:
+          forTraining: true
+          numParallelGamesPlayed: 1000
+          tdSteps: 9 # 9 # size * size
+          numSimulations: 20
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 1.2
+          rootExplorationFraction: 0.25  # 0.0 means switched off
+          # find difference to HYBRID
+          temperatureRoot: 0.0
+          gumbelActionSelection: false
+          # gumbelActionSelection: true
+
