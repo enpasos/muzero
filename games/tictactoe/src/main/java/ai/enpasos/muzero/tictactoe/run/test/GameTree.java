@@ -17,27 +17,31 @@
 
 package ai.enpasos.muzero.tictactoe.run.test;
 
+
+import ai.enpasos.muzero.platform.agent.intuitive.Inference;
+import ai.enpasos.muzero.platform.agent.memorize.Game;
 import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Map.entry;
 
 @Slf4j
 public class GameTree {
 
     final MuZeroConfig config;
-    List<DNode> forceableWinNodesPlayerA;
-    List<DNode> forceableWinNodesPlayerB;
-    List<DNode> terminatedGameNodes;
-    List<DNode> unterminatedGameNodes;
-    Set<ZeroSumGame> terminatedGames;
+    List<DNode> terminalGameNodes;
+    List<DNode> nonExpandedGameNodes;
+
+     final Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
+    Set<DNode> nodesWhereADecisionMattersForPlayerAOnOptimalPath = new HashSet<>();
+    final Set<DNode> nodesWhereADecisionMattersForPlayerB = new HashSet<>();
+     Set<DNode> nodesWhereADecisionMattersForPlayerBOnOptimalPath = new HashSet<>();
     DNode rootNode;
 
     public GameTree(MuZeroConfig config) {
@@ -47,40 +51,88 @@ public class GameTree {
 
     private void init() {
 
-        terminatedGameNodes = new ArrayList<>();
-        unterminatedGameNodes = new ArrayList<>();
+        terminalGameNodes = new ArrayList<>();
+        nonExpandedGameNodes = new ArrayList<>();
 
+        // fully expand the game tree
         rootNode = new DNode((ZeroSumGame) config.newGame());
-        unterminatedGameNodes.add(rootNode);
-
-        while (!unterminatedGameNodes.isEmpty()) {
-            List<DNode> loopGameNodes = new ArrayList<>(unterminatedGameNodes);
+        nonExpandedGameNodes.add(rootNode);
+        while (!nonExpandedGameNodes.isEmpty()) {
+            List<DNode> loopGameNodes = new ArrayList<>(nonExpandedGameNodes);
             for (DNode node : loopGameNodes) {
-                node.expand(unterminatedGameNodes, terminatedGameNodes);
+                node.expand(nonExpandedGameNodes, terminalGameNodes);
             }
-            log.info("unterminated games: " + unterminatedGameNodes.size() + ", terminated games: " + terminatedGameNodes.size());
+            log.info("not expanded game nodes: " + nonExpandedGameNodes.size() + ", terminal games: " + terminalGameNodes.size());
         }
-
-
-        terminatedGames = terminatedGameNodes.stream().map(DNode::getGame).collect(Collectors.toSet());
-
 
         propagateBestForceableValueBottomUp(OneOfTwoPlayer.PLAYER_A);
         propagateBestForceableValueBottomUp(OneOfTwoPlayer.PLAYER_B);
 
-        Set<DNode> nodesWhereADecisionMatters = new HashSet<>();
-        rootNode.findNodesWhereADecisionMatters(nodesWhereADecisionMatters);
 
-        forceableWinNodesPlayerA = new ArrayList<>();
-        rootNode.collectForceableWinNodes(OneOfTwoPlayer.PLAYER_A, forceableWinNodesPlayerA);
+        rootNode.findNodesWhereADecisionMatters(OneOfTwoPlayer.PLAYER_A, nodesWhereADecisionMattersForPlayerA);
+        rootNode.findNodesWhereADecisionMatters(OneOfTwoPlayer.PLAYER_B, nodesWhereADecisionMattersForPlayerB);
 
-        forceableWinNodesPlayerB = new ArrayList<>();
-        rootNode.collectForceableWinNodes(OneOfTwoPlayer.PLAYER_B, forceableWinNodesPlayerB);
+
+
+        nodesWhereADecisionMattersForPlayerAOnOptimalPath
+            = nodesWhereADecisionMattersForPlayerA.stream().filter(
+                this::isOnOptimalPath
+        ).collect(Collectors.toSet());
+
+        nodesWhereADecisionMattersForPlayerBOnOptimalPath
+            = nodesWhereADecisionMattersForPlayerB.stream().filter(
+                this::isOnOptimalPath
+        ).collect(Collectors.toSet());
+    }
+
+    public  boolean isOnOptimalPath(DNode node) {
+       return node.isOnOptimalPath(this.rootNode);
+    }
+
+    public List<DNode> badDecisionFinder(@NotNull GameTree gameTree, @NotNull OneOfTwoPlayer player, boolean withMCTS, Inference inference, int epoch, boolean onOptimalPathOnly) {
+
+        Set<DNode> nodesWhereADecisionMatters;
+        if (player == OneOfTwoPlayer.PLAYER_A) {
+
+            nodesWhereADecisionMatters = onOptimalPathOnly ? gameTree.nodesWhereADecisionMattersForPlayerAOnOptimalPath
+                : gameTree.nodesWhereADecisionMattersForPlayerA;
+        } else {
+            nodesWhereADecisionMatters = onOptimalPathOnly ? gameTree.nodesWhereADecisionMattersForPlayerBOnOptimalPath
+                : gameTree.nodesWhereADecisionMattersForPlayerB;
+        }
+
+        List<DNode> nodeList = new ArrayList<>(nodesWhereADecisionMatters);
+        List<Game> gameList = nodeList.stream().map(DNode::getGame).collect(Collectors.toList());
+
+
+        int[] actions = inference.aiDecisionForGames(gameList, withMCTS,  Map.ofEntries(entry("epoch", epoch)));
+
+        List<DNode> badDecisionNodes = new ArrayList<>();
+
+        for (int i = 0; i < actions.length; i++) {
+            int action = actions[i];
+            DNode node = nodeList.get(i);
+            if (!node.getBestForceableValue(player).equals(node.getChild(action).getBestForceableValue(player))) {
+                badDecisionNodes.add(node.getChild(action));
+            }
+        }
+
+        log.info("Games with bad decision by " + player + " with MCTS=" + withMCTS + ": " + badDecisionNodes.size());
+
+        printActions(badDecisionNodes);
+
+        return badDecisionNodes;
+
 
     }
 
+    private void printActions(List<DNode> nodes) {
+        nodes.forEach(n -> log.info("{}", n.getGame().getGameDTO().getActions()));
+    }
+
+
     private void propagateBestForceableValueBottomUp(@NotNull OneOfTwoPlayer player) {
-        terminatedGameNodes.forEach(n -> n.setBestForceableValue(player, n.getValue(player)));
+        terminalGameNodes.forEach(n -> n.setBestForceableValue(player, n.getValue(player)));
         rootNode.propagateBestForceableValueUp(player);
     }
 

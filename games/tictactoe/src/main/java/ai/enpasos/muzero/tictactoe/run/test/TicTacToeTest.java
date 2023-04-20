@@ -17,25 +17,17 @@
 
 package ai.enpasos.muzero.tictactoe.run.test;
 
-import ai.djl.Model;
-import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.memorize.ReplayBuffer;
-import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.intuitive.Inference;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
-import ai.enpasos.muzero.tictactoe.config.TicTacToeGame;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.PLAYOUT;
 
@@ -46,117 +38,71 @@ public class TicTacToeTest {
     @Autowired
     MuZeroConfig config;
 
-    @Autowired
-    ReplayBuffer replayBuffer;
 
     @Autowired
-    SelfPlay selfPlay;
+    Inference inference;
+
+    public int findBadDecisions() {
+        return findBadDecisions(-1, false);
+    }
+
+    /**
+     * Returns the number of failures.
+     *
+     * @return number of failures
+     */
+    public int findBadDecisions(int epoch, boolean onOptimalPathOnly) {
+        GameTree gameTree = prepareGameTree();
+        return findBadDecisions(epoch, gameTree, onOptimalPathOnly);
+    }
+
+    public int findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
+
+                log.info("nodes where a decision matters for player X {}, for player O {}",
+                    gameTree.nodesWhereADecisionMattersForPlayerA.size(),
+                    gameTree.nodesWhereADecisionMattersForPlayerB.size()
+                    );
+
+                log.info("nodes where a decision on optimal path matters for player X {}, for player O {}",
+                    gameTree.nodesWhereADecisionMattersForPlayerAOnOptimalPath.size(),
+                    gameTree.nodesWhereADecisionMattersForPlayerBOnOptimalPath.size()
+                );
+
+                List<DNode> gamesWithBadDecisionByPlayerA =
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, false, inference, epoch, onOptimalPathOnly);
+
+                List<DNode> gamesWithBadDecisionPlayerB =
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, false, inference, epoch, onOptimalPathOnly);
 
 
-    public boolean test() {
+                List<DNode> gamesWithBadDecisionByPlayerA2 =
+                    gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_A, true, inference, epoch, onOptimalPathOnly);
 
+                List<DNode> gamesWithBadDecisionByPlayerB2 =
+                     gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
+
+
+                return gamesWithBadDecisionByPlayerA.size() +
+                    gamesWithBadDecisionPlayerB.size() +
+                    gamesWithBadDecisionByPlayerA2.size() +
+                    gamesWithBadDecisionByPlayerB2.size();
+
+    }
+
+    @NotNull
+    public GameTree prepareGameTree() {
         config.setPlayTypeKey(PLAYOUT);
-
-
-        replayBuffer.init();
-
-        replayBuffer.loadLatestState();
-        // now let PlayerA and PlayerB play all possible moves
-
 
         GameTree gameTree = new GameTree(config);
 
 
-        Set<ZeroSumGame> bufferGameDTOs = replayBuffer.getBuffer().getGames().stream().map(d -> new TicTacToeGame(config, d.getGameDTO())).collect(Collectors.toSet());
-        Set<ZeroSumGame> terminatedGameNotInBufferDTOs = gameTree.terminatedGameNodes.stream()
-            .map(DNode::getGame)
-            .filter(d -> !bufferGameDTOs.contains(d))
-            .collect(Collectors.toSet());
+        Set<DNode> nonTerminalNodes = new HashSet<>();
+        gameTree.rootNode.collectNonTerminalNodes(nonTerminalNodes);
+        log.info("nonTerminalNodes:                 " + nonTerminalNodes.size());
 
-        log.info("terminatedGameDTOs           : " + gameTree.terminatedGames.size());
-        log.info("bufferGameDTOs               : " + bufferGameDTOs.size());
-        log.info("terminatedGameNotInBufferDTOs: " + terminatedGameNotInBufferDTOs.size());
-
-        Set<DNode> decisionNodes = new HashSet<>();
-        gameTree.rootNode.collectDecisionNodes(decisionNodes);
-        log.info("decisionNodes:                 " + decisionNodes.size());
-
-        Set<DNode> nodesWhereADecisionMatters = new HashSet<>();
-        gameTree.rootNode.findNodesWhereADecisionMatters(nodesWhereADecisionMatters);
-        log.info("nodesWhereADecisionMatters:    " + nodesWhereADecisionMatters.size());
-
-
-        List<DNode> wonByPlayerAGameNodes = gameTree.terminatedGameNodes.stream()
-            .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_A))
-            .collect(Collectors.toList());
-        log.info("wonByPlayerAGameNodes: " + wonByPlayerAGameNodes.size());
-
-        List<DNode> wonByPlayerBGameNodes = gameTree.terminatedGameNodes.stream()
-            .filter(g -> g.getGame().getEnvironment().hasPlayerWon(OneOfTwoPlayer.PLAYER_B))
-            .collect(Collectors.toList());
-
-        log.info("wonByPlayerBGameNodes: " + wonByPlayerBGameNodes.size());
-
-
-        try (Model model = Model.newInstance(config.getModelName(), config.getInferenceDevice())) {
-
-            Network network = new Network(config, model);
-            try (NDManager nDManager = network.getNDManager().newSubManager()) {
-
-
-                network.setHiddenStateNDManager(nDManager);
-                network.initActionSpaceOnDevice(nDManager);
-
-
-                List<DNode> gamesLostByPlayerA = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, false, gamesLostByPlayerA);
-
-                List<DNode> gamesLostByPlayerB = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, false, gamesLostByPlayerB);
-
-
-                List<DNode> gamesLostByPlayerA2 = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_A, true, gamesLostByPlayerA2);
-
-                List<DNode> gamesLostByPlayerB2 = new ArrayList<>();
-                notOptimal(gameTree, network, OneOfTwoPlayer.PLAYER_B, true, gamesLostByPlayerB2);
-
-
-                return gamesLostByPlayerA.isEmpty() &&
-                    gamesLostByPlayerB.isEmpty() &&
-                    gamesLostByPlayerA2.isEmpty() &&
-                    gamesLostByPlayerB2.isEmpty();
-            }
-
-        }
-
+        log.info("nodes where a decision matters for Player A:    " + gameTree.nodesWhereADecisionMattersForPlayerA.size());
+        log.info("nodes where a decision matters for Player B:    " + gameTree.nodesWhereADecisionMattersForPlayerB.size());
+        return gameTree;
     }
-
-    private void printActions(List<DNode> nodes) {
-        nodes.forEach(n -> log.info("{}", n.getGame().getGameDTO().getActions()));
-    }
-
-    private void notOptimal(@NotNull GameTree gameTree, @NotNull Network network, @NotNull OneOfTwoPlayer player, boolean withMCTS, @NotNull List<DNode> gamesLostByPlayer) {
-        gameTree.rootNode.clearAIDecisions();
-        gameTree.rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
-
-
-        gameTree.rootNode.collectGamesLost(player, gamesLostByPlayer);
-        log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayer.size());
-
-        printActions(gamesLostByPlayer);
-
-
-    }
-
-
-    private @NotNull List<DNode> gamesLostByPlayer(@NotNull DNode rootNode, @NotNull Network network, boolean withMCTS, @NotNull OneOfTwoPlayer player) {
-        rootNode.addAIDecisions(network, player, withMCTS, selfPlay);
-        List<DNode> gamesLostByPlayerA = new ArrayList<>();
-        rootNode.collectGamesLost(player, gamesLostByPlayerA);
-        log.info("Games lost by " + player + " with MCTS=" + withMCTS + ": " + gamesLostByPlayerA.size());
-        return gamesLostByPlayerA;
-    }
-
 
 }

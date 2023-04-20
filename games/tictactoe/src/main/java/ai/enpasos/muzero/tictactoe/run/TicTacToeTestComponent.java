@@ -24,9 +24,10 @@ public class TicTacToeTestComponent {
 
     public void run() {
 
-        boolean passed = ticTacToeTest.test();
+        boolean passed = ticTacToeTest.findBadDecisions() == 0;
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");
         log.info(message);
+
 
     }
 

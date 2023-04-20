@@ -17,11 +17,9 @@
 
 package ai.enpasos.muzero.tictactoe.run.test;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.intuitive.NetworkIO;
+
 import ai.enpasos.muzero.platform.agent.memorize.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
@@ -33,29 +31,23 @@ import java.util.*;
 @Data
 public class DNode {
     ZeroSumGame game;
-    boolean terminated;
+    boolean terminal;
     DNode parent;
     List<DNode> children;
-    boolean checked;
+
     @Nullable DNode aiChosenChild;
-    double aiValue;
+
     boolean decisionMatters;
 
-    // let us define the perfect value of a node
-    // 1 if the player to play can force a win
-    // 0 if the player to play can not force a win but can force a draw
-    // -1 else
-    @Nullable Integer perfectValue;
+
     Integer bestForceableValuePlayerA;
     Integer bestForceableValuePlayerB;
 
-    // the value the worst decision would lead to
-    @Nullable Integer worstValue;
 
     public DNode(ZeroSumGame game) {
         this.game = game;
         children = new ArrayList<>();
-        terminated = false;
+        terminal = false;
     }
 
     public DNode(DNode parent, ZeroSumGame game) {
@@ -82,37 +74,21 @@ public class DNode {
         }
     }
 
-    public void clearPerfectValuesOnNodeAndDescendants() {
-        this.perfectValue = null;
-        this.worstValue = null;
-        children.forEach(DNode::clearPerfectValuesOnNodeAndDescendants);
-    }
 
-    public void findNodesWhereADecisionMatters(@NotNull Set<DNode> nodesWhereADecisionMatters) {
-        clearPerfectValuesOnNodeAndDescendants();
-        setPerfectValuesOnDescendants(nodesWhereADecisionMatters);
-    }
+    public void findNodesWhereADecisionMatters(@NotNull OneOfTwoPlayer player, @NotNull Set<DNode> nodesWhereADecisionMatters) {
 
-    private void setPerfectValuesOnDescendants(@NotNull Set<DNode> nodesWhereADecisionMatters) {
-        if (this.children.isEmpty()) {
-            Integer value;
-            value = getValue();
-            this.perfectValue = value;
-            this.worstValue = perfectValue;
-        } else {
-            this.children.forEach(n -> n.setPerfectValuesOnDescendants(nodesWhereADecisionMatters));
-            // now all the descendants have it
-            // we are looking for options to force that means assuming that the opponent could take the best option
-            this.perfectValue = -1 * this.children.stream().min(Comparator.comparing(DNode::getPerfectValue)).orElseThrow(MuZeroException::new).perfectValue;
-            this.worstValue = -1 * this.children.stream().max(Comparator.comparing(DNode::getPerfectValue)).orElseThrow(MuZeroException::new).perfectValue;
-            if (!Objects.equals(this.perfectValue, this.worstValue)) {
-                nodesWhereADecisionMatters.add(this);
-                decisionMatters = true;
-            } else {
-                decisionMatters = false;
-            }
+        for (DNode child : children) {
+            child.findNodesWhereADecisionMatters(player, nodesWhereADecisionMatters);
         }
+        if (this.game.toPlay() == player && this.getChildren().size() > 1 && this.getChildren().stream().mapToInt(n -> n.getBestForceableValue(player)).distinct().count() > 1) {
+            nodesWhereADecisionMatters.add(this);
+            decisionMatters = true;
+        } else {
+            decisionMatters = false;
+        }
+
     }
+
 
     public Integer getValue(OneOfTwoPlayer player) {
         int value;
@@ -127,120 +103,50 @@ public class DNode {
         return value;
     }
 
-    public Integer getValue() {
-        OneOfTwoPlayer player = (OneOfTwoPlayer) this.game.toPlay();
-        return getValue(player);
-    }
 
-    public void expand(@NotNull List<DNode> unterminatedGameNodes, @NotNull List<DNode> terminatedGameNodes) {
+    public void expand(@NotNull List<DNode> nonExpandedGameNodes, @NotNull List<DNode> terminalGameNodes) {
         if (!game.terminal() && !game.legalActions().isEmpty()) {
             for (Action action : game.legalActions()) {
                 ZeroSumGame newGame = (ZeroSumGame) game.copy();
                 newGame.apply(action);
                 DNode child = new DNode(this, newGame);
                 this.children.add(child);
-                unterminatedGameNodes.add(child);
+                nonExpandedGameNodes.add(child);
             }
         } else {
-            terminatedGameNodes.add(this);
-            terminated = false;
+            terminalGameNodes.add(this);
+            terminal = true;
         }
-        unterminatedGameNodes.remove(this);
+        nonExpandedGameNodes.remove(this);
     }
 
 
-    // add AI Decisions on all descendant nodes
-    // where 'player' is to play
-    public void addAIDecisions(@NotNull Network network, OneOfTwoPlayer player, boolean withMCTS, SelfPlay selfPlay) {
-        if (this.game.toPlay() != player) {   // jump over other players nodes down the tree
-            for (DNode node : this.children) {
-                node.addAIDecisions(network, player, withMCTS, selfPlay);
-            }
-        } else if (!this.children.isEmpty()) {
-            this.aiChosenChild = aiDecision(network, withMCTS, selfPlay);
-            Objects.requireNonNull(aiChosenChild).addAIDecisions(network, player, withMCTS, selfPlay);
-        }
-    }
-
-    public @Nullable DNode aiDecision(@NotNull Network network, boolean withMCTS, SelfPlay selfPlay) {
-        NetworkIO networkOutput = network.initialInferenceDirect(game);
-        aiValue = networkOutput.getValue();
-        int actionIndexSelectedByNetwork = -1;
-        List<Action> legalActions = game.legalActions();
-        if (withMCTS) {
-            selfPlay.playOneActionFromCurrentState(network, game, false);
-            Action action = game.actionHistory().lastAction();
-            actionIndexSelectedByNetwork = action.getIndex();
-        } else {
-            float maxValue = 0f;
-            for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
-                float v = networkOutput.getPolicyValues()[i];
-                if (v > maxValue && legalActions.contains(network.getConfig().newAction(i))) {
-                    maxValue = v;
-                    actionIndexSelectedByNetwork = i;
-                }
-            }
-        }
-        for (DNode n : children) {
-            if (n.game.actionHistory().lastAction().getIndex() == actionIndexSelectedByNetwork) {
-                return n;
-            }
-        }
-        return null;
-    }
-
-    public boolean checkForActionListSize() {
-        for (DNode n : children) {
-            if (n.game.getGameDTO().getActions().size() == this.game.getGameDTO().getActions().size()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void collectGamesLost(OneOfTwoPlayer player, @NotNull List<DNode> gamesLostByPlayer) {
-        OneOfTwoPlayer opponent = OneOfTwoPlayer.otherPlayer(player);
-        if (this.game.terminal()) {
-            if (this.game.getEnvironment().hasPlayerWon(opponent)) {
-                gamesLostByPlayer.add(this);
-            }
-        } else {
-            if (this.aiChosenChild == null) {
-                for (DNode node : this.getChildren()) {
-                    node.collectGamesLost(player, gamesLostByPlayer);
-                }
-            } else {
-                this.aiChosenChild.collectGamesLost(player, gamesLostByPlayer);
-            }
-        }
-    }
-
-    public void clearAIDecisions() {
-        aiChosenChild = null;
-        children.forEach(DNode::clearAIDecisions);
-    }
-
-    public void collectDecisionNodes(@NotNull Set<DNode> decisionNodes) {
+    public void collectNonTerminalNodes(@NotNull Set<DNode> nonTerminalNodes) {
         if (!this.children.isEmpty()) {
-            decisionNodes.add(this);
-            this.children.forEach(n -> n.collectDecisionNodes(decisionNodes));
+            nonTerminalNodes.add(this);
+            this.children.forEach(n -> n.collectNonTerminalNodes(nonTerminalNodes));
         }
     }
+
 
     public int hashCode() {
-        return this.game.hashCode();
+        return Arrays.deepHashCode(game.getEnvironment().getBoard());
     }
 
+    /**
+     * Two nodes are equal if they have the same state.
+     * Here we are switching implicitly from tree to acyclic graph.
+     * Comparison has an acyclic directed graph in mind.
+     */
     public boolean equals(Object o) {
         if (!(o instanceof DNode n)) return false;
-        return n.game.equals(n.getGame());
+
+        return Arrays.deepEquals(
+            n.game.getEnvironment().getBoard(),
+            game.getEnvironment().getBoard());
+
     }
 
-    public boolean isBadDecision(@NotNull Network network, boolean withMCTS, SelfPlay selfPlay) {
-        this.aiChosenChild = aiDecision(network, withMCTS, selfPlay);
-        int chosenValue = -1 * Objects.requireNonNull(this.aiChosenChild).perfectValue;
-        return chosenValue != perfectValue;
-    }
 
     public void propagateBestForceableValueUp(@NotNull OneOfTwoPlayer player) {
         for (DNode n : this.children) {
@@ -250,12 +156,12 @@ public class DNode {
         }
         if (this.getBestForceableValue(player) == null) {
             if (this.game.toPlay() == player) {
-                // the player decides
+                // the player decides -> max
                 this.setBestForceableValue(player, this.children.stream().
                     max(Comparator.comparing(n -> n.getBestForceableValue(player)))
                     .orElseThrow(MuZeroException::new).getBestForceableValue(player));
             } else {
-                // the opponent decides
+                // the opponent decides -> min
                 this.setBestForceableValue(player, this.children.stream().
                     min(Comparator.comparing(n -> n.getBestForceableValue(player)))
                     .orElseThrow(MuZeroException::new).getBestForceableValue(player));
@@ -263,37 +169,18 @@ public class DNode {
         }
     }
 
-    public void collectForceableWinNodes(@NotNull OneOfTwoPlayer player, @NotNull List<DNode> forceableWinNodesPlayer) {
-        if (this.getBestForceableValue(player) == 1 && this.getGame().toPlay() == player && this.getChildren() != null && this.decisionMatters) {
-            forceableWinNodesPlayer.add(this);
-        }
-        this.children.forEach(n -> n.collectForceableWinNodes(player, forceableWinNodesPlayer));
-    }
 
-
-    public boolean hasAncestorWithForceableWin(@NotNull OneOfTwoPlayer player) {
-        if (this.parent != null && this.parent.getBestForceableValue(player) == 1) return true;
-        if (this.parent != null) {
-            return this.parent.hasAncestorWithForceableWin(player);
-        }
-        return false;
-    }
-
-    public void collectGamesDrawnThatCouldBeWon(@NotNull OneOfTwoPlayer player, @NotNull List<DNode> gamesNotWonByPlayer) {
-
-        OneOfTwoPlayer opponent = OneOfTwoPlayer.otherPlayer(player);
-        if (this.game.terminal()) {
-            if (!this.game.getEnvironment().hasPlayerWon(player) && !this.game.getEnvironment().hasPlayerWon(opponent) && this.parent.game.toPlay() == player && hasAncestorWithForceableWin(player)) {
-                gamesNotWonByPlayer.add(this);
-            }
-        } else {
-            if (this.aiChosenChild == null) {
-                for (DNode node : this.getChildren()) {
-                    node.collectGamesDrawnThatCouldBeWon(player, gamesNotWonByPlayer);
-                }
-            } else {
-                this.aiChosenChild.collectGamesDrawnThatCouldBeWon(player, gamesNotWonByPlayer);
+    public DNode getChild(int action) {
+        for (DNode n : children) {
+            if (n.game.getGameDTO().getActions().get(n.game.getGameDTO().getActions().size()-1) == action) {
+                return n;
             }
         }
+        return null;
+    }
+
+    public  boolean isOnOptimalPath(DNode root) {
+        return this.bestForceableValuePlayerA.equals(root.bestForceableValuePlayerA)
+            && this.bestForceableValuePlayerB.equals(root.bestForceableValuePlayerB);
     }
 }

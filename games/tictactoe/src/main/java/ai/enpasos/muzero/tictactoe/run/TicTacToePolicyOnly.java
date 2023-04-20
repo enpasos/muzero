@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.tictactoe.run;
 
 
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import ai.enpasos.muzero.platform.run.train.TrainParams;
@@ -8,6 +9,8 @@ import ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ExecutionException;
 
 
 @Slf4j
@@ -25,10 +28,15 @@ public class TicTacToePolicyOnly {
 
     public void run() {
 
-        muZero.train(TrainParams.builder()
-            .render(true)
-            .freshBuffer(true)
-            .build());
+        try {
+            muZero.train(TrainParams.builder()
+                    .render(true)
+                   // .doNotLoadLatestState(true)
+                    .build());
+
+        } catch ( Exception e) {
+            throw new MuZeroException(e);
+        }
 
 
     }
