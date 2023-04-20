@@ -3,13 +3,13 @@ logging:
     name: logs/muzero-tictactoe.log
     max-size: 10 MB
   pattern:
-    console: "%d %-5level %logger{0} : %msg%n"
+    console: "%d %-5level [%thread] %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
     root: WARN
     ai.enpasos: DEBUG
+    # ai.enpasos.muzero.platform.agent.c_model.service.ModelController: INFO
     ai.djl: INFO
-
 
 muzero:
   activeGame: TICTACTOE
@@ -74,12 +74,17 @@ muzero:
 
       windowSize: 10000
 
-      numChannelsHiddenLayerSimilarity: 250
-      numChannelsOutputLayerSimilarity: 500
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
 
       offPolicyCorrectionOn: false
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
+
+      numParallelInferences: 1000
 
       playTypes:
         PLAYOUT:
@@ -109,8 +114,6 @@ muzero:
 #          temperatureRoot: 5.0   # was 5
 #          gumbelActionSelection: true
 #          gumbelActionSelectionOnExploring: false
-#
-#
 #
 #        REANALYSE:
 #          forTraining: true

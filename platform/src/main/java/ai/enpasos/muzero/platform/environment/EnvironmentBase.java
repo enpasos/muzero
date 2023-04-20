@@ -18,7 +18,7 @@
 package ai.enpasos.muzero.platform.environment;
 
 
-import ai.enpasos.muzero.platform.agent.rational.Action;
+import ai.enpasos.muzero.platform.agent.b_planning.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Data;
 import lombok.NoArgsConstructor;

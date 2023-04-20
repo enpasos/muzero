@@ -27,14 +27,14 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEasyTrain;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.MyEpochTrainingListener;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.c_model.Network;
+import ai.enpasos.muzero.platform.agent.c_model.djl.MyEasyTrain;
+import ai.enpasos.muzero.platform.agent.c_model.djl.MyEpochTrainingListener;
+import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -49,11 +49,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper.getEpochFromModel;
+import static ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 
 @Slf4j

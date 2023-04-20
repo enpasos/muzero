@@ -17,7 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.EntropyExtractor;

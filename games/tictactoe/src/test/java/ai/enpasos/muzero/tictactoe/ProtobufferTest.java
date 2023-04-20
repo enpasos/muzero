@@ -2,10 +2,10 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.c_model.Network;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;

@@ -17,12 +17,10 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
-import ai.enpasos.muzero.platform.agent.memorize.GameBufferIO;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBufferIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;

@@ -28,7 +28,7 @@ public class GoOnnx {
         long hs = config.getNumChannels();
         long a = config.getNumActionLayers();
         long o = config.getNumObservationLayers();
-        long s = config.getNumChannelsOutputLayerSimilarity();
+        long s = config.getNumChannelsOutputLayerSimilarityProjector();
 
         List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
         List<Shape> inputPrediction = List.of(new Shape(1L, hs, w, h));

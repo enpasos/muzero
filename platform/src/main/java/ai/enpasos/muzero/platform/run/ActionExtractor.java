@@ -17,9 +17,9 @@
 
 package ai.enpasos.muzero.platform.run;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.memorize.GameBuffer;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;

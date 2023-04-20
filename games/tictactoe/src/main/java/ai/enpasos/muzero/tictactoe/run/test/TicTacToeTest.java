@@ -19,9 +19,9 @@ package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
-import ai.enpasos.muzero.platform.agent.intuitive.Network;
-import ai.enpasos.muzero.platform.agent.rational.SelfPlay;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
+import ai.enpasos.muzero.platform.agent.c_model.Network;
+import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;

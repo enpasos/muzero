@@ -33,7 +33,7 @@ muzero:
       knownBoundsType: FROM_VALUES
 
       inferenceDeviceType: GPU
-      outputDir: ./memory/tictactoe/
+      outputDir: ../../memory/tictactoe/
       size: 3
       maxMoves: 9  # size*size
       boardHeight: 3 # size
@@ -67,14 +67,20 @@ muzero:
 
       windowSize: 10
 
-      numChannelsHiddenLayerSimilarity: 25
-      numChannelsOutputLayerSimilarity: 50
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
 
       replayFraction: 0.0
 
       offPolicyCorrectionOn: false
       allOrNothingOn: true
       offPolicyRatioLimit: 4.0
+
+      numParallelInferences: 1000
+
 
       playTypes:
         PLAYOUT:

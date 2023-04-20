@@ -1,9 +1,9 @@
 package ai.enpasos.muzero.platform.config;
 
 import ai.djl.Device;
-import ai.enpasos.muzero.platform.agent.memorize.Game;
-import ai.enpasos.muzero.platform.agent.rational.Action;
-import ai.enpasos.muzero.platform.agent.rational.KnownBounds;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.b_planning.Action;
+import ai.enpasos.muzero.platform.agent.b_planning.KnownBounds;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -405,12 +405,23 @@ public class MuZeroConfig {
         return getConf().numPurePolicyPlays;
     }
 
-    public int getNumChannelsHiddenLayerSimilarity() {
-        return getConf().numChannelsHiddenLayerSimilarity;
+    public int getNumParallelInferences() {
+        return getConf().numParallelInferences;
     }
 
-    public int getNumChannelsOutputLayerSimilarity() {
-        return getConf().numChannelsOutputLayerSimilarity;
+    public int getNumChannelsHiddenLayerSimilarityProjector() {
+        return getConf().numChannelsHiddenLayerSimilarityProjector;
+    }
+
+    public int getNumChannelsOutputLayerSimilarityProjector() {
+        return getConf().numChannelsOutputLayerSimilarityProjector;
+    }
+    public int getNumChannelsHiddenLayerSimilarityPredictor() {
+        return getConf().numChannelsHiddenLayerSimilarityPredictor;
+    }
+
+    public int getNumChannelsOutputLayerSimilarityPredictor() {
+        return getConf().numChannelsOutputLayerSimilarityPredictor;
     }
 
     public FileType getGameBufferWritingFormat() {
@@ -469,8 +480,11 @@ public class MuZeroConfig {
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSize;
 
-        protected int numChannelsHiddenLayerSimilarity;
-        protected int numChannelsOutputLayerSimilarity;
+        protected int numChannelsHiddenLayerSimilarityProjector;
+        protected int numChannelsOutputLayerSimilarityProjector;
+
+        protected int numChannelsHiddenLayerSimilarityPredictor;
+        protected int numChannelsOutputLayerSimilarityPredictor;
         protected double fractionOfAlternativeActionGames;
 
         protected int batchSize;
@@ -503,7 +517,7 @@ public class MuZeroConfig {
         double cScale;
         int numPurePolicyPlays;
         int[] valueInterval;
-
+        int numParallelInferences = 1;
 
         boolean offPolicyCorrectionOn;
 

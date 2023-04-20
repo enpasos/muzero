@@ -2,8 +2,8 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.djl.Device;
 import ai.djl.Model;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
+import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +18,8 @@ import java.text.NumberFormat;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.intuitive.Network.getDoubleValue;
-import static ai.enpasos.muzero.platform.agent.intuitive.Network.getEpoch;
+import static ai.enpasos.muzero.platform.agent.c_model.Network.getDoubleValue;
+import static ai.enpasos.muzero.platform.agent.c_model.Network.getEpoch;
 
 @Slf4j
 @Component

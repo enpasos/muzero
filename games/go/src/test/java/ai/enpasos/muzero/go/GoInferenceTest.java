@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.go;
 
-import ai.enpasos.muzero.platform.agent.intuitive.Inference;
+import ai.enpasos.muzero.platform.agent.c_model.Inference;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
@@ -15,7 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.exists;
 import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

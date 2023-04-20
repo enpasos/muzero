@@ -20,7 +20,7 @@ package ai.enpasos.muzero.platform.run;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.nn.Block;
-import ai.enpasos.muzero.platform.agent.intuitive.djl.blocks.atraining.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.c_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
