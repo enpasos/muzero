@@ -19,8 +19,8 @@ package ai.enpasos.muzero.platform.run.train;
 
 //import ai.djl.ndarray.gc.SwitchGarbageCollection;
 import ai.djl.MalformedModelException;
-import ai.djl.ndarray.refcount.RCConfig;
-import ai.djl.ndarray.refcount.RCScope;
+
+import ai.djl.ndarray.NDScope;
 import ai.djl.training.listener.EpochTrainingListener;
 import ai.djl.training.loss.IndexLoss;
 import ai.djl.training.loss.SimpleCompositeLoss;
@@ -118,7 +118,7 @@ public class MuZero {
             model.load(Paths.get(outputDir));
             replayBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
-            try (RCScope rcScope1 = new RCScope()) {
+            try (NDScope NDScope1 = new NDScope()) {
                 trainNetwork(model);
             }
             String outputDir = config.getNetworkBaseDir();
@@ -171,7 +171,7 @@ public class MuZero {
 
         loadBuffer(params.freshBuffer);
 
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope NDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 Network network = new Network(config, model);
                 if (!params.withoutFill) {
@@ -179,14 +179,14 @@ public class MuZero {
                 }
             }
         }
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope NDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                 Network network = new Network(config, model);
                 createNetworkModelIfNotExisting();
             }
         }
 
-        try (RCScope rcScope0 = new RCScope()) {
+        try (NDScope NDScope0 = new NDScope()) {
             try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
 
                 Network network = new Network(config, model);
@@ -197,7 +197,7 @@ public class MuZero {
 
                 while (trainingStep < config.getNumberOfTrainingSteps() &&
                     (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
-                    //  try (RCScope rcScope1 = new RCScope()) {
+                    //  try (NDScope NDScope1 = new NDScope()) {
 
                     DurAndMem duration = new DurAndMem();
                     duration.on();
@@ -205,7 +205,7 @@ public class MuZero {
 
                     if (!params.freshBuffer) {
 
-                        try (RCScope rcScope1 = new RCScope()) {
+                        try (NDScope NDScope1 = new NDScope()) {
                             for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                                 config.setPlayTypeKey(key);
                                 playGames(params.render, network, trainingStep);
@@ -225,7 +225,7 @@ public class MuZero {
                         log.info("replayBuffer size: " + this.replayBuffer.getBuffer().getGames().size());
                     }
                     params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-                    try (RCScope rcScope1 = new RCScope()) {
+                    try (NDScope NDScope1 = new NDScope()) {
                         trainingStep = trainNetwork(model);
                     }
                     if (config.isSurpriseHandlingOn()) {
@@ -370,7 +370,7 @@ public class MuZero {
                 trainer.setMetrics(new Metrics());
 
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                  //  try (RCScope rcScope2 = new RCScope()) {
+                  //  try (NDScope NDScope2 = new NDScope()) {
                         try (Batch batch = networkHelper.getBatch(trainer.getManager(), withSymmetryEnrichment, trainingTypeKey)) {
                             log.debug("trainBatch " + m);
                             MyEasyTrain.trainBatch(trainer, batch);

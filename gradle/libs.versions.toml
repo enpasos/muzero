@@ -1,7 +1,7 @@
 [versions]
 lombok = "1.18.24"
 djl = "0.22.0-SNAPSHOT"
-pytorch = "1.13.1"
+pytorch = "2.0.0"
 
 slf4j = "2.0.6"
 springboot = "3.0.1"
