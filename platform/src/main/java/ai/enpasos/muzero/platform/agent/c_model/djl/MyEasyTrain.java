@@ -133,7 +133,6 @@ public final class MyEasyTrain {
 
     private static Pair<NDList, NDList> reorganizePredictionsAndLabels(Pair<NDList, NDList> input) {
 
-
         IntStream.range(0, 5).forEach(i ->
             input.getRight().add(4 + 3 * i, input.getLeft().get(5 + 4 * i))
         );
