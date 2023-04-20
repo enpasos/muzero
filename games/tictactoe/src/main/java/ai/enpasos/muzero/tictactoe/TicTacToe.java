@@ -50,6 +50,9 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeInMindValues inMindValues;
 
     @Autowired
+    private TicTacToeTestAllNetworks testAllNetworks;
+
+    @Autowired
     private TicTacToeInference inference;
 
     public static void main(String[] args) {
@@ -77,6 +80,9 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case TEST:
                 test.run();
+                break;
+            case TESTNETWORKS:
+                testAllNetworks.run();
                 break;
             case LOSS:
                 goLossExtractor.run();
