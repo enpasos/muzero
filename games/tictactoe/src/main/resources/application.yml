@@ -77,7 +77,7 @@ muzero:
       numChannelsHiddenLayerSimilarity: 250
       numChannelsOutputLayerSimilarity: 500
 
-      offPolicyCorrectionOn: true
+      offPolicyCorrectionOn: false
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
 
@@ -90,52 +90,52 @@ muzero:
           rootExplorationFraction: 0.0  # 0.0 means switched off
           temperatureRoot: 0.0
           gumbelActionSelection: true
-        HYBRID:
-          forTraining: true
-          numEpisodes: 1 # TODO rethink the naming
-          numParallelGamesPlayed: 500
-          tdSteps: 9 # 9 # size * size
-          forTdStep0ValueTraining: false
-          forTdStep0PolicyTraining: true
-          numSimulations: 20
-          numSimulationsHybrid: 20
-
-          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-          # dirichlet noise is added before mcts
-          rootDirichletAlpha: 1.2
-          rootExplorationFraction: 0.25  # 0.0 means switched off
-
-          # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
-          # before drawing the action from the policy target (different from the paper)
-          # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-          temperatureRoot: 5.0   # was 5
-          gumbelActionSelection: true
-          gumbelActionSelectionOnExploring: false
-
-        REANALYSE:
-          forTraining: true
-          numEpisodes: 1
-          numParallelGamesPlayed: 500
-          tdSteps: 9
-          numSimulations: 20
-          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-          # dirichlet noise is added before mcts
-          rootDirichletAlpha: 1.2
-          rootExplorationFraction: 0.25  # 0.0 means switched off
-
-
-
-#        BEST_EFFORT:
+#        HYBRID:
 #          forTraining: true
-#          numEpisodes: 1
-#          numParallelGamesPlayed: 1000
+#          numEpisodes: 1 # TODO rethink the naming
+#          numParallelGamesPlayed: 500
 #          tdSteps: 9 # 9 # size * size
+#          forTdStep0ValueTraining: false
+#          forTdStep0PolicyTraining: true
 #          numSimulations: 20
-#          gumbelActionSelection: true
+#          numSimulationsHybrid: 20
+#
 #          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
 #          # dirichlet noise is added before mcts
 #          rootDirichletAlpha: 1.2
 #          rootExplorationFraction: 0.25  # 0.0 means switched off
+#
+#          # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
+#          # before drawing the action from the policy target (different from the paper)
+#          # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
+#          temperatureRoot: 5.0   # was 5
+#          gumbelActionSelection: true
+#          gumbelActionSelectionOnExploring: false
+#
+#        REANALYSE:
+#          forTraining: true
+#          numEpisodes: 1
+#          numParallelGamesPlayed: 500
+#          tdSteps: 9
+#          numSimulations: 20
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+#
+
+
+        BEST_EFFORT:
+          forTraining: true
+          numEpisodes: 1
+          numParallelGamesPlayed: 1000
+          tdSteps: 9 # 9 # size * size
+          numSimulations: 20
+          gumbelActionSelection: true
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 1.2
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 
 
 
