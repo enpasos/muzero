@@ -2,22 +2,17 @@ package ai.enpasos.muzero.platform.agent.c_model.service;
 
 import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.b_planning.Node;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
 
 @ToString
-@Setter
-@Getter
 public class RecurrentInferenceTask {
     public RecurrentInferenceTask(List<Node> searchPath) {
-        this.searchPath = searchPath;
+        this.setSearchPath(searchPath);
     }
 
-    List<Node> searchPath;
+    private List<Node> searchPath;
     private NetworkIO networkOutput;
     private boolean done;
 
@@ -42,5 +37,13 @@ public class RecurrentInferenceTask {
         this.done = done;
     }
 
+    synchronized
+    public List<Node> getSearchPath() {
+        return searchPath;
+    }
 
+    synchronized
+    public void setSearchPath(List<Node> searchPath) {
+        this.searchPath = searchPath;
+    }
 }
