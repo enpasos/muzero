@@ -99,13 +99,14 @@ public class MuZero {
 
         }
     }
+
     public void initialFillingBuffer(Network network) {
 
         long startCounter = gameBuffer.getBuffer().getCounter();
         int windowSize = config.getWindowSize();
         while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes( false, true, false);
+            selfPlay.playMultipleEpisodes(false, true, false);
         }
     }
 
@@ -124,15 +125,14 @@ public class MuZero {
     }
 
 
-
-    private void loadOrCreateModelParameters( Model model) {
+    private void loadOrCreateModelParameters(Model model) {
         try {
             String outputDir = config.getNetworkBaseDir();
             model.load(Paths.get(outputDir));
             gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
             try (NDScope nDScope1 = new NDScope()) {
-             //   trainNetwork();
+                //   trainNetwork();
             }
             String outputDir = config.getNetworkBaseDir();
             try {
@@ -179,8 +179,8 @@ public class MuZero {
         DefaultTrainingConfig djlConfig = networkHelper.setupTrainingConfig(epoch);
         int finalEpoch = epoch;
         djlConfig.getTrainingListeners().stream()
-            .filter(MyEpochTrainingListener.class::isInstance)
-            .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+                .filter(MyEpochTrainingListener.class::isInstance)
+                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
         try (Trainer trainer = model.newTrainer(djlConfig)) {
             Shape[] inputShapes = networkHelper.getInputShapes();
             trainer.initialize(inputShapes);
@@ -212,14 +212,14 @@ public class MuZero {
     private void determinePRatioMaxForCurrentEpoch(Model model) {
         int epoch = getEpochFromModel(model);
         List<Game> games = this.gameBuffer.getGames().stream()
-            .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() == PlayTypeKey.REANALYSE)
-            .collect(Collectors.toList());
+                .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() == PlayTypeKey.REANALYSE)
+                .collect(Collectors.toList());
         double pRatioMax = determinePRatioMax(games);
         log.info("pRatioMaxREANALYSE({}): {}", epoch, pRatioMax);
 
         List<Game> games2 = this.gameBuffer.getGames().stream()
-            .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() != PlayTypeKey.REANALYSE)
-            .collect(Collectors.toList());
+                .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.getPlayTypeKey() != PlayTypeKey.REANALYSE)
+                .collect(Collectors.toList());
         double pRatioMax2 = determinePRatioMax(games2);
         log.info("pRatioMax({}): {}", epoch, pRatioMax);
     }
@@ -229,7 +229,6 @@ public class MuZero {
         games.stream().forEach(game -> game.setPRatioMax(pRatioMax));
         return pRatioMax;
     }
-
 
 
     private void handleMetrics(Trainer trainer, Model model, int epoch) {
@@ -245,57 +244,58 @@ public class MuZero {
         // mean value
         // loss
         double meanValueLoss = metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         gameBuffer.putMeanValueLoss(epoch, meanValueLoss);
         meanValueLoss += metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
-        model.setProperty( "MeanValueLoss", Double.toString(meanValueLoss));
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+        model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
         log.info("MeanValueLoss: " + meanValueLoss);
 
 
         // mean similarity
         // loss
         double meanSimLoss = metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         gameBuffer.putMeanValueLoss(epoch, meanSimLoss);
         meanSimLoss += metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
-        model.setProperty( "MeanSimilarityLoss", Double.toString(meanSimLoss));
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+        model.setProperty("MeanSimilarityLoss", Double.toString(meanSimLoss));
         log.info("MeanSimilarityLoss: " + meanSimLoss);
 
         // mean policy loss
         double meanPolicyLoss = metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         meanPolicyLoss += metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
-        model.setProperty(  "MeanPolicyLoss", Double.toString(meanPolicyLoss));
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+        model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
     }
 
-    void playGamesOld(boolean render,   int trainingStep) {
+    void playGamesOld(boolean render, int trainingStep) {
         //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
-            log.info("last training step = {}", trainingStep);
-            log.info("numSimulations: " + config.getNumSimulations());
+        log.info("last training step = {}", trainingStep);
+        log.info("numSimulations: " + config.getNumSimulations());
 
-            boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
+        boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
 
-            selfPlay.playMultipleEpisodes(  render, false, justInitialInferencePolicy);
+        selfPlay.playMultipleEpisodes(render, false, justInitialInferencePolicy);
 
-       // }
+        // }
     }
+
     void playGames(boolean render, int trainingStep) {
         //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
         log.info("last training step = {}", trainingStep);
@@ -308,57 +308,7 @@ public class MuZero {
 
         // }
     }
-    @SuppressWarnings("java:S106")
-    public void trainNew(TrainParams params) throws InterruptedException, ExecutionException {
 
-        int trainingStep = 0;
-        int epoch = 0;
-
-        List<DurAndMem> durations = new ArrayList<>();
-
-        loadBuffer(params.freshBuffer);
-        initialFillingBuffer();
-
-        modelService.loadLatestModelOrCreateIfNotExisting().get();
-        epoch = modelState.getEpoch();
-        int epochStart = epoch;
-
-        while (trainingStep < config.getNumberOfTrainingSteps() &&
-                (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
-
-            DurAndMem duration = new DurAndMem();
-            duration.on();
-
-            if (!params.freshBuffer) {
-                if (epoch != 0) {
-                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                        config.setPlayTypeKey(key);
-                        playGames(params.render, trainingStep);
-                    }
-                    config.setPlayTypeKey(originalPlayTypeKey);
-                }
-
-                log.info("counter: " + gameBuffer.getBuffer().getCounter());
-                log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-
-                log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
-            }
-
-            modelService.trainModel().get();
-
-            epoch = modelState.getEpoch();
-
-            trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
-
-            duration.off();
-            durations.add(duration);
-            System.out.println("epoch;duration[ms];gpuMem[MiB]");
-            IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
-        }
-
-    }
 
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
@@ -377,153 +327,44 @@ public class MuZero {
         int epochStart = epoch;
 
 
+        while (trainingStep < config.getNumberOfTrainingSteps() &&
+                (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
 
-//        try (NDScope nDScope0 = new NDScope()) {
-//            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-//
-//                Network network = new Network(config, model);
-//                createNetworkModelIfNotExisting();
+            DurAndMem duration = new DurAndMem();
+            duration.on();
+            int i = 0;
 
-            //    epoch = NetworkHelper.getEpochFromModel(model);
-             ///   int epochStart = epoch;
-
-                while (trainingStep < config.getNumberOfTrainingSteps() &&
-                        (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
-
-                    DurAndMem duration = new DurAndMem();
-                    duration.on();
-                    int i = 0;
-
-                    if (!params.freshBuffer) {
-                        try (NDScope nDScope1 = new NDScope()) {
-                            PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                            for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                                config.setPlayTypeKey(key);
-                                playGamesOld(params.render,  trainingStep);
-                            }
-                            config.setPlayTypeKey(originalPlayTypeKey);
-                        }
-
-                        int n = gameBuffer.getBuffer().getGames().size();
-                        int m = (int) gameBuffer.getBuffer().getGames().stream().filter(g ->
-                                g.getGameDTO().getTStateB() != 0
-                        ).count();
-                        log.info("games with an alternative action " + m + " out of " + n);
-                        log.info("counter: " + gameBuffer.getBuffer().getCounter());
-                        log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-
-
-                        log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
-                    }
-                   // params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-//                    try (NDScope nDScope1 = new NDScope()) {
-//                        trainingStep = trainNetwork(model);
-//                    }
-                    //  modelService.trainModel().get();
-
-
-
-                    modelService.trainModel().get();
-
-                    epoch = modelState.getEpoch();
-
-                    trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
-
-                    duration.off();
-                    durations.add(duration);
-                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+            if (!params.freshBuffer) {
+                //   try (NDScope nDScope1 = new NDScope()) {
+                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                    config.setPlayTypeKey(key);
+                    playGamesOld(params.render, trainingStep);
                 }
-//            }
-//        }
+                config.setPlayTypeKey(originalPlayTypeKey);
+                //    }
+
+                log.info("counter: " + gameBuffer.getBuffer().getCounter());
+                log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
+
+                log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+            }
+
+            modelService.trainModel().get();
+
+            epoch = modelState.getEpoch();
+
+            trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+
+            duration.off();
+            durations.add(duration);
+            System.out.println("epoch;duration[ms];gpuMem[MiB]");
+            IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+        }
+
 
     }
 
-
-    @SuppressWarnings("java:S106")
-    public void trainOld(TrainParams params) throws InterruptedException, ExecutionException {
-
-        int trainingStep = 0;
-        int epoch = 0;
-
-        List<DurAndMem> durations = new ArrayList<>();
-
-        loadBuffer(params.freshBuffer);
-
-        try (NDScope nDScope0 = new NDScope()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                Network network = new Network(config, model);
-                if (!params.withoutFill) {
-                    initialFillingBuffer(network);
-                }
-            }
-        }
-        try (NDScope nDScope0 = new NDScope()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                createNetworkModelIfNotExisting();
-            }
-        }
-
-        try (NDScope nDScope0 = new NDScope()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-
-                Network network = new Network(config, model);
-                createNetworkModelIfNotExisting();
-
-                epoch = NetworkHelper.getEpochFromModel(model);
-                int epochStart = epoch;
-
-                while (trainingStep < config.getNumberOfTrainingSteps() &&
-                        (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
-
-                    DurAndMem duration = new DurAndMem();
-                    duration.on();
-                    int i = 0;
-
-                    if (!params.freshBuffer) {
-                        try (NDScope nDScope1 = new NDScope()) {
-                            PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                            for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                                config.setPlayTypeKey(key);
-                                playGamesOld(params.render, trainingStep);
-                            }
-                            config.setPlayTypeKey(originalPlayTypeKey);
-                        }
-
-                        int n = gameBuffer.getBuffer().getGames().size();
-                        int m = (int) gameBuffer.getBuffer().getGames().stream().filter(g ->
-                                g.getGameDTO().getTStateB() != 0
-                        ).count();
-                        log.info("games with an alternative action " + m + " out of " + n);
-                        log.info("counter: " + gameBuffer.getBuffer().getCounter());
-                        log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-
-
-                        log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
-                    }
-                    params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-                    try (NDScope nDScope1 = new NDScope()) {
-                       // trainingStep = trainNetwork(model);
-                    }
-                    //  modelService.trainModel().get();
-
-
-
-                    if (i % 5 == 0) {
-                        params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
-                    }
-                    i++;
-                    duration.off();
-                    durations.add(duration);
-                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
-
-                    epoch = NetworkHelper.getEpochFromModel(model);
-                }
-            }
-        }
-    }
 
     public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         List<Game> games = new ArrayList<>();
@@ -533,17 +374,17 @@ public class MuZero {
         }
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             games = multiGameStarter.reanalyseGames(config.getNumParallelGamesPlayed(),
-                PlayParameters.builder()
-                    .render(render)
-                    .fastRulesLearning(fastRuleLearning)
-                    .build(),
-                gamesToReanalyse);
+                    PlayParameters.builder()
+                            .render(render)
+                            .fastRulesLearning(fastRuleLearning)
+                            .build(),
+                    gamesToReanalyse);
         } else {
             games = multiGameStarter.playNewGames(config.getNumParallelGamesPlayed(),
-                PlayParameters.builder()
-                    .render(render)
-                    .fastRulesLearning(fastRuleLearning)
-                    .build());
+                    PlayParameters.builder()
+                            .render(render)
+                            .fastRulesLearning(fastRuleLearning)
+                            .build());
         }
 
         log.info("Played {} games parallel", games.size());
