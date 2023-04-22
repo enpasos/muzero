@@ -253,11 +253,11 @@ public class SelfPlay {
         List<Game> gamesToApplyAction = new ArrayList<>(this.gameList);
         gamesToApplyAction.forEach(game -> game.setActionApplied(false));
 
-        boolean ok = true;
+        boolean ok = false;
 
         if (!ok) {
             gamesToApplyAction.parallelStream().forEach(
-                    game -> playAction.playAction(game, false, fastRuleLearning, justInitialInferencePolicy, pRandomActionRawAverage, true)
+                    game -> playAction.playAction2(game, false, fastRuleLearning, justInitialInferencePolicy, pRandomActionRawAverage, true, replay,  withRandomness)
             );
             gamesToApplyAction.forEach(game -> game.setActionApplied(true));
         } else {

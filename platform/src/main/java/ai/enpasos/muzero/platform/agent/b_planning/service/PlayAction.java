@@ -15,9 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.sigmas;
@@ -61,6 +64,129 @@ public class PlayAction {
 
         }
 
+
+    }
+
+
+    private boolean shortCutForGameWithoutAnOption(Game game, boolean render, boolean fastRuleLearning,   boolean replay) {
+
+        if ( game.legalActions().size() != 1) return false;
+
+         NetworkIO  networkOutput = null;
+        if (!fastRuleLearning) {
+            try {
+                networkOutput = modelService.initialInference(game).get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+        Action action = game.legalActions().get(0);
+        //   if (!replay) {
+        game.apply(action);
+        // }
+
+
+        float value = 0f;
+        if (!fastRuleLearning) {
+            value = (float) networkOutput.getValue();
+        }
+
+        game.getGameDTO().getRootValueTargets().add(value);
+
+        float[] policyTarget = new float[config.getActionSpaceSize()];
+        policyTarget[action.getIndex()] = 1f;
+        game.getGameDTO().getPolicyTargets().add(policyTarget);
+        if (!replay) {
+            game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+        }
+        if (render && game.isDebug()) {
+            game.renderMCTSSuggestion(config, policyTarget);
+            log.info("\n" + game.render());
+        }
+        game.setActionApplied(true);
+        return true;
+    }
+
+
+    public void playAction2(
+            Game game,
+            boolean render,
+            boolean fastRuleLearning,
+            boolean justInitialInferencePolicy,
+            double pRandomActionRawAverage,
+            boolean drawNotMaxWhenJustWithInitialInference,
+            boolean replay,
+            boolean withRandomness
+    ) {
+        NetworkIO networkOutput = null;
+        if (!fastRuleLearning) {
+             networkOutput = modelService.initialInference(game).join();
+        }
+        NetworkIO networkOutputFinal = networkOutput;
+        storeEntropyInfo(game, networkOutputFinal);
+//        if (justInitialInferencePolicy) {
+//            playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
+//            return;
+//        }
+        if (!fastRuleLearning) {
+            double value = networkOutputFinal.getValue();
+            game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+        }
+        if (!replay) {
+            boolean[] legalActions = new boolean[config.getActionSpaceSize()];
+            for (Action action : game.legalActions()) {
+                legalActions[action.getIndex()] = true;
+            }
+            game.getGameDTO().getLegalActions().add(legalActions);
+        }
+       if (shortCutForGameWithoutAnOption(game, render, fastRuleLearning, replay)) return;
+
+        game.initSearchManager(pRandomActionRawAverage);
+         GumbelSearch sm = game.getSearchManager();
+
+        sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null :  networkOutput );
+        if (!fastRuleLearning) sm.addExplorationNoise();
+        sm.gumbelActionsStart(withRandomness);
+        sm.drawCandidateAndAddValueStart();
+
+            if (!fastRuleLearning && !sm.isSimulationsFinished()) {
+                do {
+                     List<Node> searchPath =  sm.search();
+
+                       //     searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());#
+
+                //    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
+                 //   if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
+                    //       List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
+                    //NetworkIO networkOutput = null;
+                    try {
+                        networkOutput  = modelService.recurrentInference(searchPath).get();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+                  //  if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
+                   // List<NetworkIO> networkOutputListFinal = networkOutputList;
+                  //  IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
+                  //      GumbelSearch sm = searchManagersLocal.get(i);
+                        sm.expandAndBackpropagate(networkOutput);
+                        sm.next();
+                        sm.drawCandidateAndAddValue();
+                  //  });
+                    // if there is an equal number of simulations in each game
+                    // the loop can be replaced by an explicit loop over the number of simulations
+                    // if the simulations are different per game the loop needs to be adjust
+                    // as the simulations would go on even for the game where simulation is over
+                } while (!sm.isSimulationsFinished());
+            }
+            sm.storeSearchStatictics(render, fastRuleLearning);
+            Action action = sm.selectAction(fastRuleLearning, replay);
+            sm.applyAction(render, action);
 
     }
 
@@ -188,6 +314,8 @@ public class PlayAction {
             game.getGameDTO().getEntropies().add((float) entropy(toDouble(ps)));
         }
     }
+
+
 
 
     @SuppressWarnings({"squid:S3740", "unchecked"})
