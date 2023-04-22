@@ -159,7 +159,7 @@ public class MuZero {
     }
 
     @SuppressWarnings("java:S106")
-    public void train(TrainParams params) throws InterruptedException, ExecutionException {
+    public void trainOld(TrainParams params) throws InterruptedException, ExecutionException {
 
         int trainingStep = 0;
         int epoch = 0;
@@ -220,10 +220,10 @@ public class MuZero {
                         log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
                     }
                     params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-//                    try (NDScope nDScope1 = new NDScope()) {
-//                        trainingStep = trainNetwork(model);
-//                    }
-                    modelService.trainModel().get();
+                    try (NDScope nDScope1 = new NDScope()) {
+                        trainingStep = trainNetwork(model);
+                    }
+                  //  modelService.trainModel().get();
 
 
 
@@ -393,7 +393,7 @@ public class MuZero {
         // }
     }
     @SuppressWarnings("java:S106")
-    public void trainNew(TrainParams params) throws InterruptedException, ExecutionException {
+    public void train(TrainParams params) throws InterruptedException, ExecutionException {
 
         int trainingStep = 0;
         int epoch = 0;
