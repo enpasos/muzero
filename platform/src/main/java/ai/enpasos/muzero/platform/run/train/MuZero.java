@@ -94,7 +94,7 @@ public class MuZero {
         int windowSize = config.getWindowSize();
         while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            playMultipleEpisodes(false, true, false);
+             playMultipleEpisodes(false, true, false);
 
 
         }
@@ -145,17 +145,13 @@ public class MuZero {
     }
 
     public void deleteNetworksAndGames() {
-        try {
-            FileUtils.forceDelete(new File(config.getOutputDir()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            FileUtils.forceMkdir(new File(config.getNetworkBaseDir()));
-            FileUtils.forceMkdir(new File(config.getGamesBasedir()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+            FileUtils2.rmDir(config.getOutputDir());
+
+
+            FileUtils2.mkDir( config.getNetworkBaseDir());
+            FileUtils2.mkDir( config.getGamesBasedir());
+
     }
 
 
@@ -284,35 +280,22 @@ public class MuZero {
     }
 
     void playGamesOld(boolean render, int trainingStep) {
-        //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());
-
         boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
-
-
         selfPlay.playMultipleEpisodes(render, false, justInitialInferencePolicy);
-
-        // }
-    }
+     }
 
     void playGames(boolean render, int trainingStep) {
-        //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());
-        // network.debugDump();
         boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
-
-
         playMultipleEpisodes(render, false, justInitialInferencePolicy);
-
-        // }
     }
 
 
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
-
 
         int trainingStep = 0;
         int epoch = 0;
@@ -326,13 +309,11 @@ public class MuZero {
         epoch = modelState.getEpoch();
         int epochStart = epoch;
 
-
         while (trainingStep < config.getNumberOfTrainingSteps() &&
-                (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
+            (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
 
             DurAndMem duration = new DurAndMem();
             duration.on();
-            int i = 0;
 
             if (!params.freshBuffer) {
                 //   try (NDScope nDScope1 = new NDScope()) {
@@ -360,10 +341,13 @@ public class MuZero {
             durations.add(duration);
             System.out.println("epoch;duration[ms];gpuMem[MiB]");
             IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
         }
 
-
     }
+
+
+
 
 
     public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
@@ -374,17 +358,17 @@ public class MuZero {
         }
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             games = multiGameStarter.reanalyseGames(config.getNumParallelGamesPlayed(),
-                    PlayParameters.builder()
-                            .render(render)
-                            .fastRulesLearning(fastRuleLearning)
-                            .build(),
-                    gamesToReanalyse);
+                PlayParameters.builder()
+                    .render(render)
+                    .fastRulesLearning(fastRuleLearning)
+                    .build(),
+                gamesToReanalyse);
         } else {
             games = multiGameStarter.playNewGames(config.getNumParallelGamesPlayed(),
-                    PlayParameters.builder()
-                            .render(render)
-                            .fastRulesLearning(fastRuleLearning)
-                            .build());
+                PlayParameters.builder()
+                    .render(render)
+                    .fastRulesLearning(fastRuleLearning)
+                    .build());
         }
 
         log.info("Played {} games parallel", games.size());

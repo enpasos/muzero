@@ -585,14 +585,37 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
+//    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+//        List<Game> games = new ArrayList<>();
+//        List<Game> gamesToReanalyse = null;
+//        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+//            gamesToReanalyse = gameBuffer.getGamesToReanalyse();
+//        }
+//        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+//            games = multiGameStarter.reanalyseGames(config.getNumParallelGamesPlayed(),
+//                    PlayParameters.builder()
+//                            .render(render)
+//                            .fastRulesLearning(fastRuleLearning)
+//                            .build(),
+//                    gamesToReanalyse);
+//        } else {
+//            games = multiGameStarter.playNewGames(config.getNumParallelGamesPlayed(),
+//                    PlayParameters.builder()
+//                            .render(render)
+//                            .fastRulesLearning(fastRuleLearning)
+//                            .build());
+//        }
+//
+//        log.info("Played {} games parallel", games.size());
+//
+//        gameBuffer.addGames2(games, false);
+//    }
+
     public void playMultipleEpisodes(  boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         List<Game> games = new ArrayList<>();
         List<Game>  gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
              gamesToReanalyse = gameBuffer.getGamesToReanalyse();
-             if (gamesToReanalyse.size() > 0) {
-                 int i = 42;
-             }
         }
         for (int i = 0; i < config.getNumEpisodes(); i++) {
             List<Game> gamesPart = null;
