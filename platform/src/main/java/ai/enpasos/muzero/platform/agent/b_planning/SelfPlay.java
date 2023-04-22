@@ -624,8 +624,6 @@ public class SelfPlay {
             } else {
                 gamesPart = playGame( render, fastRuleLearning, justInitialInferencePolicy);
             }
-
-        //    log.info("Played {} games parallel, round {}", gamesPart.size(), i);
             games.addAll(gamesPart);
         }
         gameBuffer.addGames2( games, false);
