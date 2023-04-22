@@ -41,7 +41,16 @@ public class SelfPlayGame {
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
-                Action action = playAction.planAction(game, render, fastRulesLearning, justInitialInferencePolicy, playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
+                Action action = playAction.planAction(
+                        game,
+                        render,
+                        fastRulesLearning,
+                        justInitialInferencePolicy,
+                        playParameters.getPRandomActionRawAverage(),
+                        playParameters.isDrawNotMaxWhenJustWithInitialInference(),   // check parameter isDrawNotMaxWhenJustWithInitialInference()
+                        playParameters.replay,
+                        playParameters.withRandomActions);   // check parameter withRandomActions
+             //   Action action = playAction.planActionOld(game, render, fastRulesLearning, justInitialInferencePolicy, playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
                 if (playParameters.isReplay()) {
                     game.pseudoApplyFromOriginalGame(action);
                 } else {

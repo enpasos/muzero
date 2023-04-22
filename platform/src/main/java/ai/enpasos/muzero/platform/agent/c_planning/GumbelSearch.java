@@ -417,6 +417,11 @@ public class GumbelSearch {
         drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
     }
 
+    public void drawCandidateAndAddValueStart() {
+        List<Float> vs = new ArrayList<>();
+        float v = (float) this.root.getValueFromInference();
+        vs.add(v);
+    }
 
     public void addExplorationNoise() {
         root.addExplorationNoise(config);
