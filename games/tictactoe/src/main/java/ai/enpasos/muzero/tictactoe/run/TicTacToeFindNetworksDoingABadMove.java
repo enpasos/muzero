@@ -51,9 +51,9 @@ public class TicTacToeFindNetworksDoingABadMove {
         config.setPlayTypeKey(PLAYOUT);
 
         int start = 1;
-        int stop = 1;   //1230;
+        int stop = 26;   //1230;
         //config.setOutputDir("./memory/tictactoe-without-exploration/");
-        config.setOutputDir("./memory/tictactoe/");
+   //     config.setOutputDir("./memory/tictactoe/");
 
 
 //        int start = 1;

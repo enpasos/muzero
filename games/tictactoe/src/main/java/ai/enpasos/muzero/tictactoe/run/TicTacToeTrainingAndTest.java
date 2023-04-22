@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+import static ai.enpasos.muzero.platform.common.FileUtils2.rmDir;
 
 
 @Slf4j
@@ -33,11 +33,14 @@ public class TicTacToeTrainingAndTest {
         if (startFromScratch) {
             rmDir(config.getOutputDir());
         }
-
-        muZero.train(TrainParams.builder()
-            .render(true)
-            .withoutFill(!startFromScratch)
-            .build());
+        try {
+            muZero.train(TrainParams.builder()
+                .render(true)
+                .withoutFill(!startFromScratch)
+                .build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         boolean passed = ticTacToeTest.findBadDecisions() == 0;
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");

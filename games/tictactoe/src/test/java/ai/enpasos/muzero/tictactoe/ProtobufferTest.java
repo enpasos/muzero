@@ -2,10 +2,11 @@ package ai.enpasos.muzero.tictactoe;
 
 import ai.djl.Device;
 import ai.djl.Model;
+import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.b_planning.SelfPlay;
 import ai.enpasos.muzero.platform.config.FileType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
@@ -36,8 +37,9 @@ class ProtobufferTest {
     @Autowired
     MuZero muZero;
 
+
     @Autowired
-    SelfPlay selfPlay;
+    PlayService playService;
 
     @Test
     void writeAndReadZippedJsonTest() {
@@ -56,7 +58,13 @@ class ProtobufferTest {
         muZero.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
-            List<Game> games = selfPlay.playGame( network, false, true, false);
+            List<Game> games =   playService.playNewGames( 1,
+                PlayParameters.builder()
+                    .render(false)
+                    .fastRulesLearning(true)
+                    .justInitialInferencePolicy(false)
+                    .build());
+           // List<Game> games = selfPlay.playGame( network, false, true, false);
             gameBuffer.init();
 
             gameBuffer.getGameBufferIO().saveGames(games, network.getModel().getName(), config);

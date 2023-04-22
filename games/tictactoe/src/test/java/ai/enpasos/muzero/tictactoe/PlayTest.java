@@ -1,15 +1,15 @@
 package ai.enpasos.muzero.tictactoe;
 
+import ai.enpasos.muzero.platform.agent.b_planning.Node;
+import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
+import ai.enpasos.muzero.platform.agent.b_planning.service.SelfPlayGame;
 import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.c_model.djl.NetworkHelper;
-import ai.enpasos.muzero.platform.agent.d_experience.Game;
-import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.b_planning.Node;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelQueue;
 import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
-import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
-import ai.enpasos.muzero.platform.agent.b_planning.PlayParameters;
-import ai.enpasos.muzero.platform.agent.b_planning.service.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.d_experience.Game;
+import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.train.MuZero;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
 @Slf4j
-class InferenceTest {
+class PlayTest {
 
     @Autowired
     PlayService multiGameStarter;
@@ -69,30 +69,34 @@ class InferenceTest {
 
 
 
-
-
+    @Test
+    void testMultiGameStarter_Basic() throws ExecutionException, InterruptedException {
+        init();
+         int n = 1000;
+            List<Game> games = multiGameStarter.playNewGames( n,
+                PlayParameters.builder()
+                    .render(false)
+                    .build());
+            assertEquals(n, games.size());
+            assertTrue(inferenceQueue.getInitialInferenceTasks().isEmpty());
+     }
 
     @Test
-    void testInference() throws ExecutionException, InterruptedException {
-
+    void testMultiGameStarter_FastRule() throws ExecutionException, InterruptedException {
         init();
-        Game game = config.newGame();
-            NetworkIO networkIO = modelService.initialInference(game).get();
-            Node node = Node.builder()
-                .hiddenState(networkIO.getHiddenState())
-                .build();
-            Node node2 = Node.builder()
-                .action(config.newAction(4))
-                .build();
-            NetworkIO networkIO2 = modelService.recurrentInference(List.of(node, node2)).get();
-
-            assertNotNull(networkIO.getHiddenState());
-            assertNotNull(networkIO2.getHiddenState());
-
+        int n = 1000;
+        List<Game> games = multiGameStarter.playNewGames( n,
+            PlayParameters.builder()
+                .render(false)
+                .fastRulesLearning(true)
+                .build());
+        assertEquals(n, games.size());
+        assertTrue(inferenceQueue.getInitialInferenceTasks().isEmpty());
     }
 
     private void init() throws InterruptedException, ExecutionException {
         config.setOutputDir("./build/tictactoeTest/");
+
         rmDir(config.getOutputDir());
         modelService.loadLatestModelOrCreateIfNotExisting().get();
     }

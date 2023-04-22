@@ -9,6 +9,7 @@ import ai.enpasos.muzero.go.run.GoRenderGame;
 import ai.enpasos.muzero.go.run.GoStartValueExtractor;
 import ai.enpasos.muzero.go.run.GoTrainingAndTest;
 import ai.enpasos.muzero.go.run.GoValueExtractor;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,12 +57,15 @@ public class Go implements CommandLineRunner {
     @Autowired
     private GoOnnx onnx;
 
+    @Autowired
+    private ModelService modelService;
+
 
     @Autowired
     private GoElo elo;
 
     public static void main(String[] args) {
-        SpringApplication.run(Go.class, args);
+        SpringApplication.run(Go.class, args).close();
     }
 
 
@@ -98,10 +102,10 @@ public class Go implements CommandLineRunner {
             case ELO:
                 elo.run();
                 break;
-
-
             case NONE:
+                return;
             default:
         }
+        modelService.shutdown();
     }
 }

@@ -21,7 +21,7 @@ public class GoOnnx {
 
     public void run() {
 
-        config.setNetworkBaseDir("./memory/go5 - Kopie (2)/networks");
+       // config.setNetworkBaseDir("./memory/go5 - Kopie (2)/networks");
         int epoch = 685;
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();

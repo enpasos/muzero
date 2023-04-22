@@ -125,6 +125,9 @@ muzero:
 #          # dirichlet noise is added before mcts
 #          rootDirichletAlpha: 1.2
 #          rootExplorationFraction: 0.25  # 0.0 means switched off
+#
+
+
         BEST_EFFORT:
           forTraining: true
           numEpisodes: 1
