@@ -424,11 +424,11 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGames(boolean replay) {
-        gameList.forEach(game -> game.setDone(
-            !replay && game.terminal()
-                || !replay && game.getGameDTO().getActions().size() >= config.getMaxMoves()
-                || replay && game.getOriginalGameDTO().getActions().size() == game.getGameDTO().getActions().size()
-        ));
+//        gameList.forEach(game -> game.setDone(
+//            !replay && game.terminal()
+//                || !replay && game.getGameDTO().getActions().size() >= config.getMaxMoves()
+//                || replay && game.getOriginalGameDTO().getActions().size() == game.getGameDTO().getActions().size()
+//        ));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
@@ -437,7 +437,7 @@ public class SelfPlay {
     }
 
     private void keepTrackOfOpenGamesReplay() {
-        gameList.forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
+    //    gameList.forEach(game -> game.setDone(game.getGameDTO().getActions().size() == game.getOriginalGameDTO().getActions().size()));
         List<Game> newGameDoneList = gameList.stream()
             .filter(Game::isDone)
             .collect(Collectors.toList());
