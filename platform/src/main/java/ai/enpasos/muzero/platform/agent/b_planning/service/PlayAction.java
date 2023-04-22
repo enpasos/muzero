@@ -94,27 +94,21 @@ public class PlayAction {
                 log.info("\n" + game.render());
             }
             game.setActionApplied(true);
-
         } else {
             game.initSearchManager(pRandomActionRawAverage);
             GumbelSearch sm = game.getSearchManager();
             search(game, sm, fastRuleLearning, justInitialInferencePolicy, render);
-
             if (!justInitialInferencePolicy) {
                 sm.storeSearchStatictics(render, fastRuleLearning);
             }
-
             boolean replay = false;
             action = selectAction(game, sm, fastRuleLearning, justInitialInferencePolicy, drawNotMaxWhenJustWithInitialInference, render, replay);// sm.selectAction( fastRuleLearning, replay);
-
         }
         applyAction(render, action, game, game.isDebug(), config);
-
         GameDTO dto = game.getGameDTO();
         if (dto.getPlayoutPolicy().size() < dto.getPolicyTargets().size()) {
             dto.getPlayoutPolicy().add( dto.getPolicyTargets().get( dto.getPolicyTargets().size() - 1));
         }
-
     }
 
     public static void applyAction(boolean render, Action action, Game game, boolean debug, MuZeroConfig config) {
@@ -138,21 +132,10 @@ public class PlayAction {
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
-       //     game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
             value =  Objects.requireNonNull(networkOutput).getValue();
-            //game.getGameDTO().getRootValueTargets().add((float)value);
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         }
-
         storeEntropyInfo(game, networkOutput);
-
-
-//        if (!fastRuleLearning) {
-//            calculateSurprise(value, game, config);
-//        }
-
-
-
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
             expandRootNodeAfterJustWithInitialInference(sm, fastRuleLearning, game, networkOutput);
         } else {
@@ -164,8 +147,6 @@ public class PlayAction {
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
             return;
         }
-
-
         if (!fastRuleLearning) sm.addExplorationNoise();
         sm.gumbelActionsStart(withRandomness);
         sm.drawCandidateAndAddValueStart();
@@ -179,8 +160,9 @@ public class PlayAction {
                 sm.drawCandidateAndAddValue();
             } while (!sm.isSimulationsFinished());
         }
-
     }
+
+
 
 
     public Action selectAction(Game game, GumbelSearch sm,  boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean drawNotMaxWhenJustWithInitialInference, boolean render, boolean replay) {

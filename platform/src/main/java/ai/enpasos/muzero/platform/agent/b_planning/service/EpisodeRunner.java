@@ -28,7 +28,6 @@ public class EpisodeRunner {
         log.trace("playGame");
         selfPlayer.play(game, playParameters);
         return CompletableFuture.completedFuture(game);
-
     }
 
 }

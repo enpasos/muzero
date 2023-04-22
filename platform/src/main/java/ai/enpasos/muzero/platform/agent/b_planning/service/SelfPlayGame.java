@@ -32,10 +32,7 @@ public class SelfPlayGame {
         boolean fastRulesLearning = playParameters.isFastRulesLearning();
         boolean untilEnd = playParameters.isUntilEnd();
         boolean justInitialInferencePolicy = playParameters.isJustInitialInferencePolicy();
-
         game.getGameDTO().setTdSteps(config.getTdSteps());
-
-
         int count = 1;
         while ( (!untilEnd && count == 1) || (untilEnd && !game.isDone()) ) {
             if (playParameters.isJustReplayWithInitialReference()) {
@@ -45,11 +42,9 @@ public class SelfPlayGame {
             }
             count++;
         }
-
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);
         }
-
     }
 
 
