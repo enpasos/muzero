@@ -21,14 +21,19 @@ package ai.enpasos.muzero.platform.agent.d_experience;
 import ai.djl.Device;
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
+import ai.enpasos.muzero.platform.agent.c_model.ModelState;
 import ai.djl.util.Utils;
 import ai.enpasos.muzero.platform.agent.c_model.Observation;
 import ai.enpasos.muzero.platform.agent.c_model.Sample;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -57,12 +63,17 @@ public class GameBuffer {
 
     public static final String EPOCH_STR = "Epoch";
     String modelName;
+
+    @Autowired
+    private ModelState modelState;
+
     int epoch;
     private int batchSize;
     private GameBufferDTO buffer;
     private GameBufferDTO replayBuffer;
     @Autowired
     private MuZeroConfig config;
+
     @Autowired
     private GameBufferIO gameBufferIO;
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
@@ -327,8 +338,37 @@ public class GameBuffer {
     public double getPRandomActionRawAverage() {
         double sum = this.getBuffer().games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
         long count = this.getBuffer().games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
+        if (count == 0) return 1;
         return sum / count;
     }
+
+    public void addGames2(List<Game> games, boolean atBeginning) {
+
+        games.forEach(game -> addGameAndRemoveOldGameIfNecessary2(game, atBeginning));
+        if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            // do nothing more
+        } else {
+            this.timestamps.put(games.get(0).getGameDTO().getTrainingEpoch(), System.currentTimeMillis());
+            logEntropyInfo();
+            //  String currentNetworkNameWithEpoch = this.getCurrentNetworkNameWithEpoch();
+            int epoch = this.getModelState().getEpoch();
+            if (epoch != 0) {
+                int j = 42;
+            }
+            this.gameBufferIO.saveGames(
+                    this.getBuffer().games.stream()
+                            .filter(g -> g.getGameDTO().getTrainingEpoch() == epoch)
+                            .filter(g -> g.getPlayTypeKey() != PlayTypeKey.REANALYSE)
+                            .collect(Collectors.toList()),
+                    this.getModelState().getCurrentNetworkNameWithEpoch(), this.getConfig());
+        }
+
+    }
+
+    private void addGameAndRemoveOldGameIfNecessary2(Game game, boolean atBeginning) {
+        addGameAndRemoveOldGameIfNecessary2(game, atBeginning, this.getModelState().getCurrentNetworkNameWithEpoch());
+    }
+
 
     public void addGames(Model model, List<Game> games, boolean atBeginning) {
 
@@ -346,6 +386,14 @@ public class GameBuffer {
                 this.getCurrentNetworkName(), this.getConfig());
         }
 
+    }
+
+    private void addGameAndRemoveOldGameIfNecessary2(Game game, boolean atBeginning, String networkName) {
+        //game.getGameDTO().setTrainingEpoch(epoch);
+        memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
+        game.getGameDTO().setNetworkName(networkName);
+        game.getGameDTO().setTrainingEpoch(this.getModelState().getEpoch());
+        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
     }
 
     private void addGameAndRemoveOldGameIfNecessary(Model model, Game game, boolean atBeginning) {

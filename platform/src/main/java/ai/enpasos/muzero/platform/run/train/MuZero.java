@@ -27,6 +27,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
+import ai.enpasos.muzero.platform.agent.b_planning.service.PlayService;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.c_model.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.c_model.djl.MyEpochTrainingListener;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ai.enpasos.muzero.platform.common.FileUtils2;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +64,7 @@ public class MuZero {
     @Autowired
     MuZeroConfig config;
 
+
     @Autowired
     SelfPlay selfPlay;
 
@@ -72,6 +75,8 @@ public class MuZero {
     @Autowired
     NetworkHelper networkHelper;
 
+    @Autowired
+    PlayService multiGameStarter;
 
 
     public void initialFillingBuffer(Network network) {

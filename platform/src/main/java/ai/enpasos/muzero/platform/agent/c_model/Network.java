@@ -203,7 +203,7 @@ public class Network {
 
     }
 
-    public @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
+    private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();
         NDArray hiddenState = NDArrays.stack(new NDList(hiddenStateList));
         networkIO.setHiddenState(hiddenState);
@@ -247,5 +247,8 @@ public class Network {
         }).collect(Collectors.toList());
         return recurrentInferenceListDirect(hiddenStateList, actionList);
     }
+
+
+
 
 }
