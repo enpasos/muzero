@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.add;
 import static ai.enpasos.muzero.platform.agent.b_planning.GumbelFunctions.sigmas;
 //import static ai.enpasos.muzero.platform.agent.rational.SelfPlay.calculateSurprise;
+import static ai.enpasos.muzero.platform.agent.b_planning.SelfPlay.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @Component
@@ -68,11 +69,11 @@ public class PlayAction {
     }
 
 
-    private boolean shortCutForGameWithoutAnOption(Game game, boolean render, boolean fastRuleLearning,   boolean replay) {
+    private boolean shortCutForGameWithoutAnOption(Game game, boolean render, boolean fastRuleLearning, boolean replay) {
 
-        if ( game.legalActions().size() != 1) return false;
+        if (game.legalActions().size() != 1) return false;
 
-         NetworkIO  networkOutput = null;
+        NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             try {
                 networkOutput = modelService.initialInference(game).get();
@@ -124,16 +125,15 @@ public class PlayAction {
     ) {
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
-             networkOutput = modelService.initialInference(game).join();
+            networkOutput = modelService.initialInference(game).join();
         }
-        NetworkIO networkOutputFinal = networkOutput;
-        storeEntropyInfo(game, networkOutputFinal);
-//        if (justInitialInferencePolicy) {
-//            playAfterJustWithInitialInference(fastRuleLearning, gamesToApplyAction, networkOutputFinal);
-//            return;
-//        }
+        storeEntropyInfo(game, networkOutput );
+        if (justInitialInferencePolicy) {
+            playAfterJustWithInitialInference(fastRuleLearning, game , networkOutput );
+            return;
+        }
         if (!fastRuleLearning) {
-            double value = networkOutputFinal.getValue();
+            double value = networkOutput .getValue();
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         }
         if (!replay) {
@@ -143,71 +143,80 @@ public class PlayAction {
             }
             game.getGameDTO().getLegalActions().add(legalActions);
         }
-       if (shortCutForGameWithoutAnOption(game, render, fastRuleLearning, replay)) return;
+        if (shortCutForGameWithoutAnOption(game, render, fastRuleLearning, replay)) return;
 
         game.initSearchManager(pRandomActionRawAverage);
-         GumbelSearch sm = game.getSearchManager();
+        GumbelSearch sm = game.getSearchManager();
 
-        sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null :  networkOutput );
+        sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutput);
         if (!fastRuleLearning) sm.addExplorationNoise();
         sm.gumbelActionsStart(withRandomness);
         sm.drawCandidateAndAddValueStart();
 
-            if (!fastRuleLearning && !sm.isSimulationsFinished()) {
-                do {
-                     List<Node> searchPath =  sm.search();
-
-                       //     searchManagers.stream().filter(sm -> !sm.isSimulationsFinished()).collect(Collectors.toList());#
-
-                //    IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
-                 //   if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
-                    //       List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
-                    //NetworkIO networkOutput = null;
-                    try {
-                        networkOutput  = modelService.recurrentInference(searchPath).get();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    } catch (ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
-                  //  if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
-                   // List<NetworkIO> networkOutputListFinal = networkOutputList;
-                  //  IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
-                  //      GumbelSearch sm = searchManagersLocal.get(i);
-                        sm.expandAndBackpropagate(networkOutput);
-                        sm.next();
-                        sm.drawCandidateAndAddValue();
-                  //  });
-                    // if there is an equal number of simulations in each game
-                    // the loop can be replaced by an explicit loop over the number of simulations
-                    // if the simulations are different per game the loop needs to be adjust
-                    // as the simulations would go on even for the game where simulation is over
-                } while (!sm.isSimulationsFinished());
-            }
-            sm.storeSearchStatictics(render, fastRuleLearning);
-            Action action = sm.selectAction(fastRuleLearning, replay);
-            sm.applyAction(render, action);
-
+        if (!fastRuleLearning && !sm.isSimulationsFinished()) {
+            do {
+                List<Node> searchPath = sm.search();
+                try {
+                    networkOutput = modelService.recurrentInference(searchPath).get();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+                sm.expandAndBackpropagate(networkOutput);
+                sm.next();
+                sm.drawCandidateAndAddValue();
+            } while (!sm.isSimulationsFinished());
+        }
+        sm.storeSearchStatictics(render, fastRuleLearning);
+        Action action = sm.selectAction(fastRuleLearning, replay);
+        sm.applyAction(render, action);
     }
+
+
+
+    @SuppressWarnings({"squid:S3740", "unchecked"})
+    private void playAfterJustWithInitialInference(boolean fastRuleLearning,  Game game,  NetworkIO  networkOutput ) {
+
+
+        List<Action> legalActions = game.legalActions();
+        Node root = new Node(config, 0, true);
+
+        root.expandRootNode(game.toPlay(), legalActions, networkOutput , fastRuleLearning);
+
+        List<Pair<Action, Double>> distributionInput =
+                root.getChildren().stream().map(node ->
+                        (Pair<Action, Double>) new Pair(node.getAction(), node.getPrior())
+                ).collect(Collectors.toList());
+
+        Action action = selectActionByDrawingFromDistribution(distributionInput);
+
+        game.apply(action);
+        storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
+
+
+      //  keepTrackOfOpenGames(false);
+    }
+
 
     @SuppressWarnings("squid:S3776")
     public void playAction(
-        Game game,
-        boolean render,
-        boolean fastRuleLearning,
-        boolean justInitialInferencePolicy,
-        double pRandomActionRawAverage,
-        boolean drawNotMaxWhenJustWithInitialInference
+            Game game,
+            boolean render,
+            boolean fastRuleLearning,
+            boolean justInitialInferencePolicy,
+            double pRandomActionRawAverage,
+            boolean drawNotMaxWhenJustWithInitialInference
     ) {
         Action action;
         if (game.legalActions().size() == 1) {
             action = game.legalActions().get(game.legalActions().size() - 1);
             if (!fastRuleLearning) {
                 NetworkIO networkOutput = modelService.initialInference(game).join();
-               // game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
-                double value =  Objects.requireNonNull(networkOutput).getValue();
+                // game.getGameDTO().setTrainingEpoch(networkOutput.getEpoch());
+                double value = Objects.requireNonNull(networkOutput).getValue();
                 game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
-                game.getGameDTO().getRootValueTargets().add((float)value);
+                game.getGameDTO().getRootValueTargets().add((float) value);
             }
             float[] policyTarget = new float[config.getActionSpaceSize()];
             policyTarget[action.getIndex()] = 1f;
@@ -233,7 +242,7 @@ public class PlayAction {
         applyAction(render, action, game, game.isDebug(), config);
         GameDTO dto = game.getGameDTO();
         if (dto.getPlayoutPolicy().size() < dto.getPolicyTargets().size()) {
-            dto.getPlayoutPolicy().add( dto.getPolicyTargets().get( dto.getPolicyTargets().size() - 1));
+            dto.getPlayoutPolicy().add(dto.getPolicyTargets().get(dto.getPolicyTargets().size() - 1));
         }
     }
 
@@ -251,6 +260,7 @@ public class PlayAction {
             log.info("\n" + game.render());
         }
     }
+
     public void search(Game game, GumbelSearch sm, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean render) {
         log.trace("search");
         double value = 0;
@@ -258,7 +268,7 @@ public class PlayAction {
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
-            value =  Objects.requireNonNull(networkOutput).getValue();
+            value = Objects.requireNonNull(networkOutput).getValue();
             game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
         }
         storeEntropyInfo(game, networkOutput);
@@ -267,8 +277,8 @@ public class PlayAction {
         } else {
             sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : Objects.requireNonNull(networkOutput));
         }
-        if(!fastRuleLearning && game.isDebug() && render) {
-            game.renderSuggestionFromPriors( config, sm.getRoot());
+        if (!fastRuleLearning && game.isDebug() && render) {
+            game.renderSuggestionFromPriors(config, sm.getRoot());
         }
         if (justInitialInferencePolicy || game.legalActions().size() == 1) {
             return;
@@ -289,21 +299,17 @@ public class PlayAction {
     }
 
 
-
-
-    public Action selectAction(Game game, GumbelSearch sm,  boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean drawNotMaxWhenJustWithInitialInference, boolean render, boolean replay) {
+    public Action selectAction(Game game, GumbelSearch sm, boolean fastRuleLearning, boolean justInitialInferencePolicy, boolean drawNotMaxWhenJustWithInitialInference, boolean render, boolean replay) {
         if (game.legalActions().size() == 1) {
             return game.legalActions().get(0);
         } else if (fastRuleLearning) {
             return sm.getRoot().getRandomAction();
         } else if (justInitialInferencePolicy) {
             return selectActionAfterJustWithInitialInference(sm.getRoot(), drawNotMaxWhenJustWithInitialInference);
-        }
-        else {
-            return sm.selectAction( fastRuleLearning, replay);
+        } else {
+            return sm.selectAction(fastRuleLearning, replay);
         }
     }
-
 
 
     private static void storeEntropyInfo(Game game, NetworkIO networkOutput) {
@@ -314,8 +320,6 @@ public class PlayAction {
             game.getGameDTO().getEntropies().add((float) entropy(toDouble(ps)));
         }
     }
-
-
 
 
     @SuppressWarnings({"squid:S3740", "unchecked"})
@@ -333,18 +337,17 @@ public class PlayAction {
     private Action selectActionAfterJustWithInitialInference(Node root, boolean drawNotMaxWhenJustWithInitialInference) {
 
         List<Pair<Action, Double>> distributionInput =
-            root.getChildren().stream().map(node ->
-                (Pair<Action, Double>) new Pair(node.getAction(), node.getPrior())
-            ).collect(Collectors.toList());
+                root.getChildren().stream().map(node ->
+                        (Pair<Action, Double>) new Pair(node.getAction(), node.getPrior())
+                ).collect(Collectors.toList());
 
         return drawNotMaxWhenJustWithInitialInference ? selectActionByDrawingFromDistribution(distributionInput)
-            : selectActionByMaxFromDistribution(distributionInput);
+                : selectActionByMaxFromDistribution(distributionInput);
 
     }
 
 
     public static void storeSearchResults(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
-
 
 
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
