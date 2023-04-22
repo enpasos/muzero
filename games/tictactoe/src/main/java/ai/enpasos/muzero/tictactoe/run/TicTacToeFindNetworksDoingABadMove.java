@@ -73,7 +73,7 @@ public class TicTacToeFindNetworksDoingABadMove {
 
     private void findNetworkDoingBadAction(List<Integer> startingActions, int nextBadAction, int start, int stop, boolean withMCTS) {
         for (int epoch = start; epoch <= stop; epoch++) {
-            if (nextBadAction == inference.aiDecisionForGame(startingActions, withMCTS, Map.ofEntries(entry("epoch", epoch + "")))) {
+            if (nextBadAction == inference.aiDecisionForGame(startingActions, withMCTS, epoch)) {
                 log.info("epoch with bad action {}, withMCTS {}", epoch, withMCTS);
             }
         }

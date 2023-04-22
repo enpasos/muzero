@@ -68,7 +68,7 @@ public class GoArena {
     }
 
     private void move(List<Game> games, String player) {
-        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Map.ofEntries(entry("epoch", player)));
+        int[] actionsSelectedByAI = inference.aiDecisionForGames(games, true, Integer.parseInt( player));
         for (int g = 0; g < games.size(); g++) {
             games.get(g).apply(actionsSelectedByAI[g]);
         }
