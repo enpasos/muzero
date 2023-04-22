@@ -504,7 +504,7 @@ public class SelfPlay {
         return !gameList.isEmpty();
     }
 
-    public @NotNull List<Game> playGame( boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+    public @NotNull List<Game> playGames(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         init();
         if (render) {
             log.info(justOneOfTheGames().render());
@@ -556,18 +556,13 @@ public class SelfPlay {
     }
 
 
-    private void runEpisode( boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean replay) {
-    //    try (NDManager nDManager = network.getNDManager().newSubManager()) {
-//            List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
-//            network.setActionSpaceOnDevice(actionSpaceOnDevice);
-//            network.createAndSetHiddenStateNDManager(nDManager, true);
-            int count = 1;
-            while (notFinished()) {
-                play(  render, fastRulesLearning, justInitialInferencePolicy,  this.gameBuffer.getPRandomActionRawAverage(), replay);
-                log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
-                count++;
-            }
-
+    private void runEpisode(boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean replay) {
+        int count = 1;
+        while (notFinished()) {
+            play(render, fastRulesLearning, justInitialInferencePolicy, this.gameBuffer.getPRandomActionRawAverage(), replay);
+            log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
+            count++;
+        }
     }
 
     public @NotNull List<Game> justReplayGamesWithInitialInference(Network network, List<Game> inputGames) {
@@ -622,7 +617,7 @@ public class SelfPlay {
             if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
               //  gamesPart = replayGames(network, gamesToReanalyse);
             } else {
-                gamesPart = playGame( render, fastRuleLearning, justInitialInferencePolicy);
+                gamesPart = playGames( render, fastRuleLearning, justInitialInferencePolicy);
             }
             games.addAll(gamesPart);
         }
