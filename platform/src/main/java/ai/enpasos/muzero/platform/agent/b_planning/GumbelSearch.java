@@ -351,59 +351,7 @@ public class GumbelSearch {
 
     public void selectAndApplyAction(boolean render, boolean fastRuleLearning, boolean replay ) {
 
-        Action action = null;
-
-        if (replay) {
-            int a = game.getGameDTO().getRootValuesFromInitialInference().size() - 1;
-            if (a < game.getOriginalGameDTO().getActions().size()) {
-                action = config.newAction(game.getOriginalGameDTO().getActions().get(a));
-                applyAction(render, action);
-            }
-            return;
-       }
-
-        if (fastRuleLearning) {
-            action = root.getRandomAction();
-            applyAction(render, action);
-            this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
-            return;
-        }
-
-        if ( config.getTrainingTypeKey() != HYBRID && config.isGumbelActionSelection()) {
-            action = selectedAction;
-            applyAction(render, action);
-            this.game.getGameDTO().getPlayoutPolicy().add(this.game.getGameDTO().getPolicyTargets().get(this.game.getGameDTO().getPolicyTargets().size() - 1));
-            return;
-        }
-
-
-        double temperature = config.getTemperatureRoot();
-
-        float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
-        double[] raw = new double[policyTarget.length];
-        for (int i = 0; i < policyTarget.length; i++) {
-            raw[i] = Math.log(policyTarget[i]);
-        }
-        if (config.getTrainingTypeKey() == HYBRID) {
-            if (this.game.getGameDTO().getActions().size() < this.game.getGameDTO().getTHybrid()) {
-                if (config.isGumbelActionSelectionOnExploring()) {
-                    game.getGameDTO().getPlayoutPolicy().add(toFloat(softmax(raw, temperature)));
-                    action = config.newAction(drawGumbelActionFromAllRootChildren(temperature));
-                } else {
-                    action = getAction(temperature, raw, game);
-                }
-            } else {
-                //  the Gumbel selection
-                if (config.isGumbelActionSelection()) {
-                    game.getGameDTO().getPlayoutPolicy().add(toFloat(softmax(raw, 1d)));
-                    action = selectedAction;
-                } else {
-                    action = getAction(1d, raw, game);
-                }
-            }
-        } else {
-            action = getAction(temperature, raw, game);
-        }
+        Action action = selectAction(  fastRuleLearning, replay );
         applyAction(render, action);
 
     }
