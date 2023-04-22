@@ -185,6 +185,23 @@ public class ModelService {
     }
 
     @Async()
+    public CompletableFuture<List<NetworkIO>> recurrentInferences(List<List<Node>> searchPathList) {
+        List<RecurrentInferenceTask> tasks = searchPathList.stream().map(p -> new RecurrentInferenceTask(p)).toList();
+        tasks.forEach(task -> modelQueue.addRecurrentInferenceTask(task));
+
+        while (tasks.stream().anyMatch(task -> !task.isDone())) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                //   log.error("ModelServices has been stopped.");
+                Thread.currentThread().interrupt();
+            }
+        }
+        tasks.forEach(task ->modelQueue.removeRecurrentInferenceTask(task));
+        return  CompletableFuture.completedFuture(tasks.stream().map(task -> task.getNetworkOutput()).toList());
+    }
+
+    @Async()
     public CompletableFuture<Void> trainModel() {
         ControllerTask task = new ControllerTask(ControllerTaskType.trainModel);
         return handleControllerTask(task);

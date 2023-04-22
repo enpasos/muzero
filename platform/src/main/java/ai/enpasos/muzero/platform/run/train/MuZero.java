@@ -105,7 +105,7 @@ public class MuZero {
         int windowSize = config.getWindowSize();
         while (gameBuffer.getBuffer().getCounter() - startCounter < windowSize) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-            selfPlay.playMultipleEpisodes(network, false, true, false);
+            selfPlay.playMultipleEpisodes( false, true, false);
         }
     }
 
@@ -132,7 +132,7 @@ public class MuZero {
             gameBuffer.createNetworkNameFromModel(model, model.getName(), outputDir);
         } catch (Exception e) {
             try (NDScope nDScope1 = new NDScope()) {
-                trainNetwork(model);
+             //   trainNetwork();
             }
             String outputDir = config.getNetworkBaseDir();
             try {
@@ -158,90 +158,6 @@ public class MuZero {
         }
     }
 
-    @SuppressWarnings("java:S106")
-    public void trainOld(TrainParams params) throws InterruptedException, ExecutionException {
-
-        int trainingStep = 0;
-        int epoch = 0;
-
-        List<DurAndMem> durations = new ArrayList<>();
-
-        loadBuffer(params.freshBuffer);
-
-        try (NDScope nDScope0 = new NDScope()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                Network network = new Network(config, model);
-                if (!params.withoutFill) {
-                    initialFillingBuffer(network);
-                }
-            }
-        }
-        try (NDScope nDScope0 = new NDScope()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-                createNetworkModelIfNotExisting();
-            }
-        }
-
-        try (NDScope nDScope0 = new NDScope()) {
-            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-
-                Network network = new Network(config, model);
-                createNetworkModelIfNotExisting();
-
-                epoch = NetworkHelper.getEpochFromModel(model);
-                int epochStart = epoch;
-
-                while (trainingStep < config.getNumberOfTrainingSteps() &&
-                    (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
-
-                    DurAndMem duration = new DurAndMem();
-                    duration.on();
-                    int i = 0;
-
-                    if (!params.freshBuffer) {
-                        try (NDScope nDScope1 = new NDScope()) {
-                            PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                            for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                                config.setPlayTypeKey(key);
-                                playGames(params.render, network, trainingStep);
-                            }
-                            config.setPlayTypeKey(originalPlayTypeKey);
-                        }
-
-                        int n = gameBuffer.getBuffer().getGames().size();
-                        int m = (int) gameBuffer.getBuffer().getGames().stream().filter(g ->
-                            g.getGameDTO().getTStateB() != 0
-                        ).count();
-                        log.info("games with an alternative action " + m + " out of " + n);
-                        log.info("counter: " + gameBuffer.getBuffer().getCounter());
-                        log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-
-
-                        log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
-                    }
-                    params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
-                    try (NDScope nDScope1 = new NDScope()) {
-                        trainingStep = trainNetwork(model);
-                    }
-                  //  modelService.trainModel().get();
-
-
-
-                    if (i % 5 == 0) {
-                        params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
-                    }
-                    i++;
-                    duration.off();
-                    durations.add(duration);
-                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
-
-                    epoch = NetworkHelper.getEpochFromModel(model);
-                }
-            }
-        }
-    }
 
     public void loadBuffer(boolean freshBuffer) {
         gameBuffer.init();
@@ -251,7 +167,7 @@ public class MuZero {
     }
 
 
-    int trainNetwork(Model model) {
+    int trainNetworkOld(Model model) {
         if (config.offPolicyCorrectionOn()) {
             determinePRatioMaxForCurrentEpoch(model);
         }
@@ -368,15 +284,15 @@ public class MuZero {
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
     }
 
-    void playGames(boolean render, Network network, int trainingStep) {
+    void playGamesOld(boolean render,   int trainingStep) {
         //if (trainingStep != 0 && trainingStep > config.getNumberTrainingStepsOnStart()) {
             log.info("last training step = {}", trainingStep);
             log.info("numSimulations: " + config.getNumSimulations());
-            network.debugDump();
+
             boolean justInitialInferencePolicy = config.getNumSimulations() == 0;
 
 
-            selfPlay.playMultipleEpisodes(network, render, false, justInitialInferencePolicy);
+            selfPlay.playMultipleEpisodes(  render, false, justInitialInferencePolicy);
 
        // }
     }
@@ -393,7 +309,7 @@ public class MuZero {
         // }
     }
     @SuppressWarnings("java:S106")
-    public void train(TrainParams params) throws InterruptedException, ExecutionException {
+    public void trainNew(TrainParams params) throws InterruptedException, ExecutionException {
 
         int trainingStep = 0;
         int epoch = 0;
@@ -444,7 +360,170 @@ public class MuZero {
 
     }
 
+    @SuppressWarnings("java:S106")
+    public void train(TrainParams params) throws InterruptedException, ExecutionException {
 
+
+        int trainingStep = 0;
+        int epoch = 0;
+
+        List<DurAndMem> durations = new ArrayList<>();
+
+        loadBuffer(params.freshBuffer);
+        initialFillingBuffer();
+
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
+        epoch = modelState.getEpoch();
+        int epochStart = epoch;
+
+
+
+//        try (NDScope nDScope0 = new NDScope()) {
+//            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+//
+//                Network network = new Network(config, model);
+//                createNetworkModelIfNotExisting();
+
+            //    epoch = NetworkHelper.getEpochFromModel(model);
+             ///   int epochStart = epoch;
+
+                while (trainingStep < config.getNumberOfTrainingSteps() &&
+                        (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
+
+                    DurAndMem duration = new DurAndMem();
+                    duration.on();
+                    int i = 0;
+
+                    if (!params.freshBuffer) {
+                        try (NDScope nDScope1 = new NDScope()) {
+                            PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                            for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                                config.setPlayTypeKey(key);
+                                playGamesOld(params.render,  trainingStep);
+                            }
+                            config.setPlayTypeKey(originalPlayTypeKey);
+                        }
+
+                        int n = gameBuffer.getBuffer().getGames().size();
+                        int m = (int) gameBuffer.getBuffer().getGames().stream().filter(g ->
+                                g.getGameDTO().getTStateB() != 0
+                        ).count();
+                        log.info("games with an alternative action " + m + " out of " + n);
+                        log.info("counter: " + gameBuffer.getBuffer().getCounter());
+                        log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
+
+
+                        log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+                    }
+                   // params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
+//                    try (NDScope nDScope1 = new NDScope()) {
+//                        trainingStep = trainNetwork(model);
+//                    }
+                    //  modelService.trainModel().get();
+
+
+
+                    modelService.trainModel().get();
+
+                    epoch = modelState.getEpoch();
+
+                    trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+
+                    duration.off();
+                    durations.add(duration);
+                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
+                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+                }
+//            }
+//        }
+
+    }
+
+
+    @SuppressWarnings("java:S106")
+    public void trainOld(TrainParams params) throws InterruptedException, ExecutionException {
+
+        int trainingStep = 0;
+        int epoch = 0;
+
+        List<DurAndMem> durations = new ArrayList<>();
+
+        loadBuffer(params.freshBuffer);
+
+        try (NDScope nDScope0 = new NDScope()) {
+            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+                Network network = new Network(config, model);
+                if (!params.withoutFill) {
+                    initialFillingBuffer(network);
+                }
+            }
+        }
+        try (NDScope nDScope0 = new NDScope()) {
+            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+                createNetworkModelIfNotExisting();
+            }
+        }
+
+        try (NDScope nDScope0 = new NDScope()) {
+            try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+
+                Network network = new Network(config, model);
+                createNetworkModelIfNotExisting();
+
+                epoch = NetworkHelper.getEpochFromModel(model);
+                int epochStart = epoch;
+
+                while (trainingStep < config.getNumberOfTrainingSteps() &&
+                        (config.getNumberOfEpisodesPerJVMStart() <= 0 || epoch - epochStart < config.getNumberOfEpisodesPerJVMStart())) {
+
+                    DurAndMem duration = new DurAndMem();
+                    duration.on();
+                    int i = 0;
+
+                    if (!params.freshBuffer) {
+                        try (NDScope nDScope1 = new NDScope()) {
+                            PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                            for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                                config.setPlayTypeKey(key);
+                                playGamesOld(params.render, trainingStep);
+                            }
+                            config.setPlayTypeKey(originalPlayTypeKey);
+                        }
+
+                        int n = gameBuffer.getBuffer().getGames().size();
+                        int m = (int) gameBuffer.getBuffer().getGames().stream().filter(g ->
+                                g.getGameDTO().getTStateB() != 0
+                        ).count();
+                        log.info("games with an alternative action " + m + " out of " + n);
+                        log.info("counter: " + gameBuffer.getBuffer().getCounter());
+                        log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
+
+
+                        log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+                    }
+                    params.getAfterSelfPlayHookIn().accept(networkHelper.getEpoch(), network);
+                    try (NDScope nDScope1 = new NDScope()) {
+                       // trainingStep = trainNetwork(model);
+                    }
+                    //  modelService.trainModel().get();
+
+
+
+                    if (i % 5 == 0) {
+                        params.getAfterTrainingHookIn().accept(networkHelper.getEpoch(), model);
+                    }
+                    i++;
+                    duration.off();
+                    durations.add(duration);
+                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
+                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
+
+                    epoch = NetworkHelper.getEpochFromModel(model);
+                }
+            }
+        }
+    }
 
     public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         List<Game> games = new ArrayList<>();

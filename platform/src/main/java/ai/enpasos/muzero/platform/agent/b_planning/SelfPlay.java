@@ -21,6 +21,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.c_model.Network;
 import ai.enpasos.muzero.platform.agent.c_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.c_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -39,6 +40,7 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -60,6 +62,9 @@ public class SelfPlay {
 
     @Autowired
     MuZeroConfig config;
+
+    @Autowired
+    ModelService modelService;
 
 
     @Autowired
@@ -233,12 +238,12 @@ public class SelfPlay {
 
     }
 
-    public void play(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, double pRandomActionRawAverage, boolean replay) {
-        play(network, true, render, fastRuleLearning, justInitialInferencePolicy, pRandomActionRawAverage, replay);
+    public void play(  boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, double pRandomActionRawAverage, boolean replay) {
+        play(  true, render, fastRuleLearning, justInitialInferencePolicy, pRandomActionRawAverage, replay);
     }
 
     @SuppressWarnings("squid:S3776")
-    public void play(Network network, boolean withRandomness, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, double pRandomActionRawAverage, boolean replay) {
+    public void play(  boolean withRandomness, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy, double pRandomActionRawAverage, boolean replay) {
 
 
 
@@ -257,7 +262,16 @@ public class SelfPlay {
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
-            networkOutput = initialInference(network, gamesToApplyAction, render, false, indexOfJustOneOfTheGames);
+            try {
+                networkOutput = modelService.initialInference(gamesToApplyAction).get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+
+
+            // networkOutput = initialInference(network, gamesToApplyAction, render, false, indexOfJustOneOfTheGames);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
 
@@ -289,7 +303,7 @@ public class SelfPlay {
             });
         }
 
-        shortCutForGamesWithoutAnOption(gamesToApplyAction, render, fastRuleLearning, network, replay);
+        shortCutForGamesWithoutAnOption(gamesToApplyAction, render, fastRuleLearning,  replay);
 
 
         int nGames = gamesToApplyAction.size();
@@ -317,12 +331,21 @@ public class SelfPlay {
                     IntStream.range(0, searchManagersLocal.size()).forEach(i -> searchPathList.add(searchManagersLocal.get(i).search()));
 
                     if (inferenceDuration != null) inferenceDuration.value -= System.currentTimeMillis();
-                    List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
-                    if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
+             //       List<NetworkIO> networkOutputList = network.recurrentInference(searchPathList);
 
+                    List<NetworkIO> networkOutputList = null;
+                    try {
+                        networkOutputList = modelService.recurrentInferences(searchPathList).get();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (inferenceDuration != null) inferenceDuration.value += System.currentTimeMillis();
+                    List<NetworkIO> networkOutputListFinal =networkOutputList;
                     IntStream.range(0, searchManagersLocal.size()).forEach(i -> {
                         GumbelSearch sm = searchManagersLocal.get(i);
-                        sm.expandAndBackpropagate(Objects.requireNonNull(networkOutputList).get(i));
+                        sm.expandAndBackpropagate( networkOutputListFinal.get(i));
                         sm.next();
                         sm.drawCandidateAndAddValue();
                     });
@@ -343,7 +366,7 @@ public class SelfPlay {
                 }
             );
         }
-        renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
+   //     renderNetworkGuess(network, render, indexOfJustOneOfTheGames);
 
         keepTrackOfOpenGames(replay);
     }
@@ -372,7 +395,7 @@ public class SelfPlay {
         keepTrackOfOpenGames(false);
     }
 
-    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning, Network network, boolean replay) {
+    private void shortCutForGamesWithoutAnOption(List<Game> gamesToApplyAction, boolean render, boolean fastRuleLearning,   boolean replay) {
 
         List<Game> gamesWithOnlyOneAllowedAction = gamesToApplyAction.stream().filter(game -> game.legalActions().size() == 1).collect(Collectors.toList());
         if (gamesWithOnlyOneAllowedAction.isEmpty()) return;
@@ -380,7 +403,14 @@ public class SelfPlay {
 
         List<NetworkIO> networkOutput = null;
         if (!fastRuleLearning) {
-            networkOutput = initialInference(network, gamesToApplyAction, false, false, 0);
+            try {
+                networkOutput = modelService.initialInference(gamesToApplyAction).get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            // networkOutput = initialInference(network, gamesToApplyAction, false, false, 0);
         }
         List<NetworkIO> networkOutputFinal = networkOutput;
 
@@ -474,12 +504,12 @@ public class SelfPlay {
         return !gameList.isEmpty();
     }
 
-    public @NotNull List<Game> playGame(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+    public @NotNull List<Game> playGame( boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         init();
         if (render) {
             log.info(justOneOfTheGames().render());
         }
-        runEpisode(network, render, fastRuleLearning, justInitialInferencePolicy, false);
+        runEpisode( render, fastRuleLearning, justInitialInferencePolicy, false);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration game play [ms]: {}", duration);
         log.info("inference duration game play [ms]: {}", getInferenceDuration().value);
@@ -490,7 +520,7 @@ public class SelfPlay {
     public @NotNull Game playGameFromCurrentState(Network network, Game replayGame, boolean untilEnd) {
         log.info("playGameFromCurrentState");
         init(List.of(replayGame));
-        runEpisode(network, false, false, untilEnd, false);
+        runEpisode(  false, false, untilEnd, false);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -500,13 +530,13 @@ public class SelfPlay {
 
     public void playOneActionFromCurrentState(Network network, Game replayGame) {
         init(List.of(replayGame));
-        play(network, false, false, false,  this.gameBuffer.getPRandomActionRawAverage(), false);
+    //    play(network, false, false, false,  this.gameBuffer.getPRandomActionRawAverage(), false);
     }
 
     public @NotNull List<Game> playGamesFromTheirCurrentState(Network network, List<Game> replayGames) {
         log.info("play " + replayGames.size() + " GamesFromTheirCurrentState");
         init(replayGames);
-        runEpisode(network, false, false, false, false);
+        runEpisode(  false, false, false, false);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -517,7 +547,7 @@ public class SelfPlay {
     public @NotNull List<Game> replayGamesBatch(Network network, List<Game> replayGames) {
         log.info("play " + replayGames.size() + " GamesFromTheirCurrentState");
         init(replayGames);
-        runEpisode(network, false, false, false, true);
+        runEpisode(  false, false, false, true);
         long duration = System.currentTimeMillis() - getStart();
         log.info("duration replay [ms]: {}", duration);
         log.info("inference duration replay [ms]: {}", getInferenceDuration().value);
@@ -526,18 +556,18 @@ public class SelfPlay {
     }
 
 
-    private void runEpisode(Network network, boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean replay) {
-        try (NDManager nDManager = network.getNDManager().newSubManager()) {
-            List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
-            network.setActionSpaceOnDevice(actionSpaceOnDevice);
-            network.createAndSetHiddenStateNDManager(nDManager, true);
+    private void runEpisode( boolean render, boolean fastRulesLearning, boolean justInitialInferencePolicy, boolean replay) {
+    //    try (NDManager nDManager = network.getNDManager().newSubManager()) {
+//            List<NDArray> actionSpaceOnDevice = Network.getAllActionsOnDevice(config, nDManager);
+//            network.setActionSpaceOnDevice(actionSpaceOnDevice);
+//            network.createAndSetHiddenStateNDManager(nDManager, true);
             int count = 1;
             while (notFinished()) {
-                play(network, render, fastRulesLearning, justInitialInferencePolicy,  this.gameBuffer.getPRandomActionRawAverage(), replay);
+                play(  render, fastRulesLearning, justInitialInferencePolicy,  this.gameBuffer.getPRandomActionRawAverage(), replay);
                 log.info("move " + count + " for " + config.getNumParallelGamesPlayed() + " games (where necessary) finished.");
                 count++;
             }
-        }
+
     }
 
     public @NotNull List<Game> justReplayGamesWithInitialInference(Network network, List<Game> inputGames) {
@@ -555,7 +585,7 @@ public class SelfPlay {
         return getGamesDoneList();
     }
 
-    public void playMultipleEpisodes(Network network, boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
+    public void playMultipleEpisodes(  boolean render, boolean fastRuleLearning, boolean justInitialInferencePolicy) {
         List<Game> games = new ArrayList<>();
         List<Game>  gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
@@ -565,17 +595,17 @@ public class SelfPlay {
              }
         }
         for (int i = 0; i < config.getNumEpisodes(); i++) {
-            List<Game> gamesPart;
+            List<Game> gamesPart = null;
             if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-                gamesPart = replayGames(network, gamesToReanalyse);
+              //  gamesPart = replayGames(network, gamesToReanalyse);
             } else {
-                gamesPart = playGame(network, render, fastRuleLearning, justInitialInferencePolicy);
+                gamesPart = playGame( render, fastRuleLearning, justInitialInferencePolicy);
             }
 
-            log.info("Played {} games parallel, round {}", gamesPart.size(), i);
+        //    log.info("Played {} games parallel, round {}", gamesPart.size(), i);
             games.addAll(gamesPart);
         }
-        gameBuffer.addGames(network.getModel(), games, false);
+        gameBuffer.addGames2( games, false);
     }
 
 
