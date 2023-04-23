@@ -169,19 +169,19 @@ public class GumbelSearch {
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
-    public int drawGumbelActionFromAllRootChildren(double temperature) {
-        int cVisit = config.getCVisit();
-        double cScale = config.getCScale();
-        List<GumbelAction> gumbelActions = root.children.stream().map(Node::getGumbelAction).collect(Collectors.toList());
-        int maxActionVisitCount = root.children.stream().mapToInt(Node::getVisitCount).max().getAsInt();
-
-        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
-        double[] raw = getLogitsAndQs(temperature,true, gumbelActions, cVisit, cScale, maxActionVisitCount);
-
-        IntStream.range(0, root.children.size()).forEach(i -> root.children.get(i).setPseudoLogit(raw[i]));
-
-        return drawActions(actions, raw, 1).get(0);
-    }
+//    public int drawGumbelActionFromAllRootChildren(double temperature) {
+//        int cVisit = config.getCVisit();
+//        double cScale = config.getCScale();
+//        List<GumbelAction> gumbelActions = root.children.stream().map(Node::getGumbelAction).collect(Collectors.toList());
+//        int maxActionVisitCount = root.children.stream().mapToInt(Node::getVisitCount).max().getAsInt();
+//
+//        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
+//        double[] raw = getLogitsAndQs(temperature,true, gumbelActions, cVisit, cScale, maxActionVisitCount);
+//
+//        IntStream.range(0, root.children.size()).forEach(i -> root.children.get(i).setPseudoLogit(raw[i]));
+//
+//        return drawActions(actions, raw, 1).get(0);
+//    }
 
 
     private double[] getLogitsAndQs(double temperature, boolean withGumbel, List<GumbelAction> gumbelActions, int cVisit, double cScale, int maxActionVisitCount) {

@@ -47,7 +47,7 @@ public class SelfPlayGame {
                         fastRulesLearning,
                         justInitialInferencePolicy,
                         playParameters.getPRandomActionRawAverage(),
-                        playParameters.isDrawNotMaxWhenJustWithInitialInference(),   // check parameter isDrawNotMaxWhenJustWithInitialInference()
+                    //    playParameters.isDrawNotMaxWhenJustWithInitialInference(),   // check parameter isDrawNotMaxWhenJustWithInitialInference()
                         playParameters.replay,
                         playParameters.withRandomActions);   // check parameter withRandomActions
              //   Action action = playAction.planActionOld(game, render, fastRulesLearning, justInitialInferencePolicy, playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
