@@ -24,16 +24,6 @@ gradlew build
 ```
 
 
-## Run 1
+## Run 0
 
-Hybrid Policy, T=5
-```
-java -jar games/tictactoe/build/libs/tictactoe-0.6.0-SNAPSHOT-exec.jar --spring.config.location=file:./reproduce/run1/
-```
-
-## Run 2
-
-Best Effort, T=5
-```
-java -jar games/tictactoe/build/libs/tictactoe-0.6.0-SNAPSHOT-exec.jar --spring.config.location=file:./reproduce/run2/
-```
+Best Effort, Gumble Action selection

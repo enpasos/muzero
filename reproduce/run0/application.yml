@@ -132,8 +132,7 @@ muzero:
           # dirichlet noise is added before mcts
           rootDirichletAlpha: 1.2
           rootExplorationFraction: 0.25  # 0.0 means switched off
-          # find difference to HYBRID
-          temperatureRoot: 1.0
-          gumbelActionSelection: false
-          # gumbelActionSelection: true
+          #
+          # temperatureRoot: 1.0
+          gumbelActionSelection: true
 
