@@ -78,6 +78,9 @@ public class PlanAction {
             boolean replay,
             boolean withRandomness
     ) {
+                if (render && game.isDebug()) {
+            log.info("\n" + game.render());
+        }
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
@@ -105,7 +108,15 @@ public class PlanAction {
         GumbelSearch sm = game.getSearchManager();
 
         sm.expandRootNode(fastRuleLearning, fastRuleLearning ? null : networkOutput);
+        if (render && game.isDebug()) {
+            game.renderSuggestionFromPriors(config, sm.getRoot());
+          //  log.info("\n" + game.render());
+        }
         if (!fastRuleLearning) sm.addExplorationNoise();
+        if (render && game.isDebug()) {
+            game.renderSuggestionFromPriors(config, sm.getRoot());
+            //  log.info("\n" + game.render());
+        }
         sm.gumbelActionsStart(withRandomness);
         sm.drawCandidateAndAddValueStart();
 
@@ -126,6 +137,10 @@ public class PlanAction {
             } while (!sm.isSimulationsFinished());
         }
         sm.storeSearchStatictics(fastRuleLearning);
+        if (render && game.isDebug()) {
+            game.renderMCTSSuggestion(config, game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1));
+            log.info("\n" + game.render());
+        }
         Action action = sm.selectAction(fastRuleLearning, replay);
         return action;
     }
