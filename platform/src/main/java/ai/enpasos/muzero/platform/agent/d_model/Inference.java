@@ -252,6 +252,7 @@ public class Inference {
                     .justInitialInferencePolicy(false)
                     .pRandomActionRawAverage(0)
                     .untilEnd(false)
+                    .withGumbel(config.isWithGumbel())
                     .replay(false)
                     .build());
 

@@ -38,10 +38,10 @@ public class GameTree {
     List<DNode> terminalGameNodes;
     List<DNode> nonExpandedGameNodes;
 
-     final Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
+    final Set<DNode> nodesWhereADecisionMattersForPlayerA = new HashSet<>();
     Set<DNode> nodesWhereADecisionMattersForPlayerAOnOptimalPath = new HashSet<>();
     final Set<DNode> nodesWhereADecisionMattersForPlayerB = new HashSet<>();
-     Set<DNode> nodesWhereADecisionMattersForPlayerBOnOptimalPath = new HashSet<>();
+    Set<DNode> nodesWhereADecisionMattersForPlayerBOnOptimalPath = new HashSet<>();
     DNode rootNode;
 
     public GameTree(MuZeroConfig config) {
@@ -73,20 +73,19 @@ public class GameTree {
         rootNode.findNodesWhereADecisionMatters(OneOfTwoPlayer.PLAYER_B, nodesWhereADecisionMattersForPlayerB);
 
 
-
         nodesWhereADecisionMattersForPlayerAOnOptimalPath
-            = nodesWhereADecisionMattersForPlayerA.stream().filter(
+                = nodesWhereADecisionMattersForPlayerA.stream().filter(
                 this::isOnOptimalPath
         ).collect(Collectors.toSet());
 
         nodesWhereADecisionMattersForPlayerBOnOptimalPath
-            = nodesWhereADecisionMattersForPlayerB.stream().filter(
+                = nodesWhereADecisionMattersForPlayerB.stream().filter(
                 this::isOnOptimalPath
         ).collect(Collectors.toSet());
     }
 
-    public  boolean isOnOptimalPath(DNode node) {
-       return node.isOnOptimalPath(this.rootNode);
+    public boolean isOnOptimalPath(DNode node) {
+        return node.isOnOptimalPath(this.rootNode);
     }
 
     public List<DNode> badDecisionFinder(@NotNull GameTree gameTree, @NotNull OneOfTwoPlayer player, boolean withMCTS, Inference inference, int epoch, boolean onOptimalPathOnly) {
@@ -95,17 +94,17 @@ public class GameTree {
         if (player == OneOfTwoPlayer.PLAYER_A) {
 
             nodesWhereADecisionMatters = onOptimalPathOnly ? gameTree.nodesWhereADecisionMattersForPlayerAOnOptimalPath
-                : gameTree.nodesWhereADecisionMattersForPlayerA;
+                    : gameTree.nodesWhereADecisionMattersForPlayerA;
         } else {
             nodesWhereADecisionMatters = onOptimalPathOnly ? gameTree.nodesWhereADecisionMattersForPlayerBOnOptimalPath
-                : gameTree.nodesWhereADecisionMattersForPlayerB;
+                    : gameTree.nodesWhereADecisionMattersForPlayerB;
         }
 
         List<DNode> nodeList = new ArrayList<>(nodesWhereADecisionMatters);
         List<Game> gameList = nodeList.stream().map(DNode::getGame).collect(Collectors.toList());
 
 
-        int[] actions = inference.aiDecisionForGames(gameList, withMCTS,  epoch);
+        int[] actions = inference.aiDecisionForGames(gameList, withMCTS, epoch);
 
         List<DNode> badDecisionNodes = new ArrayList<>();
 

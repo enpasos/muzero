@@ -19,6 +19,7 @@ package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.enpasos.muzero.platform.agent.d_model.Inference;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -57,6 +58,8 @@ public class TicTacToeTest {
     }
 
     public int findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
+        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+        config.setPlayTypeKey(PLAYOUT);
 
                 log.info("nodes where a decision matters for player X {}, for player O {}",
                     gameTree.nodesWhereADecisionMattersForPlayerA.size(),
@@ -81,6 +84,7 @@ public class TicTacToeTest {
                 List<DNode> gamesWithBadDecisionByPlayerB2 =
                      gameTree.badDecisionFinder(gameTree, OneOfTwoPlayer.PLAYER_B, true, inference, epoch, onOptimalPathOnly);
 
+            config.setPlayTypeKey(originalPlayTypeKey);
 
                 return gamesWithBadDecisionByPlayerA.size() +
                     gamesWithBadDecisionPlayerB.size() +

@@ -96,6 +96,7 @@ muzero:
           rootExplorationFraction: 0.0  # 0.0 means switched off
           temperatureRoot: 0.0
           gumbelActionSelection: true
+          withGumbel: false
 #        HYBRID:
 #          forTraining: true
 #          numParallelGamesPlayed: 1000

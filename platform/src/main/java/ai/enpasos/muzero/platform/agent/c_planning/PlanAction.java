@@ -76,7 +76,7 @@ public class PlanAction {
             boolean justInitialInferencePolicy,
             double pRandomActionRawAverage,
             boolean replay,
-            boolean withRandomness
+            boolean withGumbel
     ) {
                 if (render && game.isDebug()) {
             log.info("\n" + game.render());
@@ -117,7 +117,7 @@ public class PlanAction {
             game.renderSuggestionFromPriors(config, sm.getRoot());
             //  log.info("\n" + game.render());
         }
-        sm.gumbelActionsStart(withRandomness);
+        sm.gumbelActionsStart(withGumbel);
         sm.drawCandidateAndAddValueStart();
 
         if (!fastRuleLearning && !sm.isSimulationsFinished()) {
