@@ -1,4 +1,4 @@
-package ai.enpasos.muzero.platform.agent.a_loopcontrol.episode;
+package ai.enpasos.muzero.platform.agent.b_episode;
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.PlanAction;

@@ -1,6 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.Player;
+import ai.enpasos.muzero.platform.agent.b_episode.Player;
 import com.google.protobuf.ByteString;
 
 import java.util.BitSet;

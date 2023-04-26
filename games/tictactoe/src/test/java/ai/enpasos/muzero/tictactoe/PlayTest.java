@@ -1,8 +1,8 @@
 package ai.enpasos.muzero.tictactoe;
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayParameters;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.PlayService;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.episode.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.b_episode.PlayParameters;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
+import ai.enpasos.muzero.platform.agent.b_episode.SelfPlayGame;
 import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelQueue;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;

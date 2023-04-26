@@ -15,7 +15,7 @@
  *
  */
 
-package ai.enpasos.muzero.platform.agent.a_loopcontrol.episode;
+package ai.enpasos.muzero.platform.agent.b_episode;
 
 
 public interface Player {
