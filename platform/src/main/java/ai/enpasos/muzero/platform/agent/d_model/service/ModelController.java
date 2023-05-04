@@ -7,6 +7,7 @@ import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.ParameterList;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
@@ -319,6 +320,10 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
         }
+
+
+        long numberOfParameters = model.getBlock().getParameters().stream().mapToLong(p -> p.getValue().getArray().size()).sum();
+        log.info("{} parameters in the model.", numberOfParameters);
 
     }
 
