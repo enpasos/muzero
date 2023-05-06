@@ -384,8 +384,22 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
         if (gameDTO.isHybrid() || isReanalyse()) {
-            if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-                value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+            switch(config.getVTarget()) {
+                case V_INFERENCE:
+                    if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
+                        value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                    }
+                    break;
+                case V_CONSISTENT:
+                    if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
+                        value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                    }
+                    break;
+                case V_MIX:
+                    if (bootstrapIndex < this.getGameDTO().getVMix().size()) {
+                        value = this.getGameDTO().getVMix().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                    }
+                    break;
             }
         } else {
             if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {

@@ -56,6 +56,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
     private List<boolean[]> legalActions;  // obsolete
     private List<Float> rootValueTargets;
+    private List<Float> vMix;
     private List<Float> rootEntropyValueTargets;
     private List<Float> rootEntropyValuesFromInitialInference;
     private List<Float> rootValuesFromInitialInference;
@@ -88,6 +89,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.playoutPolicy = new ArrayList<>();
         this.legalActions = new ArrayList<>();
         this.rootValueTargets = new ArrayList<>();
+        this.vMix = new ArrayList<>();
         this.rootEntropyValueTargets = new ArrayList<>();
         this.entropies = new ArrayList<>();
         this.legalActionMaxEntropies = new ArrayList<>();
@@ -142,6 +144,8 @@ public class GameDTO implements Comparable<GameDTO> {
             this.legalActions.subList(0, toPosition).forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
             if (this.rootValueTargets.size() >= toPosition)
                 copy.rootValueTargets.addAll(this.rootValueTargets.subList(0, toPosition));
+            if (this.vMix.size() >= toPosition)
+                copy.vMix.addAll(this.vMix.subList(0, toPosition));
 
             if (this.rootEntropyValueTargets.size() >= toPosition)
                 copy.rootEntropyValueTargets.addAll(this.rootEntropyValueTargets.subList(0, toPosition));
@@ -183,6 +187,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.playoutPolicy.forEach(pT -> copy.playoutPolicy.add(Arrays.copyOf(pT, pT.length)));
         this.legalActions.forEach(pT -> copy.legalActions.add(Arrays.copyOf(pT, pT.length)));
         copy.rootValueTargets.addAll(this.rootValueTargets);
+        copy.vMix.addAll(this.vMix);
         copy.rootEntropyValueTargets.addAll(this.rootEntropyValueTargets);
         copy.rootEntropyValuesFromInitialInference.addAll(this.rootEntropyValuesFromInitialInference);
         return copy;
@@ -207,6 +212,7 @@ public class GameDTO implements Comparable<GameDTO> {
         gameBuilder.setPRandomActionRawCount(this.pRandomActionRawCount);
         gameBuilder.addAllRewards(getRewards());
         gameBuilder.addAllRootValueTargets(getRootValueTargets());
+        gameBuilder.addAllVMix(getVMix());
         gameBuilder.addAllRootEntropyValueTargets(getRootEntropyValueTargets());
         gameBuilder.addAllEntropies(getEntropies());
         gameBuilder.addAllMaxEntropies(getLegalActionMaxEntropies());
@@ -257,6 +263,7 @@ public class GameDTO implements Comparable<GameDTO> {
         this.setPRandomActionRawCount(p.getPRandomActionRawCount());
         this.setRewards(p.getRewardsList());
         this.setRootValueTargets(p.getRootValueTargetsList());
+        this.setVMix(p.getVMixList());
         this.setRootEntropyValueTargets(p.getRootEntropyValueTargetsList());
         this.setEntropies(p.getEntropiesList());
         this.setLegalActionMaxEntropies(p.getMaxEntropiesList());
@@ -339,6 +346,7 @@ public class GameDTO implements Comparable<GameDTO> {
                 && this.pRandomActionRawCount == gameDTO.getPRandomActionRawCount()
                 && this.rewards.equals(gameDTO.getRewards())
                 && this.rootValueTargets.equals(gameDTO.getRootValueTargets())
+                && this.vMix.equals(gameDTO.getVMix())
                 && this.rootEntropyValueTargets.equals(gameDTO.getRootEntropyValueTargets())
                 && this.entropies.equals(gameDTO.getEntropies())
                 && this.legalActionMaxEntropies.equals(gameDTO.getLegalActionMaxEntropies())

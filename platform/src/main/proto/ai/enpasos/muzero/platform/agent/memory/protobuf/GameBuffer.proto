@@ -21,6 +21,7 @@ message GameProto {
   repeated PolicyProtos playout_policy = 25;
   repeated ObservationProtos observations = 27;
   repeated float root_value_targets = 4;
+  repeated float v_mix = 31;
   repeated float root_values_from_initial_inference = 5;
 
   repeated float root_entropy_value_targets = 29;

@@ -20,6 +20,7 @@ import java.util.stream.IntStream;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.FROM_VALUES;
 import static ai.enpasos.muzero.platform.config.KnownBoundsType.MINUSONE_ONE;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
+import static ai.enpasos.muzero.platform.config.VTargetType.V_INFERENCE;
 
 @Component
 @ConfigurationProperties("muzero")
@@ -374,6 +375,11 @@ public class MuZeroConfig {
     public boolean isWithGumbel() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).withGumbel;
     }
+    public VTargetType getVTarget() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getVTarget();
+    }
+
+
 
 
     public int getBroadcastEveryN() {
@@ -558,6 +564,8 @@ public class MuZeroConfig {
             boolean gumbelActionSelection = true;
 
             boolean withGumbel = true;
+
+            VTargetType vTarget = V_INFERENCE;
 
             boolean forTraining = true;
         }

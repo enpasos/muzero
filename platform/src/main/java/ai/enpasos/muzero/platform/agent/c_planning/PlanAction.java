@@ -173,6 +173,7 @@ public class PlanAction {
         }
 
         game.getGameDTO().getRootValueTargets().add(value);
+        game.getGameDTO().getVMix().add(value);
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         policyTarget[action.getIndex()] = 1f;
