@@ -61,7 +61,9 @@ public class TicTacToeEntropyExtractor {
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
     }
 
-    public void run() {
+
+
+    public void run(boolean onlyInitialState) {
 
         List<Path> paths = this.gameBufferIO.getBufferNames();
         Collections.reverse(paths);
@@ -72,8 +74,13 @@ public class TicTacToeEntropyExtractor {
             GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
             int epoch = getEpochFromPath(path);
             double entropy = gameBufferDTO.getGames().stream().mapToDouble(game ->
-                    // average getRootEntropyValuesFromInitialInference()
-                    game.getGameDTO().getAverageEntropy()
+                    {
+                       if (onlyInitialState) {
+                           return game.getGameDTO().getEntropyOfInitialState();
+                       }   else {
+                           return game.getGameDTO().getAverageEntropy();
+                       }
+                    }
             ).average().orElse(0d);
 
             entropyMap.put(epoch, entropy);

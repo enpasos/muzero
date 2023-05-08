@@ -113,6 +113,13 @@ public class GameDTO implements Comparable<GameDTO> {
                 .sum() / Math.max(1, entropies.size());
     }
 
+    public double getEntropyOfInitialState() {
+        if (entropies.size() == 0) {
+            return 0;
+        }
+        return entropies.get(0);
+    }
+
     public double getAverageActionMaxEntropy() {
         return IntStream.range(0, legalActionMaxEntropies.size())
                 .mapToDouble(i -> legalActionMaxEntropies.get(i))
