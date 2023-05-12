@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.tictactoe.run;
 
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.tictactoe.run.test.BadDecisions;
 import ai.enpasos.muzero.tictactoe.run.test.GameTree;
 import ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
@@ -50,18 +51,18 @@ public class TicTacToeTestAllNetworks {
        // config.setOutputDir("./memory/tictactoe-without-exploration/");
         //config.setOutputDir("./memory/tictactoe-with-exploration/");
 
-        Map<Integer, Integer> map = new TreeMap<>();
+        Map<Integer, BadDecisions> map = new TreeMap<>();
         GameTree gameTree = test.prepareGameTree();
 
         for (int epoch = start; epoch <= stop; epoch++) {
-            int failures = test.findBadDecisions(epoch, gameTree, onOptimalPathOnly);
-            map.put(epoch, failures);
+            map.put(epoch, test.findBadDecisions(epoch, gameTree, onOptimalPathOnly));
         }
 
 
         System.out.println("epoch;failures");
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            System.out.println(entry.getKey() + ";" + entry.getValue());
+        for (Map.Entry<Integer, BadDecisions> entry : map.entrySet()) {
+            BadDecisions bd = entry.getValue();
+            System.out.println(entry.getKey() + ";" + bd.total() + ";" + bd.getModelBased() + ";" + bd.getPlanningBased());
         }
 
 

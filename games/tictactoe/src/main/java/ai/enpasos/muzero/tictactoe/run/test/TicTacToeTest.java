@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ public class TicTacToeTest {
     @Autowired
     Inference inference;
 
-    public int findBadDecisions() {
+    public BadDecisions findBadDecisions() {
         return findBadDecisions(-1, false);
     }
 
@@ -52,12 +53,12 @@ public class TicTacToeTest {
      *
      * @return number of failures
      */
-    public int findBadDecisions(int epoch, boolean onOptimalPathOnly) {
+    public BadDecisions findBadDecisions(int epoch, boolean onOptimalPathOnly) {
         GameTree gameTree = prepareGameTree();
         return findBadDecisions(epoch, gameTree, onOptimalPathOnly);
     }
 
-    public int findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
+    public BadDecisions findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
         PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
         config.setPlayTypeKey(PLAYOUT);
 
@@ -86,10 +87,11 @@ public class TicTacToeTest {
 
             config.setPlayTypeKey(originalPlayTypeKey);
 
-                return gamesWithBadDecisionByPlayerA.size() +
-                    gamesWithBadDecisionPlayerB.size() +
-                    gamesWithBadDecisionByPlayerA2.size() +
+            int a = gamesWithBadDecisionByPlayerA.size() +
+                    gamesWithBadDecisionPlayerB.size();
+            int b = gamesWithBadDecisionByPlayerA2.size() +
                     gamesWithBadDecisionByPlayerB2.size();
+                return new BadDecisions(a,b);
 
     }
 

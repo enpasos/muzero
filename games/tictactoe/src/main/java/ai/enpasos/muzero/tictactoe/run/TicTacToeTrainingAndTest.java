@@ -5,6 +5,7 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.MuZeroLoop;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.TrainParams;
+import ai.enpasos.muzero.tictactoe.run.test.BadDecisions;
 import ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,8 @@ public class TicTacToeTrainingAndTest {
         } catch (ExecutionException e) {
             throw new MuZeroException(e);
         }
-
-        boolean passed = ticTacToeTest.findBadDecisions() == 0;
+        BadDecisions bd = ticTacToeTest.findBadDecisions();
+        boolean passed = bd.total() == 0;
         String message = "INTEGRATIONTEST = " + (passed ? "passed" : "failed");
         log.info(message);
     }
