@@ -59,7 +59,7 @@ public class TicTacToeTestAllNetworks {
         }
 
 
-        System.out.println("epoch;failures");
+        System.out.println("epoch;total;withoutMCTS;withMCTS");
         for (Map.Entry<Integer, BadDecisions> entry : map.entrySet()) {
             BadDecisions bd = entry.getValue();
             System.out.println(entry.getKey() + ";" + bd.total() + ";" + bd.getModelBased() + ";" + bd.getPlanningBased());
