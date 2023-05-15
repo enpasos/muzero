@@ -2,7 +2,7 @@
 
   
 ```
-git checkout e2a5c2c8cdf1e3eb0e7177da00f2952f848d17e3
+git checkout 19fd182440a7b6c718d5ec4a2aa5fab471a5d823
 java -jar games/tictactoe/build/libs/tictactoe-0.6.0-SNAPSHOT-exec.jar --spring.config.location=file:./reproduce/run2/
 ```
 
