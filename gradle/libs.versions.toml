@@ -4,10 +4,10 @@ djl = "0.22.1"
 pytorch = "2.0.0"
 
 slf4j = "2.0.7"
-springboot = "3.0.6"
-protobuf = "3.23.0"
+springboot = "3.1.0"
+protobuf = "3.23.1"
 junit = "5.9.3"
-jackson = "2.15.0"
+jackson = "2.15.1"
 
 [libraries]
 djl-api = { module = "ai.djl:api", version.ref = "djl" }
@@ -27,7 +27,7 @@ djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", ver
 commons-math = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
 commons-csv = { module = "org.apache.commons:commons-csv", version = "1.10.0" }
 commons-cli = { module = "commons-cli:commons-cli", version = "1.5.0" }
-commons-io = { module = "commons-io:commons-io", version = "2.11.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.12.0" }
 commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.12.0" }
 commons-collections = { module = "org.apache.commons:commons-collections4", version = "4.4" }
 
