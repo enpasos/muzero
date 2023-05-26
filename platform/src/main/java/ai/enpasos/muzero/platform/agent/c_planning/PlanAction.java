@@ -98,7 +98,7 @@ public class PlanAction {
             for (Action action : game.legalActions()) {
                 legalActions[action.getIndex()] = true;
             }
-            game.getGameDTO().getLegalActions().add(legalActions);
+           // game.getGameDTO().getLegalActions().add(legalActions);
         }
         if (game.legalActions().size() == 1) {
              return shortCutForGameWithoutAnOption(game, networkOutput, render, fastRuleLearning, replay);
@@ -149,23 +149,8 @@ public class PlanAction {
 
 
     private Action shortCutForGameWithoutAnOption(Game game, NetworkIO networkOutput, boolean render, boolean fastRuleLearning, boolean replay) {
-//         NetworkIO networkOutput = null;
-//        if (!fastRuleLearning) {
-//            try {
-//                networkOutput = modelService.initialInference(game).get();
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            } catch (ExecutionException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-
 
         Action action = game.legalActions().get(0);
-        //   if (!replay) {
-       // game.apply(action);
-        // }
-
 
         float value = 0f;
         if (!fastRuleLearning) {

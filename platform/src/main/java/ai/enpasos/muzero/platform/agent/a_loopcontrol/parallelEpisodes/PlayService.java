@@ -57,6 +57,7 @@ public class PlayService {
             game.setOriginalGameDTO(game.getGameDTO().copy());
             game.getGameDTO().getPolicyTargets().clear();
             game.getGameDTO().setRootValueTargets(new ArrayList<>());
+            game.getGameDTO().setVMix(new ArrayList<>());
             game.getGameDTO().setRootEntropyValueTargets(new ArrayList<>());
             game.getGameDTO().setEntropies(new ArrayList<>());
             game.getGameDTO().setLegalActionMaxEntropies(new ArrayList<>());

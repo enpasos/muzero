@@ -478,15 +478,18 @@ public abstract class Game {
         int tStart = (int) this.getGameDTO().getTHybrid();
         if (tStart >= n) return 1d;
         double[] pRatios = new double[n - tStart];
-
-        IntStream.range(tStart, n).forEach(i -> {
-            int a = getGameDTO().getActions().get(i);
-            if (getGameDTO().getPlayoutPolicy().isEmpty()) {
-                pRatios[i - tStart] = 1;
-            } else {
-                pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
-            }
-        });
+//try {
+    IntStream.range(tStart, n).forEach(i -> {
+        int a = getGameDTO().getActions().get(i);
+        if (getGameDTO().getPlayoutPolicy().isEmpty()) {
+            pRatios[i - tStart] = 1;
+        } else {
+            pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
+        }
+    });
+//} catch (Exception e) {
+//    e.printStackTrace();
+//}
         return getProductPathMax(pRatios);
     }
 

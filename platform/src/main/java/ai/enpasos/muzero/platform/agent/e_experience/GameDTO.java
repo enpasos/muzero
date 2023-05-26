@@ -54,7 +54,7 @@ public class GameDTO implements Comparable<GameDTO> {
 
     private List<float[]> playoutPolicy;
 
-    private List<boolean[]> legalActions;  // obsolete
+    private List<boolean[]> legalActions;
     private List<Float> rootValueTargets;
     private List<Float> vMix;
     private List<Float> rootEntropyValueTargets;

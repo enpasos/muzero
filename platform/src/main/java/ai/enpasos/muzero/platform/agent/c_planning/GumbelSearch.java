@@ -75,7 +75,11 @@ public class GumbelSearch {
     public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
 
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
-        game.getGameDTO().getVMix().add((float) root.getVmix());
+//        try {
+            game.getGameDTO().getVMix().add((float) root.getVmix());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
@@ -364,6 +368,10 @@ public class GumbelSearch {
        }
 
         if (fastRuleLearning) {
+            if (!replay) {
+                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
+                game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+            }
             return root.getRandomAction();
         }
 
