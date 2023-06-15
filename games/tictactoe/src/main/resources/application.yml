@@ -82,12 +82,15 @@ muzero:
       offPolicyCorrectionOn: true
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
+      kMinLimit: 0.001
 
       numParallelInferences: 1000
 
       withEntropyValuePrediction: false
       entropyContributionToReward: 0.1
       entropyValueLossWeight: 0.5
+
+
 
       playTypes:
         PLAYOUT:

@@ -69,6 +69,7 @@ public class GameBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
+    private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
         int gamePos = samplePosition(game);
@@ -147,7 +148,7 @@ public class GameBuffer {
     }
 
     public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(0);
     }
 
 
@@ -337,11 +338,20 @@ public class GameBuffer {
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
-  //      List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
-        List<String> networkNames = new ArrayList<>();
-        List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames );
-        games.forEach(g -> g.setReanalyse(true));
-        return games;
+          List<String> networkNames = new ArrayList<>();
+        List<Game> games =  gameBufferIO.loadGamesForReplay(n );
+        games.forEach(g -> {
+            g.setReanalyse(true);
+            g.setTReanalyseMin(mapTReanalyseMin2GameCount.getOrDefault(g.gameDTO.getCount(), 0));
+            int newTReanalyseMin = g.findNewTReanalyseMin();
+            mapTReanalyseMin2GameCount.put(g.gameDTO.getCount(), newTReanalyseMin);
+            g.setTReanalyseMin(newTReanalyseMin);
+
+            if (newTReanalyseMin > g.gameDTO.getActions().size()) {
+                g.setReanalyse(false);
+            }
+        });
+        return games.stream().filter(g -> g.isReanalyse()).collect(Collectors.toList());
     }
 
 

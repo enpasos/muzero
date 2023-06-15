@@ -414,6 +414,12 @@ public class MuZeroConfig {
         return getConf().offPolicyRatioLimit;
     }
 
+
+
+    public double getKMinLimit() {
+        return getConf().kMinLimit;
+    }
+
     public double getEntropyContributionToReward() {
         return getConf().entropyContributionToReward;
     }
@@ -533,6 +539,8 @@ public class MuZeroConfig {
         boolean offPolicyCorrectionOn;
 
         boolean allOrNothingOn;
+
+        double kMinLimit;
 
 
         boolean withEntropyValuePrediction;

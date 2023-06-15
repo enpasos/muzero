@@ -98,21 +98,9 @@ public class GameBufferIO {
     }
 
 
-    public List<Game> loadGamesForReplay(int n , List<String> networkNamesNotToLoad ) {
+    public List<Game> loadGamesForReplay(int n) {
         List<Game> games = new ArrayList<>();
-
         List<Path> paths = this.getBufferNames();
-        List<Path> pathsNotToLoad = new ArrayList<>();
-        for (Path path : paths) {
-            for ( String networkName : networkNamesNotToLoad) {
-                if (path.toString().contains(networkName)) {
-                    pathsNotToLoad.add(path);
-                }
-            }
-        }
-
-        paths.removeAll(pathsNotToLoad);
-
         if (!paths.isEmpty()) {
             Collections.shuffle(paths);
             for (int h = 0; h < paths.size() && games.size() < n; h++) {

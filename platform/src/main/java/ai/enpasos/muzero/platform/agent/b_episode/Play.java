@@ -82,11 +82,8 @@ public class Play {
 
     public void playMultipleEpisodes(boolean render, boolean fastRuleLearning) {
         List<Game> games;
-        List<Game> gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
-            gamesToReanalyse = gameBuffer.getGamesToReanalyse();
-        }
-        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+            List<Game> gamesToReanalyse = gameBuffer.getGamesToReanalyse();
             games = playService.reanalyseGames(config.getNumParallelGamesPlayed(),
                 PlayParameters.builder()
                     .render(render)

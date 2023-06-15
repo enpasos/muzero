@@ -81,6 +81,9 @@ public abstract class Game {
     private boolean reanalyse;
 
 
+    private int tReanalyseMin;
+
+
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
         this.gameDTO = new GameDTO();
@@ -286,7 +289,11 @@ public abstract class Game {
 
         int tdSteps;
 
-        if (currentIndex >= tMaxHorizon) return 0;
+        if (currentIndex < tReanalyseMin) {
+            throw new MuZeroNoSampleMatch();
+        }
+
+        if (currentIndex >= tMaxHorizon  ) return 0;
 
         for (int t = tMaxHorizon; t >= currentIndex; t--) {
 
@@ -478,18 +485,14 @@ public abstract class Game {
         int tStart = (int) this.getGameDTO().getTHybrid();
         if (tStart >= n) return 1d;
         double[] pRatios = new double[n - tStart];
-//try {
-    IntStream.range(tStart, n).forEach(i -> {
-        int a = getGameDTO().getActions().get(i);
-        if (getGameDTO().getPlayoutPolicy().isEmpty()) {
-            pRatios[i - tStart] = 1;
-        } else {
-            pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
-        }
-    });
-//} catch (Exception e) {
-//    e.printStackTrace();
-//}
+        IntStream.range(tStart, n).forEach(i -> {
+            int a = getGameDTO().getActions().get(i);
+            if (getGameDTO().getPlayoutPolicy().isEmpty()) {
+                pRatios[i - tStart] = 1;
+            } else {
+                pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
+            }
+        });
         return getProductPathMax(pRatios);
     }
 
@@ -504,5 +507,46 @@ public abstract class Game {
 
     public boolean deepEquals(Game game) {
         return this.getGameDTO().deepEquals(game.getGameDTO());
+    }
+
+    public int findNewTReanalyseMin() {
+
+
+        this.tReanalyseMin = (int)Math.max(this.getGameDTO().getTHybrid(), this.tReanalyseMin);
+
+        int tMaxHorizon = this.getGameDTO().getRewards().size() - 1;
+
+//
+//
+//   check
+     //  double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+        double localPRatioMax = 1;
+//
+//        int tdSteps;
+//
+//        if (currentIndex < tReanalyseMin) {
+//            throw new MuZeroNoSampleMatch();
+//        }
+
+   //     if (currentIndex >= tMaxHorizon  ) return 0;
+
+        for (int t = tMaxHorizon; t >= this.tReanalyseMin; t--) {
+
+            double pBase = 1;
+            for (int i = this.tReanalyseMin; i < t; i++) {
+                pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+            }
+            double p = 1;
+            for (int i = this.tReanalyseMin; i < t; i++) {
+                p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+            }
+            double pRatio = p / pBase;
+            log.info("pRatio = %", pRatio);
+            if (pRatio < this.config.getKMinLimit() * localPRatioMax) {
+                log.info("newTReanalyseMin = %", pRatio);
+                return t+1;
+            }
+        }
+        return this.tReanalyseMin;
     }
 }
