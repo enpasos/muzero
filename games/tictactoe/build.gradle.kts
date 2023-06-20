@@ -23,6 +23,10 @@ dependencies {
     implementation(libs.springboot.starter)
     testImplementation(libs.springboot.starter.test)
 
+    implementation(libs.postgres)
+    implementation(libs.springboot.starter.jpa)
+
+
     implementation(libs.commons.lang)
     implementation(libs.commons.csv)
 

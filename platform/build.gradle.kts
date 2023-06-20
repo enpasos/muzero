@@ -25,6 +25,9 @@ dependencies {
 
     implementation(libs.onnxruntime)
 
+
+    implementation(libs.springboot.starter.jpa)
+
     implementation(libs.springboot.starter)
     testImplementation(libs.springboot.starter.test)
 

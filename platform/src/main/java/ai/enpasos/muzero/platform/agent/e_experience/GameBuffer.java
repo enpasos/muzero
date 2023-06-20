@@ -22,6 +22,9 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
+import ai.enpasos.muzero.platform.agent.e_experience.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
@@ -40,11 +43,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 @Slf4j
 @Component
 public class GameBuffer {
+
+
+    private final EpisodeRepo episodeRepo;
 
     public static final String EPOCH_STR = "Epoch";
 
@@ -244,6 +251,48 @@ public class GameBuffer {
 
     public void addGames(List<Game> games, boolean atBeginning) {
 
+        List<EpisodeDO> episodes = games.stream().map(game ->  EpisodeDO.builder()
+                    .hybrid(game.getGameDTO().isHybrid())
+                    .nextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck())
+                    .lastValueError(game.getGameDTO().getLastValueError())
+                    .surprised(game.getGameDTO().isSurprised())
+                    .tdSteps(game.getGameDTO().getTdSteps())
+                    .tHybrid(game.getGameDTO().getTHybrid())
+                    .networkName(game.getGameDTO().getNetworkName())
+                    .trainingEpoch(game.getGameDTO().getTrainingEpoch())
+                    .count(game.getGameDTO().getCount())
+                    .tdSteps(game.getGameDTO().getTdSteps())
+                    .pRandomActionRawCount(game.getGameDTO().getPRandomActionRawCount())
+                    .pRandomActionRawSum(game.getGameDTO().getPRandomActionRawSum())
+                    .timeSteps(IntStream.range(0, game.getGameDTO().getObservations().size()).mapToObj(t ->
+                            TimeStepDO.builder()
+                                    .t(t)
+                                    .action(game.getGameDTO().getActions().size() > t ? game.getGameDTO().getActions().get(t): null)
+                                    .entropy(game.getGameDTO().getEntropies().size() > t ? game.getGameDTO().getEntropies().get(t) : null)
+                                    .rootEntropyValuesFromInitialInference(game.getGameDTO().getRootEntropyValuesFromInitialInference().size() > t ? game.getGameDTO().getRootEntropyValuesFromInitialInference().get(t) : null)
+                                    .policyTarget(game.getGameDTO().getPolicyTargets().size() > t ? game.getGameDTO().getPolicyTargets().get(t) : null)
+                                    .reward(game.getGameDTO().getRewards().size() > t ? game.getGameDTO().getRewards().get(t) : null)
+                                    .rootValuesFromInitialInference(game.getGameDTO().getRootValuesFromInitialInference().size() > t ?
+                                            game.getGameDTO().getRootValuesFromInitialInference().get(t) : null)
+                                    .legalActionMaxEntropy(game.getGameDTO().getLegalActionMaxEntropies().size() > t ?
+                                            game.getGameDTO().getLegalActionMaxEntropies().get(t) : null)
+                                    .legalActions(game.getGameDTO().getLegalActions().size() > t ? game.getGameDTO().getLegalActions().get(t) : null)
+                                    .vMix(game.getGameDTO().getVMix().size() > t ? game.getGameDTO().getVMix().get(t) : null)
+                                    .playoutPolicy(game.getGameDTO().getPlayoutPolicy().size() > t ? game.getGameDTO().getPlayoutPolicy().get(t) : null)
+                                    .rootEntropyValueTarges(game.getGameDTO().getRootEntropyValueTargets().size()>t ? game.getGameDTO().getRootEntropyValueTargets().get(t) : 0f)
+                                    .rootValueTargets(game.getGameDTO().getRootValueTargets().size() > t ? game.getGameDTO().getRootValueTargets().get(t): null)
+                                    .build()
+                    ).collect(Collectors.toList()))
+                    .build()).collect(Collectors.toList());
+        episodes.forEach(episode -> {
+            episode.getTimeSteps().forEach(timeStep -> {
+                timeStep.setEpisode(episode);
+            });
+        });
+        episodes = episodeRepo.saveAllAndFlush(episodes);
+
+
+
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game, atBeginning));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
@@ -338,7 +387,7 @@ public class GameBuffer {
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
-          List<String> networkNames = new ArrayList<>();
+        List<String> networkNames = new ArrayList<>();
         List<Game> games =  gameBufferIO.loadGamesForReplay(n );
         games.forEach(g -> {
             g.setReanalyse(true);

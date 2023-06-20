@@ -10,6 +10,17 @@ logging:
     ai.enpasos: DEBUG
     ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
     ai.djl: INFO
+spring:
+  datasource:
+    username: muzero
+    password: hd7sge
+    url: jdbc:postgresql://localhost:5432/muzero
+  jpa:
+    properties.hibernate:
+      #jdbc.lob.non_contextual_creation: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
+      ddl-auto: create-drop
 
 muzero:
   activeGame: TICTACTOE

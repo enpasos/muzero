@@ -39,42 +39,34 @@ import java.util.stream.IntStream;
 @Slf4j
 public class GameDTO implements Comparable<GameDTO> {
 
-    String networkName = "NONE";
-    float pRandomActionRawSum;
-    int pRandomActionRawCount;
+
     @EqualsAndHashCode.Include
     private List<Integer> actions;
     private List<Float> rewards;
-
     private List<Float> entropies;
     private List<float[]> policyTargets;
-
     private List<Observation> observations;
-
-
     private List<float[]> playoutPolicy;
-
     private List<boolean[]> legalActions;
     private List<Float> rootValueTargets;
     private List<Float> vMix;
     private List<Float> rootEntropyValueTargets;
     private List<Float> rootEntropyValuesFromInitialInference;
     private List<Float> rootValuesFromInitialInference;
+    private List<Float> legalActionMaxEntropies;
+
+
+    String networkName = "NONE";
+    float pRandomActionRawSum;
+    int pRandomActionRawCount;
     private float lastValueError;
     private long count;
     private long nextSurpriseCheck;
     private boolean surprised;
-
-
     private boolean hybrid;
     private long tHybrid = -1;
-
-
     private int trainingEpoch;
-
-
     private int tdSteps;
-    private List<Float> legalActionMaxEntropies;
 
     public GameDTO(List<Integer> actions) {
         this();

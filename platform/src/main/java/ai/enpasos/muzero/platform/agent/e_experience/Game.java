@@ -78,9 +78,9 @@ public abstract class Game {
     private float error;
     private boolean debug;
     private boolean actionApplied;
+
+
     private boolean reanalyse;
-
-
     private int tReanalyseMin;
 
 
@@ -511,24 +511,11 @@ public abstract class Game {
 
     public int findNewTReanalyseMin() {
 
-
         this.tReanalyseMin = (int)Math.max(this.getGameDTO().getTHybrid(), this.tReanalyseMin);
 
         int tMaxHorizon = this.getGameDTO().getRewards().size() - 1;
 
-//
-//
-//   check
-     //  double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
         double localPRatioMax = 1;
-//
-//        int tdSteps;
-//
-//        if (currentIndex < tReanalyseMin) {
-//            throw new MuZeroNoSampleMatch();
-//        }
-
-   //     if (currentIndex >= tMaxHorizon  ) return 0;
 
         for (int t = tMaxHorizon; t >= this.tReanalyseMin; t--) {
 
@@ -543,10 +530,11 @@ public abstract class Game {
             double pRatio = p / pBase;
             log.info("pRatio = %", pRatio);
             if (pRatio < this.config.getKMinLimit() * localPRatioMax) {
-                log.info("newTReanalyseMin = %", pRatio);
-                return t+1;
+                this.tReanalyseMin = t+1;
+                break;
             }
         }
+        log.info("newTReanalyseMin = %", this.tReanalyseMin);
         return this.tReanalyseMin;
     }
 }
