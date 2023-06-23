@@ -33,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;
@@ -248,7 +250,7 @@ public class GameBuffer {
 
 
 
-
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addGames(List<Game> games, boolean atBeginning) {
 
         List<EpisodeDO> episodes = games.stream().map(game ->  EpisodeDO.builder()
@@ -267,6 +269,7 @@ public class GameBuffer {
                     .timeSteps(IntStream.range(0, game.getGameDTO().getObservations().size()).mapToObj(t ->
                             TimeStepDO.builder()
                                     .t(t)
+                                    .observation(game.getGameDTO().getObservations().get(t))
                                     .action(game.getGameDTO().getActions().size() > t ? game.getGameDTO().getActions().get(t): null)
                                     .entropy(game.getGameDTO().getEntropies().size() > t ? game.getGameDTO().getEntropies().get(t) : null)
                                     .rootEntropyValuesFromInitialInference(game.getGameDTO().getRootEntropyValuesFromInitialInference().size() > t ? game.getGameDTO().getRootEntropyValuesFromInitialInference().get(t) : null)

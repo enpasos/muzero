@@ -4,7 +4,7 @@ djl = "0.23.0-SNAPSHOT"
 pytorch = "2.0.0"
 
 slf4j = "2.0.7"
-springboot = "3.1.0"
+springboot = "3.1.1"
 protobuf = "3.23.3"
 junit = "5.9.3"
 jackson = "2.15.2"

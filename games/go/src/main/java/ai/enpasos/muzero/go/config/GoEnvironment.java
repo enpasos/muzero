@@ -111,7 +111,6 @@ public class GoEnvironment extends EnvironmentZeroSumBase {
 
     @Override
     public Observation getObservation() {
-
         return GoAdapter.translateToObservation(config,  history.get(history.size() -1));
     }
 

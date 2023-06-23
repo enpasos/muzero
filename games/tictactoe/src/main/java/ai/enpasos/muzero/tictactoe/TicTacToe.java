@@ -14,8 +14,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
+//@EnableTransactionManagement
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
 @EnableJpaRepositories(basePackages = {"ai.enpasos.muzero.*"})
