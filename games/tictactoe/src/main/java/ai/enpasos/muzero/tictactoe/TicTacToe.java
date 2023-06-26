@@ -17,7 +17,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
-//@EnableTransactionManagement
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
 @EnableJpaRepositories(basePackages = {"ai.enpasos.muzero.*"})

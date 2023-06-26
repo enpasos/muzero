@@ -17,11 +17,13 @@
 
 package ai.enpasos.muzero.platform.agent.e_experience;
 
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameProto;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.LegalActionProtos;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.ObservationProtos;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.PolicyProtos;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Slf4j
+@Builder
 public class GameDTO implements Comparable<GameDTO> {
 
 
@@ -67,6 +70,45 @@ public class GameDTO implements Comparable<GameDTO> {
     private long tHybrid = -1;
     private int trainingEpoch;
     private int tdSteps;
+
+
+    public static class GameDTOBuilder {
+
+
+        public GameDTO.GameDTOBuilder timeSteps(List<TimeStepDO> timeSteps) {
+               List<Integer> actions = timeSteps.stream().filter(o -> o.getAction()!=null).map(TimeStepDO::getAction).collect(Collectors.toList());
+                List<Float> rewards = timeSteps.stream().filter(o -> o.getReward()!=null).map(TimeStepDO::getReward).collect(Collectors.toList());
+                List<Float> entropies = timeSteps.stream().filter(o -> o.getEntropy()!=null).map(TimeStepDO::getEntropy).collect(Collectors.toList());
+                List<float[]> policyTargets = timeSteps.stream().filter(o -> o.getPolicyTarget()!=null).map(TimeStepDO::getPolicyTarget).collect(Collectors.toList());
+                List<Observation> observations = timeSteps.stream().filter(o -> o.getObservation()!=null).map(TimeStepDO::getObservation).collect(Collectors.toList());
+                List<float[]> playoutPolicy = timeSteps.stream().filter(o -> o.getPlayoutPolicy()!=null).map(TimeStepDO::getPlayoutPolicy).collect(Collectors.toList());
+                List<boolean[]> legalActions = timeSteps.stream().filter(o -> o.getLegalActions()!=null).map(TimeStepDO::getLegalActions).collect(Collectors.toList());
+
+                List<Float> rootValueTargets = timeSteps.stream().filter(o -> o.getRootValueTarget()!=null).map(TimeStepDO::getRootValueTarget).collect(Collectors.toList());
+                List<Float> vMix = timeSteps.stream().filter(o -> o.getVMix()!=null).map(TimeStepDO::getVMix).collect(Collectors.toList());
+                List<Float> rootEntropyValueTargets = timeSteps.stream().filter(o -> o.getRootEntropyValueTarget()!=null).map(TimeStepDO::getRootEntropyValueTarget).collect(Collectors.toList());
+                List<Float> rootEntropyValuesFromInitialInference = timeSteps.stream().filter(o -> o.getRootEntropyValueFromInitialInference()!=null).map(TimeStepDO::getRootEntropyValueFromInitialInference).collect(Collectors.toList());
+                List<Float> rootValuesFromInitialInference = timeSteps.stream().filter(o -> o.getRootValueFromInitialInference()!=null).map(TimeStepDO::getRootValueFromInitialInference).collect(Collectors.toList());
+                List<Float> legalActionMaxEntropies = timeSteps.stream().filter(o -> o.getLegalActionMaxEntropy()!=null).map(TimeStepDO::getLegalActionMaxEntropy).collect(Collectors.toList());
+
+                this.actions(actions);
+                this.rewards(rewards);
+                this.entropies(entropies);
+                this.policyTargets(policyTargets);
+                this.observations(observations);
+                this.playoutPolicy(playoutPolicy);
+                this.legalActions(legalActions);
+                this.rootValueTargets(rootValueTargets);
+                this.vMix(vMix);
+                this.rootEntropyValueTargets(rootEntropyValueTargets);
+                this.rootEntropyValuesFromInitialInference(rootEntropyValuesFromInitialInference);
+                this.rootValuesFromInitialInference(rootValuesFromInitialInference);
+                this.legalActionMaxEntropies(legalActionMaxEntropies);
+                return this;
+        }
+
+
+    }
 
     public GameDTO(List<Integer> actions) {
         this();

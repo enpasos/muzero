@@ -39,7 +39,7 @@ gradlew build
 ## Run integration test on tictactoc
 
 ``` 
-java -jar games/tictactoe/build/libs/tictactoe-0.6.0-SNAPSHOT-exec.jar  
+java -jar games/tictactoe/build/libs/tictactoe-0.7.0-SNAPSHOT-exec.jar  
 ```
 
 ## Further info
@@ -62,10 +62,10 @@ postgres
 
 port 5432
 
-#### Unbequeme Variante: Lokale Datenbankinstallation
+#### Local Database Setup
 
-Zur Anlage kann folgendes Skript als root ausgeführt werden:
-
+```
+Run as database postgres user;
 ```
 REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM muzero;
 REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM muzero;

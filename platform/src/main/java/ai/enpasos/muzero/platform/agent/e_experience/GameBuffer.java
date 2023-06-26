@@ -22,9 +22,9 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
-import ai.enpasos.muzero.platform.agent.e_experience.domain.EpisodeDO;
-import ai.enpasos.muzero.platform.agent.e_experience.domain.TimeStepDO;
-import ai.enpasos.muzero.platform.agent.e_experience.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
@@ -33,16 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -53,12 +47,15 @@ import java.util.stream.IntStream;
 public class GameBuffer {
 
 
-    private final EpisodeRepo episodeRepo;
 
     public static final String EPOCH_STR = "Epoch";
 
     @Autowired
     private ModelState modelState;
+
+
+    @Autowired
+    private DBService dbService;
 
     private int batchSize;
     private GameBufferDTO buffer;
@@ -214,17 +211,21 @@ public class GameBuffer {
 
     public void loadLatestStateIfExists() {
         init();
-        List<Path> paths = this.gameBufferIO.getBufferNames();
-        int epochMax = 0;
-        for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
-            Path path = paths.get(paths.size() - 1 - h);
-            GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
+        DurAndMem duration = new DurAndMem();
+        duration.on();
+         List<GameDTO> gameDTOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(config.getWindowSize());
+       // log.debug("gameDTOList.size()=" + gameDTOList.size());
+        duration.off();
+        log.debug("duration loading buffer from db: " + duration.getDur());
+        this.getBuffer().setInitialGameDTOList(gameDTOList);
 
-            epochMax = Math.max(getEpochFromPath(path), epochMax);
-            gameBufferDTO.getGames().forEach(game -> addGame(game, true));
-        }
 
-        this.modelState.setEpoch(epochMax);
+         gameDTOList.stream().mapToInt(GameDTO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
+         gameDTOList.stream().mapToLong(GameDTO::getCount).max().ifPresent(this.getBuffer()::setCounter);
+
+         this.getBuffer().rebuildGames( config);
+
+
     }
 
     public void sortGamesByLastValueError() {
@@ -250,49 +251,8 @@ public class GameBuffer {
 
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addGames(List<Game> games, boolean atBeginning) {
 
-        List<EpisodeDO> episodes = games.stream().map(game ->  EpisodeDO.builder()
-                    .hybrid(game.getGameDTO().isHybrid())
-                    .nextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck())
-                    .lastValueError(game.getGameDTO().getLastValueError())
-                    .surprised(game.getGameDTO().isSurprised())
-                    .tdSteps(game.getGameDTO().getTdSteps())
-                    .tHybrid(game.getGameDTO().getTHybrid())
-                    .networkName(game.getGameDTO().getNetworkName())
-                    .trainingEpoch(game.getGameDTO().getTrainingEpoch())
-                    .count(game.getGameDTO().getCount())
-                    .tdSteps(game.getGameDTO().getTdSteps())
-                    .pRandomActionRawCount(game.getGameDTO().getPRandomActionRawCount())
-                    .pRandomActionRawSum(game.getGameDTO().getPRandomActionRawSum())
-                    .timeSteps(IntStream.range(0, game.getGameDTO().getObservations().size()).mapToObj(t ->
-                            TimeStepDO.builder()
-                                    .t(t)
-                                    .observation(game.getGameDTO().getObservations().get(t))
-                                    .action(game.getGameDTO().getActions().size() > t ? game.getGameDTO().getActions().get(t): null)
-                                    .entropy(game.getGameDTO().getEntropies().size() > t ? game.getGameDTO().getEntropies().get(t) : null)
-                                    .rootEntropyValuesFromInitialInference(game.getGameDTO().getRootEntropyValuesFromInitialInference().size() > t ? game.getGameDTO().getRootEntropyValuesFromInitialInference().get(t) : null)
-                                    .policyTarget(game.getGameDTO().getPolicyTargets().size() > t ? game.getGameDTO().getPolicyTargets().get(t) : null)
-                                    .reward(game.getGameDTO().getRewards().size() > t ? game.getGameDTO().getRewards().get(t) : null)
-                                    .rootValuesFromInitialInference(game.getGameDTO().getRootValuesFromInitialInference().size() > t ?
-                                            game.getGameDTO().getRootValuesFromInitialInference().get(t) : null)
-                                    .legalActionMaxEntropy(game.getGameDTO().getLegalActionMaxEntropies().size() > t ?
-                                            game.getGameDTO().getLegalActionMaxEntropies().get(t) : null)
-                                    .legalActions(game.getGameDTO().getLegalActions().size() > t ? game.getGameDTO().getLegalActions().get(t) : null)
-                                    .vMix(game.getGameDTO().getVMix().size() > t ? game.getGameDTO().getVMix().get(t) : null)
-                                    .playoutPolicy(game.getGameDTO().getPlayoutPolicy().size() > t ? game.getGameDTO().getPlayoutPolicy().get(t) : null)
-                                    .rootEntropyValueTarges(game.getGameDTO().getRootEntropyValueTargets().size()>t ? game.getGameDTO().getRootEntropyValueTargets().get(t) : 0f)
-                                    .rootValueTargets(game.getGameDTO().getRootValueTargets().size() > t ? game.getGameDTO().getRootValueTargets().get(t): null)
-                                    .build()
-                    ).collect(Collectors.toList()))
-                    .build()).collect(Collectors.toList());
-        episodes.forEach(episode -> {
-            episode.getTimeSteps().forEach(timeStep -> {
-                timeStep.setEpisode(episode);
-            });
-        });
-        episodes = episodeRepo.saveAllAndFlush(episodes);
 
 
 
@@ -304,12 +264,23 @@ public class GameBuffer {
             logEntropyInfo();
             int epoch = this.getModelState().getEpoch();
 
-            this.gameBufferIO.saveGames(
-                this.getBuffer().games.stream()
+
+           List<Game> gamesToSave = this.getBuffer().games.stream()
                     .filter(g -> g.getGameDTO().getTrainingEpoch() == epoch)
                     .filter(g -> !g.isReanalyse())
-                    .collect(Collectors.toList()),
-                this.getModelState().getCurrentNetworkNameWithEpoch(), this.getConfig());
+
+                    .collect(Collectors.toList());
+
+
+           gamesToSave.forEach(g -> g.getGameDTO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
+
+//            this.gameBufferIO.saveGames(
+//                    gamesToSave,
+//                this.getModelState().getCurrentNetworkNameWithEpoch(), this.getConfig());
+
+
+            List<EpisodeDO> episodes  = dbService.convertGameListToEpisodeDOList(games);
+            dbService.saveEpisodesAndCommit(episodes);
         }
 
     }
