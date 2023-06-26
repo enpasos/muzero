@@ -30,7 +30,7 @@ public class SelfPlayGame {
         boolean untilEnd = playParameters.isUntilEnd();
         boolean justInitialInferencePolicy = playParameters.isJustInitialInferencePolicy();
 
-        game.getGameDTO().setTdSteps(config.getTdSteps());
+        game.getEpisodeDO().setTdSteps(config.getTdSteps());
 
 
         int count = 1;
@@ -41,16 +41,15 @@ public class SelfPlayGame {
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
+                game.getEpisodeDO().addNewTimeStepDO();
                 Action action = playAction.planAction(
                         game,
                         render,
                         fastRulesLearning,
                         justInitialInferencePolicy,
                         playParameters.getPRandomActionRawAverage(),
-                    //    playParameters.isDrawNotMaxWhenJustWithInitialInference(),   // check parameter isDrawNotMaxWhenJustWithInitialInference()
                         playParameters.replay,
                         playParameters.withGumbel);   // check parameter withRandomActions
-             //   Action action = playAction.planActionOld(game, render, fastRulesLearning, justInitialInferencePolicy, playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
                 if (playParameters.isReplay()) {
                     game.pseudoApplyFromOriginalGame(action);
                 } else {

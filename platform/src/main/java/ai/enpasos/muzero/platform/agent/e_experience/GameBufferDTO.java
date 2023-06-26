@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
 
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.memory.protobuf.GameBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,7 @@ public class GameBufferDTO {
     transient List<Game> games = new ArrayList<>();
     transient MuZeroConfig config;
     private List<GameDTO> initialGameDTOList = new ArrayList<>();
+    private List<EpisodeDO> initialEpisodeDOList = new ArrayList<>();
 
 
     private String gameClassName;
@@ -131,12 +133,18 @@ public class GameBufferDTO {
     public void rebuildGames(MuZeroConfig config) {
         log.info("rebuildGames");
         games = new ArrayList<>();
-        for (GameDTO gameDTO : getInitialGameDTOList()) {
+//        for (GameDTO gameDTO : getInitialGameDTOList()) {
+//            Game game = config.newGame(false,false);
+//            game.setGameDTO(gameDTO);
+//            games.add(game);
+//        }
+        for (EpisodeDO episodeDO : getInitialEpisodeDOList()) {
             Game game = config.newGame(false,false);
-            game.setGameDTO(gameDTO);
+           // game.setGameDTO(gameDTO);
+            game.setEpisodeDO(episodeDO);
             games.add(game);
         }
-        getInitialGameDTOList().clear();
+        getInitialEpisodeDOList().clear();
     }
 
     public GameBufferProto proto() {

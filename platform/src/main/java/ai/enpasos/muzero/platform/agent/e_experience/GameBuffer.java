@@ -213,16 +213,18 @@ public class GameBuffer {
         init();
         DurAndMem duration = new DurAndMem();
         duration.on();
-         List<GameDTO> gameDTOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(config.getWindowSize());
+         List<EpisodeDO> episodeDOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(config.getWindowSize());
+     //   List<GameDTO> gameDTOList = this.dbService.convertEpisodeDOListToGameList(episodeDOList);
        // log.debug("gameDTOList.size()=" + gameDTOList.size());
         duration.off();
         log.debug("duration loading buffer from db: " + duration.getDur());
-        this.getBuffer().setInitialGameDTOList(gameDTOList);
+     //   this.getBuffer().setInitialGameDTOList(gameDTOList);
+        this.getBuffer().setInitialEpisodeDOList(episodeDOList);
 
-
-         gameDTOList.stream().mapToInt(GameDTO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
-         gameDTOList.stream().mapToLong(GameDTO::getCount).max().ifPresent(this.getBuffer()::setCounter);
-
+//         gameDTOList.stream().mapToInt(GameDTO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
+//         gameDTOList.stream().mapToLong(GameDTO::getCount).max().ifPresent(this.getBuffer()::setCounter);
+        episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
+        episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getBuffer()::setCounter);
          this.getBuffer().rebuildGames( config);
 
 

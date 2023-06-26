@@ -4,8 +4,13 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
@@ -22,6 +27,9 @@ public class DBService {
     @Autowired
     EpisodeRepo episodeRepo;
 
+    @Autowired
+    MuZeroConfig config;
+
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<EpisodeDO> saveEpisodesAndCommit(List<EpisodeDO> episodes) {
@@ -31,11 +39,12 @@ public class DBService {
 
 
     @Transactional
-    public List<GameDTO> findTopNByOrderByIdDescAndConvertToGameDTOList(int n) {
-        List<EpisodeDO>  list =  episodeRepo.findTopNByOrderByIdDesc(n);
-     //  List<EpisodeDO>  list =   episodeRepo.findTop100ByOrderByIdDesc();
-        List<GameDTO> gameDTOList = convertEpisodeDOListToGameList(list);
-        return gameDTOList;
+    public List<EpisodeDO> findTopNByOrderByIdDescAndConvertToGameDTOList(int n) {
+
+        List<EpisodeDO>  list = episodeRepo.findTopNByOrderByIdDesc(PageRequest.of(0, config.getWindowSize()));
+ return list;
+//        List<GameDTO> gameDTOList = convertEpisodeDOListToGameList(list);
+//        return gameDTOList;
     }
 
 
@@ -57,48 +66,48 @@ public class DBService {
                 .build()).collect(Collectors.toList());
     }
 
-    public  List<EpisodeDO> convertGameListToEpisodeDOList(List<Game> games) {
-        List<EpisodeDO> episodes = games.stream().map(game ->  EpisodeDO.builder()
-                .hybrid(game.getGameDTO().isHybrid())
-                .nextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck())
-                .lastValueError(game.getGameDTO().getLastValueError())
-                .surprised(game.getGameDTO().isSurprised())
-                .tdSteps(game.getGameDTO().getTdSteps())
-                .tHybrid(game.getGameDTO().getTHybrid())
-                .networkName(game.getGameDTO().getNetworkName())
-                .trainingEpoch(game.getGameDTO().getTrainingEpoch())
-                .count(game.getGameDTO().getCount())
-                .tdSteps(game.getGameDTO().getTdSteps())
-                .pRandomActionRawCount(game.getGameDTO().getPRandomActionRawCount())
-                .pRandomActionRawSum(game.getGameDTO().getPRandomActionRawSum())
-                .timeSteps(IntStream.range(0, game.getGameDTO().getObservations().size()).mapToObj(t ->
-                        TimeStepDO.builder()
-                                .t(t)
-                                .observation(game.getGameDTO().getObservations().get(t))
-                                .action(game.getGameDTO().getActions().size() > t ? game.getGameDTO().getActions().get(t): null)
-                                .entropy(game.getGameDTO().getEntropies().size() > t ? game.getGameDTO().getEntropies().get(t) : null)
-                                .rootEntropyValueFromInitialInference(game.getGameDTO().getRootEntropyValuesFromInitialInference().size() > t ? game.getGameDTO().getRootEntropyValuesFromInitialInference().get(t) : null)
-                                .policyTarget(game.getGameDTO().getPolicyTargets().size() > t ? game.getGameDTO().getPolicyTargets().get(t) : null)
-                                .reward(game.getGameDTO().getRewards().size() > t ? game.getGameDTO().getRewards().get(t) : null)
-                                .rootValueFromInitialInference(game.getGameDTO().getRootValuesFromInitialInference().size() > t ?
-                                        game.getGameDTO().getRootValuesFromInitialInference().get(t) : null)
-                                .legalActionMaxEntropy(game.getGameDTO().getLegalActionMaxEntropies().size() > t ?
-                                        game.getGameDTO().getLegalActionMaxEntropies().get(t) : null)
-                                .legalActions(game.getGameDTO().getLegalActions().size() > t ? game.getGameDTO().getLegalActions().get(t) : null)
-                                .vMix(game.getGameDTO().getVMix().size() > t ? game.getGameDTO().getVMix().get(t) : null)
-                                .playoutPolicy(game.getGameDTO().getPlayoutPolicy().size() > t ? game.getGameDTO().getPlayoutPolicy().get(t) : null)
-                                .rootEntropyValueTarget(game.getGameDTO().getRootEntropyValueTargets().size()>t ? game.getGameDTO().getRootEntropyValueTargets().get(t) : 0f)
-                                .rootValueTarget(game.getGameDTO().getRootValueTargets().size() > t ? game.getGameDTO().getRootValueTargets().get(t): null)
-                                .build()
-                ).collect(Collectors.toList()))
-                .build()).collect(Collectors.toList());
-        episodes.forEach(episode -> {
-            episode.getTimeSteps().forEach(timeStep -> {
-                timeStep.setEpisode(episode);
-            });
-        });
-        return episodes;
-    }
+//    public  List<EpisodeDO> convertGameListToEpisodeDOList(List<Game> games) {
+//        List<EpisodeDO> episodes = games.stream().map(game ->  EpisodeDO.builder()
+//                .hybrid(game.getGameDTO().isHybrid())
+//                .nextSurpriseCheck(game.getGameDTO().getNextSurpriseCheck())
+//                .lastValueError(game.getGameDTO().getLastValueError())
+//                .surprised(game.getGameDTO().isSurprised())
+//                .tdSteps(game.getGameDTO().getTdSteps())
+//                .tHybrid(game.getGameDTO().getTHybrid())
+//                .networkName(game.getGameDTO().getNetworkName())
+//                .trainingEpoch(game.getGameDTO().getTrainingEpoch())
+//                .count(game.getGameDTO().getCount())
+//                .tdSteps(game.getGameDTO().getTdSteps())
+//                .pRandomActionRawCount(game.getGameDTO().getPRandomActionRawCount())
+//                .pRandomActionRawSum(game.getGameDTO().getPRandomActionRawSum())
+//                .timeSteps(IntStream.range(0, game.getGameDTO().getObservations().size()).mapToObj(t ->
+//                        TimeStepDO.builder()
+//                                .t(t)
+//                                .observation(game.getGameDTO().getObservations().get(t))
+//                                .action(game.getGameDTO().getActions().size() > t ? game.getGameDTO().getActions().get(t): null)
+//                                .entropy(game.getGameDTO().getEntropies().size() > t ? game.getGameDTO().getEntropies().get(t) : null)
+//                                .rootEntropyValueFromInitialInference(game.getGameDTO().getRootEntropyValuesFromInitialInference().size() > t ? game.getGameDTO().getRootEntropyValuesFromInitialInference().get(t) : null)
+//                                .policyTarget(game.getGameDTO().getPolicyTargets().size() > t ? game.getGameDTO().getPolicyTargets().get(t) : null)
+//                                .reward(game.getGameDTO().getRewards().size() > t ? game.getGameDTO().getRewards().get(t) : null)
+//                                .rootValueFromInitialInference(game.getGameDTO().getRootValuesFromInitialInference().size() > t ?
+//                                        game.getGameDTO().getRootValuesFromInitialInference().get(t) : null)
+//                                .legalActionMaxEntropy(game.getGameDTO().getLegalActionMaxEntropies().size() > t ?
+//                                        game.getGameDTO().getLegalActionMaxEntropies().get(t) : null)
+//                                .legalActions(game.getGameDTO().getLegalActions().size() > t ? game.getGameDTO().getLegalActions().get(t) : null)
+//                                .vMix(game.getGameDTO().getVMix().size() > t ? game.getGameDTO().getVMix().get(t) : null)
+//                                .playoutPolicy(game.getGameDTO().getPlayoutPolicy().size() > t ? game.getGameDTO().getPlayoutPolicy().get(t) : null)
+//                                .rootEntropyValueTarget(game.getGameDTO().getRootEntropyValueTargets().size()>t ? game.getGameDTO().getRootEntropyValueTargets().get(t) : 0f)
+//                                .rootValueTarget(game.getGameDTO().getRootValueTargets().size() > t ? game.getGameDTO().getRootValueTargets().get(t): null)
+//                                .build()
+//                ).collect(Collectors.toList()))
+//                .build()).collect(Collectors.toList());
+//        episodes.forEach(episode -> {
+//            episode.getTimeSteps().forEach(timeStep -> {
+//                timeStep.setEpisode(episode);
+//            });
+//        });
+//        return episodes;
+//    }
 
 
 }
