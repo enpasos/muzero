@@ -78,10 +78,17 @@ public class EpisodeDO {
   }
 
   public Optional<TimeStepDO> getLastTimeStep() {
-    if (timeSteps.isEmpty()) {
+    if (timeSteps == null || timeSteps.isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(timeSteps.get(timeSteps.size() - 1));
+  }
+
+  public OptionalInt getLatestTime() {
+    if (timeSteps == null || timeSteps.isEmpty()) {
+      return OptionalInt.empty();
+    }
+    return OptionalInt.of(timeSteps.get(timeSteps.size() - 1).getT());
   }
 
   public Optional<TimeStepDO> getFirstTimeStep() {
@@ -96,7 +103,17 @@ public class EpisodeDO {
   }
 
   public boolean[] getLatestLegalActions() {
-    return  getLastTimeStep().orElseThrow().getLegalActions();
+    boolean[] legalActions = new boolean[0];
+    try {
+      legalActions = getLastTimeStep().orElseThrow().getLegalActions();
+    } catch (Exception e) {
+      int i = 42;
+    }
+    if (legalActions == null) {
+      int i = 42;
+    }
+    return legalActions;
+   //return  getLastTimeStep().orElseThrow().getLegalActions();
   }
 
   public int getLastActionTime() {
@@ -104,7 +121,7 @@ public class EpisodeDO {
             timeSteps.stream().filter(timeStepDO -> timeStepDO.getAction() != null)
                     .mapToInt(TimeStepDO::getT)
                     .max()
-                    .orElse(-1);
+                    .orElse(-1) ;
   }
   public OptionalInt getLastLegalActionsTime() {
     return
@@ -126,11 +143,14 @@ public class EpisodeDO {
     return timeSteps.get(t).getObservation();
   }
 
+
+
   public void addNewTimeStepDO() {
     if (timeSteps == null) {
       timeSteps = new ArrayList<>();
     }
-    timeSteps.add(TimeStepDO.builder().episode(this).build());
+    int t = this.getLatestTime().orElse(-1) + 1;
+    timeSteps.add(TimeStepDO.builder().episode(this).t(t).build());
   }
 
 

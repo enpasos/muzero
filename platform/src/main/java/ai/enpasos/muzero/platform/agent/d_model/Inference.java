@@ -264,7 +264,7 @@ public class Inference {
                 EpisodeDO episodeDO = g.getEpisodeDO();
                 int n = episodeDO.getLastActionTime();
                 TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(n);
-                result.add(Pair.create((double)timeStepDO.getRootEntropyValueFromInitialInference(), timeStepDO.getAction() ));
+                result.add(Pair.create((double)timeStepDO.getRootValueFromInitialInference(), timeStepDO.getAction() ));
             });
 
         }

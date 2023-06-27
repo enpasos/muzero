@@ -92,7 +92,7 @@ public class PlanAction {
         }
 
         EpisodeDO episodeDO = game.getEpisodeDO();
-        int t = episodeDO.getLastActionTime();
+        int t = episodeDO.getLastTimeStep().orElseThrow().getT();
         TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
 
         storeEntropyInfo(game, timeStepDO, networkOutput );

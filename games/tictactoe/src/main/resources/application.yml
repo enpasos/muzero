@@ -6,8 +6,8 @@ logging:
     console: "%d %-5level [%thread] %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type: TRACE
+    # org.hibernate.SQL: DEBUG
+    # org.hibernate.type: TRACE
     root: WARN
     ai.enpasos: DEBUG
     ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO

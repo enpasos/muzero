@@ -4,6 +4,7 @@ import ai.djl.Device;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.KnownBounds;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,7 @@ public class MuZeroConfig {
             Game game =  (Game) constructor.newInstance(this);
             if (connectToEnvironment) {game.connectToEnvironment();}
             if (withFirstObservation) {
+                game.getEpisodeDO().addNewTimeStepDO();
                 game.addObservationFromEnvironment();
                 game.addLegalActionFromEnvironment();
             }

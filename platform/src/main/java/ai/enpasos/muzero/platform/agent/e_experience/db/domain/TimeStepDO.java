@@ -37,7 +37,8 @@ public class TimeStepDO {
     //    @EqualsAndHashCode.Include
 //    private List<Integer> actions;
 
-    Float  reward ;
+    @Builder.Default
+    Float  reward = 0f;
     Float  entropy;
     float[] policyTarget;
 

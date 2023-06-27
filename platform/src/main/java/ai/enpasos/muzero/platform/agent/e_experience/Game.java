@@ -192,6 +192,9 @@ public abstract class Game {
         float reward = this.environment.step(action);
         this.getEpisodeDO().getLastTimeStep().orElseThrow().setReward(reward);
         this.getEpisodeDO().getLastTimeStep().orElseThrow().setAction(action.getIndex());
+
+        // now ... observation and legal actions already belong to the next timestamp
+        getEpisodeDO().addNewTimeStepDO();
         addObservationFromEnvironment();
         addLegalActionFromEnvironment();
         setActionApplied(true);
@@ -200,6 +203,8 @@ public abstract class Game {
     public void pseudoApplyFromOriginalGame(Action action) {
         this.getEpisodeDO().getLastTimeStep().orElseThrow().setAction(action.getIndex());
         this.getEpisodeDO().getLastTimeStep().orElseThrow().setReward(this.getOriginalEpisodeDO().getLatestReward());
+        // new time
+        getEpisodeDO().addNewTimeStepDO();
         this.getEpisodeDO().getLastTimeStep().orElseThrow().setObservation(this.getOriginalEpisodeDO().getLatestObservation());
         this.getEpisodeDO().getLastTimeStep().orElseThrow().setLegalActions(this.getOriginalEpisodeDO().getLatestLegalActions());
         setActionApplied(true);
@@ -221,12 +226,12 @@ public abstract class Game {
 
         int tdSteps = getTdSteps(currentIndex);
         double value = calculateValue(tdSteps, currentIndex);
-        double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
+       // double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
 
         if (currentIndex < this.getEpisodeDO().getLastPolicyTargetsTime().orElseThrow() + 1) {
-            target.setEntropyValue((float) entropyValue);
+        //    target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget());
@@ -240,14 +245,14 @@ public abstract class Game {
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-            target.setEntropyValue((float) entropyValue);
+           // target.setEntropyValue((float) entropyValue);
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-            target.setEntropyValue((float) entropyValue);
+          //  target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
@@ -346,7 +351,7 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
         if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
-            if (bootstrapIndex < this.getEpisodeDO().getLastRootEntropyValuesFromInitialInferenceTime().orElseThrow(MuZeroException::new) + 1) {
+            if (!this.getEpisodeDO().getLastRootEntropyValuesFromInitialInferenceTime().isEmpty() && bootstrapIndex < this.getEpisodeDO().getLastRootEntropyValuesFromInitialInferenceTime().orElseThrow(MuZeroException::new) + 1) {
                 value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
@@ -395,12 +400,13 @@ public abstract class Game {
         if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
             switch(config.getVTarget()) {
                 case V_INFERENCE:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastRootValueFromInitialInferenceTime().orElseThrow()  + 1) {
+                    if (!this.getEpisodeDO().getLastRootValueFromInitialInferenceTime().isEmpty()
+                      && bootstrapIndex < this.getEpisodeDO().getLastRootValueFromInitialInferenceTime().orElseThrow() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_CONSISTENT:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastRootValueTargetTime().orElseThrow()  + 1) {
+                    if (bootstrapIndex < this.getEpisodeDO().getLastRootValueTargetTime().orElseThrow() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
