@@ -75,8 +75,11 @@ public class GameProvider {
         gameBuffer.loadLatestStateIfExists();
         List<Game> games = gameBuffer.getBuffer().getGames();
         return games.stream().filter(game ->
-            // check if game.getGameDTO().getActions() starts with actionsList
-            game.getGameDTO().getActions().stream().limit(actionsList.size()).collect(Collectors.toList()).equals(actionsList)
+            // check if game.getEpisodeDO() starts with actionsList
+                        game.getEpisodeDO().getTimeSteps().stream()
+                                .limit(actionsList.size())
+                                .map(timeStepDO -> timeStepDO.getAction())
+                                .collect(Collectors.toList()).equals(actionsList)
         ).findFirst();
     }
 

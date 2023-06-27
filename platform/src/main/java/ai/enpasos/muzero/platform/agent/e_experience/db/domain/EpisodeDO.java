@@ -1,9 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 
-import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +12,7 @@ import org.hibernate.annotations.FetchMode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -39,7 +37,7 @@ public class EpisodeDO {
     // @EqualsAndHashCode.Exclude
     private List<TimeStepDO> timeSteps;
 
-
+  @Builder.Default
     String networkName = "NONE";
     float pRandomActionRawSum;
     int pRandomActionRawCount;
@@ -48,6 +46,7 @@ public class EpisodeDO {
     long nextSurpriseCheck;
     boolean surprised;
     boolean hybrid;
+  @Builder.Default
     long tHybrid = -1;
     int trainingEpoch;
     int tdSteps;
@@ -68,12 +67,13 @@ public class EpisodeDO {
             .tHybrid(tHybrid)
             .trainingEpoch(trainingEpoch)
             .tdSteps(tdSteps)
+            .timeSteps(timeSteps.stream().map(TimeStepDO::copy).collect(Collectors.toList()))
             .build();
   }
 
   public EpisodeDO copy(int toPosition) {
     EpisodeDO episodeDO = copy();
-    episodeDO.setTimeSteps(timeSteps.subList(0, toPosition));
+    episodeDO.setTimeSteps(episodeDO.getTimeSteps().subList(0, toPosition));
     return episodeDO;
   }
 
@@ -175,4 +175,67 @@ public class EpisodeDO {
             .mapToInt(TimeStepDO::getT)
             .max();
   }
+
+  public EpisodeDO copyWithoutTimeSteps() {
+    EpisodeDO copy = new EpisodeDO();
+    copy.networkName = this.networkName;
+    copy.count = this.count;
+    copy.nextSurpriseCheck = this.nextSurpriseCheck;
+    copy.tdSteps = this.tdSteps;
+    copy.hybrid = this.hybrid;
+    copy.tHybrid = this.tHybrid;
+    copy.trainingEpoch = this.trainingEpoch;
+    copy.pRandomActionRawCount = this.pRandomActionRawCount;
+    copy.pRandomActionRawSum = this.pRandomActionRawSum;
+    copy.lastValueError = this.lastValueError;
+    copy.surprised = this.surprised;
+    return copy;
+  }
+
+  public boolean deepEquals(EpisodeDO episodeDO) {
+    if (episodeDO == null) {
+      return false;
+    }
+    if (episodeDO.timeSteps.size() != this.timeSteps.size()) {
+      return false;
+    }
+    for (int i = 0; i < episodeDO.timeSteps.size(); i++) {
+      if (!episodeDO.timeSteps.get(i).deepEquals(this.timeSteps.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+  public boolean hasExploration() {
+    return tHybrid > 0;
+  }
+
+  public double getAverageEntropy() {
+    double entropySum = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getEntropy() != null).mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
+    double entropyCount = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getEntropy() != null).count();
+    return entropySum / Math.max(1, entropyCount);
+  }
+
+  public double getAverageActionMaxEntropy() {
+    double sum = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getLegalActionMaxEntropy() != null).mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
+    double count = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getLegalActionMaxEntropy() != null).count();
+    return sum / Math.max(1, count);
+
+  }
+public List<Integer> getActions() {
+  return getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getAction() != null)
+          .map(timeStepDO -> timeStepDO.getAction()).collect(Collectors.toList());
+}
+
+  public double getEntropyOfInitialState() {
+    if(this.getTimeSteps().size() == 0) {
+      return 0;
+    } else {
+        return this.getTimeSteps().get(0).getEntropy();
+    }
+  }
+
+
 }

@@ -215,13 +215,13 @@ public class ModelController implements DisposableBean, Runnable {
     private void determinePRatioMaxForCurrentEpoch() {
         int epoch = this.modelState.getEpoch();
         List<Game> games = this.gameBuffer.getGames().stream()
-            .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.isReanalyse() )
+            .filter(game -> game.getEpisodeDO().getTrainingEpoch() == epoch && game.isReanalyse() )
             .collect(Collectors.toList());
         double pRatioMax = determinePRatioMax(games);
         log.info("pRatioMaxREANALYSE({}): {}", epoch, pRatioMax);
 
         List<Game> games2 = this.gameBuffer.getGames().stream()
-            .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && !game.isReanalyse() )
+            .filter(game -> game.getEpisodeDO().getTrainingEpoch() == epoch && !game.isReanalyse() )
             .collect(Collectors.toList());
         double pRatioMax2 = determinePRatioMax(games2);
         log.info("pRatioMax({}): {}", epoch, pRatioMax2);

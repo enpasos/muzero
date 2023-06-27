@@ -20,7 +20,6 @@ package ai.enpasos.muzero.tictactoe.run;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBufferDTO;
-import ai.enpasos.muzero.platform.agent.e_experience.GameBufferIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.EntropyExtractor;
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.getEpochFromPath;
 
@@ -49,15 +49,15 @@ public class TicTacToeEntropyExtractor {
     @Autowired
     GameBuffer gameBuffer;
 
-    @Autowired
-    GameBufferIO gameBufferIO;
+
 
 
     @Autowired
     GameProvider surpriseExtractor;
 
     public void runA() {
-        List<Integer> actionIndexList = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8).orElseThrow(MuZeroException::new).getGameDTO().getActions();
+        List<Integer> actionIndexList = surpriseExtractor.getGameStartingWithActionsFromStart(0, 4, 7, 3, 5, 6, 2, 1, 8).orElseThrow(MuZeroException::new).getEpisodeDO()
+                .getActions();
         System.out.println(entropyExtractor.listValuesForTrainedNetworks(actionIndexList));
     }
 
@@ -65,29 +65,31 @@ public class TicTacToeEntropyExtractor {
 
     public void run(boolean onlyInitialState) {
 
-        List<Path> paths = this.gameBufferIO.getBufferNames();
-        Collections.reverse(paths);
-        int epochMax = 0;
-        Map<Integer, Double> entropyMap = new HashMap<>();
-        for (int h = 0; h < paths.size(); h++) {
-            Path path = paths.get(paths.size() - 1 - h);
-            GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
-            int epoch = getEpochFromPath(path);
-            double entropy = gameBufferDTO.getGames().stream().mapToDouble(game ->
-                    {
-                       if (onlyInitialState) {
-                           return game.getGameDTO().getEntropyOfInitialState();
-                       }   else {
-                           return game.getGameDTO().getAverageEntropy();
-                       }
-                    }
-            ).average().orElse(0d);
+        // TODO
 
-            entropyMap.put(epoch, entropy);
-           // System.out.println(epoch + ";" + entropy);
-
-        }
-        entropyMap.forEach((epoch, entropy) -> System.out.println(epoch + ";" +NumberFormat.getNumberInstance().format(entropy)));
+//        List<Path> paths = this.gameBufferIO.getBufferNames();
+//        Collections.reverse(paths);
+//        int epochMax = 0;
+//        Map<Integer, Double> entropyMap = new HashMap<>();
+//        for (int h = 0; h < paths.size(); h++) {
+//            Path path = paths.get(paths.size() - 1 - h);
+//            GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
+//            int epoch = getEpochFromPath(path);
+//            double entropy = gameBufferDTO.getGames().stream().mapToDouble(game ->
+//                    {
+//                       if (onlyInitialState) {
+//                           return game.getEpisodeDO().getEntropyOfInitialState();
+//                       }   else {
+//                           return game.getEpisodeDO().getAverageEntropy();
+//                       }
+//                    }
+//            ).average().orElse(0d);
+//
+//            entropyMap.put(epoch, entropy);
+//           // System.out.println(epoch + ";" + entropy);
+//
+//        }
+//        entropyMap.forEach((epoch, entropy) -> System.out.println(epoch + ";" +NumberFormat.getNumberInstance().format(entropy)));
     }
 
 }

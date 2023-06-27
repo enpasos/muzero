@@ -62,8 +62,8 @@ public class GameBuffer {
     @Autowired
     private MuZeroConfig config;
 
-    @Autowired
-    private GameBufferIO gameBufferIO;
+//    @Autowired
+//    private GameBufferIO gameBufferIO;
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     private Map<Integer, Double> meanEntropyValuesLosses = new HashMap<>();
     private Map<Integer, Double> entropyExplorationSum = new HashMap<>();
@@ -102,7 +102,11 @@ public class GameBuffer {
         sample.getObservations().add(observation);
 
 
-        List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
+        List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
+                .filter(timeStepDO -> timeStepDO.getAction() != null)
+                .map(timeStepDO -> (Integer)timeStepDO.getAction())
+                .collect(Collectors.toList());
+
         int originalActionSize = actions.size();
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
@@ -127,7 +131,7 @@ public class GameBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-        return ThreadLocalRandom.current().nextInt(0, game.getGameDTO().getActions().size() + 1);
+        return ThreadLocalRandom.current().nextInt(0, game.getEpisodeDO().getLastActionTime() + 2);
     }
 
 
@@ -150,11 +154,11 @@ public class GameBuffer {
     }
 
     public int getAverageGameLength() {
-        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).average().orElse(1000);
+        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastActionTime()+1).average().orElse(1000);
     }
 
     public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(0);
+        return getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastActionTime()+1).max().orElse(0);
     }
 
 
@@ -167,8 +171,8 @@ public class GameBuffer {
         this.batchSize = config.getBatchSize();
         if (this.getBuffer() != null) {
             this.getBuffer().games.forEach(g -> {
-                g.setGameDTO(null);
-                g.setOriginalGameDTO(null);
+                g.setEpisodeDO(null);
+                g.setOriginalEpisodeDO(null);
             });
             this.getBuffer().games.clear();
         }
@@ -244,8 +248,8 @@ public class GameBuffer {
     }
 
     public double getPRandomActionRawAverage() {
-        double sum = this.getBuffer().games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
-        long count = this.getBuffer().games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
+        double sum = this.getBuffer().games.stream().mapToDouble(g -> g.getEpisodeDO().getPRandomActionRawSum()).sum();
+        long count = this.getBuffer().games.stream().mapToLong(g -> g.getEpisodeDO().getPRandomActionRawCount()).sum();
         if (count == 0) return 1;
         return sum / count;
     }
@@ -262,26 +266,28 @@ public class GameBuffer {
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
         } else {
-            this.timestamps.put(games.get(0).getGameDTO().getTrainingEpoch(), System.currentTimeMillis());
+            this.timestamps.put(games.get(0).getEpisodeDO().getTrainingEpoch(), System.currentTimeMillis());
             logEntropyInfo();
             int epoch = this.getModelState().getEpoch();
 
 
            List<Game> gamesToSave = this.getBuffer().games.stream()
-                    .filter(g -> g.getGameDTO().getTrainingEpoch() == epoch)
+                    .filter(g -> g.getEpisodeDO().getTrainingEpoch() == epoch)
                     .filter(g -> !g.isReanalyse())
 
                     .collect(Collectors.toList());
 
 
-           gamesToSave.forEach(g -> g.getGameDTO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
+           gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
 
 //            this.gameBufferIO.saveGames(
 //                    gamesToSave,
 //                this.getModelState().getCurrentNetworkNameWithEpoch(), this.getConfig());
 
 
-            List<EpisodeDO> episodes  = dbService.convertGameListToEpisodeDOList(games);
+         //   List<EpisodeDO> episodes  = dbService.convertGameListToEpisodeDOList(games);
+            List<EpisodeDO> episodes  = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
+
             dbService.saveEpisodesAndCommit(episodes);
         }
 
@@ -290,17 +296,17 @@ public class GameBuffer {
 
 
     private void addGameAndRemoveOldGameIfNecessary(Game game, boolean atBeginning ) {
-         memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
+         memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         if (!game.isReanalyse()) {
-            game.getGameDTO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
+            game.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
         }
-        game.getGameDTO().setTrainingEpoch(this.getModelState().getEpoch());
+        game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
         buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
     }
 
 
     private void addGame(Game game, boolean atBeginning) {
-        memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
+        memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         getBuffer().addGame(game, atBeginning);
     }
 
@@ -313,15 +319,15 @@ public class GameBuffer {
         this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
         this.entropyExplorationCount.putIfAbsent(epoch, 0);
         this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
-        if (game.getGameDTO().hasExploration()) {
-            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getGameDTO().getAverageEntropy());
+        if (game.getEpisodeDO().hasExploration()) {
+            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
             this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
-            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getGameDTO().getAverageActionMaxEntropy());
+            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
             this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
         } else {
-            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageEntropy());
+            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
             this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
-            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageActionMaxEntropy());
+            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
             this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
         }
     }
@@ -364,15 +370,15 @@ public class GameBuffer {
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
         List<String> networkNames = new ArrayList<>();
-        List<Game> games =  gameBufferIO.loadGamesForReplay(n );
+        List<Game> games = new ArrayList<>(); // gameBufferIO.loadGamesForReplay(n );   // TODO
         games.forEach(g -> {
             g.setReanalyse(true);
-            g.setTReanalyseMin(mapTReanalyseMin2GameCount.getOrDefault(g.gameDTO.getCount(), 0));
+            g.setTReanalyseMin(mapTReanalyseMin2GameCount.getOrDefault(g.episodeDO.getCount(), 0));
             int newTReanalyseMin = g.findNewTReanalyseMin();
-            mapTReanalyseMin2GameCount.put(g.gameDTO.getCount(), newTReanalyseMin);
+            mapTReanalyseMin2GameCount.put(g.episodeDO.getCount(), newTReanalyseMin);
             g.setTReanalyseMin(newTReanalyseMin);
 
-            if (newTReanalyseMin > g.gameDTO.getActions().size()) {
+            if (newTReanalyseMin > g.episodeDO.getLastActionTime() + 1) {
                 g.setReanalyse(false);
             }
         });

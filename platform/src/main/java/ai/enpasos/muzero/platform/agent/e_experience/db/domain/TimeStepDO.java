@@ -46,6 +46,48 @@ public class TimeStepDO {
     byte[] observationPartA;
     byte[] observationPartB;
 
+    public TimeStepDO copyPolicyTarget() {
+        return TimeStepDO.builder()
+                .policyTarget(policyTarget)
+//                .observationPartSize(observationPartSize)
+//                .observationPartA(observationPartA)
+//                .observationPartB(observationPartB)
+                .build();
+    }
+
+    public boolean deepEquals(TimeStepDO timeStepDO) {
+        if (timeStepDO == null) return false;
+        if (timeStepDO == this) return true;
+        return
+                t == timeStepDO.t &&
+                        action == timeStepDO.action &&
+                        reward == timeStepDO.reward &&
+                        entropy == timeStepDO.entropy &&
+                        policyTarget == timeStepDO.policyTarget &&
+                        observationPartSize == timeStepDO.observationPartSize &&
+                        observationPartA == timeStepDO.observationPartA &&
+                        observationPartB == timeStepDO.observationPartB;
+    }
+
+    public TimeStepDO copy() {
+        return TimeStepDO.builder()
+                .t(t)
+                .action(action)
+                .reward(reward)
+                .entropy(entropy)
+                .policyTarget(policyTarget)
+                .observation(getObservation())
+                .episode(episode)
+                .legalActions(legalActions)
+                .legalActionMaxEntropy(legalActionMaxEntropy)
+                .playoutPolicy(playoutPolicy)
+                .rootEntropyValueFromInitialInference(rootEntropyValueFromInitialInference)
+                .rootEntropyValueTarget(rootEntropyValueTarget)
+                .rootValueFromInitialInference(rootValueFromInitialInference)
+                .rootValueTarget(rootValueTarget)
+                .build();
+    }
+
 
     public static class TimeStepDOBuilder {
         int observationPartSize;

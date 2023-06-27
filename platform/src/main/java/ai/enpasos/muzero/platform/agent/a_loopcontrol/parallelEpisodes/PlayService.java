@@ -42,7 +42,7 @@ public class PlayService {
             Game game = config.newGame(true,true);
             games.add(game);
         }
-        games.stream().forEach(game -> game.getGameDTO().setTdSteps(config.getTdSteps()));
+        games.stream().forEach(game -> game.getEpisodeDO().setTdSteps(config.getTdSteps()));
         if (config.getTrainingTypeKey() == HYBRID) {
             hybridConfiguration(games);
         }
@@ -53,23 +53,27 @@ public class PlayService {
     public List<Game> reanalyseGames(int numGames, PlayParameters playParameters, List<Game> games) {
 
         games.forEach(game -> {
-            game.getGameDTO().setTdSteps(config.getTdSteps());
-            game.setOriginalGameDTO(game.getGameDTO().copy());
-            game.getGameDTO().getPolicyTargets().clear();
-            game.getGameDTO().setRootValueTargets(new ArrayList<>());
-            game.getGameDTO().setVMix(new ArrayList<>());
-            game.getGameDTO().setRootEntropyValueTargets(new ArrayList<>());
-            game.getGameDTO().setEntropies(new ArrayList<>());
-            game.getGameDTO().setLegalActionMaxEntropies(new ArrayList<>());
-            game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
-            game.getGameDTO().setRootEntropyValuesFromInitialInference(new ArrayList<>());
-            game.getGameDTO().setActions(new ArrayList<>());
-            game.getGameDTO().setRewards(new ArrayList<>());
-            game.getGameDTO().setObservations(new ArrayList<>());
-            game.getGameDTO().setLegalActions(new ArrayList<>());
+            game.getEpisodeDO().setTdSteps(config.getTdSteps());
+            game.setOriginalEpisodeDO(game.getEpisodeDO().copy());
 
-            game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(0));
-            game.getGameDTO().getLegalActions().add(game.getOriginalGameDTO().getLegalActions().get(0));
+            game.getEpisodeDO().getTimeSteps().stream().forEach(
+                    timeStepDO -> {
+                        timeStepDO.setPolicyTarget(null);
+                        timeStepDO.setRootValueTarget(null);
+                        timeStepDO.setVMix(null);
+                        timeStepDO.setRootEntropyValueTarget(null);
+                        timeStepDO.setEntropy(null);
+                        timeStepDO.setLegalActionMaxEntropy(null);
+                        timeStepDO.setRootValueFromInitialInference(null);
+                        timeStepDO.setRootEntropyValueFromInitialInference(null);
+                        timeStepDO.setAction(null);
+                        timeStepDO.setReward(null);
+                        timeStepDO.setObservation(null);
+                        timeStepDO.setLegalActions(null);
+                    }
+            );
+            game.getEpisodeDO().getTimeSteps().get(0).setObservation(game.getEpisodeDO().getTimeSteps().get(0).getObservation());
+            game.getEpisodeDO().getTimeSteps().get(0).setLegalActions(game.getEpisodeDO().getTimeSteps().get(0).getLegalActions());
         });
 
         return playGames(games, playParameters);
@@ -91,9 +95,9 @@ public class PlayService {
 
     private void hybridConfiguration(List<Game> games, int gameLength) {
         games.stream().forEach(game -> {
-            game.getGameDTO().setHybrid(true);
-            if (game.getGameDTO().getTHybrid() == -1) {
-                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
+            game.getEpisodeDO().setHybrid(true);
+            if (game.getEpisodeDO().getTHybrid() == -1) {
+                game.getEpisodeDO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
             }
         });
     }

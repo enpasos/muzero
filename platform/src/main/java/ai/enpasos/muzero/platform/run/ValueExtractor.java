@@ -89,7 +89,7 @@ public class ValueExtractor {
         Game game = gameBuffer.getBuffer().getGames().get(gameBuffer.getBuffer().getGames().size() - 1);
 
 
-        List<Integer> actions = game.getGameDTO().getActions();
+        List<Integer> actions = game.getEpisodeDO().getActions();
         log.debug(actions.toString());
         return actions;
     }

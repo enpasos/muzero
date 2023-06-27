@@ -42,7 +42,7 @@ public class GameBufferDTO {
     public static final double BUFFER_IO_VERSION = 1.0;
     transient List<Game> games = new ArrayList<>();
     transient MuZeroConfig config;
-    private List<GameDTO> initialGameDTOList = new ArrayList<>();
+   // private List<GameDTO> initialGameDTOList = new ArrayList<>();
     private List<EpisodeDO> initialEpisodeDOList = new ArrayList<>();
 
 
@@ -55,43 +55,43 @@ public class GameBufferDTO {
 
     }
 
-    public static GameBufferDTO deproto(GameBufferProto proto, MuZeroConfig config) {
-        GameBufferDTO dto = new GameBufferDTO(config);
-        dto.setCounter(proto.getCounter());
+//    public static GameBufferDTO deproto(GameBufferProto proto, MuZeroConfig config) {
+//        GameBufferDTO dto = new GameBufferDTO(config);
+//        dto.setCounter(proto.getCounter());
+//
+//
+//        proto.getGameProtosList().forEach(p -> {
+//            GameDTO gameDTO = new GameDTO();
+//            gameDTO.deproto(p);
+//            dto.getInitialGameDTOList().add(gameDTO);
+//        });
+//        return dto;
+//    }
 
+//    public List<GameDTO> getDTOListFromGames() {
+//        return games.stream().map(Game::getGameDTO).collect(Collectors.toList());
+//    }
 
-        proto.getGameProtosList().forEach(p -> {
-            GameDTO gameDTO = new GameDTO();
-            gameDTO.deproto(p);
-            dto.getInitialGameDTOList().add(gameDTO);
-        });
-        return dto;
-    }
+//    public int getNumOfDifferentGames() {
+//        return games.stream().map(Game::getGameDTO).collect(Collectors.toSet()).size();
+//    }
+//
+//    public GameBufferDTO copyEnvelope() {
+//        GameBufferDTO copy = new GameBufferDTO();
+//
+//        copy.counter = this.counter;
+//        copy.gameClassName = this.gameClassName;
+//        return copy;
+//    }
 
-    public List<GameDTO> getDTOListFromGames() {
-        return games.stream().map(Game::getGameDTO).collect(Collectors.toList());
-    }
-
-    public int getNumOfDifferentGames() {
-        return games.stream().map(Game::getGameDTO).collect(Collectors.toSet()).size();
-    }
-
-    public GameBufferDTO copyEnvelope() {
-        GameBufferDTO copy = new GameBufferDTO();
-
-        copy.counter = this.counter;
-        copy.gameClassName = this.gameClassName;
-        return copy;
-    }
-
-    public void sortGamesByLastValueError() {
-        getGames().sort(
-            (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
-    }
-
-    public void keepOnlyTheLatestGames(int n) {
-        games = games.subList(Math.max(games.size() - n, 0), games.size());
-    }
+//    public void sortGamesByLastValueError() {
+//        getGames().sort(
+//            (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
+//    }
+//
+//    public void keepOnlyTheLatestGames(int n) {
+//        games = games.subList(Math.max(games.size() - n, 0), games.size());
+//    }
 
     public boolean isBufferFilled() {
         return games.size() >= getWindowSize();
@@ -120,11 +120,11 @@ public class GameBufferDTO {
             } else {
                 games.add(game);
             }
-            if (game.getGameDTO().getCount() == 0 ) {
+            if (game.getEpisodeDO().getCount() == 0 ) {
                 counter++;
-                game.getGameDTO().setCount(counter);
+                game.getEpisodeDO().setCount(counter);
             } else {
-                counter = Math.max(counter, game.getGameDTO().getCount());
+                counter = Math.max(counter, game.getEpisodeDO().getCount());
             }
         }
     }
@@ -147,31 +147,31 @@ public class GameBufferDTO {
         getInitialEpisodeDOList().clear();
     }
 
-    public GameBufferProto proto() {
-        GameBufferProto.Builder bufferBuilder = GameBufferProto.newBuilder()
-            .setVersion(1)
-            .setCounter((int) getCounter())
+//    public GameBufferProto proto() {
+//        GameBufferProto.Builder bufferBuilder = GameBufferProto.newBuilder()
+//            .setVersion(1)
+//            .setCounter((int) getCounter())
+//
+//            .setGameClassName(getGameClassName());
+//
+//        games.forEach(game -> bufferBuilder.addGameProtos(game.getGameDTO().proto()));
+//
+//        return bufferBuilder.build();
+//    }
 
-            .setGameClassName(getGameClassName());
 
-        games.forEach(game -> bufferBuilder.addGameProtos(game.getGameDTO().proto()));
-
-        return bufferBuilder.build();
-    }
-
-
-    public boolean deepEquals(GameBufferDTO dtoNew) {
-        // implement a deep equals
-        boolean base = this.config.equals(dtoNew.config)
-                && this.counter == dtoNew.counter
-                && this.gameClassName.equals(dtoNew.gameClassName)
-                && this.games.size() == dtoNew.games.size();
-
-        if (!base) return false;
-
-        for (int i = 0; i < this.games.size(); i++) {
-            if (!this.games.get(i).deepEquals(dtoNew.getGames().get(i))) return false;
-        }
-        return true;
-    }
+//    public boolean deepEquals(GameBufferDTO dtoNew) {
+//        // implement a deep equals
+//        boolean base = this.config.equals(dtoNew.config)
+//                && this.counter == dtoNew.counter
+//                && this.gameClassName.equals(dtoNew.gameClassName)
+//                && this.games.size() == dtoNew.games.size();
+//
+//        if (!base) return false;
+//
+//        for (int i = 0; i < this.games.size(); i++) {
+//            if (!this.games.get(i).deepEquals(dtoNew.getGames().get(i))) return false;
+//        }
+//        return true;
+//    }
 }

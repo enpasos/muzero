@@ -18,6 +18,7 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<EpisodeDO> findTopNByOrderByIdDesc(Pageable pageable);
 
 
-
+    @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
+    int getMaxTrainingEpoch ();
 
 }

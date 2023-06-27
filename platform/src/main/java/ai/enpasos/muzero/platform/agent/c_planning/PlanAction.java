@@ -3,8 +3,9 @@ package ai.enpasos.muzero.platform.agent.c_planning;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,9 @@ public class PlanAction {
     public void justReplayActionWithInitialInference(Game game) {
         log.trace("justReplayActionWithInitialInference");
 
+        EpisodeDO episodeDO = game.getEpisodeDO();
+        int t = episodeDO.getLastActionTime();
+        TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
 
         NetworkIO networkOutput = modelService.initialInference(game).join();
 
@@ -48,17 +52,18 @@ public class PlanAction {
         root.setEntropyValueFromInference(entropyValue);
 
 
-        game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
-        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
+        timeStepDO.setRootValueFromInitialInference((float) value);
+        timeStepDO.setRootEntropyValueFromInitialInference((float) entropyValue);
 
-        int nActionsReplayed = game.getGameDTO().getActions().size();
-        if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
+        int nActionsReplayed = t + 1;
+        if (t < game.getOriginalEpisodeDO().getLastActionTime() ) {
 
             try {
-                game.getGameDTO().getActions().add(game.getOriginalGameDTO().getActions().get(nActionsReplayed));
-                game.getGameDTO().getObservations().add(game.getOriginalGameDTO().getObservations().get(1+nActionsReplayed));
-
-            } catch (Exception e) {
+                timeStepDO = episodeDO.getTimeSteps().get(t+1);
+                timeStepDO.setAction(game.getOriginalEpisodeDO().getTimeSteps().get(t+1).getAction());// TODO: check if this is correct
+                timeStepDO = episodeDO.getTimeSteps().get(t+2);
+                timeStepDO.setObservation(game.getOriginalEpisodeDO().getTimeSteps().get(t+2).getObservation());// TODO: check if this is correct
+                  } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new MuZeroException(e);
             }
@@ -85,13 +90,21 @@ public class PlanAction {
         if (!fastRuleLearning) {
             networkOutput = modelService.initialInference(game).join();
         }
-        storeEntropyInfo(game, networkOutput );
+
+        EpisodeDO episodeDO = game.getEpisodeDO();
+        int t = episodeDO.getLastActionTime();
+        TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
+
+        storeEntropyInfo(game, timeStepDO, networkOutput );
         if (justInitialInferencePolicy) {
-            return playAfterJustWithInitialInference(fastRuleLearning, game , networkOutput );
+            return playAfterJustWithInitialInference(timeStepDO, fastRuleLearning, game , networkOutput );
         }
+
+
+
         if (!fastRuleLearning) {
             double value = networkOutput .getValue();
-            game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+            timeStepDO.setRootValueFromInitialInference((float) value);
         }
         if (!replay) {
             boolean[] legalActions = new boolean[config.getActionSpaceSize()];
@@ -101,7 +114,7 @@ public class PlanAction {
            // game.getGameDTO().getLegalActions().add(legalActions);
         }
         if (game.legalActions().size() == 1) {
-             return shortCutForGameWithoutAnOption(game, networkOutput, render, fastRuleLearning, replay);
+             return shortCutForGameWithoutAnOption(game,   timeStepDO, networkOutput, render, fastRuleLearning, replay);
         }
 
         game.initSearchManager(pRandomActionRawAverage);
@@ -136,19 +149,19 @@ public class PlanAction {
                 sm.drawCandidateAndAddValue();
             } while (!sm.isSimulationsFinished());
         }
-        sm.storeSearchStatictics(fastRuleLearning);
+        sm.storeSearchStatictics(fastRuleLearning, timeStepDO);
         if (render && game.isDebug()) {
-            game.renderMCTSSuggestion(config, game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size()-1));
+            game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
             log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(fastRuleLearning, replay);
+        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO);
         return action;
     }
 
 
 
 
-    private Action shortCutForGameWithoutAnOption(Game game, NetworkIO networkOutput, boolean render, boolean fastRuleLearning, boolean replay) {
+    private Action shortCutForGameWithoutAnOption(Game game,TimeStepDO timeStepDO, NetworkIO networkOutput, boolean render, boolean fastRuleLearning, boolean replay) {
 
         Action action = game.legalActions().get(0);
 
@@ -157,14 +170,14 @@ public class PlanAction {
             value = (float) networkOutput.getValue();
         }
 
-        game.getGameDTO().getRootValueTargets().add(value);
-        game.getGameDTO().getVMix().add(value);
+        timeStepDO.setRootValueTarget(value);
+        timeStepDO.setVMix(value);
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         policyTarget[action.getIndex()] = 1f;
-        game.getGameDTO().getPolicyTargets().add(policyTarget);
+        timeStepDO.setPolicyTarget(policyTarget);
         if (!replay) {
-            game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+            timeStepDO.setPlayoutPolicy(policyTarget);
         }
         if (render && game.isDebug()) {
             game.renderMCTSSuggestion(config, policyTarget);
@@ -175,7 +188,7 @@ public class PlanAction {
     }
 
     @SuppressWarnings({"squid:S3740", "unchecked"})
-    private Action playAfterJustWithInitialInference(boolean fastRuleLearning,  Game game,  NetworkIO  networkOutput ) {
+    private Action playAfterJustWithInitialInference(TimeStepDO timeStepDO, boolean fastRuleLearning,  Game game,  NetworkIO  networkOutput ) {
 
 
         List<Action> legalActions = game.legalActions();
@@ -191,17 +204,17 @@ public class PlanAction {
         Action action = selectActionByDrawingFromDistribution(distributionInput);
 
 
-        storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()),  new MinMaxStats(config.getKnownBounds()));
+        storeSearchStatistics(game, timeStepDO, root, true, config, null, new MinMaxStats(config.getKnownBounds()),  new MinMaxStats(config.getKnownBounds()));
 
         return action;
     }
 
-    private static void storeEntropyInfo(Game game, NetworkIO networkOutput) {
+    private static void storeEntropyInfo(Game game, TimeStepDO timeStepDO,  NetworkIO networkOutput) {
         List<Action> legalActions = game.legalActions();
-        game.getGameDTO().getLegalActionMaxEntropies().add((float) Math.log(legalActions.size()));
+        timeStepDO.setLegalActionMaxEntropy((float) Math.log(legalActions.size()));
         if (networkOutput != null) {
             float[] ps = networkOutput.getPolicyValues();
-            game.getGameDTO().getEntropies().add((float) entropy(toDouble(ps)));
+            timeStepDO.setEntropy((float) entropy(toDouble(ps)));
         }
     }
 

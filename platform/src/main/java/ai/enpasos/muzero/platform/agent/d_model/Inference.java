@@ -23,6 +23,8 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.b_episode.PlayParameters;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -256,16 +258,15 @@ public class Inference {
                     .replay(false)
                     .build());
 
-            List<Action> actions = games.stream().map(g -> config.newAction(g.getGameDTO().getActions().get(g.getGameDTO().getActions().size()-1))).collect(Collectors.toList());
 
-            for (int g = 0; g < games.size(); g++) {
-                Game game = games.get(g);
-                Action action = actions.get(g);
-                actionIndexSelectedByNetwork = action.getIndex();
-                List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();
-                double aiValue =  values.get(values.size()-1);
-                result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
-            }
+
+            games.stream().forEach(g -> {
+                EpisodeDO episodeDO = g.getEpisodeDO();
+                int n = episodeDO.getLastActionTime();
+                TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(n);
+                result.add(Pair.create((double)timeStepDO.getRootEntropyValueFromInitialInference(), timeStepDO.getAction() ));
+            });
+
         }
         return result;
     }

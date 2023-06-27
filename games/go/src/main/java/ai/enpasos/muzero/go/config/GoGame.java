@@ -19,12 +19,12 @@ package ai.enpasos.muzero.go.config;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
-import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -45,8 +45,8 @@ public class GoGame extends ZeroSumGame {
 
     public static final String PASS = "pass: ";
 
-    public GoGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
-        super(config, gameDTO);
+    public GoGame(@NotNull MuZeroConfig config, EpisodeDO episodeDO) {
+        super(config, episodeDO);
 
     }
 
@@ -74,7 +74,7 @@ public class GoGame extends ZeroSumGame {
         environment = new GoEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
-            Action action = config.newAction(this.getGameDTO().getActions().get(i));
+            Action action = config.newAction(this.getEpisodeDO().getActions().get(i));
             environment.step(action);
         }
     }
@@ -94,7 +94,7 @@ public class GoGame extends ZeroSumGame {
         for (int i = 7; i >= 0; i--) {
             ObservationTwoPlayers observation =
                     position-i >= 0 ?
-                    (ObservationTwoPlayers)this.gameDTO.getObservations().get(position-i) :
+                    (ObservationTwoPlayers)this.episodeDO.getTimeSteps().get(position-i).getObservation():
                     ObservationTwoPlayers.builder()
                                     .partSize(n0)
                                     .partA(new BitSet(n0))
@@ -118,7 +118,7 @@ public class GoGame extends ZeroSumGame {
 
     @Override
     public Player toPlay() {
-        return this.getGameDTO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
+        return this.getEpisodeDO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
     }
 
     @Override

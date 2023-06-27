@@ -171,7 +171,7 @@ public class DNode {
 
     public DNode getChild(int action) {
         for (DNode n : children) {
-            if (n.game.getGameDTO().getActions().get(n.game.getGameDTO().getActions().size()-1) == action) {
+            if (n.game.getEpisodeDO().getActions().get(n.game.getEpisodeDO().getActions().size()-1) == action) {
                 return n;
             }
         }
