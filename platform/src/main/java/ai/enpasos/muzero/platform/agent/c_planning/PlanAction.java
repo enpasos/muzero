@@ -37,7 +37,10 @@ public class PlanAction {
         log.trace("justReplayActionWithInitialInference");
 
         EpisodeDO episodeDO = game.getEpisodeDO();
-        int t = episodeDO.getLastTime();
+        int t = episodeDO.getLastTimeWithAction() + 1;
+//        if (t == -1) {
+//            int i = 42;
+//        }
         TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
 
         NetworkIO networkOutput = modelService.initialInference(game).join();
@@ -52,14 +55,17 @@ public class PlanAction {
         timeStepDO.setRootValueFromInitialInference((float) value);
         timeStepDO.setRootEntropyValueFromInitialInference((float) entropyValue);
 
-        int nActionsReplayed = t + 1;
+      //  int nActionsReplayed = t;
         if (t < game.getOriginalEpisodeDO().getLastTime() ) {
 
             try {
+                timeStepDO = episodeDO.getTimeSteps().get(t);
+                timeStepDO.setAction(game.getOriginalEpisodeDO().getTimeSteps().get(t).getAction());
+
+                episodeDO.addNewTimeStepDO();
+
                 timeStepDO = episodeDO.getTimeSteps().get(t+1);
-                timeStepDO.setAction(game.getOriginalEpisodeDO().getTimeSteps().get(t+1).getAction());// TODO: check if this is correct
-                timeStepDO = episodeDO.getTimeSteps().get(t+2);
-                timeStepDO.setObservation(game.getOriginalEpisodeDO().getTimeSteps().get(t+2).getObservation());// TODO: check if this is correct
+                timeStepDO.setObservation(game.getOriginalEpisodeDO().getTimeSteps().get(t+1).getObservation());
                   } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new MuZeroException(e);

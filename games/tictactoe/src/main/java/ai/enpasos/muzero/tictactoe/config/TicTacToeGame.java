@@ -116,7 +116,7 @@ public class TicTacToeGame extends ZeroSumGame {
 
     @Override
     public String render() {
-        if (getEnvironment() == null)  return "no rendering when not connected to the environment";  // TODO: environment decoupling needed
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";
         String r = this.getEpisodeDO().getActions().size() + ": ";
         OneOfTwoPlayer player = null;
         if (!this.getEpisodeDO().getActions().isEmpty()) {

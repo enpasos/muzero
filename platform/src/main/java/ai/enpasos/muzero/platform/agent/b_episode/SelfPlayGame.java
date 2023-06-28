@@ -41,8 +41,6 @@ public class SelfPlayGame {
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
-//                if (count != 1)
-//                    game.getEpisodeDO().addNewTimeStepDO();
                 Action action = playAction.planAction(
                         game,
                         render,

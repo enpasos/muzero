@@ -46,6 +46,8 @@ public class TimeStepDO {
     public TimeStepDO copyPolicyTarget() {
         return TimeStepDO.builder()
                 .policyTarget(policyTarget)
+                .episode(episode)
+                .t(t)
                 .build();
     }
 

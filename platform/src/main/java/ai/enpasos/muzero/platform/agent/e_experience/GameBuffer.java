@@ -61,8 +61,7 @@ public class GameBuffer {
     @Autowired
     private MuZeroConfig config;
 
-//    @Autowired
-//    private GameBufferIO gameBufferIO;
+
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     private Map<Integer, Double> meanEntropyValuesLosses = new HashMap<>();
     private Map<Integer, Double> entropyExplorationSum = new HashMap<>();
@@ -218,20 +217,14 @@ public class GameBuffer {
         init();
         DurAndMem duration = new DurAndMem();
         duration.on();
-         List<EpisodeDO> episodeDOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(config.getWindowSize());
-     //   List<GameDTO> gameDTOList = this.dbService.convertEpisodeDOListToGameList(episodeDOList);
-       // log.debug("gameDTOList.size()=" + gameDTOList.size());
+        List<EpisodeDO> episodeDOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(config.getWindowSize());
+
         duration.off();
         log.debug("duration loading buffer from db: " + duration.getDur());
-     //   this.getBuffer().setInitialGameDTOList(gameDTOList);
         this.getBuffer().setInitialEpisodeDOList(episodeDOList);
-
-//         gameDTOList.stream().mapToInt(GameDTO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
-//         gameDTOList.stream().mapToLong(GameDTO::getCount).max().ifPresent(this.getBuffer()::setCounter);
         episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
         episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getBuffer()::setCounter);
-         this.getBuffer().rebuildGames( config);
-
+        this.getBuffer().rebuildGames(config);
 
     }
 
@@ -281,12 +274,6 @@ public class GameBuffer {
 
            gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
 
-//            this.gameBufferIO.saveGames(
-//                    gamesToSave,
-//                this.getModelState().getCurrentNetworkNameWithEpoch(), this.getConfig());
-
-
-         //   List<EpisodeDO> episodes  = dbService.convertGameListToEpisodeDOList(games);
             List<EpisodeDO> episodes  = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
 
             dbService.saveEpisodesAndCommit(episodes);

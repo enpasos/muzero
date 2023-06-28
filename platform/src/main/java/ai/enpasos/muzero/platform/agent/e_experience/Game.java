@@ -53,13 +53,11 @@ public abstract class Game {
     static List<Double> v0s = new ArrayList<>();
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
-   // protected GameDTO gameDTO;
     protected EpisodeDO episodeDO;
     protected MuZeroConfig config;
     protected int actionSpaceSize;
     protected double discount;
     protected Environment environment;
-   // protected GameDTO originalGameDTO;
     protected EpisodeDO originalEpisodeDO;
     protected TimeStepDO currentTimeStepDO;
     //   @Builder.Default
@@ -209,12 +207,12 @@ public abstract class Game {
         float reward = getReward(currentIndex);
 
 
-        if (currentIndex < this.getEpisodeDO().getLastTimeWithAction()  + 1) {
+        if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
         //    target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget());
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTime()  + 1) {
+        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
             // if we were running the network with reward head
@@ -409,7 +407,7 @@ public abstract class Game {
     public abstract ObservationModelInput getObservationModelInput(int gamePosision);
 
     public ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.getEpisodeDO().getLastTime() );
+        return this.getObservationModelInput(this.getEpisodeDO().getLastTimeWithAction() + 1 );
     }
 
     public void addObservationFromEnvironment() {
@@ -446,19 +444,15 @@ public abstract class Game {
         this.originalEpisodeDO = this.episodeDO;
         this.episodeDO = this.episodeDO.copyWithoutTimeSteps();
 
-        this.originalEpisodeDO.getTimeSteps().forEach(timeStepDO -> {
-            this.episodeDO.getTimeSteps().add(timeStepDO.copyPolicyTarget());
+        int tend = this.originalEpisodeDO.getLastTimeWithAction();
+        IntStream.range(0, tend + 1).forEach(i -> {
+
+            this.episodeDO.getTimeSteps().add(this.originalEpisodeDO.getTimeSteps().get(i).copyPolicyTarget());
         });
         this.episodeDO.getTimeSteps().get(0).setObservation(this.originalEpisodeDO.getTimeSteps().get(0).getObservation());
 
     }
 
-//    public void beforeReplayWithoutChangingActionHistory(int backInTime) {
-//        this.originalGameDTO = this.gameDTO;
-//        this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
-//        this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
-//        this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
-//    }
 
     public void afterReplay() {
         this.setOriginalEpisodeDO(null);

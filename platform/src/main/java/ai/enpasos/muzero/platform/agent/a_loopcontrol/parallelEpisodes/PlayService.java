@@ -115,7 +115,7 @@ public class PlayService {
         giveOneOfTheGamesADebugFlag(games);
         int gameLength = gameBuffer.getMaxGameLength();
         playParameters.setPRandomActionRawAverage(this.gameBuffer.getPRandomActionRawAverage());
-        playParameters.setAverageGameLength(gameLength);  // TODO rename
+        playParameters.setReferenceGameLength(gameLength);
 
         CompletableFuture<Game>[] futures = games.stream().map(g ->
                 episodeRunner.playGame(playParameters, g)

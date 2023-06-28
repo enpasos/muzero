@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Entity
@@ -105,13 +106,12 @@ public class EpisodeDO {
 
   public int getLastTimeWithAction() {
     int t = getLastTime();
-    if (this.timeSteps.get(t).getAction() == null) {
-      t--;
+    for(int i = 0; i <= t; i++) {
+      if (this.timeSteps.get(i).getAction() != null) {
+        return i;
+      }
     }
-    if (t >= 0 && this.timeSteps.get(t).getAction() == null) {
-      throw new MuZeroException("no action found at time " + t);
-    }
-    return t;
+    return -1;
   }
   public TimeStepDO getLastTimeStepWithAction() {
     int t = getLastTime();
@@ -148,6 +148,7 @@ public class EpisodeDO {
 
   public EpisodeDO copyWithoutTimeSteps() {
     EpisodeDO copy = new EpisodeDO();
+    copy.timeSteps = new ArrayList<>();
     copy.networkName = this.networkName;
     copy.count = this.count;
     copy.nextSurpriseCheck = this.nextSurpriseCheck;

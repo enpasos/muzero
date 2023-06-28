@@ -175,7 +175,7 @@ public class DNode {
 
     public DNode getChild(int action) {
         for (DNode n : children) {
-            int t = n.game.getEpisodeDO().getLastTime();
+            int t = n.game.getEpisodeDO().getLastTimeWithAction();
             if (n.game.getEpisodeDO().getTimeSteps().get(t).getAction() == action) {
                 return n;
             }

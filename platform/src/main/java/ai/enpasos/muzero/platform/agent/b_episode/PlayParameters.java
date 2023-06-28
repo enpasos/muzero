@@ -10,8 +10,6 @@ public class PlayParameters {
     boolean render = true;
     @Builder.Default
     boolean fastRulesLearning = false;
-//    @Builder.Default
-//    boolean drawNotMaxWhenJustWithInitialInference = false;
 
     @Builder.Default
     boolean untilEnd = true;
@@ -23,7 +21,7 @@ public class PlayParameters {
     @Builder.Default
     boolean withGumbel = true;
 
-    int averageGameLength;
+    int referenceGameLength;
 
     double pRandomActionRawAverage;
 
