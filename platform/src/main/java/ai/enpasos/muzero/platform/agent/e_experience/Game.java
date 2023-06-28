@@ -353,11 +353,11 @@ public abstract class Game {
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
 
-        if (currentIndex > this.getEpisodeDO().getLastTimeStep().getT() ) {
-            int i = this.getEpisodeDO().getLastTimeStep().getT();
+        if (currentIndex > this.getEpisodeDO().getLastTimeWithAction()) {
+            int i = this.getEpisodeDO().getLastTimeWithAction();
             value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
         } else {
-            for (int i = currentIndex; i < this.getEpisodeDO().getLastTimeStep().getT() + 1 && i < bootstrapIndex; i++) {
+            for (int i = currentIndex; i < this.getEpisodeDO().getLastTimeWithAction() + 1 && i < bootstrapIndex; i++) {
                 value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
             }
         }
@@ -379,23 +379,23 @@ public abstract class Game {
         if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
             switch(config.getVTarget()) {
                 case V_INFERENCE:
-                    if (  bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
+                    if (  bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_CONSISTENT:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastTime()  + 1) {
+                    if (bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_MIX:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastTime()   + 1) {
+                    if (bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getVMix() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
             }
         } else {
-            if (bootstrapIndex < this.getEpisodeDO().getLastTime()   + 1) {
+            if (bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
                 value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         }
