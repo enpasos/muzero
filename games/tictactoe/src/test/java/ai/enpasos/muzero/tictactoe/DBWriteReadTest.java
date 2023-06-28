@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class ProtobufferTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+class DBWriteReadTest {
 
 
     @Autowired
@@ -50,21 +52,12 @@ class ProtobufferTest {
 
 
 
-    @Test
-    void writeAndReadProtoBufTest() {
 
-        writeAndReadTest();
-    }
 
     @Test
-    void writeAndReadProtoBuf2Test() {
-
-        writeAndRead2Test();
-    }
-
-    private void writeAndReadTest() {
+    void writeAndReadTest() {
         gameBuffer.init();
-        config.setOutputDir("./build/tictactoeTest/");
+       // config.setOutputDir("./build/tictactoeTest/");
         play.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
@@ -88,9 +81,10 @@ class ProtobufferTest {
         }
     }
 
-    private void writeAndRead2Test() {
+
+    @Test
+    void writeAndRead2Test() {
         gameBuffer.init();
-        config.setOutputDir("./build/tictactoeTest2/");
         play.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
@@ -109,4 +103,6 @@ class ProtobufferTest {
 
         }
     }
+
+
 }

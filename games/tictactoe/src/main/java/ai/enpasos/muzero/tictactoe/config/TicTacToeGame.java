@@ -128,7 +128,7 @@ public class TicTacToeGame extends ZeroSumGame {
         }
         r += "\n";
         r += getEnvironment().render();
-        int t = this.getEpisodeDO().getLastActionTime();
+        int t = this.getEpisodeDO().getLastTime();
         if (terminal() && t > 0) {
             if (this.getEpisodeDO().getTimeSteps().get(t).getReward() == 0.0f) {
                 r += "\ndraw";

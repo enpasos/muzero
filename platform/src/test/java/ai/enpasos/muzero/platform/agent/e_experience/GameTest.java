@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,17 +29,19 @@ class GameTest {
         game.setPRatioMax(1);
         // action space: 0, 1, 2
         int T = 3;
-
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.7f, 0.1f, 0.1f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.7f, 0.1f, 0.1f});
+        TimeStepDO  timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        timeStepDO.setPlayoutPolicy(new float[] {0.7f, 0.1f, 0.1f});
+        timeStepDO.setPolicyTarget(new float[] {0.7f, 0.1f, 0.1f});
         game.apply(0);
 
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0.0f, 0.8f, 0.2f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0.0f, 0.8f, 0.2f});
+        timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        timeStepDO.setPlayoutPolicy(new float[] {0.0f, 0.8f, 0.2f});
+        timeStepDO.setPolicyTarget(new float[] {0.0f, 0.8f, 0.2f});
         game.apply(1);
 
-        game.getGameDTO().getPlayoutPolicy().add(new float[] {0f, 0f, 1f});
-        game.getGameDTO().getPolicyTargets().add(new float[] {0f, 0f, 1f});
+        timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        timeStepDO.setPlayoutPolicy(new float[] {0f, 0f, 1f});
+        timeStepDO.setPolicyTarget(new float[] {0f, 0f, 1f});
         game.apply(2);
 
         assertEquals(3, game.getTdSteps(0.9f, 0, T));
@@ -53,7 +56,7 @@ class GameTest {
         // assertArrayEquals but allow for small differences
         for (int i = 0; i < result.length; i++) {
             assertEquals(ps[i], result[i], 0.0000001);
-        } 
+        }
     }
 
 
@@ -66,20 +69,23 @@ class GameTest {
         double temperature = 2;
         float[] ps = {0.7f, 0.1f, 0.1f};
         float[] ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
-        game.getGameDTO().getPlayoutPolicy().add(ps2);
-        game.getGameDTO().getPolicyTargets().add(ps);
+        TimeStepDO  timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        timeStepDO.setPlayoutPolicy(ps2);
+        timeStepDO.setPolicyTarget(ps);
         game.apply(0);
 
         ps = new float[] {0.0f, 0.8f, 0.2f};
         ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
-        game.getGameDTO().getPlayoutPolicy().add(ps2);
-        game.getGameDTO().getPolicyTargets().add(ps);
+        timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        timeStepDO.setPlayoutPolicy(ps2);
+        timeStepDO.setPolicyTarget(ps);
         game.apply(1);
 
         ps = new float[] {0f, 0f, 1f};
         ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
-        game.getGameDTO().getPlayoutPolicy().add(ps2);
-        game.getGameDTO().getPolicyTargets().add(ps);
+        timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        timeStepDO.setPlayoutPolicy(ps2);
+        timeStepDO.setPolicyTarget(ps);
         game.apply(2);
 
 

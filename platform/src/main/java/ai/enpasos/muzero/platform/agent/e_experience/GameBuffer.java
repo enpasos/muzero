@@ -39,7 +39,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Data
 @Slf4j
@@ -97,11 +96,14 @@ public class GameBuffer {
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
+        ObservationModelInput observation = null;
+        try {
+             observation = game.getObservationModelInput(gamePos);
+        } catch (Exception e) {
+            int i = 42;
+        }
 
-        ObservationModelInput observation = game.getObservationModelInput(gamePos);
         sample.getObservations().add(observation);
-
-
         List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
                 .filter(timeStepDO -> timeStepDO.getAction() != null)
                 .map(timeStepDO -> (Integer)timeStepDO.getAction())
@@ -131,7 +133,7 @@ public class GameBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-        return ThreadLocalRandom.current().nextInt(0, game.getEpisodeDO().getLastActionTime() + 2);
+        return ThreadLocalRandom.current().nextInt(0, game.getEpisodeDO().getLastTime() + 2);
     }
 
 
@@ -154,11 +156,11 @@ public class GameBuffer {
     }
 
     public int getAverageGameLength() {
-        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastActionTime()+1).average().orElse(1000);
+        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).average().orElse(1000);
     }
 
     public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastActionTime()+1).max().orElse(0);
+        return getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).max().orElse(0);
     }
 
 
@@ -188,7 +190,6 @@ public class GameBuffer {
             return sampleGames().stream()
                 .map(game -> sampleFromGame(numUnrollSteps, game))
                 .collect(Collectors.toList());
-
         }
 
 
@@ -378,7 +379,7 @@ public class GameBuffer {
             mapTReanalyseMin2GameCount.put(g.episodeDO.getCount(), newTReanalyseMin);
             g.setTReanalyseMin(newTReanalyseMin);
 
-            if (newTReanalyseMin > g.episodeDO.getLastActionTime() + 1) {
+            if (newTReanalyseMin > g.episodeDO.getLastTime() + 1) {
                 g.setReanalyse(false);
             }
         });

@@ -101,33 +101,12 @@ public abstract class Game {
 
 
 
-//    public static Game decode(@NotNull MuZeroConfig config, byte @NotNull [] bytes) {
-//        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-//        try (ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
-//            GameDTO dto = (GameDTO) objectInputStream.readObject();
-//            Game game = config.newGame(false, false);
-//            Objects.requireNonNull(game).setGameDTO(dto);
-//            return game;
-//        } catch (Exception e) {
-//            throw new MuZeroException(e);
-//        }
-//    }
-
     public boolean isDone(boolean replay) {
         return !replay && terminal()
-                || !replay && getEpisodeDO().getLastActionTime() + 1 >= config.getMaxMoves()
-                || replay && getOriginalEpisodeDO().getLastActionTime() == getEpisodeDO().getLastActionTime();
+                || !replay && getEpisodeDO().getLastTimeWithAction() + 1 >= config.getMaxMoves()
+                || replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
     }
 
-//    public float calculateSquaredDistanceBetweenOriginalAndCurrentValue() {
-//        this.error = 0;
-//        for (int i = 0; i < this.originalEpisodeDO.getRootValuesFromInitialInference().size(); i++) {
-//            double d = this.originalGameDTO.getRootValuesFromInitialInference().get(i)
-//                    - this.getEpisodeDO().getRootValuesFromInitialInference().get(i);
-//            this.error += d * d;
-//        }
-//        return this.error;
-//    }
 
     public @NotNull Game copy() {
         Game copy = getConfig().newGame(this.environment != null, false);
@@ -136,7 +115,7 @@ public abstract class Game {
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         if (environment != null)
-            copy.replayToPositionInEnvironment(copy.getEpisodeDO().getLastActionTime()+1);  // todo: check
+            copy.replayToPositionInEnvironment(copy.getEpisodeDO().getLastTimeWithAction()+1);  // todo: check
         return copy;
     }
 
@@ -147,7 +126,7 @@ public abstract class Game {
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         if (environment != null)
-            copy.replayToPositionInEnvironment(copy.getEpisodeDO().getLastActionTime()+1);
+            copy.replayToPositionInEnvironment(copy.getEpisodeDO().getLastTimeWithAction()+1);
         return copy;
     }
 
@@ -163,7 +142,7 @@ public abstract class Game {
 
     // TODO simplify Action handling
     public List<Action> legalActions() {
-        boolean[] b = this.episodeDO.getLatestLegalActions();
+        boolean[] b = this.episodeDO.getLegalActionsFromLastTimeStep();
 
         List<Action> actionList = new ArrayList<>();
         for (int i = 0; i < actionSpaceSize; i++) {
@@ -190,8 +169,8 @@ public abstract class Game {
 
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setReward(reward);
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setAction(action.getIndex());
+        this.getEpisodeDO().getLastTimeStep().setReward(reward);
+        this.getEpisodeDO().getLastTimeStep().setAction(action.getIndex());
 
         // now ... observation and legal actions already belong to the next timestamp
         getEpisodeDO().addNewTimeStepDO();
@@ -201,12 +180,12 @@ public abstract class Game {
     }
 
     public void pseudoApplyFromOriginalGame(Action action) {
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setAction(action.getIndex());
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setReward(this.getOriginalEpisodeDO().getLatestReward());
+        this.getEpisodeDO().getLastTimeStep().setAction(action.getIndex());
+        this.getEpisodeDO().getLastTimeStep().setReward(this.getOriginalEpisodeDO().getRewardFromLastTimeStep());
         // new time
         getEpisodeDO().addNewTimeStepDO();
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setObservation(this.getOriginalEpisodeDO().getLatestObservation());
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setLegalActions(this.getOriginalEpisodeDO().getLatestLegalActions());
+        this.getEpisodeDO().getLastTimeStep().setObservation(this.getOriginalEpisodeDO().getObservationFromLastTimeStep());
+        this.getEpisodeDO().getLastTimeStep().setLegalActions(this.getOriginalEpisodeDO().getLegalActionsFromLastTimeStep());
         setActionApplied(true);
     }
 
@@ -230,12 +209,12 @@ public abstract class Game {
         float reward = getReward(currentIndex);
 
 
-        if (currentIndex < this.getEpisodeDO().getLastPolicyTargetsTime().orElseThrow() + 1) {
+        if (currentIndex < this.getEpisodeDO().getLastTimeWithAction()  + 1) {
         //    target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget());
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastPolicyTargetsTime().orElseThrow() + 1) {
+        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTime()  + 1) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
             // if we were running the network with reward head
@@ -268,7 +247,7 @@ public abstract class Game {
             if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
                 tdSteps = 0;
             } else {
-                int tMaxHorizon = episodeDO.getLastActionTime();
+                int tMaxHorizon = episodeDO.getLastTime();
                 tdSteps = getTdSteps(currentIndex, tMaxHorizon);
             }
         } else {
@@ -327,7 +306,7 @@ public abstract class Game {
 
     private float getReward(int currentIndex) {
         float reward;
-        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().orElseThrow().getT() + 1) ) {
+        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().getT() + 1) ) {
             reward = this.getEpisodeDO().getTimeSteps().get(currentIndex - 1).getReward();
         } else {
             reward = 0f;
@@ -351,11 +330,11 @@ public abstract class Game {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
         if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
-            if (!this.getEpisodeDO().getLastRootEntropyValuesFromInitialInferenceTime().isEmpty() && bootstrapIndex < this.getEpisodeDO().getLastRootEntropyValuesFromInitialInferenceTime().orElseThrow(MuZeroException::new) + 1) {
+            if (  bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
                 value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         } else {
-            if (bootstrapIndex < this.getEpisodeDO().getLastRootEntropyValueTargetTime().orElseThrow(MuZeroException::new) + 1) {
+            if (bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
                 value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueTarget()  * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         }
@@ -365,7 +344,7 @@ public abstract class Game {
     // TODO there should be a special discount parameter
     private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
-        for (int i = currentIndex + 1; i < this.getEpisodeDO().getLastEntropyTime().orElseThrow(MuZeroException::new) + 1 && i < bootstrapIndex; i++) {
+        for (int i = currentIndex + 1; i < this.getEpisodeDO().getLastTime()  + 1 && i < bootstrapIndex; i++) {
             value += (double) this.getEpisodeDO().getTimeSteps().get(i).getEntropy() * Math.pow(this.discount, i - (double) currentIndex);
         }
         return value;
@@ -374,11 +353,11 @@ public abstract class Game {
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
 
-        if (currentIndex > this.getEpisodeDO().getLastTimeStep().orElseThrow().getT() ) {
-            int i = this.getEpisodeDO().getLastTimeStep().orElseThrow().getT();
+        if (currentIndex > this.getEpisodeDO().getLastTimeStep().getT() ) {
+            int i = this.getEpisodeDO().getLastTimeStep().getT();
             value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
         } else {
-            for (int i = currentIndex; i < this.getEpisodeDO().getLastTimeStep().orElseThrow().getT() + 1 && i < bootstrapIndex; i++) {
+            for (int i = currentIndex; i < this.getEpisodeDO().getLastTimeStep().getT() + 1 && i < bootstrapIndex; i++) {
                 value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
             }
         }
@@ -400,24 +379,23 @@ public abstract class Game {
         if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
             switch(config.getVTarget()) {
                 case V_INFERENCE:
-                    if (!this.getEpisodeDO().getLastRootValueFromInitialInferenceTime().isEmpty()
-                      && bootstrapIndex < this.getEpisodeDO().getLastRootValueFromInitialInferenceTime().orElseThrow() + 1) {
+                    if (  bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_CONSISTENT:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastRootValueTargetTime().orElseThrow() + 1) {
+                    if (bootstrapIndex < this.getEpisodeDO().getLastTime()  + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_MIX:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastVMixTime().orElseThrow()  + 1) {
+                    if (bootstrapIndex < this.getEpisodeDO().getLastTime()   + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getVMix() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
             }
         } else {
-            if (bootstrapIndex < this.getEpisodeDO().getLastRootValueTargetTime().orElseThrow()  + 1) {
+            if (bootstrapIndex < this.getEpisodeDO().getLastTime()   + 1) {
                 value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         }
@@ -431,11 +409,11 @@ public abstract class Game {
     public abstract ObservationModelInput getObservationModelInput(int gamePosision);
 
     public ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.getEpisodeDO().getLastObservationTime().orElseThrow());
+        return this.getObservationModelInput(this.getEpisodeDO().getLastTime() );
     }
 
     public void addObservationFromEnvironment() {
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setObservation(environment.getObservation());
+        this.getEpisodeDO().getLastTimeStep().setObservation(environment.getObservation());
     }
 
     public void addLegalActionFromEnvironment() {
@@ -444,7 +422,7 @@ public abstract class Game {
         for (Action action : actions) {
             result[action.getIndex()] = true;
         }
-        this.getEpisodeDO().getLastTimeStep().orElseThrow().setLegalActions(result);
+        this.getEpisodeDO().getLastTimeStep().setLegalActions(result);
     }
 
     public abstract void replayToPositionInEnvironment(int stateIndex);
@@ -493,11 +471,11 @@ public abstract class Game {
     }
 
     public double getPRatioMax() {
-        int n = getEpisodeDO().getLastActionTime() + 1;
+        int t = getEpisodeDO().getLastTimeWithAction() + 1;
         int tStart = (int) getEpisodeDO().getTHybrid();
-        if (tStart >= n) return 1d;
-        double[] pRatios = new double[n - tStart];
-        IntStream.range(tStart, n).forEach(i -> {
+        if (tStart >= t) return 1d;
+        double[] pRatios = new double[t - tStart];
+        IntStream.range(tStart, t).forEach(i -> {
             TimeStepDO timeStepDO = getEpisodeDO().getTimeSteps().get(i);
             int a = timeStepDO.getAction() ;
             if (getEpisodeDO().getTimeSteps().get(0).getPlayoutPolicy() == null) {
@@ -511,7 +489,7 @@ public abstract class Game {
 
 
     public boolean isItExplorationTime() {
-        return isItExplorationTime(getEpisodeDO().getLastActionTime() + 1);
+        return isItExplorationTime(getEpisodeDO().getLastTime() + 1);
     }
 
     public boolean isItExplorationTime(int t) {
@@ -526,7 +504,7 @@ public abstract class Game {
 
         this.tReanalyseMin = (int)Math.max(getEpisodeDO().getTHybrid(), this.tReanalyseMin);
 
-        int tMaxHorizon = getEpisodeDO().getLastActionTime();
+        int tMaxHorizon = getEpisodeDO().getLastTime();
 
         double localPRatioMax = 1;
 
@@ -554,9 +532,9 @@ public abstract class Game {
     }
 
 
-    public   Float getReward() {
-        Optional<TimeStepDO> timeStepDOOptional = this.episodeDO.getLastTimeStep();
-        if (timeStepDOOptional.isEmpty()) return null;
-        return timeStepDOOptional.get().getReward();
+    public  float getReward() {
+         TimeStepDO  timeStepDO = this.episodeDO.getLastTimeStepWithAction();
+        if (timeStepDO == null) return 0f;
+        return timeStepDO.getReward();
     }
 }

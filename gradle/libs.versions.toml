@@ -61,6 +61,10 @@ jetbrains-annotations = { module = "org.jetbrains:annotations", version = "24.0.
 stochasticsimulation = { module = "ca.umontreal.iro.simul:ssj", version = "3.3.2" }
 
 
+h2database = { module = "com.h2database:h2", version = "2.1.214" }
+
+
+
 [bundles]
 djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu118"]
 commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-lang", "commons-collections" ]

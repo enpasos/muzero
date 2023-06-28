@@ -4,11 +4,9 @@ import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 
@@ -18,41 +16,36 @@ import java.util.BitSet;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TimeStepDO {
 
+    @ManyToOne
+    EpisodeDO episode;
+    int t;
+    @EqualsAndHashCode.Include
+    Integer action;
+
+    float reward;
+    float entropy;
+    float[] policyTarget;
+    int observationPartSize;
+    byte[] observationPartA;
+    byte[] observationPartB;
+    float[] playoutPolicy;
+    boolean[] legalActions;
+    float rootValueTarget;
+    float vMix;
+    float rootEntropyValueTarget;
+    float rootEntropyValueFromInitialInference;
+    float rootValueFromInitialInference;
+    float legalActionMaxEntropy;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-
-    @ManyToOne
-    EpisodeDO episode;
-
-
-
-    int t;
-    Integer action;
-
-
-    //    @EqualsAndHashCode.Include
-//    private List<Integer> actions;
-
-    @Builder.Default
-    Float  reward = 0f;
-    Float  entropy;
-    float[] policyTarget;
-
-
-    int observationPartSize;
-    byte[] observationPartA;
-    byte[] observationPartB;
-
     public TimeStepDO copyPolicyTarget() {
         return TimeStepDO.builder()
                 .policyTarget(policyTarget)
-//                .observationPartSize(observationPartSize)
-//                .observationPartA(observationPartA)
-//                .observationPartB(observationPartB)
                 .build();
     }
 
@@ -62,12 +55,18 @@ public class TimeStepDO {
         return
                 t == timeStepDO.t &&
                         action == timeStepDO.action &&
-                        reward == timeStepDO.reward &&
+                        reward == reward &&
                         entropy == timeStepDO.entropy &&
-                        policyTarget == timeStepDO.policyTarget &&
-                        observationPartSize == timeStepDO.observationPartSize &&
-                        observationPartA == timeStepDO.observationPartA &&
-                        observationPartB == timeStepDO.observationPartB;
+                        legalActionMaxEntropy == timeStepDO.legalActionMaxEntropy &&
+                        rootEntropyValueFromInitialInference == timeStepDO.rootEntropyValueFromInitialInference &&
+                        rootEntropyValueTarget == timeStepDO.rootEntropyValueTarget &&
+                        rootValueFromInitialInference == timeStepDO.rootValueFromInitialInference &&
+                        rootValueTarget == timeStepDO.rootValueTarget &&
+                        Arrays.equals(policyTarget, timeStepDO.policyTarget) &&
+                        Arrays.equals(legalActions, timeStepDO.legalActions) &&
+                        Arrays.equals(playoutPolicy, timeStepDO.playoutPolicy) &&
+                        this.getObservation().equals(timeStepDO.getObservation())
+                ;
     }
 
     public TimeStepDO copy() {
@@ -87,28 +86,6 @@ public class TimeStepDO {
                 .rootValueFromInitialInference(rootValueFromInitialInference)
                 .rootValueTarget(rootValueTarget)
                 .build();
-    }
-
-
-    public static class TimeStepDOBuilder {
-        int observationPartSize;
-        byte[] observationPartA;
-        byte[] observationPartB;
-
-        public TimeStepDOBuilder observation(Observation observation) {
-            this.observationPartSize = observation.getPartSize();
-            if (observation instanceof ObservationTwoPlayers) {
-                ObservationTwoPlayers observationTwoPlayers = (ObservationTwoPlayers) observation;
-                observationPartA = observationTwoPlayers.getPartA().toByteArray();
-                observationPartB = observationTwoPlayers.getPartB().toByteArray();
-            } else {
-                ObservationOnePlayer observationOnePlayer = (ObservationOnePlayer) observation;
-                observationPartA = observationOnePlayer.getPart().toByteArray();
-            }
-            return this;
-        }
-
-
     }
 
     public Observation getObservation() {
@@ -140,12 +117,24 @@ public class TimeStepDO {
         }
     }
 
- float[] playoutPolicy;
- boolean[] legalActions;
- Float rootValueTarget;
- Float vMix;
- Float rootEntropyValueTarget;
- Float rootEntropyValueFromInitialInference;
- Float rootValueFromInitialInference;
- Float legalActionMaxEntropy;
+    public static class TimeStepDOBuilder {
+        int observationPartSize;
+        byte[] observationPartA;
+        byte[] observationPartB;
+
+        public TimeStepDOBuilder observation(Observation observation) {
+            this.observationPartSize = observation.getPartSize();
+            if (observation instanceof ObservationTwoPlayers) {
+                ObservationTwoPlayers observationTwoPlayers = (ObservationTwoPlayers) observation;
+                observationPartA = observationTwoPlayers.getPartA().toByteArray();
+                observationPartB = observationTwoPlayers.getPartB().toByteArray();
+            } else {
+                ObservationOnePlayer observationOnePlayer = (ObservationOnePlayer) observation;
+                observationPartA = observationOnePlayer.getPart().toByteArray();
+            }
+            return this;
+        }
+
+
+    }
 }

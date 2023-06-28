@@ -23,6 +23,8 @@ import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.BitSet;
+
 @Slf4j
 public class TestEnvironment extends EnvironmentBase {
 
@@ -38,6 +40,9 @@ public class TestEnvironment extends EnvironmentBase {
 
     @Override
     public Observation getObservation() {
-        return ObservationTwoPlayers.builder().build();
+        return ObservationTwoPlayers.builder()
+                .partA(BitSet.valueOf(new byte[0]))
+                .partB(BitSet.valueOf(new byte[0]))
+                .build();
     }
 }

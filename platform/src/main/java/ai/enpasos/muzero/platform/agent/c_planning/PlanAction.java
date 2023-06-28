@@ -10,16 +10,13 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
@@ -40,7 +37,7 @@ public class PlanAction {
         log.trace("justReplayActionWithInitialInference");
 
         EpisodeDO episodeDO = game.getEpisodeDO();
-        int t = episodeDO.getLastActionTime();
+        int t = episodeDO.getLastTime();
         TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
 
         NetworkIO networkOutput = modelService.initialInference(game).join();
@@ -56,7 +53,7 @@ public class PlanAction {
         timeStepDO.setRootEntropyValueFromInitialInference((float) entropyValue);
 
         int nActionsReplayed = t + 1;
-        if (t < game.getOriginalEpisodeDO().getLastActionTime() ) {
+        if (t < game.getOriginalEpisodeDO().getLastTime() ) {
 
             try {
                 timeStepDO = episodeDO.getTimeSteps().get(t+1);
@@ -91,11 +88,12 @@ public class PlanAction {
             networkOutput = modelService.initialInference(game).join();
         }
 
-        EpisodeDO episodeDO = game.getEpisodeDO();
-        int t = episodeDO.getLastTimeStep().orElseThrow().getT();
-        TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
+      //  EpisodeDO episodeDO = game.getEpisodeDO();
+      //  int t = episodeDO.getLastTimeStep().orElseThrow().getT();
+      //  TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
+        TimeStepDO timeStepDO = game.getEpisodeDO().getLastTimeStep();
 
-        storeEntropyInfo(game, timeStepDO, networkOutput );
+                storeEntropyInfo(game, timeStepDO, networkOutput );
         if (justInitialInferencePolicy) {
             return playAfterJustWithInitialInference(timeStepDO, fastRuleLearning, game , networkOutput );
         }

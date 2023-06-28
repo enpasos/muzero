@@ -160,18 +160,18 @@ public class GameBufferDTO {
 //    }
 
 
-//    public boolean deepEquals(GameBufferDTO dtoNew) {
-//        // implement a deep equals
-//        boolean base = this.config.equals(dtoNew.config)
-//                && this.counter == dtoNew.counter
-//                && this.gameClassName.equals(dtoNew.gameClassName)
-//                && this.games.size() == dtoNew.games.size();
-//
-//        if (!base) return false;
-//
-//        for (int i = 0; i < this.games.size(); i++) {
-//            if (!this.games.get(i).deepEquals(dtoNew.getGames().get(i))) return false;
-//        }
-//        return true;
-//    }
+    public boolean deepEquals(GameBufferDTO dtoNew) {
+        // implement a deep equals
+        boolean base = this.config.equals(dtoNew.config)
+                && this.counter == dtoNew.counter
+                && this.gameClassName.equals(dtoNew.gameClassName)
+                && this.games.size() == dtoNew.games.size();
+
+        if (!base) return false;
+
+        for (int i = 0; i < this.games.size(); i++) {
+            if (!this.games.get(i).deepEquals(dtoNew.getGames().get(i))) return false;
+        }
+        return true;
+    }
 }

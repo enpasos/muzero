@@ -1,11 +1,9 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -13,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Entity
@@ -22,6 +19,7 @@ import java.util.stream.IntStream;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class EpisodeDO {
 
     @Id
@@ -29,12 +27,10 @@ public class EpisodeDO {
     private long id;
 
 
-  // @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, mappedBy = "episode")
   @Fetch(FetchMode.SELECT)
   @BatchSize(size = 10000)
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "episode")
-    // @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    // @EqualsAndHashCode.Exclude
+  @EqualsAndHashCode.Include
     private List<TimeStepDO> timeSteps;
 
   @Builder.Default
@@ -77,19 +73,6 @@ public class EpisodeDO {
     return episodeDO;
   }
 
-  public Optional<TimeStepDO> getLastTimeStep() {
-    if (timeSteps == null || timeSteps.isEmpty()) {
-      return Optional.empty();
-    }
-    return Optional.of(timeSteps.get(timeSteps.size() - 1));
-  }
-
-  public OptionalInt getLatestTime() {
-    if (timeSteps == null || timeSteps.isEmpty()) {
-      return OptionalInt.empty();
-    }
-    return OptionalInt.of(timeSteps.get(timeSteps.size() - 1).getT());
-  }
 
   public Optional<TimeStepDO> getFirstTimeStep() {
     if (timeSteps.isEmpty()) {
@@ -98,103 +81,70 @@ public class EpisodeDO {
     return Optional.of(timeSteps.get(0));
   }
 
-  public @Nullable Float getLatestReward() {
-    return  !getLastTimeStep().isPresent() ? 0f : getLastTimeStep().get().getReward();
+  public @Nullable float getRewardFromLastTimeStep() {
+    return    getLastTimeStep().getReward();
   }
 
-  public boolean[] getLatestLegalActions() {
-    boolean[] legalActions = new boolean[0];
-    try {
-      legalActions = getLastTimeStep().orElseThrow().getLegalActions();
-    } catch (Exception e) {
-      int i = 42;
+  public boolean[] getLegalActionsFromLastTimeStep() {
+    return getLastTimeStep().getLegalActions();
+  }
+
+  public TimeStepDO getLastTimeStep() {
+    if (timeSteps.isEmpty()) {
+      return null;
     }
-    if (legalActions == null) {
-      int i = 42;
+    return timeSteps.get(timeSteps.size() - 1);
+  }
+
+  public int getLastTime() {
+    if (timeSteps.isEmpty()) {
+      return -1;
     }
-    return legalActions;
-   //return  getLastTimeStep().orElseThrow().getLegalActions();
+    return getLastTimeStep().getT();
   }
 
-  public int getLastActionTime() {
-    return
-            timeSteps.stream().filter(timeStepDO -> timeStepDO.getAction() != null)
-                    .mapToInt(TimeStepDO::getT)
-                    .max()
-                    .orElse(-1) ;
+  public int getLastTimeWithAction() {
+    int t = getLastTime();
+    if (this.timeSteps.get(t).getAction() == null) {
+      t--;
+    }
+    if (t >= 0 && this.timeSteps.get(t).getAction() == null) {
+      throw new MuZeroException("no action found at time " + t);
+    }
+    return t;
   }
-  public OptionalInt getLastLegalActionsTime() {
-    return
-            timeSteps.stream().filter(timeStepDO -> timeStepDO.getLegalActions() != null)
-                    .mapToInt(TimeStepDO::getT)
-                    .max();
-
-  }
-  public OptionalInt getLastObservationTime() {
-    return
-            timeSteps.stream().filter(timeStepDO -> timeStepDO.getObservation() != null)
-                    .mapToInt(TimeStepDO::getT)
-                    .max();
-
+  public TimeStepDO getLastTimeStepWithAction() {
+    int t = getLastTime();
+    TimeStepDO timeStepDO = this.timeSteps.get(t);
+    if (this.timeSteps.get(t).getAction() == null) {
+      t--;
+      timeStepDO = this.timeSteps.get(t);
+    }
+    if (this.timeSteps.get(t).getAction() == null) {
+      throw new MuZeroException("no action found at time " + t);
+    }
+    return timeStepDO;
   }
 
-  public Observation getLatestObservation() {
-    int t = getLastObservationTime().orElseThrow();
+
+  public Observation getObservationFromLastTimeStep() {
+    int t = getLastTime();
     return timeSteps.get(t).getObservation();
   }
 
 
 
-  public void addNewTimeStepDO() {
+  public TimeStepDO addNewTimeStepDO() {
     if (timeSteps == null) {
       timeSteps = new ArrayList<>();
     }
-    int t = this.getLatestTime().orElse(-1) + 1;
-    timeSteps.add(TimeStepDO.builder().episode(this).t(t).build());
+    int t = this.getLastTime()  + 1;
+    TimeStepDO timeStepDO = TimeStepDO.builder().episode(this).t(t).build();
+    timeSteps.add(timeStepDO);
+    return timeStepDO;
   }
 
 
-  public OptionalInt getLastPolicyTargetsTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getPolicyTarget() != null)
-                    .mapToInt(TimeStepDO::getT)
-                    .max();
-  }
-
-  public OptionalInt getLastRootEntropyValuesFromInitialInferenceTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getRootEntropyValueFromInitialInference() != null)
-            .mapToInt(TimeStepDO::getT)
-            .max();
-  }
-
-  public OptionalInt getLastRootEntropyValueTargetTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getRootEntropyValueTarget() != null)
-            .mapToInt(TimeStepDO::getT)
-            .max();
-  }
-
-  public OptionalInt getLastEntropyTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getEntropy() != null)
-            .mapToInt(TimeStepDO::getT)
-            .max();
-  }
-
-  public OptionalInt getLastRootValueFromInitialInferenceTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getRootValueFromInitialInference() != null)
-            .mapToInt(TimeStepDO::getT)
-            .max();
-  }
-
-  public OptionalInt getLastRootValueTargetTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getRootValueTarget() != null)
-            .mapToInt(TimeStepDO::getT)
-            .max();
-  }
-
-  public OptionalInt getLastVMixTime() {
-    return timeSteps.stream().filter(timeStepDO -> timeStepDO.getVMix() != null)
-            .mapToInt(TimeStepDO::getT)
-            .max();
-  }
 
   public EpisodeDO copyWithoutTimeSteps() {
     EpisodeDO copy = new EpisodeDO();
@@ -233,14 +183,14 @@ public class EpisodeDO {
   }
 
   public double getAverageEntropy() {
-    double entropySum = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getEntropy() != null).mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
-    double entropyCount = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getEntropy() != null).count();
+    double entropySum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
+    double entropyCount = this.getTimeSteps().stream().count();
     return entropySum / Math.max(1, entropyCount);
   }
 
   public double getAverageActionMaxEntropy() {
-    double sum = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getLegalActionMaxEntropy() != null).mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
-    double count = this.getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getLegalActionMaxEntropy() != null).count();
+    double sum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
+    double count = this.getTimeSteps().stream().count();
     return sum / Math.max(1, count);
 
   }

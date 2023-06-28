@@ -25,6 +25,7 @@ dependencies {
 
     implementation(libs.onnxruntime)
 
+    testImplementation(libs.h2database)
 
     implementation(libs.springboot.starter.jpa)
 

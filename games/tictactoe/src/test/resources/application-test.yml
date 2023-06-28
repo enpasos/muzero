@@ -4,6 +4,18 @@
 #    logging:
 #      level: debug
 
+
+spring:
+  datasource:
+    url: "jdbc:h2:mem:platform;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS muzero;"
+    username: muzero
+    password: muzero
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
 muzero:
   activeGame: TICTACTOE
   run: none

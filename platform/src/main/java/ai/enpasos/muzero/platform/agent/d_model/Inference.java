@@ -262,8 +262,7 @@ public class Inference {
 
             games.stream().forEach(g -> {
                 EpisodeDO episodeDO = g.getEpisodeDO();
-                int n = episodeDO.getLastActionTime();
-                TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(n);
+                TimeStepDO timeStepDO = episodeDO.getLastTimeStepWithAction();
                 result.add(Pair.create((double)timeStepDO.getRootValueFromInitialInference(), timeStepDO.getAction() ));
             });
 
