@@ -96,12 +96,12 @@ public class GameBuffer {
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
-        ObservationModelInput observation = null;
-        try {
-             observation = game.getObservationModelInput(gamePos);
-        } catch (Exception e) {
-            int i = 42;
-        }
+      //  ObservationModelInput observation = null;
+       // try {
+        ObservationModelInput     observation = game.getObservationModelInput(gamePos);
+//        } catch (Exception e) {
+//            int i = 42;
+//        }
 
         sample.getObservations().add(observation);
         List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
@@ -133,7 +133,7 @@ public class GameBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-        return ThreadLocalRandom.current().nextInt(0, game.getEpisodeDO().getLastTime() + 2);
+        return ThreadLocalRandom.current().nextInt(0, game.getEpisodeDO().getLastTime() + 1);
     }
 
 

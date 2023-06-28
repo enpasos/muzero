@@ -114,7 +114,10 @@ public class InputOutputConstruction {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
                 .map(sample -> {
-                    ObservationModelInput observation = sample.getObservations().get(kFinal);
+                    ObservationModelInput  observation = sample.getObservations().get(kFinal);
+                    if (observation == null) {
+                        int i = 42;
+                    }
                     return observation.getNDArray(ndManager);
                 })
                 .collect(Collectors.toList());
