@@ -86,9 +86,7 @@ public class TicTacToeValueExtractor {
                 objects[0] = t;
                 for (int epoch = start; epoch <= stop; epoch++) {
                     Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
-//                    List<Float> values = game.getGameDTO().getRootEntropyValuesFromInitialInference();
-//                    double valuePlayer = values.get(t);
-                    double valuePlayer = game.getEpisodeDO().getTimeSteps().get(t).getRootEntropyValueFromInitialInference();
+                    double valuePlayer = game.getEpisodeDO().getTimeSteps().get(t).getRootValueFromInitialInference();
                     if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                         valuePlayer *= Math.pow(-1, t);
                     }

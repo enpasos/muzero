@@ -14,9 +14,12 @@ import java.util.List;
 public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     @Transactional
-    @Query(value = "select e from EpisodeDO e JOIN FETCH e.timeSteps ORDER BY e.id DESC")
-    List<EpisodeDO> findTopNByOrderByIdDesc(Pageable pageable);
+    @Query(value = "select e2.id from episode e2 order by e2.id desc limit :n", nativeQuery = true)
+    List<Long> findTopNEpisodeIds(int n);
 
+    @Transactional
+    @Query(value = "select e from EpisodeDO e JOIN FETCH e.timeSteps t where e.id in :ids ORDER BY e.id DESC, t.t ASC")
+    List<EpisodeDO> findEpisodeDOswithTimeStepDOs(List<Long> ids);
 
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
     int getMaxTrainingEpoch ();

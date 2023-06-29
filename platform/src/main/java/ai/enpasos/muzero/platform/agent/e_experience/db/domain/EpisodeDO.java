@@ -106,7 +106,7 @@ public class EpisodeDO {
 
   public int getLastTimeWithAction() {
     int t = getLastTime();
-    for(int i = 0; i <= t; i++) {
+    for(int i = t; i >= 0; i--) {
       if (this.timeSteps.get(i).getAction() != null) {
         return i;
       }

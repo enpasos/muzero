@@ -28,7 +28,9 @@ public class DBService {
 
     @Transactional
     public List<EpisodeDO> findTopNByOrderByIdDescAndConvertToGameDTOList(int n) {
-        return episodeRepo.findTopNByOrderByIdDesc(PageRequest.of(0, config.getWindowSize()));
+        List<Long> ids = episodeRepo.findTopNEpisodeIds(n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOs(ids);
+        return result;
     }
 
     public int getMaxTrainingEpoch() {

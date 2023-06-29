@@ -353,6 +353,9 @@ public abstract class Game {
 
         if (currentIndex > this.getEpisodeDO().getLastTimeWithAction()) {
             int i = this.getEpisodeDO().getLastTimeWithAction();
+            if (i < 0 ||  i > this.getEpisodeDO().getLastTime()) {
+                int k = 42;
+            }
             value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
         } else {
             for (int i = currentIndex; i < this.getEpisodeDO().getLastTimeWithAction() + 1 && i < bootstrapIndex; i++) {
@@ -407,7 +410,7 @@ public abstract class Game {
     public abstract ObservationModelInput getObservationModelInput(int gamePosision);
 
     public ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.getEpisodeDO().getLastTimeWithAction() + 1 );
+        return this.getObservationModelInput(this.getEpisodeDO().getLastTimeWithAction() + 1);
     }
 
     public void addObservationFromEnvironment() {
@@ -446,10 +449,11 @@ public abstract class Game {
 
         int tend = this.originalEpisodeDO.getLastTimeWithAction();
         IntStream.range(0, tend + 1).forEach(i -> {
-
-            this.episodeDO.getTimeSteps().add(this.originalEpisodeDO.getTimeSteps().get(i).copyPolicyTarget());
+            this.episodeDO.getTimeSteps().add(this.originalEpisodeDO.getTimeSteps().get(i).copyPolicyTargetAndObservation());
         });
-        this.episodeDO.getTimeSteps().get(0).setObservation(this.originalEpisodeDO.getTimeSteps().get(0).getObservation());
+        this.episodeDO.addNewTimeStepDO();
+        int t = this.episodeDO.getLastTime();
+        this.episodeDO.getTimeSteps().get(t).setObservation(this.originalEpisodeDO.getTimeSteps().get(t).getObservation());
 
     }
 
@@ -471,6 +475,9 @@ public abstract class Game {
         double[] pRatios = new double[t - tStart];
         IntStream.range(tStart, t).forEach(i -> {
             TimeStepDO timeStepDO = getEpisodeDO().getTimeSteps().get(i);
+            if (timeStepDO.getAction() == null) {
+                int k = 42;
+            }
             int a = timeStepDO.getAction() ;
             if (getEpisodeDO().getTimeSteps().get(0).getPlayoutPolicy() == null) {
                 pRatios[i - tStart] = 1;

@@ -43,9 +43,13 @@ public class TimeStepDO {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    public TimeStepDO copyPolicyTarget() {
+    // policyTarget, observationPartSize, observationPartA, observationPartB are assumed to be immutable
+    public TimeStepDO copyPolicyTargetAndObservation() {
         return TimeStepDO.builder()
-                .policyTarget(policyTarget)
+                .policyTarget( policyTarget )
+                .observationPartSize(observationPartSize)
+                .observationPartA( observationPartA )
+                .observationPartB( observationPartB )
                 .episode(episode)
                 .t(t)
                 .build();
