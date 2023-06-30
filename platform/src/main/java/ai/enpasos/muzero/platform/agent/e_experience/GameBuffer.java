@@ -357,20 +357,32 @@ public class GameBuffer {
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
-        List<String> networkNames = new ArrayList<>();
-        List<Game> games = new ArrayList<>(); // gameBufferIO.loadGamesForReplay(n );   // TODO
-        games.forEach(g -> {
-            g.setReanalyse(true);
-            g.setTReanalyseMin(mapTReanalyseMin2GameCount.getOrDefault(g.episodeDO.getCount(), 0));
-            int newTReanalyseMin = g.findNewTReanalyseMin();
-            mapTReanalyseMin2GameCount.put(g.episodeDO.getCount(), newTReanalyseMin);
-            g.setTReanalyseMin(newTReanalyseMin);
 
-            if (newTReanalyseMin > g.episodeDO.getLastTime() + 1) {
-                g.setReanalyse(false);
-            }
-        });
-        return games.stream().filter(g -> g.isReanalyse()).collect(Collectors.toList());
+        List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList);
+
+//        games.forEach(g -> {
+//            g.setReanalyse(true);
+//           g.setTReanalyseMin(mapTReanalyseMin2GameCount.getOrDefault(g.episodeDO.getCount(), 0));
+//            int newTReanalyseMin = g.findNewTReanalyseMin();
+//            mapTReanalyseMin2GameCount.put(g.episodeDO.getCount(), newTReanalyseMin);
+//            g.setTReanalyseMin(newTReanalyseMin);
+//
+//            if (newTReanalyseMin > g.episodeDO.getLastTime() + 1) {
+//                g.setReanalyse(false);
+//            }
+   //     });
+    //    return games.stream().filter(g -> g.isReanalyse()).collect(Collectors.toList());
+        return games;
+    }
+
+    private List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList) {
+        GameBufferDTO buffer = new GameBufferDTO();
+        buffer.setInitialEpisodeDOList(episodeDOList);
+        episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(buffer::setCounter);
+        buffer.rebuildGames(config);
+        List<Game> games = buffer.getGames();
+        return games;
     }
 
 

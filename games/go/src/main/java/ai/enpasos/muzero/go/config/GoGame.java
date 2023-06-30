@@ -94,7 +94,7 @@ public class GoGame extends ZeroSumGame {
         for (int i = 7; i >= 0; i--) {
             ObservationTwoPlayers observation =
                     position-i >= 0 ?
-                    (ObservationTwoPlayers)this.episodeDO.getTimeSteps().get(position-i).getObservation():
+                    (ObservationTwoPlayers)this.episodeDO.getTimeStep(position-i).getObservation():
                     ObservationTwoPlayers.builder()
                                     .partSize(n0)
                                     .partA(new BitSet(n0))

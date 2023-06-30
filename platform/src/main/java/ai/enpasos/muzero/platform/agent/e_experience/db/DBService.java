@@ -33,6 +33,13 @@ public class DBService {
         return result;
     }
 
+    @Transactional
+    public List<EpisodeDO> findRandomNByOrderByIdDescAndConvertToGameDTOList(int n) {
+        List<Long> ids = episodeRepo.findRandomNEpisodeIds(n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOs(ids);
+        return result;
+    }
+
     public int getMaxTrainingEpoch() {
         return episodeRepo.getMaxTrainingEpoch();
     }

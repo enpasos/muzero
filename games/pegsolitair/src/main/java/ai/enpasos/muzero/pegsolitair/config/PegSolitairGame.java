@@ -75,7 +75,7 @@ public class PegSolitairGame extends Game {
         int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
         BitSet rawResult = new BitSet(n);
 
-        Observation observation = episodeDO.getTimeSteps().get(position).getObservation();
+        Observation observation = episodeDO.getTimeStep(position).getObservation();
          observation.addTo(null, rawResult, 0 );
 
         return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});

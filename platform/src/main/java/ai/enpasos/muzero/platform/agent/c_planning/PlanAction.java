@@ -39,7 +39,7 @@ public class PlanAction {
         EpisodeDO episodeDO = game.getEpisodeDO();
         int t = episodeDO.getLastTimeWithAction() + 1;
 
-        TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
+        TimeStepDO timeStepDO = episodeDO.getTimeStep(t);
 
         NetworkIO networkOutput = modelService.initialInference(game).join();
 
@@ -57,14 +57,9 @@ public class PlanAction {
         if (t <= game.getOriginalEpisodeDO().getLastTimeWithAction()) {
 
             try {
-                timeStepDO = episodeDO.getTimeSteps().get(t);
+                timeStepDO = episodeDO.getTimeStep(t);
                 timeStepDO.setAction(game.getOriginalEpisodeDO().getTimeSteps().get(t).getAction());
-
-          //      episodeDO.addNewTimeStepDO();
-
-           //     timeStepDO = episodeDO.getTimeSteps().get(t+1);
-           //     timeStepDO.setObservation(game.getOriginalEpisodeDO().getTimeSteps().get(t+1).getObservation());
-                  } catch (Exception e) {
+                    } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new MuZeroException(e);
             }
@@ -92,12 +87,10 @@ public class PlanAction {
             networkOutput = modelService.initialInference(game).join();
         }
 
-      //  EpisodeDO episodeDO = game.getEpisodeDO();
-      //  int t = episodeDO.getLastTimeStep().orElseThrow().getT();
-      //  TimeStepDO timeStepDO = episodeDO.getTimeSteps().get(t);
-        TimeStepDO timeStepDO = game.getEpisodeDO().getLastTimeStep();
+        int t = game.getEpisodeDO().getLastTimeWithAction() + 1;
+        TimeStepDO timeStepDO = game.getEpisodeDO().getTimeStep(t);
 
-                storeEntropyInfo(game, timeStepDO, networkOutput );
+        storeEntropyInfo(game, timeStepDO, networkOutput );
         if (justInitialInferencePolicy) {
             return playAfterJustWithInitialInference(timeStepDO, fastRuleLearning, game , networkOutput );
         }
@@ -113,7 +106,7 @@ public class PlanAction {
             for (Action action : game.legalActions()) {
                 legalActions[action.getIndex()] = true;
             }
-           // game.getGameDTO().getLegalActions().add(legalActions);
+            timeStepDO.setLegalActions(legalActions);
         }
         if (game.legalActions().size() == 1) {
              return shortCutForGameWithoutAnOption(game,   timeStepDO, networkOutput, render, fastRuleLearning, replay);

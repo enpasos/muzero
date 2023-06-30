@@ -14,7 +14,7 @@ import java.util.List;
 public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     @Transactional
-    @Query(value = "select e2.id from episode e2 order by e2.id desc limit :n", nativeQuery = true)
+    @Query(value = "select e.id from episode e order by e.id desc limit :n", nativeQuery = true)
     List<Long> findTopNEpisodeIds(int n);
 
     @Transactional
@@ -23,5 +23,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
     int getMaxTrainingEpoch ();
+
+    @Transactional
+    @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
+    List<Long> findRandomNEpisodeIds(int n);
 
 }

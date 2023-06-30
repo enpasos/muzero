@@ -58,7 +58,7 @@ https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 
 database superuser
 postgres
-363-cbe-724-kew-4g3
+363-cbe-724-kew-4g3            (or something safe ;-)
 
 port 5432
 
