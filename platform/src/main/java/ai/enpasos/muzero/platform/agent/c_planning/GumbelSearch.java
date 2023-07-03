@@ -78,7 +78,6 @@ public class GumbelSearch {
         timeStepDO.setVMix((float) root.getVmix()); timeStepDO.setVMix((float) root.getVmix());
         timeStepDO.setRootEntropyValueTarget((float)  root.getImprovedEntropyValue());
 
-
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
             root.getChildren().forEach(node -> policyTarget[node.getAction().getIndex()] = (float) node.getPrior());

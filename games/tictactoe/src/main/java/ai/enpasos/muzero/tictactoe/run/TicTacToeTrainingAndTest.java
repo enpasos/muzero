@@ -35,7 +35,7 @@ public class TicTacToeTrainingAndTest {
 
         // TODO separate model and memory from scratch
 
-        boolean deleteModel = true;
+        boolean deleteModel = false;
 
         if (deleteModel) {
             rmDir(config.getOutputDir());

@@ -72,7 +72,6 @@ public class MuZeroLoop {
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
-
             DurAndMem duration = new DurAndMem();
             duration.on();
 

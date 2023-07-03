@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Entity
@@ -88,8 +87,10 @@ public class EpisodeDO {
         return getLastTimeStep().getReward();
     }
 
-    public boolean[] getLegalActionsFromLastTimeStep() {
-        return getLastTimeStep().getLegalActions();
+    public boolean[] getLegalActionsFromLatestTimeStepWithoutAction() {
+        int t = getLastTimeWithAction();
+        t++;
+        return getTimeStep(t).getLegalActions();
     }
 
     public TimeStepDO getLastTimeStep() {

@@ -138,9 +138,9 @@ public abstract class Game {
 
     public abstract boolean terminal();
 
-    // TODO simplify Action handling
+    // TODO simplify Action handling ... just int not Marker Interface
     public List<Action> legalActions() {
-        boolean[] b = this.episodeDO.getLegalActionsFromLastTimeStep();
+        boolean[] b = this.episodeDO.getLegalActionsFromLatestTimeStepWithoutAction();
 
         List<Action> actionList = new ArrayList<>();
         for (int i = 0; i < actionSpaceSize; i++) {
