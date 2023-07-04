@@ -134,7 +134,7 @@ public class GameBuffer {
 
     public static int samplePosition(@NotNull Game game) {
         int t0 = game.getFirstSamplePosition();
-        int tmax = game.getEpisodeDO().getLastTimeWithAction() ;
+        int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
         // TODO tHybrid should be not larger than lastActionTime ... next line is a workaround
          t0 = Math.min(t0, tmax);
         return ThreadLocalRandom.current().nextInt(t0, tmax + 1);
