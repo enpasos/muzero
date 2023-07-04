@@ -32,7 +32,7 @@ public class EpisodeDO {
     boolean surprised;
     boolean hybrid;
     @Builder.Default
-    long tHybrid = -1;
+    long tStartNormal = -1;
     int trainingEpoch;
     int tdSteps;
     @Id
@@ -60,7 +60,7 @@ public class EpisodeDO {
                 .nextSurpriseCheck(nextSurpriseCheck)
                 .surprised(surprised)
                 .hybrid(hybrid)
-                .tHybrid(tHybrid)
+                .tStartNormal(tStartNormal)
                 .trainingEpoch(trainingEpoch)
                 .tdSteps(tdSteps)
                 .timeSteps(timeSteps.stream().map(TimeStepDO::copy).collect(Collectors.toList()))
@@ -121,16 +121,14 @@ public class EpisodeDO {
 
     public TimeStepDO getLastTimeStepWithAction() {
         sortTimeSteps();
-        int t = getLastTime();
-        TimeStepDO timeStepDO = this.timeSteps.get(t);
-        if (this.timeSteps.get(t).getAction() == null) {
-            t--;
-            timeStepDO = this.timeSteps.get(t);
+        int t0 = getLastTime();
+        for (int t = t0; t >= 0; t--) {
+            TimeStepDO timeStepDO = this.timeSteps.get(t);
+            if (this.timeSteps.get(t).getAction() != null) {
+                return timeStepDO;
+            }
         }
-        if (this.timeSteps.get(t).getAction() == null) {
-            throw new MuZeroException("no action found at time " + t);
-        }
-        return timeStepDO;
+        return null;
     }
 
 
@@ -159,7 +157,7 @@ public class EpisodeDO {
         copy.nextSurpriseCheck = this.nextSurpriseCheck;
         copy.tdSteps = this.tdSteps;
         copy.hybrid = this.hybrid;
-        copy.tHybrid = this.tHybrid;
+        copy.tStartNormal = this.tStartNormal;
         copy.trainingEpoch = this.trainingEpoch;
         copy.pRandomActionRawCount = this.pRandomActionRawCount;
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
@@ -185,7 +183,7 @@ public class EpisodeDO {
 
 
     public boolean hasExploration() {
-        return tHybrid > 0;
+        return tStartNormal > 0;
     }
 
     public double getAverageEntropy() {
@@ -225,4 +223,16 @@ public class EpisodeDO {
         }
         throw new MuZeroException("no timestep found for t=" + t);
     }
+
+    public void removeTheLastAction() {
+        // if (this.timeSteps.size() == 0) return;
+        TimeStepDO timeStepDO = this.getLastTimeStepWithAction();
+        if (timeStepDO != null) {
+            timeStepDO.setAction(null);
+        }
+
+    }
+
+
+
 }

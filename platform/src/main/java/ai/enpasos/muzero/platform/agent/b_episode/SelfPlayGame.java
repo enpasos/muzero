@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
 @Component
 @Slf4j
 public class SelfPlayGame {
@@ -33,11 +37,22 @@ public class SelfPlayGame {
         game.getEpisodeDO().setTdSteps(config.getTdSteps());
 
 
+
         int count = 1;
-        while ((!untilEnd && count == 1)
-                || (untilEnd && !game.isDone(
-                playParameters.isReplay() || playParameters.isJustReplayWithInitialReference())
-        )) {
+        while (untilEnd &&  playParameters.isReplay() ?
+
+                playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
+                && (!game.getEpisodeDO().isHybrid() ||
+                        (game.getEpisodeDO().getTStartNormal() <= game.getEpisodeDO().getLastTimeWithAction() + 1
+                                && game.getEpisodeDO().getTimeStep(game.getEpisodeDO().getLastTimeWithAction() + 2).getK() > config.getKMinLimit()
+                        )
+                        )
+
+                :
+                ((!untilEnd && count == 1)
+                        || (untilEnd && !game.isDone(playParameters.isJustReplayWithInitialReference())))
+                ){
+       //     log.info("LastTimeWithAction: " + game.getEpisodeDO().getLastTimeWithAction());
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
             } else {
@@ -50,7 +65,9 @@ public class SelfPlayGame {
                         playParameters.replay,
                         playParameters.withGumbel);   // check parameter withRandomActions
                 if (playParameters.isReplay()) {
+                    game.calculateK();
                     game.pseudoApplyFromOriginalGame(action);
+                  //
                 } else {
                     game.apply(action);
                 }
@@ -60,6 +77,13 @@ public class SelfPlayGame {
 
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);
+        } else if (playParameters.isReplay()) {
+            // replay
+            List<Double> ks = new ArrayList<>();
+IntStream.range(0, game.getEpisodeDO().getLastTime()).forEach(t -> ks.add(game.getEpisodeDO().getTimeStep(t).getK()));
+    log.info("epoch {}, id {}, ks = {}", game.getEpisodeDO().getTrainingEpoch(), game.getEpisodeDO().getId(),    ks.toString());
+
+            game.resetAllOriginalActions();
         }
         if (untilEnd) game.setEnvironment(null);
 

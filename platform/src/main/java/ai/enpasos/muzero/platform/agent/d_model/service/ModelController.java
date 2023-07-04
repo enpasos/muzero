@@ -175,9 +175,9 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetwork(Model model) {
         try (NDScope nDScope = new NDScope()) {
-            if (config.offPolicyCorrectionOn()) {
-                determinePRatioMaxForCurrentEpoch();
-            }
+//            if (config.offPolicyCorrectionOn()) {
+//                determinePRatioMaxForCurrentEpoch();
+//            }
 
             int epochLocal;
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();

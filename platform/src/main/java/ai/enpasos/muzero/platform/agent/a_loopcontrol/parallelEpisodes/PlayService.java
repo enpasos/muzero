@@ -55,6 +55,7 @@ public class PlayService {
         games.forEach(game -> {
             game.getEpisodeDO().setTdSteps(config.getTdSteps());
             game.setOriginalEpisodeDO(game.getEpisodeDO().copy());
+            game.setReanalyse(true);
 
             game.getEpisodeDO().getTimeSteps().stream().forEach(
                     timeStepDO -> {
@@ -66,12 +67,15 @@ public class PlayService {
                       //  timeStepDO.setLegalActionMaxEntropy(0);
                         timeStepDO.setRootValueFromInitialInference(0);
                         timeStepDO.setRootEntropyValueFromInitialInference(0);
-                        timeStepDO.setAction(null);
+                    //    timeStepDO.setAction(null);
                      //   timeStepDO.setReward(0);
                      //   timeStepDO.setObservation(null);
                      //   timeStepDO.setLegalActions(null);
                     }
             );
+            // just remove the last action!
+            game.getEpisodeDO().removeTheLastAction();
+            game.getEpisodeDO().getLastTimeStep().setK(1d);
           //  game.getEpisodeDO().getTimeSteps().get(0).setObservation(game.getEpisodeDO().getTimeSteps().get(0).getObservation());
          //   game.getEpisodeDO().getTimeSteps().get(0).setLegalActions(game.getEpisodeDO().getTimeSteps().get(0).getLegalActions());
         });
@@ -96,8 +100,8 @@ public class PlayService {
     private void hybridConfiguration(List<Game> games, int gameLength) {
         games.stream().forEach(game -> {
             game.getEpisodeDO().setHybrid(true);
-            if (game.getEpisodeDO().getTHybrid() == -1) {
-                game.getEpisodeDO().setTHybrid(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
+            if (game.getEpisodeDO().getTStartNormal() == -1) {
+                game.getEpisodeDO().setTStartNormal(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
             }
         });
     }

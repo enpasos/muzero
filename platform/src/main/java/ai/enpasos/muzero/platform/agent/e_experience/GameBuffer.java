@@ -58,6 +58,7 @@ public class GameBuffer {
 
     private int batchSize;
     private GameBufferDTO buffer;
+    private GameBufferDTO bufferForReanalysedEpisodes;
     @Autowired
     private MuZeroConfig config;
 
@@ -132,7 +133,11 @@ public class GameBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-        return ThreadLocalRandom.current().nextInt(0, game.getEpisodeDO().getLastTime() + 1);
+        int t0 = game.getFirstSamplePosition();
+        int tmax = game.getEpisodeDO().getLastTimeWithAction() ;
+        // TODO tHybrid should be not larger than lastActionTime ... next line is a workaround
+         t0 = Math.min(t0, tmax);
+        return ThreadLocalRandom.current().nextInt(t0, tmax + 1);
     }
 
 
@@ -178,6 +183,7 @@ public class GameBuffer {
             this.getBuffer().games.clear();
         }
         this.buffer = new GameBufferDTO(config);
+        this.bufferForReanalysedEpisodes = new GameBufferDTO(config);
 
     }
 
@@ -208,6 +214,11 @@ public class GameBuffer {
     public List<Game> getGames() {
         List<Game> games = new ArrayList<>(this.buffer.getGames());
         log.trace("Games from buffer: {}",  games.size() );
+
+        List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getGames());
+        log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
+
+        games.addAll(games2);
         return games;
     }
 
@@ -287,9 +298,13 @@ public class GameBuffer {
          memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         if (!game.isReanalyse()) {
             game.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
+            game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
+            buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+        } else {
+            this.bufferForReanalysedEpisodes.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+
         }
-        game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
-        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+
     }
 
 

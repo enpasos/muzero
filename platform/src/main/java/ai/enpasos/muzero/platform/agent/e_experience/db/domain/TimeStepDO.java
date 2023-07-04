@@ -43,6 +43,9 @@ public class TimeStepDO {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Transient
+    double k;
+
     // policyTarget, observationPartSize, observationPartA, observationPartB are assumed to be immutable
     public TimeStepDO copyPolicyTargetAndObservation() {
         return TimeStepDO.builder()
@@ -122,6 +125,8 @@ public class TimeStepDO {
             throw new RuntimeException("unknown observation type");
         }
     }
+
+
 
     public static class TimeStepDOBuilder {
         int observationPartSize;
