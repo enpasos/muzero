@@ -193,23 +193,20 @@ public abstract class Game {
 
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward) {
         List<Target> targets = new ArrayList<>();
-
+        double kappa = ThreadLocalRandom.current().nextDouble(0, 1);
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target, isEntropyContributingToReward);
+            fillTarget(currentIndex, target, isEntropyContributingToReward, kappa);
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward) {
+    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa) {
 
-        int tdSteps = episodeDO.getTdSteps();
-        if (this.isReanalyse()) {
-            checkDrawing(currentIndex);
-    }
-     //   getTdSteps(currentIndex);
+        int tdSteps = getTdSteps( currentIndex, kappa);
+
         double value = calculateValue(tdSteps, currentIndex);
        // double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
@@ -247,74 +244,17 @@ public abstract class Game {
 
     }
 
-//    private int getTdSteps(int currentIndex) {
-//        int tdSteps;
-//        if (this.reanalyse) {
-//            if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
-//                tdSteps = 0;
-//            } else {
-//                int tMaxHorizon = episodeDO.getLastTime();
-//                tdSteps = getTdSteps(currentIndex, tMaxHorizon);
-//            }
-//        } else {
-//            if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
-//                tdSteps = 0;
-//            } else {
-//                tdSteps = episodeDO.getTdSteps();
-//            }
-//        }
-//        return tdSteps;
-//    }
-
-    public void checkDrawing(int currentIndex) {
-
-     //  if (!config.offPolicyCorrectionOn()) return 0;
-     //   if (episodeDO.getFirstTimeStep().orElseThrow().getPlayoutPolicy() == null) return 0;
-        double kappa = ThreadLocalRandom.current().nextDouble(0, 1);
-
-        double k = this.getEpisodeDO().getTimeStep(currentIndex).getK();
-        if (k <= kappa) {
-            throw new MuZeroNoSampleMatch();
-        }
-    //    return getTdSteps(b, currentIndex, tMaxHorizon);
-//    }
-//
-//    public int getTdSteps(double b, int currentIndex, int tMaxHorizon) {
-/*        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
-
+    private int getTdSteps(int currentIndex, double kappa) {
         int tdSteps;
-
-        if (currentIndex < tReanalyseMin) {
-            throw new MuZeroNoSampleMatch();
-        }*/
-
-      //  if (currentIndex >= tMaxHorizon  ) return 0;
-
-//        for (int t = tMaxHorizon; t >= currentIndex; t--) {
-//
-//            double pBase = 1;
-//            for (int i = currentIndex; i < t; i++) {
-//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
-//                pBase *= timeStepDO.getPlayoutPolicy()[timeStepDO.getAction()];
-//            }
-//            double p = 1;
-//            for (int i = currentIndex; i < t; i++) {
-//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
-//                p *= timeStepDO.getPolicyTarget()[timeStepDO.getAction()];
-//            }
-//            double pRatio = p / pBase;
-//            if (pRatio > b * localPRatioMax) {
-//                tdSteps = t - currentIndex;
-//                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
-//                    tdSteps = 0;   // if not all then nothing
-//                }
-//                if (tdSteps > 0)
-//                    log.trace("tdSteps (>0): " + tdSteps);
-//                return tdSteps;
-//            }
-//        }
-//        throw new MuZeroNoSampleMatch();
+        if (((episodeDO.isHybrid() || this.reanalyse) && isItExplorationTime(currentIndex))
+        || (this.reanalyse && currentIndex <= this.getEpisodeDO().getLastTime() && this.getEpisodeDO().getTimeStep(currentIndex).getK() < kappa)) {
+            tdSteps = 0;
+        } else {
+            tdSteps = config.getTdSteps();
+        }
+        return tdSteps;
     }
+
 
     private float getReward(int currentIndex) {
         float reward;
@@ -390,7 +330,7 @@ public abstract class Game {
         double value = 0;
         if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
             switch(config.getVTarget()) {
-                case V_INFERENCE:
+                case V_INFERENCE:  // the default case ... remove the others
                     if (  bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }

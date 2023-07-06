@@ -42,11 +42,12 @@ public class SelfPlayGame {
         while (untilEnd &&  playParameters.isReplay() ?
 
                 playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
-                && (!game.getEpisodeDO().isHybrid() ||
-                        (game.getEpisodeDO().getTStartNormal() <= game.getEpisodeDO().getLastTimeWithAction() + 1
-                                && game.getEpisodeDO().getTimeStep(game.getEpisodeDO().getLastTimeWithAction() + 2).getK() > config.getKMinLimit()
-                        )
-                        )
+ //               && (!game.getEpisodeDO().isHybrid()
+                        //||
+//                        (game.getEpisodeDO().getTStartNormal() <= game.getEpisodeDO().getLastTimeWithAction() + 1
+//                                && game.getEpisodeDO().getTimeStep(game.getEpisodeDO().getLastTimeWithAction() + 2).getK() > config.getKMinLimit()
+//                        )
+//                        )
 
                 :
                 ((!untilEnd && count == 1)
@@ -79,9 +80,9 @@ public class SelfPlayGame {
             playAction.justReplayActionWithInitialInference(game);
         } else if (playParameters.isReplay()) {
             // replay
-            List<Double> ks = new ArrayList<>();
-IntStream.range(0, game.getEpisodeDO().getLastTime()).forEach(t -> ks.add(game.getEpisodeDO().getTimeStep(t).getK()));
-    log.info("epoch {}, id {}, ks = {}", game.getEpisodeDO().getTrainingEpoch(), game.getEpisodeDO().getId(),    ks.toString());
+//            List<Double> ks = new ArrayList<>();
+//IntStream.range(0, game.getEpisodeDO().getLastTime()).forEach(t -> ks.add(game.getEpisodeDO().getTimeStep(t).getK()));
+//    log.info("epoch {}, id {}, ks = {}", game.getEpisodeDO().getTrainingEpoch(), game.getEpisodeDO().getId(),    ks.toString());
 
             game.resetAllOriginalActions();
         }
