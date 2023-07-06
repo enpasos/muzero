@@ -12,6 +12,8 @@ spring:
     password: muzero
     driver-class-name: org.h2.Driver
   jpa:
+#    hbm2ddl:
+#      auto: create
     hibernate:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect

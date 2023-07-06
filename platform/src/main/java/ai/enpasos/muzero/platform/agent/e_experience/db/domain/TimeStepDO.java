@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 
 
 @Entity
@@ -21,7 +22,12 @@ public class TimeStepDO {
 
     @ManyToOne
     EpisodeDO episode;
+
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "timestep")
+    private List<ValueDO> values;
+
     int t;
+
     @EqualsAndHashCode.Include
     Integer action;
 
