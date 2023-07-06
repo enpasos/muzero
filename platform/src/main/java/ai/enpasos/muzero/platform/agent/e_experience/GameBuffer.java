@@ -375,7 +375,7 @@ public class GameBuffer {
         int n =   config.getNumParallelGamesPlayed();
 
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList);
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
 //        games.forEach(g -> {
 //            g.setReanalyse(true);
@@ -392,7 +392,7 @@ public class GameBuffer {
         return games;
     }
 
-    private List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList) {
+    public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {
         GameBufferDTO buffer = new GameBufferDTO();
         buffer.setInitialEpisodeDOList(episodeDOList);
         episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(buffer::setCounter);

@@ -21,6 +21,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e from EpisodeDO e JOIN FETCH e.timeSteps t where e.id in :ids ORDER BY e.id DESC, t.t ASC")
     List<EpisodeDO> findEpisodeDOswithTimeStepDOs(List<Long> ids);
 
+
+
+
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
     int getMaxTrainingEpoch ();
 
@@ -28,4 +31,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
     List<Long> findRandomNEpisodeIds(int n);
 
+
+    @Transactional
+    @Query(value = "select e.id from episode e", nativeQuery = true)
+    List<Long> findAllIds();
 }

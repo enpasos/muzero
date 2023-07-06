@@ -8,10 +8,12 @@ import lombok.*;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 
 
 @Entity
-@Table(name = "timestep")
+@Table(name = "timestep", uniqueConstraints =
+@UniqueConstraint(name = "UniqueEpisodeIDandTime", columnNames = {"episode_id", "t"}))
 @Data
 @Builder
 @AllArgsConstructor
@@ -21,7 +23,12 @@ public class TimeStepDO {
 
     @ManyToOne
     EpisodeDO episode;
+
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "timestep")
+    private List<ValueDO> values;
+
     int t;
+
     @EqualsAndHashCode.Include
     Integer action;
 
