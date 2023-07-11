@@ -405,6 +405,7 @@ public abstract class Game {
         this.episodeDO.addNewTimeStepDO();
         int t = this.episodeDO.getLastTime();
         this.episodeDO.getTimeStep(t).setObservation(this.originalEpisodeDO.getTimeStep(t).getObservation());
+        this.episodeDO.getTimeStep(t).setId(this.originalEpisodeDO.getTimeStep(t).getId());
 
     }
 

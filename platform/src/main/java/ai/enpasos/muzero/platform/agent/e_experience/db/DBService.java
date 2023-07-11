@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,14 +55,28 @@ public class DBService {
 
     @Transactional
     public List<EpisodeDO> findEpisodeDOswithTimeStepDOsAndValues(List<Long> episodeIds) {
-        List<EpisodeDO> episodeDOS = episodeRepo.findEpisodeDOswithTimeStepDOs(episodeIds);
 
-        List<TimeStepDO> timeStepDOS = episodeDOS.stream().map(e -> e.getTimeSteps()).flatMap(List::stream).collect(Collectors.toList());
+
+        List<TimeStepDO> timeStepDOs =  timestepRepo.findTimeStepDOswithEpisodeIds(episodeIds);
+timeStepDOs.stream().forEach(t -> t.getValues().size());
+
+        List<EpisodeDO> episodeDOs = timeStepDOs.stream().map(t -> {
+            EpisodeDO episodeDO = t.getEpisode();
+
+            return episodeDO;
+        }).distinct().collect(Collectors.toList());
+        episodeDOs.forEach(e -> e.setTimeSteps(new ArrayList<>()));
+        timeStepDOs.stream().forEach(t ->  t.getEpisode().getTimeSteps().add(t) );
+        timeStepDOs.stream().forEach(t -> t.getValues().size());
+
+      //  List<TimeStepDO> timeStepDOS = episodeDOS.stream().map(e -> e.getTimeSteps()).flatMap(List::stream).collect(Collectors.toList());
     //    List<TimeStepDO> timeStepDOS2 = timestepRepo.joinFetchValues(timeStepDOS);
 
         // todo: make more performant by using join fetch
-        timeStepDOS.stream().forEach(t -> t.getValues().size());
-        return episodeDOS;
+
+      // episodeDOS.stream().forEach(e -> e.getTimeSteps().stream().forEach(t -> t.getValues().size()));
+       //
+        return episodeDOs;
     }
 
 }

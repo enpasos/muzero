@@ -45,9 +45,9 @@ GameProvider gameProvider;
 
 
     public void run() {
-        int start = networkIOService.getLatestNetworkEpoch();
+        int start = 0;
         int stop =  networkIOService.getLatestNetworkEpoch();
-        IntStream.range(start, stop + 1).forEach(epoch -> fillTableForEpoch(epoch));
+        IntStream.range(start, stop + 1).forEach(epoch ->   fillTableForEpoch(epoch));
 
     }
 
@@ -56,7 +56,8 @@ GameProvider gameProvider;
         modelService.loadLatestModel(epoch).join();
 
         List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutValueForAnEpoch(epoch);
-        episodeIds = episodeIds.subList(0, 1000);
+        if (episodeIds.isEmpty()) return;
+       //episodeIds = episodeIds.subList(0, 1000);
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
 
@@ -67,22 +68,10 @@ GameProvider gameProvider;
         games.stream().forEach(game -> {
             game.getEpisodeDO().getTimeSteps().stream().forEach(timestep -> {
                 double value = timestep.getRootValueFromInitialInference();
-                ValueDO valueDO = ValueDO.builder()
-                        .epoch(epoch)
-                        .value(value)
-                        .timestep(timestep)
-                        .build();
-                List<ValueDO> valueDOS = timestep.getValues();
-                if (valueDOS == null) {
-                    valueDOS = new ArrayList<>();
-                    timestep.setValues(valueDOS);
-                }
-                valueDOS.add(valueDO);
-              // valueRepo.save(valueDO);
+                valueRepo.myInsert(epoch, value, timestep.getId());
             });
-            episodeRepo.save(game.getEpisodeDO());
         });
-        int i = 42;
+
 
     }
 }

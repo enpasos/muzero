@@ -24,7 +24,7 @@ public class TimeStepDO {
     @ManyToOne
     EpisodeDO episode;
 
-    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "timestep")
+    @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
     private List<ValueDO> values;
 
     int t;
@@ -62,6 +62,7 @@ public class TimeStepDO {
                 .observationPartB( observationPartB )
                 .episode(episode)
                 .t(t)
+                .id(id)
                 .build();
     }
 

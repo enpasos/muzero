@@ -163,6 +163,7 @@ public class EpisodeDO {
         copy.pRandomActionRawSum = this.pRandomActionRawSum;
         copy.lastValueError = this.lastValueError;
         copy.surprised = this.surprised;
+        copy.id = this.id;
         return copy;
     }
 
