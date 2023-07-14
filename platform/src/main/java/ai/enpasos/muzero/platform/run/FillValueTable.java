@@ -47,6 +47,7 @@ GameProvider gameProvider;
     public void run() {
         int start = 0;
         int stop =  networkIOService.getLatestNetworkEpoch();
+       // int delta = 20;
         IntStream.range(start, stop + 1).forEach(epoch ->   fillTableForEpoch(epoch));
 
     }
@@ -55,9 +56,20 @@ GameProvider gameProvider;
         log.info("filling value table for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
 
-        List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutValueForAnEpoch(epoch);
+        // the network from epoch
+        // has seen trainingEpoch 0...epoch
+        for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
+            fillTableForEpochAndTrainingEpoch(epoch, trainingEpoch);
+        }
+
+    }
+
+    private void fillTableForEpochAndTrainingEpoch(int epoch, int trainingEpoch) {
+
+
+        List<Long>  episodeIds0 =  episodeRepo.findAllIdsForAnEpoch(trainingEpoch);
+        List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutValueForAnEpoch(epoch,episodeIds0);
         if (episodeIds.isEmpty()) return;
-       //episodeIds = episodeIds.subList(0, 1000);
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
 

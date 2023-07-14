@@ -57,6 +57,8 @@ public class DBService {
     public List<EpisodeDO> findEpisodeDOswithTimeStepDOsAndValues(List<Long> episodeIds) {
 
 
+
+
         List<TimeStepDO> timeStepDOs =  timestepRepo.findTimeStepDOswithEpisodeIds(episodeIds);
 timeStepDOs.stream().forEach(t -> t.getValues().size());
 

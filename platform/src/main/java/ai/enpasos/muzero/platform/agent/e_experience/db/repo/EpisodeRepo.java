@@ -35,4 +35,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Transactional
     @Query(value = "select e.id from episode e", nativeQuery = true)
     List<Long> findAllIds();
+
+
+    @Transactional
+    @Query(value = "select e.id from episode e where e.training_epoch = :epoch", nativeQuery = true)
+    List<Long> findAllIdsForAnEpoch(int epoch);
 }
