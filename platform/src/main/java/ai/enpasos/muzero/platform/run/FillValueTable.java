@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
@@ -53,7 +54,14 @@ GameProvider gameProvider;
             oldStop = stop;
             IntStream.range(start, stop + 1).forEach(epoch -> fillTableForEpoch(epoch));
             stop = networkIOService.getLatestNetworkEpoch();
-        } while (oldStop != stop);
+            if (oldStop == stop) {
+                try {
+                    TimeUnit.MINUTES.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } while (true); //oldStop != stop);
     }
 
     private void fillTableForEpoch(int epoch) {
