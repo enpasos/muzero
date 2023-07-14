@@ -45,11 +45,15 @@ GameProvider gameProvider;
 
 
     public void run() {
-        int start = 0;
-        int stop =  networkIOService.getLatestNetworkEpoch();
-       // int delta = 20;
-        IntStream.range(start, stop + 1).forEach(epoch ->   fillTableForEpoch(epoch));
-
+        int start;
+        int oldStop = -1;
+        int stop = networkIOService.getLatestNetworkEpoch();
+        do {
+            start = oldStop + 1;
+            oldStop = stop;
+            IntStream.range(start, stop + 1).forEach(epoch -> fillTableForEpoch(epoch));
+            stop = networkIOService.getLatestNetworkEpoch();
+        } while (oldStop != stop);
     }
 
     private void fillTableForEpoch(int epoch) {
