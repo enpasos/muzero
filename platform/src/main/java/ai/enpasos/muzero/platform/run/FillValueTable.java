@@ -42,17 +42,23 @@ public class FillValueTable {
     MuZeroConfig config;
 @Autowired
 GameProvider gameProvider;
+@Autowired
+TemperatureCalculator temperatureCalculator;
 
 
 
     public void run() {
         int start;
         int oldStop = -1;
+        int n = 10;
         int stop = networkIOService.getLatestNetworkEpoch();
         do {
             start = oldStop + 1;
             oldStop = stop;
-            IntStream.range(start, stop + 1).forEach(epoch -> fillTableForEpoch(epoch));
+            IntStream.range(start, stop + 1).forEach(epoch -> {
+                fillTableForEpoch(epoch);
+                temperatureCalculator.run(epoch, n);
+            });
             stop = networkIOService.getLatestNetworkEpoch();
             if (oldStop == stop) {
                 try {
@@ -73,6 +79,7 @@ GameProvider gameProvider;
         for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
             fillTableForEpochAndTrainingEpoch(epoch, trainingEpoch);
         }
+
 
     }
 
