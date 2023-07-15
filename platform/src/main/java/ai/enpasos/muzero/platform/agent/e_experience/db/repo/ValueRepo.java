@@ -31,7 +31,7 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "insert into value (id, epoch, value, timestep_id) values (nextval('value_seq'), :epoch, :value, :timestep_id);", nativeQuery = true )
+    @Query(value = "insert into value (id, epoch, value, timestep_id, value_mean, value_hat_squared_mean, count) values (nextval('value_seq'), :epoch, :value, :timestep_id, 0, 0, 0);", nativeQuery = true )
     void myInsert(int epoch, double value, long timestep_id);
 
 
