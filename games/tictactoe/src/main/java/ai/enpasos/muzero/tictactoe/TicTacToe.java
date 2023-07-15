@@ -32,6 +32,10 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeTestComponent test;
 
+
+    @Autowired
+    private TicTacToeTemperature temperature;
+
     @Autowired
     private TicTacToeTestAllNetworks testAllNetworks;
 
@@ -80,6 +84,10 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case FILLVALUETABLE:
                 fillValueTable.run();
+                break;
+
+            case TEMPERATURE:
+                temperature.run();
                 break;
             case INMIND:
                 inMindValues.run();

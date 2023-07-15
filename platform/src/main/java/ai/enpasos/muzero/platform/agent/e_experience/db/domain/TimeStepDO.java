@@ -9,6 +9,7 @@ import lombok.*;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Optional;
 
 
 @Entity
@@ -133,6 +134,7 @@ public class TimeStepDO {
             throw new RuntimeException("unknown observation type");
         }
     }
+
 
 
 

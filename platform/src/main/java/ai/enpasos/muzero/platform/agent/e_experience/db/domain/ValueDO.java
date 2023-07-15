@@ -23,4 +23,12 @@ public class ValueDO {
 
     private double value;
 
+
+    private double valueMean;
+
+    private double valueHatSquaredMean;
+
+
+    private long count;
+
 }
