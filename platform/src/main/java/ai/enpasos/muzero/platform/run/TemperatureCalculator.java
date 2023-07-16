@@ -75,20 +75,20 @@ public class TemperatureCalculator {
 
     //@Transactional
     public void run(TimeStepDO timeStepDO, int epoch, int n) {
-
+        int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
         List<ValueDO> valueDOs = valueRepo.findValuesForTimeStepId(timeStepDO.getId());
 
         double sum = 0d;
         long count = 0;
-        for (int i = epoch; i >= 0 && i > epoch - n; i--) {
+        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
             sum += getValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
             count++;
         }
         double valueMean = sum / count;
         sum = 0d;
         //  count = 0;
-        for (int i = epoch; i >= 0 && i > epoch - n; i--) {
+        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
             double vHat = valueMean - getValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
             sum += vHat * vHat;
             // count++;
