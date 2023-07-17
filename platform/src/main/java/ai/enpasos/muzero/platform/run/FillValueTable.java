@@ -1,13 +1,11 @@
 package ai.enpasos.muzero.platform.run;
 
 
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
@@ -16,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
@@ -57,7 +54,7 @@ TemperatureCalculator temperatureCalculator;
             oldStop = stop;
             IntStream.range(start, stop + 1).forEach(epoch -> {
                 fillTableForEpoch(epoch);
-                temperatureCalculator.run(epoch, n);
+                temperatureCalculator.runOnTimeStepLevel(epoch, n);
             });
             stop = networkIOService.getLatestNetworkEpoch();
             if (oldStop == stop) {

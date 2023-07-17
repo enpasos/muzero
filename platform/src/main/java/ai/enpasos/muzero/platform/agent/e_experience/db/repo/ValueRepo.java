@@ -17,6 +17,12 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
     List<ValueDO> findValuesForEpochAndTrainingEpoch(int epoch, int trainingEpoch);
 
     @Transactional
+    @Query(value = "select v from ValueDO v  where v.epoch = :epoch")
+    List<ValueDO> findValuesForEpoch(int epoch );
+
+
+
+    @Transactional
     @Query(value = "select * from value v  where v.timestep_id = :timestepId", nativeQuery = true)
     List<ValueDO> findValuesForTimeStepId(long timestepId);
 

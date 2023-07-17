@@ -2,13 +2,10 @@ package ai.enpasos.muzero.platform.run;
 
 
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
-import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueStatsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
@@ -17,15 +14,9 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
+import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
 @Slf4j
 @Component
@@ -48,20 +39,45 @@ public class TemperatureCalculator {
     GameProvider gameProvider;
 
 
-    public void run() {
+    public void aggregatePerEpoch() {
+        List<Integer> epochs = episodeRepo.findEpochs();
+
+        log.info("temperature aggregation for epochs {}", epochs);
+        for (Integer epoch : epochs) {
+
+            double temperature = aggregateOnEpoch(epoch);
+            System.out.println(epoch + ";" + NumberFormat.getNumberInstance().format(temperature));
+        }
+    }
+
+    private double aggregateOnEpoch(Integer epoch) {
+        List<ValueDO> valueDOs = valueRepo.findValuesForEpoch(epoch);
+        double sum = 0d;
+        long count = 0;
+        for(int i = 0; i < valueDOs.size(); i++) {
+            ValueDO valueDO = valueDOs.get(i);
+            long c = valueDO.getCount();
+            count += c;
+            sum += c * valueDO.getValueHatSquaredMean();
+        }
+        return sum/count;
+    }
+
+
+    public void runOnTimeStepLevel() {
         int n = 10;
         List<Integer> epochs = episodeRepo.findEpochs();
         for (Integer epoch : epochs) {
             log.info("temperature calculating for epoch {}", epoch);
-            run(epoch, n);
+            runOnTimeStepLevel(epoch, n);
         }
     }
 
-  //  @Transactional
-    public void run(int epoch, int n) {
+
+    public void runOnTimeStepLevel(int epoch, int n) {
         List<TimeStepDO> timeStepDOs = valueRepo.findTimeStepWithAValueEntry(epoch);
         for (TimeStepDO timeStepDO : timeStepDOs) {
-            run(timeStepDO, epoch, n);
+            runOnTimeStepLevel(timeStepDO, epoch, n);
         }
     }
 
@@ -73,8 +89,8 @@ public class TemperatureCalculator {
         return Optional.empty();
     }
 
-    //@Transactional
-    public void run(TimeStepDO timeStepDO, int epoch, int n) {
+
+    public void runOnTimeStepLevel(TimeStepDO timeStepDO, int epoch, int n) {
         int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
         List<ValueDO> valueDOs = valueRepo.findValuesForTimeStepId(timeStepDO.getId());
