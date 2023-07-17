@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -41,12 +42,14 @@ public class TemperatureCalculator {
 
     public void aggregatePerEpoch() {
         List<Integer> epochs = episodeRepo.findEpochs();
+        DecimalFormat df = new DecimalFormat("#.###.###.##0,0000000");
 
         log.info("temperature aggregation for epochs {}", epochs);
         for (Integer epoch : epochs) {
 
             double temperature = aggregateOnEpoch(epoch);
-            System.out.println(epoch + ";" + NumberFormat.getNumberInstance().format(temperature));
+
+            System.out.println(epoch + ";" + df.format(temperature));
         }
     }
 
