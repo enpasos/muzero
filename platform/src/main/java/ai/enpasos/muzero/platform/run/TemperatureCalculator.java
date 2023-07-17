@@ -42,7 +42,7 @@ public class TemperatureCalculator {
 
     public void aggregatePerEpoch() {
         List<Integer> epochs = episodeRepo.findEpochs();
-        DecimalFormat df = new DecimalFormat("#.###.###.##0,0000000");
+        DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
 
         log.info("temperature aggregation for epochs {}", epochs);
         for (Integer epoch : epochs) {
