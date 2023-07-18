@@ -6,6 +6,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueStatsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
@@ -13,11 +14,13 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -39,6 +42,48 @@ public class TemperatureCalculator {
     @Autowired
     GameProvider gameProvider;
 
+    public void aggregatePerEpisode() {
+        DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
+        List<Long> episodeIds = episodeRepo.findEpisodeIds();
+        for (Long episodeId : episodeIds) {
+            List<ValueDO> valueDOs = valueRepo.findValuesForEpisodeId( episodeId);
+
+
+
+            // get List of all epochs from valueDOs
+            List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
+
+            List<ValueStatsDO> statsDOs = new ArrayList<>();
+            for (Integer epoch : epochs) {
+                List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
+//                double temperature = valueDOsForEpoch.stream().mapToDouble(ValueDO::getTemperature).average().orElseThrow(MuZeroException::new);
+//                System.out.println(episodeId + ";" + epoch + ";" + temperature);
+                Pair<Double, Long> sum = aggregateValues(valueDOsForEpoch);
+                double temperature = sum.getFirst() / sum.getSecond();
+                System.out.println(episodeId + ";" + epoch + ";" + df.format(temperature));
+
+                ValueStatsDO valueStatsDO = ValueStatsDO.builder()
+                        .count(sum.getSecond())
+                        .vHatSquared(temperature)
+                        .epoch(epoch)
+                        .build();
+
+                statsDOs.add(valueStatsDO);
+            }
+
+            dbService.saveValueStats(statsDOs, episodeId);
+        }
+      //  dbService.aggregateValueTable(episodeIds);
+
+//        List<Integer> epochs = episodeRepo.findEpochs();
+//        DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
+//
+//        log.info("temperature aggregation episode and epochs {}", epochs);
+//        for (Integer epoch : epochs) {
+//            double temperature = aggregateOnEpoch(epoch);
+//            System.out.println(epoch + ";" + df.format(temperature));
+//        }
+    }
 
     public void aggregatePerEpoch() {
         List<Integer> epochs = episodeRepo.findEpochs();
@@ -55,6 +100,11 @@ public class TemperatureCalculator {
 
     private double aggregateOnEpoch(Integer epoch) {
         List<ValueDO> valueDOs = valueRepo.findValuesForEpoch(epoch);
+        Pair<Double, Long> pair = aggregateValues(valueDOs);
+        return pair.getFirst() / pair.getSecond();
+    }
+
+    private static Pair<Double, Long> aggregateValues(List<ValueDO> valueDOs) {
         double sum = 0d;
         long count = 0;
         for(int i = 0; i < valueDOs.size(); i++) {
@@ -63,14 +113,16 @@ public class TemperatureCalculator {
             count += c;
             sum += c * valueDO.getValueHatSquaredMean();
         }
-        return sum/count;
+        return Pair.of(sum, count);
+      //  return sum / count;
     }
 
 
-    public void runOnTimeStepLevel() {
+    public void runOnTimeStepLevel(int startEpoch) {
         int n = 10;
         List<Integer> epochs = episodeRepo.findEpochs();
         for (Integer epoch : epochs) {
+            if (epoch < startEpoch) continue;
             log.info("temperature calculating for epoch {}", epoch);
             runOnTimeStepLevel(epoch, n);
         }
@@ -79,47 +131,18 @@ public class TemperatureCalculator {
 
     public void runOnTimeStepLevel(int epoch, int n) {
         List<TimeStepDO> timeStepDOs = valueRepo.findTimeStepWithAValueEntry(epoch);
+        int todo = timeStepDOs.size();
+        int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {
-            runOnTimeStepLevel(timeStepDO, epoch, n);
+            log.info("status: {}/{}", count++, todo );
+            dbService.runOnTimeStepLevel(timeStepDO, epoch, n);
         }
     }
 
 
-    public Optional<ValueDO> getValueDO(List<ValueDO>valueDOs, int epoch) {
-        for(ValueDO valueDO : valueDOs) {
-            if (valueDO.getEpoch() == epoch) return Optional.of(valueDO);
-        }
-        return Optional.empty();
-    }
 
 
-    public void runOnTimeStepLevel(TimeStepDO timeStepDO, int epoch, int n) {
-        int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
-        List<ValueDO> valueDOs = valueRepo.findValuesForTimeStepId(timeStepDO.getId());
 
-        double sum = 0d;
-        long count = 0;
-        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
-            sum += getValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
-            count++;
-        }
-        double valueMean = sum / count;
-        sum = 0d;
-        //  count = 0;
-        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
-            double vHat = valueMean - getValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
-            sum += vHat * vHat;
-            // count++;
-        }
-        double vHatSquaredMean = sum / count;
-
-        ValueDO valueDO = getValueDO(valueDOs, epoch).orElseThrow(MuZeroException::new);
-        valueDO.setValueMean(valueMean);
-        valueDO.setCount(count);
-        valueDO.setValueHatSquaredMean(vHatSquaredMean);
-        valueRepo.save(valueDO);
-
-    }
 
 }

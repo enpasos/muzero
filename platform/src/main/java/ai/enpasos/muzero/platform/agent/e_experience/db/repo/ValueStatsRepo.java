@@ -12,6 +12,5 @@ import java.util.List;
 public interface ValueStatsRepo extends JpaRepository<ValueStatsDO,Long> {
 
 
-
-
+    void deleteByEpisodeId(Long episodeId);
 }

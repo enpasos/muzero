@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,12 +8,23 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
     @Transactional
     @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.trainingEpoch = :trainingEpoch")
     List<ValueDO> findValuesForEpochAndTrainingEpoch(int epoch, int trainingEpoch);
+
+
+    @Transactional
+    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId")
+    List<ValueDO> findValuesForEpochAndEpisodeId(int epoch, long episodeId);
+
+    @Transactional
+    @Query(value = "select v from ValueDO v  where  v.timestep.episode.id = :episodeId")
+    List<ValueDO> findValuesForEpisodeId( long episodeId);
+
 
     @Transactional
     @Query(value = "select v from ValueDO v  where v.epoch = :epoch")
@@ -23,7 +33,7 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select * from value v  where v.timestep_id = :timestepId", nativeQuery = true)
+    @Query(value = "select v from ValueDO v  where v.timestep.id = :timestepId")
     List<ValueDO> findValuesForTimeStepId(long timestepId);
 
     @Transactional
@@ -42,5 +52,10 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
 
-
+    public static Optional<ValueDO> extractValueDO(List<ValueDO>valueDOs, int epoch) {
+        for(ValueDO valueDO : valueDOs) {
+            if (valueDO.getEpoch() == epoch) return Optional.of(valueDO);
+        }
+        return Optional.empty();
+    }
 }

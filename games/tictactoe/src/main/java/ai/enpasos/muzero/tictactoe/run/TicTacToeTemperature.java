@@ -14,6 +14,8 @@ public class TicTacToeTemperature {
     TemperatureCalculator temperatureCalculator;
 
     public void run() {
-        temperatureCalculator.aggregatePerEpoch();
+        temperatureCalculator.runOnTimeStepLevel(73);
+       // temperatureCalculator.aggregatePerEpoch();
+     //   temperatureCalculator.aggregatePerEpisode();
     }
 }

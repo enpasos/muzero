@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "valuestats", uniqueConstraints =
-@UniqueConstraint(name = "UniqueEpochAndTrainingEpoch", columnNames = {"epoch", "trainingEpoch"}))
+@UniqueConstraint(name = "UniqueEpochAndEpisode", columnNames = {"epoch", "episode_id"}))
 @Data
 @Builder
 @AllArgsConstructor
@@ -21,9 +21,10 @@ public class ValueStatsDO {
 
     private int epoch;
 
-    private int trainingEpoch;
-
     private double vHatSquared;
     private long count;
+
+    @ManyToOne
+    EpisodeDO episode;
 
 }

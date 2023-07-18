@@ -17,6 +17,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e.id from episode e order by e.id desc limit :n", nativeQuery = true)
     List<Long> findTopNEpisodeIds(int n);
 
+    @Query(value = "select e.id from episode e order by e.id asc", nativeQuery = true)
+    List<Long> findEpisodeIds();
+
 
     @Transactional
     @Query(value = "select distinct e.training_epoch from episode e order by e.training_epoch", nativeQuery = true)

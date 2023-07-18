@@ -3,11 +3,15 @@ package ai.enpasos.muzero.platform.agent.e_experience.db;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueStatsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueStatsRepo;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,14 @@ public class DBService {
 
     @Autowired
     EpisodeRepo episodeRepo;
+
+
+    @Autowired
+    ValueRepo valueRepo;
+
+
+    @Autowired
+    ValueStatsRepo valueStatsRepo;
 
 
     @Autowired
@@ -81,4 +93,59 @@ timeStepDOs.stream().forEach(t -> t.getValues().size());
         return episodeDOs;
     }
 
+    @Transactional
+    public void saveValueStats(List<ValueStatsDO> statsDOs, Long episodeId) {
+        valueStatsRepo.deleteByEpisodeId(episodeId);
+        valueStatsRepo.flush();
+        EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
+//        for (ValueStatsDO v : episodeDO.getValueStatsDOs()) {
+//            valueStatsRepo.delete(v);
+//        }
+//        valueStatsRepo.flush();
+        episodeDO.setValueStatsDOs(statsDOs);
+         statsDOs.stream().forEach(s -> s.setEpisode(episodeDO))    ;
+        episodeRepo.save(episodeDO);
+    }
+
+//    @Transactional
+//    public void aggregateValueStats(Long episodeId) {
+//        EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
+//        List<ValueStatsDO> valueStatsDOs = new ArrayList<>();
+//
+//        episodeDO.setValueStatsDOs(valueStatsDOs);
+//    }
+
+
+
+    @Transactional
+    public void runOnTimeStepLevel(TimeStepDO timeStepDO, int epoch, int n) {
+        int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
+
+        List<ValueDO> valueDOs = valueRepo.findValuesForTimeStepId(timeStepDO.getId());
+
+        double sum = 0d;
+        long count = 0;
+        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
+            sum += ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
+            count++;
+        }
+        double valueMean = sum / count;
+        sum = 0d;
+        //  count = 0;
+        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
+            double vHat = valueMean - ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
+            sum += vHat * vHat;
+            // count++;
+        }
+        double vHatSquaredMean = sum / count;
+
+
+        ValueDO valueDO = ValueRepo.extractValueDO(valueDOs, epoch).orElseThrow(MuZeroException::new);
+        valueDO.setValueMean(valueMean);
+        valueDO.setCount(count);
+        valueDO.setValueHatSquaredMean(vHatSquaredMean);
+      //  valueRepo.save(valueDO);
+
+
+    }
 }

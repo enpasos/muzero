@@ -45,6 +45,12 @@ public class EpisodeDO {
     private List<TimeStepDO> timeSteps;
 
 
+    @Fetch(FetchMode.SELECT)
+    @BatchSize(size = 10000)
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "episode")
+    private List<ValueStatsDO> valueStatsDOs;
+
+
     private void sortTimeSteps() {
         timeSteps.sort(Comparator.comparing(TimeStepDO::getT));
     }
