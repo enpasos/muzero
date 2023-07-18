@@ -402,4 +402,7 @@ public class GameBuffer {
     }
 
 
+    public List<Game> getGamesWithHighestTemperatureTimesteps() {
+        return null;
+    }
 }

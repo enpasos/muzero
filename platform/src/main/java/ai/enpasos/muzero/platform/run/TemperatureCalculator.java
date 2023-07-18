@@ -10,7 +10,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueStatsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -130,7 +128,7 @@ public class TemperatureCalculator {
 
 
     public void runOnTimeStepLevel(int epoch, int n) {
-        List<TimeStepDO> timeStepDOs = valueRepo.findTimeStepWithAValueEntry(epoch);
+        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringTimeStepWithAValueEntry(epoch);
         int todo = timeStepDOs.size();
         int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {

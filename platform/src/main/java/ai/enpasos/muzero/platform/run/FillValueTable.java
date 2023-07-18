@@ -84,7 +84,7 @@ TemperatureCalculator temperatureCalculator;
 
 
         List<Long>  episodeIds0 =  episodeRepo.findAllIdsForAnEpoch(trainingEpoch);
-        List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutValueForAnEpoch(epoch,episodeIds0);
+        List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutNonExploringValueForAnEpoch(epoch,episodeIds0);
         if (episodeIds.isEmpty()) return;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
@@ -94,7 +94,7 @@ TemperatureCalculator temperatureCalculator;
         gameProvider.measureValueAndSurprise(games);
 
         games.stream().forEach(game -> {
-            game.getEpisodeDO().getTimeSteps().stream().forEach(timestep -> {
+            game.getEpisodeDO().getTimeSteps().stream().filter(timestep -> !timestep.isExploring()).forEach(timestep -> {
                 double value = timestep.getRootValueFromInitialInference();
                 valueRepo.myInsert(epoch, value, timestep.getId());
             });

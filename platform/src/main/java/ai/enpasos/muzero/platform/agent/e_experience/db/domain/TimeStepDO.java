@@ -47,6 +47,8 @@ public class TimeStepDO {
     float rootEntropyValueFromInitialInference;
     float rootValueFromInitialInference;
     float legalActionMaxEntropy;
+    boolean exploring;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

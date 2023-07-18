@@ -42,8 +42,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v.timestep from ValueDO v where v.epoch = :epoch")
-    List<TimeStepDO> findTimeStepWithAValueEntry(int epoch);
+    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch")
+    List<TimeStepDO> findNonExploringTimeStepWithAValueEntry(int epoch);
 
     @Transactional
     @Modifying

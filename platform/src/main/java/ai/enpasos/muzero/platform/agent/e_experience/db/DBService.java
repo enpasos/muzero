@@ -43,6 +43,14 @@ public class DBService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<EpisodeDO> saveEpisodesAndCommit(List<EpisodeDO> episodes) {
+
+        episodes.stream().filter(EpisodeDO::isHybrid).forEach(episodeDO -> {
+           long t = episodeDO.getTStartNormal();
+            for (TimeStepDO timeStep : episodeDO.getTimeSteps()) {
+                timeStep.setExploring(timeStep.getT() < t);
+            }
+        });
+
         return episodeRepo.saveAllAndFlush(episodes);
     }
 
@@ -68,28 +76,14 @@ public class DBService {
     @Transactional
     public List<EpisodeDO> findEpisodeDOswithTimeStepDOsAndValues(List<Long> episodeIds) {
 
-
-
-
-        List<TimeStepDO> timeStepDOs =  timestepRepo.findTimeStepDOswithEpisodeIds(episodeIds);
-timeStepDOs.stream().forEach(t -> t.getValues().size());
-
-        List<EpisodeDO> episodeDOs = timeStepDOs.stream().map(t -> {
-            EpisodeDO episodeDO = t.getEpisode();
-
-            return episodeDO;
-        }).distinct().collect(Collectors.toList());
-        episodeDOs.forEach(e -> e.setTimeSteps(new ArrayList<>()));
-        timeStepDOs.stream().forEach(t ->  t.getEpisode().getTimeSteps().add(t) );
+        List<TimeStepDO> timeStepDOs = timestepRepo.findTimeStepDOswithEpisodeIds(episodeIds);
         timeStepDOs.stream().forEach(t -> t.getValues().size());
 
-      //  List<TimeStepDO> timeStepDOS = episodeDOS.stream().map(e -> e.getTimeSteps()).flatMap(List::stream).collect(Collectors.toList());
-    //    List<TimeStepDO> timeStepDOS2 = timestepRepo.joinFetchValues(timeStepDOS);
+        List<EpisodeDO> episodeDOs = timeStepDOs.stream().map(t -> t.getEpisode()).distinct().collect(Collectors.toList());
+        episodeDOs.forEach(e -> e.setTimeSteps(new ArrayList<>()));
+        timeStepDOs.stream().forEach(t -> t.getEpisode().getTimeSteps().add(t));
+        timeStepDOs.stream().forEach(t -> t.getValues().size());
 
-        // todo: make more performant by using join fetch
-
-      // episodeDOS.stream().forEach(e -> e.getTimeSteps().stream().forEach(t -> t.getValues().size()));
-       //
         return episodeDOs;
     }
 
