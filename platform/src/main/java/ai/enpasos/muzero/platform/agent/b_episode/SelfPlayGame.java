@@ -9,10 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
-
 @Component
 @Slf4j
 public class SelfPlayGame {
@@ -67,10 +63,14 @@ public class SelfPlayGame {
                         playParameters.withGumbel);   // check parameter withRandomActions
                 if (playParameters.isReplay()) {
                     game.calculateK();
-                    game.pseudoApplyFromOriginalGame(action);
-                  //
+                    game.justRemoveLastAction(action);
+
                 } else {
-                    game.apply(action);
+//                    if (playParameters.hybrid2) {
+//                        game.hybrid2ApplyAction(action);
+//                    } else {
+                        game.apply(action);
+//                    }
                 }
             }
             count++;

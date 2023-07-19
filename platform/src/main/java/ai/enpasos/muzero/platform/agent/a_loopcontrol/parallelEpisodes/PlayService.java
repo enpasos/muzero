@@ -83,6 +83,39 @@ public class PlayService {
         return playGames(games, playParameters);
     }
 
+
+    public List<Game> hybrid2Games(int numGames, PlayParameters playParameters, List<Game> games) {
+
+        games.forEach(game -> {
+            game.getEpisodeDO().setTdSteps(config.getTdSteps());
+            game.setOriginalEpisodeDO(game.getEpisodeDO().copy());
+            game.setHybrid2(true);
+            game.connectToEnvironment();
+
+            game.getEpisodeDO().getTimeSteps().stream().forEach(
+                    timeStepDO -> {
+                        timeStepDO.setPolicyTarget(null);
+                        timeStepDO.setRootValueTarget(0);
+                        timeStepDO.setVMix(0);
+                        timeStepDO.setRootEntropyValueTarget(0);
+                        timeStepDO.setEntropy(0);
+                        //  timeStepDO.setLegalActionMaxEntropy(0);
+                        timeStepDO.setRootValueFromInitialInference(0);
+                        timeStepDO.setRootEntropyValueFromInitialInference(0);
+                        timeStepDO.setAction(null);
+                        //   timeStepDO.setReward(0);
+                     //   timeStepDO.setObservation(null);
+                       // timeStepDO.setLegalActions(null);
+                    }
+            );
+
+            //game.getEpisodeDO().getTimeSteps().get(0).setObservation(game.getOriginalEpisodeDO().getTimeSteps().get(0).getObservation());
+             //  game.getEpisodeDO().getTimeSteps().get(0).setLegalActions(game.getOriginalEpisodeDO().getTimeSteps().get(0).getLegalActions());
+        });
+
+        return playGames(games, playParameters);
+    }
+
     public List<Game> justReplayGamesWithInitialInference(List<Game> games) {
         return  playGames( games,
             PlayParameters.builder()

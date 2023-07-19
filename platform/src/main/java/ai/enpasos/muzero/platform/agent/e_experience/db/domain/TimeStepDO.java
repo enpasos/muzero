@@ -132,6 +132,10 @@ public class TimeStepDO {
             observationPartSize = observationTwoPlayers.getPartSize();
             observationPartA = observationTwoPlayers.getPartA().toByteArray();
             observationPartB = observationTwoPlayers.getPartB().toByteArray();
+        } else if (observation == null) {
+            observationPartSize = 0;
+            observationPartA = null;
+            observationPartB = null;
         } else {
             throw new RuntimeException("unknown observation type");
         }

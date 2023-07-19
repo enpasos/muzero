@@ -51,6 +51,9 @@ public class EpisodeDO {
     private List<ValueStatsDO> valueStatsDOs;
 
 
+
+
+
     private void sortTimeSteps() {
         timeSteps.sort(Comparator.comparing(TimeStepDO::getT));
     }
@@ -138,8 +141,8 @@ public class EpisodeDO {
     }
 
 
-    public Observation getObservationFromLastTimeStep() {
-        int t = getLastTime();
+    public Observation getObservationFromLastActionTimeStep() {
+        int t = getLastTimeWithAction();
         return timeSteps.get(t).getObservation();
     }
 

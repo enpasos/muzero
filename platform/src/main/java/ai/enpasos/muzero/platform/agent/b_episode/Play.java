@@ -93,11 +93,11 @@ public class Play {
                 gamesToReanalyse);
         } else if (config.getPlayTypeKey() == PlayTypeKey.HYBRID2) {
             List<Game> gamesToPlay = gameBuffer.getGamesWithHighestTemperatureTimesteps();
-            games = playService.reanalyseGames(config.getNumParallelGamesPlayed(),
+            games = playService.hybrid2Games(config.getNumParallelGamesPlayed(),
                     PlayParameters.builder()
                             .render(render)
                             .fastRulesLearning(fastRuleLearning)
-                            .replay(true)
+                            .hybrid2(true)
                             .build(),
                     gamesToPlay);
         } else {

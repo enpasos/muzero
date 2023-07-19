@@ -15,14 +15,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ValueStatsDO {
 
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     private int epoch;
 
-    private double vHatSquared;
-    private long count;
+    private double maxValueHatSquaredMean;
+    private int tOfMaxValueHatSquaredMean;
+
+   // private double vHatSquared;
+   // private long count;
 
     @ManyToOne
     EpisodeDO episode;

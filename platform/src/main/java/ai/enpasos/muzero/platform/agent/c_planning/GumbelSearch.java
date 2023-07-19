@@ -352,13 +352,17 @@ public class GumbelSearch {
         storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues, minMaxStatsEntropyQValues);
     }
 
-    public Action selectAction( boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO ) {
+    public Action selectAction( boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO, boolean hybrid2 ) {
 
         Action action = null;
 
-        if (replay) {
+        try {
+            if (replay || (hybrid2 && timeStepDO.getT() < game.getEpisodeDO().getTStartNormal())) {
                 return config.newAction(game.getOriginalEpisodeDO().getTimeSteps().get(timeStepDO.getT()).getAction());
-       }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (fastRuleLearning) {
             if (!replay) {

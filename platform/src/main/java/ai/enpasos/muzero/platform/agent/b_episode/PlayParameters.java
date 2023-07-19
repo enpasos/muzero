@@ -28,4 +28,6 @@ public class PlayParameters {
 
     boolean replay;
 
+    boolean hybrid2;
+
 }

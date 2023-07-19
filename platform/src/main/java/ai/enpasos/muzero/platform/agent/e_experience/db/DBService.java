@@ -57,14 +57,14 @@ public class DBService {
     @Transactional
     public List<EpisodeDO> findTopNByOrderByIdDescAndConvertToGameDTOList(int n) {
         List<Long> ids = episodeRepo.findTopNEpisodeIds(n);
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOs(ids);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
 
     @Transactional
     public List<EpisodeDO> findRandomNByOrderByIdDescAndConvertToGameDTOList(int n) {
         List<Long> ids = episodeRepo.findRandomNEpisodeIds(n);
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOs(ids);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
 
@@ -92,22 +92,12 @@ public class DBService {
         valueStatsRepo.deleteByEpisodeId(episodeId);
         valueStatsRepo.flush();
         EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
-//        for (ValueStatsDO v : episodeDO.getValueStatsDOs()) {
-//            valueStatsRepo.delete(v);
-//        }
-//        valueStatsRepo.flush();
+
         episodeDO.setValueStatsDOs(statsDOs);
          statsDOs.stream().forEach(s -> s.setEpisode(episodeDO))    ;
         episodeRepo.save(episodeDO);
     }
 
-//    @Transactional
-//    public void aggregateValueStats(Long episodeId) {
-//        EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
-//        List<ValueStatsDO> valueStatsDOs = new ArrayList<>();
-//
-//        episodeDO.setValueStatsDOs(valueStatsDOs);
-//    }
 
 
 
@@ -138,8 +128,6 @@ public class DBService {
         valueDO.setValueMean(valueMean);
         valueDO.setCount(count);
         valueDO.setValueHatSquaredMean(vHatSquaredMean);
-      //  valueRepo.save(valueDO);
-
 
     }
 }

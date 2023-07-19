@@ -24,10 +24,13 @@ import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueStatsRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import jakarta.persistence.Tuple;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +65,10 @@ public class GameBuffer {
     @Autowired
     private MuZeroConfig config;
 
+    @Autowired
+    ValueStatsRepo valueStatsRepo;
+    @Autowired
+    EpisodeRepo episodeRepo;
 
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     private Map<Integer, Double> meanEntropyValuesLosses = new HashMap<>();
@@ -377,18 +384,7 @@ public class GameBuffer {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
-//        games.forEach(g -> {
-//            g.setReanalyse(true);
-//           g.setTReanalyseMin(mapTReanalyseMin2GameCount.getOrDefault(g.episodeDO.getCount(), 0));
-//            int newTReanalyseMin = g.findNewTReanalyseMin();
-//            mapTReanalyseMin2GameCount.put(g.episodeDO.getCount(), newTReanalyseMin);
-//            g.setTReanalyseMin(newTReanalyseMin);
-//
-//            if (newTReanalyseMin > g.episodeDO.getLastTime() + 1) {
-//                g.setReanalyse(false);
-//            }
-   //     });
-    //    return games.stream().filter(g -> g.isReanalyse()).collect(Collectors.toList());
+
         return games;
     }
 
@@ -403,6 +399,22 @@ public class GameBuffer {
 
 
     public List<Game> getGamesWithHighestTemperatureTimesteps() {
-        return null;
+        int n = config.getNumParallelGamesPlayed();
+        int epoch = 29; // TODO
+        List<Tuple> result =  valueStatsRepo.findTopNEpisodeIdsWithHighestTemperatureOnTimeStep(epoch, n);
+        List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
+        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
+
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        Map<Long, Game> idGameMap =
+                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
+            for (int i = 0; i < games.size(); i++) {
+                int t = result.get(i).get(1, Integer.class);
+                long id = ids.get(i);
+                Game game = idGameMap.get(id);
+                game.getEpisodeDO().setTStartNormal(t);
+            }
+
+        return games;
     }
 }

@@ -149,7 +149,7 @@ public class PlanAction {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
             log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO);
+        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO, game.isHybrid2());
         return action;
     }
 

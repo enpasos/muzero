@@ -75,7 +75,7 @@ public abstract class Game {
     private boolean debug;
     private boolean actionApplied;
 
-
+private boolean hybrid2;
     private boolean reanalyse;
     private int tReanalyseMin;
 
@@ -102,7 +102,8 @@ public abstract class Game {
     public boolean isDone(boolean replay) {
         return     replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction()
                  || !replay && getEpisodeDO().getLastTimeWithAction() + 1 >= config.getMaxMoves()
-                || this.getEnvironment()!= null && !replay && terminal();
+                || this.getEnvironment()!= null && !replay && terminal()
+                || this.isHybrid2() &&  getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
     }
 
 
@@ -177,19 +178,15 @@ public abstract class Game {
         setActionApplied(true);
     }
 
-    public void pseudoApplyFromOriginalGame(Action action) {
+    public void justRemoveLastAction(Action action) {
         this.getEpisodeDO().removeTheLastAction();
-//         int t = this.getEpisodeDO().getLastTimeWithAction();
-//         t++;
-//        TimeStepDO timeStepDO = this.getEpisodeDO().getTimeStep(t);
-//        timeStepDO.setAction(action.getIndex());
-        // this.getEpisodeDO().getLastTimeStep().setReward(this.getOriginalEpisodeDO().getRewardFromLastTimeStep());
-        // new time
-        // getEpisodeDO().addNewTimeStepDO();
-       // this.getEpisodeDO().getLastTimeStep().setObservation(this.getOriginalEpisodeDO().getObservationFromLastTimeStep());
-       // this.getEpisodeDO().getLastTimeStep().setLegalActions(this.getOriginalEpisodeDO().getLegalActionsFromLastTimeStep());
-        setActionApplied(true);
+  setActionApplied(true);
     }
+
+
+//    public void hybrid2ApplyAction(Action action) {
+//        apply(action);
+//    }
 
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward) {
         List<Target> targets = new ArrayList<>();

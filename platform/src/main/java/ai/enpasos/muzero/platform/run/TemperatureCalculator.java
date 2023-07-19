@@ -56,13 +56,22 @@ public class TemperatureCalculator {
                 List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
 //                double temperature = valueDOsForEpoch.stream().mapToDouble(ValueDO::getTemperature).average().orElseThrow(MuZeroException::new);
 //                System.out.println(episodeId + ";" + epoch + ";" + temperature);
-                Pair<Double, Long> sum = aggregateValues(valueDOsForEpoch);
-                double temperature = sum.getFirst() / sum.getSecond();
-                System.out.println(episodeId + ";" + epoch + ";" + df.format(temperature));
+            //    Pair<Double, Long> sum = aggregateValues(valueDOsForEpoch);
+
+                double maxValue = 0d;
+                int maxT = -1;
+                for(int i = 0; i < valueDOs.size(); i++) {
+                    ValueDO valueDO = valueDOs.get(i);
+                    double v = valueDO.getValueHatSquaredMean();
+                    if (v > maxValue) {
+                        maxValue = v;
+                        maxT = valueDO.getTimestep().getT();
+                    }
+                }
 
                 ValueStatsDO valueStatsDO = ValueStatsDO.builder()
-                        .count(sum.getSecond())
-                        .vHatSquared(temperature)
+                        .maxValueHatSquaredMean(maxValue)
+                        .tOfMaxValueHatSquaredMean(maxT)
                         .epoch(epoch)
                         .build();
 
