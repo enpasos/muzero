@@ -243,7 +243,7 @@ private boolean hybrid2;
 
     private int getTdSteps(int currentIndex, double kappa) {
         int tdSteps;
-        if (((episodeDO.isHybrid() || this.reanalyse) && isItExplorationTime(currentIndex))
+        if (((episodeDO.isHybrid() || this.reanalyse || this.isHybrid2()) && isItExplorationTime(currentIndex))
         || (this.reanalyse && currentIndex <= this.getEpisodeDO().getLastTime() && this.getEpisodeDO().getTimeStep(currentIndex).getK() < kappa)) {
             tdSteps = 0;
         } else {
@@ -325,7 +325,7 @@ private boolean hybrid2;
     private double getBootstrapValue(int currentIndex, int tdSteps) {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
-        if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
+        if (this.getEpisodeDO().isHybrid() || isReanalyse() || this.isHybrid2()) {
             switch(config.getVTarget()) {
                 case V_INFERENCE:  // the default case ... remove the others
                     if (  bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
