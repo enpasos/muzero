@@ -400,7 +400,8 @@ public class GameBuffer {
 
     public List<Game> getGamesWithHighestTemperatureTimesteps() {
         int n = config.getNumParallelGamesPlayed();
-        int epoch = 29; // TODO
+        int epoch =  dbService.getMaxValueStatsEpoch();
+
         List<Tuple> result =  valueStatsRepo.findTopNEpisodeIdsWithHighestTemperatureOnTimeStep(epoch, n);
         List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );

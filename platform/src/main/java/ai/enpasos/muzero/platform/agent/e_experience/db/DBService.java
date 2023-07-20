@@ -72,6 +72,11 @@ public class DBService {
         return episodeRepo.getMaxTrainingEpoch();
     }
 
+    public int getMaxValueStatsEpoch() {
+        return valueStatsRepo.getMaxEpoch();
+    }
+
+
 
     @Transactional
     public List<EpisodeDO> findEpisodeDOswithTimeStepDOsAndValues(List<Long> episodeIds) {
