@@ -86,31 +86,31 @@ public class PlayService {
 
     public List<Game> hybrid2Games(int numGames, PlayParameters playParameters, List<Game> games) {
 
+        // the new played games will be saved to db under a new id
+
+
+//        List<Game> games = new ArrayList<>();
+//        for (int i = 0; i < numGames; i++) {
+//            Game game = config.newGame(true,true);
+//            games.add(game);
+//        }
+//        games.stream().forEach(game -> game.getEpisodeDO().setTdSteps(config.getTdSteps()));
+//        if (config.getTrainingTypeKey() == HYBRID) {
+//            hybridConfiguration(games);
+//        }
+//
+//        return playGames( games, playParameters);
+
+
+
+        List<Game> newGames = new ArrayList<>();
         games.forEach(game -> {
-            game.getEpisodeDO().setTdSteps(config.getTdSteps());
-            game.setOriginalEpisodeDO(game.getEpisodeDO().copy());
-            game.setHybrid2(true);
-            game.connectToEnvironment();
-
-            game.getEpisodeDO().getTimeSteps().stream().forEach(
-                    timeStepDO -> {
-                        timeStepDO.setPolicyTarget(null);
-                        timeStepDO.setRootValueTarget(0);
-                        timeStepDO.setVMix(0);
-                        timeStepDO.setRootEntropyValueTarget(0);
-                        timeStepDO.setEntropy(0);
-                        //  timeStepDO.setLegalActionMaxEntropy(0);
-                        timeStepDO.setRootValueFromInitialInference(0);
-                        timeStepDO.setRootEntropyValueFromInitialInference(0);
-                        timeStepDO.setAction(null);
-                        //   timeStepDO.setReward(0);
-                     //   timeStepDO.setObservation(null);
-                       // timeStepDO.setLegalActions(null);
-                    }
-            );
-
-            //game.getEpisodeDO().getTimeSteps().get(0).setObservation(game.getOriginalEpisodeDO().getTimeSteps().get(0).getObservation());
-             //  game.getEpisodeDO().getTimeSteps().get(0).setLegalActions(game.getOriginalEpisodeDO().getTimeSteps().get(0).getLegalActions());
+            Game newGame = config.newGame(true,true);
+            newGame.setOriginalEpisodeDO(game.getEpisodeDO());
+            newGame.getEpisodeDO().setTdSteps(config.getTdSteps());
+            newGame.getEpisodeDO().setTStartNormal(game.getEpisodeDO().getTStartNormal());
+            newGame.setHybrid2(true);
+            newGames.add(newGame);
         });
 
         return playGames(games, playParameters);

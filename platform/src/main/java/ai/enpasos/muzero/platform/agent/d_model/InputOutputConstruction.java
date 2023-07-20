@@ -176,9 +176,12 @@ public class InputOutputConstruction {
                     log.trace("entropyvaluetarget: {}", target.getEntropyValue());
                     entropyValueArray[b] =  target.getEntropyValue();
                 }
-
-                System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
-                log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
+try {
+    System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
+    log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
+} catch (Exception e) {
+    e.printStackTrace();
+}
                 b++;
             }
             NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));

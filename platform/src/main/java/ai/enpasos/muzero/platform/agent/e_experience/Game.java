@@ -573,4 +573,16 @@ private boolean hybrid2;
             return 0;
         }
     }
+
+    public void hybrid2ApplyAction(Action action) {
+        float reward = this.environment.step(action);
+        this.getEpisodeDO().getLastTimeStep().setReward(reward);
+        this.getEpisodeDO().getLastTimeStep().setAction(action.getIndex());
+
+        // now ... observation and legal actions already belong to the next timestamp
+        getEpisodeDO().addNewTimeStepDO();
+        addObservationFromEnvironment();
+        addLegalActionFromEnvironment();
+        setActionApplied(true);
+    }
 }

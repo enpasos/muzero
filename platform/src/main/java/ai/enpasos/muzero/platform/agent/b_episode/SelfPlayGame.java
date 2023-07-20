@@ -66,11 +66,11 @@ public class SelfPlayGame {
                     game.justRemoveLastAction(action);
 
                 } else {
-//                    if (playParameters.hybrid2) {
-//                        game.hybrid2ApplyAction(action);
-//                    } else {
+                    if (playParameters.hybrid2) {
+                       game.hybrid2ApplyAction(action);
+                    } else {
                         game.apply(action);
-//                    }
+                    }
                 }
             }
             count++;
