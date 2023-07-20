@@ -98,7 +98,7 @@ public class PlayService {
             newGames.add(newGame);
         });
 
-        return playGames(games, playParameters);
+        return playGames(newGames, playParameters);
     }
 
     public List<Game> justReplayGamesWithInitialInference(List<Game> games) {
