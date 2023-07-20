@@ -73,7 +73,9 @@ public class DBService {
     }
 
     public int getMaxValueStatsEpoch() {
-        return valueStatsRepo.getMaxEpoch();
+        Integer epoch = valueStatsRepo.getMaxEpoch();
+        if(epoch == null) return 0;
+        return epoch;
     }
 
 
@@ -115,8 +117,12 @@ public class DBService {
         double sum = 0d;
         long count = 0;
         for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
-            sum += ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
-            count++;
+            try {
+                sum += ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
+                count++;
+            } catch (MuZeroException e) {
+                e.printStackTrace();
+            }
         }
         double valueMean = sum / count;
         sum = 0d;

@@ -67,7 +67,7 @@ TemperatureCalculator temperatureCalculator;
         } while (true); //oldStop != stop);
     }
 
-    private void fillTableForEpoch(int epoch) {
+    public void fillTableForEpoch(int epoch) {
         log.info("filling value table for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
 

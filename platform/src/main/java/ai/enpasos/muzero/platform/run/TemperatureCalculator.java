@@ -52,10 +52,6 @@ public class TemperatureCalculator {
             List<ValueStatsDO> statsDOs = new ArrayList<>();
             for (Integer epoch : epochs) {
                 List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
-//                double temperature = valueDOsForEpoch.stream().mapToDouble(ValueDO::getTemperature).average().orElseThrow(MuZeroException::new);
-//                System.out.println(episodeId + ";" + epoch + ";" + temperature);
-            //    Pair<Double, Long> sum = aggregateValues(valueDOsForEpoch);
-
                 double maxValue = 0d;
                 int maxT = -1;
                 for(int i = 0; i < valueDOsForEpoch.size(); i++) {
@@ -78,16 +74,7 @@ public class TemperatureCalculator {
 
             dbService.saveValueStats(statsDOs, episodeId);
         }
-      //  dbService.aggregateValueTable(episodeIds);
 
-//        List<Integer> epochs = episodeRepo.findEpochs();
-//        DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
-//
-//        log.info("temperature aggregation episode and epochs {}", epochs);
-//        for (Integer epoch : epochs) {
-//            double temperature = aggregateOnEpoch(epoch);
-//            System.out.println(epoch + ";" + df.format(temperature));
-//        }
     }
 
     public void aggregatePerEpoch() {

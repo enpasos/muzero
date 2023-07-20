@@ -272,7 +272,7 @@ public class GameBuffer {
 
     public void addGames(List<Game> games, boolean atBeginning) {
 
-
+        if (games.isEmpty()) return;
 
 
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game, atBeginning));
