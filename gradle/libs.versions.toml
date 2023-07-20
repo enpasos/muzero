@@ -1,6 +1,6 @@
 [versions]
 lombok = "1.18.28"
-djl = "0.23.0-SNAPSHOT"
+djl = "0.24.0-SNAPSHOT"
 pytorch = "2.0.1"
 
 slf4j = "2.0.7"

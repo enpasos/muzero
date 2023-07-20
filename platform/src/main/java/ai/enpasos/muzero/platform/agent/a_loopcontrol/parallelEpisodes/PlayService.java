@@ -88,21 +88,6 @@ public class PlayService {
 
         // the new played games will be saved to db under a new id
 
-
-//        List<Game> games = new ArrayList<>();
-//        for (int i = 0; i < numGames; i++) {
-//            Game game = config.newGame(true,true);
-//            games.add(game);
-//        }
-//        games.stream().forEach(game -> game.getEpisodeDO().setTdSteps(config.getTdSteps()));
-//        if (config.getTrainingTypeKey() == HYBRID) {
-//            hybridConfiguration(games);
-//        }
-//
-//        return playGames( games, playParameters);
-
-
-
         List<Game> newGames = new ArrayList<>();
         games.forEach(game -> {
             Game newGame = config.newGame(true,true);
