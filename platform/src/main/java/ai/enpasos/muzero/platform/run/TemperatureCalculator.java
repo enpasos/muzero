@@ -45,8 +45,9 @@ public class TemperatureCalculator {
         List<Long> episodeIds = episodeRepo.findEpisodeIds();
         for (Long episodeId : episodeIds) {
             List<ValueDO> valueDOs = valueRepo.findValuesForEpisodeId( episodeId);
-
-
+            if (episodeId == 1) {
+                int i = 42;
+            }
 
             // get List of all epochs from valueDOs
             List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
@@ -60,7 +61,7 @@ public class TemperatureCalculator {
 
                 double maxValue = 0d;
                 int maxT = -1;
-                for(int i = 0; i < valueDOs.size(); i++) {
+                for(int i = 0; i < valueDOsForEpoch.size(); i++) {
                     ValueDO valueDO = valueDOs.get(i);
                     double v = valueDO.getValueHatSquaredMean();
                     if (v > maxValue) {
