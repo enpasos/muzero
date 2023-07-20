@@ -59,7 +59,7 @@ public class TemperatureCalculator {
                 double maxValue = 0d;
                 int maxT = -1;
                 for(int i = 0; i < valueDOsForEpoch.size(); i++) {
-                    ValueDO valueDO = valueDOs.get(i);
+                    ValueDO valueDO = valueDOsForEpoch.get(i);
                     double v = valueDO.getValueHatSquaredMean();
                     if (v > maxValue) {
                         maxValue = v;
