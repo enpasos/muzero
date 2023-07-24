@@ -49,6 +49,10 @@ public class TimeStepDO {
     float legalActionMaxEntropy;
     boolean exploring;
 
+
+
+    boolean archived ;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

@@ -83,7 +83,7 @@ TemperatureCalculator temperatureCalculator;
     private void fillTableForEpochAndTrainingEpoch(int epoch, int trainingEpoch) {
 
 
-        List<Long>  episodeIds0 =  episodeRepo.findAllIdsForAnEpoch(trainingEpoch);
+        List<Long>  episodeIds0 =  episodeRepo.findAllNonArchivedEpisodeIdsForAnEpoch(trainingEpoch);
         List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutNonExploringValueForAnEpoch(epoch,episodeIds0);
         if (episodeIds.isEmpty()) return;
 

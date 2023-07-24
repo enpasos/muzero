@@ -31,4 +31,8 @@ public class ValueDO {
 
     private long count;
 
+
+
+    boolean archived ;
+
 }

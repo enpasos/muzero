@@ -95,14 +95,16 @@ public class DBService {
     }
 
     @Transactional
-    public void saveValueStats(List<ValueStatsDO> statsDOs, Long episodeId) {
-        valueStatsRepo.deleteByEpisodeId(episodeId);
-        valueStatsRepo.flush();
-        EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
+    public void saveValueStats(List<ValueStatsDO> statsDOs, long episodeId) {
+      //  valueStatsRepo.deleteByEpisodeId(episodeId);
+     //   valueStatsRepo.flush();
+     //   EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
 
-        episodeDO.setValueStatsDOs(statsDOs);
-         statsDOs.stream().forEach(s -> s.setEpisode(episodeDO))    ;
-        episodeRepo.save(episodeDO);
+//        episodeDO.setValueStatsDOs(statsDOs);
+//         statsDOs.stream().forEach(s -> s.setEpisode(episodeDO))    ;
+//        episodeRepo.save(episodeDO);
+        statsDOs.forEach(s -> valueStatsRepo.myInsert(s.getEpoch(), s.getMaxValueHatSquaredMean(), s.getTOfMaxValueHatSquaredMean(), episodeId) );
+
     }
 
 
@@ -140,5 +142,21 @@ public class DBService {
         valueDO.setCount(count);
         valueDO.setValueHatSquaredMean(vHatSquaredMean);
 
+    }
+
+    @Transactional
+    public void markArchived() {
+        int epoch = getMaxTrainingEpoch();
+       // epoch = 20;
+        int n = 10000; // todo
+        int n2 = 10; // todo
+        Double quantile = valueStatsRepo.findTopQuantileWithHighestTemperatureOnTimeStep( epoch, n);
+        if (quantile == null) return;
+        valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
+       // List<Long> episodeIds = valueStatsRepo.selectArchivedEpisodes( epoch);
+      //  List<Long> episodeIds2 = valueStatsRepo.selectNotArchivedEpisodes( epoch);
+        episodeRepo.markArchived(epoch, quantile);
+     //   valueRepo.archiveValueOlderThanGivenEpoch(epoch - n2 + 1 );
+       // int i = 42;
     }
 }

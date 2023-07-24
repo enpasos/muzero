@@ -30,4 +30,7 @@ public class ValueStatsDO {
     @ManyToOne
     EpisodeDO episode;
 
+
+    boolean archived ;
+
 }

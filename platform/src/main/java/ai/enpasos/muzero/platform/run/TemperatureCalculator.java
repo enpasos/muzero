@@ -10,6 +10,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueStatsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueStatsRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class TemperatureCalculator {
     @Autowired
     ValueRepo valueRepo;
     @Autowired
+    ValueStatsRepo valueStatsRepo;
+    @Autowired
     EpisodeRepo episodeRepo;
     @Autowired
     TimestepRepo timestepRepo;
@@ -40,17 +43,20 @@ public class TemperatureCalculator {
     @Autowired
     GameProvider gameProvider;
 
-    public void aggregatePerEpisode() {
+    public void aggregatePerEpisode(int epoch) {
+        valueStatsRepo.deleteAllInBatch();
         DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
-        List<Long> episodeIds = episodeRepo.findEpisodeIds();
+        List<Long> episodeIds = episodeRepo.findNonArchivedEpisodeIds();
+        int count = 1;
         for (Long episodeId : episodeIds) {
-            List<ValueDO> valueDOs = valueRepo.findValuesForEpisodeId( episodeId);
+            log.debug("aggregatePerEpisode ... status: {}/{}", count++, episodeIds.size() );
+            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeId(epoch, episodeId);
 
             // get List of all epochs from valueDOs
-            List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
+          //  List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
 
             List<ValueStatsDO> statsDOs = new ArrayList<>();
-            for (Integer epoch : epochs) {
+        //    for (Integer epoch : epochs) {
                 List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
                 double maxValue = 0d;
                 int maxT = -1;
@@ -70,7 +76,7 @@ public class TemperatureCalculator {
                         .build();
 
                 statsDOs.add(valueStatsDO);
-            }
+        //    }
 
             dbService.saveValueStats(statsDOs, episodeId);
         }
@@ -122,19 +128,19 @@ public class TemperatureCalculator {
 
 
     public void runOnTimeStepLevel(int epoch, int n) {
-        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringTimeStepWithAValueEntry(epoch);
+        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
         int todo = timeStepDOs.size();
         int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {
-            log.info("status: {}/{}", count++, todo );
+            log.debug("runOnTimeStepLevel ... status: {}/{}", count++, todo );
             dbService.runOnTimeStepLevel(timeStepDO, epoch, n);
         }
     }
 
 
+    public void markArchived() {
 
 
-
-
-
+        dbService.markArchived();
+    }
 }

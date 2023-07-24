@@ -94,10 +94,12 @@ public class MuZeroLoop {
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
 
+            temperatureCalculator.markArchived();
             fillValueTable.fillTableForEpoch(epoch);
             int n = 10;
             temperatureCalculator.runOnTimeStepLevel(epoch, n);
-            temperatureCalculator.aggregatePerEpisode();
+
+            temperatureCalculator.aggregatePerEpisode(epoch);
 
             log.info("game counter: " + gameBuffer.getBuffer().getCounter());
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());

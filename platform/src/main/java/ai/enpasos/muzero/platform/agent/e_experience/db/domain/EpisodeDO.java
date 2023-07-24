@@ -33,6 +33,11 @@ public class EpisodeDO {
     boolean hybrid;
     @Builder.Default
     long tStartNormal = -1;
+
+
+    boolean archived ;
+
+
     int trainingEpoch;
     int tdSteps;
     @Id

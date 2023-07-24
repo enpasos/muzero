@@ -20,4 +20,28 @@ public interface ValueStatsRepo extends JpaRepository<ValueStatsDO,Long> {
     @Transactional
     @Query(value = "select v.episode_id, v.t_of_max_value_hat_squared_mean from valuestats v  where v.epoch = :epoch order by v.max_value_hat_squared_mean desc limit :n ", nativeQuery = true )
     List<Tuple> findTopNEpisodeIdsWithHighestTemperatureOnTimeStep(int epoch, int n);
+
+    @Transactional
+    @Query(value = "select  min(r.value)  from  (select   v.max_value_hat_squared_mean as value from valuestats v where v.epoch = :epoch order by v.max_value_hat_squared_mean desc limit :n)   as r", nativeQuery = true )
+    Double findTopQuantileWithHighestTemperatureOnTimeStep(int epoch, int n);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update valuestats set archived = (max_value_hat_squared_mean < :quantile) where epoch = :epoch", nativeQuery = true )
+            void archiveValueStatsWithLowTemperature(int epoch, double quantile);
+
+
+
+    @Query(value ="select distinct v.episode_id  from valuestats v  where epoch = :epoch and v.archived = true", nativeQuery = true )
+    List<Long> selectArchivedEpisodes(int epoch);
+
+    @Query(value ="select distinct v.episode_id  from valuestats v  where epoch = :epoch and v.archived = false", nativeQuery = true )
+    List<Long> selectNotArchivedEpisodes(int epoch);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "insert into valuestats (id, epoch, max_value_hat_squared_mean, t_of_max_value_hat_squared_mean, episode_id, archived) values (nextval('valuestats_seq'), :epoch, :value, :t, :episode_id, false);", nativeQuery = true )
+    void myInsert(int epoch, double value, int t, long episode_id);
 }

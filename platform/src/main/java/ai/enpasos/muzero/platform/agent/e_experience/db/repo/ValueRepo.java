@@ -2,7 +2,6 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
-import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -52,12 +51,12 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch")
-    List<TimeStepDO> findNonExploringTimeStepWithAValueEntry(int epoch);
+    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.timestep.episode.archived = false")
+    List<TimeStepDO> findNonExploringNonArchivedTimeStepWithAValueEntry(int epoch);
 
     @Transactional
     @Modifying
-    @Query(value = "insert into value (id, epoch, value, timestep_id, value_mean, value_hat_squared_mean, count) values (nextval('value_seq'), :epoch, :value, :timestep_id, 0, 0, 0);", nativeQuery = true )
+    @Query(value = "insert into value (id, epoch, value, timestep_id, value_mean, value_hat_squared_mean, count, archived) values (nextval('value_seq'), :epoch, :value, :timestep_id, 0, 0, 0, false);", nativeQuery = true )
     void myInsert(int epoch, double value, long timestep_id);
 
 
@@ -68,4 +67,12 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
         }
         return Optional.empty();
     }
+
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update value set archived = (epoch < :epoch) where value.archived = false", nativeQuery = true )
+    void archiveValueOlderThanGivenEpoch(int epoch);
+
 }
