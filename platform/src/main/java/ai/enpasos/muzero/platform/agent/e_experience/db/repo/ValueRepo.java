@@ -27,8 +27,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId")
-    List<ValueDO> findValuesForEpochAndEpisodeId(int epoch, long episodeId);
+    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count > :n")
+    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountLargerN(int epoch, long episodeId, int n);
 
     @Transactional
     @Query(value = "select v from ValueDO v  where  v.timestep.episode.id = :episodeId")
@@ -51,8 +51,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.timestep.episode.archived = false")
-    List<TimeStepDO> findNonExploringNonArchivedTimeStepWithAValueEntry(int epoch);
+    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.count > :n and v.timestep.episode.archived = false")
+    List<TimeStepDO> findNonExploringNonArchivedTimeStepWithAValueEntryAndCountLargerN(int epoch, int n);
 
     @Transactional
     @Modifying

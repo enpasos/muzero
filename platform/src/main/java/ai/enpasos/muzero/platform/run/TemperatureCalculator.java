@@ -43,14 +43,14 @@ public class TemperatureCalculator {
     @Autowired
     GameProvider gameProvider;
 
-    public void aggregatePerEpisode(int epoch) {
+    public void aggregatePerEpisode(int epoch, int n) {
         valueStatsRepo.deleteAllInBatch();
         DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
         List<Long> episodeIds = episodeRepo.findNonArchivedEpisodeIds();
         int count = 1;
         for (Long episodeId : episodeIds) {
             log.debug("aggregatePerEpisode ... status: {}/{}", count++, episodeIds.size() );
-            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeId(epoch, episodeId);
+            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountLargerN(epoch, episodeId, n);
 
             // get List of all epochs from valueDOs
           //  List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
@@ -128,7 +128,7 @@ public class TemperatureCalculator {
 
 
     public void runOnTimeStepLevel(int epoch, int n) {
-        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
+        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntryAndCountLargerN(epoch, n);
         int todo = timeStepDOs.size();
         int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {

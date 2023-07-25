@@ -99,7 +99,7 @@ public class MuZeroLoop {
             int n = 10;
             temperatureCalculator.runOnTimeStepLevel(epoch, n);
 
-            temperatureCalculator.aggregatePerEpisode(epoch);
+            temperatureCalculator.aggregatePerEpisode(epoch, n);
 
             log.info("game counter: " + gameBuffer.getBuffer().getCounter());
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
