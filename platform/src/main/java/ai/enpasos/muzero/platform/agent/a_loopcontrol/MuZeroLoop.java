@@ -85,7 +85,16 @@ public class MuZeroLoop {
             DurAndMem duration = new DurAndMem();
             duration.on();
 
+            int n = 10;  // TODO: make configurable
+
             if (epoch != 0) {
+
+                log.info("identifying hot spots ...");
+                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
+                temperatureCalculator.aggregatePerEpisode(epoch, n);
+                temperatureCalculator.markArchived();
+
+                log.info("collecting experience ...");
                 PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                 for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                     config.setPlayTypeKey(key);
@@ -94,19 +103,15 @@ public class MuZeroLoop {
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
 
-            int n = 10;
-            temperatureCalculator.markArchived(n);
-            fillValueTable.fillTableForEpoch(epoch);
+            log.info("reflecting on experience ...");
+            fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
 
-            temperatureCalculator.runOnTimeStepLevel(epoch, n);
-
-            temperatureCalculator.aggregatePerEpisode(epoch, n);
 
             log.info("game counter: " + gameBuffer.getBuffer().getCounter());
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
             log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
 
-
+            log.info("training ...");
             modelService.trainModel().get();
 
             epoch = modelState.getEpoch();

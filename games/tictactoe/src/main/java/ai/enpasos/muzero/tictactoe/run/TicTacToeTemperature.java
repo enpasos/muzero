@@ -17,6 +17,6 @@ public class TicTacToeTemperature {
       //  temperatureCalculator.runOnTimeStepLevel(0);
       //  temperatureCalculator.aggregatePerEpoch();
        // temperatureCalculator.aggregatePerEpisode();
-        temperatureCalculator.markArchived(10);
+        temperatureCalculator.markArchived();
     }
 }

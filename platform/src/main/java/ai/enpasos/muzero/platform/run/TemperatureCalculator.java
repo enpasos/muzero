@@ -50,7 +50,7 @@ public class TemperatureCalculator {
         int count = 1;
         for (Long episodeId : episodeIds) {
             log.debug("aggregatePerEpisode ... status: {}/{}", count++, episodeIds.size() );
-            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountLargerN(epoch, episodeId, n);
+            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountLargerNAndNotArchived(epoch, episodeId, n);
 
             // get List of all epochs from valueDOs
           //  List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
@@ -116,29 +116,30 @@ public class TemperatureCalculator {
     }
 
 
-    public void runOnTimeStepLevel(int startEpoch) {
+    public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int startEpoch) {
         int n = 10;
         List<Integer> epochs = episodeRepo.findEpochs();
         for (Integer epoch : epochs) {
             if (epoch < startEpoch) continue;
             log.info("temperature calculating for epoch {}", epoch);
-            runOnTimeStepLevel(epoch, n);
+            setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
         }
     }
 
 
-    public void runOnTimeStepLevel(int epoch, int n) {
+    public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int epoch, int n) {
+        valueRepo.archiveValueOlderThanGivenEpoch(epoch - n);
         List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntryAndCountLargerN(epoch, n);
         int todo = timeStepDOs.size();
         int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {
             log.debug("runOnTimeStepLevel ... status: {}/{}", count++, todo );
-            dbService.runOnTimeStepLevel(timeStepDO, epoch, n);
+            dbService.setValueHatSquaredMeanForTimeStepAndEpoch(timeStepDO, epoch, n);
         }
     }
 
 
-    public void markArchived(int n) {
-        dbService.markArchived(n);
+    public void markArchived() {
+        dbService.markArchived();
     }
 }

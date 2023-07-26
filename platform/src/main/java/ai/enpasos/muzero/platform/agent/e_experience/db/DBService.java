@@ -113,7 +113,7 @@ public class DBService {
 
 
     @Transactional
-    public void runOnTimeStepLevel(TimeStepDO timeStepDO, int epoch, int n) {
+    public void setValueHatSquaredMeanForTimeStepAndEpoch(TimeStepDO timeStepDO, int epoch, int n) {
         int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
         List<ValueDO> valueDOs = valueRepo.findValuesForTimeStepId(timeStepDO.getId());
@@ -147,15 +147,13 @@ public class DBService {
     }
 
     @Transactional
-    public void markArchived(int n2) {
-        int epoch = getMaxTrainingEpoch() - 1;
+    public void markArchived() {
+        int epoch = valueStatsRepo.getMaxEpoch();
         int n = 10000; // todo
         Double quantile = valueStatsRepo.findTopQuantileWithHighestTemperatureOnTimeStep( epoch, n);
         log.info("quantile: {}", quantile);
         if (quantile == null) return;
         valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
-       // List<Long> episodeIds = valueStatsRepo.selectArchivedEpisodes( epoch);
-      //  List<Long> episodeIds2 = valueStatsRepo.selectNotArchivedEpisodes( epoch);
         episodeRepo.markArchived(epoch, quantile);
     }
 }
