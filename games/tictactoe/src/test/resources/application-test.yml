@@ -46,7 +46,7 @@ muzero:
       knownBoundsType: FROM_VALUES
 
       inferenceDeviceType: GPU
-      outputDir: ../../memory/tictactoe/
+      outputDir: ../../memory/tictactoe-test/
       size: 3
       maxMoves: 9  # size*size
       boardHeight: 3 # size
