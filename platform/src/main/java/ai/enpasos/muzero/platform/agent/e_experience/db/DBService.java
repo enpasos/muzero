@@ -11,6 +11,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueStatsRepo;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class DBService {
 
     @Autowired
@@ -145,18 +147,15 @@ public class DBService {
     }
 
     @Transactional
-    public void markArchived() {
-        int epoch = getMaxTrainingEpoch();
-       // epoch = 20;
+    public void markArchived(int n2) {
+        int epoch = getMaxTrainingEpoch() - 1;
         int n = 10000; // todo
-        int n2 = 10; // todo
         Double quantile = valueStatsRepo.findTopQuantileWithHighestTemperatureOnTimeStep( epoch, n);
+        log.info("quantile: {}", quantile);
         if (quantile == null) return;
         valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
        // List<Long> episodeIds = valueStatsRepo.selectArchivedEpisodes( epoch);
       //  List<Long> episodeIds2 = valueStatsRepo.selectNotArchivedEpisodes( epoch);
         episodeRepo.markArchived(epoch, quantile);
-     //   valueRepo.archiveValueOlderThanGivenEpoch(epoch - n2 + 1 );
-       // int i = 42;
     }
 }

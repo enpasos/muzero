@@ -94,9 +94,10 @@ public class MuZeroLoop {
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
 
-            temperatureCalculator.markArchived();
-            fillValueTable.fillTableForEpoch(epoch);
             int n = 10;
+            temperatureCalculator.markArchived(n);
+            fillValueTable.fillTableForEpoch(epoch);
+
             temperatureCalculator.runOnTimeStepLevel(epoch, n);
 
             temperatureCalculator.aggregatePerEpisode(epoch, n);

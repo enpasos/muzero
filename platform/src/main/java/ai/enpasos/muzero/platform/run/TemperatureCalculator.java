@@ -138,9 +138,7 @@ public class TemperatureCalculator {
     }
 
 
-    public void markArchived() {
-
-
-        dbService.markArchived();
+    public void markArchived(int n) {
+        dbService.markArchived(n);
     }
 }
