@@ -49,34 +49,29 @@ public class TemperatureCalculator {
         List<Long> episodeIds = episodeRepo.findNonArchivedEpisodeIds();
         int count = 1;
         for (Long episodeId : episodeIds) {
-            log.debug("aggregatePerEpisode ... status: {}/{}", count++, episodeIds.size() );
-            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountLargerNAndNotArchived(epoch, episodeId, n);
-
-            // get List of all epochs from valueDOs
-          //  List<Integer> epochs = valueDOs.stream().map(ValueDO::getEpoch).distinct().collect(Collectors.toList());
+            log.debug("aggregatePerEpisode ... status: {}/{}", count++, episodeIds.size());
+            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountEqualsNAndNotArchived(epoch, episodeId, n);
 
             List<ValueStatsDO> statsDOs = new ArrayList<>();
-        //    for (Integer epoch : epochs) {
-                List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
-                double maxValue = 0d;
-                int maxT = -1;
-                for(int i = 0; i < valueDOsForEpoch.size(); i++) {
-                    ValueDO valueDO = valueDOsForEpoch.get(i);
-                    double v = valueDO.getValueHatSquaredMean();
-                    if (v > maxValue) {
-                        maxValue = v;
-                        maxT = valueDO.getTimestep().getT();
-                    }
+            List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
+            double maxValue = 0d;
+            int maxT = -1;
+            for (int i = 0; i < valueDOsForEpoch.size(); i++) {
+                ValueDO valueDO = valueDOsForEpoch.get(i);
+                double v = valueDO.getValueHatSquaredMean();
+                if (v > maxValue) {
+                    maxValue = v;
+                    maxT = valueDO.getTimestep().getT();
                 }
+            }
 
-                ValueStatsDO valueStatsDO = ValueStatsDO.builder()
-                        .maxValueHatSquaredMean(maxValue)
-                        .tOfMaxValueHatSquaredMean(maxT)
-                        .epoch(epoch)
-                        .build();
+            ValueStatsDO valueStatsDO = ValueStatsDO.builder()
+                    .maxValueHatSquaredMean(maxValue)
+                    .tOfMaxValueHatSquaredMean(maxT)
+                    .epoch(epoch)
+                    .build();
 
-                statsDOs.add(valueStatsDO);
-        //    }
+            statsDOs.add(valueStatsDO);
 
             dbService.saveValueStats(statsDOs, episodeId);
         }
@@ -128,8 +123,9 @@ public class TemperatureCalculator {
 
 
     public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int epoch, int n) {
-        valueRepo.archiveValueOlderThanGivenEpoch(epoch - n);
-        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntryAndCountLargerN(epoch, n);
+        valueRepo.archiveValueOlderThanGivenEpoch(epoch - n + 1);
+        valueRepo.deleteArchived();
+        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
         int todo = timeStepDOs.size();
         int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {

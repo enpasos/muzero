@@ -27,8 +27,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count > :n and v.archived = false")
-    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountLargerNAndNotArchived(int epoch, long episodeId, int n);
+    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count = :n and v.archived = false")
+    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountEqualsNAndNotArchived(int epoch, long episodeId, int n);
 
     @Transactional
     @Query(value = "select v from ValueDO v  where  v.timestep.episode.id = :episodeId")
@@ -42,8 +42,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v from ValueDO v  where v.timestep.id = :timestepId")
-    List<ValueDO> findValuesForTimeStepId(long timestepId);
+    @Query(value = "select v from ValueDO v  where v.timestep.id = :timestepId and v.archived = false and v.count = :count")
+    List<ValueDO> findNonArchivedValuesWithAGivenCountForTimeStepId(long timestepId, int count);
 
     @Transactional
     @Query(value = "select v.timestep.episode.id from ValueDO v  where v.epoch = :epoch")
@@ -51,15 +51,18 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.count > :n and v.timestep.episode.archived = false")
-    List<TimeStepDO> findNonExploringNonArchivedTimeStepWithAValueEntryAndCountLargerN(int epoch, int n);
+    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.timestep.episode.archived = false")
+    List<TimeStepDO> findNonExploringNonArchivedTimeStepWithAValueEntry(int epoch);
 
     @Transactional
     @Modifying
     @Query(value = "insert into value (id, epoch, value, timestep_id, value_mean, value_hat_squared_mean, count, archived) values (nextval('value_seq'), :epoch, :value, :timestep_id, 0, 0, 0, false);", nativeQuery = true )
     void myInsert(int epoch, double value, long timestep_id);
 
-
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM value v WHERE v.archived = true", nativeQuery = true )
+    void deleteArchived();
 
     public static Optional<ValueDO> extractValueDO(List<ValueDO>valueDOs, int epoch) {
         for(ValueDO valueDO : valueDOs) {

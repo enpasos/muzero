@@ -116,7 +116,7 @@ public class DBService {
     public void setValueHatSquaredMeanForTimeStepAndEpoch(TimeStepDO timeStepDO, int epoch, int n) {
         int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
-        List<ValueDO> valueDOs = valueRepo.findValuesForTimeStepId(timeStepDO.getId());
+        List<ValueDO> valueDOs = valueRepo.findNonArchivedValuesWithAGivenCountForTimeStepId(timeStepDO.getId(), n);
 
         double sum = 0d;
         long count = 0;
@@ -130,11 +130,9 @@ public class DBService {
         }
         double valueMean = sum / count;
         sum = 0d;
-        //  count = 0;
         for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
             double vHat = valueMean - ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
             sum += vHat * vHat;
-            // count++;
         }
         double vHatSquaredMean = sum / count;
 
