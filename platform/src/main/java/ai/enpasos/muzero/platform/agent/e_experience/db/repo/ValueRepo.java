@@ -49,6 +49,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
     @Query(value = "select v.timestep.episode.id from ValueDO v  where v.epoch = :epoch")
     List<Long> findEpisodeIdsWithAValueEntry(int epoch);
 
+    @Query(value = "select max(v.epoch) from ValueDO v")
+    Integer getMaxEpoch();
 
     @Transactional
     @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.timestep.episode.archived = false")

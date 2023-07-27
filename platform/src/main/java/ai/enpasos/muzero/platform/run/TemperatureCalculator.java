@@ -48,8 +48,9 @@ public class TemperatureCalculator {
         DecimalFormat df = new DecimalFormat("#,###,###,##0.0000000");
         List<Long> episodeIds = episodeRepo.findNonArchivedEpisodeIds();
         int count = 1;
+
+        log.debug("aggregatePerEpisode ... episodeIds.size(): {} ",  episodeIds.size());
         for (Long episodeId : episodeIds) {
-            log.debug("aggregatePerEpisode ... status: {}/{}", count++, episodeIds.size());
             List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountEqualsNAndNotArchived(epoch, episodeId, n);
 
             List<ValueStatsDO> statsDOs = new ArrayList<>();
@@ -125,12 +126,14 @@ public class TemperatureCalculator {
     public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int epoch, int n) {
         valueRepo.archiveValueOlderThanGivenEpoch(epoch - n + 1);
         valueRepo.deleteArchived();
-        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
+        int maxEpoch = valueRepo.getMaxEpoch();
+        log.debug("setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs ... epoch= {}; maxEpoch= {}", epoch,  maxEpoch );
+        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(maxEpoch);
         int todo = timeStepDOs.size();
+        log.debug("runOnTimeStepLevel ... todo: {}",   todo );
         int count = 0;
         for (TimeStepDO timeStepDO : timeStepDOs) {
-            log.debug("runOnTimeStepLevel ... status: {}/{}", count++, todo );
-            dbService.setValueHatSquaredMeanForTimeStepAndEpoch(timeStepDO, epoch, n);
+            dbService.setValueHatSquaredMeanForTimeStep (timeStepDO,  n);
         }
     }
 

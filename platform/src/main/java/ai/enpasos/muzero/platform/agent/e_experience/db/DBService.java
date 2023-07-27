@@ -113,7 +113,7 @@ public class DBService {
 
 
     @Transactional
-    public void setValueHatSquaredMeanForTimeStepAndEpoch(TimeStepDO timeStepDO, int epoch, int n) {
+    public void setValueHatSquaredMeanForTimeStep (TimeStepDO timeStepDO,  int n) {
         int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
         List<ValueDO> valueDOs = valueRepo.findNonArchivedValuesForTimeStepId(timeStepDO.getId());
