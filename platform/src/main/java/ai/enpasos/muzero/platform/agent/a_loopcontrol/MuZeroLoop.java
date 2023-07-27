@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
@@ -58,6 +59,10 @@ public class MuZeroLoop {
 
 
     @Autowired
+    ValueRepo valueRepo;
+
+
+    @Autowired
     FillValueTable fillValueTable;
 
 
@@ -89,9 +94,11 @@ public class MuZeroLoop {
 
             if (epoch != 0) {
 
+
+                int lastTrainedEpoch = valueRepo.getMaxEpoch();
                 log.info("identifying hot spots ...");
-                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
-                temperatureCalculator.aggregatePerEpisode(epoch, n);
+                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(lastTrainedEpoch, n);
+                temperatureCalculator.aggregatePerEpisode(lastTrainedEpoch, n);
                 // up to this point: valuestats is filled
                 temperatureCalculator.markArchived();
                 // up to this point: valuestats and episode entries are marked as archived

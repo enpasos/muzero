@@ -126,9 +126,7 @@ public class TemperatureCalculator {
     public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int epoch, int n) {
         valueRepo.archiveValueOlderThanGivenEpoch(epoch - n + 1);
         valueRepo.deleteArchived();
-        int maxEpoch = valueRepo.getMaxEpoch();
-        log.debug("setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs ... epoch= {}; maxEpoch= {}", epoch,  maxEpoch );
-        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(maxEpoch);
+        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
         int todo = timeStepDOs.size();
         log.debug("runOnTimeStepLevel ... todo: {}",   todo );
         int count = 0;
