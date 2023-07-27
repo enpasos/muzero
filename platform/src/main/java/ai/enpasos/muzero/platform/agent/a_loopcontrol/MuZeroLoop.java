@@ -93,10 +93,9 @@ public class MuZeroLoop {
             int n = 10;  // TODO: make configurable
 
             if (epoch != 0) {
-
-
                 int lastTrainedEpoch = valueRepo.getMaxEpoch();
-                log.info("identifying hot spots ...");
+                log.info("identifying hot spots ... lastTrainedEpoch: {}", lastTrainedEpoch);
+
                 temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(lastTrainedEpoch, n);
                 temperatureCalculator.aggregatePerEpisode(lastTrainedEpoch, n);
                 // up to this point: valuestats is filled

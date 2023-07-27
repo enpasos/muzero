@@ -27,8 +27,8 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count = :n and v.archived = false")
-    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountEqualsNAndNotArchived(int epoch, long episodeId, int n);
+    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count > 0 and v.archived = false")
+    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountLargerZeroAndNotArchived(int epoch, long episodeId );
 
     @Transactional
     @Query(value = "select v from ValueDO v  where  v.timestep.episode.id = :episodeId")

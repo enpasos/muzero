@@ -49,9 +49,9 @@ public class TemperatureCalculator {
         List<Long> episodeIds = episodeRepo.findNonArchivedEpisodeIds();
         int count = 1;
 
-        log.debug("aggregatePerEpisode ... episodeIds.size(): {} ",  episodeIds.size());
+        log.debug("aggregatePerEpisode ... episodeIds.size()={}; epoch={} ",  episodeIds.size(), epoch);
         for (Long episodeId : episodeIds) {
-            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountEqualsNAndNotArchived(epoch, episodeId, n);
+            List<ValueDO> valueDOs = valueRepo.findValuesForEpochAndEpisodeIdWithCountLargerZeroAndNotArchived(epoch, episodeId);
 
             List<ValueStatsDO> statsDOs = new ArrayList<>();
             List<ValueDO> valueDOsForEpoch = valueDOs.stream().filter(v -> v.getEpoch() == epoch).collect(Collectors.toList());
