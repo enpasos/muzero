@@ -151,7 +151,7 @@ public class DBService {
 
     }
 
-    @Transactional
+    //@Transactional
     public void markArchived() {
         int epoch = valueStatsRepo.getMaxEpoch();
         int n = 10000; // todo

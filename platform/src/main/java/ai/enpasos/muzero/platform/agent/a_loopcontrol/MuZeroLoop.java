@@ -94,7 +94,8 @@ public class MuZeroLoop {
                 temperatureCalculator.aggregatePerEpisode(epoch, n);
                 // up to this point: valuestats is filled
                 temperatureCalculator.markArchived();
-                // up to this point: valuestats entries are marked as archived if they are not in the hot 10000
+                // up to this point: valuestats and episode entries are marked as archived
+                // if they are not in the hot 10000
 
 
                 log.info("collecting experience ...");

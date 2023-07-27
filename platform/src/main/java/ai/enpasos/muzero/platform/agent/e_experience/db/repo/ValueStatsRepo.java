@@ -31,7 +31,10 @@ public interface ValueStatsRepo extends JpaRepository<ValueStatsDO,Long> {
     @Query(value = "update valuestats set archived = (max_value_hat_squared_mean < :quantile) where epoch = :epoch", nativeQuery = true )
             void archiveValueStatsWithLowTemperature(int epoch, double quantile);
 
-
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM valuestats v WHERE v.archived = true", nativeQuery = true )
+    void deleteArchived();
 
     @Query(value ="select distinct v.episode_id  from valuestats v  where epoch = :epoch and v.archived = true", nativeQuery = true )
     List<Long> selectArchivedEpisodes(int epoch);
