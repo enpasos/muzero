@@ -116,31 +116,38 @@ public class DBService {
     public void setValueHatSquaredMeanForTimeStepAndEpoch(TimeStepDO timeStepDO, int epoch, int n) {
         int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
 
-        List<ValueDO> valueDOs = valueRepo.findNonArchivedValuesWithAGivenCountForTimeStepId(timeStepDO.getId(), n);
+        List<ValueDO> valueDOs = valueRepo.findNonArchivedValuesForTimeStepId(timeStepDO.getId());
 
         double sum = 0d;
         long count = 0;
-        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
-            try {
-                sum += ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
-                count++;
-            } catch (MuZeroException e) {
-                e.printStackTrace();
-            }
+        for (ValueDO valueDO : valueDOs) {
+            sum += valueDO.getValue();
+            count++;
         }
+//        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
+//            try {
+//                sum += ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
+//                count++;
+//            } catch (MuZeroException e) {
+//                e.printStackTrace();
+//            }
+//        }
         double valueMean = sum / count;
         sum = 0d;
-        for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
-            double vHat = valueMean - ValueRepo.extractValueDO(valueDOs, i).orElseThrow(MuZeroException::new).getValue();
+       // for (int i = epoch; i >= 0 && i > epoch - n && i >= trainingEpoch; i--) {
+        for (ValueDO valueDO : valueDOs) {
+            double vHat = valueMean - valueDO.getValue();
             sum += vHat * vHat;
         }
         double vHatSquaredMean = sum / count;
 
 
-        ValueDO valueDO = ValueRepo.extractValueDO(valueDOs, epoch).orElseThrow(MuZeroException::new);
+    ValueDO valueDO = ValueRepo.extractValueDO(valueDOs, epoch).orElseThrow(MuZeroException::new);
+
         valueDO.setValueMean(valueMean);
         valueDO.setCount(count);
         valueDO.setValueHatSquaredMean(vHatSquaredMean);
+
 
     }
 
