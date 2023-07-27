@@ -71,7 +71,17 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
         return Optional.empty();
     }
 
-
+    public static Optional<ValueDO> extractValueDOMaxEpoch(List<ValueDO>valueDOs) {
+        int maxEpoch = -1;
+        Optional<ValueDO> maxValueDO = Optional.empty();
+        for(ValueDO valueDO : valueDOs) {
+            if (valueDO.getEpoch() > maxEpoch) {
+                maxEpoch = valueDO.getEpoch();
+                maxValueDO = Optional.of(valueDO);
+            }
+        }
+        return maxValueDO;
+    }
 
     @Transactional
     @Modifying
