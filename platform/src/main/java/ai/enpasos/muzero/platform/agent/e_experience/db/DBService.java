@@ -4,11 +4,9 @@ package ai.enpasos.muzero.platform.agent.e_experience.db;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueStatsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueStatsRepo;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +29,6 @@ public class DBService {
 
     @Autowired
     ValueRepo valueRepo;
-
-
-    @Autowired
-    ValueStatsRepo valueStatsRepo;
 
 
     @Autowired
@@ -74,11 +68,7 @@ public class DBService {
         return episodeRepo.getMaxTrainingEpoch();
     }
 
-    public int getMaxValueStatsEpoch() {
-        Integer epoch = valueStatsRepo.getMaxEpoch();
-        if(epoch == null) return 0;
-        return epoch;
-    }
+
 
 
 
@@ -96,18 +86,7 @@ public class DBService {
         return episodeDOs;
     }
 
-    @Transactional
-    public void saveValueStats(List<ValueStatsDO> statsDOs, long episodeId) {
-      //  valueStatsRepo.deleteByEpisodeId(episodeId);
-     //   valueStatsRepo.flush();
-     //   EpisodeDO episodeDO = episodeRepo.getReferenceById(episodeId);
 
-//        episodeDO.setValueStatsDOs(statsDOs);
-//         statsDOs.stream().forEach(s -> s.setEpisode(episodeDO))    ;
-//        episodeRepo.save(episodeDO);
-        statsDOs.forEach(s -> valueStatsRepo.myInsert(s.getEpoch(), s.getMaxValueHatSquaredMean(), s.getTOfMaxValueHatSquaredMean(), episodeId) );
-
-    }
 
 
 
@@ -136,21 +115,21 @@ public class DBService {
 
         ValueDO valueDO = ValueRepo.extractValueDOMaxEpoch(valueDOs).orElseThrow(MuZeroException::new);
 
-        valueDO.setValueMean(valueMean);
-        valueDO.setCount(count);
-        valueDO.setValueHatSquaredMean(vHatSquaredMean);
+//        valueDO.setValueMean(valueMean);
+//        valueDO.setCount(count);
+//        valueDO.setValueHatSquaredMean(vHatSquaredMean);
 
 
     }
 
     //@Transactional
     public void markArchived() {
-        int epoch = valueStatsRepo.getMaxEpoch();
-        int n = 10000; // todo
-        Double quantile = valueStatsRepo.findTopQuantileWithHighestTemperatureOnTimeStep( epoch, n);
-        log.info("quantile: {}", quantile);
-        if (quantile == null) return;
-        valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
-        episodeRepo.markArchived(epoch, quantile);
+//        int epoch = valueStatsRepo.getMaxEpoch();
+//        int n = 10000; // todo
+//        Double quantile = valueStatsRepo.findTopQuantileWithHighestTemperatureOnTimeStep( epoch, n);
+//        log.info("quantile: {}", quantile);
+//        if (quantile == null) return;
+//        valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
+   //     episodeRepo.markArchived(epoch, quantile);
     }
 }

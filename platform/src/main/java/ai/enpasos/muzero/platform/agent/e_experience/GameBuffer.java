@@ -25,7 +25,6 @@ import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueStatsRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -65,8 +64,6 @@ public class GameBuffer {
     @Autowired
     private MuZeroConfig config;
 
-    @Autowired
-    ValueStatsRepo valueStatsRepo;
     @Autowired
     EpisodeRepo episodeRepo;
 
@@ -400,22 +397,23 @@ public class GameBuffer {
 
     public List<Game> getGamesWithHighestTemperatureTimesteps() {
         int n = config.getNumParallelGamesPlayed();
-        int epoch =  dbService.getMaxValueStatsEpoch();
+//        int epoch =  dbService.getMaxValueStatsEpoch();
 
-        List<Tuple> result =  valueStatsRepo.findTopNEpisodeIdsWithHighestTemperatureOnTimeStep(epoch, n);
-        List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
-        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
-
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        Map<Long, Game> idGameMap =
-                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
-            for (int i = 0; i < games.size(); i++) {
-                int t = result.get(i).get(1, Integer.class);
-                long id = ids.get(i);
-                Game game = idGameMap.get(id);
-                game.getEpisodeDO().setTStartNormal(t);
-            }
-
-        return games;
+      //  List<Tuple> result =  valueStatsRepo.findTopNEpisodeIdsWithHighestTemperatureOnTimeStep(epoch, n);
+      //  List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
+//        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
+//
+//        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+//        Map<Long, Game> idGameMap =
+//                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
+//            for (int i = 0; i < games.size(); i++) {
+//                int t = result.get(i).get(1, Integer.class);
+//                long id = ids.get(i);
+//                Game game = idGameMap.get(id);
+//                game.getEpisodeDO().setTStartNormal(t);
+//            }
+//
+//        return games;
+        return new ArrayList<>();
     }
 }

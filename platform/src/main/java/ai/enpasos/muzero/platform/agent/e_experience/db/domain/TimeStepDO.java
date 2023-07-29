@@ -50,8 +50,7 @@ public class TimeStepDO {
     boolean exploring;
 
 
-
-    boolean archived ;
+    boolean archived;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -60,13 +59,20 @@ public class TimeStepDO {
     @Transient
     double k;
 
+
+
+    private double valueMean;
+    private double valueHatSquaredMean;
+    private long valueCount;
+
+
     // policyTarget, observationPartSize, observationPartA, observationPartB are assumed to be immutable
     public TimeStepDO copyPolicyTargetAndObservation() {
         return TimeStepDO.builder()
-                .policyTarget( policyTarget )
+                .policyTarget(policyTarget)
                 .observationPartSize(observationPartSize)
-                .observationPartA( observationPartA )
-                .observationPartB( observationPartB )
+                .observationPartA(observationPartA)
+                .observationPartB(observationPartB)
                 .episode(episode)
                 .t(t)
                 .id(id)
@@ -144,8 +150,6 @@ public class TimeStepDO {
             throw new RuntimeException("unknown observation type");
         }
     }
-
-
 
 
     public static class TimeStepDOBuilder {

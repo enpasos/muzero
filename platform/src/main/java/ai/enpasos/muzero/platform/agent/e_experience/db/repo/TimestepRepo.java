@@ -2,6 +2,7 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "select t from TimeStepDO t JOIN FETCH t.episode e where e.id in :ids ORDER BY e.id DESC, t.t ASC")
     List<TimeStepDO> findTimeStepDOswithEpisodeIds(List<Long> ids);
 
+    @Modifying
+    @Query(value = "update timestep set value_count = 42, value_mean = 15", nativeQuery = true )
+    void aggregateFromValue();
 
 
 }

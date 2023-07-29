@@ -21,18 +21,18 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
 
-    @Transactional
-    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.trainingEpoch = :trainingEpoch")
-    List<ValueDO> findValuesForEpochAndTrainingEpoch(int epoch, int trainingEpoch);
-
-
-    @Transactional
-    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count > 0 and v.archived = false")
-    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountLargerZeroAndNotArchived(int epoch, long episodeId );
-
-    @Transactional
-    @Query(value = "select v from ValueDO v  where  v.timestep.episode.id = :episodeId")
-    List<ValueDO> findValuesForEpisodeId( long episodeId);
+//    @Transactional
+//    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.trainingEpoch = :trainingEpoch")
+//    List<ValueDO> findValuesForEpochAndTrainingEpoch(int epoch, int trainingEpoch);
+//
+//
+//    @Transactional
+//    @Query(value = "select v from ValueDO v  where v.epoch = :epoch and v.timestep.episode.id = :episodeId and v.count > 0 and v.archived = false")
+//    List<ValueDO> findValuesForEpochAndEpisodeIdWithCountLargerZeroAndNotArchived(int epoch, long episodeId );
+//
+//    @Transactional
+//    @Query(value = "select v from ValueDO v  where  v.timestep.episode.id = :episodeId")
+//    List<ValueDO> findValuesForEpisodeId( long episodeId);
 
 
     @Transactional
@@ -45,12 +45,12 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
     @Query(value = "select v from ValueDO v  where v.timestep.id = :timestepId and v.archived = false")
     List<ValueDO> findNonArchivedValuesForTimeStepId(long timestepId);
 
-    @Transactional
-    @Query(value = "select v.timestep.episode.id from ValueDO v  where v.epoch = :epoch")
-    List<Long> findEpisodeIdsWithAValueEntry(int epoch);
+//    @Transactional
+//    @Query(value = "select v.timestep.episode.id from ValueDO v  where v.epoch = :epoch")
+//    List<Long> findEpisodeIdsWithAValueEntry(int epoch);
 
-    @Query(value = "select max(v.epoch) from ValueDO v")
-    Integer getMaxEpoch();
+//    @Query(value = "select max(v.epoch) from ValueDO v")
+//    Integer getMaxEpoch();
 
     @Transactional
     @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.timestep.episode.archived = false")
@@ -58,20 +58,26 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "insert into value (id, epoch, value, timestep_id, value_mean, value_hat_squared_mean, count, archived) values (nextval('value_seq'), :epoch, :value, :timestep_id, 0, 0, 0, false);", nativeQuery = true )
+    @Query(value = "insert into value (id, epoch, value, timestep_id, archived) values (nextval('value_seq'), :epoch, :value, :timestep_id,false);", nativeQuery = true )
     void myInsert(int epoch, double value, long timestep_id);
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM value v WHERE v.archived = true", nativeQuery = true )
-    void deleteArchived();
+    @Query(value = "DELETE FROM value v WHERE epoch < :epoch", nativeQuery = true )
+    void deleteOldValues(int epoch);
 
-    public static Optional<ValueDO> extractValueDO(List<ValueDO>valueDOs, int epoch) {
-        for(ValueDO valueDO : valueDOs) {
-            if (valueDO.getEpoch() == epoch) return Optional.of(valueDO);
-        }
-        return Optional.empty();
-    }
+//    @Transactional
+//    @Modifying
+//    @Query(value = "update value set archived = (epoch < :epoch) where value.archived = false", nativeQuery = true )
+//    void archiveValueOlderThanGivenEpoch(int epoch);
+
+
+//    public static Optional<ValueDO> extractValueDO(List<ValueDO>valueDOs, int epoch) {
+//        for(ValueDO valueDO : valueDOs) {
+//            if (valueDO.getEpoch() == epoch) return Optional.of(valueDO);
+//        }
+//        return Optional.empty();
+//    }
 
     public static Optional<ValueDO> extractValueDOMaxEpoch(List<ValueDO>valueDOs) {
         int maxEpoch = -1;
@@ -85,9 +91,5 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
         return maxValueDO;
     }
 
-    @Transactional
-    @Modifying
-    @Query(value = "update value set archived = (epoch < :epoch) where value.archived = false", nativeQuery = true )
-    void archiveValueOlderThanGivenEpoch(int epoch);
 
 }

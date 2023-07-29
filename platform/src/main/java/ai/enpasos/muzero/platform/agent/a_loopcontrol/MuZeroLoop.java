@@ -93,13 +93,14 @@ public class MuZeroLoop {
             int n = 10;  // TODO: make configurable
 
             if (epoch != 0) {
-                int lastTrainedEpoch = valueRepo.getMaxEpoch();
-                log.info("identifying hot spots ... lastTrainedEpoch: {}", lastTrainedEpoch);
 
-                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(lastTrainedEpoch, n);
-                temperatureCalculator.aggregatePerEpisode(lastTrainedEpoch, n);
+                log.info("reflecting on experience ...");
+                fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
+
+                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
+           //     temperatureCalculator.aggregatePerEpisode(epoch, n);
                 // up to this point: valuestats is filled
-                temperatureCalculator.markArchived();
+             ///   temperatureCalculator.markArchived();
                 // up to this point: valuestats and episode entries are marked as archived
                 // if they are not in the hot 10000
 
@@ -113,8 +114,6 @@ public class MuZeroLoop {
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
 
-            log.info("reflecting on experience ...");
-            fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
 
 
             log.info("game counter: " + gameBuffer.getBuffer().getCounter());
