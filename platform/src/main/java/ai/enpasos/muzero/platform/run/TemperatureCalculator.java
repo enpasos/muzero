@@ -118,7 +118,7 @@ public class TemperatureCalculator {
 
 
     public void aggregateValueStatisticsUp(int epoch, int n) {
-        valueRepo.deleteOldValues( epoch - n + 1);
+        valueRepo.deleteValuesBeforeEpoch( epoch - n + 1);
         timestepRepo.aggregateMeanFromValue();
         timestepRepo.aggregateVarianceFromValue();
 

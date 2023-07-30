@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
-
     @Transactional
     @Query(value = "select distinct t.episode_id from timestep t left join (select * from value v1 where v1.epoch = :epoch) v on t.id = v.timestep_id where t.episode_id in :episodeIds and t.action is not null and t.exploring = false and v is null ", nativeQuery = true)
     List<Long> findEpisodeIdsWithoutNonExploringValueForAnEpoch(int epoch, List<Long>  episodeIds);
@@ -33,4 +32,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
             "         group by timestep_id, value_count) as v2\n" +
             " where v2.timestep_id = ts.id", nativeQuery = true )
     void aggregateVarianceFromValue();
+
+    @Transactional
+    @Modifying
+    @Query(value = "update timestep set archived = (id in (select e.id from episode e where e.archived = true))", nativeQuery = true )
+    void markArchived(  );
 }

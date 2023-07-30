@@ -70,7 +70,7 @@ TemperatureCalculator temperatureCalculator;
     public void fillValueTableForNetworkOfEpoch(int epoch) {
         log.info("filling value table for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
-
+        valueRepo.deleteValuesOfEpoch(epoch);
         // the network from epoch
         // has seen trainingEpoch 0...epoch
         for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
@@ -82,6 +82,7 @@ TemperatureCalculator temperatureCalculator;
 
     private void fillTableForEpochAndTrainingEpoch(int epoch, int trainingEpoch) {
 
+     //   valueRepo.deleteValuesOfEpoch(epoch);
 
         List<Long>  episodeIds0 =  episodeRepo.findAllNonArchivedEpisodeIdsForAnEpoch(trainingEpoch);
         List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutNonExploringValueForAnEpoch(epoch,episodeIds0);

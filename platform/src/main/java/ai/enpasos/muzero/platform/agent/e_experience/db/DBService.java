@@ -131,5 +131,7 @@ public class DBService {
         if (quantile == null) return;
 //        valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
         episodeRepo.markArchived(quantile);
+        timestepRepo.markArchived();
+        valueRepo.markArchived();
     }
 }
