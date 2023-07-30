@@ -124,13 +124,6 @@ public class TemperatureCalculator {
 
         episodeRepo.aggregateMaxVarianceFromTimestep();
 
-//        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
-//        int todo = timeStepDOs.size();
-//        log.debug("runOnTimeStepLevel ... todo: {}",   todo );
-//        int count = 0;
-//        for (TimeStepDO timeStepDO : timeStepDOs) {
-//            dbService.setValueHatSquaredMeanForTimeStep (timeStepDO,  n);
-//        }
     }
 
 

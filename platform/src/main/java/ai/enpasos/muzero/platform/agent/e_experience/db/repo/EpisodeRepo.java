@@ -48,6 +48,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<Long> findAllNonArchivedEpisodeIdsForAnEpoch(int epoch);
 
 
+    @Query(value = "select count(*) from episode e where e.valueCount = :valueCount and archived = false", nativeQuery = true)
+    int countNotArchivedWithValueCount(int valueCount);
+
+
     @Transactional
     @Modifying
     @Query(value = "update episode set archived = (max_value_variance < :quantile)", nativeQuery = true )
@@ -58,9 +62,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Transactional
     @Query(value = "update episode e set \n" +
             "\tmax_value_variance = e2.value_variance,  \n" +
+            "\tvalue_count = e2.value_count,  \n" +
             "\tt_of_max_value_variance = e2.t\n" +
-            "\tfrom (SELECT a.episode_id, a.value_variance, a.t FROM (\n" +
-            "            SELECT episode_id, value_variance, t,\n" +
+            "\tfrom (SELECT a.episode_id, a.value_variance, a.value_count, a.t FROM (\n" +
+            "            SELECT episode_id, value_variance, value_count, t,\n" +
             "                   row_number() OVER (PARTITION BY episode_id ORDER BY value_variance DESC) as row_number\n" +
             "            FROM timestep\n" +
             "                    ) as a where row_number = 1) as e2 \n" +
@@ -69,8 +74,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
     @Transactional
-    @Query(value = "select min(e2.max_value_variance) from (select e.max_value_variance from episode e group by e.max_value_variance order by e.max_value_variance desc  limit :n) e2", nativeQuery = true )
-    Double findTopQuantileWithHighestVariance( int n);
+    @Query(value = "select min(e2.max_value_variance) from (select e.max_value_variance from episode e where e.value_count = :valueCount and e.archived = archived group by e.max_value_variance order by e.max_value_variance desc  limit :n) e2", nativeQuery = true )
+    Double findTopQuantileWithHighestVariance( int n, int valueCount);
 
 
     @Transactional

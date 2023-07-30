@@ -52,6 +52,7 @@ public class EpisodeDO {
 
     private double maxValueVariance;
     private int tOfMaxValueVariance;
+    private int valueCount;
 
 
     private void sortTimeSteps() {
