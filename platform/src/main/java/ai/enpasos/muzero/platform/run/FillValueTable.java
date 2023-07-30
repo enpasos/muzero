@@ -54,7 +54,7 @@ TemperatureCalculator temperatureCalculator;
             oldStop = stop;
             IntStream.range(start, stop + 1).forEach(epoch -> {
                 fillValueTableForNetworkOfEpoch(epoch);
-                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
+                temperatureCalculator.aggregateValueStatisticsUp(epoch, n);
             });
             stop = networkIOService.getLatestNetworkEpoch();
             if (oldStop == stop) {

@@ -4,7 +4,6 @@ package ai.enpasos.muzero.platform.run;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
@@ -12,12 +11,10 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -109,20 +106,23 @@ public class TemperatureCalculator {
 //    }
 
 
-    public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int startEpoch) {
+    public void aggregateValueStatisticsUp(int startEpoch) {
         int n = 10;
         List<Integer> epochs = episodeRepo.findEpochs();
         for (Integer epoch : epochs) {
             if (epoch < startEpoch) continue;
             log.info("temperature calculating for epoch {}", epoch);
-            setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
+            aggregateValueStatisticsUp(epoch, n);
         }
     }
 
 
-    public void setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(int epoch, int n) {
+    public void aggregateValueStatisticsUp(int epoch, int n) {
         valueRepo.deleteOldValues( epoch - n + 1);
-        timestepRepo.aggregateFromValue();
+        timestepRepo.aggregateMeanFromValue();
+        timestepRepo.aggregateVarianceFromValue();
+
+        episodeRepo.aggregateMaxVarianceFromTimestep();
 
 //        List<TimeStepDO> timeStepDOs = valueRepo.findNonExploringNonArchivedTimeStepWithAValueEntry(epoch);
 //        int todo = timeStepDOs.size();
@@ -134,7 +134,7 @@ public class TemperatureCalculator {
     }
 
 
-    public void markArchived() {
-        dbService.markArchived();
+    public void markArchived(int epoch) {
+        dbService.markArchived(epoch);
     }
 }

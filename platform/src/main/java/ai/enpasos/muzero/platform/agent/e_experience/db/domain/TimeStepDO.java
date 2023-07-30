@@ -62,7 +62,7 @@ public class TimeStepDO {
 
 
     private double valueMean;
-    private double valueHatSquaredMean;
+    private double valueVariance;
     private long valueCount;
 
 

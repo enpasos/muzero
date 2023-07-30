@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -37,9 +38,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<Long> findRandomNEpisodeIds(int n);
 
 
-    @Transactional
-    @Query(value = "select e.id from episode e", nativeQuery = true)
-    List<Long> findAllIds();
+//    @Transactional
+//    @Query(value = "select e.id from episode e", nativeQuery = true)
+//    List<Long> findAllIds();
 
 
     @Transactional
@@ -49,6 +50,30 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update episode set archived = (id in (select episode_id as id from valuestats where max_value_hat_squared_mean < :quantile and epoch = :epoch))", nativeQuery = true )
-    void markArchived(int epoch, double quantile);
+    @Query(value = "update episode set archived = (max_value_variance < :quantile)", nativeQuery = true )
+    void markArchived( double quantile);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "update episode e set \n" +
+            "\tmax_value_variance = e2.value_variance,  \n" +
+            "\tt_of_max_value_variance = e2.t\n" +
+            "\tfrom (SELECT a.episode_id, a.value_variance, a.t FROM (\n" +
+            "            SELECT episode_id, value_variance, t,\n" +
+            "                   row_number() OVER (PARTITION BY episode_id ORDER BY value_variance DESC) as row_number\n" +
+            "            FROM timestep\n" +
+            "                    ) as a where row_number = 1) as e2 \n" +
+            "\twhere e2.episode_id = e.id", nativeQuery = true )
+    void aggregateMaxVarianceFromTimestep();
+
+
+    @Transactional
+    @Query(value = "select min(e2.max_value_variance) from (select e.max_value_variance from episode e group by e.max_value_variance order by e.max_value_variance desc  limit :n) e2", nativeQuery = true )
+    Double findTopQuantileWithHighestVariance( int n);
+
+
+    @Transactional
+    @Query(value = "select e.id, e.t_of_max_value_variance from episode e where e.archived = false order by random() limit :nGamesNeeded", nativeQuery = true)
+    List<Tuple> findEpisodeIdsWithHighValueVariance(int nGamesNeeded);
 }

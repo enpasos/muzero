@@ -50,8 +50,8 @@ public class EpisodeDO {
     private List<TimeStepDO> timeSteps;
 
 
-    private double maxValueHatSquaredMean;
-    private int tOfMaxValueHatSquaredMean;
+    private double maxValueVariance;
+    private int tOfMaxValueVariance;
 
 
     private void sortTimeSteps() {

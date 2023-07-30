@@ -20,8 +20,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<TimeStepDO> findTimeStepDOswithEpisodeIds(List<Long> ids);
 
     @Modifying
-    @Query(value = "update timestep set value_count = 42, value_mean = 15", nativeQuery = true )
-    void aggregateFromValue();
+    @Transactional
+    @Query(value = "update timestep ts set value_count = v.valuecount,  value_mean = v.valuesum/v.valuecount from (select timestep_id, sum(w.value) as valuesum, count(w.value) as valuecount from value w  group by timestep_id) as v where v.timestep_id = ts.id", nativeQuery = true )
+    void aggregateMeanFromValue();
 
-
+    @Modifying
+    @Transactional
+    @Query(value = "update timestep ts set value_variance =  v2.valueprevariance / v2.value_count\n" +
+            " from (\n" +
+            "         select timestep_id,value_count, sum((w.value - w.value_mean)*(w.value - w.value_mean)) as valueprevariance\n" +
+            "         from (select v.timestep_id, v.value, t.value_mean, t.value_count from value v inner join  timestep t on v.timestep_id = t.id) w\n" +
+            "         group by timestep_id, value_count) as v2\n" +
+            " where v2.timestep_id = ts.id", nativeQuery = true )
+    void aggregateVarianceFromValue();
 }

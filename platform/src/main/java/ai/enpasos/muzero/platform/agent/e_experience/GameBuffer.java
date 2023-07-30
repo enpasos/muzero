@@ -396,24 +396,24 @@ public class GameBuffer {
 
 
     public List<Game> getGamesWithHighestTemperatureTimesteps() {
-        int n = config.getNumParallelGamesPlayed();
-//        int epoch =  dbService.getMaxValueStatsEpoch();
+        int nGamesNeeded = config.getNumParallelGamesPlayed();
+       // int nWindow = config.getWindowSize();
+        List<Tuple> result = episodeRepo.findEpisodeIdsWithHighValueVariance(nGamesNeeded); // TODO nWindow
 
-      //  List<Tuple> result =  valueStatsRepo.findTopNEpisodeIdsWithHighestTemperatureOnTimeStep(epoch, n);
-      //  List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
-//        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
-//
-//        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-//        Map<Long, Game> idGameMap =
-//                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
-//            for (int i = 0; i < games.size(); i++) {
-//                int t = result.get(i).get(1, Integer.class);
-//                long id = ids.get(i);
-//                Game game = idGameMap.get(id);
-//                game.getEpisodeDO().setTStartNormal(t);
-//            }
-//
-//        return games;
-        return new ArrayList<>();
+
+        List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
+        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
+
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        Map<Long, Game> idGameMap =
+                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
+            for (int i = 0; i < games.size(); i++) {
+                int t = result.get(i).get(1, Integer.class);
+                long id = ids.get(i);
+                Game game = idGameMap.get(id);
+                game.getEpisodeDO().setTStartNormal(t);
+            }
+
+        return games;
     }
 }

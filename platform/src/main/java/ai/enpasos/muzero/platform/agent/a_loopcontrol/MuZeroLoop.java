@@ -97,12 +97,11 @@ public class MuZeroLoop {
                 log.info("reflecting on experience ...");
                 fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
 
-                temperatureCalculator.setValueHatSquaredMeanForEpochWithSummationOverLastNEpochs(epoch, n);
-           //     temperatureCalculator.aggregatePerEpisode(epoch, n);
-                // up to this point: valuestats is filled
-             ///   temperatureCalculator.markArchived();
-                // up to this point: valuestats and episode entries are marked as archived
-                // if they are not in the hot 10000
+                temperatureCalculator.aggregateValueStatisticsUp(epoch, n);
+
+
+                temperatureCalculator.markArchived(epoch);
+
 
 
                 log.info("collecting experience ...");

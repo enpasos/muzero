@@ -123,13 +123,13 @@ public class DBService {
     }
 
     //@Transactional
-    public void markArchived() {
+    public void markArchived(int epoch) {
 //        int epoch = valueStatsRepo.getMaxEpoch();
-//        int n = 10000; // todo
-//        Double quantile = valueStatsRepo.findTopQuantileWithHighestTemperatureOnTimeStep( epoch, n);
-//        log.info("quantile: {}", quantile);
-//        if (quantile == null) return;
+        int n = 10000; // todo
+        Double quantile = episodeRepo.findTopQuantileWithHighestVariance(n);
+        log.info("quantile: {}", quantile);
+        if (quantile == null) return;
 //        valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
-   //     episodeRepo.markArchived(epoch, quantile);
+        episodeRepo.markArchived(quantile);
     }
 }
