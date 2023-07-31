@@ -96,13 +96,8 @@ public class MuZeroLoop {
 
                 log.info("reflecting on experience ...");
                 fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
-
                 temperatureCalculator.aggregateValueStatisticsUp(epoch, n);
-
-
                 temperatureCalculator.markArchived(epoch);
-
-
 
                 log.info("collecting experience ...");
                 PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
