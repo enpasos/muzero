@@ -35,6 +35,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update timestep set archived = (id in (select e.id from episode e where e.archived = true))", nativeQuery = true )
+    @Query(value = "update timestep set archived = (episode_id in (select e.id from episode e where e.archived = true))", nativeQuery = true )
     void markArchived(  );
 }
