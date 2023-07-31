@@ -131,8 +131,12 @@ public class DBService {
         Double quantile = episodeRepo.findTopQuantileWithHighestVariance(n, n2);
         log.info("quantile: {}", quantile);
         if (quantile == null) return;
+        log.info("episodeRepo.markArchived(quantile) ...");
         episodeRepo.markArchived(quantile);
+        log.info("timestepRepo.markArchived() ...");
         timestepRepo.markArchived();
+        log.info("valueRepo.markArchived() ...");
         valueRepo.markArchived();
+        log.info("...markArchived.");
     }
 }
