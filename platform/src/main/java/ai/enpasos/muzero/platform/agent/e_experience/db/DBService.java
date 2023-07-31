@@ -124,7 +124,6 @@ public class DBService {
 
     //@Transactional
     public void markArchived(int epoch) {
-//        int epoch = valueStatsRepo.getMaxEpoch();
         int n = 10000; // todo
         int n2 = 10;
        // int nCandidate = episodeRepo.countNotArchivedWithValueCount(n2);
@@ -132,7 +131,6 @@ public class DBService {
         Double quantile = episodeRepo.findTopQuantileWithHighestVariance(n, n2);
         log.info("quantile: {}", quantile);
         if (quantile == null) return;
-//        valueStatsRepo.archiveValueStatsWithLowTemperature(epoch, quantile);
         episodeRepo.markArchived(quantile);
         timestepRepo.markArchived();
         valueRepo.markArchived();
