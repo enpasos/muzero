@@ -23,10 +23,6 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
 
     @Transactional
-    @Query(value = "select v.timestep from ValueDO v where v.timestep.exploring = false and v.epoch = :epoch and v.timestep.episode.archived = false")
-    List<TimeStepDO> findNonExploringNonArchivedTimeStepWithAValueEntry(int epoch);
-
-    @Transactional
     @Modifying
     @Query(value = "insert into value (id, epoch, value, timestep_id, archived) values (nextval('value_seq'), :epoch, :value, :timestep_id,false);", nativeQuery = true )
     void myInsert(int epoch, double value, long timestep_id);
@@ -55,7 +51,6 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
     @Transactional
     @Modifying
- //   @Query(value = "update value set archived = (id in (select e.id from timestep e where e.archived = true))", nativeQuery = true )
     @Query(value = "update value v set archived = true from timestep t where v.archived = false and t.archived = true and v.timestep_id = t.id", nativeQuery = true )
     void markArchived(  );
 }

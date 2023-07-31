@@ -85,7 +85,7 @@ TemperatureCalculator temperatureCalculator;
      //   valueRepo.deleteValuesOfEpoch(epoch);
 
         List<Long>  episodeIds0 =  episodeRepo.findAllNonArchivedEpisodeIdsForAnEpoch(trainingEpoch);
-        List<Long> episodeIds = timestepRepo.findEpisodeIdsWithoutNonExploringValueForAnEpoch(epoch,episodeIds0);
+        List<Long> episodeIds = timestepRepo.findEpisodeIdsForAnEpoch(epoch,episodeIds0);
         if (episodeIds.isEmpty()) return;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
