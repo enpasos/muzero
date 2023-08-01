@@ -100,6 +100,8 @@ public class Play {
                             .hybrid2(true)
                             .build(),
                     gamesToPlay);
+            // now it is hybrid
+            games.forEach(g ->  g.getEpisodeDO().setHybrid(true));
         } else {
             games = playService.playNewGames(config.getNumParallelGamesPlayed(),
                 PlayParameters.builder()
