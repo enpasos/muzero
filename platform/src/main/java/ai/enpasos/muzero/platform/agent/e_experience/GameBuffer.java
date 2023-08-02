@@ -404,6 +404,11 @@ public class GameBuffer {
         List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
 
+        episodeDOList.stream().forEach(episodeDO -> {if (episodeDO.getId() == 678) {
+            log.info("found episodeDO.getId() == 678");
+        }});
+
+
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         Map<Long, Game> idGameMap =
                 games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));

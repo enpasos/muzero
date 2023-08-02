@@ -202,7 +202,7 @@ private boolean hybrid2;
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa) {
 
-        if (this.episodeDO.getId() == 23767) {
+        if (this.originalEpisodeDO != null &&  this.originalEpisodeDO.getId() == 678) {
             int i = 42;
         }
         int tdSteps = getTdSteps( currentIndex, kappa);

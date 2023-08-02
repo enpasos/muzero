@@ -71,7 +71,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
     @Transactional
-    @Query(value = "select min(e2.max_value_variance) from (select e.max_value_variance from episode e where e.value_count = :valueCount and e.archived = false group by e.max_value_variance order by e.max_value_variance desc  limit :n) e2", nativeQuery = true )
+   // @Query(value = "select min(e2.max_value_variance) from (select e.max_value_variance from episode e where e.value_count = :valueCount and e.archived = false group by e.max_value_variance order by e.max_value_variance desc  limit :n) e2", nativeQuery = true )
+    @Query(value = "select min(e3.max_value_variance) from (select e2.max_value_variance from (select e.max_value_variance from episode e where e.value_count = :valueCount and e.archived = false order by e.max_value_variance desc  limit :n) e2 group by e2.max_value_variance) e3", nativeQuery = true )
     Double findTopQuantileWithHighestVariance( int n, int valueCount);
 
 
