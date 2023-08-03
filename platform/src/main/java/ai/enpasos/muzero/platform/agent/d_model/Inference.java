@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -120,7 +121,7 @@ public class Inference {
         return values;
     }
 
-    public int[] aiDecisionForGames(List<Game> games, boolean withMCTS,  int epoch) {
+    public int[] aiDecisionForGames(Collection<Game> games, boolean withMCTS, int epoch) {
         try {
             modelService.loadLatestModel(epoch).get();
             return aiDecision(withMCTS, games).stream().mapToInt(Pair::getSecond).toArray();
@@ -198,7 +199,7 @@ public class Inference {
 
 
     @SuppressWarnings("java:S1135")
-    private List<Pair<Double, Integer>> aiDecision( boolean withMCTS, List<Game> gamesInput) {
+    private List<Pair<Double, Integer>> aiDecision( boolean withMCTS, Collection<Game> gamesInput) {
 
 
         List<Game> games = new ArrayList<>();
@@ -238,11 +239,14 @@ public class Inference {
                             double v = policyValues[i];
                             return new Pair<>(action, v);
                         }).collect(Collectors.toList());
-
-                Action action = selectActionByMaxFromDistribution(distributionInput);
-                actionIndexSelectedByNetwork = action.getIndex();
-                double aiValue = networkOutputList.get(g).getValue();
-                result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
+try {
+    Action action = selectActionByMaxFromDistribution(distributionInput);
+    actionIndexSelectedByNetwork = action.getIndex();
+    double aiValue = networkOutputList.get(g).getValue();
+    result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
+} catch (Exception e) {
+    e.printStackTrace();
+}
             }
 
         } else {

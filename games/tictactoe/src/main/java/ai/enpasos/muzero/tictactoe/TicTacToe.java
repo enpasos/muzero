@@ -31,6 +31,8 @@ public class TicTacToe implements CommandLineRunner {
 
     @Autowired
     private TicTacToeTestComponent test;
+    @Autowired
+    private TicTacToeExploitability exploitability;
 
 
     @Autowired
@@ -103,6 +105,9 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case TEST:
                 test.run();
+                break;
+            case EXPLOITABILITY:
+                exploitability.run();
                 break;
             case TESTNETWORKS:
                 testAllNetworks.run();

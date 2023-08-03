@@ -49,7 +49,7 @@ import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax
 @Slf4j
 public abstract class Game {
 
-
+   // protected int actionDecision;
     static List<Double> v0s = new ArrayList<>();
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include

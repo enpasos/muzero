@@ -35,7 +35,7 @@ public class EpisodeDO {
     long tStartNormal = -1;
 
 
-    boolean archived ;
+    boolean archived;
 
 
     int trainingEpoch;
@@ -215,6 +215,8 @@ public class EpisodeDO {
                 .map(timeStepDO -> timeStepDO.getAction()).collect(Collectors.toList());
     }
 
+
+
     public double getEntropyOfInitialState() {
         if (this.getTimeSteps().size() == 0) {
             return 0;
@@ -243,7 +245,6 @@ public class EpisodeDO {
         }
 
     }
-
 
 
 }
