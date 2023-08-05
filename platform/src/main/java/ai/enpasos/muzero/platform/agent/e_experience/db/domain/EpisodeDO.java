@@ -247,4 +247,7 @@ public class EpisodeDO {
     }
 
 
+    public int getAction() {
+        return this.getLastTimeStepWithAction().getAction();
+    }
 }

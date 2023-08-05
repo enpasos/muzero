@@ -142,4 +142,15 @@ public class Functions {
             i -> a[i] + b[i]
         ).toArray();
     }
+
+    public static double dotProduct(double[] a, double[] b) {
+        if (a.length != b.length) {
+            throw new MuZeroException("vectors in add operation should have the same length");
+        }
+        double prod = 0;
+        for(int i = 0; i< a.length ; i++) {
+            prod += a[i] * b[i];
+        }
+        return prod;
+    }
 }
