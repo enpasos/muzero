@@ -18,6 +18,8 @@
 package ai.enpasos.muzero.tictactoe.run.test;
 
 import ai.enpasos.muzero.platform.agent.d_model.Inference;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.PLAYOUT;
 
@@ -39,6 +42,10 @@ public class TicTacToeTest {
 
     @Autowired
     MuZeroConfig config;
+
+
+    @Autowired
+    ModelService modelService;
 
 
     @Autowired
@@ -59,6 +66,12 @@ public class TicTacToeTest {
     }
 
     public BadDecisions findBadDecisions(int epoch, GameTree gameTree, boolean onOptimalPathOnly) {
+
+        try {
+            modelService.loadLatestModel(epoch).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new MuZeroException(e);
+        }
         PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
         config.setPlayTypeKey(PLAYOUT);
 

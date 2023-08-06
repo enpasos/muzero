@@ -122,16 +122,7 @@ public class Inference {
     }
 
     public int[] aiDecisionForGames(Collection<Game> games, boolean withMCTS, int epoch) {
-        try {
-            modelService.loadLatestModel(epoch).get();
             return aiDecision(withMCTS, games).stream().mapToInt(Pair::getSecond).toArray();
-        } catch (ExecutionException e) {
-            throw new MuZeroException(e);
-        } catch (InterruptedException e) {
-            log.error("Interrupted", e);
-            Thread.interrupted();
-        }
-        return new int[] {};
     }
 
     public int aiDecision(List<Integer> actions, boolean withMCTS, String networkDir, DeviceType deviceType) {
@@ -199,7 +190,7 @@ public class Inference {
 
 
     @SuppressWarnings("java:S1135")
-    private List<Pair<Double, Integer>> aiDecision( boolean withMCTS, Collection<Game> gamesInput) {
+    private List<Pair<Double, Integer>> aiDecision(boolean withMCTS, Collection<Game> gamesInput) {
 
 
         List<Game> games = new ArrayList<>();
@@ -217,7 +208,7 @@ public class Inference {
         if (!withMCTS) {
             try {
                 networkOutputList = modelService.initialInference(games).get();
-            } catch (  ExecutionException e) {
+            } catch (ExecutionException e) {
                 throw new MuZeroException(e);
             } catch (InterruptedException e) {
                 log.error("Interrupted", e);
@@ -229,45 +220,42 @@ public class Inference {
                 List<Action> legalActions = game.legalActions();
                 float[] policyValues = Objects.requireNonNull(networkOutputList).get(g).getPolicyValues();
                 List<Pair<Action, Double>> distributionInput =
-                    IntStream.range(0, game.getConfig().getActionSpaceSize())
-                        .filter(i -> {
-                            Action action = game.getConfig().newAction(i);
-                            return legalActions.contains(action);
-                        })
-                        .mapToObj(i -> {
-                            Action action = game.getConfig().newAction(i);
-                            double v = policyValues[i];
-                            return new Pair<>(action, v);
-                        }).collect(Collectors.toList());
-try {
-    Action action = selectActionByMaxFromDistribution(distributionInput);
-    actionIndexSelectedByNetwork = action.getIndex();
-    double aiValue = networkOutputList.get(g).getValue();
-    result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
-} catch (Exception e) {
-    e.printStackTrace();
-}
+                        IntStream.range(0, game.getConfig().getActionSpaceSize())
+                                .filter(i -> {
+                                    Action action = game.getConfig().newAction(i);
+                                    return legalActions.contains(action);
+                                })
+                                .mapToObj(i -> {
+                                    Action action = game.getConfig().newAction(i);
+                                    double v = policyValues[i];
+                                    return new Pair<>(action, v);
+                                }).collect(Collectors.toList());
+
+                Action action = selectActionByMaxFromDistribution(distributionInput);
+                actionIndexSelectedByNetwork = action.getIndex();
+                double aiValue = networkOutputList.get(g).getValue();
+                result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
+
             }
 
         } else {
 
             playService.playGames(games,
-                PlayParameters.builder()
-                    .render(false)
-                    .fastRulesLearning(false)
-                    .justInitialInferencePolicy(false)
-                    .pRandomActionRawAverage(0)
-                    .untilEnd(false)
-                    .withGumbel(config.isWithGumbel())
-                    .replay(false)
-                    .build());
-
+                    PlayParameters.builder()
+                            .render(false)
+                            .fastRulesLearning(false)
+                            .justInitialInferencePolicy(false)
+                            .pRandomActionRawAverage(0)
+                            .untilEnd(false)
+                            .withGumbel(config.isWithGumbel())
+                            .replay(false)
+                            .build());
 
 
             games.stream().forEach(g -> {
                 EpisodeDO episodeDO = g.getEpisodeDO();
                 TimeStepDO timeStepDO = episodeDO.getLastTimeStepWithAction();
-                result.add(Pair.create((double)timeStepDO.getRootValueFromInitialInference(), timeStepDO.getAction() ));
+                result.add(Pair.create((double) timeStepDO.getRootValueFromInitialInference(), timeStepDO.getAction()));
             });
 
         }
@@ -275,5 +263,60 @@ try {
     }
 
 
+    @SuppressWarnings("java:S1135")
+    public List<float[]> policyValuesFromPlanning(boolean withMCTS, Collection<Game> gamesInput) {
+
+
+        List<Game> games = new ArrayList<>();
+        for (Game game : gamesInput) {
+            games.add(game.copy());
+        }
+
+        List<NetworkIO> networkOutputList = null;
+
+
+        int actionIndexSelectedByNetwork;
+
+        List<float[]> result = new ArrayList<>();
+
+        if (!withMCTS) {
+            try {
+                networkOutputList = modelService.initialInference(games).get();
+            } catch (ExecutionException e) {
+                throw new MuZeroException(e);
+            } catch (InterruptedException e) {
+                log.error("Interrupted", e);
+                Thread.interrupted();
+            }
+
+            for (int g = 0; g < games.size(); g++) {
+                Game game = games.get(g);
+                List<Action> legalActions = game.legalActions();
+                float[] policyValues = Objects.requireNonNull(networkOutputList).get(g).getPolicyValues();
+                result.add(policyValues);
+            }
+
+        } else {
+
+            playService.playGames(games,
+                    PlayParameters.builder()
+                            .render(false)
+                            .fastRulesLearning(false)
+                            .justInitialInferencePolicy(false)
+                            .pRandomActionRawAverage(0)
+                            .untilEnd(false)
+                            .withGumbel(config.isWithGumbel())
+                            .replay(false)
+                            .build());
+
+            games.stream().forEach(g -> {
+                EpisodeDO episodeDO = g.getEpisodeDO();
+                float[] policyValues = episodeDO.getLastTimeStepWithAction().getPolicyTarget();
+                result.add(policyValues);
+            });
+
+        }
+        return result;
+    }
 
 }
