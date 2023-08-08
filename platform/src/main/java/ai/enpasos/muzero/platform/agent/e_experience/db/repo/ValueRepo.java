@@ -51,6 +51,6 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update value v set archived = true from timestep t where v.archived = false and t.archived = true and v.timestep_id = t.id", nativeQuery = true )
+    @Query(value = "update value v set archived = t.archived from timestep t where v.timestep_id = t.id", nativeQuery = true )
     void markArchived(  );
 }

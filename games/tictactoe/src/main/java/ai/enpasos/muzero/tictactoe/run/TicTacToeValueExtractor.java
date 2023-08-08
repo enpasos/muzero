@@ -57,10 +57,10 @@ public class TicTacToeValueExtractor {
 
 
         // a double mistake game
-        int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
+      //  int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
        // int[] actions = {3, 8, 1, 4, 0, 7, 6};
      //   int[] actions = {2,1,0,6,3,7,4,5,8};
-       // int[] actions = {3,1,7,2,4,0};
+        int[] actions = {3,1,7,2,4,0};
         int start = 0;
         int stop =  networkIOService.getLatestNetworkEpoch();
 
