@@ -41,6 +41,10 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeTestAllNetworks testAllNetworks;
 
+
+    @Autowired
+    private TicTacToeTestAllNetworksExploitability testAllNetworksExploitability;
+
     @Autowired
     private MuZeroConfig conf;
     @Autowired
@@ -111,6 +115,10 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case TESTNETWORKS:
                 testAllNetworks.run();
+                break;
+
+            case TEST_NETWORKS_EXPLOITABILITY:
+                testAllNetworksExploitability.run();
                 break;
             case LOSS:
                 goLossExtractor.run();
