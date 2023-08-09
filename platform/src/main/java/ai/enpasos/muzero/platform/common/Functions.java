@@ -70,6 +70,34 @@ public class Functions {
         return result;
     }
 
+    public static double[] rescaleLogitsIfOutsideInterval(double[] raw, double maxScaleInterval) {
+
+        // double minScaleInterval = 0d;
+        double maxRaw = - Double.MAX_VALUE;
+        double minRaw = Double.MAX_VALUE;
+        for (int i = 0; i < raw.length; i++) {
+            if (Double.isInfinite(raw[i])) continue;
+            if (raw[i] > maxRaw) {
+                maxRaw = raw[i];
+            }
+            if (raw[i] < minRaw) {
+                minRaw = raw[i];
+            }
+        }
+        double maxInterval = maxRaw - minRaw;
+
+        if (maxInterval <= maxScaleInterval) return raw;
+
+        double scale =   maxScaleInterval / maxInterval;
+        double[] rescaled = new double[raw.length];
+        for (int i = 0; i < raw.length; i++) {
+            rescaled[i] = (raw[i] == Double.NEGATIVE_INFINITY) ? Double.NEGATIVE_INFINITY : (raw[i] - minRaw) * scale  ;
+        }
+        return rescaled;
+
+    }
+
+
     public static double[] toDouble(float[] ps) {
         return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
     }

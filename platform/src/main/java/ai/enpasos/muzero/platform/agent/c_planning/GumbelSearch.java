@@ -12,20 +12,14 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.drawActions;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.c_planning.SequentialHalving.initGumbelInfo;
-import static ai.enpasos.muzero.platform.common.Functions.draw;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
-import static ai.enpasos.muzero.platform.common.Functions.toFloat;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
@@ -386,18 +380,18 @@ public class GumbelSearch {
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
-                    action = getAction(temperature, raw, game, timeStepDO);
+                    action = getAction(temperature, raw, game, timeStepDO, true);
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
                     timeStepDO.setPlayoutPolicy(toFloat(softmax(raw, 1d)));
                     action = selectedAction;
                 } else {
-                    action = getAction(1d, raw, game, timeStepDO);
+                    action = getAction(1d, raw, game, timeStepDO, false);
                 }
             }
         } else {
-            action = getAction(temperature, raw, game, timeStepDO);
+            action = getAction(temperature, raw, game, timeStepDO, false);
         }
         return action;
 
@@ -405,14 +399,27 @@ public class GumbelSearch {
 
 
 
-    private Action getAction(double temperature, double[] raw, Game game,  TimeStepDO timeStepDO) {
+    private Action getAction(double temperature, double[] raw, Game game,  TimeStepDO timeStepDO, boolean isExplorationTime) {
         Action action;
-        double[] p = softmax(raw, temperature);
+        // double[] p = softmax(raw, temperature);
+
+        double[] p = null;
+        if (isExplorationTime) {
+            // try a different exploration scheme that
+            // rescales the logits to a given interval
+             p = softmax(rescaleLogitsIfOutsideInterval(raw, 3.0), temperature);
+// the normal way
+        //    p = softmax(raw, temperature);
+        } else {
+            p = softmax(raw, temperature);
+        }
+
         timeStepDO.setPlayoutPolicy(toFloat(p));
         int i = draw(p);
         action = config.newAction(i);
         return action;
     }
+
 
 
 

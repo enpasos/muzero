@@ -370,10 +370,10 @@ public class GameBuffer {
         return meanValuesLosses.values().stream().max(Double::compare).orElse(0.0);
     }
 
-    public double getDynamicRootTemperature() {
-        return config.getTemperatureRoot();
-
-    }
+//    public double getDynamicRootTemperature() {
+//        return config.getTemperatureRoot();
+//
+//    }
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
