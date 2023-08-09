@@ -15,6 +15,8 @@ class FunctionsTest {
         return softmax1;
     }
 
+
+
     @Test
     void numpyRandomDirichlet() {
         double alpha = 3d;
@@ -37,6 +39,13 @@ class FunctionsTest {
         System.out.println(Arrays.toString(sm(raw, 1)));
         System.out.println(Arrays.toString(sm(raw, 2)));
         System.out.println(Arrays.toString(sm(raw, 5)));
+    }
+
+    @Test
+    void softmax2() {
+        double[] raw = {1d,  7d};
+        System.out.println(Arrays.toString(raw));
+        System.out.println(Arrays.toString(sm(raw, 1)));
     }
 
     @Test

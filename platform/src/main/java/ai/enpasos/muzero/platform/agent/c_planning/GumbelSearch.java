@@ -407,7 +407,9 @@ public class GumbelSearch {
         if (isExplorationTime) {
             // try a different exploration scheme that
             // rescales the logits to a given interval
-             p = softmax(rescaleLogitsIfOutsideInterval(raw, 3.0), temperature);
+
+
+             p = softmax(rescaleLogitsIfOutsideInterval(raw, 6.0),temperature);
 // the normal way
         //    p = softmax(raw, temperature);
         } else {
