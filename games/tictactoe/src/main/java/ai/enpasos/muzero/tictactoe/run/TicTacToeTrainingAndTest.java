@@ -35,11 +35,11 @@ public class TicTacToeTrainingAndTest {
 
         // TODO separate model and memory from scratch
 
-        boolean deleteModel = false;
-
-        if (deleteModel) {
-            rmDir(config.getOutputDir());
-        }
+//        boolean deleteModel = false;
+//
+//        if (deleteModel) {
+//            rmDir(config.getOutputDir());
+//        }
 
         try {
             muZero.train(TrainParams.builder()

@@ -94,7 +94,32 @@ public class Functions {
             rescaled[i] = (raw[i] == Double.NEGATIVE_INFINITY) ? Double.NEGATIVE_INFINITY : (raw[i] - minRaw) * scale  ;
         }
         return rescaled;
+    }
 
+
+    public static float[] rescaleLogitsIfOutsideIntervalFloat(float[] raw, double maxScaleInterval) {
+
+        // double minScaleInterval = 0d;
+        double maxRaw = - Float.MAX_VALUE;
+        double minRaw = Float.MAX_VALUE;
+        for (int i = 0; i < raw.length; i++) {
+            if (Float.isInfinite(raw[i])) continue;
+            if (raw[i] > maxRaw) {
+                maxRaw = raw[i];
+            }
+            if (raw[i] < minRaw) {
+                minRaw = raw[i];
+            }
+        }
+        double maxInterval = maxRaw - minRaw;
+
+        if (maxInterval <= maxScaleInterval) return raw;
+double scale =   maxScaleInterval / maxInterval;
+        float[] rescaled = new float[raw.length];
+        for (int i = 0; i < raw.length; i++) {
+            rescaled[i] = (raw[i] == Float.NEGATIVE_INFINITY) ? Float.NEGATIVE_INFINITY : (float)((raw[i] - minRaw) * scale)  ;
+        }
+        return rescaled;
     }
 
 

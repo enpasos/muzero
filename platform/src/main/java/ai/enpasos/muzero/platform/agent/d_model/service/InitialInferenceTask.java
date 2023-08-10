@@ -5,8 +5,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import lombok.ToString;
 
 @ToString
-//@Setter
-//@Getter
+
 public class InitialInferenceTask {
     public InitialInferenceTask(Game game) {
         this.game = game;

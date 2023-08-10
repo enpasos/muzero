@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
 
@@ -216,7 +217,9 @@ private boolean hybrid2;
         //    target.setEntropyValue((float) entropyValue);
             target.setValue((float) value);
             target.setReward(reward);
-            target.setPolicy(this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget());
+            float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
+           float[] pt2 = toFloat(softmax(rescaleLogitsIfOutsideInterval(ln(toDouble(pt)), 6.0)));
+            target.setPolicy(pt2);
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)

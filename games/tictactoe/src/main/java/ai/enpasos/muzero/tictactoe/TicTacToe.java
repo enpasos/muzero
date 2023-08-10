@@ -16,6 +16,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
+
 @SpringBootApplication
 @Slf4j
 @ComponentScan(basePackages = "ai.enpasos.muzero.*")
@@ -66,6 +68,8 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeEntropyValueExtractor entropyValueExtractor;
 
+    @Autowired
+    private MuZeroConfig config;
 
     @Autowired
     private TicTacToeFillValueTable fillValueTable;
@@ -126,8 +130,11 @@ public class TicTacToe implements CommandLineRunner {
             case TEST_NETWORKS_EXPLOITABILITY:
                 testAllNetworksExploitability.run();
                 break;
-            case CLEAR_DB:
+            case RM_EXPERIENCES:
                 dbService.clearDB();
+                break;
+            case RM_MODELS:
+                rmDir(config.getOutputDir());
                 break;
             case LOSS:
                 goLossExtractor.run();
