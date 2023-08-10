@@ -2,6 +2,7 @@ package ai.enpasos.muzero.tictactoe;
 
 
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
@@ -28,6 +29,11 @@ public class TicTacToe implements CommandLineRunner {
 
     @Autowired
     private TicTacToePolicyOnly policyOnly;
+
+
+
+    @Autowired
+    private DBService dbService;
 
     @Autowired
     private TicTacToeTestComponent test;
@@ -119,6 +125,9 @@ public class TicTacToe implements CommandLineRunner {
 
             case TEST_NETWORKS_EXPLOITABILITY:
                 testAllNetworksExploitability.run();
+                break;
+            case CLEAR_DB:
+                dbService.clearDB();
                 break;
             case LOSS:
                 goLossExtractor.run();

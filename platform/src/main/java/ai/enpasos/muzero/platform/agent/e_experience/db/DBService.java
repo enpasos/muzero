@@ -37,6 +37,16 @@ public class DBService {
     @Autowired
     MuZeroConfig config;
 
+
+    public void clearDB() {
+        episodeRepo.dropTable();
+        episodeRepo.dropSequence();
+        timestepRepo.dropTable();
+        timestepRepo.dropSequence();
+        valueRepo.dropTable();
+        valueRepo.dropSequence();
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<EpisodeDO> saveEpisodesAndCommit(List<EpisodeDO> episodes) {
 

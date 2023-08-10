@@ -53,4 +53,15 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
     @Modifying
     @Query(value = "update value v set archived = t.archived from timestep t where v.timestep_id = t.id", nativeQuery = true )
     void markArchived(  );
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "DROP TABLE IF EXISTS value CASCADE", nativeQuery = true )
+    void dropTable();
+
+    @Transactional
+    @Modifying
+    @Query(value = "DROP SEQUENCE IF EXISTS value_seq CASCADE", nativeQuery = true )
+    void dropSequence();
 }

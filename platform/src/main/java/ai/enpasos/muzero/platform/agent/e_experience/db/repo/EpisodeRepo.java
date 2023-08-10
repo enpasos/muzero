@@ -80,4 +80,15 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e.id, e.t_of_max_value_variance from episode e where e.archived = false order by e.max_value_variance desc limit :nGamesNeeded", nativeQuery = true)
    // @Query(value = "select e.id, e.t_of_max_value_variance from episode e where e.archived = false order by random() limit :nGamesNeeded", nativeQuery = true)
     List<Tuple> findEpisodeIdsWithHighValueVariance(int nGamesNeeded);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "DROP TABLE IF EXISTS episode  CASCADE", nativeQuery = true )
+    void dropTable();
+
+    @Transactional
+    @Modifying
+    @Query(value = "DROP SEQUENCE IF EXISTS episode_seq CASCADE", nativeQuery = true )
+    void dropSequence();
 }
