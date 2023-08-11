@@ -81,7 +81,7 @@ public class GameBuffer {
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
-        int gamePos = samplePosition(game);
+        int gamePos = samplePosition(game, config );
         Sample sample = null;
         long count = 0;
         do {
@@ -100,12 +100,8 @@ public class GameBuffer {
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
-      //  ObservationModelInput observation = null;
-       // try {
+
         ObservationModelInput     observation = game.getObservationModelInput(gamePos);
-//        } catch (Exception e) {
-//            int i = 42;
-//        }
 
         sample.getObservations().add(observation);
         List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
@@ -136,12 +132,16 @@ public class GameBuffer {
         return sample;
     }
 
-    public static int samplePosition(@NotNull Game game) {
-//        int t0 = game.getFirstSamplePosition();
-        int t0 = 0;
+    public static int samplePosition(@NotNull Game game, MuZeroConfig config ) {
+
+        // TODO check if ofset is correct
         int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
-//        // TODO tHybrid should be not larger than lastActionTime ... next line is a workaround
-//         t0 = Math.min(t0, tmax);
+        int t0 = 0;
+        if (game.isReanalyse()) {
+           int replayTimestepsFromEnd =  config.getReplayTimestepsFromEnd();
+           t0 = Math.max(0, tmax - replayTimestepsFromEnd);
+        }
+
         return ThreadLocalRandom.current().nextInt(t0, tmax + 1);
     }
 
@@ -380,7 +380,6 @@ public class GameBuffer {
 
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-
 
         return games;
     }

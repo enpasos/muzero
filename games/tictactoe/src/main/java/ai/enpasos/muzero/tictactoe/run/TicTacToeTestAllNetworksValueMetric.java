@@ -47,7 +47,7 @@ public class TicTacToeTestAllNetworksValueMetric {
 
         int start = 300;
         int stop = 300;
-        boolean leafsOnly = false;
+        boolean leafsOnly = true;
 
 
        // config.setOutputDir("./memory/tictactoe-without-exploration/");

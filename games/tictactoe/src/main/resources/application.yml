@@ -105,6 +105,7 @@ muzero:
       entropyValueLossWeight: 0.5          # obsolete?
 
 
+      replayTimestepsFromEnd: 3
 
       playTypes:
         PLAYOUT:
@@ -152,15 +153,15 @@ muzero:
 #          gumbelActionSelection: true
 
 
-#        REANALYSE:
-#          forTraining: true
-#          numParallelGamesPlayed: 1000
-#          tdSteps: 9
-#          numSimulations: 20
-#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
-#          # dirichlet noise is added before mcts
-#          rootDirichletAlpha: 1.2
-#          rootExplorationFraction: 0.25  # 0.0 means switched off
+        REANALYSE:
+          forTraining: true
+          numParallelGamesPlayed: 10000
+          tdSteps: 9
+          numSimulations: 20
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 1.2
+          rootExplorationFraction: 0.25  # 0.0 means switched off
 #        BEST_EFFORT:
 #          forTraining: true
 #          numParallelGamesPlayed: 1000

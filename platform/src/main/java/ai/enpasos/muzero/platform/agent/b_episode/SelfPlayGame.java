@@ -35,9 +35,15 @@ public class SelfPlayGame {
 
 
         int count = 1;
+        int numOfActions = 0;
+        int countMax = 0;
+        if ( playParameters.isReplay()) {
+            numOfActions = game.getOriginalEpisodeDO().getLastTimeWithAction() + 1;
+            countMax = config.getReplayTimestepsFromEnd();
+        }
         while (untilEnd &&  playParameters.isReplay() ?
 
-                playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
+                playParameters.isReplay() && count <= numOfActions && count <= countMax
  //               && (!game.getEpisodeDO().isHybrid()
                         //||
 //                        (game.getEpisodeDO().getTStartNormal() <= game.getEpisodeDO().getLastTimeWithAction() + 1

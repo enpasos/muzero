@@ -230,6 +230,9 @@ public class MuZeroConfig {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getTdSteps();
     }
 
+
+
+
     public float getDiscount() {
         return getConf().discount;
     }
@@ -267,6 +270,10 @@ public class MuZeroConfig {
     public int getBoardHeight() {
         return getConf().boardHeight;
     }
+    public int getReplayTimestepsFromEnd() {
+        return getConf().replayTimestepsFromEnd;
+    }
+
 
     public int getBoardWidth() {
         return getConf().boardWidth;
@@ -543,6 +550,7 @@ public class MuZeroConfig {
         boolean allOrNothingOn;
 
         double kMinLimit;
+        protected int replayTimestepsFromEnd;
 
 
         boolean withEntropyValuePrediction;
@@ -567,6 +575,7 @@ public class MuZeroConfig {
             protected int tdSteps;
             protected int numSimulations;
             protected int numSimulationsHybrid;
+
             protected double rootDirichletAlpha;
             protected double rootExplorationFraction;
             double temperatureRoot = 1.0;
