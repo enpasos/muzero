@@ -190,7 +190,7 @@ public class Inference {
 
 
     @SuppressWarnings("java:S1135")
-    private List<Pair<Double, Integer>> aiDecision(boolean withMCTS, Collection<Game> gamesInput) {
+    public List<Pair<Double, Integer>> aiDecision(boolean withMCTS, Collection<Game> gamesInput) {
 
 
         List<Game> games = new ArrayList<>();
@@ -201,7 +201,7 @@ public class Inference {
         List<NetworkIO> networkOutputList = null;
 
 
-        int actionIndexSelectedByNetwork;
+        int actionIndexSelectedByNetwork = -1;
 
         List<Pair<Double, Integer>> result = new ArrayList<>();
 
@@ -230,9 +230,10 @@ public class Inference {
                                     double v = policyValues[i];
                                     return new Pair<>(action, v);
                                 }).collect(Collectors.toList());
-
-                Action action = selectActionByMaxFromDistribution(distributionInput);
-                actionIndexSelectedByNetwork = action.getIndex();
+                if (legalActions.size() > 0) {
+                    Action action = selectActionByMaxFromDistribution(distributionInput);
+                    actionIndexSelectedByNetwork = action.getIndex();
+                }
                 double aiValue = networkOutputList.get(g).getValue();
                 result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
 

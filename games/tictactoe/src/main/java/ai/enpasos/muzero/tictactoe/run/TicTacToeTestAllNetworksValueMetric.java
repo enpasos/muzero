@@ -17,52 +17,56 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
+import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.tictactoe.run.test.BadDecisions;
-import ai.enpasos.muzero.tictactoe.run.test.GameTree;
-import ai.enpasos.muzero.tictactoe.run.test.TicTacToeTest;
+import ai.enpasos.muzero.tictactoe.run.exploitability.GameTree;
+import ai.enpasos.muzero.tictactoe.run.exploitability.TicTacToeTestExploitability;
+import ai.enpasos.muzero.tictactoe.run.exploitability.TicTacToeTestValueMetric;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.NumberFormat;
 import java.util.Map;
 import java.util.TreeMap;
 
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class TicTacToeTestAllNetworks {
+public class TicTacToeTestAllNetworksValueMetric {
     @Autowired
     MuZeroConfig config;
 
     @Autowired
-    TicTacToeTest test;
+    TicTacToeTestValueMetric test;
 
 
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
 
-        int start = 300; // 288;
-        int stop = 328; // 288;
+        int start = 300;
+        int stop = 300;
+        boolean leafsOnly = false;
 
-        boolean onOptimalPathOnly = false;
 
        // config.setOutputDir("./memory/tictactoe-without-exploration/");
         //config.setOutputDir("./memory/tictactoe-with-exploration/");
 
-        Map<Integer, BadDecisions> map = new TreeMap<>();
+        Map<Integer, Double> map = new TreeMap<>();
         GameTree gameTree = test.prepareGameTree();
 
         for (int epoch = start; epoch <= stop; epoch++) {
-            map.put(epoch, test.findBadDecisions(epoch, gameTree, onOptimalPathOnly));
+            System.out.println("epoch: " + epoch);
+            map.put(epoch, test.valueMetric(epoch, gameTree, leafsOnly));
         }
 
-
-        System.out.println("epoch;total;withoutMCTS;withMCTS");
-        for (Map.Entry<Integer, BadDecisions> entry : map.entrySet()) {
-            BadDecisions bd = entry.getValue();
-            System.out.println(entry.getKey() + ";" + bd.total() + ";" + bd.getModelBased() + ";" + bd.getPlanningBased());
+        NumberFormat nf= NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(0);
+        System.out.println("epoch;valueMetric");
+        for (Map.Entry<Integer,  Double> entry : map.entrySet()) {
+            double result = entry.getValue();
+            System.out.println(entry.getKey() + ";" + nf.format(result));
         }
 
 
