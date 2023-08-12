@@ -288,10 +288,8 @@ public class GameBuffer {
                     .collect(Collectors.toList());
 
 
-           gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
-
+            gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
             List<EpisodeDO> episodes  = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
-
             dbService.saveEpisodesAndCommit(episodes);
         }
 

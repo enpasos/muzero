@@ -45,8 +45,8 @@ public class TicTacToeTestAllNetworksValueMetric {
     public void run() {
 
 
-        int start = 414;
-        int stop = 417;
+        int start =  102;
+        int stop = 102;
         boolean leafsOnly = true;
 
 
