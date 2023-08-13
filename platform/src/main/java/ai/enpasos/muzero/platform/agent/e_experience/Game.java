@@ -216,11 +216,8 @@ private boolean hybrid2;
             target.setValue((float) value);
             target.setReward(reward);
             float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
-            if (pt == null) {
-                int i = 42;
-            }
-           float[] pt2 = toFloat(softmax(rescaleLogitsIfOutsideInterval(ln(toDouble(pt)), 6.0)));
-            target.setPolicy(pt2);
+            //float[] pt2 = toFloat(softmax(rescaleLogitsIfOutsideInterval(ln(toDouble(pt)), 5.0)));
+            target.setPolicy(pt);
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
