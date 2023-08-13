@@ -95,7 +95,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
                 return NetworkIO.builder()
                     .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
-                    .entropyValue(withEntropyValuePrediction ? vEntropyArrayFinal[i] : 0f)
+                    .didit(withEntropyValuePrediction ? vEntropyArrayFinal[i] : 0f)
                     .policyValues(ps)
                     .logits(logits2)
                     .build();

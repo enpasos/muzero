@@ -299,7 +299,7 @@ public class GumbelSearch {
 
     public void backpropagate(NetworkIO networkOutput,  double discount) {
         double value = networkOutput.getValue();
-        double entropyValue = networkOutput.getEntropyValue();
+        double entropyValue = networkOutput.getDidit();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();

@@ -72,7 +72,7 @@ public final class MyEasyTrain {
         }
     }
 
-    static boolean withEntropyValuePrediction;
+    static boolean withDiditPrediction;
 
     /**
      * Trains the model with one iteration of the given {@link Batch} of data.
@@ -81,9 +81,9 @@ public final class MyEasyTrain {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static void trainBatch(Trainer trainer, Batch batch, boolean withEntropyValuePrediction) {
+    public static void trainBatch(Trainer trainer, Batch batch, boolean withDiditPrediction) {
 
-        MyEasyTrain.withEntropyValuePrediction =  withEntropyValuePrediction;
+        MyEasyTrain.withDiditPrediction =  withDiditPrediction;
         if (trainer.getManager().getEngine() != batch.getManager().getEngine()) {
             throw new IllegalArgumentException(
                 "The data must be on the same engine as the trainer. You may need to change one"
@@ -142,13 +142,13 @@ public final class MyEasyTrain {
 
 
         IntStream.range(0, numRolloutSteps).forEach(i -> {
-                    int extra = withEntropyValuePrediction ? 1 : 0;
+                    int extra = withDiditPrediction ? 1 : 0;
                     input.getRight().add(4 + 2 * extra + (3 + extra) * i, input.getLeft().get(5 + 2 * extra + (4 + extra) * i));
                     //   input.getRight().add(6 + 4 * i, input.getLeft().get(7 + 5 * i))
                 }
         );
         IntStream.range(0, numRolloutSteps).forEach(i -> {
-                    int extra = withEntropyValuePrediction ? 1 : 0;
+                    int extra = withDiditPrediction ? 1 : 0;
                     input.getLeft().remove(5 + 2 * extra + (3 + extra) * i);
                 }
         );

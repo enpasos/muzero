@@ -173,8 +173,8 @@ public class InputOutputConstruction {
                 valueArray[b] = (float) (target.getValue() * scale);
 
                 if ( withEntropyValuePrediction) {
-                    log.trace("entropyvaluetarget: {}", target.getEntropyValue());
-                    entropyValueArray[b] =  target.getEntropyValue();
+                    log.trace("entropyvaluetarget: {}", target.getDidit());
+                    entropyValueArray[b] =  target.getDidit();
                 }
 try {
     System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);

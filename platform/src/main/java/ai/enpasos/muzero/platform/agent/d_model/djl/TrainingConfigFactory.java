@@ -19,7 +19,7 @@ public class TrainingConfigFactory {
 
 
     public static final String LOSS_VALUE = "loss_value_";
-    public static final String ENTROPY_LOSS_VALUE = "entropy_loss_value_";
+    public static final String DIDIT_LOSS = "didit_loss_";
     public static final String LOSS_SIMILARITY = "loss_similarity_";
     @Autowired
     MuZeroConfig config;
@@ -57,10 +57,10 @@ public class TrainingConfigFactory {
         k++;
 
 
-        // entropyValue
-        if (config.isWithEntropyValuePrediction()) {
-            log.trace("k={}: EntropyValue L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + 0, config.getEntropyValueLossWeight()), k));
+        // didit
+        if (config.isWithDiditPrediction()) {
+            log.trace("k={}: Didit L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(DIDIT_LOSS + 0, config.getDiditLossWeight()), k));
             k++;
         }
 
@@ -75,10 +75,10 @@ public class TrainingConfigFactory {
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             k++;
 
-            // entropyValue
-            if (config.isWithEntropyValuePrediction()) {
-                log.trace("k={}: EntropyValue L2Loss", k);
-                loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + i, config.getEntropyValueLossWeight() * gradientScale), k));
+            // didit
+            if (config.isWithDiditPrediction()) {
+                log.trace("k={}: Didit L2Loss", k);
+                loss.addLoss(new MyIndexLoss(new MyL2Loss(DIDIT_LOSS + i, config.getDiditLossWeight() * gradientScale), k));
                 k++;
             }
 

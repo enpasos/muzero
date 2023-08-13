@@ -207,18 +207,16 @@ private boolean hybrid2;
         int tdSteps = getTdSteps( currentIndex, kappa);
 
         double value = calculateValue(tdSteps, currentIndex);
-
+        double didit = calculateDidit(currentIndex);
         float reward = getReward(currentIndex);
 
 
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
-
+            target.setDidit((float) didit);
             target.setValue((float) value);
             target.setReward(reward);
             float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
-            if (pt == null) {
-                int i = 42;
-            }
+
            float[] pt2 = toFloat(softmax(rescaleLogitsIfOutsideInterval(ln(toDouble(pt)), 6.0)));
             target.setPolicy(pt2);
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
@@ -231,14 +229,14 @@ private boolean hybrid2;
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-
+            target.setDidit((float) didit);
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-
+            target.setDidit((float) didit);
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
@@ -276,7 +274,12 @@ private boolean hybrid2;
         return value;
     }
 
-    private double calculateEntropyValue(int tdSteps, int currentIndex) {
+    private double calculateDidit( int currentIndex) {
+
+        TimeStepDO currentTimeStep = this.getEpisodeDO().getTimeStep(currentIndex);
+        currentTimeStep.
+
+
         double value = getBootstrapEntropyValue(currentIndex, tdSteps);
         value = addEntropyValueFromReward(currentIndex, tdSteps, value);
         return value;

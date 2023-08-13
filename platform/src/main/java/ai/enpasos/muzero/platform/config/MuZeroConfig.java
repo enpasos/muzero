@@ -4,7 +4,6 @@ import ai.djl.Device;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.KnownBounds;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -149,8 +148,8 @@ public class MuZeroConfig {
         return getConf().offPolicyCorrectionOn;
     }
 
-    public boolean isWithEntropyValuePrediction() {
-        return getConf().withEntropyValuePrediction;
+    public boolean isWithDiditPrediction() {
+        return getConf().withDiditPrediction;
     }
 
     public boolean allOrNothingOn() {
@@ -250,8 +249,8 @@ public class MuZeroConfig {
         return getConf().valueLossWeight;
     }
 
-    public float getEntropyValueLossWeight() {
-        return getConf().entropyValueLossWeight;
+    public float getDiditLossWeight() {
+        return getConf().diditLossWeight;
     }
 
     public float getLrInit() {
@@ -521,7 +520,7 @@ public class MuZeroConfig {
         protected float komi;
         protected float weightDecay;
         protected float valueLossWeight;
-        protected float entropyValueLossWeight;
+        protected float diditLossWeight;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -553,7 +552,7 @@ public class MuZeroConfig {
         protected int replayTimestepsFromEnd;
 
 
-        boolean withEntropyValuePrediction;
+        boolean withDiditPrediction;
         double offPolicyRatioLimit;
 
         double entropyContributionToReward;

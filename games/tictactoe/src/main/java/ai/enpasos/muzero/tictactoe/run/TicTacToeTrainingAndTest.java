@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.tictactoe.run;
 
 
+import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.common.FileUtils.rmDir;
 
@@ -40,6 +42,8 @@ public class TicTacToeTrainingAndTest {
 
     @Autowired
     private MuZeroLoop muZero;
+    @Autowired
+    private Play play;
 
 
     @SuppressWarnings({"java:S2583", "java:S2589"})
@@ -55,7 +59,13 @@ public class TicTacToeTrainingAndTest {
 //        }
 
 
-        saveGamesWithAllRewardSituationsAsAdditionalExperience();
+      //  saveGamesWithAllRewardSituationsAsAdditionalExperience();
+
+
+        IntStream.range(0, 100).forEach( i ->
+                play.playMultipleEpisodes(false, true)
+        );
+
 
         try {
             muZero.train(TrainParams.builder()

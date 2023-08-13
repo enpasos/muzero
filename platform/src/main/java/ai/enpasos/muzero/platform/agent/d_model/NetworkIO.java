@@ -42,7 +42,7 @@ public class NetworkIO {
     private float[] valueDistribution;
     private double value;
 
-    private double entropyValue;
+    private double didit;
 
     private double reward;
 

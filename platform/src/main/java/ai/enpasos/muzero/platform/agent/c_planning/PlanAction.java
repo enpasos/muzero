@@ -46,7 +46,7 @@ public class PlanAction {
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
         root.setValueFromInference(value);
-        double entropyValue = networkOutput.getEntropyValue();
+        double entropyValue = networkOutput.getDidit();
         root.setEntropyValueFromInference(entropyValue);
 
 

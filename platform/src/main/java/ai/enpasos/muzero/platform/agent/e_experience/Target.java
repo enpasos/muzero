@@ -22,7 +22,7 @@ import lombok.Data;
 @Data
 public class Target {
     private float value;
-    private float entropyValue;
+    private float didit;
     private float reward;
     private float[] policy;
 }
