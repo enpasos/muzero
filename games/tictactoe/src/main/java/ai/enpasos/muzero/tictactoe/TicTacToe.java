@@ -141,6 +141,10 @@ public class TicTacToe implements CommandLineRunner {
             case RM_MODELS:
                 rmDir(config.getOutputDir());
                 break;
+            case RM_ALL:
+                dbService.clearDB();
+                rmDir(config.getOutputDir());
+                break;
             case LOSS:
                 goLossExtractor.run();
                 break;

@@ -134,7 +134,7 @@ public class GameBuffer {
 
     public static int samplePosition(@NotNull Game game, MuZeroConfig config ) {
 
-        // TODO check if ofset is correct
+        // TODO check if offset is correct
         int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
         int t0 = 0;
         if (game.isReanalyse()) {
@@ -378,7 +378,7 @@ public class GameBuffer {
 
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-
+        games.forEach(game -> game.setReanalyse(true));
         return games;
     }
 

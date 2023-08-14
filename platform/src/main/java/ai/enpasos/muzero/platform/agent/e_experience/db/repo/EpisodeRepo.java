@@ -24,7 +24,7 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<Integer> findEpochs();
 
     @Transactional
-    @Query(value = "select e from EpisodeDO e JOIN FETCH e.timeSteps t where e.id in :ids ORDER BY e.id DESC, t.t ASC")
+    @Query(value = "select e from EpisodeDO e  JOIN FETCH e.timeSteps t where e.id in :ids ORDER BY e.id DESC, t.t ASC")
     List<EpisodeDO> findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List<Long> ids);
 
 

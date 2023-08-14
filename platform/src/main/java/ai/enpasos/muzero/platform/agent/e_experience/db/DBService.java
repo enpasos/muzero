@@ -47,9 +47,8 @@ public class DBService {
         valueRepo.dropSequence();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<EpisodeDO> saveEpisodesAndCommit(List<EpisodeDO> episodes) {
-
         episodes.stream().filter(EpisodeDO::isHybrid).forEach(episodeDO -> {
            long t = episodeDO.getTStartNormal();
             for (TimeStepDO timeStep : episodeDO.getTimeSteps()) {

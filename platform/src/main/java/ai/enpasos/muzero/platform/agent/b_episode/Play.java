@@ -84,13 +84,17 @@ public class Play {
         List<Game> games;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             List<Game> gamesToReanalyse = gameBuffer.getGamesToReanalyse();
-            games = playService.reanalyseGames(config.getNumParallelGamesPlayed(),
-                PlayParameters.builder()
-                    .render(render)
-                    .fastRulesLearning(fastRuleLearning)
-                    .replay(true)
-                    .build(),
-                gamesToReanalyse);
+            if (config.getReplayTimestepsFromEnd() > 0) {
+                games = playService.reanalyseGames(config.getNumParallelGamesPlayed(),
+                        PlayParameters.builder()
+                                .render(render)
+                                .fastRulesLearning(fastRuleLearning)
+                                .replay(true)
+                                .build(),
+                        gamesToReanalyse);
+            } else {
+                games = gamesToReanalyse;
+            }
         } else if (config.getPlayTypeKey() == PlayTypeKey.HYBRID2) {
             List<Game> gamesToPlay = gameBuffer.getGamesWithHighestTemperatureTimesteps();
             games = playService.hybrid2Games(config.getNumParallelGamesPlayed(),

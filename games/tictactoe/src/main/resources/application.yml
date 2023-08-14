@@ -105,7 +105,7 @@ muzero:
       entropyValueLossWeight: 0.5          # obsolete?
 
 
-      replayTimestepsFromEnd: 3
+      replayTimestepsFromEnd: 0
 
       playTypes:
         PLAYOUT:
@@ -151,6 +151,7 @@ muzero:
 #          # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
 #          # temperatureRoot: 5.0
 #          gumbelActionSelection: true
+
 
         REANALYSE:
           forTraining: true

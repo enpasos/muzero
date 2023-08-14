@@ -55,7 +55,7 @@ public class TicTacToeTrainingAndTest {
 //        }
 
 
-        saveGamesWithAllRewardSituationsAsAdditionalExperience();
+      //  saveGamesWithAllRewardSituationsAsAdditionalExperience();
 
         try {
             muZero.train(TrainParams.builder()
@@ -72,15 +72,15 @@ public class TicTacToeTrainingAndTest {
         log.info(message);
     }
 
-    private void saveGamesWithAllRewardSituationsAsAdditionalExperience() {
-        List<Game> gamesToLearnRewards = test.getGamesForLeafNodes();
-        gamesToLearnRewards.forEach(g -> {
-            g.getEpisodeDO().setNetworkName("toLearnRewards");
-            g.getEpisodeDO().getTimeSteps().forEach(ts -> ts.setEpisode(null));
-        });
-        List<EpisodeDO> episodes  = gamesToLearnRewards.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
-        dbService.saveEpisodesAndCommit(episodes);
-    }
+//    private void saveGamesWithAllRewardSituationsAsAdditionalExperience() {
+//        List<Game> gamesToLearnRewards = test.getGamesForLeafNodes();
+//        gamesToLearnRewards.forEach(g -> {
+//            g.getEpisodeDO().setNetworkName("toLearnRewards");
+//            g.getEpisodeDO().getTimeSteps().forEach(ts -> ts.setEpisode(null));
+//        });
+//        List<EpisodeDO> episodes  = gamesToLearnRewards.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
+//        dbService.saveEpisodesAndCommit(episodes);
+//    }
 
 
 }

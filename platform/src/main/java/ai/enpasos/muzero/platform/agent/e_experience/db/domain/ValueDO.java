@@ -13,6 +13,7 @@ import lombok.*;
 public class ValueDO {
 
     @ManyToOne
+  //  @JoinColumn(nullable=false)
     TimeStepDO timestep;
 
     @Id

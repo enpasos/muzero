@@ -23,9 +23,10 @@ import java.util.Optional;
 public class TimeStepDO {
 
     @ManyToOne
+ //   @JoinColumn(nullable=false)
     EpisodeDO episode;
 
-    @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
+    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "timestep")
     private List<ValueDO> values;
 
     int t;

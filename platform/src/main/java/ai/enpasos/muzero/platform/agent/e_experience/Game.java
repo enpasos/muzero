@@ -204,6 +204,10 @@ private boolean hybrid2;
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa) {
 
+//        if (this.isReanalyse()) {
+//            int i = 42;
+//        }
+
         int tdSteps = getTdSteps( currentIndex, kappa);
 
         double value = calculateValue(tdSteps, currentIndex);
