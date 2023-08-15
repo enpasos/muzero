@@ -19,10 +19,12 @@ package ai.enpasos.muzero.platform.agent.b_episode;
 
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.common.FileUtils;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
@@ -31,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Component
@@ -49,17 +52,25 @@ public class Play {
     ModelService modelService;
 
 
+
+    @Autowired
+    EpisodeRepo episodeRepo;
+
+
     @Autowired
     ModelState modelState;
 
     @Autowired
     PlayService playService;
 
+    @Autowired
+    Inference inference;
+
     public void fillingBuffer(boolean isRandomFill) {
         int windowSize = config.getWindowSize();
         while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-             playMultipleEpisodes(false, isRandomFill);
+             playMultipleEpisodes(false, isRandomFill, 0);
         }
     }
 
@@ -71,18 +82,24 @@ public class Play {
     }
 
 
-    public void playGames(boolean render, int trainingStep) {
+    public void playGames(boolean render, int trainingStep, int epoch) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());
 
-        playMultipleEpisodes(render, false);
+        playMultipleEpisodes(render, false, epoch);
 
     }
 
 
-    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning) {
+    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, int epoch) {
         List<Game> games;
-        if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
+        if (config.getPlayTypeKey() == PlayTypeKey.REWARD_MEMORIZATION_CHECK) {
+            if (epoch % 10 == 0) {
+                checkRewardMemorization();
+            }
+
+             return;
+        } else if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             List<Game> gamesToReanalyse = gameBuffer.getGamesToReanalyse();
             if (config.getReplayTimestepsFromEnd() > 0) {
                 games = playService.reanalyseGames(config.getNumParallelGamesPlayed(),
@@ -117,6 +134,19 @@ public class Play {
         log.info("Played {} games parallel", games.size());
 
         gameBuffer.addGames(games, false);
+    }
+
+    private void checkRewardMemorization() {
+        List<Game> games;
+        long maxCount = episodeRepo.getMaxCount();
+        int increase = 10000;
+        for (int c = 0; c <= maxCount; c += increase) {
+            games = gameBuffer.getGamesToCheckRewardMemorization(c, c + increase - 1);
+            double[] values = inference.aiValue(games, false);
+            for (int i = 0; i < values.length; i++) {
+                episodeRepo.setRewardExpectationFromModel(games.get(i).getEpisodeDO().getId(), (float) values[i]);
+            }
+        }
     }
 
 }

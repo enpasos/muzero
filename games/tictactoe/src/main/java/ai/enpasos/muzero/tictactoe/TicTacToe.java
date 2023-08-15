@@ -32,6 +32,8 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToePolicyOnly policyOnly;
 
+    @Autowired
+    private TicTacToeExperienceAnalysing experienceAnalysing;
 
 
     @Autowired
@@ -131,6 +133,9 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case VALUE_METRIC:
                 testAllNetworksValueMetric.run();
+                break;
+            case EXPERIENCE_ANALYSING:
+                experienceAnalysing.run();
                 break;
             case TEST_NETWORKS_EXPLOITABILITY:
                 testAllNetworksExploitability.run();

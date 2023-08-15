@@ -35,6 +35,14 @@ public class EpisodeDO {
     long tStartNormal = -1;
 
 
+    // start with single rewarding on an episode
+    // to have the same sign and t as the reward information from the model
+    // use the value function result on the last timestep
+    float environmentRewardValue;
+    float modelMemorizedRewardValue;
+    boolean modelMemorizedRewardValueSet;
+
+
     boolean archived;
 
 

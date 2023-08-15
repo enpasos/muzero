@@ -79,9 +79,6 @@ public class MuZeroLoop {
 
         List<DurAndMem> durations = new ArrayList<>();
 
-
-
-
         modelService.loadLatestModelOrCreateIfNotExisting().get();
         epoch = modelState.getEpoch();
 
@@ -107,7 +104,7 @@ public class MuZeroLoop {
                 PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                 for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                     config.setPlayTypeKey(key);
-                    play.playGames(params.isRender(), trainingStep);
+                    play.playGames(params.isRender(), trainingStep, epoch);
                 }
                 config.setPlayTypeKey(originalPlayTypeKey);
             }

@@ -38,7 +38,6 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
 
@@ -77,8 +76,9 @@ public abstract class Game {
     private boolean debug;
     private boolean actionApplied;
 
-private boolean hybrid2;
+ private boolean hybrid2;
     private boolean reanalyse;
+    private boolean memorizeReward;
     private int tReanalyseMin;
 
 
@@ -216,7 +216,6 @@ private boolean hybrid2;
 
 
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
-
             target.setValue((float) value);
             target.setReward(reward);
             float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
@@ -592,5 +591,9 @@ private boolean hybrid2;
         addObservationFromEnvironment();
         addLegalActionFromEnvironment();
         setActionApplied(true);
+    }
+
+    public void storeRewardOnEpisodeDO() {
+        this.episodeDO.setEnvironmentRewardValue(- this.episodeDO.getLastTimeStepWithAction().getReward());
     }
 }

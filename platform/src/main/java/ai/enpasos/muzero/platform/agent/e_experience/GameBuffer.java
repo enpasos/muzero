@@ -133,9 +133,13 @@ public class GameBuffer {
     }
 
     public static int samplePosition(@NotNull Game game, MuZeroConfig config ) {
+        int tmax = game.getEpisodeDO().getLastTime()   ;
+        if (game.isMemorizeReward()) {
+            return tmax;
+        }
 
         // TODO check if offset is correct
-        int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
+
         int t0 = 0;
         if (game.isReanalyse()) {
            int replayTimestepsFromEnd =  config.getReplayTimestepsFromEnd();
@@ -160,7 +164,6 @@ public class GameBuffer {
     }
 
     public GameBufferDTO getBuffer() {
-
             return this.buffer;
     }
 
@@ -223,7 +226,12 @@ public class GameBuffer {
         List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getGames());
         log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
 
+        List<Game> games3 = getGamesToMemorize();
+        log.trace("Games to memorize: {}",  games3.size() );
+
+
         games.addAll(games2);
+        games.addAll(games3);
         return games;
     }
 
@@ -270,6 +278,10 @@ public class GameBuffer {
     public void addGames(List<Game> games, boolean atBeginning) {
 
         if (games.isEmpty()) return;
+
+        games.forEach(game -> {
+            game.storeRewardOnEpisodeDO();
+        });
 
 
         games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game, atBeginning));
@@ -373,12 +385,30 @@ public class GameBuffer {
 //
 //    }
 
+
+    public List<Game> getGamesToCheckRewardMemorization(long startCount, long endCount) {
+
+        List<Long> ids = episodeRepo.findEpisodeIdsInCountInterval(startCount, endCount);
+        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+     //   List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(10000);
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        games.forEach(game -> game.setMemorizeReward(true));
+        return games;
+    }
+
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
-
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         games.forEach(game -> game.setReanalyse(true));
+        return games;
+    }
+
+    public List<Game> getGamesToMemorize() {
+        int n = 1000;
+         List<EpisodeDO> episodeDOList = this.dbService.findRandomNGamesToMemorize( n);
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        games.forEach(game -> game.setMemorizeReward(true));
         return games;
     }
 

@@ -160,7 +160,7 @@ public class Inference {
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
         Game game = getGame(actions);
-        return aiValue(List.of(game))[0];
+        return aiValue(List.of(game), true)[0];
     }
 
     public double[] aiEntropy(List<Game> games) {
@@ -169,8 +169,9 @@ public class Inference {
         return Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getPolicyValues()))).toArray();
     }
 
-    public double[] aiValue(List<Game> games) {
-        modelService.loadLatestModel(-1).join();
+    public double[] aiValue(List<Game> games, boolean modelLoadNeeded) {
+        if (modelLoadNeeded)
+            modelService.loadLatestModel(-1).join();
         List<NetworkIO> networkOutputs = modelService.initialInference(games).join();
         return Objects.requireNonNull(networkOutputs).stream().mapToDouble(NetworkIO::getValue).toArray();
     }

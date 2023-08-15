@@ -73,6 +73,13 @@ public class DBService {
         return result;
     }
 
+    @Transactional
+    public List<EpisodeDO> findRandomNGamesToMemorize(int n) {
+        List<Long> ids = episodeRepo.findNEpisodesWithWorstMemorizedReward(n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
     public int getMaxTrainingEpoch() {
         return episodeRepo.getMaxTrainingEpoch();
     }

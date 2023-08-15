@@ -33,9 +33,25 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
     int getMaxTrainingEpoch ();
 
+
+    @Query(value = "select max(e.count) from EpisodeDO e")
+    long getMaxCount ();
+
     @Transactional
     @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
     List<Long> findRandomNEpisodeIds(int n);
+
+    @Transactional
+    @Query(value = "select e.id from episode e where model_memorized_reward_value_set = true order by abs(e.model_memorized_reward_value - e.environment_reward_value) desc limit :n", nativeQuery = true)
+    List<Long> findNEpisodesWithWorstMemorizedReward(int n);
+
+
+
+    @Transactional
+    @Query(value = "select e.id from episode e where e.count <= :endCount and e.count > :startCount", nativeQuery = true)
+    List<Long> findEpisodeIdsInCountInterval(long startCount, long endCount);
+
+
 
 
 //    @Transactional
@@ -53,6 +69,12 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Modifying
     @Query(value = "update episode set archived = (max_value_variance < :quantile)", nativeQuery = true )
     void markArchived( double quantile);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update episode e set model_memorized_reward_value = :reward, model_memorized_reward_value_set = true where e.id = :id", nativeQuery = true )
+    void setRewardExpectationFromModel(long id, double reward);
 
 
     @Modifying
