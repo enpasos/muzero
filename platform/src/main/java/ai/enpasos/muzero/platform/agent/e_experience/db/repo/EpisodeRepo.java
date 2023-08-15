@@ -42,8 +42,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<Long> findRandomNEpisodeIds(int n);
 
     @Transactional
-    @Query(value = "select e.id from episode e where model_memorized_reward_value_set = true order by abs(e.model_memorized_reward_value - e.environment_reward_value) desc limit :n", nativeQuery = true)
-    List<Long> findNEpisodesWithWorstMemorizedReward(int n);
+    @Query(value = "select e2.id from (select e.id from episode e where model_memorized_reward_value_set = true order by abs(e.model_memorized_reward_value - e.environment_reward_value) desc limit :n) e2 order by random() limit :m", nativeQuery = true)
+    List<Long> findMRandomFromNEpisodesWithWorstMemorizedReward(int n, int m);
 
 
 

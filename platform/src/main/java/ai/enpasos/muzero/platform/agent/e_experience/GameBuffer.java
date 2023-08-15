@@ -406,7 +406,7 @@ public class GameBuffer {
 
     public List<Game> getGamesToMemorize() {
         int n = 1000;
-         List<EpisodeDO> episodeDOList = this.dbService.findRandomNGamesToMemorize( n);
+         List<EpisodeDO> episodeDOList = this.dbService.findNGamesToMemorize( n);
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         games.forEach(game -> game.setMemorizeReward(true));
         return games;

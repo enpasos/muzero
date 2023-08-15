@@ -12,7 +12,6 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -74,8 +73,8 @@ public class DBService {
     }
 
     @Transactional
-    public List<EpisodeDO> findRandomNGamesToMemorize(int n) {
-        List<Long> ids = episodeRepo.findNEpisodesWithWorstMemorizedReward(n);
+    public List<EpisodeDO> findNGamesToMemorize(int n) {
+        List<Long> ids = episodeRepo.findMRandomFromNEpisodesWithWorstMemorizedReward( 5*n, n);
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
