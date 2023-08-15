@@ -4,12 +4,14 @@ import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Optional;
 
 
 @Entity
@@ -19,19 +21,17 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TimeStepDO {
 
     @ManyToOne
- //   @JoinColumn(nullable=false)
+    //   @JoinColumn(nullable=false)
     EpisodeDO episode;
 
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "timestep")
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "timestep")
     private List<ValueDO> values;
 
     int t;
 
-    @EqualsAndHashCode.Include
     Integer action;
 
     float reward;
@@ -59,7 +59,6 @@ public class TimeStepDO {
 
     @Transient
     double k;
-
 
 
     private double valueMean;
@@ -150,6 +149,26 @@ public class TimeStepDO {
         } else {
             throw new RuntimeException("unknown observation type");
         }
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof TimeStepDO)) return false;
+        final TimeStepDO other = (TimeStepDO) o;
+        final Integer  action1 = this.getAction();
+        final Integer  action2 = other.getAction();
+        if (action1 == null ? action2 != null : !action1.equals(action2)) return false;
+        return true;
+    }
+
+
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        final Integer $action = this.getAction();
+        result = result * PRIME + ($action == null ? 43 : $action.hashCode());
+        return result;
     }
 
 

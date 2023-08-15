@@ -70,7 +70,7 @@ public class Inference {
 
     public int aiDecisionForGame(List<Integer> actions, boolean withMCTS, int epoch) {
 
-        Game game = getGame(actions);
+        Game game = config.getGame(actions);
 
         int action = -1;
 
@@ -131,7 +131,7 @@ public class Inference {
                 config.setNetworkBaseDir(networkDir);
             }
             config.setInferenceDeviceType(deviceType);
-            Game game = getGame(actions);
+            Game game = config.getGame(actions);
             modelService.loadLatestModel().get();
             return aiDecision(withMCTS, game).getSecond();
         } catch (InterruptedException e) {
@@ -152,14 +152,14 @@ public class Inference {
     public double aiEntropy(List<Integer> actions, String networkDir) {
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
-        Game game = getGame(actions);
+        Game game = config.getGame(actions);
         return aiEntropy(List.of(game))[0];
     }
 
     public double aiValue(List<Integer> actions, String networkDir) {
         config.setNetworkBaseDir(networkDir);
         config.setInferenceDeviceType(DeviceType.CPU);
-        Game game = getGame(actions);
+        Game game = config.getGame(actions);
         return aiValue(List.of(game), true)[0];
     }
 
@@ -178,11 +178,11 @@ public class Inference {
 
 
 
-    public Game getGame(List<Integer> actions) {
-        Game game = config.newGame(true,true);
-        actions.forEach(a -> game.apply(config.newAction(a)));
-        return game;
-    }
+//    public Game getGame(List<Integer> actions) {
+//        Game game = config.newGame(true,true);
+//        actions.forEach(a -> game.apply(config.newAction(a)));
+//        return game;
+//    }
 
 
     private Pair<Double, Integer> aiDecision( boolean withMCTS, Game game) {

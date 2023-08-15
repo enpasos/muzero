@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
@@ -200,6 +201,18 @@ public class TicTacToeGame extends ZeroSumGame {
 
         log.info(EnvironmentBase.render(config, values));
     }
+
+
+    public String getStateString() {
+        List<Integer> actions = this.episodeDO.getActions();
+        String[] board = new String[9];
+        IntStream.range(0, actions.size()).forEach(i ->
+                board[actions.get(i)] = i % 2 == 0 ? "X" : "O"
+        );
+        return Arrays.toString(board);
+    }
+
+
 
 
 }

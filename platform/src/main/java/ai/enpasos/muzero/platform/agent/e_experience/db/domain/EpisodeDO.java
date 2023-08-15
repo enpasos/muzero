@@ -3,13 +3,19 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -19,7 +25,6 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class EpisodeDO {
 
     @Builder.Default
@@ -53,14 +58,27 @@ public class EpisodeDO {
     private long id;
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 10000)
-    @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "episode")
-    @EqualsAndHashCode.Include
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "episode")
     private List<TimeStepDO> timeSteps;
 
 
     private double maxValueVariance;
     private int tOfMaxValueVariance;
     private int valueCount;
+
+
+    public String getActionString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("{");
+        for(TimeStepDO ts :  this.getTimeSteps() ) {
+            if (ts.action != null) {
+                buf.append(ts.action);
+                buf.append(",");
+            }
+        }
+        buf.append("}");
+        return  buf.toString();
+    }
 
 
     private void sortTimeSteps() {
@@ -224,7 +242,6 @@ public class EpisodeDO {
     }
 
 
-
     public double getEntropyOfInitialState() {
         if (this.getTimeSteps().size() == 0) {
             return 0;
@@ -257,5 +274,32 @@ public class EpisodeDO {
 
     public int getAction() {
         return this.getLastTimeStepWithAction().getAction();
+    }
+
+    public boolean equals(final Object o) {
+        if (o == this) return true;
+        if (!(o instanceof EpisodeDO)) return false;
+        final EpisodeDO other = (EpisodeDO) o;
+    //    final List<TimeStepDO>  timeSteps1 = this.getTimeSteps();
+   //     final List<TimeStepDO>  timeSteps2 = other.getTimeSteps();
+        // https://hibernate.atlassian.net/browse/HHH-5409
+        // Hibernates PersistentBag does not implement equals correctly
+return this.getActionString().equals(other.getActionString());
+
+//        if (timeSteps1 == null ?  timeSteps2 != null : !timeSteps1.equals( timeSteps2)) return false;
+//        return true;
+    }
+
+
+
+    public int hashCode() {
+        // https://hibernate.atlassian.net/browse/HHH-5409
+        // Hibernates PersistentBag does not implement equals correctly
+        return getActionString().hashCode();
+//        final int PRIME = 59;
+//        int result = 1;
+//        final Object $timeSteps = this.getTimeSteps();
+//        result = result * PRIME + ($timeSteps == null ? 43 : $timeSteps.hashCode());
+//        return result;
     }
 }

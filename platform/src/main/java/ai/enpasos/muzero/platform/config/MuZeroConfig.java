@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,6 +52,12 @@ public class MuZeroConfig {
             log.error(e.getMessage());
             throw new MuZeroException(e);
         }
+    }
+
+    public Game getGame(List<Integer> actions) {
+        Game game = this.newGame(true,true);
+        actions.forEach(a -> game.apply(this.newAction(a)));
+        return game;
     }
 
     public KnownBounds getKnownBounds() {
