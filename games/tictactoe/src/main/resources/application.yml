@@ -75,8 +75,8 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 6
-      broadcastEveryN: 8  # out of range here
+      numResiduals: 8
+      broadcastEveryN: 6
 
       numChannels: 256
       numBottleneckChannels: 128
@@ -110,7 +110,7 @@ muzero:
       playTypes:
         PLAYOUT:
           forTraining: false
-          numSimulations: 20
+          numSimulations: 30
           rootExplorationFraction: 0.0  # 0.0 means switched off
           temperatureRoot: 0.0
           gumbelActionSelection: true
@@ -120,8 +120,8 @@ muzero:
           numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
-          numSimulations: 20
-          numSimulationsHybrid: 20
+          numSimulations: 30
+          numSimulationsHybrid: 30
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
