@@ -153,8 +153,8 @@ muzero:
 #          gumbelActionSelection: true
 
 
-        REWARD_MEMORIZATION_CHECK:
-          forTraining: true
+#        REWARD_MEMORIZATION_CHECK:
+#          forTraining: true
 
 #        REANALYSE:
 #          forTraining: true
