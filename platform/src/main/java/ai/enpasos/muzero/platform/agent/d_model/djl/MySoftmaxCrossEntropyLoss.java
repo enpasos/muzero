@@ -40,6 +40,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
     private final boolean sparseLabel;
     private final boolean fromLogit;
 
+   private  boolean  useLabelAsLegalCategoriesFilter;
 
     /**
      * Creates a new instance of {@code SoftmaxCrossEntropyLoss} with default parameters.
@@ -54,7 +55,7 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      * @param name the name of the loss
      */
     public MySoftmaxCrossEntropyLoss(String name) {
-        this(name, 1, -1, true, false);
+        this(name, 1, -1, true, false, false);
     }
 
     /**
@@ -68,12 +69,13 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
      *                    false
      */
     public MySoftmaxCrossEntropyLoss(
-        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit) {
+        String name, float weight, int classAxis, boolean sparseLabel, boolean fromLogit, boolean useLabelAsLegalCategoriesFilter ) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
         this.sparseLabel = sparseLabel;
         this.fromLogit = fromLogit;
+        this.useLabelAsLegalCategoriesFilter =  useLabelAsLegalCategoriesFilter;
     }
 
     /**
@@ -85,7 +87,21 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         NDArray lab = label.singletonOrThrow();
 
         if (fromLogit) {
+            if (useLabelAsLegalCategoriesFilter) {
+              // normalize needs djl = "0.20.0" :-(  not used for now because of performance
+              //  lab = pred.softmax(classAxis).mul(lab).normalize(1, classAxis, 1e-12);
+                // therefore for now explicitly
+
+                lab = lab.add(pred.stopGradient());   // pred is logit
+               // lab = lab.eq(0).mul(-1e12f).add(lab).softmax(classAxis);
+                lab = lab.softmax(classAxis);
+//
+//                ..softmax(classAxis);
+//                NDArray sum = lab.sum(new int[] {1}, true).add(1e-12);
+//                lab = lab.div(sum);
+            }
             pred = pred.logSoftmax(classAxis);
+
         }
         NDArray loss;
 
@@ -105,5 +121,11 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         return loss.mean();
     }
 
+    public boolean isUseLabelAsLegalCategoriesFilter() {
+        return useLabelAsLegalCategoriesFilter;
+    }
 
+    public void setUseLabelAsLegalCategoriesFilter(boolean useLabelAsLegalCategoriesFilter) {
+       this.useLabelAsLegalCategoriesFilter = useLabelAsLegalCategoriesFilter;
+    }
 }

@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import lombok.extern.slf4j.Slf4j;
@@ -116,7 +117,8 @@ public class MuZeroLoop {
             log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
 
             log.info("training ...");
-            modelService.trainModel().get();
+          //  modelService.trainModel(TrainingTypeKey.RULES).get();
+            modelService.trainModel(TrainingTypeKey.POLICY_VALUE).get();
 
             epoch = modelState.getEpoch();
 

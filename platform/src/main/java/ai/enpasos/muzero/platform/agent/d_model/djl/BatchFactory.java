@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +49,12 @@ public class BatchFactory {
     InputOutputConstruction inputOutputConstruction;
 
 
-    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
-        List<Sample> batch = gameBuffer.sampleBatch(config.getNumUnrollSteps());
+    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, TrainingTypeKey trainingTypeKey) {
+        List<Sample> batch = gameBuffer.sampleBatch(config.getNumUnrollSteps(), trainingTypeKey);
 
         NDManager nd = ndManager.newSubManager();
 
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-
-
         List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch, config.isWithEntropyValuePrediction());
 
         return new Batch(

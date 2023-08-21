@@ -59,7 +59,7 @@ public class GoArena {
         return gameList.stream()
             .mapToDouble(game -> (startingPlayerA ? 1f : -1f)
                 * (game.getEpisodeDO().getActions().size() % 2 == 0 ? -1f : 1f)
-                * game.getReward())
+                * game.getRewardForTheLastActionMadeBeforeCurrentIndex())
             .toArray();
     }
 

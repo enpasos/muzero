@@ -15,9 +15,9 @@ public class ControllerTask {
 
     int epoch = -1;
 
-public ControllerTask(ControllerTaskType taskType) {
-    this.taskType = taskType;
-}
+    public ControllerTask(ControllerTaskType taskType) {
+        this.taskType = taskType;
+    }
 
 
     public synchronized boolean isDone() {

@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.agent.d_model;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.Target;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -57,8 +58,8 @@ public class Sample {
     private int gamePos;
     private int numUnrollSteps;
 
-    public void makeTarget(boolean isEntropyContributingToReward) {
-        targetList = game.makeTarget(gamePos, numUnrollSteps,  isEntropyContributingToReward );
+    public void makeTarget(boolean isEntropyContributingToReward, TrainingTypeKey trainingTypeKey) {
+        targetList = game.makeTarget(gamePos, numUnrollSteps,  isEntropyContributingToReward, trainingTypeKey);
     }
 
 

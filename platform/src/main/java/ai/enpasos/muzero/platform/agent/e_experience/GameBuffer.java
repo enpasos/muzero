@@ -29,6 +29,7 @@ import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import jakarta.persistence.Tuple;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -80,13 +81,13 @@ public class GameBuffer {
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
-    public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
+    public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, TrainingTypeKey trainingTypeKey) {
         int gamePos = samplePosition(game, config );
         Sample sample = null;
         long count = 0;
         do {
             try {
-                sample = sampleFromGame(numUnrollSteps, game, gamePos );
+                sample = sampleFromGame(numUnrollSteps, game, gamePos, trainingTypeKey );
             } catch (MuZeroNoSampleMatch e) {
                 count++;
             }
@@ -97,7 +98,7 @@ public class GameBuffer {
         return sample;
     }
 
-    public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
+    public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos, TrainingTypeKey trainingTypeKey) {
         Sample sample = new Sample();
         sample.setGame(game);
 
@@ -122,13 +123,11 @@ public class GameBuffer {
                 observation = game.getObservationModelInput(gamePos + i);
             }
             sample.getObservations().add(observation);
-
-
         }
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
 
-        sample.makeTarget(config.getEntropyContributionToReward() != 0d);
+        sample.makeTarget(config.getEntropyContributionToReward() != 0d, trainingTypeKey);
         return sample;
     }
 
@@ -137,8 +136,6 @@ public class GameBuffer {
         if (game.isMemorizeReward()) {
             return tmax;
         }
-
-        // TODO check if offset is correct
 
         int t0 = 0;
         if (game.isReanalyse()) {
@@ -198,19 +195,17 @@ public class GameBuffer {
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps ) {
+    public List<Sample> sampleBatch(int numUnrollSteps, TrainingTypeKey trainingTypeKey ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGames().stream()
-                .map(game -> sampleFromGame(numUnrollSteps, game))
+            return sampleGames(trainingTypeKey).stream()
+                .map(game -> sampleFromGame(numUnrollSteps, game, trainingTypeKey))
                 .collect(Collectors.toList());
         }
-
-
     }
 
-    public List<Game> sampleGames() {
+    public List<Game> sampleGames(TrainingTypeKey trainingTypeKey) {
 
-        List<Game> games = getGames();
+        List<Game> games = getGames(trainingTypeKey);
         Collections.shuffle(games);
 
         return games.stream()
@@ -219,20 +214,30 @@ public class GameBuffer {
     }
 
     @NotNull
-    public List<Game> getGames() {
-        List<Game> games = new ArrayList<>(this.buffer.getGames());
-        log.trace("Games from buffer: {}",  games.size() );
+    public List<Game> getGames(TrainingTypeKey trainingTypeKey) {
+        switch(trainingTypeKey) {
+            case POLICY_VALUE:
+                List<Game> games = new ArrayList<>(this.buffer.getGames());
+                log.trace("Games from buffer: {}", games.size());
 
-        List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getGames());
-        log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
+                List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getGames());
+                log.trace("Games from bufferForReanalysedEpisodes: {}", games2.size());
 
-        List<Game> games3 = getGamesToMemorize();
-        log.trace("Games to memorize: {}",  games3.size() );
+                List<Game> games3 = getGamesToMemorize();
+                log.trace("Games to memorize: {}", games3.size());
 
 
-        games.addAll(games2);
-        games.addAll(games3);
-        return games;
+                games.addAll(games2);
+                games.addAll(games3);
+                return games;
+            case RULES:
+            default:
+                List<Long> ids = episodeRepo.findRandomNEpisodeIds(this.batchSize);
+                List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+                games = convertEpisodeDOsToGames(episodeDOList, config);
+                return games;
+        }
+
     }
 
 

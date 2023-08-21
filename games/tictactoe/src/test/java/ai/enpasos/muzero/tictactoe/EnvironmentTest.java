@@ -44,14 +44,14 @@ class EnvironmentTest {
     void checkIfPlayerHasWon() {
         Game game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
-        assertEquals(1f, game.getReward(), 0.0);
+        assertEquals(1f, game.getRewardForTheLastActionMadeBeforeCurrentIndex(), 0.0);
 
         game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 1, 3, 4, 2, 5, 7, 6, 8);
-        assertEquals(0f, game.getReward(), 0.0);
+        assertEquals(0f, game.getRewardForTheLastActionMadeBeforeCurrentIndex(), 0.0);
 
         game = config.newGame(true,true);
         Objects.requireNonNull(game).apply(0, 1, 2, 4, 8, 7);
-        assertEquals(1f, game.getReward(), 0.0);
+        assertEquals(1f, game.getRewardForTheLastActionMadeBeforeCurrentIndex(), 0.0);
     }
 }

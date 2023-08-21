@@ -92,6 +92,9 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private ModelService modelService;
 
+    @Autowired
+    private TicTacToeTestSimilarityLoss testSimilarityLoss;
+
     public static void main(String[] args) {
         SpringApplication.run(TicTacToe.class, args).close();
     }
@@ -102,6 +105,9 @@ public class TicTacToe implements CommandLineRunner {
         switch (conf.getRun()) {
             case ACTIONS:
                 actionExtractor.run();
+                break;
+            case SIMILARITY_LOSS:
+                testSimilarityLoss.run();
                 break;
             case FILLVALUETABLE:
                 fillValueTable.run();

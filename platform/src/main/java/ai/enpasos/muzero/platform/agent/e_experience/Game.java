@@ -23,11 +23,13 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import ai.enpasos.muzero.platform.environment.Environment;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -190,62 +192,45 @@ public abstract class Game {
 //        apply(action);
 //    }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward, TrainingTypeKey trainingTypeKey) {
         List<Target> targets = new ArrayList<>();
         double kappa = ThreadLocalRandom.current().nextDouble(0, 1);
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target, isEntropyContributingToReward, kappa);
+            fillTarget(currentIndex, target, isEntropyContributingToReward, kappa, trainingTypeKey);
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa) {
+    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa, TrainingTypeKey trainingTypeKey) {
+        target.setValue(createValueTarget(trainingTypeKey, currentIndex, kappa));
+        target.setPolicy(createPolicyTarget(trainingTypeKey, currentIndex, target));
+    }
 
-//        if (this.isReanalyse()) {
-//            int i = 42;
-//        }
-
-        int tdSteps = getTdSteps( currentIndex, kappa);
-
-        double value = calculateValue(tdSteps, currentIndex);
-
-        float reward = getReward(currentIndex);
-
-
+    private float[] createPolicyTarget(TrainingTypeKey trainingTypeKey, int currentIndex, Target target) {
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
-            target.setValue((float) value);
-            target.setReward(reward);
-            float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
-            //float[] pt2 = toFloat(softmax(rescaleLogitsIfOutsideInterval(ln(toDouble(pt)), 5.0)));
-            target.setPolicy(pt);
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
-            // If we do not train the reward (as only boardgames are treated here)
-            // the value has to take the role of the reward on this node (needed in MCTS)
-            // if we were running the network with reward head
-            // the value would be 0 here
-            // but as we do not get the expected reward from the network
-            // we need use this node to keep the reward value
-            // therefore target.value is not 0f
-            // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-
-
-            target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
-            target.setReward(reward);
-            target.setPolicy(new float[this.actionSpaceSize]);
-            // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
+            switch (trainingTypeKey) {
+                case POLICY_VALUE:
+                    float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
+                    //float[] pt2 = toFloat(softmax(rescaleLogitsIfOutsideInterval(ln(toDouble(pt)), 5.0)));
+                    return pt;
+                case RULES:
+                default:
+                    pt = new float[this.actionSpaceSize];
+                    boolean[] legalActions = this.getEpisodeDO().getTimeStep(currentIndex).getLegalActions();
+                    IntStream.range(0, pt.length).forEach(i -> {
+                        pt[i] = legalActions[i] ? 0f : Float.NEGATIVE_INFINITY;
+                    });
+                    return pt;
+            }
         } else {
-
-            target.setValue((float) value);
-            target.setReward(reward);
-            target.setPolicy(new float[this.actionSpaceSize]);
+            float[] pt = new float[this.actionSpaceSize];
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
+            Arrays.fill(pt, 0f);
+            return pt;
         }
-
     }
 
     private int getTdSteps(int currentIndex, double kappa) {
@@ -260,20 +245,33 @@ public abstract class Game {
     }
 
 
-    private float getReward(int currentIndex) {
-        float reward;
-        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().getT() + 1) ) {
-            reward = this.getEpisodeDO().getTimeSteps().get(currentIndex - 1).getReward();
-        } else {
-            reward = 0f;
-        }
-        return reward;
-    }
+//    private float getRewardForTheLastActionMadeBeforeCurrentIndex(int currentIndex) {
+//        // TODO: refactor ...
+//        float reward;
+//        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().getT() + 1) ) {
+//            reward = this.getEpisodeDO().getTimeSteps().get(currentIndex - 1).getReward();
+//        } else {
+//            reward = 0f;
+//        }
+//        return reward;
+//    }
 
-    private double calculateValue(int tdSteps, int currentIndex) {
-        double value = getBootstrapValue(currentIndex, tdSteps);
-        value = addValueFromReward(currentIndex, tdSteps, value);
-        return value;
+    private float createValueTarget(TrainingTypeKey trainingTypeKey, int currentIndex, double kappa) {
+        switch(trainingTypeKey) {
+            case POLICY_VALUE:
+                int tdSteps = getTdSteps( currentIndex, kappa);
+                double value = getBootstrapValue(currentIndex, tdSteps);
+                value = addValueFromReward(currentIndex, tdSteps, value);
+                return (float)value;
+            case RULES:
+            default:
+                if (currentIndex == this.episodeDO.getLastTime()) {
+                    return (float)addValueFromReward(currentIndex,config.getTdSteps(), 0d);
+                } else {
+                    return MyL2Loss.NULL_VALUE;
+                }
+        }
+
     }
 
     private double calculateEntropyValue(int tdSteps, int currentIndex) {
@@ -486,7 +484,7 @@ public abstract class Game {
 //    }
 
 
-    public  float getReward() {
+    public  float getRewardForTheLastActionMadeBeforeCurrentIndex() {
          TimeStepDO  timeStepDO = this.episodeDO.getLastTimeStepWithAction();
         if (timeStepDO == null) return 0f;
         return timeStepDO.getReward();

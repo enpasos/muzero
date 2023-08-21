@@ -9,6 +9,7 @@ import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,9 @@ public class TrainingConfigFactory {
 
 
 
-    public DefaultTrainingConfig setupTrainingConfig(int epoch) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch, TrainingTypeKey trainingTypeKey) {
+
+        boolean useLabelAsLegalCategoriesFilter = trainingTypeKey == TrainingTypeKey.RULES;
 
         String outputDir = config.getNetworkBaseDir();
         MySaveModelTrainingListener listener = mySaveModelTrainingListener;
@@ -48,7 +51,7 @@ public class TrainingConfigFactory {
 
         // policy
         log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
+        loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true, useLabelAsLegalCategoriesFilter), k));
         k++;
 
         // value
@@ -67,7 +70,7 @@ public class TrainingConfigFactory {
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
             log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
+            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true, useLabelAsLegalCategoriesFilter), k));
             k++;
 
             // value
