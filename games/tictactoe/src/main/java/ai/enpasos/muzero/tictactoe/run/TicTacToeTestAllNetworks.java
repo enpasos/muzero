@@ -42,8 +42,8 @@ public class TicTacToeTestAllNetworks {
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
-        int start = 641;
-        int stop = 642;
+        int start = 643;
+        int stop = 656;
 
         boolean onOptimalPathOnly = false;
 
