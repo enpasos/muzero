@@ -213,7 +213,8 @@ public abstract class Game {
     private float createValueStdTarget(TrainingTypeKey trainingTypeKey, int currentIndex) {
         if (currentIndex <= this.getEpisodeDO().getLastTime() ) {
             TimeStepDO ts =  this.getEpisodeDO().getTimeSteps().get(currentIndex);
-            return (float)Math.sqrt(ts.getValueVariance());
+            float std =  (float)Math.sqrt(ts.getValueVariance());
+            return std;
         } else {
             return 0;
         }
@@ -255,16 +256,7 @@ public abstract class Game {
     }
 
 
-//    private float getRewardForTheLastActionMadeBeforeCurrentIndex(int currentIndex) {
-//        // TODO: refactor ...
-//        float reward;
-//        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().getT() + 1) ) {
-//            reward = this.getEpisodeDO().getTimeSteps().get(currentIndex - 1).getReward();
-//        } else {
-//            reward = 0f;
-//        }
-//        return reward;
-//    }
+
 
     private float createValueTarget(TrainingTypeKey trainingTypeKey, int currentIndex, double kappa) {
         switch(trainingTypeKey) {
@@ -284,26 +276,7 @@ public abstract class Game {
 
     }
 
-    private double calculateEntropyValue(int tdSteps, int currentIndex) {
-        double value = getBootstrapEntropyValue(currentIndex, tdSteps);
-        value = addEntropyValueFromReward(currentIndex, tdSteps, value);
-        return value;
-    }
 
-    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        double value = 0;
-        if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
-            if (  bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
-                value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        } else {
-            if (bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
-                value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueTarget()  * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        }
-        return value;
-    }
 
     // TODO there should be a special discount parameter
     private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {

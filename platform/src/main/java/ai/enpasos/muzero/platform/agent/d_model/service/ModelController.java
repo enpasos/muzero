@@ -263,7 +263,7 @@ public class ModelController implements DisposableBean, Runnable {
         // mean entropy value
         // loss
         double meanValueStdLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains(" loss_value_std_0"))
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_value_std_0"))
                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                 .sum();
         gameBuffer.putMeanEntropyValueLoss(epoch, meanValueStdLoss);

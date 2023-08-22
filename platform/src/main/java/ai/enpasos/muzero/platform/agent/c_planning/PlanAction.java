@@ -46,12 +46,11 @@ public class PlanAction {
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
         root.setValueFromInference(value);
-        double entropyValue = networkOutput.getEntropyValue();
-        root.setEntropyValueFromInference(entropyValue);
+        root.setValueStdFromInference(networkOutput.getValueStd());
 
 
         timeStepDO.setRootValueFromInitialInference((float) value);
-        timeStepDO.setRootEntropyValueFromInitialInference((float) entropyValue);
+        timeStepDO.setRootValueStdFromInitialInference((float) networkOutput.getValueStd());
 
 
         if (t <= game.getOriginalEpisodeDO().getLastTimeWithAction()) {

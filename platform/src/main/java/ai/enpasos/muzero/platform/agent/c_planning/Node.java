@@ -56,9 +56,9 @@ public class Node {
     private double entropy;
     private double prior;
     private double improvedValue;
-    private double improvedEntropyValue;
+ //   private double improvedEntropyValue;
     private double valueFromInference;
-    private double entropyValueFromInference;
+    private double valueStdFromInference;
     private NDArray hiddenState;
     private double reward;
     private double entropyReward;
@@ -102,7 +102,7 @@ public class Node {
     }
 
     public void calculateVmix() {
-        double vHat = this.getValueFromInference();
+        double vHat = this.getValueFromInference() + this.getValueStdFromInference();
         vmix = vHat;
         if (this.getVisitCount() == 0) return;
 
@@ -121,7 +121,7 @@ public class Node {
     }
 
     public void calculateEntropyVmix() {
-        double vHat = this.getEntropyValueFromInference();
+        double vHat = this.getValueStdFromInference();
         vEntropyMix = vHat;
         if (this.getVisitCount() == 0) return;
 
@@ -230,7 +230,7 @@ public class Node {
     public void expand(Player toPlay, NetworkIO networkOutput) {
         if (networkOutput != null) {
             setValueFromInference(networkOutput.getValue());
-            setEntropyValueFromInference(networkOutput.getEntropyValue());
+            setValueStdFromInference(networkOutput.getValueStd());
         }
         setToPlay(toPlay);
 
@@ -271,7 +271,7 @@ public class Node {
         if (!this.root) throw new MuZeroException("expandRootNode should only be called on the root node");
         if (networkOutput != null) {
             setValueFromInference(networkOutput.getValue());
-            setEntropyValueFromInference(networkOutput.getEntropyValue());
+            setValueStdFromInference(networkOutput.getValueStd());
         }
         setToPlay(toPlay);
         if (!fastRuleLearning) {
@@ -334,11 +334,11 @@ public class Node {
             .sum();
     }
 
-    public void calculateImprovedEntropyValue() {
-        this.improvedEntropyValue = this.getChildren().stream()
-                .mapToDouble(node -> node.getImprovedPolicyValue() * node.getEntropyQValue())
-                .sum();
-    }
+//    public void calculateImprovedEntropyValue() {
+//        this.improvedEntropyValue = this.getChildren().stream()
+//                .mapToDouble(node -> node.getImprovedPolicyValue() * node.getEntropyQValue())
+//                .sum();
+//    }
 
 
     public void addExplorationNoise(MuZeroConfig config) {

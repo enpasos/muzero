@@ -45,7 +45,7 @@ public class LossExtractor {
             .setHeader("trainingStep"
                 , "totalLoss"
                 , "valueLoss"
-                    , "valueStdLoss"
+                , "valueStdLoss"
                 , "policyLoss"
                 , "similarityLoss"
 

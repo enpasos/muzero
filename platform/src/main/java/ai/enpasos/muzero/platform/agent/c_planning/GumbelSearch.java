@@ -70,7 +70,7 @@ public class GumbelSearch {
     public static void storeSearchStatistics(Game game, TimeStepDO timeStepDO, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
         timeStepDO.setRootValueTarget((float) root.getImprovedValue());
         timeStepDO.setVMix((float) root.getVmix()); timeStepDO.setVMix((float) root.getVmix());
-        timeStepDO.setRootEntropyValueTarget((float)  root.getImprovedEntropyValue());
+       // timeStepDO.setRootValueStdTarget((float)  root.getImprovedEntropyValue());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
@@ -308,7 +308,7 @@ public class GumbelSearch {
 
     public void backpropagate(NetworkIO networkOutput,  double discount) {
         double value = networkOutput.getValue();
-        double entropyValue = networkOutput.getEntropyValue();
+        double entropyValue = networkOutput.getValueStd();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -325,9 +325,9 @@ public class GumbelSearch {
 
             if (start) {
                 node.setValueFromInference(value);
-                node.setEntropyValueFromInference(entropyValue);
-                node.setImprovedValue(node.getValueFromInference());
-                node.setImprovedEntropyValue(node.getEntropyValueFromInference());
+                node.setValueStdFromInference(entropyValue);
+                node.setImprovedValue(node.getValueFromInference() + node.getValueStdFromInference());
+              //  node.setImprovedEntropyValue(node.getValueStdFromInference());
                 node.setImprovedPolicyValue(node.getPrior());
                 start = false;
             } else {
@@ -335,7 +335,7 @@ public class GumbelSearch {
                 node.calculateEntropyVmix();
                 node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues, game.isItExplorationTime());
                 node.calculateImprovedValue();
-                node.calculateImprovedEntropyValue();
+             //   node.calculateImprovedEntropyValue();
             }
 
             value =  node.getReward()
@@ -442,7 +442,7 @@ public class GumbelSearch {
 
     public void drawCandidateAndAddValueStart() {
         List<Float> vs = new ArrayList<>();
-        float v = (float) this.root.getValueFromInference();
+        float v = (float) (this.root.getValueFromInference() +  this.root.getValueStdFromInference());
         vs.add(v);
     }
 

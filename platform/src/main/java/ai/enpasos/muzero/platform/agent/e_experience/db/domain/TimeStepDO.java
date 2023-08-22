@@ -44,8 +44,8 @@ public class TimeStepDO {
     boolean[] legalActions;
     float rootValueTarget;
     float vMix;
-    float rootEntropyValueTarget;
-    float rootEntropyValueFromInitialInference;
+  //  float rootValueStdTarget;
+    float rootValueStdFromInitialInference;
     float rootValueFromInitialInference;
     float legalActionMaxEntropy;
     boolean exploring;
@@ -88,8 +88,8 @@ public class TimeStepDO {
                         reward == reward &&
                         entropy == timeStepDO.entropy &&
                         legalActionMaxEntropy == timeStepDO.legalActionMaxEntropy &&
-                        rootEntropyValueFromInitialInference == timeStepDO.rootEntropyValueFromInitialInference &&
-                        rootEntropyValueTarget == timeStepDO.rootEntropyValueTarget &&
+                        rootValueStdFromInitialInference == timeStepDO.rootValueStdFromInitialInference &&
+                        //rootValueStdTarget == timeStepDO.rootValueStdTarget &&
                         rootValueFromInitialInference == timeStepDO.rootValueFromInitialInference &&
                         rootValueTarget == timeStepDO.rootValueTarget &&
                         Arrays.equals(policyTarget, timeStepDO.policyTarget) &&
@@ -111,8 +111,8 @@ public class TimeStepDO {
                 .legalActions(legalActions)
                 .legalActionMaxEntropy(legalActionMaxEntropy)
                 .playoutPolicy(playoutPolicy)
-                .rootEntropyValueFromInitialInference(rootEntropyValueFromInitialInference)
-                .rootEntropyValueTarget(rootEntropyValueTarget)
+                .rootValueStdFromInitialInference(rootValueStdFromInitialInference)
+               // .rootValueStdTarget(rootValueStdTarget)
                 .rootValueFromInitialInference(rootValueFromInitialInference)
                 .rootValueTarget(rootValueTarget)
                 .build();

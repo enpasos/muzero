@@ -60,9 +60,9 @@ public class TrainingConfigFactory {
         k++;
 
 
-        // entropyValue
+        // value standard deviation
         if (config.isWithValueStd()) {
-            log.trace("k={}: EntropyValue L2Loss", k);
+            log.trace("k={}: ValueStd L2Loss", k);
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE_STD + 0, config.getValueLossWeight()), k));
             k++;
         }
@@ -78,7 +78,7 @@ public class TrainingConfigFactory {
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             k++;
 
-            // entropyValue
+            // value standard deviation
             if (config.isWithValueStd()) {
                 log.trace("k={}: ValueStd L2Loss", k);
                 loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE_STD + i, config.getValueLossWeight() * gradientScale), k));

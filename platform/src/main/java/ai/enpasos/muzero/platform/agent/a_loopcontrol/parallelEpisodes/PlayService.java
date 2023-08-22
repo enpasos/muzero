@@ -62,11 +62,11 @@ public class PlayService {
                         timeStepDO.setPolicyTarget(null);
                         timeStepDO.setRootValueTarget(0);
                         timeStepDO.setVMix(0);
-                        timeStepDO.setRootEntropyValueTarget(0);
+                  //      timeStepDO.setRootValueStdTarget(0);
                         timeStepDO.setEntropy(0);
                       //  timeStepDO.setLegalActionMaxEntropy(0);
                         timeStepDO.setRootValueFromInitialInference(0);
-                        timeStepDO.setRootEntropyValueFromInitialInference(0);
+                        timeStepDO.setRootValueStdFromInitialInference(0);
                     //    timeStepDO.setAction(null);
                      //   timeStepDO.setReward(0);
                      //   timeStepDO.setObservation(null);
