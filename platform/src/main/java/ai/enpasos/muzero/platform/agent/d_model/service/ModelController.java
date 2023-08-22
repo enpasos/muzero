@@ -7,7 +7,6 @@ import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.ParameterList;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
@@ -200,7 +199,7 @@ public class ModelController implements DisposableBean, Runnable {
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = batchFactory.getBatch(trainer.getManager(), withSymmetryEnrichment, trainingTypeKey)) {
                         log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch, config.isWithEntropyValuePrediction());
+                        MyEasyTrain.trainBatch(trainer, batch, config.isWithValueStd());
                         trainer.step();
                     }
                 }
@@ -263,17 +262,17 @@ public class ModelController implements DisposableBean, Runnable {
 
         // mean entropy value
         // loss
-        double meanEntropyValueLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("entropy_loss_value_0"))
+        double meanValueStdLoss = metrics.getMetricNames().stream()
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains(" loss_value_std_0"))
                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                 .sum();
-        gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
-        meanEntropyValueLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("entropy_loss_value_0") && name.contains("entropy_loss_value"))
+        gameBuffer.putMeanEntropyValueLoss(epoch, meanValueStdLoss);
+        meanValueStdLoss += metrics.getMetricNames().stream()
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_value_std_0") && name.contains("loss_value_std"))
                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                 .sum();
-        model.setProperty("MeanEntropyValueLoss", Double.toString(meanEntropyValueLoss));
-        log.info("MeanEntropyValueLoss: " + meanEntropyValueLoss);
+        model.setProperty("MeanValueStdLoss", Double.toString(meanValueStdLoss));
+        log.info("MeanValueStdLoss: " + meanValueStdLoss);
 
         // mean similarity
         // loss

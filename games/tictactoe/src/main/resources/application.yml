@@ -100,9 +100,8 @@ muzero:
 
       numParallelInferences: 1000
 
-      withEntropyValuePrediction: false    # obsolete?
-      entropyContributionToReward: 0.1     # obsolete?
-      entropyValueLossWeight: 0.5          # obsolete?
+      withValueStd: true
+
 
 
       replayTimestepsFromEnd: 0

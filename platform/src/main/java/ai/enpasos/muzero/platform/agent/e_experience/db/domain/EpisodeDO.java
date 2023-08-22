@@ -58,7 +58,7 @@ public class EpisodeDO {
     private long id;
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 10000)
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "episode")
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, mappedBy = "episode")
     private List<TimeStepDO> timeSteps;
 
 

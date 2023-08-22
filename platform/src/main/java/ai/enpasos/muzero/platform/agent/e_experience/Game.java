@@ -192,25 +192,35 @@ public abstract class Game {
 //        apply(action);
 //    }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward, TrainingTypeKey trainingTypeKey) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, TrainingTypeKey trainingTypeKey) {
         List<Target> targets = new ArrayList<>();
         double kappa = ThreadLocalRandom.current().nextDouble(0, 1);
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target, isEntropyContributingToReward, kappa, trainingTypeKey);
+            fillTarget(currentIndex, target,  kappa, trainingTypeKey);
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa, TrainingTypeKey trainingTypeKey) {
+    private void fillTarget(int currentIndex, Target target,   double kappa, TrainingTypeKey trainingTypeKey) {
         target.setValue(createValueTarget(trainingTypeKey, currentIndex, kappa));
+        target.setValueStd(createValueStdTarget(trainingTypeKey, currentIndex));
         target.setPolicy(createPolicyTarget(trainingTypeKey, currentIndex, target));
     }
 
+    private float createValueStdTarget(TrainingTypeKey trainingTypeKey, int currentIndex) {
+        if (currentIndex <= this.getEpisodeDO().getLastTime() ) {
+            TimeStepDO ts =  this.getEpisodeDO().getTimeSteps().get(currentIndex);
+            return (float)Math.sqrt(ts.getValueVariance());
+        } else {
+            return 0;
+        }
+    }
+
     private float[] createPolicyTarget(TrainingTypeKey trainingTypeKey, int currentIndex, Target target) {
-        if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
+        if (currentIndex <= this.getEpisodeDO().getLastTimeWithAction()) {
             switch (trainingTypeKey) {
                 case POLICY_VALUE:
                     float[] pt = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();

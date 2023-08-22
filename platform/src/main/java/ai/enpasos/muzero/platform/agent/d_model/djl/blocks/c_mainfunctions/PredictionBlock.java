@@ -37,10 +37,10 @@ public class PredictionBlock extends MySequentialBlock {
         this(config.getNumChannels(),
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize(),
-                config.isWithEntropyValuePrediction());
+                config.isWithValueStd());
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean isWithEntropyValuePrediction) {
+    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean isWithValueStd) {
 
 
         SequentialBlockExt valueHead = new SequentialBlockExt();
@@ -56,16 +56,16 @@ public class PredictionBlock extends MySequentialBlock {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
-        SequentialBlockExt entropyValueHead = null;
-        if (isWithEntropyValuePrediction) {
-            entropyValueHead = new SequentialBlockExt();
-            entropyValueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+        SequentialBlockExt valueStdHead = null;
+        if (isWithValueStd) {
+            valueStdHead = new SequentialBlockExt();
+            valueStdHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                     .add(BlocksExt.batchFlattenBlock());
-            entropyValueHead.add(LinearExt.builder()
-                            .setUnits(numChannels) // config.getNumChannels())  // originally 256
+            valueStdHead.add(LinearExt.builder()
+                            .setUnits(numChannels)
                             .build())
                     .add(ActivationExt.reluBlock());
-            entropyValueHead.add(LinearExt.builder()
+            valueStdHead.add(LinearExt.builder()
                     .setUnits(1).build());
         }
 
@@ -79,8 +79,8 @@ public class PredictionBlock extends MySequentialBlock {
 
 
         add(new ParallelBlockWithCollectChannelJoinExt(
-                isWithEntropyValuePrediction ?
-                        Arrays.asList(policyHead, valueHead, entropyValueHead) : Arrays.asList(policyHead, valueHead))
+                isWithValueStd ?
+                        Arrays.asList(policyHead, valueHead, valueStdHead) : Arrays.asList(policyHead, valueHead))
         );
     }
 

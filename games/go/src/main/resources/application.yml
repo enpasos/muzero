@@ -91,9 +91,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withEntropyValuePrediction: true
-      entropyContributionToReward: 0.0
-      entropyValueLossWeight: 0.001
+      withValueStd: false
 
       playTypes:
         PLAYOUT:
@@ -225,9 +223,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withEntropyValuePrediction: false
-      entropyContributionToReward: 0.0001
-      entropyValueLossWeight: 0.001
+      withValueStd: false
 
       playTypes:
         PLAYOUT:

@@ -4,7 +4,6 @@ import ai.djl.Device;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.KnownBounds;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -156,8 +155,8 @@ public class MuZeroConfig {
         return getConf().offPolicyCorrectionOn;
     }
 
-    public boolean isWithEntropyValuePrediction() {
-        return getConf().withEntropyValuePrediction;
+    public boolean isWithValueStd() {
+        return getConf().withValueStd;
     }
 
     public boolean allOrNothingOn() {
@@ -257,9 +256,6 @@ public class MuZeroConfig {
         return getConf().valueLossWeight;
     }
 
-    public float getEntropyValueLossWeight() {
-        return getConf().entropyValueLossWeight;
-    }
 
     public float getLrInit() {
         return getConf().lrInit;
@@ -436,10 +432,6 @@ public class MuZeroConfig {
         return getConf().kMinLimit;
     }
 
-    public double getEntropyContributionToReward() {
-        return getConf().entropyContributionToReward;
-    }
-
 
 
     public int getNumPurePolicyPlays() {
@@ -528,7 +520,6 @@ public class MuZeroConfig {
         protected float komi;
         protected float weightDecay;
         protected float valueLossWeight;
-        protected float entropyValueLossWeight;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -560,10 +551,9 @@ public class MuZeroConfig {
         protected int replayTimestepsFromEnd;
 
 
-        boolean withEntropyValuePrediction;
+        boolean withValueStd;
         double offPolicyRatioLimit;
 
-        double entropyContributionToReward;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {

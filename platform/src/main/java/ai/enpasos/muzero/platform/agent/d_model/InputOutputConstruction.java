@@ -154,13 +154,13 @@ public class InputOutputConstruction {
     }
 
     @SuppressWarnings("java:S2095")
-    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withEntropyValuePrediction) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withValueStdPrediction) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();
         for (int k = 0; k <= numUnrollSteps; k++) {
             int b = 0;
             float[] valueArray = new float[batch.size()];
-            float[] entropyValueArray = withEntropyValuePrediction ? new float[batch.size()] : null;
+            float[] valueStdArray = withValueStdPrediction ? new float[batch.size()] : null;
 
             float[] policyArray = new float[batch.size() * actionSize];
             for (Sample s : batch) {
@@ -172,16 +172,14 @@ public class InputOutputConstruction {
                 double scale = 2.0 / config.getValueSpan();
                 valueArray[b] = (float) (target.getValue() * scale);
 
-                if ( withEntropyValuePrediction) {
-                    log.trace("entropyvaluetarget: {}", target.getEntropyValue());
-                    entropyValueArray[b] =  target.getEntropyValue();
+                if ( withValueStdPrediction) {
+                    log.trace("valueStdTarget: {}", target.getValueStd());
+                    valueStdArray[b] =  target.getValueStd();
                 }
-try {
+
     System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
     log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
-} catch (Exception e) {
-    e.printStackTrace();
-}
+
                 b++;
             }
             NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
@@ -189,9 +187,9 @@ try {
 
             outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
-            if ( withEntropyValuePrediction) {
-                NDArray entropyValueOutput2 = nd.create(entropyValueArray).reshape(new Shape(batch.size(), 1));
-                outputs.add(symmetryEnhancerValue(entropyValueOutput2));
+            if ( withValueStdPrediction) {
+                NDArray valueStdOutput2 = nd.create(valueStdArray).reshape(new Shape(batch.size(), 1));
+                outputs.add(symmetryEnhancerValue(valueStdOutput2));
             }
         }
         return outputs;

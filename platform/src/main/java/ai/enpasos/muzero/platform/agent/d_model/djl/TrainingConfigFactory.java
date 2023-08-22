@@ -20,7 +20,7 @@ public class TrainingConfigFactory {
 
 
     public static final String LOSS_VALUE = "loss_value_";
-    public static final String ENTROPY_LOSS_VALUE = "entropy_loss_value_";
+    public static final String LOSS_VALUE_STD = "loss_value_std_";
     public static final String LOSS_SIMILARITY = "loss_similarity_";
     @Autowired
     MuZeroConfig config;
@@ -61,9 +61,9 @@ public class TrainingConfigFactory {
 
 
         // entropyValue
-        if (config.isWithEntropyValuePrediction()) {
+        if (config.isWithValueStd()) {
             log.trace("k={}: EntropyValue L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + 0, config.getEntropyValueLossWeight()), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE_STD + 0, config.getValueLossWeight()), k));
             k++;
         }
 
@@ -79,9 +79,9 @@ public class TrainingConfigFactory {
             k++;
 
             // entropyValue
-            if (config.isWithEntropyValuePrediction()) {
-                log.trace("k={}: EntropyValue L2Loss", k);
-                loss.addLoss(new MyIndexLoss(new MyL2Loss(ENTROPY_LOSS_VALUE + i, config.getEntropyValueLossWeight() * gradientScale), k));
+            if (config.isWithValueStd()) {
+                log.trace("k={}: ValueStd L2Loss", k);
+                loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE_STD + i, config.getValueLossWeight() * gradientScale), k));
                 k++;
             }
 

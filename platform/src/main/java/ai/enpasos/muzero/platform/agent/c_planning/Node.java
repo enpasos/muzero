@@ -142,19 +142,19 @@ public class Node {
 
 
 
-    public double[] getCompletedQEntropyValuesNormalized(MinMaxStats minMaxStatsEntropyQValues) {
-        double scale = config.getEntropyContributionToReward();
-        return children.stream().mapToDouble(node -> {
-                    if (node.getVisitCount() > 0) {
-                        return node.getEntropyQValue();
-                    } else {
-                        return getVEntropyMix();
-                    }
-                })
-                .map(minMaxStatsEntropyQValues::normalize)
-                .map(v -> v* scale)
-                .toArray();
-    }
+//    public double[] getCompletedQEntropyValuesNormalized(MinMaxStats minMaxStatsEntropyQValues) {
+//        double scale = config.getEntropyContributionToReward();
+//        return children.stream().mapToDouble(node -> {
+//                    if (node.getVisitCount() > 0) {
+//                        return node.getEntropyQValue();
+//                    } else {
+//                        return getVEntropyMix();
+//                    }
+//                })
+//                .map(minMaxStatsEntropyQValues::normalize)
+//                .map(v -> v* scale)
+//                .toArray();
+//    }
 
 
     public double[] getCompletedQValuesNormalized(MinMaxStats minMaxStats) {
@@ -174,10 +174,15 @@ public class Node {
 
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
         double[] completedQsNormalized = getCompletedQValuesNormalized(minMaxStats);
-        double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
+        // TODO
+    //    double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
+
+//        double[] raw = add(logits, sigmas(
+//                isItExplorationTime ?  add(completedQsNormalized, completedEntropyQsNormalized) : completedQsNormalized
+//                , maxActionVisitCount, config.getCVisit(), config.getCScale()));
 
         double[] raw = add(logits, sigmas(
-                isItExplorationTime ?  add(completedQsNormalized, completedEntropyQsNormalized) : completedQsNormalized
+                isItExplorationTime ?   completedQsNormalized  : completedQsNormalized
                 , maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw);
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);

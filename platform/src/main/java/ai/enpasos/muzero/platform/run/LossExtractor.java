@@ -45,7 +45,7 @@ public class LossExtractor {
             .setHeader("trainingStep"
                 , "totalLoss"
                 , "valueLoss"
-                    , "entropyValueLoss"
+                    , "valueStdLoss"
                 , "policyLoss"
                 , "similarityLoss"
 
@@ -80,7 +80,7 @@ public class LossExtractor {
                         csvPrinter.printRecord(trainingSteps,
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanEntropyValueLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueStdLoss")),
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss")),
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanSimilarityLoss"))
                             //,

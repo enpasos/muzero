@@ -27,7 +27,7 @@ public class TimeStepDO {
     //   @JoinColumn(nullable=false)
     EpisodeDO episode;
 
-    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true, mappedBy = "timestep")
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "timestep")
     private List<ValueDO> values;
 
     int t;

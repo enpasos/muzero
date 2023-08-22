@@ -82,14 +82,20 @@ public class GumbelSearch {
             double[] logits = root.getChildren().stream().mapToDouble(node -> node.getGumbelAction().getLogit()).toArray();
 
             double[] completedQsNormalized = root.getCompletedQValuesNormalized(minMaxStats);
-            double[] completedEntropyQsNormalized = root.getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
+            // TODO
+        //    double[] completedEntropyQsNormalized = root.getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
 
             int[] actions = root.getChildren().stream().mapToInt(node -> node.getAction().getIndex()).toArray();
 
             int maxActionVisitCount = root.getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
+//            double[] raw = add(logits, sigmas(
+//                    game.isItExplorationTime() ?  add(completedQsNormalized, completedEntropyQsNormalized) : completedQsNormalized
+//                    , maxActionVisitCount, config.getCVisit(), config.getCScale()));
+
             double[] raw = add(logits, sigmas(
-                    game.isItExplorationTime() ?  add(completedQsNormalized, completedEntropyQsNormalized) : completedQsNormalized
+                    game.isItExplorationTime() ?  completedQsNormalized  : completedQsNormalized
                     , maxActionVisitCount, config.getCVisit(), config.getCScale()));
+
 
             double[] improvedPolicy = softmax(raw);
 
@@ -187,16 +193,19 @@ public class GumbelSearch {
             .map(v -> minMaxStatsQValues.normalize(v))
             .toArray();
 
+// TODO
+//        double scale = config.getEntropyContributionToReward();
+//        double[] scaledEntropyValue = gumbelActions.stream()
+//                .mapToDouble(GumbelAction::getEntropyQValue)
+//                .map(v -> minMaxStatsEntropyQValues.normalize(v))
+//                .map(v -> scale * v)
+//                .toArray();
 
-        double scale = config.getEntropyContributionToReward();
-        double[] scaledEntropyValue = gumbelActions.stream()
-                .mapToDouble(GumbelAction::getEntropyQValue)
-                .map(v -> minMaxStatsEntropyQValues.normalize(v))
-                .map(v -> scale * v)
-                .toArray();
+
+   //     double[] sigmas = sigmas(add(qs, scaledEntropyValue), maxActionVisitCount, cVisit, cScale);
 
 
-        double[] sigmas = sigmas(add(qs, scaledEntropyValue), maxActionVisitCount, cVisit, cScale);
+        double[] sigmas = sigmas(qs , maxActionVisitCount, cVisit, cScale);
         double[] logitsPlusSigmas = new double[logits.length];
             IntStream.range(0, logits.length).forEach(i -> {
                 logitsPlusSigmas[i] = logits[i] + sigmas[i];

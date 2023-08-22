@@ -58,8 +58,8 @@ public class Sample {
     private int gamePos;
     private int numUnrollSteps;
 
-    public void makeTarget(boolean isEntropyContributingToReward, TrainingTypeKey trainingTypeKey) {
-        targetList = game.makeTarget(gamePos, numUnrollSteps,  isEntropyContributingToReward, trainingTypeKey);
+    public void makeTarget( TrainingTypeKey trainingTypeKey) {
+        targetList = game.makeTarget(gamePos, numUnrollSteps,   trainingTypeKey);
     }
 
 

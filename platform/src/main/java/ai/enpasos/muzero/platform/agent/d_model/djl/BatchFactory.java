@@ -55,7 +55,7 @@ public class BatchFactory {
         NDManager nd = ndManager.newSubManager();
 
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch, config.isWithEntropyValuePrediction());
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch, config.isWithValueStd());
 
         return new Batch(
             nd,
