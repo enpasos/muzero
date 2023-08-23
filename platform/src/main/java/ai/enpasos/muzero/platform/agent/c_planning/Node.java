@@ -102,7 +102,7 @@ public class Node {
     }
 
     public void calculateVmix() {
-        double vHat = this.getValueFromInference() + this.getValueStdFromInference();
+        double vHat = this.getValueFromInference();
         vmix = vHat;
         if (this.getVisitCount() == 0) return;
 

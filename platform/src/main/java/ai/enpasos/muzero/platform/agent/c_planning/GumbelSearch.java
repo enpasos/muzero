@@ -308,7 +308,7 @@ public class GumbelSearch {
 
     public void backpropagate(NetworkIO networkOutput,  double discount) {
         double value = networkOutput.getValue();
-        double entropyValue = networkOutput.getValueStd();
+        double valueStd = networkOutput.getValueStd();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -325,8 +325,8 @@ public class GumbelSearch {
 
             if (start) {
                 node.setValueFromInference(value);
-                node.setValueStdFromInference(entropyValue);
-                node.setImprovedValue(node.getValueFromInference() + node.getValueStdFromInference());
+                node.setValueStdFromInference(valueStd);
+                node.setImprovedValue(node.getValueFromInference()  );
               //  node.setImprovedEntropyValue(node.getValueStdFromInference());
                 node.setImprovedPolicyValue(node.getPrior());
                 start = false;
@@ -339,14 +339,15 @@ public class GumbelSearch {
             }
 
             value =  node.getReward()
-                    + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
+                    + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value
+                    + node.getValueStdFromInference(); // a rewarding for being optimistic in the case of value uncertainty
 
-            entropyValue = node.getEntropyReward() + discount * entropyValue;
+            valueStd = node.getEntropyReward() + discount * valueStd;
 
             node.setQValueSum(node.getQValueSum() + value);
-            node.setEntropyQValueSum(node.getEntropyQValueSum() + entropyValue);
+            node.setEntropyQValueSum(node.getEntropyQValueSum() + valueStd);
 
-            minMaxStatsEntropyQValues.update(entropyValue);
+            minMaxStatsEntropyQValues.update(valueStd);
             minMaxStatsQValues.update(value);
         }
     }
@@ -442,7 +443,7 @@ public class GumbelSearch {
 
     public void drawCandidateAndAddValueStart() {
         List<Float> vs = new ArrayList<>();
-        float v = (float) (this.root.getValueFromInference() +  this.root.getValueStdFromInference());
+        float v = (float) (this.root.getValueFromInference()  );
         vs.add(v);
     }
 
