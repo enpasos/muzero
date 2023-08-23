@@ -20,7 +20,7 @@ public class ModelQueue {
     public long countInitialInferenceTasksNotStarted() {
         synchronized(initialInferenceTasks) {
             return initialInferenceTasks.stream()
-                .filter(InitialInferenceTask::isDone)
+                .filter(InitialInferenceTask::isNotDone)
                 .count();
 
         }
@@ -28,14 +28,33 @@ public class ModelQueue {
     public long countRecurrentInferenceTasksNotStarted() {
         synchronized(recurrentInferenceTasks) {
             return recurrentInferenceTasks.stream()
-                .filter(task -> !task.isDone())
+                .filter(task -> task.isNotDone())
                 .count();
         }
     }
-    public List<InitialInferenceTask> getInitialInferenceTasksNotStarted(int num) {
+
+    public long countInitialInferenceTasksNotStartedForAnEpoch(int epoch) {
         synchronized(initialInferenceTasks) {
             return initialInferenceTasks.stream()
-                .filter(InitialInferenceTask::isDone)
+                    .filter(InitialInferenceTask::isNotDone)
+                    .filter(t -> t.getEpoch() == epoch)
+                    .count();
+
+        }
+    }
+    public long countRecurrentInferenceTasksNotStartedForAnEpoch(int epoch) {
+        synchronized(recurrentInferenceTasks) {
+            return recurrentInferenceTasks.stream()
+                    .filter(task -> task.isNotDone())
+                    .filter(t -> t.getEpoch() == epoch)
+                    .count();
+        }
+    }
+    public List<InitialInferenceTask> getInitialInferenceTasksNotStarted(int num, int epochRestriction) {
+        synchronized(initialInferenceTasks) {
+            return initialInferenceTasks.stream()
+                .filter(InitialInferenceTask::isNotDone)
+                .filter( task -> epochRestriction == task.getEpoch())
                 .limit(num)  // as we use a list this should be the first once entered in the list (FIFO) - but we should test this
                 .collect(Collectors.toList());
         }
@@ -44,15 +63,16 @@ public class ModelQueue {
     public List<ControllerTask> getControllerTasksNotStarted() {
         synchronized(controllerTasks) {
             return controllerTasks.stream()
-                .filter(ControllerTask::isDone)
+                .filter(ControllerTask::isNotDone)
                 .collect(Collectors.toList());
         }
     }
 
-    public List<RecurrentInferenceTask> getRecurrentInferenceTasksNotStarted(int num) {
+    public List<RecurrentInferenceTask> getRecurrentInferenceTasksNotStarted(int num, int epochRestriction) {
         synchronized(recurrentInferenceTasks) {
             return recurrentInferenceTasks.stream()
-                .filter(task -> !task.isDone())
+                .filter(task -> task.isNotDone())
+                    .filter( task -> epochRestriction == task.getEpoch())
                 .limit(num)  // as we use a list this should be the first once entered in the list (FIFO) - but we should test this
                 .collect(Collectors.toList());
         }
@@ -99,6 +119,7 @@ public class ModelQueue {
     public void addRecurrentInferenceTask(RecurrentInferenceTask task) {
         recurrentInferenceTasks.add(task);
     }
+
 
     public void removeRecurrentInferenceTask(RecurrentInferenceTask task) {
         recurrentInferenceTasks.remove(task);

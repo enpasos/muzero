@@ -7,16 +7,15 @@
 
 spring:
   datasource:
-    url: "jdbc:h2:mem:platform;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS muzero;"
+    url: "jdbc:h2:mem:muzero"
     username: muzero
     password: muzero
     driver-class-name: org.h2.Driver
   jpa:
-#    hbm2ddl:
-#      auto: create
     hibernate:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
+
 
 muzero:
   activeGame: TICTACTOE
@@ -84,9 +83,6 @@ muzero:
       numChannelsOutputLayerSimilarityProjector: 500
       numChannelsHiddenLayerSimilarityPredictor: 250
       numChannelsOutputLayerSimilarityPredictor: 500
-
-
-      replayFraction: 0.0
 
       offPolicyCorrectionOn: false
       allOrNothingOn: true

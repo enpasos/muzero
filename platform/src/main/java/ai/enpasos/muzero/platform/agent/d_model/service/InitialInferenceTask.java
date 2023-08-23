@@ -9,13 +9,21 @@ import lombok.ToString;
 public class InitialInferenceTask {
     public InitialInferenceTask(Game game) {
         this.game = game;
+        epoch = -1;
+    }
+    public InitialInferenceTask(Game game, int epoch) {
+        this.game = game;
+        this.epoch = epoch;
     }
 
     private Game game;
     private NetworkIO networkOutput;
     private boolean done;
+    private int epoch ;
 
-
+    public synchronized int getEpoch() {
+        return epoch;
+    }
 
     public synchronized Game getGame() {
         return game;
@@ -37,7 +45,7 @@ public class InitialInferenceTask {
     }
 
 
-    public synchronized boolean isDone() {
+    public synchronized boolean isNotDone() {
         return !done;
     }
 

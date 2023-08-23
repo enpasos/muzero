@@ -85,10 +85,14 @@ public class ModelController implements DisposableBean, Runnable {
         try {
             while (running) {
                 int numParallelInferences = config.getNumParallelInferences();
-                controllerTasks();
-                initialInferences(numParallelInferences);
-                recurrentInferences(numParallelInferences);
-                Thread.sleep(1);
+                if (isMultiModelMode()) {
+                    multiModelModeLoop(numParallelInferences);
+                } else {
+                    controllerTasks();
+                    initialInferences(numParallelInferences );
+                    recurrentInferences(numParallelInferences);
+                    Thread.sleep(1);
+                }
             }
         } catch (InterruptedException e) {
             // Thread.currentThread().interrupt();
@@ -100,6 +104,21 @@ public class ModelController implements DisposableBean, Runnable {
         log.info("ModelController stopped.");
     }
 
+    private void multiModelModeLoop(int numParallelInferences) throws InterruptedException {
+        while(existsTaskForAnyEpoch()) {
+            for (int epoch = this.controllerTask.startEpoch; epoch <= this.controllerTask.lastEpoch; epoch++) {
+                loadModelOrCreateIfNotExisting(epoch);
+                while (existsTaskForEpoch(epoch)) {
+                    initialInferences(numParallelInferences, epoch);
+                    recurrentInferences(numParallelInferences, epoch);
+                    Thread.sleep(1);
+                }
+            }
+        }
+    }
+
+
+
     private void close() {
         if (nDManager != null)
             nDManager.close();
@@ -107,6 +126,12 @@ public class ModelController implements DisposableBean, Runnable {
             network.getModel().close();
 
     }
+
+    boolean isMultiModelMode() {
+        return controllerTask != null ;
+    }
+
+    private ControllerTask controllerTask;
 
 
     private void controllerTasks() {
@@ -117,6 +142,13 @@ public class ModelController implements DisposableBean, Runnable {
 
         for (ControllerTask task : localControllerTaskList) {
             switch (task.getTaskType()) {
+                case START_MULTI_MODEL:
+                    controllerTask = task;
+
+                    break;
+                case STOP_MULTI_MODEL:
+                    controllerTask = null;
+                    break;
                 case LOAD_LATEST_MODEL:
                     close();
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
@@ -133,23 +165,8 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case LOAD_LATEST_MODEL_OR_CREATE_IF_NOT_EXISTING:
-                    close();
-                    model = Model.newInstance(config.getModelName(), Device.gpu());
-                    if (model.getBlock() == null) {
-                        MuZeroBlock block = new MuZeroBlock(config);
-                        model.setBlock(block);
-                        if (task.epoch == -1) {
-                            loadModelParametersOrCreateIfNotExisting(model);
-                        } else {
-                            loadModelParametersOrCreateIfNotExisting(model, Paths.get(config.getNetworkBaseDir()),
-                                    Map.ofEntries(entry("epoch", task.epoch + "")));
-                        }
-                    }
-                    network = new Network(config, model);
-                    nDManager = network.getNDManager().newSubManager();
-                    network.initActionSpaceOnDevice(nDManager);
-                    network.setHiddenStateNDManager(nDManager);
-                    this.modelState.setEpoch(getEpochFromModel(model));
+                    int epoch = task.epoch;
+                    loadModelOrCreateIfNotExisting(epoch);
                     break;
                 case TRAIN_MODEL_POLICY_VALUE:
                     trainNetwork(network.getModel(), TrainingTypeKey.POLICY_VALUE);
@@ -173,6 +190,27 @@ public class ModelController implements DisposableBean, Runnable {
             task.setDone(true);
         }
 
+    }
+
+    private void loadModelOrCreateIfNotExisting(int epoch) {
+        Model model;
+        close();
+        model = Model.newInstance(config.getModelName(), Device.gpu());
+        if (model.getBlock() == null) {
+            MuZeroBlock block = new MuZeroBlock(config);
+            model.setBlock(block);
+            if (epoch == -1) {
+                loadModelParametersOrCreateIfNotExisting(model);
+            } else {
+                loadModelParametersOrCreateIfNotExisting(model, Paths.get(config.getNetworkBaseDir()),
+                        Map.ofEntries(entry("epoch", epoch + "")));
+            }
+        }
+        network = new Network(config, model);
+        nDManager = network.getNDManager().newSubManager();
+        network.initActionSpaceOnDevice(nDManager);
+        network.setHiddenStateNDManager(nDManager);
+        this.modelState.setEpoch(getEpochFromModel(model));
     }
 
 
@@ -331,9 +369,13 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
     private void initialInferences(int numParallelInferences) {
+        initialInferences(numParallelInferences, -1);
+    }
+
+    private void initialInferences(int numParallelInferences, int epochRestriction) {
 
         List<InitialInferenceTask> localInitialInferenceTaskList =
-            modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
+            modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences, epochRestriction);
 
         if (localInitialInferenceTaskList.isEmpty()) return;
 
@@ -355,9 +397,12 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
     private void recurrentInferences(int numParallelInferences) {
+        recurrentInferences(numParallelInferences, -1);
+    }
+    private void recurrentInferences(int numParallelInferences, int  epochRestriction) {
 
         List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
-            modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
+            modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences, epochRestriction);
 
         if (localRecurrentInferenceTaskList.isEmpty()) return;
 
@@ -376,6 +421,18 @@ public class ModelController implements DisposableBean, Runnable {
             task.setDone(true);
         });
 
+    }
+
+
+
+    private boolean existsTaskForEpoch(int epoch) {
+        return modelQueue.countInitialInferenceTasksNotStartedForAnEpoch(epoch)>0
+                || modelQueue.countRecurrentInferenceTasksNotStartedForAnEpoch(epoch)>0;
+    }
+
+    private boolean existsTaskForAnyEpoch() {
+        return modelQueue.countInitialInferenceTasksNotStarted()>0
+                || modelQueue.countRecurrentInferenceTasksNotStarted()>0;
     }
 
 

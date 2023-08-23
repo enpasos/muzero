@@ -1,18 +1,23 @@
 package ai.enpasos.muzero.platform.agent.d_model.service;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.ToString;
 
 @ToString
-
+@Builder
+@AllArgsConstructor
 public class ControllerTask {
 
     private final ControllerTaskType taskType;
     private NetworkIO networkOutput;
     private volatile boolean done;
+    int startEpoch;
+    int lastEpoch;
 
 
-
+    @Builder.Default
     int epoch = -1;
 
     public ControllerTask(ControllerTaskType taskType) {
@@ -20,7 +25,7 @@ public class ControllerTask {
     }
 
 
-    public synchronized boolean isDone() {
+    public synchronized boolean isNotDone() {
         return !done;
     }
 

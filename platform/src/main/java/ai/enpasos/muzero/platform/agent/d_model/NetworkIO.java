@@ -41,7 +41,8 @@ public class NetworkIO {
     private float[] policyValues;
     private float[] valueDistribution;
     private double value;
-
+    int numModels;
+   // private double valueMean;
     private double valueStd;
 
     private double reward;

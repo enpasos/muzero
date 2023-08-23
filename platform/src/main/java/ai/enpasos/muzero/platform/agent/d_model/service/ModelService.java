@@ -14,8 +14,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.platform.common.Functions.*;
 
 
 @Component
@@ -37,7 +42,7 @@ public class ModelService {
         InitialInferenceTask task = new InitialInferenceTask(game);
         modelQueue.addInitialInferenceTask(task);
 
-        while (task.isDone()) {
+        while (task.isNotDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -55,7 +60,7 @@ public class ModelService {
         games.forEach(game -> tasks.add(new InitialInferenceTask(game)));
         modelQueue.addInitialInferenceTasks(tasks);
 
-        while (tasks.stream().anyMatch(InitialInferenceTask::isDone)) {
+        while (tasks.stream().anyMatch(InitialInferenceTask::isNotDone)) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -67,14 +72,87 @@ public class ModelService {
         return CompletableFuture.completedFuture(results);
     }
 
+    @Async()
+    public CompletableFuture<List<NetworkIO>> initialInference(List<Game> games, int startEpoch, int endEpoch) {
 
+        modelQueue.addControllerTask(
+                ControllerTask.builder()
+                        .taskType(ControllerTaskType.START_MULTI_MODEL)
+                        .startEpoch(startEpoch)
+                        .lastEpoch(endEpoch)
+                        .build());
+
+        List<InitialInferenceTask> tasks = new ArrayList<>();
+        Map<Integer, List<InitialInferenceTask>> map = new TreeMap<>();
+
+        for (int g = 0; g < games.size(); g++) {
+            Game game = games.get(g);
+            List<InitialInferenceTask> tasks2 = new ArrayList<>();
+            map.put(g, tasks2);
+            for (int epoch = startEpoch; epoch <= endEpoch; epoch++) {
+                InitialInferenceTask task = new InitialInferenceTask(game, epoch);
+                tasks.add(task);
+                tasks2.add(task);
+            }
+        }
+
+        modelQueue.addInitialInferenceTasks(tasks);
+
+        while (tasks.stream().anyMatch(InitialInferenceTask::isNotDone)) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        tasks.forEach(task -> modelQueue.removeInitialInferenceTask(task));
+
+        modelQueue.addControllerTask(
+                ControllerTask.builder()
+                        .taskType(ControllerTaskType.STOP_MULTI_MODEL)
+                        .build());
+
+
+        List<NetworkIO> results = map.keySet().stream().map(g -> {
+            List<InitialInferenceTask> tasks2 = map.get(g);
+            int c = tasks2.size();
+            double valueMean = tasks2.stream().mapToDouble(t -> t.getNetworkOutput().getValue()).sum() / c;
+            double valueVariance = tasks2.stream().mapToDouble(t -> {
+                double v = t.getNetworkOutput().getValue() - valueMean;
+                return v * v;
+            }).sum() / c;
+            int n = config.getActionSpaceSize();
+            float[] p = new float[n];
+            IntStream.range(0, c).forEach(i -> {
+                NetworkIO io = tasks2.get(i).getNetworkOutput();
+                IntStream.range(0, n).forEach(a -> {
+                    p[a] += io.getPolicyValues()[a];
+                });
+            });
+            IntStream.range(0, n).forEach(a -> {
+                p[a] /= n;
+            });
+
+            NetworkIO io = tasks2.get(c - 1).getNetworkOutput();
+            io.setValue(valueMean);
+            io.setValueStd(Math.sqrt(valueVariance));
+            io.setNumModels(c);
+            io.setPolicyValues(p);
+            io.setLogits(toFloat(ln(toDouble(p))));
+            return io;
+        }).collect(Collectors.toList());
+
+
+        //   List<NetworkIO> results = tasks.stream().map(InitialInferenceTask::getNetworkOutput).collect(Collectors.toList());
+        return CompletableFuture.completedFuture(results);
+    }
 
 
     @Async()
     public CompletableFuture<Void> getEpoch() {
         ControllerTask task = new ControllerTask(ControllerTaskType.GET_EPOCH);
         modelQueue.addControllerTask(task);
-        while (task.isDone()) {
+        while (task.isNotDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -105,6 +183,7 @@ public class ModelService {
         ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL);
         return handleControllerTask(task);
     }
+
     @Async()
     public CompletableFuture<Void> loadLatestModelOrCreateIfNotExisting(int epoch) {
         ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL_OR_CREATE_IF_NOT_EXISTING);
@@ -118,10 +197,11 @@ public class ModelService {
         task.epoch = epoch;
         return handleControllerTask(task);
     }
+
     @NotNull
     private CompletableFuture<Void> handleControllerTask(ControllerTask task) {
         modelQueue.addControllerTask(task);
-        while (task.isDone()) {
+        while (task.isNotDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -133,22 +213,20 @@ public class ModelService {
     }
 
 
-
-
     @Async()
     public CompletableFuture<NetworkIO> recurrentInference(NDArray hiddenState, int action) {
-            Node node = Node.builder()
-        .hiddenState(hiddenState)
-        .build();
+        Node node = Node.builder()
+                .hiddenState(hiddenState)
+                .build();
         Node node2 = Node.builder()
-            .action(config.newAction(4))
-            .build();
-         List<Node> searchPath = List.of(node, node2);
+                .action(config.newAction(action))
+                .build();
+        List<Node> searchPath = List.of(node, node2);
 
         RecurrentInferenceTask task = new RecurrentInferenceTask(searchPath);
         modelQueue.addRecurrentInferenceTask(task);
 
-        while (!task.isDone()) {
+        while (task.isNotDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -164,7 +242,7 @@ public class ModelService {
         RecurrentInferenceTask task = new RecurrentInferenceTask(searchPath);
         modelQueue.addRecurrentInferenceTask(task);
 
-        while (!task.isDone()) {
+        while (task.isNotDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -174,6 +252,70 @@ public class ModelService {
         modelQueue.removeRecurrentInferenceTask(task);
         return CompletableFuture.completedFuture(task.getNetworkOutput());
     }
+
+
+    @Async()
+    public CompletableFuture<NetworkIO> recurrentInference(List<Node> searchPath, int startEpoch, int endEpoch) {
+
+        modelQueue.addControllerTask(
+                ControllerTask.builder()
+                        .taskType(ControllerTaskType.START_MULTI_MODEL)
+                        .startEpoch(startEpoch)
+                        .lastEpoch(endEpoch)
+                        .build());
+
+        List<RecurrentInferenceTask> tasks = new ArrayList<>();
+
+        for (int epoch = startEpoch; epoch <= endEpoch; epoch++) {
+            RecurrentInferenceTask task = new RecurrentInferenceTask(searchPath, epoch);
+            tasks.add(task);
+            modelQueue.addRecurrentInferenceTask(task);
+        }
+
+
+        while (tasks.stream().anyMatch(RecurrentInferenceTask::isNotDone)) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        tasks.forEach(task -> modelQueue.removeRecurrentInferenceTask(task));
+
+        modelQueue.addControllerTask(
+                ControllerTask.builder()
+                        .taskType(ControllerTaskType.STOP_MULTI_MODEL)
+                        .build());
+
+
+        int c = tasks.size();
+        double valueMean = tasks.stream().mapToDouble(t -> t.getNetworkOutput().getValue()).sum() / c;
+        double valueVariance = tasks.stream().mapToDouble(t -> {
+            double v = t.getNetworkOutput().getValue() - valueMean;
+            return v * v;
+        }).sum() / c;
+        int n = config.getActionSpaceSize();
+        float[] p = new float[n];
+        IntStream.range(0, c).forEach(i -> {
+            NetworkIO io = tasks.get(i).getNetworkOutput();
+            IntStream.range(0, n).forEach(a -> {
+                p[a] += io.getPolicyValues()[a];
+            });
+        });
+        IntStream.range(0, n).forEach(a -> {
+            p[a] /= n;
+        });
+
+        NetworkIO io = tasks.get(c - 1).getNetworkOutput();
+        io.setValue(valueMean);
+        io.setValueStd(Math.sqrt(valueVariance));
+        io.setNumModels(c);
+        io.setPolicyValues(p);
+        io.setLogits(toFloat(ln(toDouble(p))));
+
+        return CompletableFuture.completedFuture(io);
+    }
+
 
     @Async()
     public CompletableFuture<Void> trainModel(TrainingTypeKey trainingTypeKey) {
@@ -187,12 +329,12 @@ public class ModelService {
 
     public void startScope() {
         ControllerTask task = new ControllerTask(ControllerTaskType.START_SCOPE);
-          handleControllerTask(task).join();
+        handleControllerTask(task).join();
     }
 
 
-    public void  endScope() {
+    public void endScope() {
         ControllerTask task = new ControllerTask(ControllerTaskType.END_SCOPE);
-         handleControllerTask(task).join();
+        handleControllerTask(task).join();
     }
 }

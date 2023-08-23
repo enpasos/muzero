@@ -56,8 +56,9 @@ class SearchManagerTest {
     }
 
     @Test
-    void searchManagerTest() {
+    void searchManagerTest() throws ExecutionException, InterruptedException {
         int n = 200;
+        init();
         config.setNumSimulations(  n);
         config.setCVisit(16);
         Game game = config.newGame(true,true);
