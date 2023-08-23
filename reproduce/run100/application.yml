@@ -85,7 +85,6 @@ muzero:
 
       numParallelInferences: 1000
 
-      withValueStd: false
 
       playTypes:
         PLAYOUT:

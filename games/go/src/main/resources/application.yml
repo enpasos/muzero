@@ -91,7 +91,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withValueStd: false
+      withValueStdInModel: false
 
       playTypes:
         PLAYOUT:
@@ -223,7 +223,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withValueStd: false
+      withValueStdInModel: false
 
       playTypes:
         PLAYOUT:

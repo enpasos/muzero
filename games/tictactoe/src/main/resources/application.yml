@@ -100,7 +100,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withValueStd: true
+      withValueStdInModel: false
 
 
 

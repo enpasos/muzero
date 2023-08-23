@@ -156,7 +156,7 @@ public class MuZeroConfig {
     }
 
     public boolean isWithValueStd() {
-        return getConf().withValueStd;
+        return getConf().withValueStdInModel;
     }
 
     public boolean allOrNothingOn() {
@@ -551,7 +551,7 @@ public class MuZeroConfig {
         protected int replayTimestepsFromEnd;
 
 
-        boolean withValueStd;
+        boolean withValueStdInModel;
         double offPolicyRatioLimit;
 
 
