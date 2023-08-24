@@ -85,14 +85,14 @@ public class ModelController implements DisposableBean, Runnable {
         try {
             while (running) {
                 int numParallelInferences = config.getNumParallelInferences();
+                controllerTasks();
                 if (isMultiModelMode()) {
                     multiModelModeLoop(numParallelInferences);
                 } else {
-                    controllerTasks();
                     initialInferences(numParallelInferences );
                     recurrentInferences(numParallelInferences);
-                    Thread.sleep(1);
                 }
+                Thread.sleep(1);
             }
         } catch (InterruptedException e) {
             // Thread.currentThread().interrupt();
@@ -105,16 +105,21 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
     private void multiModelModeLoop(int numParallelInferences) throws InterruptedException {
-        while(existsTaskForAnyEpoch()) {
+      //  while(existsTaskForAnyEpoch()) {
             for (int epoch = this.controllerTask.startEpoch; epoch <= this.controllerTask.lastEpoch; epoch++) {
                 loadModelOrCreateIfNotExisting(epoch);
-                while (existsTaskForEpoch(epoch)) {
-                    initialInferences(numParallelInferences, epoch);
-                    recurrentInferences(numParallelInferences, epoch);
-                    Thread.sleep(1);
-                }
+              //  while (existsTaskForEpoch(epoch)) {
+                boolean changes;
+                do {
+                    changes = false;
+                    changes |= initialInferences(numParallelInferences, epoch);
+                    changes |= recurrentInferences(numParallelInferences, epoch);
+                    Thread.sleep(5);
+                } while (changes);
+              //
+              //  }
             }
-        }
+       // }
     }
 
 
@@ -380,16 +385,16 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
-    private void initialInferences(int numParallelInferences) {
-        initialInferences(numParallelInferences, -1);
+    private boolean initialInferences(int numParallelInferences) {
+        return initialInferences(numParallelInferences, -1);
     }
 
-    private void initialInferences(int numParallelInferences, int epochRestriction) {
+    private boolean initialInferences(int numParallelInferences, int epochRestriction) {
 
         List<InitialInferenceTask> localInitialInferenceTaskList =
             modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences, epochRestriction);
 
-        if (localInitialInferenceTaskList.isEmpty()) return;
+        if (localInitialInferenceTaskList.isEmpty()) return false;
 
         log.debug("runInitialInference() for {} games", localInitialInferenceTaskList.size());
 
@@ -407,18 +412,18 @@ public class ModelController implements DisposableBean, Runnable {
             task.setDone(true);
         });
 
-
+        return true;
     }
 
-    private void recurrentInferences(int numParallelInferences) {
-        recurrentInferences(numParallelInferences, -1);
+    private boolean recurrentInferences(int numParallelInferences) {
+        return recurrentInferences(numParallelInferences, -1);
     }
-    private void recurrentInferences(int numParallelInferences, int  epochRestriction) {
+    private boolean recurrentInferences(int numParallelInferences, int  epochRestriction) {
 
         List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
             modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences, epochRestriction);
 
-        if (localRecurrentInferenceTaskList.isEmpty()) return;
+        if (localRecurrentInferenceTaskList.isEmpty()) return true;
 
         log.debug("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
 
@@ -436,20 +441,20 @@ public class ModelController implements DisposableBean, Runnable {
             task.setNetworkOutput(networkIO);
             task.setDone(true);
         });
-
+        return false;
     }
 
 
 
-    private boolean existsTaskForEpoch(int epoch) {
-        return modelQueue.countInitialInferenceTasksNotStartedForAnEpoch(epoch)>0
-                || modelQueue.countRecurrentInferenceTasksNotStartedForAnEpoch(epoch)>0;
-    }
-
-    private boolean existsTaskForAnyEpoch() {
-        return modelQueue.countInitialInferenceTasksNotStarted()>0
-                || modelQueue.countRecurrentInferenceTasksNotStarted()>0;
-    }
+//    private boolean existsTaskForEpoch(int epoch) {
+//        return modelQueue.countInitialInferenceTasksNotStartedForAnEpoch(epoch)>0
+//                || modelQueue.countRecurrentInferenceTasksNotStartedForAnEpoch(epoch)>0;
+//    }
+//
+//    private boolean existsTaskForAnyEpoch() {
+//        return modelQueue.countInitialInferenceTasksNotStarted()>0
+//                || modelQueue.countRecurrentInferenceTasksNotStarted()>0;
+//    }
 
 
     public DurAndMem getInferenceDuration() {
