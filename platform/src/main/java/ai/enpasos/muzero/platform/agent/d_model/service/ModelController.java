@@ -349,6 +349,8 @@ public class ModelController implements DisposableBean, Runnable {
     private void loadModelParametersOrCreateIfNotExisting(Model model) {
         loadModelParametersOrCreateIfNotExisting(model,  null,  null);
     }
+
+    private boolean isNumParametersLogged;
     private void loadModelParametersOrCreateIfNotExisting(Model model, Path modelPath, Map<String, ?> options) {
         try {
             String outputDir = config.getNetworkBaseDir();
@@ -371,7 +373,10 @@ public class ModelController implements DisposableBean, Runnable {
 
 
         long numberOfParameters = model.getBlock().getParameters().stream().mapToLong(p -> p.getValue().getArray().size()).sum();
-        log.info("{} parameters in the model.", numberOfParameters);
+        if (!isNumParametersLogged) {
+            log.info("{} parameters in the model.", numberOfParameters);
+            isNumParametersLogged = true;
+        }
 
     }
 

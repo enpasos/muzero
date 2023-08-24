@@ -86,7 +86,7 @@ public class Node {
     }
 
     public NDArray getHiddenState(int epoch) {
-        if (this.hiddenState != null && this.mapHiddenStateToEpoch != null && !this.mapHiddenStateToEpoch.containsKey(epoch)) {
+        if (this.hiddenState != null && (this.mapHiddenStateToEpoch == null || !this.mapHiddenStateToEpoch.containsKey(epoch))) {
             return this.hiddenState;
         }
         return    this.mapHiddenStateToEpoch.get(epoch);

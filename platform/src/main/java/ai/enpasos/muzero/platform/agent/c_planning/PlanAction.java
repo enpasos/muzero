@@ -133,10 +133,13 @@ public class PlanAction {
             game.renderSuggestionFromPriors(config, sm.getRoot());
           //  log.info("\n" + game.render());
         }
-        if (!fastRuleLearning) sm.addExplorationNoise();
-        if (render && game.isDebug()) {
-            game.renderSuggestionFromPriors(config, sm.getRoot());
-            //  log.info("\n" + game.render());
+        if (!fastRuleLearning) {
+            sm.addExplorationNoise();
+            if (render && game.isDebug()) {
+                log.debug("\nadded dirichlet exploration noise");
+                game.renderSuggestionFromPriors(config, sm.getRoot());
+                //  log.info("\n" + game.render());
+            }
         }
         sm.gumbelActionsStart(withGumbel);
         sm.drawCandidateAndAddValueStart();
