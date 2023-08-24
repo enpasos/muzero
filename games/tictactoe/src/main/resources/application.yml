@@ -10,7 +10,7 @@ logging:
     # org.hibernate.type: TRACE
     root: WARN
     ai.enpasos: DEBUG
-    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
+    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: DEBUG
     ai.djl: INFO
 spring:
   datasource:

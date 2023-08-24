@@ -109,13 +109,13 @@ public class ModelController implements DisposableBean, Runnable {
             for (int epoch = this.controllerTask.startEpoch; epoch <= this.controllerTask.lastEpoch; epoch++) {
                 loadModelOrCreateIfNotExisting(epoch);
               //  while (existsTaskForEpoch(epoch)) {
-                boolean changes;
+                boolean changesInInitialInferences;
+                boolean changesInRecurrentInferences;
                 do {
-                    changes = false;
-                    changes |= initialInferences(numParallelInferences, epoch);
-                    changes |= recurrentInferences(numParallelInferences, epoch);
-                    Thread.sleep(5);
-                } while (changes);
+                     changesInInitialInferences = initialInferences(numParallelInferences, epoch);
+                     changesInRecurrentInferences = recurrentInferences(numParallelInferences, epoch);
+                    Thread.sleep(1);
+                } while (changesInInitialInferences || changesInRecurrentInferences);
               //
               //  }
             }
@@ -396,7 +396,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         if (localInitialInferenceTaskList.isEmpty()) return false;
 
-        log.debug("runInitialInference() for {} games", localInitialInferenceTaskList.size());
+        log.debug("runInitialInference() for {} games and epoch {}", localInitialInferenceTaskList.size(), epochRestriction);
 
         List<Game> games = localInitialInferenceTaskList.stream().map(InitialInferenceTask::getGame).collect(Collectors.toList());
 
@@ -423,9 +423,9 @@ public class ModelController implements DisposableBean, Runnable {
         List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
             modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences, epochRestriction);
 
-        if (localRecurrentInferenceTaskList.isEmpty()) return true;
+        if (localRecurrentInferenceTaskList.isEmpty()) return false;
 
-        log.debug("runRecurrentInference() for {} games", localRecurrentInferenceTaskList.size());
+        log.debug("runRecurrentInference() for {} games and epoch {}", localRecurrentInferenceTaskList.size(), epochRestriction);
 
         List<List<Node>> searchPathList = localRecurrentInferenceTaskList.stream().map(RecurrentInferenceTask::getSearchPath).collect(Collectors.toList());
 
@@ -441,7 +441,7 @@ public class ModelController implements DisposableBean, Runnable {
             task.setNetworkOutput(networkIO);
             task.setDone(true);
         });
-        return false;
+        return true;
     }
 
 
