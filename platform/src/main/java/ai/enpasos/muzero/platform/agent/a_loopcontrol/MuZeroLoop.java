@@ -118,6 +118,7 @@ public class MuZeroLoop {
 
             log.info("training ...");
           //  modelService.trainModel(TrainingTypeKey.RULES).get();
+            modelService.loadLatestModelOrCreateIfNotExisting().get();
             modelService.trainModel(TrainingTypeKey.POLICY_VALUE).get();
 
             epoch = modelState.getEpoch();

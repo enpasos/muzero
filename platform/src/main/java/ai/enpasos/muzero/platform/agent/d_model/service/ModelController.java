@@ -105,21 +105,16 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
     private void multiModelModeLoop(int numParallelInferences) throws InterruptedException {
-      //  while(existsTaskForAnyEpoch()) {
-            for (int epoch = this.controllerTask.startEpoch; epoch <= this.controllerTask.lastEpoch; epoch++) {
-                loadModelOrCreateIfNotExisting(epoch);
-              //  while (existsTaskForEpoch(epoch)) {
-                boolean changesInInitialInferences;
-                boolean changesInRecurrentInferences;
-                do {
-                     changesInInitialInferences = initialInferences(numParallelInferences, epoch);
-                     changesInRecurrentInferences = recurrentInferences(numParallelInferences, epoch);
-                    Thread.sleep(1);
-                } while (changesInInitialInferences || changesInRecurrentInferences);
-              //
-              //  }
-            }
-       // }
+        for (int epoch = this.controllerTask.startEpoch; epoch <= this.controllerTask.lastEpoch; epoch++) {
+            loadModelOrCreateIfNotExisting(epoch);
+            boolean changesInInitialInferences;
+            boolean changesInRecurrentInferences;
+            do {
+                changesInInitialInferences = initialInferences(numParallelInferences, epoch);
+                changesInRecurrentInferences = recurrentInferences(numParallelInferences, epoch);
+                Thread.sleep(1);
+            } while (changesInInitialInferences || changesInRecurrentInferences);
+        }
     }
 
 
