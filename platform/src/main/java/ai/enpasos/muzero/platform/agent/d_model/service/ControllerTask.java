@@ -1,13 +1,11 @@
 package ai.enpasos.muzero.platform.agent.d_model.service;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.ToString;
 
 @ToString
 @Builder
-@AllArgsConstructor
 public class ControllerTask {
 
     private final ControllerTaskType taskType;
@@ -22,6 +20,16 @@ public class ControllerTask {
 
     public ControllerTask(ControllerTaskType taskType) {
         this.taskType = taskType;
+        this.epoch = -1;
+    }
+
+    public ControllerTask(ControllerTaskType taskType, NetworkIO networkOutput, boolean done, int startEpoch, int lastEpoch, int epoch) {
+        this.taskType = taskType;
+        this.networkOutput = networkOutput;
+        this.done = done;
+        this.startEpoch = startEpoch;
+        this.lastEpoch = lastEpoch;
+        this.epoch = epoch;
     }
 
 

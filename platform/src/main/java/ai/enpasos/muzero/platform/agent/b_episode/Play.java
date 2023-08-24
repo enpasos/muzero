@@ -127,6 +127,8 @@ public class Play {
             games = playService.playNewGames(config.getNumParallelGamesPlayed(),
                 PlayParameters.builder()
                     .render(render)
+                    .epoch(epoch)
+                    .numModels(10)
                     .fastRulesLearning(fastRuleLearning)
                     .build());
         }

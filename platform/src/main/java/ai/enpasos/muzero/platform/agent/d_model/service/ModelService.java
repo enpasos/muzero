@@ -139,12 +139,16 @@ public class ModelService {
             io.setNumModels(c);
             io.setPolicyValues(p);
             io.setLogits(toFloat(ln(toDouble(p))));
+            IntStream.range(0, c).forEach(i -> {
+                        NetworkIO ioLocal = tasks2.get(i).getNetworkOutput();
+                        io.getMapHiddenStateToEpoch().put(ioLocal.getEpoch(), ioLocal.getHiddenState());
+                    }
+            );
             return io;
         }).collect(Collectors.toList());
 
 
-        //   List<NetworkIO> results = tasks.stream().map(InitialInferenceTask::getNetworkOutput).collect(Collectors.toList());
-        return CompletableFuture.completedFuture(results);
+            return CompletableFuture.completedFuture(results);
     }
 
 
@@ -312,7 +316,11 @@ public class ModelService {
         io.setNumModels(c);
         io.setPolicyValues(p);
         io.setLogits(toFloat(ln(toDouble(p))));
-
+        IntStream.range(0, c).forEach(i -> {
+                    NetworkIO ioLocal = tasks.get(i).getNetworkOutput();
+                    io.getMapHiddenStateToEpoch().put(ioLocal.getEpoch(), ioLocal.getHiddenState());
+                }
+        );
         return CompletableFuture.completedFuture(io);
     }
 

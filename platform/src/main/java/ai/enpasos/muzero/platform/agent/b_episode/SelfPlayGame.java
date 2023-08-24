@@ -44,13 +44,6 @@ public class SelfPlayGame {
         while (untilEnd &&  playParameters.isReplay() ?
 
                 playParameters.isReplay() && count <= numOfActions && count <= countMax
- //               && (!game.getEpisodeDO().isHybrid()
-                        //||
-//                        (game.getEpisodeDO().getTStartNormal() <= game.getEpisodeDO().getLastTimeWithAction() + 1
-//                                && game.getEpisodeDO().getTimeStep(game.getEpisodeDO().getLastTimeWithAction() + 2).getK() > config.getKMinLimit()
-//                        )
-//                        )
-
                 :
                 ((!untilEnd && count == 1)
                         || (untilEnd && !game.isDone(playParameters.isJustReplayWithInitialReference())))
@@ -66,7 +59,9 @@ public class SelfPlayGame {
                         justInitialInferencePolicy,
                         playParameters.getPRandomActionRawAverage(),
                         playParameters.replay,
-                        playParameters.withGumbel);   // check parameter withRandomActions
+                        playParameters.withGumbel,
+                        playParameters.numModels,
+                        playParameters.epoch);   // check parameter withRandomActions
                 if (playParameters.isReplay()) {
                     game.calculateK();
                     game.justRemoveLastAction(action);
@@ -85,10 +80,6 @@ public class SelfPlayGame {
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);
         } else if (playParameters.isReplay()) {
-            // replay
-//            List<Double> ks = new ArrayList<>();
-//IntStream.range(0, game.getEpisodeDO().getLastTime()).forEach(t -> ks.add(game.getEpisodeDO().getTimeStep(t).getK()));
-//    log.info("epoch {}, id {}, ks = {}", game.getEpisodeDO().getTrainingEpoch(), game.getEpisodeDO().getId(),    ks.toString());
 
             game.resetAllOriginalActions();
         }

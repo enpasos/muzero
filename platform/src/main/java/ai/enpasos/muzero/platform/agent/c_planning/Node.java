@@ -60,6 +60,8 @@ public class Node {
     private double valueFromInference;
     private double valueStdFromInference;
     private NDArray hiddenState;
+    @Builder.Default
+    private Map<Integer,NDArray> mapHiddenStateToEpoch =   new HashMap<>();
     private double reward;
     private double entropyReward;
     private double multiplierLambda;
@@ -81,7 +83,13 @@ public class Node {
         this(config, prior);
         this.root = root;
         this.valueFromInference = 0f;
+    }
 
+    public NDArray getHiddenState(int epoch) {
+        if (this.hiddenState != null && this.mapHiddenStateToEpoch != null && !this.mapHiddenStateToEpoch.containsKey(epoch)) {
+            return this.hiddenState;
+        }
+        return    this.mapHiddenStateToEpoch.get(epoch);
     }
 
     public Node(MuZeroConfig config, double prior) {
@@ -237,8 +245,12 @@ public class Node {
         if (networkOutput == null)
             throw new MuZeroException("networkOutput must not be null");
 
-        setHiddenState(networkOutput.getHiddenState());
-
+        if (networkOutput.getEpoch() == -1) {
+            setHiddenState(networkOutput.getHiddenState());
+        } else {
+            this.mapHiddenStateToEpoch = networkOutput.getMapHiddenStateToEpoch();
+           // this.mapHiddenStateToEpoch.put(networkOutput.getEpoch(), networkOutput.getHiddenState());
+        }
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
@@ -278,7 +290,12 @@ public class Node {
             if (networkOutput == null) {
                 throw new MuZeroException("networkOutput must not be null here");
             }
-            setHiddenState(networkOutput.getHiddenState());
+            if (networkOutput.getEpoch() == -1) {
+                setHiddenState(networkOutput.getHiddenState());
+            } else {
+                this.mapHiddenStateToEpoch = networkOutput.getMapHiddenStateToEpoch();
+              //  this.mapHiddenStateToEpoch.put(networkOutput.getEpoch(), networkOutput.getHiddenState());
+            }
 
             setRewardFromModel(networkOutput);
             setEntropyRewardFromModel(networkOutput);

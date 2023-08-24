@@ -74,7 +74,7 @@ class InferenceTest2 {
     @Autowired
     ModelQueue inferenceQueue;
 
-    //@Test
+    @Test
     void testInference() throws ExecutionException, InterruptedException {
 
         init();

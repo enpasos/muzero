@@ -76,14 +76,27 @@ public class PlanAction {
             boolean justInitialInferencePolicy,
             double pRandomActionRawAverage,
             boolean replay,
-            boolean withGumbel
+            boolean withGumbel,
+            int numModels,
+            int epoch
     ) {
+        boolean isMultipleModels = false;
+        int startEpoch = epoch - numModels + 1;
+        int endEpoch = epoch;
+        if (numModels > 1 && startEpoch >= 0 ) {
+            isMultipleModels = true;
+        }
+
                 if (render && game.isDebug()) {
             log.info("\n" + game.render());
         }
         NetworkIO networkOutput = null;
         if (!fastRuleLearning) {
-            networkOutput = modelService.initialInference(game).join();
+            if (isMultipleModels) {
+                networkOutput = modelService.initialInference(List.of(game), startEpoch, endEpoch).join().get(0);
+            } else {
+                networkOutput = modelService.initialInference(game).join();
+            }
         }
 
         int t = game.getEpisodeDO().getLastTimeWithAction() + 1;
@@ -99,6 +112,7 @@ public class PlanAction {
         if (!fastRuleLearning) {
             double value = networkOutput .getValue();
             timeStepDO.setRootValueFromInitialInference((float) value);
+            timeStepDO.setRootValueStdFromInitialInference((float)networkOutput.getValueStd());
         }
         if (!replay) {
             boolean[] legalActions = new boolean[config.getActionSpaceSize()];
@@ -131,7 +145,11 @@ public class PlanAction {
             do {
                 List<Node> searchPath = sm.search();
                 try {
-                    networkOutput = modelService.recurrentInference(searchPath).get();
+                    if (isMultipleModels) {
+                        networkOutput = modelService.recurrentInference(searchPath, startEpoch, endEpoch).join() ;
+                    } else {
+                        networkOutput = modelService.recurrentInference(searchPath).get();
+                    }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } catch (ExecutionException e) {

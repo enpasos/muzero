@@ -24,9 +24,10 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
 import static ai.enpasos.muzero.platform.common.Functions.toDouble;
@@ -35,24 +36,37 @@ import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class NetworkIO {
     private float[] logits;
     private float[] policyValues;
     private float[] valueDistribution;
     private double value;
     int numModels;
-   // private double valueMean;
+    // private double valueMean;
     private double valueStd;
 
     private double reward;
 
     private NDArray hiddenState;
+
+    @Builder.Default
+    private Map<Integer,NDArray> mapHiddenStateToEpoch =  new HashMap<>();
+
+    @Builder.Default
+    private int epoch = -1;
+
+
     private Action action;
     private MuZeroConfig config;
 
 
     private List<NDArray> actionList;
+
+
+    public NetworkIO() {
+        this.epoch = -1;
+        mapHiddenStateToEpoch =   new HashMap<>();
+    }
 
 
     public double getEntropyFromPolicyValues() {

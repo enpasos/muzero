@@ -30,4 +30,9 @@ public class PlayParameters {
 
     boolean hybrid2;
 
+
+    int epoch;
+    @Builder.Default
+    int numModels = 1;
+
 }

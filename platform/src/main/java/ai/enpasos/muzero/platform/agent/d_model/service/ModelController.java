@@ -120,10 +120,17 @@ public class ModelController implements DisposableBean, Runnable {
 
 
     private void close() {
-        if (nDManager != null)
-            nDManager.close();
+        closeGeneralNDManager();
+        closeModel();
+    }
+
+    private void closeModel() {
         if (network != null && network.getModel() != null)
             network.getModel().close();
+    }
+    private void closeGeneralNDManager() {
+        if (nDManager != null)
+            nDManager.close();
 
     }
 
@@ -150,7 +157,7 @@ public class ModelController implements DisposableBean, Runnable {
                     controllerTask = null;
                     break;
                 case LOAD_LATEST_MODEL:
-                    close();
+                    closeModel();
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
                     log.info("loadLatestModel with model name {}", config.getModelName());
                     if (task.epoch == -1) {
@@ -194,7 +201,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void loadModelOrCreateIfNotExisting(int epoch) {
         Model model;
-        close();
+        closeModel();
         model = Model.newInstance(config.getModelName(), Device.gpu());
         if (model.getBlock() == null) {
             MuZeroBlock block = new MuZeroBlock(config);
@@ -207,7 +214,7 @@ public class ModelController implements DisposableBean, Runnable {
             }
         }
         network = new Network(config, model);
-        nDManager = network.getNDManager().newSubManager();
+        nDManager = network.getNDManager().getParentManager().newSubManager();
         network.initActionSpaceOnDevice(nDManager);
         network.setHiddenStateNDManager(nDManager);
         this.modelState.setEpoch(getEpochFromModel(model));
@@ -389,7 +396,9 @@ public class ModelController implements DisposableBean, Runnable {
 
         IntStream.range(0, localInitialInferenceTaskList.size()).forEach(g -> {
             InitialInferenceTask task = localInitialInferenceTaskList.get(g);
-            task.setNetworkOutput(networkOutput.get(g));
+            NetworkIO networkIO = networkOutput.get(g);
+            networkIO.setEpoch(epochRestriction);
+            task.setNetworkOutput(networkIO);
             task.setDone(true);
         });
 
@@ -412,12 +421,14 @@ public class ModelController implements DisposableBean, Runnable {
 
 
         inferenceDuration.on();
-        List<NetworkIO> networkOutput = network.recurrentInference(searchPathList);
+        List<NetworkIO> networkOutput = network.recurrentInference(searchPathList,   epochRestriction);
         inferenceDuration.off();
 
         IntStream.range(0, localRecurrentInferenceTaskList.size()).forEach(g -> {
             RecurrentInferenceTask task = localRecurrentInferenceTaskList.get(g);
-            task.setNetworkOutput(networkOutput.get(g));
+            NetworkIO networkIO = networkOutput.get(g);
+            networkIO.setEpoch(epochRestriction);
+            task.setNetworkOutput(networkIO);
             task.setDone(true);
         });
 
