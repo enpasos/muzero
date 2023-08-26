@@ -219,7 +219,7 @@ public class PlanAction {
         Action action = selectActionByDrawingFromDistribution(distributionInput);
 
 
-        storeSearchStatistics(game, timeStepDO, root, true, config, null, new MinMaxStats(config.getKnownBounds()),  new MinMaxStats(config.getKnownBounds()));
+        storeSearchStatistics(game, timeStepDO, root, true, config, null, new MinMaxStats(config.getKnownBounds()));
 
         return action;
     }

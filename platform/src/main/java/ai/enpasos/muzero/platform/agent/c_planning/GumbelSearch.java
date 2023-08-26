@@ -38,7 +38,6 @@ public class GumbelSearch {
     Action selectedAction;
     MinMaxStats minMaxStatsQValues;
 
-    MinMaxStats minMaxStatsEntropyQValues;
     MuZeroConfig config;
     boolean debug;
     double pRandomActionRawAverage;
@@ -53,7 +52,7 @@ public class GumbelSearch {
         this.game = game;
         this.minMaxStatsQValues = new MinMaxStats(config.getKnownBounds());
 
-        this.minMaxStatsEntropyQValues = new MinMaxStats(config.getKnownBoundsEntropyQValues());
+      //  this.minMaxStatsEntropyQValues = new MinMaxStats(config.getKnownBoundsEntropyQValues());
 
         int n = config.getNumSimulations(game);
         int m = config.getInitialGumbelM();
@@ -67,7 +66,7 @@ public class GumbelSearch {
         IntStream.range(0, this.sequentialHalfingInfo.getPhaseNum()).forEach(i -> rootChildrenCandidates.put(i, new ArrayList<>()));
     }
 
-    public static void storeSearchStatistics(Game game, TimeStepDO timeStepDO, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
+    public static void storeSearchStatistics(Game game, TimeStepDO timeStepDO, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats ) {
         timeStepDO.setRootValueTarget((float) root.getImprovedValue());
         timeStepDO.setVMix((float) root.getVmix()); timeStepDO.setVMix((float) root.getVmix());
        // timeStepDO.setRootValueStdTarget((float)  root.getImprovedEntropyValue());
@@ -332,8 +331,8 @@ public class GumbelSearch {
                 start = false;
             } else {
                 node.calculateVmix();
-                node.calculateEntropyVmix();
-                node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues, game.isItExplorationTime());
+              //  node.calculateEntropyVmix();
+                node.calculateImprovedPolicy(minMaxStatsQValues,  game.isItExplorationTime());
                 node.calculateImprovedValue();
              //   node.calculateImprovedEntropyValue();
             }
@@ -342,18 +341,18 @@ public class GumbelSearch {
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value
                     + node.getValueStdFromInference(); // a rewarding for being optimistic in the case of value uncertainty
 
-            valueStd = node.getEntropyReward() + discount * valueStd;
+         //   valueStd = node.getEntropyReward() + discount * valueStd;
 
             node.setQValueSum(node.getQValueSum() + value);
-            node.setEntropyQValueSum(node.getEntropyQValueSum() + valueStd);
+           // node.setEntropyQValueSum(node.getEntropyQValueSum() + valueStd);
 
-            minMaxStatsEntropyQValues.update(valueStd);
+          //  minMaxStatsEntropyQValues.update(valueStd);
             minMaxStatsQValues.update(value);
         }
     }
 
     public void storeSearchStatictics(  boolean fastRuleLearning, TimeStepDO timeStepDO) {
-        storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues, minMaxStatsEntropyQValues);
+        storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues );
     }
 
     public Action selectAction( boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO, boolean hybrid2 ) {

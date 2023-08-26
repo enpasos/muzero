@@ -70,7 +70,7 @@ public class Play {
         int windowSize = config.getWindowSize();
         while (!gameBuffer.getBuffer().isBufferFilled()) {
             log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
-             playMultipleEpisodes(false, isRandomFill, 0);
+             playMultipleEpisodes(false, isRandomFill, 0, 1);
         }
     }
 
@@ -82,16 +82,16 @@ public class Play {
     }
 
 
-    public void playGames(boolean render, int trainingStep, int epoch) {
+    public void playGames(boolean render, int trainingStep, int epoch, int numModels) {
         log.info("last training step = {}", trainingStep);
         log.info("numSimulations: " + config.getNumSimulations());
 
-        playMultipleEpisodes(render, false, epoch);
+        playMultipleEpisodes(render, false, epoch, numModels);
 
     }
 
 
-    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, int epoch) {
+    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning, int epoch, int numModels) {
         List<Game> games;
         if (config.getPlayTypeKey() == PlayTypeKey.REWARD_MEMORIZATION_CHECK) {
             if (epoch % 10 == 0) {
@@ -128,7 +128,7 @@ public class Play {
                 PlayParameters.builder()
                     .render(render)
                     .epoch(epoch)
-                    .numModels(10)
+                    .numModels( numModels)
                     .fastRulesLearning(fastRuleLearning)
                     .build());
         }

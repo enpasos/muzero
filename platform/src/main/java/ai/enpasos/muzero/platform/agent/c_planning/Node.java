@@ -66,7 +66,6 @@ public class Node {
     private double entropyReward;
     private double multiplierLambda;
     private double qValueSum;
-    private double entropyQValueSum;
     private double vmix;
     private double vEntropyMix;
     private Action action;
@@ -128,24 +127,24 @@ public class Node {
         }
     }
 
-    public void calculateEntropyVmix() {
-        double vHat = this.getValueStdFromInference();
-        vEntropyMix = vHat;
-        if (this.getVisitCount() == 0) return;
-
-        double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-                .mapToDouble(node -> node.getPrior() * node.getEntropyQValue()).sum();
-        double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-                .mapToDouble(Node::getPrior).sum();
-        int d = this.getChildren().stream()
-                .mapToInt(Node::getVisitCount).sum();
-
-        if (d == 0d) {
-            vEntropyMix = vHat;
-        } else {
-            vEntropyMix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
-        }
-    }
+//    public void calculateEntropyVmix() {
+//        double vHat = this.getValueStdFromInference();
+//        vEntropyMix = vHat;
+//        if (this.getVisitCount() == 0) return;
+//
+//        double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
+//                .mapToDouble(node -> node.getPrior() * node.getEntropyQValue()).sum();
+//        double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
+//                .mapToDouble(Node::getPrior).sum();
+//        int d = this.getChildren().stream()
+//                .mapToInt(Node::getVisitCount).sum();
+//
+//        if (d == 0d) {
+//            vEntropyMix = vHat;
+//        } else {
+//            vEntropyMix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
+//        }
+//    }
 
 
 
@@ -177,7 +176,7 @@ public class Node {
             .toArray();
     }
 
-    public void calculateImprovedPolicy(MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues, boolean isItExplorationTime) {
+    public void calculateImprovedPolicy(MinMaxStats minMaxStats,   boolean isItExplorationTime) {
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
@@ -226,13 +225,13 @@ public class Node {
         return this.getQValueSum() / this.visitCount;
     }
 
-    public double getEntropyQValue() {
-        if (visitCount == 0) {
-            if (this.isRoot()) return 0.0;
-            return this.parent.getVEntropyMix();
-        }
-        return this.getEntropyQValueSum() / this.visitCount;
-    }
+//    public double getEntropyQValue() {
+//        if (visitCount == 0) {
+//            if (this.isRoot()) return 0.0;
+//            return this.parent.getVEntropyMix();
+//        }
+//        return this.getEntropyQValueSum() / this.visitCount;
+//    }
 
 
     public void expand(Player toPlay, NetworkIO networkOutput) {

@@ -29,12 +29,12 @@ public class GumbelAction {
         return qValue;
     }
 
-    public double getEntropyQValue() {
-        if (node != null) {
-            return node.getEntropyQValue();
-        }
-        return entropyValue;
-    }
+//    public double getEntropyQValue() {
+//        if (node != null) {
+//            return node.getEntropyQValue();
+//        }
+//        return entropyValue;
+//    }
 
     public double getLogit() {
         if (node != null) {

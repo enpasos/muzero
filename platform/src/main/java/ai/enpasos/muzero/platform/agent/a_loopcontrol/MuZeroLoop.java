@@ -101,11 +101,16 @@ public class MuZeroLoop {
 //                temperatureCalculator.aggregateValueStatisticsUp(epoch, n);
 //                temperatureCalculator.markArchived(epoch);
 
+                int numModels = 1;
+                if (epoch > 250) {
+                    numModels = 10;
+                }
+
                 log.info("collecting experience ...");
                 PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                 for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                     config.setPlayTypeKey(key);
-                    play.playGames(params.isRender(), trainingStep, epoch);
+                    play.playGames(params.isRender(), trainingStep, epoch, numModels);
                 }
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
