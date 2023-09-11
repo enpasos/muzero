@@ -97,9 +97,9 @@ public class MuZeroLoop {
             if (epoch != 0) {
 
                 log.info("reflecting on experience ...");
-//                fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
-//                temperatureCalculator.aggregateValueStatisticsUp(epoch, n);
-//                temperatureCalculator.markArchived(epoch);
+                fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
+                temperatureCalculator.aggregateValueStatisticsUp(epoch, n);
+                temperatureCalculator.markArchived(epoch);
 
                 int numModels = 1;
                 if (epoch > 250) {
@@ -122,7 +122,6 @@ public class MuZeroLoop {
             log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
 
             log.info("training ...");
-          //  modelService.trainModel(TrainingTypeKey.RULES).get();
             modelService.loadLatestModelOrCreateIfNotExisting().get();
             modelService.trainModel(TrainingTypeKey.POLICY_VALUE).get();
 
