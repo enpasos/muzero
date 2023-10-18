@@ -9,6 +9,7 @@
 **/logs
 /memory/*
 /games/tictactoe/memory
+gradle.properties
 
 
 
