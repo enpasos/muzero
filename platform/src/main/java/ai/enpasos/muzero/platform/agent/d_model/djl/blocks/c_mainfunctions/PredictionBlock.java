@@ -59,7 +59,7 @@ public class PredictionBlock extends MySequentialBlock {
         SequentialBlockExt legalActionsHead = null;
         if (withLegalActionsHead) {
             legalActionsHead = new SequentialBlockExt();
-            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(2).build())   // 2 channels?
+            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
                     .add(BlocksExt.batchFlattenBlock());
             legalActionsHead.add(LinearExt.builder()
                     .setUnits(actionSpaceSize).build());
