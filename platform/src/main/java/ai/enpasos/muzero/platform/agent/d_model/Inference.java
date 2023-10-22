@@ -41,7 +41,7 @@ import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
 import static ai.enpasos.muzero.platform.common.Functions.selectActionByMaxFromDistribution;
-import static ai.enpasos.muzero.platform.common.Functions.toDouble;
+import static ai.enpasos.muzero.platform.common.Functions.f2d;
 
 @Component
 @Slf4j
@@ -172,7 +172,7 @@ public class Inference {
     public double[] aiEntropy(List<Game> games) {
         modelService.loadLatestModel(-1).join();
         List<NetworkIO> networkOutputs = modelService.initialInference(games).join();
-        return Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(toDouble(io.getPolicyValues()))).toArray();
+        return Objects.requireNonNull(networkOutputs).stream().mapToDouble(io -> entropy(f2d(io.getPolicyValues()))).toArray();
     }
 
     public double[] aiValue(List<Game> games) {

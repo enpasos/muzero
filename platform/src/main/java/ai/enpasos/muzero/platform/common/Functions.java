@@ -70,14 +70,23 @@ public class Functions {
         return result;
     }
 
-    public static double[] toDouble(float[] ps) {
+    public static double[] f2d(float[] ps) {
         return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
     }
-    public static float[] toFloat(double[] ps) {
+    public static float[] d2f(double[] ps) {
         float[] result = new float[ps.length];
         for (int i = 0; i < ps.length; i++) {
             result[i] = (float) ps[i];
         }
+        return result;
+    }
+
+    public static float[] b2f(boolean[] ps) {
+        float[] result = new float[ps.length];
+          for (int i = 0; i < ps.length; i++) {
+                result[i] = ps[i] ? 1f : 0f;
+          }
+
         return result;
     }
     public static double entropy(double[] ps) {

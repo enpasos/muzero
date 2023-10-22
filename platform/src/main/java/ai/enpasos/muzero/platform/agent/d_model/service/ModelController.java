@@ -7,7 +7,6 @@ import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
-import ai.djl.nn.ParameterList;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
@@ -196,7 +195,7 @@ public class ModelController implements DisposableBean, Runnable {
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = batchFactory.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
                         log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch, config.isWithEntropyValuePrediction());
+                        MyEasyTrain.trainBatch(trainer, batch, false, config.withLegalActionsHead());
                         trainer.step();
                     }
                 }
@@ -259,17 +258,17 @@ public class ModelController implements DisposableBean, Runnable {
 
         // mean entropy value
         // loss
-        double meanEntropyValueLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("entropy_loss_value_0"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
-        meanEntropyValueLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("entropy_loss_value_0") && name.contains("entropy_loss_value"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        model.setProperty("MeanEntropyValueLoss", Double.toString(meanEntropyValueLoss));
-        log.info("MeanEntropyValueLoss: " + meanEntropyValueLoss);
+//        double meanEntropyValueLoss = metrics.getMetricNames().stream()
+//                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("entropy_loss_value_0"))
+//                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+//                .sum();
+//        gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
+//        meanEntropyValueLoss += metrics.getMetricNames().stream()
+//                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("entropy_loss_value_0") && name.contains("entropy_loss_value"))
+//                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+//                .sum();
+//        model.setProperty("MeanEntropyValueLoss", Double.toString(meanEntropyValueLoss));
+//        log.info("MeanEntropyValueLoss: " + meanEntropyValueLoss);
 
         // mean similarity
         // loss
@@ -296,6 +295,18 @@ public class ModelController implements DisposableBean, Runnable {
             .sum();
         model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
+
+        // mean legal action loss
+        double meanLegalActionLoss = metrics.getMetricNames().stream()
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_legal_actions_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+        meanLegalActionLoss += metrics.getMetricNames().stream()
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_legal_actions_0") && name.contains("loss_legal_actions"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+        model.setProperty("MeanLegalActionLoss", Double.toString(meanLegalActionLoss));
+        log.info("MeanLegalActionLoss: " + meanLegalActionLoss);
     }
 
     private void loadModelParametersOrCreateIfNotExisting(Model model) {

@@ -9,8 +9,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static ai.enpasos.muzero.platform.common.Functions.ln;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
-import static ai.enpasos.muzero.platform.common.Functions.toDouble;
-import static ai.enpasos.muzero.platform.common.Functions.toFloat;
+import static ai.enpasos.muzero.platform.common.Functions.f2d;
+import static ai.enpasos.muzero.platform.common.Functions.d2f;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -53,7 +53,7 @@ class GameTest {
         // assertArrayEquals but allow for small differences
         for (int i = 0; i < result.length; i++) {
             assertEquals(ps[i], result[i], 0.0000001);
-        } 
+        }
     }
 
 
@@ -65,19 +65,19 @@ class GameTest {
         int T = 3;
         double temperature = 2;
         float[] ps = {0.7f, 0.1f, 0.1f};
-        float[] ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
+        float[] ps2 = d2f(softmax(ln(f2d(ps)), temperature));
         game.getGameDTO().getPlayoutPolicy().add(ps2);
         game.getGameDTO().getPolicyTargets().add(ps);
         game.apply(0);
 
         ps = new float[] {0.0f, 0.8f, 0.2f};
-        ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
+        ps2 = d2f(softmax(ln(f2d(ps)), temperature));
         game.getGameDTO().getPlayoutPolicy().add(ps2);
         game.getGameDTO().getPolicyTargets().add(ps);
         game.apply(1);
 
         ps = new float[] {0f, 0f, 1f};
-        ps2 = toFloat(softmax(ln(toDouble(ps)), temperature));
+        ps2 = d2f(softmax(ln(f2d(ps)), temperature));
         game.getGameDTO().getPlayoutPolicy().add(ps2);
         game.getGameDTO().getPolicyTargets().add(ps);
         game.apply(2);

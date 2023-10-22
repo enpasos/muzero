@@ -26,6 +26,8 @@ import java.util.stream.IntStream;
  */
 public final class MyEasyTrain {
 
+    private static boolean withLegalActionHead;
+
     private MyEasyTrain() {
     }
 
@@ -40,7 +42,7 @@ public final class MyEasyTrain {
      * @throws TranslateException if there is an error while processing input
      */
     public static void fit(
-        Trainer trainer, int numEpoch, Dataset trainingDataset, Dataset validateDataset,  boolean withEntropyValuePrediction)
+        Trainer trainer, int numEpoch, Dataset trainingDataset, Dataset validateDataset,  boolean withEntropyValuePrediction, boolean withLegalActionHead)
         throws IOException, TranslateException {
 
         // Deep learning is typically trained in epochs where each epoch trains the model on each
@@ -52,7 +54,7 @@ public final class MyEasyTrain {
 
                 // During trainBatch, we update the loss and evaluators with the results for the
                 // training batch
-                trainBatch(trainer, batch, withEntropyValuePrediction);
+                trainBatch(trainer, batch, withEntropyValuePrediction, withLegalActionHead);
 
                 // Now, we update the model parameters based on the results of the latest trainBatch
                 trainer.step();
@@ -81,9 +83,10 @@ public final class MyEasyTrain {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static void trainBatch(Trainer trainer, Batch batch, boolean withEntropyValuePrediction) {
+    public static void trainBatch(Trainer trainer, Batch batch, boolean withEntropyValuePrediction, boolean withLegalActionHead) {
 
         MyEasyTrain.withEntropyValuePrediction =  withEntropyValuePrediction;
+        MyEasyTrain.withLegalActionHead =  withLegalActionHead;
         if (trainer.getManager().getEngine() != batch.getManager().getEngine()) {
             throw new IllegalArgumentException(
                 "The data must be on the same engine as the trainer. You may need to change one"
@@ -143,13 +146,16 @@ public final class MyEasyTrain {
 
         IntStream.range(0, numRolloutSteps).forEach(i -> {
                     int extra = withEntropyValuePrediction ? 1 : 0;
-                    input.getRight().add(4 + 2 * extra + (3 + extra) * i, input.getLeft().get(5 + 2 * extra + (4 + extra) * i));
-                    //   input.getRight().add(6 + 4 * i, input.getLeft().get(7 + 5 * i))
+                    int extra2 = withLegalActionHead ? 1 : 0;
+                    input.getRight().add(4 +   2 * (extra + extra2 ) + (3 + extra + extra2) * i,
+                            input.getLeft().get(5 +   2 * (extra + extra2 ) + (4 + extra+ extra2) * i));
+
                 }
         );
         IntStream.range(0, numRolloutSteps).forEach(i -> {
                     int extra = withEntropyValuePrediction ? 1 : 0;
-                    input.getLeft().remove(5 + 2 * extra + (3 + extra) * i);
+                    int extra2 = withLegalActionHead ? 1 : 0;
+                    input.getLeft().remove(5 + 2 * (extra + extra2) + (3 + extra + extra2) * i);
                 }
         );
 

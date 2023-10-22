@@ -147,8 +147,8 @@ public class MuZeroConfig {
         return getConf().offPolicyCorrectionOn;
     }
 
-    public boolean isWithEntropyValuePrediction() {
-        return getConf().withEntropyValuePrediction;
+    public boolean withLegalActionsHead() {
+        return getConf().withLegalActionsHead;
     }
 
     public boolean allOrNothingOn() {
@@ -414,9 +414,6 @@ public class MuZeroConfig {
         return getConf().offPolicyRatioLimit;
     }
 
-    public double getEntropyContributionToReward() {
-        return getConf().entropyContributionToReward;
-    }
 
 
 
@@ -535,10 +532,8 @@ public class MuZeroConfig {
         boolean allOrNothingOn;
 
 
-        boolean withEntropyValuePrediction;
+        boolean withLegalActionsHead;
         double offPolicyRatioLimit;
-
-        double entropyContributionToReward;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {

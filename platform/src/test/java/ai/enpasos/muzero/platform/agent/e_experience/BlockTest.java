@@ -53,18 +53,6 @@ class BlockTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     void broadcastBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
@@ -74,10 +62,6 @@ class BlockTest {
             RANDOM);
         Assertions.assertTrue(check);
     }
-
-
-
-
 
     @Test
     void bottleneckResidualRANDOM() throws Exception {

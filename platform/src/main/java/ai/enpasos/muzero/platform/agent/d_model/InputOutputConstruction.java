@@ -57,7 +57,6 @@ public class InputOutputConstruction {
         IntStream.range(0, inputsA.size()).forEach(i -> {
             inputs.add(inputsA.get(i));
             inputs.add(inputsH.get(1 + i));
-
         });
         return inputs;
 
@@ -151,15 +150,16 @@ public class InputOutputConstruction {
     }
 
     @SuppressWarnings("java:S2095")
-    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withEntropyValuePrediction) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withLegalActionsHead) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();
         for (int k = 0; k <= numUnrollSteps; k++) {
             int b = 0;
             float[] valueArray = new float[batch.size()];
-            float[] entropyValueArray = withEntropyValuePrediction ? new float[batch.size()] : null;
 
             float[] policyArray = new float[batch.size() * actionSize];
+            float[] legalActionsArray = withLegalActionsHead ? new float[batch.size() * actionSize] : null;
+
             for (Sample s : batch) {
                 List<Target> targets = s.getTargetList();
                 log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
@@ -169,23 +169,27 @@ public class InputOutputConstruction {
                 double scale = 2.0 / config.getValueSpan();
                 valueArray[b] = (float) (target.getValue() * scale);
 
-                if ( withEntropyValuePrediction) {
-                    log.trace("entropyvaluetarget: {}", target.getEntropyValue());
-                    entropyValueArray[b] =  target.getEntropyValue();
-                }
 
                 System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
                 log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
+
+                if ( withLegalActionsHead) {
+                    log.trace("legalactionstarget: {}", target.getLegalActions());
+                    System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
+                }
+
                 b++;
             }
             NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
+
             NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
 
             outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
-            if ( withEntropyValuePrediction) {
-                NDArray entropyValueOutput2 = nd.create(entropyValueArray).reshape(new Shape(batch.size(), 1));
-                outputs.add(symmetryEnhancerValue(entropyValueOutput2));
+
+            if ( withLegalActionsHead) {
+                NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
+                outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
             }
         }
         return outputs;

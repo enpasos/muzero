@@ -85,8 +85,11 @@ muzero:
 
       numParallelInferences: 1000
 
-      withEntropyValuePrediction: false
-      entropyContributionToReward: 0.1
+      withLegalActionsHead: true
+
+
+
+     # entropyContributionToReward: 0.1
       entropyValueLossWeight: 0.5
 
       playTypes:

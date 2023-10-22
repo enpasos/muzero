@@ -37,10 +37,10 @@ public class PredictionBlock extends MySequentialBlock {
         this(config.getNumChannels(),
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize(),
-                config.isWithEntropyValuePrediction());
+                config.withLegalActionsHead());
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean isWithEntropyValuePrediction) {
+    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean withLegalActionsHead) {
 
 
         SequentialBlockExt valueHead = new SequentialBlockExt();
@@ -56,17 +56,14 @@ public class PredictionBlock extends MySequentialBlock {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
-        SequentialBlockExt entropyValueHead = null;
-        if (isWithEntropyValuePrediction) {
-            entropyValueHead = new SequentialBlockExt();
-            entropyValueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+        SequentialBlockExt legalActionsHead = null;
+        if (withLegalActionsHead) {
+            legalActionsHead = new SequentialBlockExt();
+            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(2).build())   // 2 channels?
                     .add(BlocksExt.batchFlattenBlock());
-            entropyValueHead.add(LinearExt.builder()
-                            .setUnits(numChannels) // config.getNumChannels())  // originally 256
-                            .build())
-                    .add(ActivationExt.reluBlock());
-            entropyValueHead.add(LinearExt.builder()
-                    .setUnits(1).build());
+            legalActionsHead.add(LinearExt.builder()
+                    .setUnits(actionSpaceSize).build());
+
         }
 
         SequentialBlockExt policyHead = new SequentialBlockExt();
@@ -78,9 +75,11 @@ public class PredictionBlock extends MySequentialBlock {
                 .build());
 
 
+
+
         add(new ParallelBlockWithCollectChannelJoinExt(
-                isWithEntropyValuePrediction ?
-                        Arrays.asList(policyHead, valueHead, entropyValueHead) : Arrays.asList(policyHead, valueHead))
+                withLegalActionsHead ?
+                        Arrays.asList(policyHead, valueHead, legalActionsHead) : Arrays.asList(policyHead, valueHead))
         );
     }
 

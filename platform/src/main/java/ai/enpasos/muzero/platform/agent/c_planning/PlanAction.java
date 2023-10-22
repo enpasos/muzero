@@ -3,22 +3,18 @@ package ai.enpasos.muzero.platform.agent.c_planning;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch.storeSearchStatistics;
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
@@ -201,7 +197,7 @@ public class PlanAction {
         game.getGameDTO().getLegalActionMaxEntropies().add((float) Math.log(legalActions.size()));
         if (networkOutput != null) {
             float[] ps = networkOutput.getPolicyValues();
-            game.getGameDTO().getEntropies().add((float) entropy(toDouble(ps)));
+            game.getGameDTO().getEntropies().add((float) entropy(f2d(ps)));
         }
     }
 

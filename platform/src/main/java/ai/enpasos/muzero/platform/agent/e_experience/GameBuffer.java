@@ -115,7 +115,7 @@ public class GameBuffer {
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
 
-        sample.makeTarget(config.getEntropyContributionToReward() != 0d);
+        sample.makeTarget(config.withLegalActionsHead());
         return sample;
     }
 
@@ -321,9 +321,9 @@ public class GameBuffer {
     public void putMeanValueLoss(int epoch, double meanValueLoss) {
         meanValuesLosses.put(epoch, meanValueLoss);
     }
-    public void putMeanEntropyValueLoss(int epoch, double meanValueLoss) {
-        meanEntropyValuesLosses.put(epoch, meanValueLoss);
-    }
+//    public void putMeanEntropyValueLoss(int epoch, double meanValueLoss) {
+//        meanEntropyValuesLosses.put(epoch, meanValueLoss);
+//    }
 
     public Double getMaxMeanValueLoss() {
         // get max of meanValueLosses values
