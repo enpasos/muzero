@@ -24,7 +24,7 @@ spring:
     hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
       ddl-auto: update
       jdbc:
-        batch_size: 1000
+        batch_size: 2000
 
 muzero:
   activeGame: TICTACTOE
