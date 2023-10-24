@@ -9,6 +9,9 @@
 **/logs
 /memory/*
 /games/tictactoe/memory
+gradle.properties
 
 
 
+/hs_err_pid*.log
+/replay_pid*.log

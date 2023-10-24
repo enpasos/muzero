@@ -53,7 +53,7 @@ This project is licensed under the [Apache-2.0 License](platform/LICENSE).
 
 ## Database
 
-postgres 15.3
+postgres 16.0
 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 
 database superuser
