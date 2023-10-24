@@ -130,7 +130,7 @@ class InferenceTest2 {
                     PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                     for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
                         config.setPlayTypeKey(key);
-                        play.playGames(params.isRender(), trainingStep, epoch);
+                        play.playGames(params.isRender(), trainingStep, epoch, 1);
                     }
                     config.setPlayTypeKey(originalPlayTypeKey);
                 }
