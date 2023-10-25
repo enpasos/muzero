@@ -83,7 +83,7 @@ muzero:
 
       valueLossWeight: 1
 
-      numberOfTrainingSteps: 60000
+      numberOfTrainingSteps: 50000
 
       windowSize: 10000
 
@@ -100,9 +100,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withEntropyValuePrediction: false    # obsolete?
-      entropyContributionToReward: 0.1     # obsolete?
-      entropyValueLossWeight: 0.5          # obsolete?
+      withLegalActionsHead: true
 
 
 

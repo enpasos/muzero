@@ -38,6 +38,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.common.Functions.b2f;
+import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
 
@@ -188,32 +190,29 @@ private boolean hybrid2;
 //        apply(action);
 //    }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isEntropyContributingToReward) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isWithLegalActionHead) {
         List<Target> targets = new ArrayList<>();
         double kappa = ThreadLocalRandom.current().nextDouble(0, 1);
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target, isEntropyContributingToReward, kappa);
+            fillTarget(currentIndex, target, isWithLegalActionHead, kappa);
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target, boolean isEntropyContributingToReward, double kappa) {
+    private void fillTarget(int currentIndex, Target target, boolean isWithLegalActionHead, double kappa) {
 
-        if (this.originalEpisodeDO != null &&  this.originalEpisodeDO.getId() == 678) {
-            int i = 42;
-        }
         int tdSteps = getTdSteps( currentIndex, kappa);
-
         double value = calculateValue(tdSteps, currentIndex);
-       // double entropyValue = calculateEntropyValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
 
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
-        //    target.setEntropyValue((float) entropyValue);
+            if (isWithLegalActionHead) {
+                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalActions()));
+            }
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget());
@@ -227,19 +226,24 @@ private boolean hybrid2;
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-           // target.setEntropyValue((float) entropyValue);
+            if (isWithLegalActionHead) {
+                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalActions()));
+            }
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
         } else {
-          //  target.setEntropyValue((float) entropyValue);
+
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
+            float[]legalActions = new float[this.actionSpaceSize];
+            Arrays.fill(legalActions, 1f);
+            target.setLegalActions(legalActions);
         }
 
     }
