@@ -2,9 +2,11 @@ package ai.enpasos.muzero.platform.agent.e_experience.db;
 
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.LegalActionsRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -15,9 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Component
 @Slf4j
@@ -38,6 +42,9 @@ public class DBService {
     MuZeroConfig config;
 
 
+    @Autowired
+    LegalActionsRepo legalActionsRepo;
+
     public void clearDB() {
         episodeRepo.dropTable();
         episodeRepo.dropSequence();
@@ -49,6 +56,22 @@ public class DBService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<EpisodeDO> saveEpisodesAndCommit(List<EpisodeDO> episodes) {
+        List<TimeStepDO> timeStepDOS = episodes.stream().map(EpisodeDO::getTimeSteps).flatMap(list -> list.stream()).collect(Collectors.toList());
+        Set<LegalActionsDO> las = timeStepDOS.stream().map(t -> t.getLegalact()).collect(Collectors.toSet());
+
+        List<LegalActionsDO> knownLegalActions = legalActionsRepo.findAllByLegalActions(las.stream().map(la -> la.getLegalActions()).collect(Collectors.toList()));
+
+        List<LegalActionsDO> unknownLegalActions = new ArrayList<>();
+        unknownLegalActions.addAll(las);
+        unknownLegalActions.removeAll(knownLegalActions);
+
+        List<LegalActionsDO> legalActions = legalActionsRepo.saveAll(unknownLegalActions);
+        legalActions.addAll(knownLegalActions);
+
+
+        Map<LegalActionsDO, LegalActionsDO> map = new HashMap<>();
+
+        legalActions.forEach(la -> map.put(la, la));
 
         episodes.stream().filter(EpisodeDO::isHybrid).forEach(episodeDO -> {
            long t = episodeDO.getTStartNormal();
@@ -56,7 +79,14 @@ public class DBService {
                 timeStep.setExploring(timeStep.getT() < t);
             }
         });
-
+        episodes.stream().forEach(episodeDO -> {
+            long t = episodeDO.getTStartNormal();
+            for (TimeStepDO timeStep : episodeDO.getTimeSteps()) {
+                LegalActionsDO legalActionsDO = map.get(timeStep.getLegalact());
+                timeStep.setLegalact(legalActionsDO);
+                legalActionsDO.getTimeSteps().add(timeStep);
+            }
+        });
         return episodeRepo.saveAllAndFlush(episodes);
     }
 

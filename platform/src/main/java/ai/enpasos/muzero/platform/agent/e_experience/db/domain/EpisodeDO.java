@@ -100,7 +100,7 @@ public class EpisodeDO {
     public boolean[] getLegalActionsFromLatestTimeStepWithoutAction() {
         int t = getLastTimeWithAction();
         t++;
-        return getTimeStep(t).getLegalActions();
+        return getTimeStep(t).getLegalact().getLegalActions();
     }
 
     public TimeStepDO getLastTimeStep() {

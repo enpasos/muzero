@@ -6,10 +6,10 @@ import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Optional;
 
 
 @Entity
@@ -24,6 +24,9 @@ public class TimeStepDO {
 
     @ManyToOne
     EpisodeDO episode;
+
+    @ManyToOne
+    LegalActionsDO legalact;
 
     @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
     private List<ValueDO> values;
@@ -40,7 +43,7 @@ public class TimeStepDO {
     byte[] observationPartA;
     byte[] observationPartB;
     float[] playoutPolicy;
-    boolean[] legalActions;
+  //  boolean[] legalActions;
     float rootValueTarget;
     float vMix;
     float rootEntropyValueTarget;
@@ -93,7 +96,7 @@ public class TimeStepDO {
                         rootValueFromInitialInference == timeStepDO.rootValueFromInitialInference &&
                         rootValueTarget == timeStepDO.rootValueTarget &&
                         Arrays.equals(policyTarget, timeStepDO.policyTarget) &&
-                        Arrays.equals(legalActions, timeStepDO.legalActions) &&
+                         legalact.equals(timeStepDO.legalact) &&
                         Arrays.equals(playoutPolicy, timeStepDO.playoutPolicy) &&
                         this.getObservation().equals(timeStepDO.getObservation())
                 ;
@@ -108,7 +111,7 @@ public class TimeStepDO {
                 .policyTarget(policyTarget)
                 .observation(getObservation())
                 .episode(episode)
-                .legalActions(legalActions)
+                .legalact(legalact)
                 .legalActionMaxEntropy(legalActionMaxEntropy)
                 .playoutPolicy(playoutPolicy)
                 .rootEntropyValueFromInitialInference(rootEntropyValueFromInitialInference)
@@ -171,5 +174,16 @@ public class TimeStepDO {
         }
 
 
+    }
+
+
+    public void addLegalActions(boolean[] legalActions) {
+        LegalActionsDO legalActionsDO =  getLegalact();
+        if (legalActionsDO == null) {
+            legalActionsDO = new LegalActionsDO();
+            this.setLegalact(legalActionsDO);
+            legalActionsDO.getTimeSteps().add(this);
+        }
+        legalActionsDO.setLegalActions(legalActions);
     }
 }

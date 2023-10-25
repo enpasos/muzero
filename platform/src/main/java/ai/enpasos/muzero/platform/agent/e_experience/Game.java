@@ -39,7 +39,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.common.Functions.b2f;
-import static ai.enpasos.muzero.platform.common.Functions.toDouble;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
 
@@ -211,7 +210,7 @@ private boolean hybrid2;
 
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
             if (isWithLegalActionHead) {
-                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalActions()));
+                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions()));
             }
             target.setValue((float) value);
             target.setReward(reward);
@@ -227,7 +226,7 @@ private boolean hybrid2;
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
             if (isWithLegalActionHead) {
-                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalActions()));
+                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions()));
             }
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
@@ -378,7 +377,7 @@ private boolean hybrid2;
         for (Action action : actions) {
             result[action.getIndex()] = true;
         }
-        this.getEpisodeDO().getLastTimeStep().setLegalActions(result);
+        this.getEpisodeDO().getLastTimeStep().addLegalActions( result);
     }
 
     public abstract void replayToPositionInEnvironment(int stateIndex);

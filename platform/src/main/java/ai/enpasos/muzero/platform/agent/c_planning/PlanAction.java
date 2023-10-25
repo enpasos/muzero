@@ -5,6 +5,7 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -106,7 +107,8 @@ public class PlanAction {
             for (Action action : game.legalActions()) {
                 legalActions[action.getIndex()] = true;
             }
-            timeStepDO.setLegalActions(legalActions);
+
+            timeStepDO.addLegalActions( legalActions);
         }
         if (game.legalActions().size() == 1) {
              return shortCutForGameWithoutAnOption(game,   timeStepDO, networkOutput, render, fastRuleLearning, replay);
