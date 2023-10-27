@@ -28,10 +28,7 @@ import ai.djl.training.Trainer;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceListTranslator;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceListTranslator;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
@@ -66,6 +63,7 @@ public class Network {
     private SubModel dynamics;
 
     private SubModel initialInference;
+    private SubModel initialInference2;
     private SubModel recurrentInference;
 
 
@@ -106,6 +104,7 @@ public class Network {
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
+        initialInference2 = new SubModel("initialInference2", model, new InitialInference2Block(representationBlock,      similarityProjectorBlock), config);
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
 
     }
@@ -160,6 +159,7 @@ public class Network {
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager, boolean force) {
         if (force || initialInference.getHiddenStateNDManager() == null) {
             initialInference.setHiddenStateNDManager(hiddenStateNDManager);
+            initialInference2.setHiddenStateNDManager(hiddenStateNDManager);
             recurrentInference.setHiddenStateNDManager(hiddenStateNDManager);
         }
     }
@@ -181,6 +181,22 @@ public class Network {
             e.printStackTrace();
         }
         return networkOutputFromInitialInference;
+
+
+    }
+
+    public @Nullable List<NetworkIO> initialInference2ListDirect(List<Game> gameList) {
+
+        List< NetworkIO> networkOutputFromInitialInference2 = null;
+
+        InitialInference2ListTranslator translator = new InitialInference2ListTranslator();
+        try (Predictor<List<Game>, List<NetworkIO>> djlPredictor = initialInference2.newPredictor(translator)) {
+            networkOutputFromInitialInference2 = djlPredictor.predict(gameList);
+
+        } catch (TranslateException e) {
+            e.printStackTrace();
+        }
+        return networkOutputFromInitialInference2;
 
 
     }

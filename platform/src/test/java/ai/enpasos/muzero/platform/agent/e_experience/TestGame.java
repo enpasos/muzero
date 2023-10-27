@@ -71,7 +71,7 @@ public class TestGame extends Game {
 
 
     @Override
-    public ObservationModelInput getObservationModelInput(int gamePosition) {
+    public ObservationModelInput getObservationModelInput(int inputTime) {
         return null;
     }
 

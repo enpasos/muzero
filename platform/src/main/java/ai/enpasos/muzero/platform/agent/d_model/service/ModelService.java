@@ -48,6 +48,43 @@ public class ModelService {
     }
 
     @Async()
+    public CompletableFuture<NetworkIO> initialInference2(Game game) {
+        InitialInference2Task task = new InitialInference2Task(game);
+
+        modelQueue.addInitialInference2Task(task);
+
+        while (task.isDone()) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        modelQueue.removeInitialInference2Task(task);
+        return CompletableFuture.completedFuture(task.getNetworkOutput());
+    }
+
+    @Async()
+    public CompletableFuture<List<NetworkIO>> initialInference2(List<Game> games) {
+
+        List<InitialInference2Task> tasks = new ArrayList<>();
+        games.forEach(game -> tasks.add(new InitialInference2Task(game)));
+        modelQueue.addInitialInference2Tasks(tasks);
+
+        while (tasks.stream().anyMatch(InitialInference2Task::isDone)) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        tasks.forEach(task -> modelQueue.removeInitialInference2Task(task));
+        List<NetworkIO> results = tasks.stream().map(InitialInference2Task::getNetworkOutput).collect(Collectors.toList());
+        return CompletableFuture.completedFuture(results);
+    }
+
+
+    @Async()
     public CompletableFuture<List<NetworkIO>> initialInference(List<Game> games) {
 
         List<InitialInferenceTask> tasks = new ArrayList<>();

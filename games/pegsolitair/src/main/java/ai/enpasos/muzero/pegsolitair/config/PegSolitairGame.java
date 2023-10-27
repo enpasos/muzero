@@ -70,12 +70,12 @@ public class PegSolitairGame extends Game {
 
 
 
-    public @NotNull ObservationModelInput getObservationModelInput(int position) {
+    public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
 
         int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
         BitSet rawResult = new BitSet(n);
 
-        Observation observation = episodeDO.getTimeStep(position).getObservation();
+        Observation observation = episodeDO.getTimeStep(inputTime).getObservation();
          observation.addTo(null, rawResult, 0 );
 
         return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});

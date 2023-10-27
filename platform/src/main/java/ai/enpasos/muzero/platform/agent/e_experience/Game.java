@@ -361,10 +361,17 @@ private boolean hybrid2;
 
     public abstract String render();
 
-    public abstract ObservationModelInput getObservationModelInput(int gamePosision);
+    public abstract ObservationModelInput getObservationModelInput(int inputTime);
+
+
+    private int observationInputTime = -1;
 
     public ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.getEpisodeDO().getLastTimeWithAction() + 1);
+        int t = observationInputTime;
+        if (t == -1) {
+            t = this.getEpisodeDO().getLastTimeWithAction() + 1;
+        }
+        return this.getObservationModelInput(t);
     }
 
     public void addObservationFromEnvironment() {

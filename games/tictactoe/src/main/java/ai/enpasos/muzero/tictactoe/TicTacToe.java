@@ -26,20 +26,17 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeTrainingAndTest trainingAndTest;
 
-
     @Autowired
     private TicTacToePolicyOnly policyOnly;
-
-
 
     @Autowired
     private DBService dbService;
 
     @Autowired
     private TicTacToeTestComponent test;
+
     @Autowired
     private TicTacToeExploitability exploitability;
-
 
     @Autowired
     private TicTacToeTemperature temperature;
@@ -83,6 +80,9 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private ModelService modelService;
 
+    @Autowired
+    private TicTacToeSimState simState;
+
     public static void main(String[] args) {
         SpringApplication.run(TicTacToe.class, args).close();
     }
@@ -96,6 +96,10 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case FILLVALUETABLE:
                 fillValueTable.run();
+                break;
+
+            case FILLSIMSTATE:
+                simState.run();
                 break;
 
             case TEMPERATURE:

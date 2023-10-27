@@ -64,21 +64,14 @@ public class PlayService {
                         timeStepDO.setVMix(0);
                         timeStepDO.setRootEntropyValueTarget(0);
                         timeStepDO.setEntropy(0);
-                      //  timeStepDO.setLegalActionMaxEntropy(0);
                         timeStepDO.setRootValueFromInitialInference(0);
                         timeStepDO.setRootEntropyValueFromInitialInference(0);
-                    //    timeStepDO.setAction(null);
-                     //   timeStepDO.setReward(0);
-                     //   timeStepDO.setObservation(null);
-                     //   timeStepDO.setLegalActions(null);
                     }
             );
             // just remove the last action!
             game.getEpisodeDO().removeTheLastAction();
             game.getEpisodeDO().getLastTimeStep().setK(1d);
-          //  game.getEpisodeDO().getTimeSteps().get(0).setObservation(game.getEpisodeDO().getTimeSteps().get(0).getObservation());
-         //   game.getEpisodeDO().getTimeSteps().get(0).setLegalActions(game.getEpisodeDO().getTimeSteps().get(0).getLegalActions());
-        });
+          });
 
         return playGames(games, playParameters);
     }

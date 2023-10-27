@@ -5,7 +5,6 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -211,7 +210,7 @@ public class PlanAction {
         timeStepDO.setLegalActionMaxEntropy((float) Math.log(legalActions.size()));
         if (networkOutput != null) {
             float[] ps = networkOutput.getPolicyValues();
-            timeStepDO.setEntropy((float) entropy(toDouble(ps)));
+            timeStepDO.setEntropy((float) entropy(f2d(ps)));
         }
     }
 

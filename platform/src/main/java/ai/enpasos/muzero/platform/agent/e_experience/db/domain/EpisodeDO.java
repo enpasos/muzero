@@ -112,6 +112,7 @@ public class EpisodeDO {
     }
 
     public int getLastTime() {
+        sortTimeSteps();
         if (timeSteps.isEmpty()) {
             return -1;
         }

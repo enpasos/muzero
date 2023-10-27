@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Functions.entropy;
-import static ai.enpasos.muzero.platform.common.Functions.toDouble;
+import static ai.enpasos.muzero.platform.common.Functions.f2d;
 
 
 @Data
@@ -40,6 +40,8 @@ public class NetworkIO {
     private float[] logits;
     private float[] policyValues;
     private float[] valueDistribution;
+
+    private float[] similarityVector;
     private double value;
 
     private double entropyValue;
@@ -55,7 +57,7 @@ public class NetworkIO {
 
 
     public double getEntropyFromPolicyValues() {
-        return entropy(toDouble(policyValues));
+        return entropy(f2d(policyValues));
     }
 
 }

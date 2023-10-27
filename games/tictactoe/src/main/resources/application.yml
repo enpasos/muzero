@@ -25,6 +25,8 @@ spring:
       ddl-auto: update
       jdbc:
         batch_size: 2000
+      order_updates: true
+      order_inserts: true
 
 muzero:
   activeGame: TICTACTOE

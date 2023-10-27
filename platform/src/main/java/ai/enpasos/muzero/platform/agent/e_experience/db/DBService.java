@@ -12,7 +12,12 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,6 +93,14 @@ public class DBService {
             }
         });
         return episodeRepo.saveAllAndFlush(episodes);
+    }
+
+    @Transactional
+    public Pair<List<EpisodeDO>, Integer> findAll(int pageNumber, int pageSize) {
+        Page<EpisodeDO> result = episodeRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("id")));
+        int totalPages = result.getTotalPages();
+        Pair<List<EpisodeDO>, Integer> pair = new ImmutablePair<>(result.stream().map(e -> e.copy()).collect(Collectors.toList()), totalPages );
+        return pair;
     }
 
     @Transactional

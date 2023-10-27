@@ -13,10 +13,20 @@ import java.util.stream.Collectors;
 public class ModelQueue {
 
     private List<InitialInferenceTask> initialInferenceTasks;
+
+
+    private List<InitialInference2Task> initialInference2Tasks;
     private List<RecurrentInferenceTask> recurrentInferenceTasks;
     private List<ControllerTask> controllerTasks;
 
+    public long countInitialInference2TasksNotStarted() {
+        synchronized(initialInference2Tasks) {
+            return initialInference2Tasks.stream()
+                    .filter(InitialInference2Task::isDone)
+                    .count();
 
+        }
+    }
     public long countInitialInferenceTasksNotStarted() {
         synchronized(initialInferenceTasks) {
             return initialInferenceTasks.stream()
@@ -30,6 +40,15 @@ public class ModelQueue {
             return recurrentInferenceTasks.stream()
                 .filter(task -> !task.isDone())
                 .count();
+        }
+    }
+
+    public List<InitialInference2Task> getInitialInference2TasksNotStarted(int num) {
+        synchronized(initialInference2Tasks) {
+            return initialInference2Tasks.stream()
+                    .filter(InitialInference2Task::isDone)
+                    .limit(num)  // as we use a list this should be the first once entered in the list (FIFO) - but we should test this
+                    .collect(Collectors.toList());
         }
     }
     public List<InitialInferenceTask> getInitialInferenceTasksNotStarted(int num) {
@@ -57,7 +76,10 @@ public class ModelQueue {
                 .collect(Collectors.toList());
         }
     }
-
+    public List<InitialInference2Task> getInitialInference2Tasks() {
+        // being careful with the synchronization
+        return List.of(initialInference2Tasks.toArray(new InitialInference2Task[0]));
+    }
 
     public List<InitialInferenceTask> getInitialInferenceTasks() {
         // being careful with the synchronization
@@ -71,6 +93,8 @@ public class ModelQueue {
 
     @PostConstruct
     public void init() {
+
+        initialInference2Tasks = Collections.synchronizedList(new ArrayList<>());
         initialInferenceTasks = Collections.synchronizedList(new ArrayList<>());
         recurrentInferenceTasks = Collections.synchronizedList(new ArrayList<>());
         controllerTasks = Collections.synchronizedList(new ArrayList<>());
@@ -87,11 +111,21 @@ public class ModelQueue {
     public void addInitialInferenceTasks(List<InitialInferenceTask> tasks) {
         initialInferenceTasks.addAll(tasks);
     }
+    public void addInitialInference2Tasks(List<InitialInference2Task> tasks) {
+        initialInference2Tasks.addAll(tasks);
+    }
 
     public void addInitialInferenceTask(InitialInferenceTask task) {
         initialInferenceTasks.add(task);
     }
 
+    public void addInitialInference2Task(InitialInference2Task task) {
+        initialInference2Tasks.add(task);
+    }
+
+    public void removeInitialInference2Task(InitialInference2Task task) {
+        initialInference2Tasks.remove(task);
+    }
     public void removeInitialInferenceTask(InitialInferenceTask task) {
         initialInferenceTasks.remove(task);
     }
@@ -105,7 +139,7 @@ public class ModelQueue {
     }
 
     public boolean isEmpty() {
-        return initialInferenceTasks.isEmpty() && recurrentInferenceTasks.isEmpty();
+        return initialInference2Tasks.isEmpty() && initialInferenceTasks.isEmpty() && recurrentInferenceTasks.isEmpty();
     }
 
 

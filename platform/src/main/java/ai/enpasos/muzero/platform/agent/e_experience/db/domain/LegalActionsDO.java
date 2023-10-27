@@ -16,6 +16,7 @@ import java.util.List;
 public class LegalActionsDO {
 
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "legalact")
+    @Builder.Default
     private List<TimeStepDO> timeSteps = new ArrayList<>();
 
 

@@ -1,12 +1,16 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
@@ -50,4 +54,30 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query(value = "DROP SEQUENCE IF EXISTS  timestep_seq CASCADE", nativeQuery = true )
     void dropSequence();
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update TimeStepDO t set t.simState = NULL ")
+    void clearSimState();
+
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update TimeStepDO t  set  t.simState = :similarityVector where  t.id = :id" )
+    void saveSimilarityVectors( long id, float[] similarityVector);
+
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update timestep t set  statenode_id = :id where t.id in :ids", nativeQuery = true )
+    void updateStateNodeIds(long id, List<Long> ids);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update TimeStepDO t set t.statenode = NULL ")
+    void deleteStateNodesRefs();
 }

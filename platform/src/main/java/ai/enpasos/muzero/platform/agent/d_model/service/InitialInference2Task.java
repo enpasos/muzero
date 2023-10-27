@@ -7,8 +7,8 @@ import lombok.ToString;
 @ToString
 //@Setter
 //@Getter
-public class InitialInferenceTask {
-    public InitialInferenceTask(Game game) {
+public class InitialInference2Task {
+    public InitialInference2Task(Game game) {
         this.game = game;
     }
 

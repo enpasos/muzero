@@ -56,6 +56,17 @@ public class Functions {
         return Arrays.stream(vs).map(v -> v / sum).toArray();
     }
 
+
+    public static double nonSimilarity(float[] aF, float[] bF) {
+        double[] a = f2d(aF);
+        double[] b = f2d(bF);
+        double epsilon = 1e-15;
+        double aNorm = Math.sqrt(dotProduct(a, a));
+        double bNorm = Math.sqrt(dotProduct(b, b));
+        double normProd = aNorm * bNorm;
+         return  (normProd-dotProduct(a, b))/(Math.max(normProd,epsilon));
+    }
+
     private static double[] softmax0(double[] raw) {
         double[] result = new double[raw.length];
         int maxi = 0;
@@ -98,10 +109,10 @@ public class Functions {
     }
 
 
-    public static double[] toDouble(float[] ps) {
+    public static double[] f2d(float[] ps) {
         return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
     }
-    public static float[] toFloat(double[] ps) {
+    public static float[] d2f(double[] ps) {
         float[] result = new float[ps.length];
         for (int i = 0; i < ps.length; i++) {
             result[i] = (float) ps[i];

@@ -84,16 +84,16 @@ public class TicTacToeGame extends ZeroSumGame {
 
 
     @SuppressWarnings("squid:S2095")
-    public @NotNull ObservationModelInput getObservationModelInput(int position) {
+    public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
 
         int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
 
         BitSet rawResult = new BitSet(n);
 
-        OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
+        OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
         int index = 0;
-        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.getEpisodeDO().getTimeSteps().get(position).getObservation();
+        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.getEpisodeDO().getTimeSteps().get(inputTime).getObservation();
 
         index = observation.addTo(currentPlayer, rawResult, index);
 

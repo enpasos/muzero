@@ -1,6 +1,5 @@
 package ai.enpasos.muzero.platform.agent.e_experience;
 
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,8 +9,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static ai.enpasos.muzero.platform.common.Functions.ln;
 import static ai.enpasos.muzero.platform.common.Functions.softmax;
-import static ai.enpasos.muzero.platform.common.Functions.toDouble;
-import static ai.enpasos.muzero.platform.common.Functions.toFloat;
 import static org.junit.jupiter.api.Assertions.*;
 
 

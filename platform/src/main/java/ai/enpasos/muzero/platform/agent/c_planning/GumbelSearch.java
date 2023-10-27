@@ -386,7 +386,7 @@ public class GumbelSearch {
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
-                    timeStepDO.setPlayoutPolicy(toFloat(softmax(raw, 1d)));
+                    timeStepDO.setPlayoutPolicy(d2f(softmax(raw, 1d)));
                     action = selectedAction;
                 } else {
                     action = getAction(1d, raw, game, timeStepDO, false);
@@ -418,7 +418,7 @@ public class GumbelSearch {
             p = softmax(raw, temperature);
         }
 
-        timeStepDO.setPlayoutPolicy(toFloat(p));
+        timeStepDO.setPlayoutPolicy(d2f(p));
         int i = draw(p);
         action = config.newAction(i);
         return action;

@@ -29,8 +29,8 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
 import org.apache.commons.lang3.ArrayUtils;
@@ -45,13 +45,13 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
+public class InitialInference2Block extends AbstractBlock implements OnnxIO {
 
     private final RepresentationBlock h;
-    private final PredictionBlock f;
+    private final SimilarityProjectorBlock f;
 
 
-    public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
+    public InitialInference2Block(RepresentationBlock representationBlock, SimilarityProjectorBlock predictionBlock) {
         super(MYVERSION);
 
         h = this.addChildBlock("Representation", representationBlock);
@@ -62,7 +62,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
         return h;
     }
 
-    public PredictionBlock getF() {
+    public SimilarityProjectorBlock getF() {
         return f;
     }
 
@@ -92,7 +92,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
     @Override
     public @NotNull String toString() {
         StringBuilder sb = new StringBuilder(200);
-        sb.append("\nInitialInference(\n");
+        sb.append("\nInitialInference2(\n");
         for (Block block : children.values()) {
             String blockString = block.toString().replaceAll("(?m)^", "\t");
             sb.append(blockString).append('\n');

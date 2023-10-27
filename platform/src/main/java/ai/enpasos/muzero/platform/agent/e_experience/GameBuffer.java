@@ -32,6 +32,8 @@ import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import jakarta.persistence.Tuple;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -383,6 +385,13 @@ public class GameBuffer {
 
 
         return games;
+    }
+
+    public Pair<List<Game>, Integer> getGamesByPage( int pageNumber, int pageSize) {
+        Pair<List<EpisodeDO>, Integer> pair = this.dbService.findAll(pageNumber, pageSize);
+        List<EpisodeDO> episodeDOList = pair.getKey();
+           List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        return new ImmutablePair<>(games, pair.getRight());
     }
 
     public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {

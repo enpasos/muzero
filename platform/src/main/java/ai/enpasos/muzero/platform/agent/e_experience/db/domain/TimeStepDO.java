@@ -28,6 +28,11 @@ public class TimeStepDO {
     @ManyToOne
     LegalActionsDO legalact;
 
+
+    @ManyToOne
+    @JoinColumn(name = "statenode_id", nullable = true)
+    StateNodeDO statenode;
+
     @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
     private List<ValueDO> values;
 
@@ -43,6 +48,7 @@ public class TimeStepDO {
     byte[] observationPartA;
     byte[] observationPartB;
     float[] playoutPolicy;
+    float[] simState;
   //  boolean[] legalActions;
     float rootValueTarget;
     float vMix;
@@ -104,6 +110,7 @@ public class TimeStepDO {
 
     public TimeStepDO copy() {
         return TimeStepDO.builder()
+                .id(id)
                 .t(t)
                 .action(action)
                 .reward(reward)
