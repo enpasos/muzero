@@ -43,8 +43,8 @@ public class TicTacToeTestAllNetworks {
     public void run() {
 
 
-        int start = 197; // 288;
-        int stop = 303; // 288;
+        int start = 632; // 288;
+        int stop = 632; // 288;
 
         boolean onOptimalPathOnly = false;
 
@@ -58,13 +58,11 @@ public class TicTacToeTestAllNetworks {
             map.put(epoch, test.findBadDecisions(epoch, gameTree, onOptimalPathOnly));
         }
 
-
         System.out.println("epoch;total;withoutMCTS;withMCTS");
         for (Map.Entry<Integer, BadDecisions> entry : map.entrySet()) {
             BadDecisions bd = entry.getValue();
             System.out.println(entry.getKey() + ";" + bd.total() + ";" + bd.getModelBased() + ";" + bd.getPlanningBased());
         }
-
 
     }
 

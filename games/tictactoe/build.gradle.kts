@@ -31,6 +31,7 @@ dependencies {
 
     implementation(libs.commons.lang)
     implementation(libs.commons.csv)
+    implementation(libs.commons.math)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

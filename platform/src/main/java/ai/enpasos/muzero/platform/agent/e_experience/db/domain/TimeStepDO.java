@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
@@ -38,7 +39,7 @@ public class TimeStepDO {
 
     int t;
 
-    @EqualsAndHashCode.Include
+    @EqualsAndHashCode.Include   // TODO check this does not fit to the unique constraint
     Integer action;
 
     float reward;
@@ -159,6 +160,16 @@ public class TimeStepDO {
         } else {
             throw new RuntimeException("unknown observation type");
         }
+    }
+
+    public TimeStepDO getPreviousTimeStep() {
+        if (t == 0) return null;
+        return episode.getTimeStep(t - 1);
+    }
+
+    public TimeStepDO getNextTimeStep() {
+        if (t >= episode.getLastTime()) return null;
+        return episode.getTimeStep(t +1);
     }
 
 

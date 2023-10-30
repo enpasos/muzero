@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "value", uniqueConstraints =
+@Table(name = "valuedo", uniqueConstraints =
 @UniqueConstraint(name = "UniqueTimestepAndEpoch", columnNames = {"timestep_id", "epoch"}))
 @Data
 @Builder
@@ -21,7 +21,7 @@ public class ValueDO {
 
     private int epoch;
 
-    private double value;
+    private double valuedo;
 
 
 

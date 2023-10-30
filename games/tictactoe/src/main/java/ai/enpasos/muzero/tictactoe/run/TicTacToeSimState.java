@@ -78,9 +78,48 @@ public class TicTacToeSimState {
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
+        markSimilarityState();
+        findStateNodes();
+        markVisitedActions();
+    }
 
-        // sim state
+    public void findStateNodes() {
+        timestepRepo.deleteStateNodesRefs();
+        stateNodeRepo.deleteAll();
 
+        List<LegalActionsDO>  las =  legalActionsRepo.findAll();
+        for (int i = 0; i < las.size(); i++) {
+            long legalActionId = las.get(i).getId();
+
+            LegalActionsDO legalActionsDO = legalActionsRepo.findLegalActionsDOWithTimeStepDOs(legalActionId);
+            boolean[] legalActions = legalActionsDO.getLegalActions();
+            Set<StateNodeDO> stateNodeSet = new HashSet<>();
+            List<Pair<TimeStepDO, StateNodeDO>> pairList = new ArrayList<>();
+            for (TimeStepDO ts : legalActionsDO.getTimeSteps()) {
+                StateNodeDO stateNodeDO = StateNodeDO.builder()
+                        .simState(ts.getSimState())
+                        .legalActions(legalActions)
+                        .build();
+                stateNodeSet.add(stateNodeDO);
+                pairList.add(new ImmutablePair<>(ts, stateNodeDO));
+            }
+
+              List<StateNodeDO> stateNodeList = stateNodeRepo.saveAll(stateNodeSet);
+
+
+
+            for (StateNodeDO stateNodeDO : stateNodeSet) {
+                List<TimeStepDO> timeStepDOs = pairList.stream().filter(p -> p.getRight().equals(stateNodeDO)).map(p -> p.getLeft()).collect(Collectors.toList());
+                List<Long> timeStepIds = timeStepDOs.stream().map(ts -> ts.getId()).collect(Collectors.toList());
+                log.debug("updateStateNodeIds({}, {})", stateNodeDO.getId(), timeStepIds);
+
+                timestepRepo.updateStateNodeIds(stateNodeDO.getId(), timeStepIds);
+            }
+
+        }
+    }
+
+    public void markSimilarityState() {
         timestepRepo.clearSimState();
 
         try {
@@ -102,48 +141,29 @@ public class TicTacToeSimState {
             games =  gamesAndTotalPagesCounter.getLeft();
             updateSimStateForGames(games);
         }
+    }
 
+    public void markVisitedActions() {
+        stateNodeRepo.deleteVisitedActions();
 
-
-        // state node
-
-
-        timestepRepo.deleteStateNodesRefs();
-        stateNodeRepo.deleteAll();
-
-       List<LegalActionsDO>  las =  legalActionsRepo.findAll();
-       for (int i = 0; i < las.size(); i++) {
-           long legalActionId = las.get(i).getId();
-
-           LegalActionsDO legalActionsDO = legalActionsRepo.findLegalActionsDOWithTimeStepDOs(legalActionId);
-           boolean[] legalActions = legalActionsDO.getLegalActions();
-           Set<StateNodeDO> stateNodeSet = new HashSet<>();
-           List<Pair<TimeStepDO, StateNodeDO>> pairList = new ArrayList<>();
-           for (TimeStepDO ts : legalActionsDO.getTimeSteps()) {
-               StateNodeDO stateNodeDO = StateNodeDO.builder()
-                       .simState(ts.getSimState())
-                       .legalActions(legalActions)
-                       .build();
-               stateNodeSet.add(stateNodeDO);
-               pairList.add(new ImmutablePair<>(ts, stateNodeDO));
+        List<StateNodeDO>  stateNodeDOs =  stateNodeRepo.findAll();
+        int c = 0;
+        for (int i = 0; i < stateNodeDOs.size(); i++) {
+           long stateNodeDOId = stateNodeDOs.get(i).getId();
+           log.info("{} of {}: update visited actions for stateNodeDO with id {}", c++, stateNodeDOs.size(), stateNodeDOId);
+           StateNodeDO stateNodeDO = stateNodeRepo.findStateNodeDOWithTimeStepDOs(stateNodeDOId);
+           // copy of stateNodeDO.getLegalActions()
+            // boolean[] legalAndNotVisited =  Arrays.copyOf(stateNodeDO.getLegalActions(), stateNodeDO.getLegalActions().length);
+           boolean[] visited = new boolean[stateNodeDO.getLegalActions().length];
+           for (TimeStepDO ts : stateNodeDO.getTimeSteps()) {
+               Integer a = ts.getAction();
+               if (a != null) {
+                   visited[a] = true;
+               }
            }
-//try {
-    List<StateNodeDO> stateNodeList = stateNodeRepo.saveAll(stateNodeSet);
-//} catch (Exception e ) {
-//    log.error()
-//}
-
-
-           for (StateNodeDO stateNodeDO : stateNodeSet) {
-               List<TimeStepDO> timeStepDOs = pairList.stream().filter(p -> p.getRight().equals(stateNodeDO)).map(p -> p.getLeft()).collect(Collectors.toList());
-               List<Long> timeStepIds = timeStepDOs.stream().map(ts -> ts.getId()).collect(Collectors.toList());
-               log.debug("updateStateNodeIds({}, {})", stateNodeDO.getId(), timeStepIds);
-
-               timestepRepo.updateStateNodeIds(stateNodeDO.getId(), timeStepIds);
-           }
-
-       }
-
+           stateNodeDO.setVisitedActions(visited);
+           stateNodeRepo.updateVisitedActions(stateNodeDOId, visited);
+        }
     }
 
     public void updateSimStateForGames(List<Game> games) {

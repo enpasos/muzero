@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import jakarta.persistence.*;
@@ -54,9 +55,12 @@ public class EpisodeDO {
     private int tOfMaxValueVariance;
     private int valueCount;
 
+    @Transient
+    Game game;
+
 
     private void sortTimeSteps() {
-        timeSteps.sort(Comparator.comparing(TimeStepDO::getT));
+   //     timeSteps.sort(Comparator.comparing(TimeStepDO::getT));
     }
 
     public EpisodeDO copy() {

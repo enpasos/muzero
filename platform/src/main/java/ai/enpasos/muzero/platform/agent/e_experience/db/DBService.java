@@ -24,9 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Component
 @Slf4j
@@ -153,14 +150,14 @@ public class DBService {
         double sum = 0d;
         long count = 0;
         for (ValueDO valueDO : valueDOs) {
-            sum += valueDO.getValue();
+            sum += valueDO.getValuedo();
             count++;
         }
 
         double valueMean = sum / count;
         sum = 0d;
         for (ValueDO valueDO : valueDOs) {
-            double vHat = valueMean - valueDO.getValue();
+            double vHat = valueMean - valueDO.getValuedo();
             sum += vHat * vHat;
         }
         double vHatSquaredMean = sum / count;
