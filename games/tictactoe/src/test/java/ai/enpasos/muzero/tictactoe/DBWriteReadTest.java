@@ -69,14 +69,14 @@ class DBWriteReadTest {
                             .build());
            // System.out.println(games.get(0).getGameDTO().getActions());
             modelState.setEpoch(10);
-            gameBuffer.addGames(games, false);
+            gameBuffer.addGames(games);
 
             GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
 
             gameBuffer.setBuffer(null);
             gameBuffer.loadLatestStateIfExists();
             GameBufferDTO dtoNew = gameBuffer.getBuffer();
-            assertTrue(dtoOriginal.deepEquals(dtoNew), "game buffers should be the same");
+            assertTrue(deepEquals(dtoOriginal, dtoNew), "game buffers should be the same");
 
         }
     }
@@ -93,15 +93,33 @@ class DBWriteReadTest {
             List<Game> games = List.of(game);
 
             modelState.setEpoch(10);
-            gameBuffer.addGames(games, false);
+            gameBuffer.addGames(games);
 
             GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
             gameBuffer.setBuffer(null);
             gameBuffer.loadLatestStateIfExists();
             GameBufferDTO dtoNew = gameBuffer.getBuffer();
-            assertTrue(dtoOriginal.deepEquals(dtoNew), "game buffers should be the same");
+            assertTrue(deepEquals(dtoOriginal,dtoNew), "game buffers should be the same");
 
         }
+    }
+
+    public boolean deepEquals(GameBufferDTO dtoOld, GameBufferDTO dtoNew) {
+        // implement a deep equals
+        boolean base =  dtoOld.getConfig().equals(dtoNew.getConfig())
+                && dtoOld.getCounter() == dtoNew.getCounter()
+                && dtoOld.getGameClassName().equals(dtoNew.getGameClassName())
+                && dtoOld.getEpisodeMemory().getNumberOfEpisodes() == dtoNew.getEpisodeMemory().getNumberOfEpisodes();
+
+        if (!base) return false;
+
+
+        List<Game> oldGames = dtoOld.getEpisodeMemory().getGameList();
+        List<Game> newGames = dtoNew.getEpisodeMemory().getGameList();
+        for (int i = 0; i < oldGames.size(); i++) {
+            if (!oldGames.get(i).deepEquals(newGames.get(i))) return false;
+        }
+        return true;
     }
 
 

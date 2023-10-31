@@ -102,12 +102,7 @@ public class GameBuffer {
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
-      //  ObservationModelInput observation = null;
-       // try {
         ObservationModelInput     observation = game.getObservationModelInput(gamePos);
-//        } catch (Exception e) {
-//            int i = 42;
-//        }
 
         sample.getObservations().add(observation);
         List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
@@ -162,16 +157,15 @@ public class GameBuffer {
     }
 
     public GameBufferDTO getBuffer() {
-
             return this.buffer;
     }
 
     public int getAverageGameLength() {
-        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).average().orElse(1000);
+        return   getBuffer().getEpisodeMemory().getAverageGameLength() ;
     }
 
     public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).max().orElse(0);
+        return getBuffer().getEpisodeMemory().getMaxGameLength();
     }
 
 
@@ -182,16 +176,8 @@ public class GameBuffer {
 
     public void init() {
         this.batchSize = config.getBatchSize();
-        if (this.getBuffer() != null) {
-            this.getBuffer().games.forEach(g -> {
-                g.setEpisodeDO(null);
-                g.setOriginalEpisodeDO(null);
-            });
-            this.getBuffer().games.clear();
-        }
         this.buffer = new GameBufferDTO(config);
         this.bufferForReanalysedEpisodes = new GameBufferDTO(config);
-
     }
 
     /**
@@ -219,10 +205,10 @@ public class GameBuffer {
 
     @NotNull
     public List<Game> getGames() {
-        List<Game> games = new ArrayList<>(this.buffer.getGames());
+        List<Game> games = new ArrayList<>(this.buffer.getEpisodeMemory().getGameList());
         log.trace("Games from buffer: {}",  games.size() );
 
-        List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getGames());
+        List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getEpisodeMemory().getGameList());
         log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
 
         games.addAll(games2);
@@ -246,22 +232,12 @@ public class GameBuffer {
 
     }
 
-    public void sortGamesByLastValueError() {
-        this.getBuffer().getGames().sort(
-            (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
-    }
 
-    public void removeGames(List<Game> games) {
-        games.forEach(this::removeGame);
-    }
-
-    public void removeGame(Game game) {
-        this.getBuffer().removeGame(game);
-    }
 
     public double getPRandomActionRawAverage() {
-        double sum = this.getBuffer().games.stream().mapToDouble(g -> g.getEpisodeDO().getPRandomActionRawSum()).sum();
-        long count = this.getBuffer().games.stream().mapToLong(g -> g.getEpisodeDO().getPRandomActionRawCount()).sum();
+        List<Game> gameList = this.getBuffer().getEpisodeMemory().getGameList();
+        double sum = gameList.stream().mapToDouble(g -> g.getEpisodeDO().getPRandomActionRawSum()).sum();
+        long count = gameList.stream().mapToLong(g -> g.getEpisodeDO().getPRandomActionRawCount()).sum();
         if (count == 0) return 1;
         return sum / count;
     }
@@ -269,12 +245,11 @@ public class GameBuffer {
 
 
 
-    public void addGames(List<Game> games, boolean atBeginning) {
-
+    public void addGames(List<Game> games ) {
         if (games.isEmpty()) return;
 
 
-        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game, atBeginning));
+        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game ));
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
         } else {
@@ -283,7 +258,7 @@ public class GameBuffer {
             int epoch = this.getModelState().getEpoch();
 
 
-           List<Game> gamesToSave = this.getBuffer().games.stream()
+           List<Game> gamesToSave = this.getBuffer().getEpisodeMemory().getGameList().stream()
                     .filter(g -> g.getEpisodeDO().getTrainingEpoch() == epoch)
                     .filter(g -> !g.isReanalyse())
 
@@ -301,24 +276,25 @@ public class GameBuffer {
 
 
 
-    private void addGameAndRemoveOldGameIfNecessary(Game game, boolean atBeginning ) {
+    private void addGameAndRemoveOldGameIfNecessary(Game game ) {
+
          memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         if (!game.isReanalyse()) {
             game.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
             game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
-            buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+            buffer.addGame(game );
         } else {
-            this.bufferForReanalysedEpisodes.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+            this.bufferForReanalysedEpisodes.addGame(game );
 
         }
 
     }
 
 
-    private void addGame(Game game, boolean atBeginning) {
-        memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
-        getBuffer().addGame(game, atBeginning);
-    }
+//    private void addGame(Game game, boolean atBeginning) {
+//        memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
+//        getBuffer().addGame(game, atBeginning);
+//    }
 
     private void memorizeEntropyInfo(Game game, int epoch) {
         this.entropyBestEffortSum.putIfAbsent(epoch, 0.0);
@@ -372,10 +348,7 @@ public class GameBuffer {
         return meanValuesLosses.values().stream().max(Double::compare).orElse(0.0);
     }
 
-//    public double getDynamicRootTemperature() {
-//        return config.getTemperatureRoot();
-//
-//    }
+
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
@@ -394,12 +367,14 @@ public class GameBuffer {
         return new ImmutablePair<>(games, pair.getRight());
     }
 
+
+    // TODO more efficient!
     public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {
         GameBufferDTO buffer = new GameBufferDTO();
         buffer.setInitialEpisodeDOList(episodeDOList);
         episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(buffer::setCounter);
         buffer.rebuildGames(config);
-        List<Game> games = buffer.getGames();
+        List<Game> games = buffer.getEpisodeMemory().getGameList();
         return games;
     }
 

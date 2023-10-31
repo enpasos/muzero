@@ -112,7 +112,7 @@ public class MuZeroLoop {
 
             log.info("game counter: " + gameBuffer.getBuffer().getCounter());
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getEpisodeMemory().getGameList().size());
 
             log.info("training ...");
             modelService.trainModel().get();

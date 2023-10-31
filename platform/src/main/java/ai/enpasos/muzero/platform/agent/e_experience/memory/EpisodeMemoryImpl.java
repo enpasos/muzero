@@ -133,7 +133,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
      */
     @Override
     public void add(Game game, int t) {
-        System.out.println("add t=" + t);
+        //System.out.println("add t=" + t);
         StateNode stateNode = new ObservationStateNode(game, t);   // TODO configurable factory
         if (t < game.getEpisodeDO().getLastTime() ) {
             Set<TimeStepDO> episodeNodes = mapStateNodeActions.get(stateNode);
@@ -171,4 +171,21 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
+    @Override
+    public int getAverageGameLength() {
+        return (int)this.gameList.stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).average().orElse(1000);
+    }
+
+    @Override
+    public int getMaxGameLength() {
+        return this.gameList.stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).max().orElse(0);
+    }
+
+    @Override
+    public List<Game> getGameList() {
+        return new ArrayList<>(gameList);
+    }
+
+
 }

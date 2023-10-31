@@ -98,11 +98,11 @@ muzero:
       offPolicyCorrectionOn: true   # obsolete?
       allOrNothingOn: true         # obsolete?
       offPolicyRatioLimit: 1.0     # default?
-      kMinLimit: 0.001
+      # kMinLimit: 0.001
 
       numParallelInferences: 1000
 
-      withLegalActionsHead: true
+      withLegalActionsHead: false
 
 
 
