@@ -82,7 +82,7 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
 
         gameBuffer.loadLatestStateIfExists();
-        play.fillingBuffer(params.isRandomFill());
+      //  play.fillingBuffer(params.isRandomFill());
 
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
@@ -92,7 +92,7 @@ public class MuZeroLoop {
 
             int n = 10;  // TODO: make configurable
 
-            if (epoch != 0) {
+        //    if (epoch != 0) {
 
                 log.info("reflecting on experience ...");
 //                fillValueTable.fillValueTableForNetworkOfEpoch(epoch);
@@ -106,7 +106,7 @@ public class MuZeroLoop {
                     play.playGames(params.isRender(), trainingStep);
                 }
                 config.setPlayTypeKey(originalPlayTypeKey);
-            }
+   //         }
 
 
 

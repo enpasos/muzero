@@ -248,8 +248,14 @@ public class GameBuffer {
     public void addGames(List<Game> games ) {
         if (games.isEmpty()) return;
 
-
-        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game ));
+        int countGamesNotVisitingUnvisitedActions = 0;
+        for(Game game : games) {
+            if (!this.buffer.getEpisodeMemory().visitsUnvisitedAction(game)) {
+                countGamesNotVisitingUnvisitedActions++;
+            }
+            addGameAndRemoveOldGameIfNecessary(game );
+        }
+        log.info("### countGamesNotVisitingUnvisitedActions: {} of {}", countGamesNotVisitingUnvisitedActions, games.size());
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
         } else {
@@ -285,7 +291,6 @@ public class GameBuffer {
             buffer.addGame(game );
         } else {
             this.bufferForReanalysedEpisodes.addGame(game );
-
         }
 
     }

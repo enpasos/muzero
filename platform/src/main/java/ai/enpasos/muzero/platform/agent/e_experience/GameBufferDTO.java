@@ -78,6 +78,7 @@ public class GameBufferDTO {
 //    }
 
     public void addGame(@NotNull Game game ) {
+
         this.episodeMemory.add(game);
 //        if (!isBufferFilled()) {
 //            games.add(game);
