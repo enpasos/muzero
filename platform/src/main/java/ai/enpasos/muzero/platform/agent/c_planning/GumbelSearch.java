@@ -5,6 +5,7 @@ import ai.enpasos.muzero.platform.agent.b_episode.Player;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.memory.EpisodeMemory;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -348,7 +349,7 @@ public class GumbelSearch {
         storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues, minMaxStatsEntropyQValues);
     }
 
-    public Action selectAction( boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO, boolean hybrid2 ) {
+    public Action selectAction(boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO, boolean hybrid2, EpisodeMemory episodeMemory) {
 
         Action action = null;
 
@@ -382,18 +383,33 @@ public class GumbelSearch {
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
-                    action = getAction(temperature, raw, game, timeStepDO, true);
+                // getLegalNotDeeplyVisitedActions
+                boolean[] legalNotDeeplyVisitedActions = episodeMemory.getLegalNotDeeplyVisitedActions(game, timeStepDO.getT());
+                int numberOfLegalNotDeeplyVisitedActions = 0;
+                for (int i = 0; i < legalNotDeeplyVisitedActions.length; i++) {
+                    if (legalNotDeeplyVisitedActions[i]) numberOfLegalNotDeeplyVisitedActions++;
+                }
+                if (numberOfLegalNotDeeplyVisitedActions > 0) {
+                    for (int i = 0; i < legalNotDeeplyVisitedActions.length; i++) {
+                        if (!legalNotDeeplyVisitedActions[i]) {
+                            raw[i] = Double.NEGATIVE_INFINITY;
+                        }
+                    }
+                }
+                action = getAction(temperature, raw, game, timeStepDO, true);
+
+
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
                     timeStepDO.setPlayoutPolicy(d2f(softmax(raw, 1d)));
                     action = selectedAction;
                 } else {
-                    action = getAction(1d, raw, game, timeStepDO, false);
+                    action = getAction(1d, raw, game, timeStepDO, false );
                 }
             }
         } else {
-            action = getAction(temperature, raw, game, timeStepDO, false);
+            action = getAction(temperature, raw, game, timeStepDO, false );
         }
         return action;
 

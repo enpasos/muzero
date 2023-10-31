@@ -55,8 +55,10 @@ class MemoryTest {
         Game game1 = gameFromActions( 1, 5, 0, 4, 7, 2, 8, 6 );
         Game game2 = gameFromActions( 1, 5, 0, 4, 7, 2, 8, 3 );
         episodeMemory.add(game1);
-        boolean[] b = episodeMemory.getLegalNotDeeplyVisitedActions(game1, 7);
-        assertArrayEquals(new boolean[]{false, false, false, true, false, false, false, false, false}, b);
+        assertArrayEquals(new boolean[]{true, true, true, true, true, true, true, true, true},
+                episodeMemory.getLegalNotDeeplyVisitedActions(game1, 0));
+        assertArrayEquals(new boolean[]{false, false, false, true, false, false, false, false, false},
+                episodeMemory.getLegalNotDeeplyVisitedActions(game1, 7));
 
         episodeMemory.add(game2);
         assertEquals(10, episodeMemory.getNumberOfStateNodes());
@@ -72,16 +74,15 @@ class MemoryTest {
         assertEquals(new ObservationStateNode(game1,6), new ObservationStateNode(game2, 6));
         assertEquals(new ObservationStateNode(game1,7), new ObservationStateNode(game2, 7));
         assertNotEquals(new ObservationStateNode(game1,8), new ObservationStateNode(game2, 8));
-
         assertEquals(new ObservationStateNode(game1,2).hashCode(), new ObservationStateNode(game2,2).hashCode());
 
 
-          b = episodeMemory.getLegalNotDeeplyVisitedActions(game2, 7);
-        assertArrayEquals(new boolean[]{false, false, false, false, false, false, false, false, false}, b);
+        assertArrayEquals(new boolean[]{false, false, false, false, false, false, false, false, false},
+                episodeMemory.getLegalNotDeeplyVisitedActions(game2, 7));
 
 
-        b = episodeMemory.getLegalNotDeeplyVisitedActions(game1, 7);
-        assertArrayEquals(new boolean[]{false, false, false, false, false, false, false, false, false}, b);
+        assertArrayEquals(new boolean[]{false, false, false, false, false, false, false, false, false},
+                episodeMemory.getLegalNotDeeplyVisitedActions(game1, 7));
 
 
         assertFalse(episodeMemory.visitsUnvisitedAction(game1));

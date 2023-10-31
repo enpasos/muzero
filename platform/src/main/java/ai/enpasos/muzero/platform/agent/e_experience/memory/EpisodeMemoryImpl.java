@@ -26,7 +26,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
     @Override
-    public void add(Game game) {
+    synchronized public void add(Game game) {
         game.getEpisodeDO().setGame(game);
         while (gameList.size() >= capacity) {
            Game gameToRemove = gameList.get(0);
@@ -39,12 +39,12 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
     @Override
-    public void remove(Game game) {
+    synchronized public void remove(Game game) {
         gameList.remove(game);
     }
 
     @Override
-    public boolean visitsUnvisitedAction(Game game) {
+    synchronized public boolean visitsUnvisitedAction(Game game) {
        for (int t = 0; t < game.getEpisodeDO().getLastTime(); t++) {
            if (visitsUnvisitedAction(game, t)) {
                return true;
@@ -54,7 +54,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
     @Override
-    public boolean visitsUnvisitedAction(Game game, int t) {
+    synchronized public boolean visitsUnvisitedAction(Game game, int t) {
         StateNode stateNode = new ObservationStateNode(game, t);
         List<StateNode> visitedStateNodes = getVisitedStateNodes(stateNode);
         StateNode nextStateNode = new ObservationStateNode(game, t+1);
@@ -62,13 +62,13 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
 
-    private List<StateNode> getVisitedStateNodes(StateNode stateNode) {
+    synchronized private List<StateNode> getVisitedStateNodes(StateNode stateNode) {
         Set<TimeStepDO> timeSteps = this.mapStateNodeActions.get(stateNode);
         if(timeSteps == null) return new ArrayList<>();
         return timeSteps.stream().map( ts -> new ObservationStateNode(ts.getEpisode().getGame(), ts.getT()+1)).collect(Collectors.toList());
     }
 
-    private boolean areAllStateNodesVisited(TimeStepDO timeStepDO) {
+    synchronized private boolean areAllStateNodesVisited(TimeStepDO timeStepDO) {
         StateNode stateNode = new ObservationStateNode(timeStepDO.getEpisode().getGame(), timeStepDO.getT());
         Set<TimeStepDO> timeSteps = this.mapStateNodeActions.get(stateNode);
         boolean[] legalActions = timeStepDO.getLegalact().getLegalActions();
@@ -80,14 +80,16 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
     @Override
-    public boolean[] getLegalNotDeeplyVisitedActions(Game game, int t) {
-        boolean[] legalActionsPlus =  getLegalNotVisitedActions(game, t);
+    synchronized public boolean[] getLegalNotDeeplyVisitedActions(Game game, int t) {
+        boolean[] legalActionsPlus =  game.getEpisodeDO().getTimeStep(t).getLegalact().getLegalActions();
+        legalActionsPlus = Arrays.copyOf(legalActionsPlus, legalActionsPlus.length);
+                //getLegalNotVisitedActions(game, t);
         StateNode stateNode = new ObservationStateNode(game, t);
         Set<TimeStepDO> timeSteps = this.mapStateNodeActions.get(stateNode);
-        if(timeSteps != null) {
+        if (timeSteps != null) {
             for (TimeStepDO timeStepDO : timeSteps) {
                 if (timeStepDO != null && timeStepDO.getAction() != null) {
-                    legalActionsPlus[timeStepDO.getAction()] = isStateNodeVisitedDeeply(timeStepDO.getNextTimeStep());
+                    legalActionsPlus[timeStepDO.getAction()] = !isStateNodeVisitedDeeply(timeStepDO.getNextTimeStep());
                 }
             }
         }
@@ -95,21 +97,21 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
 
-    private boolean[] getLegalNotVisitedActions(Game game, int t) {
-        boolean[] legalActionsPlus = game.getEpisodeDO().getTimeStep(t).getLegalact().getLegalActions();
-        StateNode stateNode = new ObservationStateNode(game, t);
-        Set<TimeStepDO> timeSteps = this.mapStateNodeActions.get(stateNode);
-        if(timeSteps != null) {
-            for (TimeStepDO timeStepDO : timeSteps) {
-                if (timeStepDO != null && timeStepDO.getAction() != null) {
-                    legalActionsPlus[timeStepDO.getAction()] = false;
-                }
-            }
-        }
-        return legalActionsPlus;
-    }
+//    synchronized private boolean[] getLegalNotVisitedActions(Game game, int t) {
+//        boolean[] legalActionsPlus = game.getEpisodeDO().getTimeStep(t).getLegalact().getLegalActions();
+//        StateNode stateNode = new ObservationStateNode(game, t);
+//        Set<TimeStepDO> timeSteps = this.mapStateNodeActions.get(stateNode);
+//        if(timeSteps != null) {
+//            for (TimeStepDO timeStepDO : timeSteps) {
+//                if (timeStepDO != null && timeStepDO.getAction() != null) {
+//                    legalActionsPlus[timeStepDO.getAction()] = false;
+//                }
+//            }
+//        }
+//        return legalActionsPlus;
+//    }
 
-    private boolean isStateNodeVisitedDeeply(TimeStepDO timeStepDO) {
+    synchronized private boolean isStateNodeVisitedDeeply(TimeStepDO timeStepDO) {
         StateNode stateNode = new ObservationStateNode(timeStepDO.getEpisode().getGame(), timeStepDO.getT());
         Set<TimeStepDO> timeSteps = this.mapStateNodeActions.get(stateNode);
 
@@ -119,7 +121,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
             if (legalActions[i]) numberOfLegalActions++;
         }
         if(timeSteps == null) return numberOfLegalActions == 0;
-        if (timeSteps.size() != numberOfLegalActions) return false;
+        if (timeSteps.size() < numberOfLegalActions) return false;
         for(TimeStepDO ts : timeSteps) {
             TimeStepDO nextTimeStep = ts.getNextTimeStep();
             if (nextTimeStep!= null && !isStateNodeVisitedDeeply(nextTimeStep)) return false;
@@ -132,7 +134,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
      * assures that the most recent version of the time step is stored.
      */
     @Override
-    public void add(Game game, int t) {
+    synchronized public void add(Game game, int t) {
         //System.out.println("add t=" + t);
         StateNode stateNode = new ObservationStateNode(game, t);   // TODO configurable factory
         if (t < game.getEpisodeDO().getLastTime() ) {
@@ -150,7 +152,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
     @Override
-    public void remove(Game game, int t) {
+    synchronized public void remove(Game game, int t) {
         StateNode stateNode = new ObservationStateNode(game, t);
         stateNodeSet.remove(stateNode);
     }
@@ -158,32 +160,32 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
 
 
     @Override
-    public int getNumberOfStateNodes() {
+    synchronized public int getNumberOfStateNodes() {
         return this.stateNodeSet.size();
     }
 
     @Override
-    public int getNumberOfEpisodes() {
+    synchronized public int getNumberOfEpisodes() {
         return this.gameList.size();
     }
 
     @Override
-    public void setCapacity(int capacity) {
+    synchronized public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
 
     @Override
-    public int getAverageGameLength() {
+    synchronized public int getAverageGameLength() {
         return (int)this.gameList.stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).average().orElse(1000);
     }
 
     @Override
-    public int getMaxGameLength() {
+    synchronized public int getMaxGameLength() {
         return this.gameList.stream().mapToInt(g -> g.getEpisodeDO().getLastTime()+1).max().orElse(0);
     }
 
     @Override
-    public List<Game> getGameList() {
+    synchronized public List<Game> getGameList() {
         return new ArrayList<>(gameList);
     }
 

@@ -75,6 +75,7 @@ public class TicTacToeEnvironment extends EnvironmentZeroSumBase {
     @Override
     public @NotNull List<Action> getLegalActions() {
         List<Action> legal = new ArrayList<>();
+        if (this.isTerminal()) return legal;
         for (int col = 0; col < config.getBoardWidth(); col++) {
             for (int row = 0; row < config.getBoardHeight(); row++) {
                 if (this.board[row][col] == 0) {

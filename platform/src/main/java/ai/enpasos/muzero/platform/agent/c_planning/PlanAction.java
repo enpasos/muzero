@@ -4,6 +4,7 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -31,6 +32,10 @@ public class PlanAction {
 
     @Autowired
     ModelService modelService;
+
+
+    @Autowired
+    GameBuffer gameBuffer;
 
 
     public void justReplayActionWithInitialInference(Game game) {
@@ -150,7 +155,7 @@ public class PlanAction {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
             log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO, game.isHybrid2());
+        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO, game.isHybrid2(), gameBuffer.getBuffer().getEpisodeMemory());
         return action;
     }
 

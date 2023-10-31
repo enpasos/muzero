@@ -69,7 +69,17 @@ public class SelfPlayGame {
                     if (playParameters.hybrid2) {
                        game.hybrid2ApplyAction(action);
                     } else {
-                        game.apply(action);
+                       game.apply(action);
+
+
+
+                       // TODO: switch??
+
+
+
+
+
+
                     }
                 }
             }
