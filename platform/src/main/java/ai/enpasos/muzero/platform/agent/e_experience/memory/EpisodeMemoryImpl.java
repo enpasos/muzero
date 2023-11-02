@@ -14,7 +14,6 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     private int capacity;
     private List<Game> gameList;
 
-    private Set<StateNode> stateNodeSet = new HashSet<>();
 
     private Map<StateNode, Set<TimeStepDO>> mapStateNodeActions;
 
@@ -41,6 +40,9 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     @Override
     synchronized public void remove(Game game) {
         gameList.remove(game);
+        for(TimeStepDO ts : game.getEpisodeDO().getTimeSteps()) {
+            remove(game, ts.getT());
+        }
     }
 
     @Override
@@ -137,7 +139,7 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     synchronized public void add(Game game, int t) {
         //System.out.println("add t=" + t);
         StateNode stateNode = new ObservationStateNode(game, t);   // TODO configurable factory
-        if (t < game.getEpisodeDO().getLastTime() ) {
+        if (t <= game.getEpisodeDO().getLastTime() ) {
             Set<TimeStepDO> episodeNodes = mapStateNodeActions.get(stateNode);
             if (episodeNodes == null) {
                 episodeNodes = new HashSet<>();
@@ -147,21 +149,28 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
             episodeNodes.remove(timeStepDO);
             episodeNodes.add(timeStepDO);
         }
-        stateNodeSet.remove(stateNode);
-        stateNodeSet.add(stateNode);
+      //  stateNodeSet.remove(stateNode);
+      //  stateNodeSet.add(stateNode);
     }
 
     @Override
     synchronized public void remove(Game game, int t) {
         StateNode stateNode = new ObservationStateNode(game, t);
-        stateNodeSet.remove(stateNode);
+        TimeStepDO timeStepDO = game.getEpisodeDO().getTimeStep(t);
+        Set<TimeStepDO> set = mapStateNodeActions.get(stateNode);
+        if (set != null) {
+            set.remove(timeStepDO);
+            if (set.isEmpty()) {
+                mapStateNodeActions.remove(stateNode);
+            }
+        }
     }
 
 
 
     @Override
     synchronized public int getNumberOfStateNodes() {
-        return this.stateNodeSet.size();
+        return this.mapStateNodeActions.keySet().size();
     }
 
     @Override
