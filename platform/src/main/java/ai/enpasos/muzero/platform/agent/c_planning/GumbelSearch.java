@@ -331,12 +331,12 @@ public class GumbelSearch {
                 node.setEntropyValueFromInference(entropyValue);
                 node.setImprovedValue(node.getValueFromInference());
                 node.setImprovedEntropyValue(node.getEntropyValueFromInference());
-                node.setImprovedPolicyValue(node.getPrior());
+
                 start = false;
             } else {
                 node.calculateVmix();
                 node.calculateEntropyVmix();
-                node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues);
+
                 node.calculateImprovedValue();
                 node.calculateImprovedEntropyValue();
             }

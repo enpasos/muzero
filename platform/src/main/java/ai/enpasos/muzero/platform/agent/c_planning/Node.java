@@ -257,7 +257,14 @@ public class Node {
             Action action2 = e.getKey();
             Float p = e.getValue().getFirst();
             Float logit2 = e.getValue().getSecond();
-            getChildren().add(Node.builder().parent(this).action(action2).config(config).prior(p / policySum).logit(logit2).build());
+            double prior = p / policySum;
+            getChildren().add(Node.builder()
+                    .parent(this)
+                    .action(action2)
+                    .config(config)
+                    .prior(prior)
+                    .improvedPolicyValue(prior)
+                    .logit(logit2).build());
         }
     }
 
