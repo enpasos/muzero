@@ -102,7 +102,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withLegalActionsHead: false
+      withLegalActionsHead: true
 
 
 

@@ -121,7 +121,7 @@ public class Inference {
         return values;
     }
 
-    public int[] aiDecisionForGames(Collection<Game> games, boolean withMCTS, int epoch) {
+    public int[] aiDecisionForGames(Collection<Game> games, boolean withMCTS) {
             return aiDecision(withMCTS, games).stream().mapToInt(Pair::getSecond).toArray();
     }
 

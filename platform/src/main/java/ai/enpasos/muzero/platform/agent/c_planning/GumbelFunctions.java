@@ -35,8 +35,7 @@ public class GumbelFunctions {
         ).collect(Collectors.toList());
 
         IntStream.range(0, n).forEach(i -> {
-            Pair<Integer, Double> selected = null;
-            selected = gPlusLogits.stream().max(Comparator.comparingDouble(Pair::getValue)).get();
+            Pair<Integer, Double> selected = gPlusLogits.stream().max(Comparator.comparingDouble(Pair::getValue)).get();
 
             result.add(actions[selected.getKey()]);
             gPlusLogits.remove(selected);

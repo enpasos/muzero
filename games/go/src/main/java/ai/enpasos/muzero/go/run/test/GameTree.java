@@ -109,7 +109,7 @@ public class GameTree {
         List<Game> gameList = nodeList.stream().map(DNode::getGame).collect(Collectors.toList());
 
 
-        int[] actions = inference.aiDecisionForGames(gameList, withMCTS,  epoch);
+        int[] actions = inference.aiDecisionForGames(gameList, withMCTS );
 
         List<DNode> badDecisionNodes = new ArrayList<>();
 

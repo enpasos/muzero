@@ -77,6 +77,10 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeInference inference;
 
+
+    @Autowired
+    private TicTacToeCritical critical;
+
     @Autowired
     private ModelService modelService;
 
@@ -91,6 +95,9 @@ public class TicTacToe implements CommandLineRunner {
     @Override
     public void run(String... args) {
         switch (conf.getRun()) {
+            case CRITICAL:
+                critical.run();
+                break;
             case ACTIONS:
                 actionExtractor.run();
                 break;

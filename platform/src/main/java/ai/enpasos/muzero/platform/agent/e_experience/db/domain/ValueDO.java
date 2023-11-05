@@ -23,11 +23,6 @@ public class ValueDO {
 
     private double valuedo;
 
-
-
-
-
-
     boolean archived ;
 
 }

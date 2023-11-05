@@ -322,15 +322,16 @@ public class GumbelSearch {
                 node.setEntropyValueFromInference(entropyValue);
                 node.setImprovedValue(node.getValueFromInference());
                 node.setImprovedEntropyValue(node.getEntropyValueFromInference());
-                node.setImprovedPolicyValue(node.getPrior());
+
                 start = false;
             } else {
                 node.calculateVmix();
                 node.calculateEntropyVmix();
-                node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues, game.isItExplorationTime());
+
                 node.calculateImprovedValue();
                 node.calculateImprovedEntropyValue();
             }
+            node.calculateImprovedPolicy(minMaxStatsQValues, minMaxStatsEntropyQValues, game.isItExplorationTime());
 
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
@@ -446,14 +447,14 @@ public class GumbelSearch {
     public void drawCandidateAndAddValue() {
         List<GumbelAction> gumbelActions = rootChildrenCandidates.get(currentPhase).stream().map(Node::getGumbelAction).collect(Collectors.toList());
         int maxActionVisitCount = rootChildrenCandidates.get(currentPhase).stream().mapToInt(Node::getVisitCount).max().getAsInt();
-        drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
+        drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount);
     }
 
-    public void drawCandidateAndAddValueStart() {
-        List<Float> vs = new ArrayList<>();
-        float v = (float) this.root.getValueFromInference();
-        vs.add(v);
-    }
+//    public void addValueStart() {
+//        List<Float> vs = new ArrayList<>();
+//        float v = (float) this.root.getValueFromInference();
+//        vs.add(v);
+//    }
 
     public void addExplorationNoise() {
         root.addExplorationNoise(config);

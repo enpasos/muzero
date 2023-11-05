@@ -132,7 +132,7 @@ public class PlanAction {
             //  log.info("\n" + game.render());
         }
         sm.gumbelActionsStart(withGumbel);
-        sm.drawCandidateAndAddValueStart();
+     //   sm.addValueStart();
 
         if (!fastRuleLearning && !sm.isSimulationsFinished()) {
             do {
