@@ -30,7 +30,7 @@ public class ModelQueue {
     public long countInitialInferenceTasksNotStarted() {
         synchronized(initialInferenceTasks) {
             return initialInferenceTasks.stream()
-                .filter(InitialInferenceTask::isDone)
+                .filter(InitialInferenceTask::isNotDone)
                 .count();
 
         }
@@ -54,7 +54,7 @@ public class ModelQueue {
     public List<InitialInferenceTask> getInitialInferenceTasksNotStarted(int num) {
         synchronized(initialInferenceTasks) {
             return initialInferenceTasks.stream()
-                .filter(InitialInferenceTask::isDone)
+                .filter(InitialInferenceTask::isNotDone)
                 .limit(num)  // as we use a list this should be the first once entered in the list (FIFO) - but we should test this
                 .collect(Collectors.toList());
         }
