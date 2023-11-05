@@ -39,7 +39,7 @@ public class InitialInferenceTask {
     }
 
 
-    public synchronized boolean isDone() {
+    public synchronized boolean isNotDone() {
         return !done;
     }
 

@@ -189,8 +189,6 @@ public class GameBuffer {
                 .map(game -> sampleFromGame(numUnrollSteps, game))
                 .collect(Collectors.toList());
         }
-
-
     }
 
     public List<Game> sampleGames() {
@@ -210,6 +208,11 @@ public class GameBuffer {
 
         List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getEpisodeMemory().getGameList());
         log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
+
+
+//        int n = 2000; // TODO make configurable
+//        this.buffer.get
+
 
         games.addAll(games2);
         return games;

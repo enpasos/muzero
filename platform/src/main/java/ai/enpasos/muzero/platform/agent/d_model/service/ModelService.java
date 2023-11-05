@@ -36,7 +36,7 @@ public class ModelService {
         InitialInferenceTask task = new InitialInferenceTask(game);
         modelQueue.addInitialInferenceTask(task);
 
-        while (task.isDone()) {
+        while (task.isNotDone()) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -91,7 +91,7 @@ public class ModelService {
         games.forEach(game -> tasks.add(new InitialInferenceTask(game)));
         modelQueue.addInitialInferenceTasks(tasks);
 
-        while (tasks.stream().anyMatch(InitialInferenceTask::isDone)) {
+        while (tasks.stream().anyMatch(InitialInferenceTask::isNotDone)) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -102,6 +102,8 @@ public class ModelService {
         List<NetworkIO> results = tasks.stream().map(InitialInferenceTask::getNetworkOutput).collect(Collectors.toList());
         return CompletableFuture.completedFuture(results);
     }
+
+
 
 
 
@@ -169,7 +171,33 @@ public class ModelService {
     }
 
 
-
+//    @Async()
+//    public CompletableFuture<List<NetworkIO>> recurrentInference(List<NDArray> hiddenStates, List<Integer> actions) {
+//
+//        List<RecurrentInferenceTask> tasks = new ArrayList<>();
+//        for (int i = 0; i < hiddenStates.size(); i++) {
+//            Node node = Node.builder()
+//                    .hiddenState(hiddenStates[i])
+//                    .build();
+//            Node node2 = Node.builder()
+//                    .action(config.newAction(4))
+//                    .build();
+//            List<Node> searchPath = List.of(node, node2);
+//        }
+//        games.forEach(game -> tasks.add(new RecurrentInferenceTask(game)));
+//        modelQueue.addInitialInferenceTasks(tasks);
+//
+//        while (tasks.stream().anyMatch(InitialInferenceTask::isNotDone)) {
+//            try {
+//                Thread.sleep(1);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//            }
+//        }
+//        tasks.forEach(task -> modelQueue.removeInitialInferenceTask(task));
+//        List<NetworkIO> results = tasks.stream().map(InitialInferenceTask::getNetworkOutput).collect(Collectors.toList());
+//        return CompletableFuture.completedFuture(results);
+//    }
 
     @Async()
     public CompletableFuture<NetworkIO> recurrentInference(NDArray hiddenState, int action) {
@@ -177,7 +205,7 @@ public class ModelService {
         .hiddenState(hiddenState)
         .build();
         Node node2 = Node.builder()
-            .action(config.newAction(4))
+            .action(config.newAction(action))
             .build();
          List<Node> searchPath = List.of(node, node2);
 
