@@ -119,12 +119,10 @@ public class GameBuffer {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 
-            if (gamePos + i < originalActionSize) {
+            if (gamePos + i <= originalActionSize) {    // TODO check <= or <
                 observation = game.getObservationModelInput(gamePos + i);
             }
             sample.getObservations().add(observation);
-
-
         }
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);

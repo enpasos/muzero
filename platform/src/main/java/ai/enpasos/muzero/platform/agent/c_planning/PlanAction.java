@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -137,12 +138,18 @@ public class PlanAction {
         if (!fastRuleLearning && !sm.isSimulationsFinished()) {
             do {
                 List<Node> searchPath = sm.search();
+
                 try {
                     networkOutput = modelService.recurrentInference(searchPath).get();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } catch (ExecutionException e) {
                     throw new RuntimeException(e);
+                }
+                boolean debug = false;
+                if (debug) {
+                    int[] actions = searchPath.stream().map(Node::getAction).filter(a -> a != null).mapToInt(Action::getIndex).toArray();
+                    log.info("{}: v={}, p={}", Arrays.toString(actions), networkOutput.getValue(), Arrays.toString(networkOutput.getPolicyValues()));
                 }
                 sm.expand(networkOutput);
                 sm.backpropagate(networkOutput, config.getDiscount());

@@ -37,10 +37,11 @@ public class TicTacToeCritical {
     MuZeroConfig config;
 
     public void run() {
-        int epoch = 440;
+        int epoch = 144;
 
        // int[] actions = {1,7,3,6,8,2,4,0,5};
-        int[] actions = {1,7,3};
+       // int[] actions = {1,7,3};
+        int[] actions = {3, 0, 6, 7, 8};
         Game game = this.config.newGame(true, true);
         game.apply(actions);
         List<Game> games  = List.of(game);
@@ -56,7 +57,8 @@ public class TicTacToeCritical {
 
         int[] nextActions = inference.aiDecisionForGames(games, true );
 
-        int i = 42;
+        log.info("nextAction: {}", nextActions[0]);
+
 
 //
 //        List<Integer> actionList = new ArrayList<>();
