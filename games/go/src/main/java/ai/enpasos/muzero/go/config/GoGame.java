@@ -82,19 +82,23 @@ public class GoGame extends ZeroSumGame {
 
 
 
-    public @NotNull ObservationModelInput getObservationModelInput(int position) {
+    public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
         int n0 =   config.getBoardHeight() * config.getBoardWidth();
         int n = config.getNumObservationLayers() * n0;
         BitSet rawResult = new BitSet(n);
 
-        OneOfTwoPlayer currentPlayer =  position % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
+        OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
+        int tmax =  this.gameDTO.getObservations().size();
+        int observationTime = Math.min(tmax, inputTime);
 
         int index = 0;
         for (int i = 7; i >= 0; i--) {
             ObservationTwoPlayers observation =
-                    position-i >= 0 ?
-                    (ObservationTwoPlayers)this.gameDTO.getObservations().get(position-i) :
+
+            observationTime-i >= 0 ?
+                    (ObservationTwoPlayers)this.gameDTO.getObservations().get(observationTime-i) :
+
                     ObservationTwoPlayers.builder()
                                     .partSize(n0)
                                     .partA(new BitSet(n0))

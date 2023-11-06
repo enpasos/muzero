@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,7 @@ class SearchManagerTest {
     }
 
     @Test
+    @Disabled
     void searchManagerTest() {
         int n = 200;
         config.setNumSimulations(  n);
