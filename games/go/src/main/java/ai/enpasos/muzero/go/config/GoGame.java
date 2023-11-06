@@ -89,12 +89,13 @@ public class GoGame extends ZeroSumGame {
 
         OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
+        int observationTime = Math.min(this.getEpisodeDO().getLastTime(), inputTime);
 
         int index = 0;
         for (int i = 7; i >= 0; i--) {
             ObservationTwoPlayers observation =
-                    inputTime -i >= 0 ?
-                    (ObservationTwoPlayers)this.episodeDO.getTimeStep(inputTime -i).getObservation():
+                    observationTime -i >= 0 ?
+                    (ObservationTwoPlayers)this.episodeDO.getTimeStep(observationTime -i).getObservation():
                     ObservationTwoPlayers.builder()
                                     .partSize(n0)
                                     .partA(new BitSet(n0))

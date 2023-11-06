@@ -43,12 +43,12 @@ public class TicTacToeTestAllNetworks {
     public void run() {
 
 
-        int start = 164;
-        int stop =  166;
+        int start = 348;
+        int stop =  348;
 
         boolean onOptimalPathOnly = false;
 
-       // config.setOutputDir("./memory/tictactoe-without-exploration/");
+        //config.setOutputDir("./memory/tictactoe-without-exploration/");
         //config.setOutputDir("./memory/tictactoe-with-exploration/");
 
         Map<Integer, BadDecisions> map = new TreeMap<>();

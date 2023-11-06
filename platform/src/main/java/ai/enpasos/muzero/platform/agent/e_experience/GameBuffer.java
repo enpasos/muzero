@@ -119,9 +119,9 @@ public class GameBuffer {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 
-            if (gamePos + i <= originalActionSize) {    // TODO check <= or <
+          //  if (gamePos + i <= originalActionSize) {
                 observation = game.getObservationModelInput(gamePos + i);
-            }
+           // }
             sample.getObservations().add(observation);
         }
         sample.setGamePos(gamePos);
@@ -132,11 +132,8 @@ public class GameBuffer {
     }
 
     public static int samplePosition(@NotNull Game game) {
-//        int t0 = game.getFirstSamplePosition();
         int t0 = 0;
         int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
-//        // TODO tHybrid should be not larger than lastActionTime ... next line is a workaround
-//         t0 = Math.min(t0, tmax);
         return ThreadLocalRandom.current().nextInt(t0, tmax + 1);
     }
 
