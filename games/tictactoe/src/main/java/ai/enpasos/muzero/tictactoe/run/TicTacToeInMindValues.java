@@ -53,13 +53,13 @@ public class TicTacToeInMindValues {
       //  int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
     //    int[] actions = {1,7,3,6,8,2,4,0,5};
       //  int[] actions = {3,0,6,7,8,1,2,4,5,2};
-        int[] actions = {3,0,6,7,8,1,2,4};
+      //&  int[] actions = {3,0,6,7,8,1,2,4};
+
+        int[] actions = {1, 3, 5, 8, 7, 0, 4};
 
 
 
-
-
-        int epoch = 144;
+        int epoch = 375;
         int extra = 10;
         //     config.setOutputDir("./memory/tictactoe-without-exploration/");
         //  config.setOutputDir("./memory/tictactoe/");
