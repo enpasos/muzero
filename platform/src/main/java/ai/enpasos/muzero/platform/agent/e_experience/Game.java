@@ -23,6 +23,7 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -52,6 +53,11 @@ public abstract class Game {
 
    // protected int actionDecision;
     static List<Double> v0s = new ArrayList<>();
+
+    protected boolean isForRulesTrainingOnly;
+
+
+
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected EpisodeDO episodeDO;
@@ -203,9 +209,18 @@ private boolean hybrid2;
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, boolean isWithLegalActionHead, double kappa) {
 
-        int tdSteps = getTdSteps( currentIndex, kappa);
-        double value = calculateValue(tdSteps, currentIndex);
+         int   tdSteps = getTdSteps( currentIndex, kappa);
+         double   value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
+
+        if (this.isForRulesTrainingOnly) {
+             if (currentIndex < this.getEpisodeDO().getLastTime()) {
+                 value = MyL2Loss.NULL_VALUE;
+             }
+        } else {
+            tdSteps = getTdSteps( currentIndex, kappa);
+            value = calculateValue(tdSteps, currentIndex);
+        }
 
 
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
@@ -214,7 +229,12 @@ private boolean hybrid2;
             }
             target.setValue((float) value);
             target.setReward(reward);
-            target.setPolicy(this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget());
+            float[] policy = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
+            if (this.isForRulesTrainingOnly) {
+                policy = new float[this.actionSpaceSize];
+                Arrays.fill(policy, 0f);
+            }
+            target.setPolicy(policy);
         } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
@@ -226,7 +246,8 @@ private boolean hybrid2;
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
             if (isWithLegalActionHead) {
-                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions()));
+                float[] legalActions = b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions());
+                target.setLegalActions(legalActions );
             }
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
@@ -240,7 +261,7 @@ private boolean hybrid2;
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
-            float[]legalActions = new float[this.actionSpaceSize];
+           float[]   legalActions = new float[this.actionSpaceSize];
             Arrays.fill(legalActions, 1f);
             target.setLegalActions(legalActions);
         }

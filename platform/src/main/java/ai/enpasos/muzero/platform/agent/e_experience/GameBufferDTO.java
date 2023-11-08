@@ -36,7 +36,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 @Data
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 @SuppressWarnings("squid:S2065")
 public class GameBufferDTO {
@@ -50,6 +50,8 @@ public class GameBufferDTO {
 
     private String gameClassName;
     private long counter;
+
+
 
     public GameBufferDTO(MuZeroConfig config) {
         this.gameClassName = config.getGameClassName();
@@ -92,13 +94,14 @@ public class GameBufferDTO {
     }
 
 
-    public void rebuildGames(MuZeroConfig config) {
+    public void rebuildGames(MuZeroConfig config ) {
         log.info("rebuildGames");
         //games = new ArrayList<>();
         for (EpisodeDO episodeDO : getInitialEpisodeDOList()) {
             Game game = config.newGame(false,false);
             game.setEpisodeDO(episodeDO);
-            this.episodeMemory.add(game);
+
+                this.episodeMemory.add(game);
           //  games.add(game);
         }
         getInitialEpisodeDOList().clear();

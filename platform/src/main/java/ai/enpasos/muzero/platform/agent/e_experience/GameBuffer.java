@@ -83,7 +83,12 @@ public class GameBuffer {
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
-        int gamePos = samplePosition(game);
+        int gamePos = 0;
+        if (game.isForRulesTrainingOnly) {
+            gamePos = Math.max(0,game.getEpisodeDO().getLastTime()-numUnrollSteps);
+        } else {
+            gamePos = samplePosition(game);
+        }
         Sample sample = null;
         long count = 0;
         do {
@@ -191,9 +196,21 @@ public class GameBuffer {
         List<Game> games = getGames();
         Collections.shuffle(games);
 
-        return games.stream()
+        List<Game> gameList = games.stream()
                 .limit(this.batchSize)
                 .collect(Collectors.toList());
+
+
+        int n =this.batchSize; // TODO make configurable
+        List<Game> games3 = this.getNRandomSelectedGames(n);
+        games3.forEach(g -> g.setForRulesTrainingOnly(true));
+        gameList.addAll(games3);
+
+        Collections.shuffle(gameList);
+         return gameList.stream()
+                .limit(this.batchSize)
+                .collect(Collectors.toList());
+
     }
 
     @NotNull
@@ -203,13 +220,10 @@ public class GameBuffer {
 
         List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getEpisodeMemory().getGameList());
         log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
-
-
-//        int n = 2000; // TODO make configurable
-//        this.buffer.get
-
-
         games.addAll(games2);
+
+
+
         return games;
     }
 
@@ -226,7 +240,7 @@ public class GameBuffer {
         this.getBuffer().setInitialEpisodeDOList(episodeDOList);
         episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
         episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getBuffer()::setCounter);
-        this.getBuffer().rebuildGames(config);
+        this.getBuffer().rebuildGames(config );
 
     }
 
@@ -356,9 +370,12 @@ public class GameBuffer {
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
 
+        return getNRandomSelectedGames(n);
+    }
+
+    private List<Game> getNRandomSelectedGames(int n) {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-
 
         return games;
     }
@@ -373,11 +390,17 @@ public class GameBuffer {
 
     // TODO more efficient!
     public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {
-        GameBufferDTO buffer = new GameBufferDTO();
-        buffer.setInitialEpisodeDOList(episodeDOList);
-        episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(buffer::setCounter);
-        buffer.rebuildGames(config);
-        List<Game> games = buffer.getEpisodeMemory().getGameList();
+     //  GameBufferDTO buffer = new GameBufferDTO();
+     //   buffer.setInitialEpisodeDOList(episodeDOList);
+    //    episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().
+    //    buffer.rebuildGames(config);
+
+        List<Game> games = new ArrayList<>();
+        for (EpisodeDO episodeDO : episodeDOList) {
+            Game game = config.newGame(false,false);
+            game.setEpisodeDO(episodeDO);
+            games.add(game);
+        }
         return games;
     }
 

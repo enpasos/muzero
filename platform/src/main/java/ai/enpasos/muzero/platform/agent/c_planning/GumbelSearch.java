@@ -385,18 +385,18 @@ public class GumbelSearch {
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
                 // getLegalNotDeeplyVisitedActions
-                boolean[] legalNotDeeplyVisitedActions = episodeMemory.getLegalNotDeeplyVisitedActions(game, timeStepDO.getT());
-                int numberOfLegalNotDeeplyVisitedActions = 0;
-                for (int i = 0; i < legalNotDeeplyVisitedActions.length; i++) {
-                    if (legalNotDeeplyVisitedActions[i]) numberOfLegalNotDeeplyVisitedActions++;
-                }
-                if (numberOfLegalNotDeeplyVisitedActions > 0) {
-                    for (int i = 0; i < legalNotDeeplyVisitedActions.length; i++) {
-                        if (!legalNotDeeplyVisitedActions[i]) {
-                            raw[i] = Double.NEGATIVE_INFINITY;
-                        }
-                    }
-                }
+//                boolean[] legalNotDeeplyVisitedActions = episodeMemory.getLegalNotDeeplyVisitedActions(game, timeStepDO.getT());
+//                int numberOfLegalNotDeeplyVisitedActions = 0;
+//                for (int i = 0; i < legalNotDeeplyVisitedActions.length; i++) {
+//                    if (legalNotDeeplyVisitedActions[i]) numberOfLegalNotDeeplyVisitedActions++;
+//                }
+//                if (numberOfLegalNotDeeplyVisitedActions > 0) {
+//                    for (int i = 0; i < legalNotDeeplyVisitedActions.length; i++) {
+//                        if (!legalNotDeeplyVisitedActions[i]) {
+//                            raw[i] = Double.NEGATIVE_INFINITY;
+//                        }
+//                    }
+//                }
                 action = getAction(temperature, raw, game, timeStepDO, true);
 
 
