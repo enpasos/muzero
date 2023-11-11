@@ -265,6 +265,9 @@ private boolean hybrid2;
             Arrays.fill(legalActions, 1f);
             target.setLegalActions(legalActions);
         }
+        if (target.getPolicy() == null) {
+            int i = 42;
+        }
 
     }
 

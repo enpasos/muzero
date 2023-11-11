@@ -176,10 +176,6 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetwork(Model model) {
         try (NDScope nDScope = new NDScope()) {
-//            if (config.offPolicyCorrectionOn()) {
-//                determinePRatioMaxForCurrentEpoch();
-//            }
-
             int epochLocal;
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
             boolean withSymmetryEnrichment = true;
@@ -201,11 +197,7 @@ public class ModelController implements DisposableBean, Runnable {
                         trainer.step();
                     }
                 }
-
-                // number of action paths
-
                 handleMetrics(trainer, model, epochLocal);
-
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
         }

@@ -37,10 +37,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
     List<Long> findRandomNEpisodeIds(int n);
 
+    @Transactional
+    @Query(value = "select e.id from episode e order by e.rule_loss desc limit :n", nativeQuery = true)
+    List<Long> findNEpisodeIdsWithHighestLoss(int n);
 
-//    @Transactional
-//    @Query(value = "select e.id from episode e", nativeQuery = true)
-//    List<Long> findAllIds();
 
 
     @Transactional
@@ -91,4 +91,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Modifying
     @Query(value = "DROP SEQUENCE IF EXISTS episode_seq CASCADE", nativeQuery = true )
     void dropSequence();
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update EpisodeDO e set e.ruleLoss = :loss where e.id = :id")
+    void updateRuleLoss(long id, float loss);
 }

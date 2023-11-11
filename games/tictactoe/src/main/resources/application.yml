@@ -77,8 +77,8 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 6
-      broadcastEveryN: 8  # out of range here
+      numResiduals: 9
+      broadcastEveryN: 4  # out of range here
 
       numChannels: 256
       numBottleneckChannels: 128

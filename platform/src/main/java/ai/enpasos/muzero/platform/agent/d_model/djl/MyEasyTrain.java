@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl;
 
 
+import ai.djl.Device;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.training.GradientCollector;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,6 +131,7 @@ public final class MyEasyTrain {
         labels = predsNLabels.getRight();
         long time = System.nanoTime();
         NDArray lossValue = trainer.getLoss().evaluate(labels, preds);
+        lossValue = lossValue.mean();
         collector.backward(lossValue);
         trainer.addMetric("backward", time);
         time = System.nanoTime();
@@ -164,16 +167,17 @@ public final class MyEasyTrain {
     }
 
     /**
-     * Validates the given batch of data.
-     *
-     * <p>During validation, the evaluators and losses are computed, but gradients aren't computed,
-     * and parameters aren't updated.
+     * Validates the model with one iteration of the given {@link Batch} of data.
      *
      * @param trainer the trainer to validate the batch with
-     * @param batch   a {@link Batch} of data
+     * @param batch   a {@link Batch} that contains data, and its respective labels
+     * @return the loss value
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static void validateBatch(Trainer trainer, Batch batch) {
+    public static NDArray validateBatch(Trainer trainer, Batch batch, boolean withEntropyValuePrediction, boolean withLegalActionHead) {
+        MyEasyTrain.withEntropyValuePrediction =  withEntropyValuePrediction;
+        MyEasyTrain.withLegalActionHead =  withLegalActionHead;
+
         Preconditions.checkArgument(
             trainer.getManager().getEngine() == batch.getManager().getEngine(),
             "The data must be on the same engine as the trainer. You may need to change one of"
@@ -199,13 +203,24 @@ public final class MyEasyTrain {
             }
         }
 
-        trainer.notifyListeners(listener -> listener.onValidationBatch(trainer, batchData));
+        Device device = trainer.getManager().getDevice();
+        NDList labels = batchData.getLabels().get(device);
+        NDList preds = batchData.getPredictions().get(device);
+        NDArray lossValue = trainer.getLoss().evaluate(labels, preds);
+   //     System.out.println(Arrays.toString(lossValue.toFloatArray()));
+
+        return lossValue;
+
+     //   trainer.notifyListeners(listener -> listener.onValidationBatch(trainer, batchData));
     }
 
     private static boolean validateSplit(Trainer trainer, TrainingListener.BatchData batchData, Batch split) {
         NDList data = split.getData();
         NDList labels = split.getLabels();
         NDList preds = trainer.evaluate(data);
+        Pair<NDList, NDList> predsNLabels = reorganizePredictionsAndLabels(Pair.of(preds, labels));
+        preds = predsNLabels.getLeft();
+        labels = predsNLabels.getRight();
         batchData.getLabels().put(labels.get(0).getDevice(), labels);
         batchData.getPredictions().put(preds.get(0).getDevice(), preds);
         return true;
@@ -224,7 +239,7 @@ public final class MyEasyTrain {
 
         if (testDataset != null) {
             for (Batch batch : trainer.iterateDataset(testDataset)) {
-                validateBatch(trainer, batch);
+                validateBatch(trainer, batch, false, false);
                 batch.close();
             }
         }

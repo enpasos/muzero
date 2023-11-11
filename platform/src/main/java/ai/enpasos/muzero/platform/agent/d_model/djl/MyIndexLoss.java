@@ -63,4 +63,13 @@ public class MyIndexLoss extends Loss {
     public Loss getLoss() {
         return loss;
     }
+
+
+    @Override
+    public void updateAccumulator(String key, NDList labels, NDList predictions) {
+        // this is a synchronized operation, only call it at end of batch or epoch
+        float update = evaluate(labels, predictions).mean().sum().getFloat();
+        totalInstances.compute(key, (k, v) -> v + 1);
+        totalLoss.compute(key, (k, v) -> v + update);
+    }
 }

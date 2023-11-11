@@ -51,22 +51,26 @@ public class BatchFactory {
     public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
         List<Sample> batch = gameBuffer.sampleBatch(config.getNumUnrollSteps());
 
+        return getBatch(ndManager, withSymmetryEnrichment, batch);
+    }
+
+    @NotNull
+    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, List<Sample> batch) {
         NDManager nd = ndManager.newSubManager();
 
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
 
-
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch, config.withLegalActionsHead());
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch, config.withLegalActionsHead(), withSymmetryEnrichment);
 
         return new Batch(
-            nd,
-            new NDList(inputs),
-            new NDList(outputs),
-            (int) inputs.get(0).getShape().get(0),
-            null,
-            null,
-            0,
-            0);
+                nd,
+                new NDList(inputs),
+                new NDList(outputs),
+                (int) inputs.get(0).getShape().get(0),
+                null,
+                null,
+                0,
+                0);
     }
 
     public Shape @NotNull [] getInputShapes() {

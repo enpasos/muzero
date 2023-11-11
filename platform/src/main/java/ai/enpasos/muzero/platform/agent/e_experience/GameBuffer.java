@@ -86,8 +86,9 @@ public class GameBuffer {
         int gamePos = 0;
         if (game.isForRulesTrainingOnly) {
             gamePos = Math.max(0,game.getEpisodeDO().getLastTime()-numUnrollSteps);
+            samplePosition(gamePos, game);
         } else {
-            gamePos = samplePosition(game);
+            gamePos = samplePosition(0, game);
         }
         Sample sample = null;
         long count = 0;
@@ -136,8 +137,7 @@ public class GameBuffer {
         return sample;
     }
 
-    public static int samplePosition(@NotNull Game game) {
-        int t0 = 0;
+    public static int samplePosition(int t0, @NotNull Game game) {
         int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
         return ThreadLocalRandom.current().nextInt(t0, tmax + 1);
     }
@@ -201,7 +201,10 @@ public class GameBuffer {
                 .collect(Collectors.toList());
 
 
-        int n =this.batchSize; // TODO make configurable
+        int n = this.batchSize; // TODO make configurable
+//        List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n*5);
+//        Collections.shuffle(games3);
+//        games3 = games3.subList(0, Math.min(n, games3.size()));
         List<Game> games3 = this.getNRandomSelectedGames(n);
         games3.forEach(g -> g.setForRulesTrainingOnly(true));
         gameList.addAll(games3);
@@ -373,7 +376,14 @@ public class GameBuffer {
         return getNRandomSelectedGames(n);
     }
 
-    private List<Game> getNRandomSelectedGames(int n) {
+    public List<Game> getNGamesWithHighestRuleLoss(int n) {
+        List<EpisodeDO> episodeDOList = this.dbService.findNEpisodeIdsWithHighestLossAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+
+        return games;
+    }
+
+    public List<Game> getNRandomSelectedGames(int n) {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
@@ -383,12 +393,18 @@ public class GameBuffer {
     public Pair<List<Game>, Integer> getGamesByPage( int pageNumber, int pageSize) {
         Pair<List<EpisodeDO>, Integer> pair = this.dbService.findAll(pageNumber, pageSize);
         List<EpisodeDO> episodeDOList = pair.getKey();
+//        for(EpisodeDO episodeDO: episodeDOList) {
+//            episodeDO.sortTimeSteps();
+//        }
+//
+//
+
            List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return new ImmutablePair<>(games, pair.getRight());
     }
 
 
-    // TODO more efficient!
+
     public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {
      //  GameBufferDTO buffer = new GameBufferDTO();
      //   buffer.setInitialEpisodeDOList(episodeDOList);
@@ -397,6 +413,7 @@ public class GameBuffer {
 
         List<Game> games = new ArrayList<>();
         for (EpisodeDO episodeDO : episodeDOList) {
+            episodeDO.sortTimeSteps();
             Game game = config.newGame(false,false);
             game.setEpisodeDO(episodeDO);
             games.add(game);

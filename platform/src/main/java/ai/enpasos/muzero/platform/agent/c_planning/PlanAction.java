@@ -85,7 +85,7 @@ public class PlanAction {
             boolean replay,
             boolean withGumbel
     ) {
-                if (render && game.isDebug()) {
+         if (render && game.isDebug()) {
             log.info("\n" + game.render());
         }
         NetworkIO networkOutput = null;
@@ -129,6 +129,7 @@ public class PlanAction {
         }
         if (!fastRuleLearning) sm.addExplorationNoise();
         if (render && game.isDebug()) {
+            log.info("\nwith Dirichlet noise:");
             game.renderSuggestionFromPriors(config, sm.getRoot());
             //  log.info("\n" + game.render());
         }
@@ -160,7 +161,7 @@ public class PlanAction {
         sm.storeSearchStatictics(fastRuleLearning, timeStepDO);
         if (render && game.isDebug()) {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
-            log.info("\n" + game.render());
+           // log.info("\n" + game.render());
         }
         Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO, game.isHybrid2(), gameBuffer.getBuffer().getEpisodeMemory());
         return action;

@@ -51,7 +51,7 @@ public class InputOutputConstruction {
         List<NDArray> inputs = new ArrayList<>();
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
-        addObservation(numUnrollSteps, ndManager, batch, inputsH);
+        addObservation(numUnrollSteps, ndManager, batch, inputsH, withSymmetryEnrichment);
         addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
         inputs.add(inputsH.get(0));
         IntStream.range(0, inputsA.size()).forEach(i -> {
@@ -108,17 +108,20 @@ public class InputOutputConstruction {
     }
 
 
-    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
+    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
         for (int k = 0; k < numUnrollSteps + 1; k++) {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
-                .map(sample -> {
-                    ObservationModelInput observation = sample.getObservations().get(kFinal);
-                    return observation.getNDArray(ndManager);
-                })
-                .collect(Collectors.toList());
-
-            inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+                    .map(sample -> {
+                        ObservationModelInput observation = sample.getObservations().get(kFinal);
+                        return observation.getNDArray(ndManager);
+                    })
+                    .collect(Collectors.toList());
+            if (withSymmetryEnrichment) {
+                inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+            } else {
+                inputs.add(NDArrays.stack(new NDList(o)));
+            }
         }
     }
 
@@ -150,7 +153,7 @@ public class InputOutputConstruction {
     }
 
     @SuppressWarnings("java:S2095")
-    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withLegalActionsHead) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withLegalActionsHead, boolean withSymmetryEnrichment) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();
         for (int k = 0; k <= numUnrollSteps; k++) {
@@ -169,9 +172,12 @@ public class InputOutputConstruction {
                 double scale = 2.0 / config.getValueSpan();
                 valueArray[b] = (float) (target.getValue() * scale);
 
-
-                System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
-                log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
+try {
+    System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
+    log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
+} catch(Exception e) {
+    e.printStackTrace();
+}
 
                 if ( withLegalActionsHead) {
                     log.trace("legalactionstarget: {}", target.getLegalActions());
@@ -184,12 +190,20 @@ public class InputOutputConstruction {
 
             NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
 
-            outputs.add(symmetryEnhancerPolicy(policyOutput2));
-            outputs.add(symmetryEnhancerValue(valueOutput2));
+            if (withSymmetryEnrichment) {
+                policyOutput2 = symmetryEnhancerPolicy(policyOutput2);
+                valueOutput2 = symmetryEnhancerValue(valueOutput2);
+            }
+            outputs.add(policyOutput2);
+            outputs.add(valueOutput2);
 
             if ( withLegalActionsHead) {
                 NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
-                outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+                if (withSymmetryEnrichment) {
+                    legalActionsOutput2  = symmetryEnhancerPolicy(legalActionsOutput2);
+                }
+                outputs.add(legalActionsOutput2);
+
             }
         }
         return outputs;

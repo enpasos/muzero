@@ -64,6 +64,7 @@ public class MyL2Loss extends Loss {
         NDArray labelReshaped = label.singletonOrThrow().reshape(pred.getShape());
         NDArray mask = labelReshaped.neq(NULL_VALUE);
         NDArray loss = mask.mul(labelReshaped.sub(pred).square().mul(weight));
-        return loss.mean();
+        return loss;
+      //  return loss.mean();
     }
 }

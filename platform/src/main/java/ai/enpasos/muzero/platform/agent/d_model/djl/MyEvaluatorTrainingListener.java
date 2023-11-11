@@ -2,6 +2,7 @@ package ai.enpasos.muzero.platform.agent.d_model.djl;
 
 import ai.djl.Device;
 import ai.djl.metric.Metrics;
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.training.Trainer;
 import ai.djl.training.evaluator.Evaluator;
@@ -10,6 +11,7 @@ import ai.djl.training.listener.TrainingListenerAdapter;
 import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.enpasos.muzero.platform.common.Constants;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -162,6 +164,8 @@ public class MyEvaluatorTrainingListener extends TrainingListenerAdapter {
      */
     @Override
     public void onValidationBatch(Trainer trainer, BatchData batchData) {
+
+
         updateEvaluators(trainer, batchData, new String[]{Constants.DIR_VALIDATE_EPOCH});
     }
 

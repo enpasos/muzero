@@ -102,7 +102,8 @@ public class MySoftmaxCrossEntropyLoss extends Loss {
         if (weight != 1) {
             loss = loss.mul(weight);
         }
-        return loss.mean();
+       // return loss.mean();
+        return loss;
     }
 
 

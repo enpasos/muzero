@@ -39,6 +39,10 @@ public class EpisodeDO {
     boolean archived;
 
 
+    float ruleLoss;
+    int ruleBox;
+
+
     int trainingEpoch;
     int tdSteps;
     @Id
@@ -59,8 +63,8 @@ public class EpisodeDO {
     Game game;
 
 
-    private void sortTimeSteps() {
-   //     timeSteps.sort(Comparator.comparing(TimeStepDO::getT));
+    public void sortTimeSteps() {
+        timeSteps.sort(Comparator.comparing(TimeStepDO::getT));
     }
 
     public EpisodeDO copy() {
@@ -83,14 +87,14 @@ public class EpisodeDO {
 
     public EpisodeDO copy(int toPosition) {
         EpisodeDO episodeDO = copy();
-        sortTimeSteps();
+        //sortTimeSteps();
         episodeDO.setTimeSteps(this.getTimeSteps().subList(0, toPosition));
         return episodeDO;
     }
 
 
     public Optional<TimeStepDO> getFirstTimeStep() {
-        sortTimeSteps();
+      //  sortTimeSteps();
         if (timeSteps.isEmpty()) {
             return Optional.empty();
         }
@@ -108,7 +112,7 @@ public class EpisodeDO {
     }
 
     public TimeStepDO getLastTimeStep() {
-        sortTimeSteps();
+      //  sortTimeSteps();
         if (timeSteps.isEmpty()) {
             return null;
         }
@@ -116,7 +120,7 @@ public class EpisodeDO {
     }
 
     public int getLastTime() {
-        sortTimeSteps();
+       // sortTimeSteps();
         if (timeSteps.isEmpty()) {
             return -1;
         }
@@ -124,7 +128,7 @@ public class EpisodeDO {
     }
 
     public int getLastTimeWithAction() {
-        sortTimeSteps();
+      //  sortTimeSteps();
         int t = getLastTime();
         for (int i = t; i >= 0; i--) {
             if (this.timeSteps.get(i).getAction() != null) {
@@ -135,7 +139,7 @@ public class EpisodeDO {
     }
 
     public TimeStepDO getLastTimeStepWithAction() {
-        sortTimeSteps();
+     //   sortTimeSteps();
         int t0 = getLastTime();
         for (int t = t0; t >= 0; t--) {
             TimeStepDO timeStepDO = this.timeSteps.get(t);

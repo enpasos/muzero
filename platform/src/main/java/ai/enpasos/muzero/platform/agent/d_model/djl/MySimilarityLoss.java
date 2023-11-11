@@ -38,17 +38,17 @@ public class MySimilarityLoss extends Loss {
 
         int[] axis = new int[]{1};
         double epsilon = 1e-8;
-        NDArray labNorm = lab.norm(axis, false);
-        NDArray predNorm = pred.norm(axis, false);
+        NDArray labNorm = lab.norm(axis, true);
+        NDArray predNorm = pred.norm(axis, true);
 
         labNorm = labNorm.maximum(epsilon);
         predNorm = predNorm.maximum(epsilon);
 
         NDArray normProd = labNorm.mul(predNorm);
-        NDArray loss = lab.mul(pred).sum(axis).div(normProd).sub(1).mul(-weight);
+        NDArray loss = lab.mul(pred).sum(axis, true).div(normProd).sub(1).mul(-weight);
 
-            NDArray lossMean = loss.mean();
+       //     NDArray lossMean = loss.mean();
       //  System.out.println("similarityLossMean: " + lossMean.toFloatArray()[0]);
-        return lossMean;
+        return loss;
     }
 }

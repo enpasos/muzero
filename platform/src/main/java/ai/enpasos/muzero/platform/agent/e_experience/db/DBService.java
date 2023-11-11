@@ -113,6 +113,15 @@ public class DBService {
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
+    @Transactional
+    public List<EpisodeDO> findNEpisodeIdsWithHighestLossAndConvertToGameDTOList(int n) {
+        List<Long> ids = episodeRepo.findNEpisodeIdsWithHighestLoss(n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
+
+
 
     public int getMaxTrainingEpoch() {
         return episodeRepo.getMaxTrainingEpoch();
