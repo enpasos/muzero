@@ -109,10 +109,14 @@ public class PlayService {
     }
 
     private void hybridConfiguration(List<Game> games, int gameLength) {
+        double fractionOfPureExploration = 0.3;
+
+
         games.stream().forEach(game -> {
             game.getEpisodeDO().setHybrid(true);
             if (game.getEpisodeDO().getTStartNormal() == -1) {
-                game.getEpisodeDO().setTStartNormal(ThreadLocalRandom.current().nextInt(0, gameLength + 1));
+                int effectiveT = (int)((gameLength + 1) * (1d + 0.3));
+                game.getEpisodeDO().setTStartNormal(ThreadLocalRandom.current().nextInt(0, effectiveT));
             }
         });
     }

@@ -209,18 +209,24 @@ private boolean hybrid2;
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, boolean isWithLegalActionHead, double kappa) {
 
+        int tmax = this.getEpisodeDO().getLastTime();
+        if (currentIndex == tmax) {
+            int i = 42;
+        }
+
          int   tdSteps = getTdSteps( currentIndex, kappa);
          double   value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
         if (this.isForRulesTrainingOnly) {
-             if (currentIndex < this.getEpisodeDO().getLastTime()) {
+             if (currentIndex < tmax) {
                  value = MyL2Loss.NULL_VALUE;
              }
-        } else {
-            tdSteps = getTdSteps( currentIndex, kappa);
-            value = calculateValue(tdSteps, currentIndex);
         }
+//        else {
+//            tdSteps = getTdSteps( currentIndex, kappa);
+//            value = calculateValue(tdSteps, currentIndex);
+//        }
 
 
         if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
@@ -265,9 +271,9 @@ private boolean hybrid2;
             Arrays.fill(legalActions, 1f);
             target.setLegalActions(legalActions);
         }
-        if (target.getPolicy() == null) {
-            int i = 42;
-        }
+//        if (target.getPolicy() == null) {
+//            int i = 42;
+//        }
 
     }
 
