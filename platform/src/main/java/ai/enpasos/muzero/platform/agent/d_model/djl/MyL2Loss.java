@@ -64,6 +64,9 @@ public class MyL2Loss extends Loss {
         NDArray labelReshaped = label.singletonOrThrow().reshape(pred.getShape());
         NDArray mask = labelReshaped.neq(NULL_VALUE);
         NDArray loss = mask.mul(labelReshaped.sub(pred).square().mul(weight));
+
+
+      //  System.out.println("sum L2Loss: " + loss.sum().toFloatArray()[0]);
         return loss;
       //  return loss.mean();
     }

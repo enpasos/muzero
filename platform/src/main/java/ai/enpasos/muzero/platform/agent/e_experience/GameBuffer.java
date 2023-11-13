@@ -197,7 +197,7 @@ public class GameBuffer {
         Collections.shuffle(games);
 
 
-        double fractionOfPureExploration = 0.2;
+        double fractionOfPureExploration = 1;
 
         int n1 = (int) (this.batchSize * fractionOfPureExploration);
         int n2 = this.batchSize - n1;
@@ -210,11 +210,13 @@ public class GameBuffer {
         }
 
 
-  //      int n = this.batchSize; // TODO make configurable
+  //      int n = this.batchSize;
 //        List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n*5);
 //        Collections.shuffle(games3);
 //        games3 = games3.subList(0, Math.min(n, games3.size()));
         if (n1 > 0) {
+             //     int n = this.batchSize;
+       // List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n1);
             List<Game> games3 = this.getNRandomSelectedGames(n1);
             games3.forEach(g -> g.setForRulesTrainingOnly(true));
             gameList.addAll(games3);

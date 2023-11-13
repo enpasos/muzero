@@ -223,6 +223,15 @@ private boolean hybrid2;
                  value = MyL2Loss.NULL_VALUE;
              }
         }
+
+
+        // TODO generalize
+        if (this.isForRulesTrainingOnly && reward > 0) {
+            value = reward;
+        }
+
+
+
 //        else {
 //            tdSteps = getTdSteps( currentIndex, kappa);
 //            value = calculateValue(tdSteps, currentIndex);
