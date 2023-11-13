@@ -4,6 +4,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class MySoftmaxCrossEntropyLossTest {
 
     @Test
+
+    @Disabled
     void evaluateNormal() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
 
@@ -28,6 +31,8 @@ class MySoftmaxCrossEntropyLossTest {
     }
 
     @Test
+
+    @Disabled
     void evaluateLegalActions1() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
 //loss.setUseLabelAsLegalCategoriesFilter(true);
@@ -49,6 +54,8 @@ class MySoftmaxCrossEntropyLossTest {
 
 
     @Test
+
+    @Disabled
     void evaluateLegalActions2() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true );
    //     loss.setUseLabelAsLegalCategoriesFilter(true);

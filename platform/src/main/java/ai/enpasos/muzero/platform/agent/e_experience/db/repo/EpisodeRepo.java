@@ -97,4 +97,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Modifying
     @Query(value = "update EpisodeDO e set e.ruleLoss = :loss where e.id = :id")
     void updateRuleLoss(long id, float loss);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update EpisodeDO e set e.ruleLoss = 0")
+    void initRuleLoss();
 }

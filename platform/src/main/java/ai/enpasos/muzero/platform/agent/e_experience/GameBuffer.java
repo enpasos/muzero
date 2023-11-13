@@ -197,23 +197,28 @@ public class GameBuffer {
         Collections.shuffle(games);
 
 
-        double fractionOfPureExploration = 0.9;
+        double fractionOfPureExploration = 1;
 
         int n1 = (int) (this.batchSize * fractionOfPureExploration);
         int n2 = this.batchSize - n1;
 
-        List<Game> gameList = games.stream()
-                .limit(n2)
-                .collect(Collectors.toList());
+        List<Game> gameList = new ArrayList<>();
+        if (n2 > 0) {
+            gameList.addAll(games.stream()
+                    .limit(n2)
+                    .collect(Collectors.toList()));
+        }
 
 
   //      int n = this.batchSize; // TODO make configurable
 //        List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n*5);
 //        Collections.shuffle(games3);
 //        games3 = games3.subList(0, Math.min(n, games3.size()));
-        List<Game> games3 = this.getNRandomSelectedGames(n1);
-        games3.forEach(g -> g.setForRulesTrainingOnly(true));
-        gameList.addAll(games3);
+        if (n1 > 0) {
+            List<Game> games3 = this.getNRandomSelectedGames(n1);
+            games3.forEach(g -> g.setForRulesTrainingOnly(true));
+            gameList.addAll(games3);
+        }
 
         Collections.shuffle(gameList);
          return gameList;

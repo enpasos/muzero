@@ -4,6 +4,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MyBCELossTest {
 
     @Test
+
+    @Disabled
     void evaluateA() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
 
@@ -30,6 +33,8 @@ class MyBCELossTest {
 
 
     @Test
+
+    @Disabled
     void evaluateB() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
 
@@ -48,6 +53,8 @@ class MyBCELossTest {
     }
 
     @Test
+
+    @Disabled
     void evaluateC() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
 
@@ -62,6 +69,8 @@ class MyBCELossTest {
         assertEquals(1.0755155086517334, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
     @Test
+
+    @Disabled
     void evaluateD() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 1);
 

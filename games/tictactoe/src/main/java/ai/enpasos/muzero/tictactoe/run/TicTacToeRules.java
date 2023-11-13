@@ -72,6 +72,8 @@ public class TicTacToeRules {
 
         int pageSize = 200;
 
+        episodeRepo.initRuleLoss();
+
      //   List<MyLoss> result = new ArrayList<>();
 
         // load model (see ModelController)
