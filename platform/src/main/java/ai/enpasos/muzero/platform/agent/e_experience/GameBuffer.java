@@ -197,7 +197,7 @@ public class GameBuffer {
         Collections.shuffle(games);
 
 
-        double fractionOfPureExploration = 1;
+        double fractionOfPureExploration = 0.5;
 
         int n1 = (int) (this.batchSize * fractionOfPureExploration);
         int n2 = this.batchSize - n1;
