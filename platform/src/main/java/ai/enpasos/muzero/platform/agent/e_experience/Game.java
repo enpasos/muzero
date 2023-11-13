@@ -226,8 +226,8 @@ private boolean hybrid2;
 
 
         // TODO generalize
-        if (this.isForRulesTrainingOnly && reward > 0) {
-            value = reward;
+        if (this.isForRulesTrainingOnly && this.getEpisodeDO().getTimeSteps().get(currentIndex).getReward() > 0) {
+            value = this.getEpisodeDO().getTimeSteps().get(currentIndex).getReward();
         }
 
 
