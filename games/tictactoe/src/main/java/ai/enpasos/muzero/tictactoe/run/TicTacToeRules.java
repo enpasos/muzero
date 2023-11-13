@@ -70,7 +70,7 @@ public class TicTacToeRules {
     public void run() {
 
 
-        int pageSize =1000;
+        int pageSize = 200;
 
      //   List<MyLoss> result = new ArrayList<>();
 
