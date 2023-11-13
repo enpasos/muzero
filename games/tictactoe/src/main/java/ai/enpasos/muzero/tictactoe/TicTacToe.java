@@ -38,6 +38,10 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeExploitability exploitability;
 
+
+    @Autowired
+    private TicTacToeCritical critical;
+
     @Autowired
     private TicTacToeTemperature temperature;
 
@@ -95,6 +99,10 @@ public class TicTacToe implements CommandLineRunner {
     @Override
     public void run(String... args) {
         switch (conf.getRun()) {
+
+            case CRITICAL:
+                critical.run();
+                break;
             case RULES:
                 rules.run();
                 break;

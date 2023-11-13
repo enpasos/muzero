@@ -37,6 +37,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
     List<Long> findRandomNEpisodeIds(int n);
 
+//    @Transactional
+//    @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
+//    List<Long> findRandomNEpisodeIds2(int n, double threshold);
+
     @Transactional
     @Query(value = "select e.id from episode e order by e.rule_loss desc limit :n", nativeQuery = true)
     List<Long> findNEpisodeIdsWithHighestLoss(int n);
