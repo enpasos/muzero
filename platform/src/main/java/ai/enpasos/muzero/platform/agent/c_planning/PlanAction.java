@@ -145,15 +145,12 @@ public class PlanAction {
                 } catch (ExecutionException e) {
                     throw new RuntimeException(e);
                 }
-                boolean debug = true;
+                boolean debug = false;
                 if (debug) {
                     int[] actions = searchPath.stream().map(Node::getAction).filter(a -> a != null).mapToInt(Action::getIndex).toArray();
                     log.info("{}: v={}, p={}", Arrays.toString(actions), networkOutput.getValue(), Arrays.toString(networkOutput.getPolicyValues()));
                 }
                 boolean expanded = sm.expand(networkOutput);
-//                if (!expanded) {
-//                    int i = 42;
-//                }
                 sm.backpropagate(networkOutput, config.getDiscount());
                 sm.next();
                 sm.drawCandidateAndAddValue();
