@@ -27,6 +27,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCELoss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
@@ -61,8 +62,14 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             .hiddenState(hiddenStates)
             .build();
 
-
         NDArray logits = list.get(1);
+
+
+        float[] pLegalArray_ = null;
+        if (list.size() > 2) {
+            pLegalArray_ = MyBCELoss.sigmoid(list.get(3)).toFloatArray();
+        }
+        final float[] pLegalArray = pLegalArray_;
 
         NDArray p = logits.softmax(1);
 
@@ -76,9 +83,9 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         NDArray v = list.get(2);
         float[] vArray = v.toFloatArray();
 
-        boolean  withEntropyValuePrediction = list.size() > 3;
+   //     boolean  withEntropyValuePrediction = list.size() > 3;
 
-        final float[] vEntropyArrayFinal = withEntropyValuePrediction ? list.get(3).toFloatArray() : null;
+     //   final float[] vEntropyArrayFinal = withEntropyValuePrediction ? list.get(3).toFloatArray() : null;
 
         int n = (int) v.getShape().get(0);
 
@@ -86,16 +93,21 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             .mapToObj(i ->
             {
                 float[] ps = new float[actionSpaceSize];
+                float[] psLegal = null;
+                if (pLegalArray != null) {
+                    psLegal = new float[actionSpaceSize];
+                }
 
                 float[] logits2 = new float[actionSpaceSize];
                 System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
+                System.arraycopy(pLegalArray, i * actionSpaceSize, psLegal, 0, actionSpaceSize);
 
                 double scale = config.getValueSpan() / 2.0;
 
                 return NetworkIO.builder()
                     .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
-                    .entropyValue(withEntropyValuePrediction ? vEntropyArrayFinal[i] : 0f)
+                    .pLegalValues(psLegal)
                     .policyValues(ps)
                     .logits(logits2)
                     .build();

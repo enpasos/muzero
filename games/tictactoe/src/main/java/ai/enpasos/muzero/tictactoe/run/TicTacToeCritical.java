@@ -37,10 +37,10 @@ public class TicTacToeCritical {
     MuZeroConfig config;
 
     public void run() {
-        int epoch = 1821;
+        int epoch = 1237;
 
 
-        int[] actions = {2, 1, 4, 3, 5, 6, 7};
+        int[] actions = { 1, 3, 4, 7, 5};
         Game game = this.config.newGame(true, true);
         game.apply(actions);
         List<Game> games  = List.of(game);

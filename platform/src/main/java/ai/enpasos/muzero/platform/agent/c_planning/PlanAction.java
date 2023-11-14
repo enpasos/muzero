@@ -52,12 +52,10 @@ public class PlanAction {
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
         root.setValueFromInference(value);
-        double entropyValue = networkOutput.getEntropyValue();
-        root.setEntropyValueFromInference(entropyValue);
+
 
 
         timeStepDO.setRootValueFromInitialInference((float) value);
-        timeStepDO.setRootEntropyValueFromInitialInference((float) entropyValue);
 
 
         if (t <= game.getOriginalEpisodeDO().getLastTimeWithAction()) {
@@ -147,12 +145,15 @@ public class PlanAction {
                 } catch (ExecutionException e) {
                     throw new RuntimeException(e);
                 }
-                boolean debug = false;
+                boolean debug = true;
                 if (debug) {
                     int[] actions = searchPath.stream().map(Node::getAction).filter(a -> a != null).mapToInt(Action::getIndex).toArray();
                     log.info("{}: v={}, p={}", Arrays.toString(actions), networkOutput.getValue(), Arrays.toString(networkOutput.getPolicyValues()));
                 }
-                sm.expand(networkOutput);
+                boolean expanded = sm.expand(networkOutput);
+//                if (!expanded) {
+//                    int i = 42;
+//                }
                 sm.backpropagate(networkOutput, config.getDiscount());
                 sm.next();
                 sm.drawCandidateAndAddValue();
@@ -213,7 +214,7 @@ public class PlanAction {
         Action action = selectActionByDrawingFromDistribution(distributionInput);
 
 
-        storeSearchStatistics(game, timeStepDO, root, true, config, null, new MinMaxStats(config.getKnownBounds()),  new MinMaxStats(config.getKnownBounds()));
+        storeSearchStatistics(game, timeStepDO, root, true, config, null, new MinMaxStats(config.getKnownBounds()) );
 
         return action;
     }

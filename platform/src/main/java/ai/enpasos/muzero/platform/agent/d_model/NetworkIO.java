@@ -39,12 +39,12 @@ import static ai.enpasos.muzero.platform.common.Functions.f2d;
 public class NetworkIO {
     private float[] logits;
     private float[] policyValues;
-    private float[] valueDistribution;
+
+    private float[] pLegalValues;
 
     private float[] similarityVector;
     private double value;
 
-    private double entropyValue;
 
     private double reward;
 

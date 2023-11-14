@@ -104,9 +104,9 @@ public class MyBCELoss extends Loss {
         return x.abs().neg().exp().add(1).log().neg().add(x.minimum(0));
     }
 
-//    public NDArray sigmoid (NDArray x) {
-//        return x.mul(-1).exp().add(1).getNDArrayInternal().rdiv(1);
-//    }
+    public static NDArray sigmoid (NDArray x) {
+        return x.mul(-1).exp().add(1).getNDArrayInternal().rdiv(1);
+    }
 
 
     public NDArray logOneMinusSigmoid(NDArray x) {
