@@ -225,7 +225,7 @@ private boolean hybrid2;
         }
 
 
-        // TODO generalize
+        // TODO generalize ... carefull!
         if (this.isForRulesTrainingOnly && currentIndex <this.getEpisodeDO().getTimeSteps().size() && this.getEpisodeDO().getTimeSteps().get(currentIndex).getReward() > 0) {
             value = this.getEpisodeDO().getTimeSteps().get(currentIndex).getReward();
         }
@@ -277,7 +277,7 @@ private boolean hybrid2;
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
            float[]   legalActions = new float[this.actionSpaceSize];
-            Arrays.fill(legalActions, 1f);
+            Arrays.fill(legalActions, 0f);
             target.setLegalActions(legalActions);
         }
 //        if (target.getPolicy() == null) {

@@ -29,8 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @ActiveProfiles("test")
@@ -46,25 +45,27 @@ class GameTest {
 
     @Test
     void checkTerminal() {
-        check(new int[]{1, 5, 0, 4, 7, 2, 8, 6});
-        check(new int[]{1, 5, 0, 4, 7, 2, 8, 3});
-        check(new int[]{1, 5, 0, 4, 2});
-        check(new int[]{0, 5, 4, 3, 8});
-        check(new int[]{2, 1, 4, 3, 6});
-        check(new int[]{1, 2, 4, 3, 7});
-        check(new int[]{3, 1, 4, 0, 5});
-        check(new int[]{6, 1, 7, 0, 8});
+        check( 1, 5, 0, 4, 7, 2, 8, 6);
+        check(1, 5, 0, 4, 7, 2, 8, 3);
+        check(1, 5, 0, 4, 2);
+        check(0, 5, 4, 3, 8);
+        check(2, 1, 4, 3, 6);
+        check(1, 2, 4, 3, 7);
+        check(3, 1, 4, 0, 5);
+        check(6, 1, 7, 0, 8);
+        check(0,5,2,6,3,8,4,7);
 
     }
 
 
-    private void check(int @NotNull [] actions) {
+    private void check(int... actions) {
         Game game = config.newGame(true,true);
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];
             Objects.requireNonNull(game).apply(config.newAction(a));
             if (i == actions.length - 1) {
                 assertTrue(game.terminal());
+                 assertEquals(0,game.legalActions().size());
             } else {
                 assertFalse(game.terminal());
             }
