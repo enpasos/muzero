@@ -205,8 +205,15 @@ public class GumbelSearch {
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-            node = node.selectChild();
-            rootChild.getSearchPath().add(node);
+//            String as = Arrays.toString(rootChild.getSearchPath().stream().filter(n -> n.getAction() != null).mapToInt(n -> n.getAction().getIndex()).toArray());
+//            System.out.println("search path: " + as   );
+//            if (as.equals("[0, 1]")) {
+//                int i = 42;
+//            }
+            if (!node.children.isEmpty()) {
+                node = node.selectChild();
+                rootChild.getSearchPath().add(node);
+            }
         }
         return rootChild.getSearchPath();
     }
