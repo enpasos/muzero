@@ -319,7 +319,7 @@ public class GumbelSearch {
         storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues );
     }
 
-    public Action selectAction(boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO, boolean hybrid2, EpisodeMemory episodeMemory) {
+    public Action selectAction(Action biasedAction, boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO, boolean hybrid2, EpisodeMemory episodeMemory) {
 
         Action action = null;
 
@@ -368,6 +368,11 @@ public class GumbelSearch {
             }
         } else {
             action = getAction(temperature, raw, game, timeStepDO, false );
+        }
+        if (biasedAction != null) {
+            action = biasedAction;
+            timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
+            timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
         }
         return action;
 

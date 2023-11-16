@@ -57,6 +57,9 @@ public abstract class Game {
     protected boolean isForRulesTrainingOnly;
 
 
+    boolean marker;
+
+
 
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
@@ -208,6 +211,10 @@ private boolean hybrid2;
 
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target, boolean isWithLegalActionHead, double kappa) {
+
+        if (this.isMarker()) {
+            int i = 42;
+        }
 
         int tmax = this.getEpisodeDO().getLastTime();
         if (currentIndex == tmax) {

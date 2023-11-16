@@ -136,6 +136,9 @@ public class PlanAction {
         sm.gumbelActionsStart(withGumbel);
      //   sm.addValueStart();
 
+
+        Action biasedAction = null;
+
         if (!fastRuleLearning && !sm.isSimulationsFinished()) {
             do {
                 List<Node> searchPath = sm.search();
@@ -162,18 +165,20 @@ public class PlanAction {
                     // the higher the entropy, the more the expected new information when reaching
                    // this state in the environment, therefore do a shortcut here
                    Action action = searchPath.get(1).getAction();
+                    biasedAction = action;
                   // action.setSwitchToExploration(true);
 
                     // the selected action is now under exploration policy, therefore we need to
-                    game.getEpisodeDO().setHybrid(true);
-                   if (game.getEpisodeDO().getTStartNormal()<=t) {
-                       game.getEpisodeDO().setTStartNormal(t+1);
-                   }
-                  // TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
-                   timeStepDO.setPolicyTarget(new float[config.getActionSpaceSize()]);
-                    timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
-                    timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
-                   return action;
+//                    game.getEpisodeDO().setHybrid(true);
+//                   if (game.getEpisodeDO().getTStartNormal()<=t) {
+//                       game.getEpisodeDO().setTStartNormal(t+1);
+//                   }
+//                  // TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
+//                   timeStepDO.setPolicyTarget(new float[config.getActionSpaceSize()]);
+//                    timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
+//                    timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
+//                    game.setMarker(true);
+//                   return action;
                 }
 
                 boolean debug = false;
@@ -192,7 +197,7 @@ public class PlanAction {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
            // log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO, game.isHybrid2(), gameBuffer.getBuffer().getEpisodeMemory());
+        Action action = sm.selectAction(biasedAction, fastRuleLearning, replay, timeStepDO, game.isHybrid2(), gameBuffer.getBuffer().getEpisodeMemory());
         return action;
     }
 
