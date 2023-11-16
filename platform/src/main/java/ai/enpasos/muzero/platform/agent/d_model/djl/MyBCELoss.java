@@ -122,10 +122,14 @@ public class MyBCELoss extends Loss {
     }
 
 
-    public static double entropy(float[] legalActions) {
+    public static double[] sigmoid(double[] legalActions) {
+       return Arrays.stream(legalActions).map(MyBCELoss::sigmoid).toArray();
+    }
+
+    public static double entropy(double[] legalActions) {
         double entropy = 0d;
         for (int i = 0; i < legalActions.length; i++) {
-            double p = sigmoid(legalActions[i]);
+            double p = legalActions[i];
             double[] ps = {p, 1d-p};
             entropy += ai.enpasos.muzero.platform.common.Functions.entropy(ps);
         }

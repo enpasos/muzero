@@ -44,7 +44,7 @@ public class NetworkIO {
     private float[] pLegalValues;
 
     public double entropyOfLegalValues() {
-        return MyBCELoss.entropy(pLegalValues);
+        return MyBCELoss.entropy(f2d(pLegalValues));
     }
 
     private float[] similarityVector;

@@ -87,10 +87,10 @@ class MyBCELossTest {
 
     @Test
     void entropyTest() {
-        float[] legalActions = new float[]{4f};
+        double[] legalActions = new double[]{4d};
         double p = MyBCELoss.sigmoid(legalActions[0]);
         assertEquals(0.9820137900379085, p);
-        assertEquals(0.09009476776617593, MyBCELoss.entropy(legalActions));
-        assertEquals(0.18018953553235187, MyBCELoss.entropy(new float[]{4f, 4f}));
+        assertEquals(0.09009476776617593, MyBCELoss.entropy(MyBCELoss.sigmoid(legalActions)));
+        assertEquals(0.18018953553235187, MyBCELoss.entropy(MyBCELoss.sigmoid(new double[]{4f, 4f})));
     }
 }

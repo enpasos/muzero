@@ -155,7 +155,7 @@ public class PlanAction {
 
                 double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
 
-                if (oneKindOfExpectedSurprise > 0.2) {
+                if (oneKindOfExpectedSurprise > 0.5) {
                    // the higher the entropy, the more the expected new information when reaching
                    // this state in the environment, therefore do a shortcut here
                    Action action = searchPath.get(1).getAction();
