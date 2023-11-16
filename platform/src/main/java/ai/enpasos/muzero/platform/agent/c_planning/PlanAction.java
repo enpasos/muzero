@@ -165,7 +165,7 @@ public class PlanAction {
 
                     // the selected action is now under exploration policy, therefore we need to
                     game.getEpisodeDO().setHybrid(true);
-                   if (game.getEpisodeDO().getTStartNormal()<t) {
+                   if (game.getEpisodeDO().getTStartNormal()<=t) {
                        game.getEpisodeDO().setTStartNormal(t+1);
                    }
                    TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
