@@ -177,7 +177,7 @@ public class PlanAction {
 
 
 
-                boolean debug = true;
+                boolean debug = false;
                 if (debug) {
                     int[] actions = searchPath.stream().map(Node::getAction).filter(a -> a != null).mapToInt(Action::getIndex).toArray();
                     log.info("{}: v={}, p={}", Arrays.toString(actions), networkOutput.getValue(), Arrays.toString(networkOutput.getPolicyValues()));
