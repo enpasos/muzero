@@ -156,8 +156,8 @@ public class PlanAction {
 
                 double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
 
-
-                if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID && oneKindOfExpectedSurprise > 0.5) {
+System.out.println("oneKindOfExpectedSurprise: " + oneKindOfExpectedSurprise);
+                if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID && oneKindOfExpectedSurprise > 1.0) {
                    // the higher the entropy, the more the expected new information when reaching
                    // this state in the environment, therefore do a shortcut here
                    Action action = searchPath.get(1).getAction();
@@ -168,16 +168,12 @@ public class PlanAction {
                    if (game.getEpisodeDO().getTStartNormal()<=t) {
                        game.getEpisodeDO().setTStartNormal(t+1);
                    }
-                   TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
-                   ts.setPolicyTarget(new float[config.getActionSpaceSize()]);
-                   ts.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
-                   ts.getPlayoutPolicy()[action.getIndex()] = 1f;
+                  // TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
+                   timeStepDO.setPolicyTarget(new float[config.getActionSpaceSize()]);
+                    timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
+                    timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
                    return action;
                 }
-
-
-
-
 
                 boolean debug = false;
                 if (debug) {

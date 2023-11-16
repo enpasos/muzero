@@ -70,7 +70,7 @@ public class GumbelSearch {
     public static void storeSearchStatistics(Game game, TimeStepDO timeStepDO, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats ) {
         timeStepDO.setRootValueTarget((float) root.getImprovedValue());
         timeStepDO.setVMix((float) root.getVmix()); timeStepDO.setVMix((float) root.getVmix());
-        timeStepDO.setRootEntropyValueTarget((float)  root.getImprovedEntropyValue());
+      //  timeStepDO.setRootEntropyValueTarget((float)  root.getImprovedEntropyValue());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
