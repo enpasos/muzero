@@ -156,9 +156,10 @@ public class PlanAction {
 
                 double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
 
-System.out.println("oneKindOfExpectedSurprise: " + oneKindOfExpectedSurprise);
+
                 if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID && oneKindOfExpectedSurprise > 1.0) {
-                   // the higher the entropy, the more the expected new information when reaching
+                    System.out.println("oneKindOfExpectedSurprise: " + oneKindOfExpectedSurprise);
+                    // the higher the entropy, the more the expected new information when reaching
                    // this state in the environment, therefore do a shortcut here
                    Action action = searchPath.get(1).getAction();
                   // action.setSwitchToExploration(true);
