@@ -20,6 +20,7 @@ package ai.enpasos.muzero.platform.agent.d_model;
 
 import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCELoss;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,10 @@ public class NetworkIO {
     private float[] policyValues;
 
     private float[] pLegalValues;
+
+    public double entropyOfLegalValues() {
+        return MyBCELoss.entropy(pLegalValues);
+    }
 
     private float[] similarityVector;
     private double value;

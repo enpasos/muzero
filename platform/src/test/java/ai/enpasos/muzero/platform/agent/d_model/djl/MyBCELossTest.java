@@ -85,4 +85,12 @@ class MyBCELossTest {
         assertEquals(1.0755155086517334,  loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
 
+    @Test
+    void entropyTest() {
+        float[] legalActions = new float[]{4f};
+        double p = MyBCELoss.sigmoid(legalActions[0]);
+        assertEquals(0.9820137900379085, p);
+        assertEquals(0.09009476776617593, MyBCELoss.entropy(legalActions));
+        assertEquals(0.18018953553235187, MyBCELoss.entropy(new float[]{4f, 4f}));
+    }
 }

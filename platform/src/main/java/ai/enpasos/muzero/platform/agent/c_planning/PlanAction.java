@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -138,6 +139,12 @@ public class PlanAction {
             do {
                 List<Node> searchPath = sm.search();
 
+//                String as = Arrays.toString(searchPath.stream().filter(n -> n.getAction() != null).mapToInt(n -> n.getAction().getIndex()).toArray());
+//                System.out.println("search path: " + as   );
+//                if (as.equals("[1, 0]")) {
+//                    int i = 42;
+//                }
+
                 try {
                     networkOutput = modelService.recurrentInference(searchPath).get();
                 } catch (InterruptedException e) {
@@ -145,7 +152,32 @@ public class PlanAction {
                 } catch (ExecutionException e) {
                     throw new RuntimeException(e);
                 }
-                boolean debug = false;
+
+                double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
+
+                if (oneKindOfExpectedSurprise > 0.2) {
+                   // the higher the entropy, the more the expected new information when reaching
+                   // this state in the environment, therefore do a shortcut here
+                   Action action = searchPath.get(1).getAction();
+                  // action.setSwitchToExploration(true);
+
+                    // the selected action is now under exploration policy, therefore we need to
+                    game.getEpisodeDO().setHybrid(true);
+                   if (game.getEpisodeDO().getTStartNormal()<t) {
+                       game.getEpisodeDO().setTStartNormal(t+1);
+                   }
+                   TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
+                   ts.setPolicyTarget(new float[config.getActionSpaceSize()]);
+                   ts.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
+                   ts.getPlayoutPolicy()[action.getIndex()] = 1f;
+                   return action;
+                }
+
+
+
+
+
+                boolean debug = true;
                 if (debug) {
                     int[] actions = searchPath.stream().map(Node::getAction).filter(a -> a != null).mapToInt(Action::getIndex).toArray();
                     log.info("{}: v={}, p={}", Arrays.toString(actions), networkOutput.getValue(), Arrays.toString(networkOutput.getPolicyValues()));
