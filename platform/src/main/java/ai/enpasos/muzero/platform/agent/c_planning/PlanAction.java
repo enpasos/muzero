@@ -9,6 +9,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,7 +156,8 @@ public class PlanAction {
 
                 double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
 
-                if (oneKindOfExpectedSurprise > 0.5) {
+
+                if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID && oneKindOfExpectedSurprise > 0.5) {
                    // the higher the entropy, the more the expected new information when reaching
                    // this state in the environment, therefore do a shortcut here
                    Action action = searchPath.get(1).getAction();
