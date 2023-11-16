@@ -159,8 +159,8 @@ public class PlanAction {
 
                 double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
 
-
-                if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID && oneKindOfExpectedSurprise > 1.0) {
+// 100 is blocking the shortcut, .... check the idea
+                if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID && oneKindOfExpectedSurprise > 100.0) {
                     System.out.println("oneKindOfExpectedSurprise: " + oneKindOfExpectedSurprise);
                     // the higher the entropy, the more the expected new information when reaching
                    // this state in the environment, therefore do a shortcut here
