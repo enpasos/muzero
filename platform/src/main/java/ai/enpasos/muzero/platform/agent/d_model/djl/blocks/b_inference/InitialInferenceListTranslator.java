@@ -66,7 +66,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
 
         float[] pLegalArray_ = null;
-        if (list.size() > 2) {
+        if (list.size() > 3) {
             pLegalArray_ = MyBCELoss.sigmoid(list.get(3)).toFloatArray();
         }
         final float[] pLegalArray = pLegalArray_;
