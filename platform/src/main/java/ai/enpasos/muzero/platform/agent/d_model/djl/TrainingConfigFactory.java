@@ -59,7 +59,7 @@ public class TrainingConfigFactory {
         // entropyValue
         if (config.withLegalActionsHead()) {
             log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f, 1), k));
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/config.getActionSpaceSize(), 1), k));
             k++;
         }
 
@@ -77,7 +77,7 @@ public class TrainingConfigFactory {
             // entropyValue
             if (config.withLegalActionsHead()) {
                 log.trace("k={}: LegalActions BCELoss", k);
-                loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
+                loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale/config.getActionSpaceSize(), 1), k));
                 k++;
             }
 
