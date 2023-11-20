@@ -103,8 +103,9 @@ public class TrainingConfigFactory {
     }
 
     private Optimizer setupOptimizer(int trainingStep) {
-
-        Tracker learningRateTracker = Tracker.fixed(config.getLr(trainingStep));
+float lr = config.getLr(trainingStep);
+        log.info("trainingStep = {}, lr = {}", trainingStep, lr);
+        Tracker learningRateTracker = Tracker.fixed(lr);
 
         return Optimizer.adam()
                 .optLearningRateTracker(learningRateTracker)
