@@ -47,10 +47,11 @@ muzero:
       numUnrollSteps: 5
 
       discount: 1.0
+
+
       weightDecay: 0.0001
       lrInit: 0.0001
 
-      # numberTrainingStepsOnStart: 0
 
       knownBoundsType: FROM_VALUES
 

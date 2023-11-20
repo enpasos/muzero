@@ -4,7 +4,6 @@ import ai.djl.Device;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.KnownBounds;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -251,8 +250,8 @@ public class MuZeroConfig {
         return getConf().entropyValueLossWeight;
     }
 
-    public float getLrInit() {
-        return getConf().lrInit;
+    public float getLr(int step) {
+        return (float)( getConf().lrInit * (1d + Math.cos(Math.PI * step /  getNumberOfTrainingSteps())) / 2d);
     }
 
 
