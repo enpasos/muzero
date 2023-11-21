@@ -140,7 +140,7 @@ public class ModelService {
         .hiddenState(hiddenState)
         .build();
         Node node2 = Node.builder()
-            .action(config.newAction(4))
+            .action(config.newAction(action))
             .build();
          List<Node> searchPath = List.of(node, node2);
 
