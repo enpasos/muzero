@@ -249,8 +249,8 @@ public class MuZeroConfig {
         return getConf().entropyValueLossWeight;
     }
 
-    public float getLrInit() {
-        return getConf().lrInit;
+    public float getLr(int step) {
+        return (float)( getConf().lrInit * (1d + Math.cos(Math.PI * step /  getNumberOfTrainingSteps())) / 2d);
     }
 
 

@@ -85,7 +85,7 @@ muzero:
 
       numParallelInferences: 1000
 
-      withLegalActionsHead: true
+      withLegalActionsHead: false
 
 
 
@@ -116,7 +116,7 @@ muzero:
           # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
           # before drawing the action from the policy target (different from the paper)
           # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
-          temperatureRoot: 10.0   # was 5
+          temperatureRoot: 10.0
           gumbelActionSelection: true
 #        REANALYSE:
 #          forTraining: true

@@ -91,7 +91,7 @@ public class TrainingConfigFactory {
 
         return new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupOptimizer())
+                .optOptimizer(setupOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
                 .addTrainingListeners(
                         new MyEpochTrainingListener(),
                         new MemoryTrainingListener(outputDir),
@@ -102,9 +102,10 @@ public class TrainingConfigFactory {
                         listener);
     }
 
-    private Optimizer setupOptimizer() {
-
-        Tracker learningRateTracker = Tracker.fixed(config.getLrInit());
+    private Optimizer setupOptimizer(int trainingStep) {
+float lr = config.getLr(trainingStep);
+        log.info("trainingStep = {}, lr = {}", trainingStep, lr);
+        Tracker learningRateTracker = Tracker.fixed(lr);
 
         return Optimizer.adam()
                 .optLearningRateTracker(learningRateTracker)
