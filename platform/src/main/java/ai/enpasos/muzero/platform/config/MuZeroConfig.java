@@ -282,6 +282,11 @@ public class MuZeroConfig {
     public double getRootDirichletAlpha() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
     }
+    public double getFractionOfPureExploration() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).fractionOfPureExploration;
+    }
+
+
 
     public double getRootExplorationFraction() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootExplorationFraction;
@@ -563,6 +568,8 @@ public class MuZeroConfig {
             VTargetType vTarget = V_INFERENCE;
 
             boolean forTraining = true;
+
+            protected double fractionOfPureExploration = 0d;
         }
     }
 

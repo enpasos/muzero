@@ -37,7 +37,7 @@ public class RenderGame {
     public void applyAction(@NotNull Game game, int a) {
         game.apply(a);
 
-        log.debug("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getReward());
+       // log.debug("action=" + a + ", terminal=" + game.terminal() + ", " + game.legalActions() + ", lastreward=" + game.getReward());
     }
 
     public void renderGame(@NotNull Game game) {

@@ -69,6 +69,11 @@ public class LossExtractor {
     }
 
     private void extractABlockOfLosses(MuZeroBlock block, CSVPrinter csvPrinter, int start, int end) {
+
+       NumberFormat nf = NumberFormat.getNumberInstance();
+       nf.setMaximumFractionDigits(6);
+        nf.setMinimumFractionDigits(6);
+
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             model.setBlock(block);
             IntStream.range(start, end).forEach(
@@ -84,7 +89,7 @@ public class LossExtractor {
 
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLegalActionLoss")),
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss")),
-                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanSimilarityLoss"))
+                            nf.format(getDoubleValue(model, "MeanSimilarityLoss"))
                             //,
 
 //                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanLoss")),
