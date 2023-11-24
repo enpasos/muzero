@@ -89,7 +89,7 @@ public class GoGame extends ZeroSumGame {
 
         OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
-        int tmax =  this.gameDTO.getObservations().size();
+        int tmax =  this.gameDTO.getObservations().size()-1;
         int observationTime = Math.min(tmax, inputTime);
 
         int index = 0;
