@@ -90,14 +90,14 @@ public class PlayService {
     }
 
     private void hybridConfiguration(List<Game> games, int gameLength) {
-        double fractionOfPureExploration = this.config.getFractionOfPureExploration();
-
-
+        double fractionOfPureExplorationAdded = this.config.getFractionOfPureExplorationAdded();
+        double fractionOfPureExploitationAdded = this.config.getFractionOfPureExploitationAdded();
         games.stream().forEach(game -> {
             game.getGameDTO().setHybrid(true);
             if (game.getGameDTO().getTHybrid() == -1) {
-                int effectiveT = (int)((gameLength + 1) * (1d + 0.3));
-                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(0, effectiveT));
+                int effectiveT = (int)((gameLength + 1) * (1d + fractionOfPureExplorationAdded ));
+                int effectiveStart = - (int)((gameLength + 1) * (fractionOfPureExploitationAdded ));
+                game.getGameDTO().setTHybrid(ThreadLocalRandom.current().nextInt(effectiveStart, effectiveT));
             }
         });
     }

@@ -89,8 +89,6 @@ muzero:
 
 
 
-     # entropyContributionToReward: 0.1
-      entropyValueLossWeight: 0.5
 
       playTypes:
         PLAYOUT:
@@ -119,7 +117,8 @@ muzero:
           temperatureRoot: 10.0
           gumbelActionSelection: true
 
-          fractionOfPureExploration: 0.3
+          fractionOfPureExplorationAdded: 0.3
+          fractionOfPureExploitationAdded: 0.3
 #        REANALYSE:
 #          forTraining: true
 #          numParallelGamesPlayed: 1000

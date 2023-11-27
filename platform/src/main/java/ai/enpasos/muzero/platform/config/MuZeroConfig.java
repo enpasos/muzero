@@ -245,9 +245,7 @@ public class MuZeroConfig {
         return getConf().valueLossWeight;
     }
 
-    public float getEntropyValueLossWeight() {
-        return getConf().entropyValueLossWeight;
-    }
+
 
     public float getLr(int step) {
         return (float)( getConf().lrInit * (1d + Math.cos(Math.PI * step /  getNumberOfTrainingSteps())) / 2d);
@@ -282,10 +280,12 @@ public class MuZeroConfig {
     public double getRootDirichletAlpha() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
     }
-    public double getFractionOfPureExploration() {
-        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).fractionOfPureExploration;
+    public double getFractionOfPureExplorationAdded() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).fractionOfPureExplorationAdded;
     }
-
+    public double getFractionOfPureExploitationAdded() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).fractionOfPureExploitationAdded;
+    }
 
 
     public double getRootExplorationFraction() {
@@ -508,7 +508,6 @@ public class MuZeroConfig {
         protected float komi;
         protected float weightDecay;
         protected float valueLossWeight;
-        protected float entropyValueLossWeight;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -569,7 +568,8 @@ public class MuZeroConfig {
 
             boolean forTraining = true;
 
-            protected double fractionOfPureExploration = 0d;
+            protected double fractionOfPureExplorationAdded = 0d;
+            protected double fractionOfPureExploitationAdded = 0d;
         }
     }
 

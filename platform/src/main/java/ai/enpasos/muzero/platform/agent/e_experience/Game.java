@@ -479,7 +479,7 @@ public abstract class Game {
 
     public double getPRatioMax() {
         int n = getGameDTO().getActions().size();
-        int tStart = (int) this.getGameDTO().getTHybrid();
+        int tStart = Math.max(0, (int) this.getGameDTO().getTHybrid());
         if (tStart >= n) return 1d;
         double[] pRatios = new double[n - tStart];
 //try {
