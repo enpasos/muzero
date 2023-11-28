@@ -244,6 +244,11 @@ public class MuZeroConfig {
     public float getValueLossWeight() {
         return getConf().valueLossWeight;
     }
+    public float getConsistencyLossWeight() {
+        return getConf().consistencyLossWeight;
+    }
+
+
 
 
 
@@ -507,7 +512,8 @@ public class MuZeroConfig {
         protected float discount;
         protected float komi;
         protected float weightDecay;
-        protected float valueLossWeight;
+        protected float valueLossWeight = 1f;
+        protected float consistencyLossWeight = 1f;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -523,21 +529,21 @@ public class MuZeroConfig {
 
 
         protected PlayTypeKey playTypeKey;
-        int initialGumbelM;
+        protected int initialGumbelM;
 
-        int cVisit;
-        double cScale;
-        int numPurePolicyPlays;
-        int[] valueInterval;
-        int numParallelInferences = 1;
+        protected int cVisit;
+        protected double cScale;
+        protected int numPurePolicyPlays;
+        protected int[] valueInterval;
+        protected int numParallelInferences = 1;
 
-        boolean offPolicyCorrectionOn;
+        protected boolean offPolicyCorrectionOn;
 
-        boolean allOrNothingOn;
+        protected boolean allOrNothingOn;
 
 
-        boolean withLegalActionsHead;
-        double offPolicyRatioLimit;
+        protected boolean withLegalActionsHead;
+        protected double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {

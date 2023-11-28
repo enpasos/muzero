@@ -83,7 +83,7 @@ public class TrainingConfigFactory {
 
             // similarity
             log.trace("k={}: Similarity L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, 2 * gradientScale), k));
+            loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
 
             k++;
         }
