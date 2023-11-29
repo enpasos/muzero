@@ -14,7 +14,7 @@ All the common logic is encapsulated in a platform module, while each game with 
 in a separate module:
 
 * Two player zero-sum games with a final reward only:
-    * **TicTacToe** is used for integration testing. Starting from scratch it learns playing on a single GPU (NVIDIA GeForce RTX 4090) in less than an hour.
+    * **TicTacToe** is used for integration testing. Starting from scratch it learns playing on a single GPU (NVIDIA GeForce RTX 4090).
     * **Go**. We have started training the game of go, board sizes 5x5 and 9x9.
 * One player games with a final reward only:
     * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one
@@ -30,7 +30,7 @@ You can find out the inference time while running MuZero on your edge device:
 
 ## Build
 
-We are using PyTorch 2.x. Be aware of the following issue [https://github.com/deepjavalibrary/djl/issues/2552](https://github.com/deepjavalibrary/djl/issues/2552).
+We are using PyTorch 2.1.1 with CUDA 12.1. 
 
 ```
 gradlew build
