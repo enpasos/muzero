@@ -14,7 +14,7 @@ All the common logic is encapsulated in a platform module, while each game with 
 in a separate module:
 
 * Two player zero-sum games with a final reward only:
-    * **TicTacToe** is used for integration testing. Starting from scratch it learns playing on a single GPU (NVIDIA GeForce RTX 4090).
+    * **TicTacToe** is used for integration testing. Starting from scratch it learns playing on a single GPU (NVIDIA GeForce RTX 4090). We are testing for perfect play: Each relevant decision on the decision tree. This includes exploitability.
     * **Go**. We have started training the game of go, board sizes 5x5 and 9x9.
 * One player games with a final reward only:
     * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one
