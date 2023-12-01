@@ -68,7 +68,7 @@ muzero:
       numBottleneckChannels: 128
 
       valueLossWeight: 1
-      consistencyLossWeight: 1
+      consistencyLossWeight: 2
 
       numberOfTrainingSteps: 50000
 
