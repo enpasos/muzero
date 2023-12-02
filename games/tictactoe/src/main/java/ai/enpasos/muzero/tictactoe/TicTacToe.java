@@ -88,9 +88,6 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private ModelService modelService;
 
-    @Autowired
-    private TicTacToeSimState simState;
-
     public static void main(String[] args) {
         SpringApplication.run(TicTacToe.class, args).close();
     }
@@ -113,9 +110,6 @@ public class TicTacToe implements CommandLineRunner {
                 fillValueTable.run();
                 break;
 
-            case FILLSIMSTATE:
-                simState.run();
-                break;
 
             case TEMPERATURE:
                 temperature.run();

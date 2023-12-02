@@ -1,10 +1,10 @@
 [versions]
 lombok = "1.18.30"
-djl = "0.25.0-SNAPSHOT"
+djl = "0.26.0-SNAPSHOT"
 pytorch = "2.1.1-SNAPSHOT"
 
 slf4j = "2.0.9"
-springboot = "3.2.0-RC2"
+springboot = "3.2.0"
 protobuf = "3.24.4"
 junit = "5.10.0"
 jackson = "2.15.3"

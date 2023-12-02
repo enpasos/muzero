@@ -4,15 +4,14 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MySimilarityLossTest {
 
     @Test
-    @Disabled
     void evaluate() {
 
         MySimilarityLoss loss = new MySimilarityLoss();
@@ -28,7 +27,8 @@ class MySimilarityLossTest {
         prediction = prediction.reshape(shape);
 
 
-        assertEquals(0.0, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
+        assertArrayEquals(new float[] {-0f,-0f}, loss.evaluate(new NDList(label), new NDList(prediction)).toFloatArray());
+
 
     }
 }

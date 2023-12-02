@@ -101,8 +101,9 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
                 float[] logits2 = new float[actionSpaceSize];
                 System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
                 System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
-                System.arraycopy(pLegalArray, i * actionSpaceSize, psLegal, 0, actionSpaceSize);
-
+                if (pLegalArray != null) {
+                    System.arraycopy(pLegalArray, i * actionSpaceSize, psLegal, 0, actionSpaceSize);
+                }
                 double scale = config.getValueSpan() / 2.0;
 
                 return NetworkIO.builder()

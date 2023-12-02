@@ -7,13 +7,12 @@ import ai.djl.ndarray.types.Shape;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MyBCELossTest {
 
     @Test
-
-    @Disabled
     void evaluateA() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
 
@@ -33,8 +32,6 @@ class MyBCELossTest {
 
 
     @Test
-
-    @Disabled
     void evaluateB() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
 
@@ -53,8 +50,6 @@ class MyBCELossTest {
     }
 
     @Test
-
-    @Disabled
     void evaluateC() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
 
@@ -69,8 +64,6 @@ class MyBCELossTest {
         assertEquals(1.0755155086517334, loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
     }
     @Test
-
-    @Disabled
     void evaluateD() {
         MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 1);
 
@@ -82,15 +75,7 @@ class MyBCELossTest {
         NDArray prediction = manager.create(new float[]{3f, -2f, 3f, -2f});
         prediction = prediction.reshape(shape);
 
-        assertEquals(1.0755155086517334,  loss.evaluate(new NDList(label), new NDList(prediction)).getFloat());
+        assertArrayEquals(new float[] {1.0755155f, 1.0755155f},  loss.evaluate(new NDList(label), new NDList(prediction)).toFloatArray());
     }
 
-    @Test
-    void entropyTest() {
-        double[] legalActions = new double[]{4d};
-        double p = MyBCELoss.sigmoid(legalActions[0]);
-        assertEquals(0.9820137900379085, p);
-        assertEquals(0.09009476776617593, MyBCELoss.entropy(MyBCELoss.sigmoid(legalActions)));
-        assertEquals(0.18018953553235187, MyBCELoss.entropy(MyBCELoss.sigmoid(new double[]{4f, 4f})));
-    }
 }

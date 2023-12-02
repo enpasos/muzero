@@ -15,8 +15,6 @@ class FunctionsTest {
         return softmax1;
     }
 
-
-
     @Test
     void numpyRandomDirichlet() {
         double alpha = 3d;

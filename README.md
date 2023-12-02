@@ -30,7 +30,18 @@ You can find out the inference time while running MuZero on your edge device:
 
 ## Build
 
-We are using PyTorch 2.x. Be aware of the following issue [https://github.com/deepjavalibrary/djl/issues/2552](https://github.com/deepjavalibrary/djl/issues/2552).
+
+
+### Prerequisites
+When running on Java 21, you need to add a file `gradle.properties` to the root directory of the project with a pointer to your Java 17 installation:
+```
+org.gradle.java.home=C:/Program Files/Amazon Corretto/jdk17.0.9_8
+```
+
+We are using PyTorch 2.1.1.
+You may need to install CUDA 12.1 and cuDNN 8.2.1.
+
+### Build everything
 
 ```
 gradlew build

@@ -63,7 +63,6 @@ public class Network {
     private SubModel dynamics;
 
     private SubModel initialInference;
-    private SubModel initialInference2;
     private SubModel recurrentInference;
 
 
@@ -104,7 +103,6 @@ public class Network {
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
-        initialInference2 = new SubModel("initialInference2", model, new InitialInference2Block(representationBlock,      similarityProjectorBlock), config);
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
 
     }
@@ -159,7 +157,6 @@ public class Network {
     public void setHiddenStateNDManager(NDManager hiddenStateNDManager, boolean force) {
         if (force || initialInference.getHiddenStateNDManager() == null) {
             initialInference.setHiddenStateNDManager(hiddenStateNDManager);
-            initialInference2.setHiddenStateNDManager(hiddenStateNDManager);
             recurrentInference.setHiddenStateNDManager(hiddenStateNDManager);
         }
     }
@@ -185,21 +182,7 @@ public class Network {
 
     }
 
-    public @Nullable List<NetworkIO> initialInference2ListDirect(List<Game> gameList) {
 
-        List< NetworkIO> networkOutputFromInitialInference2 = null;
-
-        InitialInference2ListTranslator translator = new InitialInference2ListTranslator();
-        try (Predictor<List<Game>, List<NetworkIO>> djlPredictor = initialInference2.newPredictor(translator)) {
-            networkOutputFromInitialInference2 = djlPredictor.predict(gameList);
-
-        } catch (TranslateException e) {
-            e.printStackTrace();
-        }
-        return networkOutputFromInitialInference2;
-
-
-    }
 
     private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();

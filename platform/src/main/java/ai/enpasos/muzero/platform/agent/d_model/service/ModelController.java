@@ -87,7 +87,6 @@ public class ModelController implements DisposableBean, Runnable {
                 int numParallelInferences = config.getNumParallelInferences();
                 controllerTasks();
                 initialInferences(numParallelInferences);
-                initialInferences2(numParallelInferences);
                 recurrentInferences(numParallelInferences);
                 Thread.sleep(1);
             }
@@ -332,29 +331,6 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
-    private void initialInferences2(int numParallelInferences) {
-
-        List<InitialInference2Task> localInitialInference2TaskList =
-                modelQueue.getInitialInference2TasksNotStarted(numParallelInferences);
-
-        if (localInitialInference2TaskList.isEmpty()) return;
-
-        log.debug("runInitialInference() for {} games", localInitialInference2TaskList.size());
-
-        List<Game> games = localInitialInference2TaskList.stream().map(InitialInference2Task::getGame).collect(Collectors.toList());
-
-        inferenceDuration.on();
-        List<NetworkIO> networkOutput = network.initialInference2ListDirect(games);
-        inferenceDuration.off();
-
-        IntStream.range(0, localInitialInference2TaskList.size()).forEach(g -> {
-            InitialInference2Task task = localInitialInference2TaskList.get(g);
-            task.setNetworkOutput(networkOutput.get(g));
-            task.setDone(true);
-        });
-
-
-    }
 
     private void initialInferences(int numParallelInferences) {
 

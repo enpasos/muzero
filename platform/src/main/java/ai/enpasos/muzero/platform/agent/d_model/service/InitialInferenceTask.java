@@ -18,7 +18,6 @@ public class InitialInferenceTask {
 
 
 
-
     public synchronized Game getGame() {
         return game;
     }

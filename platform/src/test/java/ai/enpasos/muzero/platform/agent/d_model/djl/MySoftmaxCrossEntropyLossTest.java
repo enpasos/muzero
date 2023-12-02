@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class MySoftmaxCrossEntropyLossTest {
 
     @Test
-
     @Disabled
     void evaluateNormal() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
@@ -31,8 +30,6 @@ class MySoftmaxCrossEntropyLossTest {
     }
 
     @Test
-
-    @Disabled
     void evaluateLegalActions1() {
         MySoftmaxCrossEntropyLoss loss = new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true);
 //loss.setUseLabelAsLegalCategoriesFilter(true);

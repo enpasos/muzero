@@ -245,10 +245,13 @@ public class MuZeroConfig {
     public float getValueLossWeight() {
         return getConf().valueLossWeight;
     }
-
-    public float getEntropyValueLossWeight() {
-        return getConf().entropyValueLossWeight;
+    public float getConsistencyLossWeight() {
+        return getConf().consistencyLossWeight;
     }
+
+
+
+
 
     public float getLr(int step) {
         return (float)( getConf().lrInit * (1d + Math.cos(Math.PI * step /  getNumberOfTrainingSteps())) / 2d);
@@ -283,6 +286,13 @@ public class MuZeroConfig {
     public double getRootDirichletAlpha() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
     }
+    public double getFractionOfPureExplorationAdded() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).fractionOfPureExplorationAdded;
+    }
+    public double getFractionOfPureExploitationAdded() {
+        return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).fractionOfPureExploitationAdded;
+    }
+
 
     public double getRootExplorationFraction() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootExplorationFraction;
@@ -503,8 +513,8 @@ public class MuZeroConfig {
         protected float discount;
         protected float komi;
         protected float weightDecay;
-        protected float valueLossWeight;
-        protected float entropyValueLossWeight;
+        protected float valueLossWeight = 1f;
+        protected float consistencyLossWeight = 1f;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -520,21 +530,21 @@ public class MuZeroConfig {
 
 
         protected PlayTypeKey playTypeKey;
-        int initialGumbelM;
+        protected int initialGumbelM;
 
-        int cVisit;
-        double cScale;
-        int numPurePolicyPlays;
-        int[] valueInterval;
-        int numParallelInferences = 1;
+        protected int cVisit;
+        protected double cScale;
+        protected int numPurePolicyPlays;
+        protected int[] valueInterval;
+        protected int numParallelInferences = 1;
 
-        boolean offPolicyCorrectionOn;
+        protected boolean offPolicyCorrectionOn;
 
-        boolean allOrNothingOn;
+        protected boolean allOrNothingOn;
 
 
-        boolean withLegalActionsHead;
-        double offPolicyRatioLimit;
+        protected boolean withLegalActionsHead;
+        protected double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {
@@ -564,6 +574,9 @@ public class MuZeroConfig {
             VTargetType vTarget = V_INFERENCE;
 
             boolean forTraining = true;
+
+            protected double fractionOfPureExplorationAdded = 0d;
+            protected double fractionOfPureExploitationAdded = 0d;
         }
     }
 

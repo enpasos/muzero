@@ -205,13 +205,13 @@ public class Node {
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
             // TODO configurable
-            if (networkOutput.getPLegalValues()[i] > 0.1f) {
+           // if (networkOutput.getPLegalValues()[i] > 0.1f) {
                 policyMap.put(config.newAction(i), new Pair<>(
                                 networkOutput.getPolicyValues()[i],
                                 networkOutput.getLogits()[i]
                         )
                 );
-            }
+           // }
         }
         setRewardFromModel(networkOutput);
         if (!policyMap.isEmpty()) {
