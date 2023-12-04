@@ -5,9 +5,9 @@ pytorch = "2.1.1"
 
 slf4j = "2.0.9"
 springboot = "3.2.0"
-protobuf = "3.24.4"
+protobuf = "3.25.1"
 junit = "5.10.1"
-jackson = "2.15.3"
+jackson = "2.16.0"
 
 [libraries]
 djl-api = { module = "ai.djl:api", version.ref = "djl" }
@@ -48,7 +48,7 @@ javax-annotation-api = { module = "javax.annotation:javax.annotation-api", versi
 
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 
-onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version = "1.16.1" }
+onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version = "1.16.3" }
 
 gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
