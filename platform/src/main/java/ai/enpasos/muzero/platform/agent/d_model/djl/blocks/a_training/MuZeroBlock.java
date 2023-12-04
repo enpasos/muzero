@@ -100,14 +100,13 @@ public class MuZeroBlock extends AbstractBlock {
 
             state = dynamicsResult.get(0);
 
-            state = state.scaleGradient(0.5);
 
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
             NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(state), training, params);
             NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
-            // initial Inference
+
             representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
             NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
@@ -117,6 +116,8 @@ public class MuZeroBlock extends AbstractBlock {
             }
             combinedResult.add(similarityPredictorResult);
             combinedResult.add(similarityProjectorResultLabel);
+
+            state = state.scaleGradient(0.5);
 
         }
         return combinedResult;
