@@ -34,13 +34,12 @@ import java.util.Arrays;
 public class PredictionBlock extends MySequentialBlock {
 
     public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels(),
+        this(config.getNumChannels2(),
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
-                config.getActionSpaceSize(),
-                config.withLegalActionsHead());
+                config.getActionSpaceSize() );
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean withLegalActionsHead) {
+    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
 
 
         SequentialBlockExt valueHead = new SequentialBlockExt();
@@ -56,15 +55,15 @@ public class PredictionBlock extends MySequentialBlock {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
-        SequentialBlockExt legalActionsHead = null;
-        if (withLegalActionsHead) {
-            legalActionsHead = new SequentialBlockExt();
-            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
-                    .add(BlocksExt.batchFlattenBlock());
-            legalActionsHead.add(LinearExt.builder()
-                    .setUnits(actionSpaceSize).build());
-
-        }
+//        SequentialBlockExt legalActionsHead = null;
+//        if (withLegalActionsHead) {
+//            legalActionsHead = new SequentialBlockExt();
+//            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
+//                    .add(BlocksExt.batchFlattenBlock());
+//            legalActionsHead.add(LinearExt.builder()
+//                    .setUnits(actionSpaceSize).build());
+//
+//        }
 
         SequentialBlockExt policyHead = new SequentialBlockExt();
         policyHead
@@ -77,9 +76,14 @@ public class PredictionBlock extends MySequentialBlock {
 
 
 
+//        add(new ParallelBlockWithCollectChannelJoinExt(
+//                withLegalActionsHead ?
+//                        Arrays.asList(policyHead, valueHead, legalActionsHead) : Arrays.asList(policyHead, valueHead))
+//        );
+
+
         add(new ParallelBlockWithCollectChannelJoinExt(
-                withLegalActionsHead ?
-                        Arrays.asList(policyHead, valueHead, legalActionsHead) : Arrays.asList(policyHead, valueHead))
+                  Arrays.asList(policyHead, valueHead))
         );
     }
 

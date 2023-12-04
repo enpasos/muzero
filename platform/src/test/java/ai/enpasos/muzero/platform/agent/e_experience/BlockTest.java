@@ -4,7 +4,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.Representation1Block;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.BottleneckResidualBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -45,8 +45,8 @@ class BlockTest {
     @Test
     void representationBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
-                "./build/RepresentationBlock.onnx",
-                RepresentationBlock.builder().config(config).build(),
+                "./build/Representation1Block.onnx",
+                Representation1Block.builder().config(config).build(),
                 List.of(new Shape(1, 3, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
@@ -127,7 +127,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9, true ),
+            new PredictionBlock(128, true, 9  ),
             List.of(new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -140,7 +140,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9, true ),
+            new PredictionBlock(128, true, 9 ),
             List.of(new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);

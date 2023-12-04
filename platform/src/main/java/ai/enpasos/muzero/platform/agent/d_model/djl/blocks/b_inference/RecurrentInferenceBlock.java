@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference;
 
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
@@ -29,8 +30,7 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,16 +44,33 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
 
     private final DynamicsBlock g;
+    private final Representation2Block h2;
     private final PredictionBlock f;
+    private final LegalActionsBlock f1;
+    private final RewardBlock f2;
 
-    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
+    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, Representation1Block representation1Block, Representation2Block representation2Block, PredictionBlock predictionBlock, LegalActionsBlock legalActionsBlock, RewardBlock rewardBlock) {
         super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
+        h2 = this.addChildBlock("Representation2", representation2Block);
         f = this.addChildBlock("Prediction", predictionBlock);
+        f1 = this.addChildBlock("LegalActions", legalActionsBlock);
+        f2 = this.addChildBlock("Reward", rewardBlock);
+
     }
 
+
+    public Representation2Block getH2() {
+        return h2;
+    }
     public DynamicsBlock getG() {
         return g;
+    }
+        public RewardBlock getf2() {
+        return f2;
+    }
+    public LegalActionsBlock getf1() {
+        return f1;
     }
 
     public PredictionBlock getF() {
@@ -65,27 +82,78 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
      */
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-        NDList gResult = g.forward(parameterStore, inputs, training);
-        NDList fResult = f.forward(parameterStore, gResult, training);
-        return gResult.addAll(fResult);
+        NDList gResult = g.forward(parameterStore, inputs, training, params);
+
+
+        NDArray rulesState = gResult.get(0);
+        NDArray action = inputs.get(1);
+
+        // rules layer - legal actions
+        NDList f1Result = f1.forward(parameterStore, gResult, training, params);
+
+
+        // rules layer - reward
+        NDList rewardIn = new NDList(rulesState, action);  // here it is the rulesState after dynamicsBlock
+        NDList f2Result = f2.forward(parameterStore, rewardIn, training, params);
+
+
+
+
+        // policy layer
+
+        NDList h2Result = h2.forward(parameterStore, gResult, training, params);
+        NDList fResult = f.forward(parameterStore, h2Result, training, params);
+
+
+        return gResult.addAll(f1Result).addAll(f2Result).addAll(h2Result).addAll(fResult);
     }
 
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
-        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
-        return ArrayUtils.addAll(gOutputShapes, fOutputShapes);
+        Shape state1Shape = inputShapes[0];
+        Shape actionShape = inputShapes[1];
+        long[] shapeArray = state1Shape.getShape();
+        shapeArray[1] += actionShape.get(1);
+        Shape dynamicsInputShape = new Shape(shapeArray);
+        Shape[] state3Shapes = g.getOutputShapes(new Shape[]{dynamicsInputShape});
+
+
+        shapeArray = state3Shapes[0].getShape();
+        shapeArray[1] += actionShape.get(1);
+        Shape rewardInputShape = new Shape(shapeArray);
+
+        return (Shape[]) ArrayUtils.addAll(state3Shapes,
+                f1.getOutputShapes(state3Shapes), f2.getOutputShapes(new Shape[]{rewardInputShape}));
+
     }
 
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
+        g.initialize(manager, dataType, inputShapes[0]);
 
-        g.initialize(manager, dataType, inputShapes);
-        Shape[] hOutputShapes = g.getOutputShapes(inputShapes);
-        f.initialize(manager, dataType, hOutputShapes);
+
+        Shape[] state1OutputShapes = g.getOutputShapes(new Shape[]{inputShapes[0]});
+        f1.initialize(manager, dataType, state1OutputShapes[0]);
+
+
+        h2.initialize(manager, dataType,  state1OutputShapes[0]);
+        Shape[] state2OutputShapes = h2.getOutputShapes(state1OutputShapes);
+        f.initialize(manager, dataType, state2OutputShapes[0]);
+
+
+//        similarityProjectorBlock.initialize(manager, dataType, state1OutputShapes[0]);
+//        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{state1OutputShapes[0]});
+//        similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+
+        Shape state1Shape = state1OutputShapes[0];
+        Shape actionShape = inputShapes[1];
+        g.initialize(manager, dataType, state1Shape, actionShape);
+
+          f2.initialize(manager, dataType, state1Shape, actionShape);
     }
+
 
     @Override
     public @NotNull String toString() {
@@ -110,14 +178,37 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         OnnxBlock gOnnx = g.getOnnxBlock(counter, input);
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
-        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutput);
+
+        OnnxBlock f1Onnx = f1.getOnnxBlock(counter, gOutput);
+        onnxBlock.addChild(f1Onnx);
+        List<OnnxTensor> f1Output = f1Onnx.getOutput();
+
+
+
+        OnnxBlock f2Onnx = f2.getOnnxBlock(counter, gOutput);
+        onnxBlock.addChild(f2Onnx);
+        List<OnnxTensor> f2Output = f2Onnx.getOutput();
+
+
+
+        OnnxBlock h2Onnx = h2.getOnnxBlock(counter, gOnnx.getOutput());
+        onnxBlock.addChild(h2Onnx);
+
+
+        List<OnnxTensor> h2Output = h2Onnx.getOutput();
+        OnnxBlock fOnnx = f.getOnnxBlock(counter, h2Output);
         onnxBlock.addChild(fOnnx);
+
         List<OnnxTensor> fOutput = fOnnx.getOutput();
+
+
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
 
         List<OnnxTensor> totalOutput = new ArrayList<>();
         totalOutput.addAll(gOutput);
+        totalOutput.addAll(f1Output);
+        totalOutput.addAll(f2Output);
         totalOutput.addAll(fOutput);
 
         onnxBlock.setOutput(totalOutput);

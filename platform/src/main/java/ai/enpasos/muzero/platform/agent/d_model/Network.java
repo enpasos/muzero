@@ -32,11 +32,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialIn
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceListTranslator;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceListTranslator;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -61,9 +57,12 @@ public class Network {
 
     MuZeroConfig config;
     Model model;
-    private SubModel representation;
+    private SubModel representation1;
+    private SubModel representation2;
     private SubModel prediction;
     private SubModel dynamics;
+    private SubModel reward;
+    private SubModel legalActions;
 
     private SubModel initialInference;
     private SubModel recurrentInference;
@@ -93,20 +92,26 @@ public class Network {
         }
 
 
-        RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
-        PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
-        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
-        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("04Projector");
-        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("05Predictor");
+        Representation1Block representation1Block = (Representation1Block) model.getBlock().getChildren().get("01Representation1");
+        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("02Dynamics");
+        RewardBlock rewardBlock = (RewardBlock) model.getBlock().getChildren().get("03Reward");
+        LegalActionsBlock legalActionsBlock = (LegalActionsBlock) model.getBlock().getChildren().get("04LegalActions");
+        Representation2Block representation2Block = (Representation2Block) model.getBlock().getChildren().get("05Representation2");
+        PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("06Prediction");
+        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("07Projector");
+        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("08Predictor");
 
-        representation = new SubModel("representation", model, representationBlock, config);
-        prediction = new SubModel("prediction", model, predictionBlock, config);
+        representation1 = new SubModel("representation1", model, representation1Block, config);
         dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
+        reward = new SubModel("reward", model, rewardBlock, config);
+        legalActions = new SubModel("legalActions", model, legalActionsBlock, config);
+        representation2 = new SubModel("representation2", model, representation2Block, config);
+        prediction = new SubModel("prediction", model, predictionBlock, config);
         projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
-        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
-        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
+        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock( representation1Block, representation2Block, predictionBlock, legalActionsBlock), config);
+        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock( dynamicsBlock, representation1Block, representation2Block, predictionBlock, legalActionsBlock, rewardBlock), config);
 
     }
 

@@ -25,19 +25,19 @@ import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class RepresentationBlock extends MySequentialBlock implements OnnxIO {
+public class Representation2Block extends MySequentialBlock implements OnnxIO {
 
-    public RepresentationBlock() {
+    public Representation2Block() {
         super();
     }
 
     @Builder()
-    public static @NotNull RepresentationBlock newRepresentationBlock(MuZeroConfig config) {
-        RepresentationBlock block = new RepresentationBlock();
+    public static @NotNull Representation2Block newRepresentation2Block(MuZeroConfig config) {
+        Representation2Block block = new Representation2Block();
 
         block
-            .add(Conv3x3.builder().channels(config.getNumChannels()).build())
-            .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
+            .add(Conv3x3.builder().channels(config.getNumChannels2()).build())
+            .add(new MainRepresentationOrDynamicsBlock( config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals2(), config.getNumChannels2(), config.getNumBottleneckChannels2(), config.getBroadcastEveryN2()));
 
         return block;
 

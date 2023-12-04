@@ -177,21 +177,50 @@ public class MuZeroConfig {
     public int getNumActionLayers() {
         return getConf().numActionLayers;
     }
-
-    public int getNumChannels() {
-        return getConf().numChannels;
+    public int getNumChannels1() {
+        return getConf().numChannels1;
     }
 
-    public int getNumBottleneckChannels() {
-        return getConf().numBottleneckChannels;
+    public int getNumBottleneckChannels1() {
+        return getConf().numBottleneckChannels1;
+    }
+    public int getNumResiduals1() {
+        return getConf().numResiduals1;
+    }
+    public int getBroadcastEveryN1() {
+        return getConf().broadcastEveryN1;
     }
 
 
-    public int getNumResiduals() {
-        return getConf().numResiduals;
+
+    public int getNumChannels2() {
+        return getConf().numChannels2;
+    }
+    public int getNumBottleneckChannels2() {
+        return getConf().numBottleneckChannels2;
+    }
+    public int getNumResiduals2() {
+        return getConf().numResiduals2;
+    }
+    public int getBroadcastEveryN2() {
+        return getConf().broadcastEveryN2;
     }
 
 
+
+
+    public int getNumChannels3() {
+        return getConf().numChannels3;
+    }
+    public int getNumBottleneckChannels3() {
+        return getConf().numBottleneckChannels3;
+    }
+    public int getNumResiduals3() {
+        return getConf().numResiduals3;
+    }
+    public int getBroadcastEveryN3() {
+        return getConf().broadcastEveryN3;
+    }
     public int[] getValues() {
 
         int[] result = new int[getValueSpan() + 1];
@@ -392,9 +421,6 @@ public class MuZeroConfig {
 
 
 
-    public int getBroadcastEveryN() {
-        return getConf().broadcastEveryN;
-    }
 
 
     public PlayTypeKey getPlayTypeKey() {
@@ -488,13 +514,26 @@ public class MuZeroConfig {
         protected String networkBaseDir;
 
         protected int numObservationLayers;
-        protected int numActionLayers;
-        protected int numChannels;
 
-        protected int broadcastEveryN;
-        protected int numBottleneckChannels;
+        protected int numActionLayers ;
 
-        protected int numResiduals;
+
+        protected int numChannels1;
+        protected int broadcastEveryN1;
+        protected int numBottleneckChannels1;
+        protected int numResiduals1;
+
+
+        protected int numChannels2;
+        protected int broadcastEveryN2;
+        protected int numBottleneckChannels2;
+        protected int numResiduals2;
+
+
+        protected int numChannels3;
+        protected int broadcastEveryN3;
+        protected int numBottleneckChannels3;
+        protected int numResiduals3;
 
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;

@@ -18,30 +18,29 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.StartResidualBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
+public class Representation1Block extends MySequentialBlock implements OnnxIO {
 
-
-    public DynamicsBlock() {
+    public Representation1Block() {
         super();
     }
 
-
     @Builder()
-    public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config) {
-        DynamicsBlock block = new DynamicsBlock();
+    public static @NotNull Representation1Block newRepresentation1Block(MuZeroConfig config) {
+        Representation1Block block = new Representation1Block();
 
         block
-            .add(new StartResidualBlock(config.getNumChannels3()))
-            .add(new MainRepresentationOrDynamicsBlock(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals3(), config.getNumChannels3(), config.getNumBottleneckChannels3(), config.getBroadcastEveryN3()));
+            .add(Conv3x3.builder().channels(config.getNumChannels1()).build())
+            .add(new MainRepresentationOrDynamicsBlock(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals1(), config.getNumChannels1(), config.getNumBottleneckChannels1(), config.getBroadcastEveryN1()));
 
         return block;
+
     }
 
 }

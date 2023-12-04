@@ -34,9 +34,6 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
      */
 
 
-    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannels(), config.getNumBottleneckChannels(), broadcastEveryN);
-    }
 
     @java.lang.SuppressWarnings("java:S107")
     public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN) {

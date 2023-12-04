@@ -61,11 +61,24 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 6
-      broadcastEveryN: 8  # out of range here
+      numResiduals1: 6
+      broadcastEveryN1: 8  # out of range here
+      numChannels1: 256
+      numBottleneckChannels1: 128
 
-      numChannels: 256
-      numBottleneckChannels: 128
+
+      numResiduals2: 6
+      broadcastEveryN2: 8  # out of range here
+      numChannels2: 256
+      numBottleneckChannels2: 128
+
+
+      numResiduals3: 6
+      broadcastEveryN3: 8  # out of range here
+      numChannels3: 256
+      numBottleneckChannels3: 128
+
+
 
       valueLossWeight: 1
       consistencyLossWeight: 2

@@ -21,20 +21,12 @@ public class GoOnnx {
 
     public void run() {
 
-        int epoch = -1;
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();
-        long hs = config.getNumChannels();
-        long a = config.getNumActionLayers();
         long o = config.getNumObservationLayers();
-        long s = config.getNumChannelsOutputLayerSimilarityProjector();
 
         List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
-        List<Shape> inputPrediction = List.of(new Shape(1L, hs, w, h));
-        List<Shape> inputSimilarityProjection = List.of(new Shape(1L, hs, w, h));
-        List<Shape> inputSimilarityPrediction = List.of(new Shape(1L, s));
-        List<Shape> inputGeneration = List.of(new Shape(1L, hs, w, h), new Shape(1L, a, w, h));
-        onnxExport.run(inputRepresentation, inputPrediction, inputGeneration, inputSimilarityPrediction, inputSimilarityProjection, epoch);
-    }
+        List<Shape> inputAction = List.of(new Shape(1L, config.getActionSpaceSize()));
+        onnxExport.run(inputRepresentation, inputAction, -1);    }
 
 }
