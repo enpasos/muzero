@@ -156,6 +156,7 @@ public class InputOutputConstruction {
         for (int k = 0; k <= numUnrollSteps; k++) {
             int b = 0;
             float[] valueArray = new float[batch.size()];
+            float[] rewardArray = new float[batch.size()];
 
             float[] policyArray = new float[batch.size() * actionSize];
             float[] legalActionsArray =   new float[batch.size() * actionSize]  ;
@@ -174,22 +175,29 @@ public class InputOutputConstruction {
                 log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
 
 
-                    log.trace("legalactionstarget: {}", target.getLegalActions());
-                    System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
+                log.trace("legalactionstarget: {}", target.getLegalActions());
+                System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
 
+
+                if (k>0) {
+                    log.trace("rewardtarget: {}", target.getReward());
+                    scale = 2.0 / config.getValueSpan();
+                    rewardArray[b] = (float) (target.getReward() * scale);
+                }
 
                 b++;
             }
             NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
+            outputs.add(symmetryEnhancerPolicy(policyOutput2));
 
             NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
-
-            outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
 
+            NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
+            outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
 
-                NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
-                outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+            NDArray rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
+            outputs.add(symmetryEnhancerValue(rewardOutput2));
 
         }
         return outputs;

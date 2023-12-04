@@ -223,7 +223,7 @@ public abstract class Game {
         float reward = getReward(currentIndex);
 
 
-boolean networkWithRewardHead = true;
+        boolean networkWithRewardHead = true;
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
 
