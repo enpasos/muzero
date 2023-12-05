@@ -60,10 +60,10 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals1: 6
+      numResiduals1: 2
       broadcastEveryN1: 8  # out of range here
-      numChannels1: 256
-      numBottleneckChannels1: 128
+      numChannels1: 3
+      numBottleneckChannels1: 2
 
 
       numResiduals2: 6
@@ -72,10 +72,10 @@ muzero:
       numBottleneckChannels2: 128
 
 
-      numResiduals3: 6
+      numResiduals3: 2
       broadcastEveryN3: 8  # out of range here
-      numChannels3: 256
-      numBottleneckChannels3: 128
+      numChannels3: 3
+      numBottleneckChannels3: 2
 
 
 
@@ -97,10 +97,6 @@ muzero:
       offPolicyRatioLimit: 1.0
 
       numParallelInferences: 1000
-
-      withLegalActionsHead: false
-
-
 
 
       playTypes:

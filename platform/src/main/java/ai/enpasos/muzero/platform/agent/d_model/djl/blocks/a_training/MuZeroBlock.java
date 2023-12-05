@@ -146,6 +146,7 @@ public class MuZeroBlock extends AbstractBlock {
             // rules layer - consistency loss
             NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(rulesState), training, params);
             NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
+            representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
             NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representation1Result, training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
             combinedResult.add(similarityPredictorResult);

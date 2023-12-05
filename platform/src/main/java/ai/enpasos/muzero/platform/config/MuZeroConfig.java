@@ -559,7 +559,6 @@ public class MuZeroConfig {
 
         protected PlayTypeKey playTypeKey;
         protected int initialGumbelM;
-
         protected int cVisit;
         protected double cScale;
         protected int numPurePolicyPlays;

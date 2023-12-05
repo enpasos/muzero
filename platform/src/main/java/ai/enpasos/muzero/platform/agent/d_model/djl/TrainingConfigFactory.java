@@ -47,6 +47,11 @@ public class TrainingConfigFactory {
 
         int k = 0;
 
+        //  legal actions
+        log.trace("k={}: LegalActions BCELoss", k);
+        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f, 1), k));
+        k++;
+
         // policy
         log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
         loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
@@ -57,13 +62,28 @@ public class TrainingConfigFactory {
         loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
         k++;
 
-        //  legal actions
-            log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f, 1), k));
-            k++;
+
 
 
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
+            // legal actions
+            log.trace("k={}: LegalActions BCELoss", k);
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
+            k++;
+
+            // reward
+            log.trace("k={}: Reward L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
+            k++;
+
+
+            // similarity
+            log.trace("k={}: Similarity L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
+            k++;
+
+
+
             // policy
             log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
             loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
@@ -74,22 +94,7 @@ public class TrainingConfigFactory {
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             k++;
 
-            // legal actions
-            log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
-            k++;
 
-            // value
-            log.trace("k={}: Reward L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
-            k++;
-
-
-            // similarity
-            log.trace("k={}: Similarity L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
-
-            k++;
         }
 
 

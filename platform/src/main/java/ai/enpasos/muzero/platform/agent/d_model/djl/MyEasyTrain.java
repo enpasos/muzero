@@ -121,9 +121,14 @@ public final class MyEasyTrain {
         NDList data = split.getData();
         NDList labels = split.getLabels();
         NDList preds = trainer.forward(data, labels);
-        Pair<NDList, NDList> predsNLabels = reorganizePredictionsAndLabels(Pair.of(preds, labels));
-        preds = predsNLabels.getLeft();
-        labels = predsNLabels.getRight();
+
+
+
+        reorganizePredictionsAndLabels( preds, labels );
+
+
+
+
         long time = System.nanoTime();
         NDArray lossValue = trainer.getLoss().evaluate(labels, preds);
         collector.backward(lossValue);
@@ -135,31 +140,58 @@ public final class MyEasyTrain {
         return true;
     }
 
-    private static Pair<NDList, NDList> reorganizePredictionsAndLabels(Pair<NDList, NDList> input) {
+    private static void reorganizePredictionsAndLabels( NDList preds, NDList labels ) {
 
-        int numRolloutSteps = 5;
+        // original labels have the following structure
+        // Targets:
+        // - initial inference (3)
+        //  - legal actions
+        //  - policy
+        //  - value
+        // - recurrent inference  (numUnrollSteps times 4)
+        //  - legal actions
+        //  - reward
+        //  - policy
+        //  - value
+        //
+        int numRolloutSteps = 5;   // TODO make configurable
+        if (labels.size() != 3 + 4 * (numRolloutSteps)) {
+            throw new MuZeroException("unexpected number of labels");
+        }
 
-        boolean withEntropyValuePrediction = false;
-        boolean withLegalActionHead = true;
+        // original predictions have the following structure
+        // Targets:
+        // - initial inference (3)
+        //  - legal actions
+        //  - policy
+        //  - value
+        // - recurrent inference  (numUnrollSteps times 6)
+        //  - legal actions
+        //  - reward
+        //  - consistency:similarityPredictorResult
+        //  - consistency:similarityProjectorResultLabel;
+        //  - policy
+        //  - value
+        if (preds.size() != 3 + 6 * (numRolloutSteps)) {
+            throw new MuZeroException("unexpected number of predictions");
+        }
 
-        IntStream.range(0, numRolloutSteps).forEach(i -> {
 
-                    int extra = withEntropyValuePrediction ? 1 : 0;
-                    int extra2 = withLegalActionHead ? 1 : 0;
-                    input.getRight().add(4 +   2 * (extra + extra2 ) + (3 + extra + extra2) * i,
-                            input.getLeft().get(5 +   2 * (extra + extra2 ) + (4 + extra+ extra2) * i));
 
-                }
+        // move consistency:similarityPredictorResult from predictions to labels
+
+
+        int a = 3;
+        int offset = 2;
+        int b = a+1;
+
+        IntStream.range(0, numRolloutSteps).forEach(i ->
+                labels.add(a + offset + (b + 1) * i, preds.get(a + offset + 1 + (b + 2) * i))
         );
-        IntStream.range(0, numRolloutSteps).forEach(i -> {
-                    int extra = withEntropyValuePrediction ? 1 : 0;
-                    int extra2 = withLegalActionHead ? 1 : 0;
-                    input.getLeft().remove(5 + 2 * (extra + extra2) + (3 + extra + extra2) * i);
-                }
+        IntStream.range(0, numRolloutSteps).forEach(i ->
+                preds.remove(a + offset + 1 + (b + 1) * i)
         );
 
-
-        return input;
     }
 
     /**
