@@ -26,7 +26,6 @@ import java.util.stream.IntStream;
  */
 public final class MyEasyTrain {
 
-    private static boolean withLegalActionHead;
 
     private MyEasyTrain() {
     }
@@ -54,7 +53,7 @@ public final class MyEasyTrain {
 
                 // During trainBatch, we update the loss and evaluators with the results for the
                 // training batch
-                trainBatch(trainer, batch, withEntropyValuePrediction, withLegalActionHead);
+                trainBatch(trainer, batch);
 
                 // Now, we update the model parameters based on the results of the latest trainBatch
                 trainer.step();
@@ -74,7 +73,6 @@ public final class MyEasyTrain {
         }
     }
 
-    static boolean withEntropyValuePrediction;
 
     /**
      * Trains the model with one iteration of the given {@link Batch} of data.
@@ -83,10 +81,9 @@ public final class MyEasyTrain {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static void trainBatch(Trainer trainer, Batch batch, boolean withEntropyValuePrediction, boolean withLegalActionHead) {
+    public static void trainBatch(Trainer trainer, Batch batch) {
 
-        MyEasyTrain.withEntropyValuePrediction =  withEntropyValuePrediction;
-        MyEasyTrain.withLegalActionHead =  withLegalActionHead;
+
         if (trainer.getManager().getEngine() != batch.getManager().getEngine()) {
             throw new IllegalArgumentException(
                 "The data must be on the same engine as the trainer. You may need to change one"
@@ -142,9 +139,11 @@ public final class MyEasyTrain {
 
         int numRolloutSteps = 5;
 
-
+        boolean withEntropyValuePrediction = false;
+        boolean withLegalActionHead = true;
 
         IntStream.range(0, numRolloutSteps).forEach(i -> {
+
                     int extra = withEntropyValuePrediction ? 1 : 0;
                     int extra2 = withLegalActionHead ? 1 : 0;
                     input.getRight().add(4 +   2 * (extra + extra2 ) + (3 + extra + extra2) * i,

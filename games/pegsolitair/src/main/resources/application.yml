@@ -18,7 +18,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.pegsolitair.config.PegSolitairGame
       actionClassName: ai.enpasos.muzero.pegsolitair.config.PegSolitairAction
       playerMode: SINGLE_PLAYER
-      networkWithRewardHead: false
       inferenceDeviceType: GPU
 
       # game/environment

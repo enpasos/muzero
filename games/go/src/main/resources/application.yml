@@ -28,7 +28,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.go.config.GoGame
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       inferenceDeviceType: GPU
 
       # game/environment
@@ -175,7 +174,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.go.config.GoGame
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       inferenceDeviceType: GPU
 
       # game/environment

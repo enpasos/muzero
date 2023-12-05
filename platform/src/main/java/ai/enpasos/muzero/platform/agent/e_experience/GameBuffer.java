@@ -115,7 +115,7 @@ public class GameBuffer {
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
 
-        sample.makeTarget(config.withLegalActionsHead());
+        sample.makeTarget( );
         return sample;
     }
 

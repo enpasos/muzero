@@ -204,35 +204,35 @@ public abstract class Game {
         setActionApplied(true);
     }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isWithLegalActionHead) {
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps ) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target, isWithLegalActionHead);
+            fillTarget(currentIndex, target );
             targets.add(target);
         });
         return targets;
     }
 
     @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target, boolean isWithLegalActionHead) {
+    private void fillTarget(int currentIndex, Target target ) {
 
         int tdSteps = getTdSteps(currentIndex);
         double value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
 
-
+boolean networkWithRewardHead = true;
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-            if (isWithLegalActionHead) {
+
                 target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
-            }
+
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
+        } else if (!networkWithRewardHead && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
             // if we were running the network with reward head
@@ -241,9 +241,9 @@ public abstract class Game {
             // we need use this node to keep the reward value
             // therefore target.value is not 0f
             // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-            if (isWithLegalActionHead) {
+
                 target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
-            }
+
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);

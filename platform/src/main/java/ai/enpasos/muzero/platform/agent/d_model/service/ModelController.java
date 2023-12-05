@@ -195,7 +195,7 @@ public class ModelController implements DisposableBean, Runnable {
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = batchFactory.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
                         log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch, false, config.withLegalActionsHead());
+                        MyEasyTrain.trainBatch(trainer, batch );
                         trainer.step();
                     }
                 }

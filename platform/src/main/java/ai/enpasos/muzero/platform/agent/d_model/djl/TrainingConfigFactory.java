@@ -56,12 +56,11 @@ public class TrainingConfigFactory {
         loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
         k++;
 
-        // entropyValue
-        if (config.withLegalActionsHead()) {
+        //  legal actions
             log.trace("k={}: LegalActions BCELoss", k);
             loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f, 1), k));
             k++;
-        }
+
 
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // policy
@@ -75,11 +74,11 @@ public class TrainingConfigFactory {
             k++;
 
             // entropyValue
-            if (config.withLegalActionsHead()) {
+
                 log.trace("k={}: LegalActions BCELoss", k);
                 loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
                 k++;
-            }
+
 
             // similarity
             log.trace("k={}: Similarity L2Loss", k);

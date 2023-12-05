@@ -150,7 +150,7 @@ public class InputOutputConstruction {
     }
 
     @SuppressWarnings("java:S2095")
-    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, boolean withLegalActionsHead) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();
         for (int k = 0; k <= numUnrollSteps; k++) {
@@ -158,7 +158,7 @@ public class InputOutputConstruction {
             float[] valueArray = new float[batch.size()];
 
             float[] policyArray = new float[batch.size() * actionSize];
-            float[] legalActionsArray = withLegalActionsHead ? new float[batch.size() * actionSize] : null;
+            float[] legalActionsArray =   new float[batch.size() * actionSize]  ;
 
             for (Sample s : batch) {
                 List<Target> targets = s.getTargetList();
@@ -173,10 +173,10 @@ public class InputOutputConstruction {
                 System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
                 log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
 
-                if ( withLegalActionsHead) {
+
                     log.trace("legalactionstarget: {}", target.getLegalActions());
                     System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
-                }
+
 
                 b++;
             }
@@ -187,10 +187,10 @@ public class InputOutputConstruction {
             outputs.add(symmetryEnhancerPolicy(policyOutput2));
             outputs.add(symmetryEnhancerValue(valueOutput2));
 
-            if ( withLegalActionsHead) {
+
                 NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
                 outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
-            }
+
         }
         return outputs;
     }

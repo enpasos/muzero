@@ -137,19 +137,10 @@ public class MuZeroConfig {
         return getConf().playerMode;
     }
 
-
-    public boolean isNetworkWithRewardHead() {
-        return getConf().networkWithRewardHead;
-    }
-
-
     public boolean offPolicyCorrectionOn() {
         return getConf().offPolicyCorrectionOn;
     }
 
-    public boolean withLegalActionsHead() {
-        return getConf().withLegalActionsHead;
-    }
 
     public boolean allOrNothingOn() {
         return getConf().allOrNothingOn;
@@ -508,7 +499,6 @@ public class MuZeroConfig {
         protected String gameClassName;
         protected String actionClassName;
         protected PlayerMode playerMode;
-        protected boolean networkWithRewardHead;
 
         protected SymmetryType symmetryType;
         protected String networkBaseDir;
@@ -580,8 +570,6 @@ public class MuZeroConfig {
 
         protected boolean allOrNothingOn;
 
-
-        protected boolean withLegalActionsHead;
         protected double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {
