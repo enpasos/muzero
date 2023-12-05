@@ -20,7 +20,7 @@ in a separate module:
     * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one
       peg in the middle.
 
-We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/How#onnx).
+We implemented [onnx export for the muzero network](https://enpasos.ai/muzero/here/How#onnx).
 
 You can find out the inference time while running MuZero on your edge device:
 
