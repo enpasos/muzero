@@ -19,6 +19,7 @@ public class TrainingConfigFactory {
 
 
     public static final String LOSS_VALUE = "loss_value_";
+    public static final String LOSS_REWARD = "loss_reward_";
     public static final String LEGAL_ACTIONS_LOSS_VALUE = "loss_legal_actions_";
     public static final String LOSS_SIMILARITY = "loss_similarity_";
     @Autowired
@@ -73,11 +74,15 @@ public class TrainingConfigFactory {
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
             k++;
 
-            // entropyValue
+            // legal actions
+            log.trace("k={}: LegalActions BCELoss", k);
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
+            k++;
 
-                log.trace("k={}: LegalActions BCELoss", k);
-                loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
-                k++;
+            // value
+            log.trace("k={}: Reward L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
+            k++;
 
 
             // similarity
@@ -102,7 +107,7 @@ public class TrainingConfigFactory {
     }
 
     private Optimizer setupOptimizer(int trainingStep) {
-float lr = config.getLr(trainingStep);
+        float lr = config.getLr(trainingStep);
         log.info("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 
