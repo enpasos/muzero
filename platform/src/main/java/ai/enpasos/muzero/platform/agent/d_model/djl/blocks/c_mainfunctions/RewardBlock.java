@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.enpasos.mnist.blocks.ext.*;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ConcatInputsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -38,6 +39,7 @@ public class RewardBlock extends MySequentialBlock {
 
 
         SequentialBlockExt reward = new SequentialBlockExt();
+        reward.add(new ConcatInputsBlock());
         reward.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock());
         reward.add(LinearExt.builder()

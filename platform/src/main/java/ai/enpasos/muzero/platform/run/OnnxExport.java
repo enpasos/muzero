@@ -85,16 +85,13 @@ public class OnnxExport {
                 onnxExport(predictionBlock, h2ShapeList, config.getOutputDir() + ONNX + config.getModelName() + "-Prediction.onnx", "F_");
 
 
-              //  Shape actionShape = inputShapes[k];
-                long[] shapeArray = state1Shape.get(0).getShape();
-                shapeArray[1] = shapeArray[1] + inputAction.get(0).get(1);
-                Shape dynamicsInputShape = new Shape(shapeArray);
+              List<Shape> dynamicsInputShapes = List.of(state1Shape.get(0), inputAction.get(0));
 
 
-               onnxExport(dynamicsBlock, List.of(dynamicsInputShape), config.getOutputDir() + ONNX + config.getModelName() + "-Generation.onnx", "G_");
+               onnxExport(dynamicsBlock, dynamicsInputShapes, config.getOutputDir() + ONNX + config.getModelName() + "-Generation.onnx", "G_");
 //
 
-                onnxExport(rewardBlock, List.of(dynamicsInputShape), config.getOutputDir() + ONNX + config.getModelName() + "-Reward.onnx", "F_");
+                onnxExport(rewardBlock, dynamicsInputShapes, config.getOutputDir() + ONNX + config.getModelName() + "-Reward.onnx", "F_");
                 onnxExport(legalActionsBlock, state1Shape, config.getOutputDir() + ONNX + config.getModelName() + "-LegalActions.onnx", "F_");
 
 

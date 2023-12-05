@@ -23,9 +23,10 @@ public class TicTacToeOnnx {
         long w = config.getBoardWidth();
         long h = config.getBoardHeight();
         long o = config.getNumObservationLayers();
+        long a = config.getNumActionLayers();
 
         List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
-        List<Shape> inputAction = List.of(new Shape(1L, config.getActionSpaceSize()));
+        List<Shape> inputAction = List.of(new Shape(1L, a, w, h));
         onnxExport.run(inputRepresentation, inputAction, -1);
     }
 
