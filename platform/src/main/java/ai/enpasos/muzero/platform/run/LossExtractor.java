@@ -44,6 +44,7 @@ public class LossExtractor {
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';')
             .setHeader("trainingStep"
                 , "totalLoss"
+                    , "rewardLoss"
                 , "valueLoss"
                     , "legalActionLoss"
                 , "policyLoss"
@@ -84,6 +85,8 @@ public class LossExtractor {
                         int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                         csvPrinter.printRecord(trainingSteps,
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanRewardLoss")),
                                 NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss")),
                             //    NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanEntropyValueLoss")),
 

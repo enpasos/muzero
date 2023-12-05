@@ -256,19 +256,19 @@ public class ModelController implements DisposableBean, Runnable {
         model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
         log.info("MeanValueLoss: " + meanValueLoss);
 
-        // mean entropy value
+        // mean reward
         // loss
-//        double meanEntropyValueLoss = metrics.getMetricNames().stream()
-//                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("entropy_loss_value_0"))
-//                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-//                .sum();
-//        gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
-//        meanEntropyValueLoss += metrics.getMetricNames().stream()
-//                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("entropy_loss_value_0") && name.contains("entropy_loss_value"))
-//                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-//                .sum();
-//        model.setProperty("MeanEntropyValueLoss", Double.toString(meanEntropyValueLoss));
-//        log.info("MeanEntropyValueLoss: " + meanEntropyValueLoss);
+        double meanRewardLoss = metrics.getMetricNames().stream()
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_reward_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+       // gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
+        meanRewardLoss += metrics.getMetricNames().stream()
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_reward_0") && name.contains("loss_reward"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
+        model.setProperty("MeanRewardLoss", Double.toString(meanRewardLoss));
+        log.info("MeanRewardLoss: " + meanRewardLoss);
 
         // mean similarity
         // loss

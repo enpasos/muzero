@@ -226,7 +226,6 @@ public class Node {
     public void expand(Player toPlay, NetworkIO networkOutput) {
         if (networkOutput != null) {
             setValueFromInference(networkOutput.getValue());
-            setEntropyValueFromInference(networkOutput.getEntropyValue());
         }
         setToPlay(toPlay);
 
@@ -274,7 +273,6 @@ public class Node {
         if (!this.root) throw new MuZeroException("expandRootNode should only be called on the root node");
         if (networkOutput != null) {
             setValueFromInference(networkOutput.getValue());
-            setEntropyValueFromInference(networkOutput.getEntropyValue());
         }
         setToPlay(toPlay);
         if (!fastRuleLearning) {

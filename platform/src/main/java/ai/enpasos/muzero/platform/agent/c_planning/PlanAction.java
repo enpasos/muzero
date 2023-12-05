@@ -40,12 +40,9 @@ public class PlanAction {
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
         root.setValueFromInference(value);
-        double entropyValue = networkOutput.getEntropyValue();
-        root.setEntropyValueFromInference(entropyValue);
 
 
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
-        game.getGameDTO().getRootEntropyValuesFromInitialInference().add((float) entropyValue);
 
         int nActionsReplayed = game.getGameDTO().getActions().size();
         if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
@@ -187,7 +184,7 @@ public class PlanAction {
         Action action = selectActionByDrawingFromDistribution(distributionInput);
 
 
-        storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()),  new MinMaxStats(config.getKnownBounds()));
+        storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()) );
 
         return action;
     }
