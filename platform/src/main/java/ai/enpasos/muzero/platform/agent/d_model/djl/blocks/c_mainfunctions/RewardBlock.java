@@ -31,7 +31,7 @@ import java.util.Arrays;
 public class RewardBlock extends MySequentialBlock {
 
     public RewardBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels1(),
+        this(config.getNumChannelsReward(),
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS );
     }
 

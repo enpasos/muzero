@@ -172,6 +172,14 @@ public class MuZeroConfig {
         return getConf().numChannels1;
     }
 
+    public int getNumChannelsReward() {
+        return getConf().numChannelsReward;
+    }
+
+    public int getNumChannelsLegalActions() {
+        return getConf().numChannelsLegalActions;
+    }
+
     public int getNumBottleneckChannels1() {
         return getConf().numBottleneckChannels1;
     }
@@ -507,6 +515,9 @@ public class MuZeroConfig {
 
         protected int numActionLayers ;
 
+
+        protected int numChannelsLegalActions = 256;
+        protected int numChannelsReward = 256;
 
         protected int numChannels1;
         protected int broadcastEveryN1;

@@ -83,6 +83,9 @@ public class MuZeroBlock extends AbstractBlock {
 
     @Override
     protected @NotNull NDList forwardInternal(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
+        boolean blockGradient = true;
+
+
         NDList combinedResult = new NDList();
         // added predictions to the combinedResult in the following order:
         // initial inference
@@ -110,7 +113,12 @@ public class MuZeroBlock extends AbstractBlock {
         // policy layer
         // the rules is not trained from the policy layer!
         // as the rules do not depend on the policy - only in the other direction
-        NDList inputToPolicyLayer = new NDList(rulesState.stopGradient());
+        NDList inputToPolicyLayer = null;
+        if (blockGradient) {
+            inputToPolicyLayer = new NDList(rulesState.stopGradient());
+        } else {
+            inputToPolicyLayer = new NDList(rulesState);
+        }
         NDList representation2Result = representation2Block.forward(parameterStore, inputToPolicyLayer, training, params);
         NDList predictionResult = predictionBlock.forward(parameterStore, representation2Result, training, params);
         for (NDArray prediction : predictionResult.getResourceNDArrays()) {
@@ -118,7 +126,6 @@ public class MuZeroBlock extends AbstractBlock {
         }
 
         // initial Inference >>>
-
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
@@ -154,7 +161,11 @@ public class MuZeroBlock extends AbstractBlock {
 
 
             // policy layer
-            inputToPolicyLayer = new NDList(rulesState.stopGradient());
+            if (blockGradient) {
+                inputToPolicyLayer = new NDList(rulesState.stopGradient());
+            } else {
+                inputToPolicyLayer = new NDList(rulesState);
+            }
             representation2Result = representation2Block.forward(parameterStore, inputToPolicyLayer, training, params);
             predictionResult = predictionBlock.forward(parameterStore, representation2Result, training, params);
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {

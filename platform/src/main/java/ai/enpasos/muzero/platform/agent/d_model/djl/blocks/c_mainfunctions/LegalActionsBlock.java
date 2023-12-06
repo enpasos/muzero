@@ -30,7 +30,7 @@ import java.util.Arrays;
 public class LegalActionsBlock extends MySequentialBlock {
 
     public LegalActionsBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels1(),
+        this(config.getNumChannelsLegalActions(),
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize() );
     }
