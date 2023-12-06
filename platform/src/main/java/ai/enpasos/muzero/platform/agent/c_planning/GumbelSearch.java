@@ -80,7 +80,7 @@ public class GumbelSearch {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
+//        game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {

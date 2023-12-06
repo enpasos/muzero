@@ -65,6 +65,9 @@ public class GoAction extends Action {
 
 
     public NDArray encode(@NotNull NDManager nd) {
+        if (this.getIndex() == -1) {
+            return nd.ones(new Shape(1, config.getBoardHeight(), config.getBoardWidth())).mul(-1f);
+        }
         NDArray array = nd.zeros(new Shape(1, config.getBoardHeight(), config.getBoardWidth()));
         if (this.getIndex() < config.getBoardHeight() * config.getBoardWidth()) {
             array.setScalar(new NDIndex(0, getRow(), getCol()), 1f);

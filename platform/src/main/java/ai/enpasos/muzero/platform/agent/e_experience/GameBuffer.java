@@ -101,7 +101,18 @@ public class GameBuffer {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
         }
         sample.setActionsList(new ArrayList<>());
+
+
+        // also add the action that was taken before the first observation
+        // if there was none add an action index of -1
+        if (gamePos > 0) {
+            int actionIndex = actions.get(gamePos - 1);
+            sample.getActionsList().add(actionIndex);
+        } else {
+            sample.getActionsList().add(-1);
+        }
         for (int i = 0; i < numUnrollSteps; i++) {
+
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 

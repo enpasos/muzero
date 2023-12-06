@@ -53,10 +53,10 @@ public class InputOutputConstruction {
         List<NDArray> inputsA = new ArrayList<>();
         addObservation(numUnrollSteps, ndManager, batch, inputsH);
         addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
-        inputs.add(inputsH.get(0));
+       // inputs.add(inputsH.get(0));
         IntStream.range(0, inputsA.size()).forEach(i -> {
             inputs.add(inputsA.get(i));
-            inputs.add(inputsH.get(1 + i));
+            inputs.add(inputsH.get(i));
         });
         return inputs;
 
@@ -124,7 +124,7 @@ public class InputOutputConstruction {
 
     public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
 
-        for (int k = 0; k < numUnrollSteps; k++) {
+        for (int k = 0; k <= numUnrollSteps; k++) {
 
             List<NDArray> list = new ArrayList<>();
             for (Sample s : batch) {
@@ -179,11 +179,11 @@ public class InputOutputConstruction {
                 System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
 
 
-                if (k>0) {
+            //    if (k>0) {
                     log.trace("rewardtarget: {}", target.getReward());
                     scale = 2.0 / config.getValueSpan();
                     rewardArray[b] = (float) (target.getReward() * scale);
-                }
+            //    }
 
                 b++;
             }
@@ -192,10 +192,10 @@ public class InputOutputConstruction {
             NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
             outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
 
-            if (k>0) {
+          //  if (k>0) {
                 NDArray rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
                 outputs.add(symmetryEnhancerValue(rewardOutput2));
-            }
+          //  }
 
             NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
             outputs.add(symmetryEnhancerPolicy(policyOutput2));

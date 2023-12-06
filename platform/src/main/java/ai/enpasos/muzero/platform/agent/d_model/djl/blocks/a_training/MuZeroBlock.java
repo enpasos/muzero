@@ -90,6 +90,7 @@ public class MuZeroBlock extends AbstractBlock {
         // added predictions to the combinedResult in the following order:
         // initial inference
         // - rules layer: legal actions
+        // - rules layer: reward
         // - policy layer:  policy
         // - policy layer:  value
         // each recurrent inference
@@ -103,11 +104,22 @@ public class MuZeroBlock extends AbstractBlock {
         // <<< initial Inference
 
         // rules layer
-        NDList representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(0)), training, params);
+
+
+
+
+        NDList representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(1)), training, params);
         NDArray rulesState = representation1Result.get(0);
 
         NDList predictionLegalActionsResult = legalActionsBlock.forward(parameterStore, representation1Result, training, params);
         combinedResult.add(predictionLegalActionsResult.get(0));
+
+
+        // rules layer - reward
+        NDArray action = inputs.get(0);  // the action before coming here
+        NDList rewardIn = new NDList(rulesState, action);  // here it is the rulesState after dynamicsBlock
+        NDList rewardOut = rewardBlock.forward(parameterStore, rewardIn, training, params);
+        combinedResult.add(rewardOut.get(0));
 
 
         // policy layer
@@ -133,7 +145,7 @@ public class MuZeroBlock extends AbstractBlock {
             // <<< recurrent Inference k
 
             // rules layer
-            NDArray action = inputs.get(2 * k - 1);
+            action = inputs.get(2 * k );
             NDList dynamicIn = new NDList(rulesState, action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
@@ -145,15 +157,15 @@ public class MuZeroBlock extends AbstractBlock {
 
 
             // rules layer - reward
-            NDList rewardIn = new NDList(rulesState, action);  // here it is the rulesState after dynamicsBlock
-            NDList rewardOut = rewardBlock.forward(parameterStore, rewardIn, training, params);
+            rewardIn = new NDList(rulesState, action);  // here it is the rulesState after dynamicsBlock
+            rewardOut = rewardBlock.forward(parameterStore, rewardIn, training, params);
             combinedResult.add(rewardOut.get(0));
 
 
             // rules layer - consistency loss
             NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(rulesState), training, params);
             NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
-            representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
+            representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(2 * k + 1)), training, params);
             NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representation1Result, training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
             combinedResult.add(similarityPredictorResult);

@@ -144,8 +144,9 @@ public final class MyEasyTrain {
 
         // original labels have the following structure
         // Targets:
-        // - initial inference (3)
+        // - initial inference (4)
         //  - legal actions
+        //  - reward
         //  - policy
         //  - value
         // - recurrent inference  (numUnrollSteps times 4)
@@ -155,14 +156,15 @@ public final class MyEasyTrain {
         //  - value
         //
         int numRolloutSteps = 5;   // TODO make configurable
-        if (labels.size() != 3 + 4 * (numRolloutSteps)) {
+        if (labels.size() != 4 + 4 * (numRolloutSteps)) {
             throw new MuZeroException("unexpected number of labels");
         }
 
         // original predictions have the following structure
         // Targets:
-        // - initial inference (3)
+        // - initial inference (4)
         //  - legal actions
+        //  - reward
         //  - policy
         //  - value
         // - recurrent inference  (numUnrollSteps times 6)
@@ -172,7 +174,7 @@ public final class MyEasyTrain {
         //  - consistency:similarityProjectorResultLabel;
         //  - policy
         //  - value
-        if (preds.size() != 3 + 6 * (numRolloutSteps)) {
+        if (preds.size() != 4 + 6 * (numRolloutSteps)) {
             throw new MuZeroException("unexpected number of predictions");
         }
 
@@ -181,9 +183,9 @@ public final class MyEasyTrain {
         // move consistency:similarityPredictorResult from predictions to labels
 
 
-        int a = 3;
+        int a = 4;
         int offset = 2;
-        int b = a+1;
+        int b = a;
 
         IntStream.range(0, numRolloutSteps).forEach(i ->
                 labels.add(a + offset + (b + 1) * i, preds.get(a + offset + 1 + (b + 2) * i))

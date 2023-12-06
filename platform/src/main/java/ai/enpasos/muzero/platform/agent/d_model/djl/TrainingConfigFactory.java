@@ -52,6 +52,11 @@ public class TrainingConfigFactory {
         loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f, 1), k));
         k++;
 
+        // reward
+        log.trace("k={}: Reward L2Loss", k);
+        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + 0, config.getValueLossWeight() * gradientScale), k));
+        k++;
+
         // policy
         log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
         loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));

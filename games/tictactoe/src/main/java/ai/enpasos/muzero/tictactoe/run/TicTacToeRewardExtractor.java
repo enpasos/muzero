@@ -21,6 +21,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBufferIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -39,7 +40,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class TicTacToeEntropyValueExtractor {
+public class TicTacToeRewardExtractor {
     @Autowired
     MuZeroConfig config;
 
@@ -57,12 +58,7 @@ public class TicTacToeEntropyValueExtractor {
 
 
         // a double mistake game
-        //int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-
-        // a normal game
-        int[] actions = {2, 4, 1, 0, 8, 5, 3, 7, 6};
-
-
+        int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
         int start = 0;
         int stop =  replayBufferIO.getLatestNetworkEpoch();
 
@@ -72,12 +68,12 @@ public class TicTacToeEntropyValueExtractor {
             .mapToObj(epoch -> gameProvider.getGameStartingWithActionsFromStartForEpoch(epoch, actions))
             .toList();
 
-        System.out.println(listEntropyValuesForTrainedNetworks(games, start, stop, actions.length + 1));
+        System.out.println(listRewardsForTrainedNetworks(games, start, stop, actions.length + 1));
 
     }
 
     @SuppressWarnings("squid:S1141")
-    public String listEntropyValuesForTrainedNetworks(List<Optional<Game>> games, int start, int stop, int numValues) {
+    public String listRewardsForTrainedNetworks(List<Optional<Game>> games, int start, int stop, int numValues) {
 
         StringWriter stringWriter = new StringWriter();
         List<String> header = new ArrayList<>();
@@ -91,8 +87,11 @@ public class TicTacToeEntropyValueExtractor {
                 objects[0] = t;
                 for (int epoch = start; epoch <= stop; epoch++) {
                     Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
-                    List<Float> values = game.getGameDTO().getRootEntropyValuesFromInitialInference();
+                    List<Float> values = game.getGameDTO().getRootRewardsFromInitialInference();
                     double valuePlayer = values.get(t);
+                    if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
+                        valuePlayer *= Math.pow(-1, t);
+                    }
                     objects[1 + epoch - start] = NumberFormat.getNumberInstance().format(valuePlayer);
                 }
                 try {

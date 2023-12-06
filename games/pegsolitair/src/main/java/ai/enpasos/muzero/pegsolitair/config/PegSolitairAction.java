@@ -55,6 +55,9 @@ public class PegSolitairAction extends Action {
 
 
     public NDArray encode(@NotNull NDManager nd) {
+        if (this.getIndex() == -1) {
+            return nd.ones(new Shape(1, config.getBoardHeight(), config.getBoardWidth())).mul(-1f);
+        }
         NDArray array = nd.zeros(new Shape(Direction.values().length, config.getBoardHeight(), config.getBoardWidth()));
         array.setScalar(new NDIndex(getDirectionNumber(), getRow(), getCol()), 1f);
         return array;

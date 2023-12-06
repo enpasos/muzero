@@ -58,11 +58,11 @@ public class PlayService {
             game.getGameDTO().getPolicyTargets().clear();
             game.getGameDTO().setRootValueTargets(new ArrayList<>());
             game.getGameDTO().setVMix(new ArrayList<>());
-            game.getGameDTO().setRootEntropyValueTargets(new ArrayList<>());
+      //      game.getGameDTO().setRootEntropyValueTargets(new ArrayList<>());
             game.getGameDTO().setEntropies(new ArrayList<>());
             game.getGameDTO().setLegalActionMaxEntropies(new ArrayList<>());
             game.getGameDTO().setRootValuesFromInitialInference(new ArrayList<>());
-            game.getGameDTO().setRootEntropyValuesFromInitialInference(new ArrayList<>());
+       //     game.getGameDTO().setRootEntropyValuesFromInitialInference(new ArrayList<>());
             game.getGameDTO().setActions(new ArrayList<>());
             game.getGameDTO().setRewards(new ArrayList<>());
             game.getGameDTO().setObservations(new ArrayList<>());

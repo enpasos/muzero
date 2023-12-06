@@ -338,20 +338,20 @@ public abstract class Game {
 
 
 
-    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        double value = 0;
-        if (gameDTO.isHybrid() || isReanalyse()) {
-            if (bootstrapIndex < this.getGameDTO().getRootEntropyValuesFromInitialInference().size()) {
-                value = this.getGameDTO().getRootEntropyValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        } else {
-            if (bootstrapIndex < this.getGameDTO().getRootEntropyValueTargets().size()) {
-                value = this.getGameDTO().getRootEntropyValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        }
-        return value;
-    }
+//    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
+//        int bootstrapIndex = currentIndex + tdSteps;
+//        double value = 0;
+//        if (gameDTO.isHybrid() || isReanalyse()) {
+//            if (bootstrapIndex < this.getGameDTO().getRootEntropyValuesFromInitialInference().size()) {
+//                value = this.getGameDTO().getRootEntropyValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+//            }
+//        } else {
+//            if (bootstrapIndex < this.getGameDTO().getRootEntropyValueTargets().size()) {
+//                value = this.getGameDTO().getRootEntropyValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+//            }
+//        }
+//        return value;
+//    }
 
     // TODO there should be a special discount parameter
     private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {

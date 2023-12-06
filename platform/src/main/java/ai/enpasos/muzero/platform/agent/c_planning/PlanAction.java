@@ -39,10 +39,15 @@ public class PlanAction {
 
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
+        double reward = networkOutput.getReward();
         root.setValueFromInference(value);
 
 
+
+
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+
+        game.getGameDTO().getRootRewardsFromInitialInference().add((float) reward);
 
         int nActionsReplayed = game.getGameDTO().getActions().size();
         if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
