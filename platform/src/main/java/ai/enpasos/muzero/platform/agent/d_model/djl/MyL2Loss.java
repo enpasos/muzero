@@ -60,6 +60,9 @@ public class MyL2Loss extends Loss {
      */
     @Override
     public NDArray evaluate(NDList label, NDList prediction) {
+        if (this.getName().contains("reward")) {
+            int i = 42;
+        }
         NDArray pred = prediction.singletonOrThrow();
         NDArray labelReshaped = label.singletonOrThrow().reshape(pred.getShape());
         NDArray mask = labelReshaped.neq(NULL_VALUE);

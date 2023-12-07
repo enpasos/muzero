@@ -223,10 +223,13 @@ public abstract class Game {
 
         int tdSteps = getTdSteps(currentIndex);
         double value = calculateValue(tdSteps, currentIndex);
-        float reward = getReward(currentIndex);
 
 
-        boolean networkWithRewardHead = true;
+        // TODO: separate reward later take perspective into account
+       //  float reward = getReward(currentIndex);
+        float reward = 0;
+
+
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
 
@@ -235,7 +238,7 @@ public abstract class Game {
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-        } else if (!networkWithRewardHead && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
+        } else if ( currentIndex == this.getGameDTO().getPolicyTargets().size()) {
             // If we do not train the reward (as only boardgames are treated here)
             // the value has to take the role of the reward on this node (needed in MCTS)
             // if we were running the network with reward head
@@ -248,7 +251,11 @@ public abstract class Game {
                 target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
 
             target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
-            target.setReward(reward);
+         //   target.setReward(reward);
+// TODO: this is a hack to make the reward work initially
+            // here we are on the timestep after the final action
+            // so we are training the reward here for the final action which has been done
+            target.setReward((float) value);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
@@ -324,6 +331,7 @@ public abstract class Game {
     }
 
     private float getReward(int currentIndex) {
+        // perspective is missing
         float reward;
         if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
             reward = this.getGameDTO().getRewards().get(currentIndex - 1);
