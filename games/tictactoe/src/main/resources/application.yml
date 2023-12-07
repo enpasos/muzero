@@ -77,6 +77,11 @@ muzero:
       numChannels3: 3
       numBottleneckChannels3: 2
 
+      numResiduals4: 6
+      broadcastEveryN4: 8  # out of range here
+      numChannels4: 256
+      numBottleneckChannels4: 128
+
 
 
       valueLossWeight: 1

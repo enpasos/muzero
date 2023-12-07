@@ -224,6 +224,25 @@ public class MuZeroConfig {
     public int getBroadcastEveryN3() {
         return getConf().broadcastEveryN3;
     }
+
+
+
+    public int getNumChannels4() {
+        return getConf().numChannels4;
+    }
+    public int getNumBottleneckChannels4() {
+        return getConf().numBottleneckChannels4;
+    }
+    public int getNumResiduals4() {
+        return getConf().numResiduals4;
+    }
+    public int getBroadcastEveryN4() {
+        return getConf().broadcastEveryN4;
+    }
+
+
+
+
     public int[] getValues() {
 
         int[] result = new int[getValueSpan() + 1];
@@ -539,6 +558,12 @@ public class MuZeroConfig {
         protected int broadcastEveryN3;
         protected int numBottleneckChannels3;
         protected int numResiduals3;
+
+
+        protected int numChannels4;
+        protected int broadcastEveryN4;
+        protected int numBottleneckChannels4;
+        protected int numResiduals4;
 
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;

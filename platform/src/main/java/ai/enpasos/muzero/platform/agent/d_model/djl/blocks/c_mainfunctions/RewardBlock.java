@@ -18,9 +18,7 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.enpasos.mnist.blocks.ext.*;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ConcatInputsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import org.jetbrains.annotations.NotNull;
@@ -31,19 +29,24 @@ import java.util.Arrays;
 public class RewardBlock extends MySequentialBlock {
 
     public RewardBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannelsReward(),
-                config.getPlayerMode() == PlayerMode.TWO_PLAYERS );
-    }
+        boolean isPlayerModeTWOPLAYERS =
+                config.getPlayerMode() == PlayerMode.TWO_PLAYERS ;
 
-    public RewardBlock(int numChannels, boolean isPlayerModeTWOPLAYERS ) {
 
 
         SequentialBlockExt reward = new SequentialBlockExt();
+
+
         reward.add(new ConcatInputsBlock());
+        reward.add(Conv3x3.builder().channels(config.getNumChannels4()).build());
+        reward.add(new MainRepresentationOrDynamicsBlock(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals4(), config.getNumChannels4(), config.getNumBottleneckChannels4(), config.getBroadcastEveryN4()));
+
+
+
         reward.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock());
         reward.add(LinearExt.builder()
-                        .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                        .setUnits(config.getNumChannelsReward()) // config.getNumChannels())  // originally 256
                         .build())
                 .add(ActivationExt.reluBlock());
         reward.add(LinearExt.builder()
