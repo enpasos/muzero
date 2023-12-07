@@ -41,12 +41,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
+public class InitialInferenceListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx, boolean initialInference) {
         int offset = 0;
         if (!initialInference) {
             int i = 42;
-            offset = 2;
+            offset = 1;
         } else {
             int i = 43;
         }
@@ -80,7 +80,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         // 2: reward
         NDArray r_ = null;
         float[] rArray_ = null;
-        if (!initialInference) {
+     //   if (!initialInference) {
             r_ = list.get(2);
              rArray_ = r_.toFloatArray();
            // int n = (int) r_.getShape().get(0);
@@ -88,14 +88,14 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             // TODO later: consistency value
 
 
-        }
+     //   }
         float[] rArray  = rArray_;
         NDArray r = r_;
 
 
 
         // 2 + offset: policy
-        NDArray logits = list.get(2+ offset);
+        NDArray logits = list.get(3+ offset);
         NDArray p = logits.softmax(1);
         int actionSpaceSize = (int) logits.getShape().get(1);
         float[] logitsArray = logits.toFloatArray();
@@ -104,7 +104,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
 
         // 3 + offset: value
-        NDArray v = list.get(3+ offset);
+        NDArray v = list.get(4+ offset);
         float[] vArray = v.toFloatArray();
         int n = (int) v.getShape().get(0);
 
@@ -163,16 +163,18 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
     }
 
     @Override
-    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Game> gameList) {
+    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull NetworkIO input) {
 
 
-        List<ObservationModelInput> observations = gameList.stream()
-            .map(Game::getObservationModelInput)
-            .collect(Collectors.toList());
+//        List<ObservationModelInput> observations = gameList.stream()
+//            .map(Game::getObservationModelInput)
+//            .collect(Collectors.toList());
 
-        return new NDList(NDArrays.stack(new NDList(
-            observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
-        )));
+        NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
+        NDArray ndArrayObservationStack = NDArrays.stack(new NDList(
+                input.getObservations().stream().map(in -> in.getNDArray(ctx.getNDManager())).collect(Collectors.toList())));
+
+        return new NDList(ndArrayObservationStack, ndArrayActionStack);
     }
 
 

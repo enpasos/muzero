@@ -54,6 +54,7 @@ public class NetworkIO {
 
 
     private List<NDArray> actionList;
+    private List<ObservationModelInput> observations;
 
 
     public double getEntropyFromPolicyValues() {

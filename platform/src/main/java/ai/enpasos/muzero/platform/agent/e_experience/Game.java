@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.common.Functions.b2f;
@@ -173,7 +174,9 @@ public abstract class Game {
         return actionList;
     }
 
-    public abstract List<Action> allActionsInActionSpace();
+    public   List<Action> allActionsInActionSpace() {
+        return IntStream.range(0, config.getActionSpaceSize() + 1).mapToObj(i -> config.newAction(i)).collect(Collectors.toList());
+    }
 
     public void apply(int @NotNull ... actionIndex) {
         Arrays.stream(actionIndex).forEach(
@@ -326,6 +329,9 @@ public abstract class Game {
             reward = this.getGameDTO().getRewards().get(currentIndex - 1);
         } else {
             reward = 0f;
+        }
+        if (reward != 0f) {
+            int i = 42;
         }
         return reward;
     }
@@ -508,5 +514,13 @@ public abstract class Game {
 
     public boolean deepEquals(Game game) {
         return this.getGameDTO().deepEquals(game.getGameDTO());
+    }
+
+    public Action getLastAction() {
+        int a = -1;
+        if (this.getGameDTO().getActions().size() > 0) {
+            a = this.getGameDTO().getActions().get(this.getGameDTO().getActions().size() - 1);
+        }
+        return config.newAction(a);
     }
 }

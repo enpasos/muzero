@@ -64,10 +64,11 @@ public class GoGame extends ZeroSumGame {
 
 
 
-    @Override
-    public List<Action> allActionsInActionSpace() {
-        return IntStream.range(0, config.getActionSpaceSize()).mapToObj(i -> config.newAction(i)).collect(Collectors.toList());
-    }
+//    @Override
+//    public List<Action> allActionsInActionSpace() {
+//        // last action for the null action
+//        return IntStream.range(0, config.getActionSpaceSize()+1).mapToObj(i -> config.newAction(i)).collect(Collectors.toList());
+//    }
 
 
     public void replayToPositionInEnvironment(int stateIndex) {

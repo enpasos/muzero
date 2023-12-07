@@ -110,7 +110,7 @@ public class Network {
         projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
-        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock( representation1Block, representation2Block, predictionBlock, legalActionsBlock), config);
+        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock( representation1Block, representation2Block, predictionBlock, legalActionsBlock,  rewardBlock), config);
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock( dynamicsBlock, representation1Block, representation2Block, predictionBlock, legalActionsBlock, rewardBlock), config);
 
     }
@@ -178,9 +178,21 @@ public class Network {
 
         List<NetworkIO> networkOutputFromInitialInference = null;
 
+        List<Action> lastActions = gameList.stream().map(game -> game.getLastAction()).collect(Collectors.toList());
+        List<NDArray> actionsList = actionsListLocalToDevice(  lastActions);
+
         InitialInferenceListTranslator translator = new InitialInferenceListTranslator();
-        try (Predictor<List<Game>, List<NetworkIO>> djlPredictor = initialInference.newPredictor(translator)) {
-            networkOutputFromInitialInference = djlPredictor.predict(gameList);
+
+
+        NetworkIO predictionInput = new NetworkIO();
+                List<ObservationModelInput> observations = gameList.stream()
+            .map(Game::getObservationModelInput)
+            .collect(Collectors.toList());
+        predictionInput.setObservations(observations);
+        predictionInput.setActionList(actionsList);
+
+        try (Predictor<NetworkIO, List<NetworkIO>> djlPredictor = initialInference.newPredictor(translator)) {
+            networkOutputFromInitialInference = djlPredictor.predict(predictionInput);
 
         } catch (TranslateException e) {
             e.printStackTrace();
@@ -224,9 +236,7 @@ public class Network {
     @Nullable
     public List<NetworkIO> recurrentInference(List<List<Node>> searchPathList) {
         List<Action> lastActions = searchPathList.stream().map(nodes -> nodes.get(nodes.size() - 1).getAction()).collect(Collectors.toList());
-        List<NDArray> actionList = lastActions.stream().map(action ->
-            getActionSpaceOnDevice().get(action.getIndex())
-        ).collect(Collectors.toList());
+        List<NDArray> actionList = actionsListLocalToDevice(lastActions);
 
         List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
             Node parent = searchPath.get(searchPath.size() - 2);
@@ -235,7 +245,18 @@ public class Network {
         return recurrentInferenceListDirect(hiddenStateList, actionList);
     }
 
+    @NotNull
+    public List<NDArray> actionsListLocalToDevice(List<Action> lastActions) {
 
+        List<NDArray> actionList = lastActions.stream().map(action -> {
+                    if(action.getIndex() == -1) {
+                        return getActionSpaceOnDevice().get(getActionSpaceOnDevice().size()-1);
+                    }
+                  return  getActionSpaceOnDevice().get(action.getIndex());
+                }
+        ).collect(Collectors.toList());
+        return actionList;
+    }
 
 
 }

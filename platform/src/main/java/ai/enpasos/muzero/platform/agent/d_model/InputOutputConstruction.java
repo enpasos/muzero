@@ -181,6 +181,10 @@ public class InputOutputConstruction {
 
             //    if (k>0) {
                     log.trace("rewardtarget: {}", target.getReward());
+                    if (target.getReward() > 0f) {
+                        int i = 42;
+                    }
+
                     scale = 2.0 / config.getValueSpan();
                     rewardArray[b] = (float) (target.getReward() * scale);
             //    }

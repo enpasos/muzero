@@ -50,8 +50,8 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
     @Override
     public @NotNull NDList processInput(TranslatorContext ctx, @NotNull NetworkIO input) {
 
-
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
+
 
         NDArray hiddenStateOnTargetDevice = input.getHiddenState();
         if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
