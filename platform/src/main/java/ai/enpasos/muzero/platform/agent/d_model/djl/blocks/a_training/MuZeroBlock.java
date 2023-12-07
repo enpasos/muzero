@@ -127,7 +127,7 @@ public class MuZeroBlock extends AbstractBlock {
         // as the rules do not depend on the policy - only in the other direction
         NDList inputToPolicyLayer = null;
         if (blockGradient) {
-            inputToPolicyLayer = new NDList(rulesState.stopGradient());
+            inputToPolicyLayer = new NDList(rulesState.add(0f).stopGradient());
         } else {
             inputToPolicyLayer = new NDList(rulesState);
         }
@@ -174,7 +174,7 @@ public class MuZeroBlock extends AbstractBlock {
 
             // policy layer
             if (blockGradient) {
-                inputToPolicyLayer = new NDList(rulesState.stopGradient());
+                inputToPolicyLayer = new NDList(rulesState.add(0f).stopGradient());
             } else {
                 inputToPolicyLayer = new NDList(rulesState);
             }
