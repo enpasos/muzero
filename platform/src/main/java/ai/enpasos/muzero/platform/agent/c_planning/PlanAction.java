@@ -40,6 +40,9 @@ public class PlanAction {
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
         double reward = networkOutput.getReward();
+        if (reward != 0f) {
+            int i = 42;
+        }
         root.setValueFromInference(value);
 
 

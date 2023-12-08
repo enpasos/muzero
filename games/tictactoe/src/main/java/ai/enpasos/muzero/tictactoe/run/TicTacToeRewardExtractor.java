@@ -47,11 +47,8 @@ public class TicTacToeRewardExtractor {
     @Autowired
     GameProvider gameProvider;
 
-
-
     @Autowired
     GameBufferIO replayBufferIO;
-
 
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {

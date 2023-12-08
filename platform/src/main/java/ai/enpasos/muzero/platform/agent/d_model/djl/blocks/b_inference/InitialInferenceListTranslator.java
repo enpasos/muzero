@@ -94,7 +94,7 @@ public class InitialInferenceListTranslator implements Translator<NetworkIO, Lis
 
 
 
-        // 2 + offset: policy
+        // 3 + offset: policy
         NDArray logits = list.get(3+ offset);
         NDArray p = logits.softmax(1);
         int actionSpaceSize = (int) logits.getShape().get(1);
@@ -128,10 +128,8 @@ public class InitialInferenceListTranslator implements Translator<NetworkIO, Lis
                 }
                 double scale = config.getValueSpan() / 2.0;
 
-                double reward = 0d;
-                if (!initialInference) {
-                    reward = scale * rArray[i];
-                }
+                double reward = scale * rArray[i];
+
 
                 return NetworkIO.builder()
                     .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
