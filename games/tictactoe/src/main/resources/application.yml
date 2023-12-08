@@ -86,6 +86,7 @@ muzero:
 
       valueLossWeight: 1
       consistencyLossWeight: 2
+      legalActionsLossWeight: 0.1  # about 1/actionSpaceSize
 
       numberOfTrainingSteps: 100000
 

@@ -55,15 +55,7 @@ public class PredictionBlock extends MySequentialBlock {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
-//        SequentialBlockExt legalActionsHead = null;
-//        if (withLegalActionsHead) {
-//            legalActionsHead = new SequentialBlockExt();
-//            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
-//                    .add(BlocksExt.batchFlattenBlock());
-//            legalActionsHead.add(LinearExt.builder()
-//                    .setUnits(actionSpaceSize).build());
-//
-//        }
+
 
         SequentialBlockExt policyHead = new SequentialBlockExt();
         policyHead
@@ -73,13 +65,6 @@ public class PredictionBlock extends MySequentialBlock {
                 .setUnits(actionSpaceSize)
                 .build());
 
-
-
-
-//        add(new ParallelBlockWithCollectChannelJoinExt(
-//                withLegalActionsHead ?
-//                        Arrays.asList(policyHead, valueHead, legalActionsHead) : Arrays.asList(policyHead, valueHead))
-//        );
 
 
         add(new ParallelBlockWithCollectChannelJoinExt(

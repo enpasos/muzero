@@ -44,12 +44,12 @@ import java.util.stream.IntStream;
 public class InitialInferenceListTranslator implements Translator<NetworkIO, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx, boolean initialInference) {
         int offset = 0;
-        if (!initialInference) {
-            int i = 42;
-            offset = 1;
-        } else {
-            int i = 43;
-        }
+//        if (!initialInference) {
+//            int i = 42;
+//            offset = 1;
+//        } else {
+//            int i = 43;
+//        }
 
 
         // 0: hiddenState

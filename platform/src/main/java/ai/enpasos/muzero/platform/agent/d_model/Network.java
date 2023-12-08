@@ -59,6 +59,7 @@ public class Network {
     Model model;
     private SubModel representation1;
     private SubModel representation2;
+    private SubModel representation3;
     private SubModel prediction;
     private SubModel dynamics;
     private SubModel reward;
@@ -97,21 +98,23 @@ public class Network {
         RewardBlock rewardBlock = (RewardBlock) model.getBlock().getChildren().get("03Reward");
         LegalActionsBlock legalActionsBlock = (LegalActionsBlock) model.getBlock().getChildren().get("04LegalActions");
         Representation2Block representation2Block = (Representation2Block) model.getBlock().getChildren().get("05Representation2");
-        PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("06Prediction");
-        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("07Projector");
-        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("08Predictor");
+        Representation3Block representation3Block = (Representation3Block) model.getBlock().getChildren().get("06Representation3");
+        PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("07Prediction");
+        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("08Projector");
+        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("09Predictor");
 
         representation1 = new SubModel("representation1", model, representation1Block, config);
         dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
         reward = new SubModel("reward", model, rewardBlock, config);
         legalActions = new SubModel("legalActions", model, legalActionsBlock, config);
         representation2 = new SubModel("representation2", model, representation2Block, config);
+        representation3 = new SubModel("representation3", model, representation3Block, config);
         prediction = new SubModel("prediction", model, predictionBlock, config);
         projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
-        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock( representation1Block, representation2Block, predictionBlock, legalActionsBlock,  rewardBlock), config);
-        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock( dynamicsBlock, representation1Block, representation2Block, predictionBlock, legalActionsBlock, rewardBlock), config);
+        initialInference = new SubModel("initialInference", model, new InitialInferenceBlock( representation1Block, representation2Block, representation3Block, predictionBlock, legalActionsBlock,  rewardBlock), config);
+        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock( dynamicsBlock,  representation2Block, representation3Block, predictionBlock, legalActionsBlock, rewardBlock), config);
 
     }
 

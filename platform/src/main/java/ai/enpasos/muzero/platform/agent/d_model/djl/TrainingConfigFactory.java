@@ -41,7 +41,9 @@ public class TrainingConfigFactory {
         listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
 
-        config.getValueSpan();
+
+
+
 
         float gradientScale = 1f / config.getNumUnrollSteps();
 
@@ -49,12 +51,12 @@ public class TrainingConfigFactory {
 
         //  legal actions
         log.trace("k={}: LegalActions BCELoss", k);
-        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f, 1), k));
+        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, this.config.getLegalActionsLossWeight(), 1), k));
         k++;
 
         // reward
         log.trace("k={}: Reward L2Loss", k);
-        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + 0, config.getValueLossWeight() * gradientScale), k));
+        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + 0, config.getValueLossWeight() ), k));
         k++;
 
         // policy
@@ -73,7 +75,7 @@ public class TrainingConfigFactory {
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
             // legal actions
             log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i,   gradientScale, 1), k));
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, this.config.getLegalActionsLossWeight() * gradientScale, 1), k));
             k++;
 
             // reward

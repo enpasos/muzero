@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock.newDynamicsBlock;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.Representation1Block.newRepresentation1Block;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.Representation2Block.newRepresentation2Block;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.Representation3Block.newRepresentation3Block;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
@@ -46,6 +47,7 @@ public class MuZeroBlock extends AbstractBlock {
 
     private final RewardBlock rewardBlock;
     private final Representation2Block representation2Block;
+    private final Representation3Block representation3Block;
     private final LegalActionsBlock legalActionsBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
@@ -65,6 +67,7 @@ public class MuZeroBlock extends AbstractBlock {
         legalActionsBlock = this.addChildBlock("LegalActions", new LegalActionsBlock(config));
 
         representation2Block = this.addChildBlock("Representation2", newRepresentation2Block(config));
+        representation3Block = this.addChildBlock("Representation3", newRepresentation3Block(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
 
         similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
@@ -111,15 +114,19 @@ public class MuZeroBlock extends AbstractBlock {
         NDList representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(1)), training, params);
         NDArray rulesState = representation1Result.get(0);
 
-        NDList predictionLegalActionsResult = legalActionsBlock.forward(parameterStore, representation1Result, training, params);
+
+
+        NDArray action = inputs.get(0);  // the action before coming here
+        NDList representation3State = representation3Block.forward(parameterStore, new NDList(rulesState, action), training, params);
+
+        // rules layer - legal actions
+        NDList predictionLegalActionsResult = legalActionsBlock.forward(parameterStore, representation3State, training, params);
         combinedResult.add(predictionLegalActionsResult.get(0));
 
-
         // rules layer - reward
-        NDArray action = inputs.get(0);  // the action before coming here
-        NDList rewardIn = new NDList(rulesState, action);  // here it is the rulesState after dynamicsBlock
-        NDList rewardOut = rewardBlock.forward(parameterStore, rewardIn, training, params);
+        NDList rewardOut = rewardBlock.forward(parameterStore, representation3State, training, params);
         combinedResult.add(rewardOut.get(0));
+
 
 
         // policy layer
@@ -151,14 +158,17 @@ public class MuZeroBlock extends AbstractBlock {
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
             rulesState = dynamicsResult.get(0);
 
+
+
+             action = inputs.get(0);  // the action before coming here
+             representation3State = representation3Block.forward(parameterStore, new NDList(rulesState, action), training, params);
+
             // rules layer - legal actions
-            predictionLegalActionsResult = legalActionsBlock.forward(parameterStore, representation1Result, training, params);
+             predictionLegalActionsResult = legalActionsBlock.forward(parameterStore, representation3State, training, params);
             combinedResult.add(predictionLegalActionsResult.get(0));
 
-
             // rules layer - reward
-            rewardIn = new NDList(rulesState, action);  // here it is the rulesState after dynamicsBlock
-            rewardOut = rewardBlock.forward(parameterStore, rewardIn, training, params);
+             rewardOut = rewardBlock.forward(parameterStore, representation3State, training, params);
             combinedResult.add(rewardOut.get(0));
 
 
@@ -199,50 +209,40 @@ public class MuZeroBlock extends AbstractBlock {
         // added predictions shapes to outputShapes in the following order:
         // initial inference
         // - rules layer: legal actions
+        // - rules layer: reward
         // - policy layer:  policy
         // - policy layer:  value
         // each recurrent inference
         // - rules layer: legal actions
         // - rules layer: reward
-        // - rules layer: consistency loss
+        //  #### no output - rules layer: consistency loss
         // - policy layer:  policy
         // - policy layer:  value
 
         // initial Inference
         Shape[] state1OutputShapes = representation1Block.getOutputShapes(new Shape[]{inputShapes[0]});
-        outputShapes = ArrayUtils.addAll(outputShapes, legalActionsBlock.getOutputShapes(state1OutputShapes));
+     //   outputShapes = ArrayUtils.addAll(outputShapes, legalActionsBlock.getOutputShapes(state1OutputShapes));
+
+
+        Shape state1Shape = state1OutputShapes[0];
+        Shape actionShape = inputShapes[1];
+        Shape[] state1PlusActionShape = new Shape[]{state1Shape, actionShape};
+        Shape[] state3OutputShapes = representation3Block.getOutputShapes(state1PlusActionShape);
+        Shape[] legalActionsOutputShapes = legalActionsBlock.getOutputShapes(state3OutputShapes);
+        Shape[] rewardOutputShapes = rewardBlock.getOutputShapes(state3OutputShapes);
+
+
+
         Shape[] state2OutputShapes = representation2Block.getOutputShapes(state1OutputShapes);
-        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(state2OutputShapes));
+        Shape[] predictionOutputShapes = predictionBlock.getOutputShapes(state2OutputShapes);
 
-
-        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-            // recurrent Inference
-            outputShapes = ArrayUtils.addAll(outputShapes, legalActionsBlock.getOutputShapes(state1OutputShapes));
-            Shape state1Shape = state1OutputShapes[0];
-
-            Shape actionShape = inputShapes[k];
-            long[] shapeArray = state1Shape.getShape();
-            shapeArray[1] += actionShape.get(1);
-            Shape dynamicsInputShape = new Shape(shapeArray);
-            Shape[] state3Shapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
-
-
-            outputShapes = ArrayUtils.addAll(outputShapes, legalActionsBlock.getOutputShapes(state3Shapes));
-
-
-            shapeArray = state3Shapes[0].getShape();
-            shapeArray[1] += actionShape.get(1);
-            Shape rewardInputShape = new Shape(shapeArray);
-            outputShapes = ArrayUtils.addAll(outputShapes, rewardBlock.getOutputShapes(new Shape[]{rewardInputShape}));
-
-
-            // rules layer - consistency loss - no output shape
-
-
-            state2OutputShapes = representation2Block.getOutputShapes(state1OutputShapes);
-            outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(state2OutputShapes));
-
+        for (int k = 0; k <= config.getNumUnrollSteps(); k++) {
+            outputShapes = ArrayUtils.addAll(outputShapes, legalActionsOutputShapes);
+            outputShapes = ArrayUtils.addAll(outputShapes, rewardOutputShapes);
+            outputShapes = ArrayUtils.addAll(outputShapes, predictionOutputShapes);
         }
+
+
         return outputShapes;
     }
 
@@ -266,7 +266,16 @@ public class MuZeroBlock extends AbstractBlock {
 
 
         Shape[] state1OutputShapes = representation1Block.getOutputShapes(new Shape[]{inputShapes[0]});
-        legalActionsBlock.initialize(manager, dataType, state1OutputShapes[0]);
+
+        Shape state1Shape = state1OutputShapes[0];
+        Shape actionShape = inputShapes[1];
+
+        representation3Block.initialize(manager, dataType, state1Shape, actionShape);
+
+        Shape[] state3OutputShapes = representation3Block.getOutputShapes(new Shape[]{state1Shape, actionShape});
+
+        legalActionsBlock.initialize(manager, dataType, state3OutputShapes[0]);
+        rewardBlock.initialize(manager, dataType, state3OutputShapes[0]);
 
 
         representation2Block.initialize(manager, dataType,  state1OutputShapes[0]);
@@ -278,11 +287,10 @@ public class MuZeroBlock extends AbstractBlock {
         Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{state1OutputShapes[0]});
         similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
-        Shape state1Shape = state1OutputShapes[0];
-        Shape actionShape = inputShapes[1];
+
         dynamicsBlock.initialize(manager, dataType, state1Shape, actionShape);
 
-        rewardBlock.initialize(manager, dataType, state1Shape, actionShape);
+
     }
 
 

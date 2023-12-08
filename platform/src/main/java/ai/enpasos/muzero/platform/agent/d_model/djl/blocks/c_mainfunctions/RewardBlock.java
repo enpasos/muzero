@@ -37,10 +37,6 @@ public class RewardBlock extends MySequentialBlock {
         SequentialBlockExt reward = new SequentialBlockExt();
 
 
-        reward.add(new ConcatInputsBlock());
-        reward.add(Conv3x3.builder().channels(config.getNumChannels4()).build());
-        reward.add(new MainRepresentationOrDynamicsBlock(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals4(), config.getNumChannels4(), config.getNumBottleneckChannels4(), config.getBroadcastEveryN4()));
-
 
 
         reward.add(Conv1x1LayerNormRelu.builder().channels(1).build())
