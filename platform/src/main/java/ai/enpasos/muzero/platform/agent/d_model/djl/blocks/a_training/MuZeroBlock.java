@@ -108,13 +108,8 @@ public class MuZeroBlock extends AbstractBlock {
 
         // rules layer
 
-
-
-
         NDList representation1Result = representation1Block.forward(parameterStore, new NDList(inputs.get(1)), training, params);
         NDArray rulesState = representation1Result.get(0);
-
-
 
         NDArray action = inputs.get(0);  // the action before coming here
         NDList representation3State = representation3Block.forward(parameterStore, new NDList(rulesState, action), training, params);
@@ -148,11 +143,15 @@ public class MuZeroBlock extends AbstractBlock {
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
-
             // <<< recurrent Inference k
 
             // rules layer
             action = inputs.get(2 * k );
+
+
+//            double scale =  100;  //   100 MuN1
+//            rulesState = rulesState.scaleGradient(scale);
+
             NDList dynamicIn = new NDList(rulesState, action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
@@ -196,6 +195,7 @@ public class MuZeroBlock extends AbstractBlock {
 
 
             // recurrent Inference k >>>
+
 
             rulesState = rulesState.scaleGradient(0.5);
 
