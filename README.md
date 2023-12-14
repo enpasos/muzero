@@ -34,8 +34,10 @@ You can find out the inference time while running MuZero on your edge device:
 
 ### Prerequisites
 
+Install [Java JDK 21](https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html).
+
 We are using PyTorch 2.1.1.
-You may need to install CUDA 12.1 and cuDNN 8.2.1.
+You need to have [CUDA 12.1](https://developer.nvidia.com/cuda-12-1-1-download-archive) and [cuDNN 8.2.1](https://developer.nvidia.com/rdp/cudnn-download) installed.
 
 ### Build everything
 

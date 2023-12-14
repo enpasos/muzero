@@ -1,4 +1,4 @@
-import com.google.protobuf.gradle.*
+
 
 plugins {
     id("com.enpasos.muzero.java-conventions")
@@ -32,12 +32,10 @@ description = "onnxModelGen"
 
 group = "${group}.onnx"
 
-// protobuf protoc with artifact from catalog
-
 
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.21.8"
+        artifact = "com.google.protobuf:protoc:3.25.1"
     }
 }
