@@ -311,7 +311,6 @@ public class GumbelSearch {
 
     public void backpropagate(NetworkIO networkOutput,  double discount) {
         double value = networkOutput.getValue();
-        double entropyValue = networkOutput.getEntropyValue();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -328,7 +327,6 @@ public class GumbelSearch {
 
             if (start) {
                 node.setValueFromInference(value);
-                node.setEntropyValueFromInference(entropyValue);
                 node.setImprovedValue(node.getValueFromInference());
                 node.setImprovedEntropyValue(node.getEntropyValueFromInference());
 
@@ -344,12 +342,10 @@ public class GumbelSearch {
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
-            entropyValue = node.getEntropyReward() + discount * entropyValue;
+
 
             node.setQValueSum(node.getQValueSum() + value);
-            node.setEntropyQValueSum(node.getEntropyQValueSum() + entropyValue);
 
-            minMaxStatsEntropyQValues.update(entropyValue);
             minMaxStatsQValues.update(value);
         }
     }

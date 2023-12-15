@@ -137,19 +137,10 @@ public class MuZeroConfig {
         return getConf().playerMode;
     }
 
-
-    public boolean isNetworkWithRewardHead() {
-        return getConf().networkWithRewardHead;
-    }
-
-
     public boolean offPolicyCorrectionOn() {
         return getConf().offPolicyCorrectionOn;
     }
 
-    public boolean withLegalActionsHead() {
-        return getConf().withLegalActionsHead;
-    }
 
     public boolean allOrNothingOn() {
         return getConf().allOrNothingOn;
@@ -190,6 +181,8 @@ public class MuZeroConfig {
     public int getNumResiduals() {
         return getConf().numResiduals;
     }
+
+
 
 
     public int[] getValues() {
@@ -248,7 +241,9 @@ public class MuZeroConfig {
         return getConf().consistencyLossWeight;
     }
 
-
+    public float getLegalActionsLossWeight() {
+        return getConf().legalActionsLossWeight;
+    }
 
 
 
@@ -514,6 +509,7 @@ public class MuZeroConfig {
         protected float weightDecay;
         protected float valueLossWeight = 1f;
         protected float consistencyLossWeight = 1f;
+        protected float legalActionsLossWeight = 1f;
         protected float lrInit;
         protected int size;
         protected int maxMoves;
@@ -530,7 +526,6 @@ public class MuZeroConfig {
 
         protected PlayTypeKey playTypeKey;
         protected int initialGumbelM;
-
         protected int cVisit;
         protected double cScale;
         protected int numPurePolicyPlays;
@@ -541,8 +536,6 @@ public class MuZeroConfig {
 
         protected boolean allOrNothingOn;
 
-
-        protected boolean withLegalActionsHead;
         protected double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {

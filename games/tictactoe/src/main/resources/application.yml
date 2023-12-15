@@ -20,7 +20,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
@@ -69,6 +68,7 @@ muzero:
 
       valueLossWeight: 1
       consistencyLossWeight: 2
+      legalActionsLossWeight: 0.1  # about 1/actionSpaceSize
 
       numberOfTrainingSteps: 50000
 
@@ -85,10 +85,6 @@ muzero:
       offPolicyRatioLimit: 1.0
 
       numParallelInferences: 1000
-
-      withLegalActionsHead: false
-
-
 
 
       playTypes:

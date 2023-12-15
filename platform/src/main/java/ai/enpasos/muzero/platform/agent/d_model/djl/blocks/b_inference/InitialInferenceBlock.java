@@ -32,6 +32,7 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,9 +80,10 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        h.initialize(manager, dataType, inputShapes);
-        Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
-        f.initialize(manager, dataType, hOutputShapes);
+        throw new MuZeroException("implemented in MuZeroBlock");
+//        h.initialize(manager, dataType, inputShapes);
+//        Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
+//        f.initialize(manager, dataType, hOutputShapes);
     }
 
 

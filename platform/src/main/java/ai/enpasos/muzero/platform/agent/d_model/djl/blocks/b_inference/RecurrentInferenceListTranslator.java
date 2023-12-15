@@ -43,7 +43,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
-        return getNetworkIOS(list, ctx);
+        return getNetworkIOS(list, ctx, true);
     }
 
 

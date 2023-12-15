@@ -26,7 +26,6 @@ import java.util.stream.IntStream;
  */
 public final class MyEasyTrain {
 
-    private static boolean withLegalActionHead;
 
     private MyEasyTrain() {
     }
@@ -54,7 +53,7 @@ public final class MyEasyTrain {
 
                 // During trainBatch, we update the loss and evaluators with the results for the
                 // training batch
-                trainBatch(trainer, batch, withEntropyValuePrediction, withLegalActionHead);
+                trainBatch(trainer, batch);
 
                 // Now, we update the model parameters based on the results of the latest trainBatch
                 trainer.step();
@@ -74,7 +73,6 @@ public final class MyEasyTrain {
         }
     }
 
-    static boolean withEntropyValuePrediction;
 
     /**
      * Trains the model with one iteration of the given {@link Batch} of data.
@@ -83,10 +81,9 @@ public final class MyEasyTrain {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static void trainBatch(Trainer trainer, Batch batch, boolean withEntropyValuePrediction, boolean withLegalActionHead) {
+    public static void trainBatch(Trainer trainer, Batch batch ) {
 
-        MyEasyTrain.withEntropyValuePrediction =  withEntropyValuePrediction;
-        MyEasyTrain.withLegalActionHead =  withLegalActionHead;
+
         if (trainer.getManager().getEngine() != batch.getManager().getEngine()) {
             throw new IllegalArgumentException(
                 "The data must be on the same engine as the trainer. You may need to change one"
@@ -124,9 +121,14 @@ public final class MyEasyTrain {
         NDList data = split.getData();
         NDList labels = split.getLabels();
         NDList preds = trainer.forward(data, labels);
-        Pair<NDList, NDList> predsNLabels = reorganizePredictionsAndLabels(Pair.of(preds, labels));
-        preds = predsNLabels.getLeft();
-        labels = predsNLabels.getRight();
+
+
+
+        reorganizePredictionsAndLabels( preds, labels );
+
+
+
+
         long time = System.nanoTime();
         NDArray lossValue = trainer.getLoss().evaluate(labels, preds);
         collector.backward(lossValue);
@@ -138,29 +140,59 @@ public final class MyEasyTrain {
         return true;
     }
 
-    private static Pair<NDList, NDList> reorganizePredictionsAndLabels(Pair<NDList, NDList> input) {
+    private static void reorganizePredictionsAndLabels( NDList preds, NDList labels ) {
 
-        int numRolloutSteps = 5;
+        // original labels have the following structure
+        // Targets:
+        // - initial inference (3)
+        //  - legal actions
+        //  - policy
+        //  - value
+        // - recurrent inference  (numUnrollSteps times 4)
+        //  - reward
+        //  - legal actions
+        //  - policy
+        //  - value
+        //
+        int numRolloutSteps = 5;   // TODO make configurable
+        if (labels.size() != 3 + 4 * (numRolloutSteps)) {
+            throw new MuZeroException("unexpected number of labels");
+        }
+
+        // original predictions have the following structure
+        // Targets:
+        // - initial inference (3)
+        //  - legal actions
+        //  - policy
+        //  - value
+        // - recurrent inference  (numUnrollSteps times 6)
+        //  - consistency:similarityPredictorResult
+        //  - consistency:similarityProjectorResultLabel;
+        //  - reward
+        //  - legal actions
+        //  - policy
+        //  - value
+        if (preds.size() != 3 + 6 * (numRolloutSteps)) {
+            throw new MuZeroException("unexpected number of predictions");
+        }
 
 
 
-        IntStream.range(0, numRolloutSteps).forEach(i -> {
-                    int extra = withEntropyValuePrediction ? 1 : 0;
-                    int extra2 = withLegalActionHead ? 1 : 0;
-                    input.getRight().add(4 +   2 * (extra + extra2 ) + (3 + extra + extra2) * i,
-                            input.getLeft().get(5 +   2 * (extra + extra2 ) + (4 + extra+ extra2) * i));
+        // move consistency:similarityPredictorResult from predictions to labels
 
-                }
+
+        int a = 3;
+    //    int offset = 2;
+        int b = 5;
+
+        IntStream.range(0, numRolloutSteps).forEach(i ->
+                labels.add(a +  b * i, preds.get(a +  1 + (b + 1) * i))
         );
-        IntStream.range(0, numRolloutSteps).forEach(i -> {
-                    int extra = withEntropyValuePrediction ? 1 : 0;
-                    int extra2 = withLegalActionHead ? 1 : 0;
-                    input.getLeft().remove(5 + 2 * (extra + extra2) + (3 + extra + extra2) * i);
-                }
+        IntStream.range(0, numRolloutSteps).forEach(i ->
+                preds.remove(a + 1 + b * i)
         );
 
 
-        return input;
     }
 
     /**

@@ -32,11 +32,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialIn
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceListTranslator;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceListTranslator;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -63,6 +59,7 @@ public class Network {
     Model model;
     private SubModel representation;
     private SubModel prediction;
+    private SubModel reward;
     private SubModel dynamics;
 
     private SubModel initialInference;
@@ -95,18 +92,20 @@ public class Network {
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
-        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
-        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("04Projector");
-        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("05Predictor");
+        RewardBlock rewardBlock = (RewardBlock) model.getBlock().getChildren().get("03Reward");
+        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("04Dynamics");
+        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("05Projector");
+        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("06Predictor");
 
         representation = new SubModel("representation", model, representationBlock, config);
         prediction = new SubModel("prediction", model, predictionBlock, config);
+        reward = new SubModel("reward", model, rewardBlock, config);
         dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
         projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
-        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
+        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock, rewardBlock), config);
 
     }
 

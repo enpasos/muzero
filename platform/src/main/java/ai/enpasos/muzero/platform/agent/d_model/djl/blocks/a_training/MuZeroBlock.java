@@ -26,11 +26,7 @@ import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.lang3.ArrayUtils;
@@ -45,6 +41,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class MuZeroBlock extends AbstractBlock {
 
+    private final RewardBlock rewardBlock;
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
@@ -60,6 +57,7 @@ public class MuZeroBlock extends AbstractBlock {
 
         representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
+        rewardBlock = this.addChildBlock("Reward", new RewardBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
         similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
@@ -79,6 +77,18 @@ public class MuZeroBlock extends AbstractBlock {
     @Override
     protected @NotNull NDList forwardInternal(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList combinedResult = new NDList();
+
+        // added predictions to the combinedResult in the following order:
+        // initial inference
+        // - rules layer: legal actions
+        // - policy layer:  policy
+        // - value layer:  value
+        // each recurrent inference
+        // - rules layer: consistency loss
+        // - rules layer: reward
+        // - rules layer: legal actions
+        // - policy layer:  policy
+        // - value layer:  value
 
         // initial Inference
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
@@ -101,6 +111,10 @@ public class MuZeroBlock extends AbstractBlock {
             state = dynamicsResult.get(0);
 
 
+
+
+
+
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
             NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(state), training, params);
@@ -111,11 +125,16 @@ public class MuZeroBlock extends AbstractBlock {
             NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
+            combinedResult.add(similarityPredictorResult);
+            combinedResult.add(similarityProjectorResultLabel);
+
+            // rules layer - reward
+            NDList rewardOut = rewardBlock.forward(parameterStore, dynamicsResult, training, params);
+            combinedResult.add(rewardOut.get(0));
+
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
             }
-            combinedResult.add(similarityPredictorResult);
-            combinedResult.add(similarityProjectorResultLabel);
 
             state = state.scaleGradient(0.5);
 
@@ -129,7 +148,8 @@ public class MuZeroBlock extends AbstractBlock {
 
         // initial Inference
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
-        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapes));
+        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapes);
+        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlockOutputShapes);
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
             // recurrent Inference
@@ -144,6 +164,8 @@ public class MuZeroBlock extends AbstractBlock {
                 throw new MuZeroException("wrong input shape");
             }
             stateOutputShapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
+
+            outputShapes = ArrayUtils.addAll(outputShapes, rewardBlock.getOutputShapes(stateOutputShapes));
             outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapes));
 
         }
@@ -175,6 +197,7 @@ public class MuZeroBlock extends AbstractBlock {
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
         predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);
+        rewardBlock.initialize(manager, dataType, stateOutputShapes[0]);
 
         Shape stateShape = stateOutputShapes[0];
         Shape actionShape = inputShapes[1];
