@@ -41,7 +41,8 @@ public class TrainingConfigFactory {
         listener.setEpoch(epoch);
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
 
-
+// for testing
+        float factor = 0f;
 
 
 
@@ -78,7 +79,7 @@ public class TrainingConfigFactory {
 
             // reward
             log.trace("k={}: Reward L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, factor * config.getValueLossWeight() * gradientScale), k));
             k++;
 
 
