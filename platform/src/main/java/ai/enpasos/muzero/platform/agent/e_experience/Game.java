@@ -215,6 +215,19 @@ public abstract class Game {
         return targets;
     }
 
+
+    private float getReward(int currentIndex) {
+        // perspective is missing
+        float reward;
+        if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
+            reward = this.getGameDTO().getRewards().get(currentIndex - 1);
+        } else {
+            reward = 0f;
+        }
+        return reward;
+    }
+
+
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target ) {
 
@@ -222,13 +235,11 @@ public abstract class Game {
         double value = calculateValue(tdSteps, currentIndex);
         // for testing
 
-        double nextValue = calculateValue(tdSteps, currentIndex + 1);
+       // double nextValue = calculateValue(tdSteps, currentIndex + 1);
 
 
-        // TODO: separate reward later take perspective into account
-       //  float reward = getReward(currentIndex);
-        float reward = 0;
 
+        float reward = getReward(currentIndex);
 
 
         if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
@@ -238,36 +249,38 @@ public abstract class Game {
             target.setValue((float) value);
             target.setReward(reward);
             target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-        } else if ( currentIndex == this.getGameDTO().getPolicyTargets().size()) {
-            // If we do not train the reward (as only boardgames are treated here)
-            // the value has to take the role of the reward on this node (needed in MCTS)
-            // if we were running the network with reward head
-            // the value would be 0 here
-            // but as we do not get the expected reward from the network
-            // we need use this node to keep the reward value
-            // therefore target.value is not 0f
-            // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
+  //      }
 
-                target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
-
-            target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
-         //   target.setReward(reward);
-// TODO: this is a hack to make the reward work initially
-            // here we are on the timestep after the final action
-            // so we are training the reward here for the final action which has been done
-            target.setReward((float) nextValue);
-            target.setPolicy(new float[this.actionSpaceSize]);
-            // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
+//        else if ( currentIndex == this.getGameDTO().getPolicyTargets().size() - 1 ) {
+//            // If we do not train the reward (as only boardgames are treated here)
+//            // the value has to take the role of the reward on this node (needed in MCTS)
+//            // if we were running the network with reward head
+//            // the value would be 0 here
+//            // but as we do not get the expected reward from the network
+//            // we need use this node to keep the reward value
+//            // therefore target.value is not 0f
+//            // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
+//
+//                target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
+//
+//            target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
+//         //   target.setReward(reward);
+//// TODO: this is a hack to make the reward work initially - can be changed easily if everything works for the simple case of one final reward
+//            // here we are on the timestep after the final action
+//            // so we are training the reward here for the final action which has been done
+//            target.setReward(-(float) nextValue);
+//            target.setPolicy(new float[this.actionSpaceSize]);
+//            // the idea is not to put any force on the network to learn a particular action where it is not necessary
+//            Arrays.fill(target.getPolicy(), 0f);
         } else {
 
-            target.setValue((float) value);
+            target.setValue(0f);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
             float[]legalActions = new float[this.actionSpaceSize];
-            Arrays.fill(legalActions, 1f);
+            Arrays.fill(legalActions, 0f);
             target.setLegalActions(legalActions);
         }
 
@@ -330,16 +343,7 @@ public abstract class Game {
         throw new MuZeroNoSampleMatch();
     }
 
-    private float getReward(int currentIndex) {
-        // perspective is missing
-        float reward;
-        if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
-            reward = this.getGameDTO().getRewards().get(currentIndex - 1);
-        } else {
-            reward = 0f;
-        }
-        return reward;
-    }
+
 
     private double calculateValue(int tdSteps, int currentIndex) {
         double value = getBootstrapValue(currentIndex, tdSteps);
@@ -349,29 +353,8 @@ public abstract class Game {
 
 
 
-//    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
-//        int bootstrapIndex = currentIndex + tdSteps;
-//        double value = 0;
-//        if (gameDTO.isHybrid() || isReanalyse()) {
-//            if (bootstrapIndex < this.getGameDTO().getRootEntropyValuesFromInitialInference().size()) {
-//                value = this.getGameDTO().getRootEntropyValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-//            }
-//        } else {
-//            if (bootstrapIndex < this.getGameDTO().getRootEntropyValueTargets().size()) {
-//                value = this.getGameDTO().getRootEntropyValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-//            }
-//        }
-//        return value;
-//    }
 
-    // TODO there should be a special discount parameter
-    private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        for (int i = currentIndex + 1; i < this.getGameDTO().getEntropies().size() && i < bootstrapIndex; i++) {
-            value += (double) this.getGameDTO().getEntropies().get(i) * Math.pow(this.discount, i - (double) currentIndex);
-        }
-        return value;
-    }
+
 
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
