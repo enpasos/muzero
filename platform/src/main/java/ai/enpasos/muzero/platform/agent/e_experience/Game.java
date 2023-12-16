@@ -220,6 +220,9 @@ public abstract class Game {
 
         int tdSteps = getTdSteps(currentIndex);
         double value = calculateValue(tdSteps, currentIndex);
+        // for testing
+
+        double nextValue = calculateValue(tdSteps, currentIndex + 1);
 
 
         // TODO: separate reward later take perspective into account
@@ -252,7 +255,7 @@ public abstract class Game {
 // TODO: this is a hack to make the reward work initially
             // here we are on the timestep after the final action
             // so we are training the reward here for the final action which has been done
-            target.setReward((float) value);
+            target.setReward((float) nextValue);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
