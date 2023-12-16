@@ -32,6 +32,9 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeTestAllNetworks testAllNetworks;
 
     @Autowired
+    private TicTacToeRewardExtractor rewardExtractor;
+
+    @Autowired
     private MuZeroConfig conf;
     @Autowired
     private TicTacToeLossExtractor goLossExtractor;
@@ -43,8 +46,6 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeValueExtractor valueExtractor;
 
-    @Autowired
-    private TicTacToeEntropyValueExtractor entropyValueExtractor;
 
     @Autowired
     private TicTacToeFindNetworksDoingABadMove badAction;
@@ -99,11 +100,11 @@ public class TicTacToe implements CommandLineRunner {
                 break;
             case RENDER:
                 throw new MuZeroException("RENDER not implemented yet.");
+            case REWARD:
+                rewardExtractor.run();
+                break;
             case VALUE:
                 valueExtractor.run();
-                break;
-            case ENTROPYVALUE:
-                entropyValueExtractor.run();
                 break;
             case ENTROPY:
                 entropyExtractor.run(false);

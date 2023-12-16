@@ -43,7 +43,7 @@ public class GumbelSearch {
     Action selectedAction;
     MinMaxStats minMaxStatsQValues;
 
-    MinMaxStats minMaxStatsEntropyQValues;
+   // MinMaxStats minMaxStatsEntropyQValues;
     MuZeroConfig config;
     boolean debug;
     double pRandomActionRawAverage;
@@ -58,7 +58,7 @@ public class GumbelSearch {
         this.game = game;
         this.minMaxStatsQValues = new MinMaxStats(config.getKnownBounds());
 
-        this.minMaxStatsEntropyQValues = new MinMaxStats(config.getKnownBoundsEntropyQValues());
+     //   this.minMaxStatsEntropyQValues = new MinMaxStats(config.getKnownBoundsEntropyQValues());
 
         int n = config.getNumSimulations(game);
         int m = config.getInitialGumbelM();
@@ -72,7 +72,7 @@ public class GumbelSearch {
         IntStream.range(0, this.sequentialHalfingInfo.getPhaseNum()).forEach(i -> rootChildrenCandidates.put(i, new ArrayList<>()));
     }
 
-    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
+    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
 
         game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
 //        try {
@@ -80,7 +80,7 @@ public class GumbelSearch {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
+//        game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
@@ -311,6 +311,7 @@ public class GumbelSearch {
 
     public void backpropagate(NetworkIO networkOutput,  double discount) {
         double value = networkOutput.getValue();
+     //  double entropyValue = networkOutput.getEntropyValue();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -327,6 +328,7 @@ public class GumbelSearch {
 
             if (start) {
                 node.setValueFromInference(value);
+            //    node.setEntropyValueFromInference(entropyValue);
                 node.setImprovedValue(node.getValueFromInference());
                 node.setImprovedEntropyValue(node.getEntropyValueFromInference());
 
@@ -342,16 +344,18 @@ public class GumbelSearch {
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
-
+           // entropyValue = node.getEntropyReward() + discount * entropyValue;
 
             node.setQValueSum(node.getQValueSum() + value);
+         //   node.setEntropyQValueSum(node.getEntropyQValueSum() + entropyValue);
 
+            //minMaxStatsEntropyQValues.update(entropyValue);
             minMaxStatsQValues.update(value);
         }
     }
 
     public void storeSearchStatictics(  boolean fastRuleLearning) {
-        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues, minMaxStatsEntropyQValues);
+        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues);
     }
 
     public Action selectAction( boolean fastRuleLearning, boolean replay ) {

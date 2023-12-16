@@ -39,9 +39,18 @@ public class PlanAction {
 
         Node root = new Node(config, 0, true);
         double value = networkOutput.getValue();
+        double reward = networkOutput.getReward();
+        if (reward != 0f) {
+            int i = 42;
+        }
         root.setValueFromInference(value);
 
+
+
+
         game.getGameDTO().getRootValuesFromInitialInference().add((float) value);
+
+        game.getGameDTO().getRootRewardsFromInitialInference().add((float) reward);
 
         int nActionsReplayed = game.getGameDTO().getActions().size();
         if (nActionsReplayed < game.getOriginalGameDTO().getActions().size()) {
@@ -183,7 +192,7 @@ public class PlanAction {
         Action action = selectActionByDrawingFromDistribution(distributionInput);
 
 
-        storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()),  new MinMaxStats(config.getKnownBounds()));
+        storeSearchStatistics(game, root, true, config, null, new MinMaxStats(config.getKnownBounds()) );
 
         return action;
     }

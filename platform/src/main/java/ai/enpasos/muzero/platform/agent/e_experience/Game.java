@@ -328,6 +328,7 @@ public abstract class Game {
     }
 
     private float getReward(int currentIndex) {
+        // perspective is missing
         float reward;
         if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
             reward = this.getGameDTO().getRewards().get(currentIndex - 1);

@@ -14,7 +14,6 @@ muzero:
 
       actionClassName: ai.enpasos.muzero.platform.agent.e_experience.TestAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
