@@ -271,5 +271,19 @@ public class Inference {
     }
 
 
+    public double[] getInRewards(int epoch, int[] actions) {
+        modelService.loadLatestModel(epoch).join();
+        return getInRewards(actions);
+    }
 
+    private double[] getInRewards( int[] actions) {
+        double[] rewards = new double[actions.length];
+        Game game = config.newGame(true,true);
+        for (int t = 0; t < actions.length; t++) {
+            NDArray s = modelService.initialInference(game).join().getHiddenState();
+            int action =  actions[t];
+            rewards[t] = modelService.recurrentInference(s, action).join().getReward();
+        }
+        return rewards;
+    }
 }

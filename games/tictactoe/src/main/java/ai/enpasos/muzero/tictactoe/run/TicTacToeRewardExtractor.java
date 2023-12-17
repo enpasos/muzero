@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBufferIO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -50,6 +51,9 @@ public class TicTacToeRewardExtractor {
     @Autowired
     GameBufferIO replayBufferIO;
 
+    @Autowired
+    Inference inference;
+
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
@@ -61,16 +65,18 @@ public class TicTacToeRewardExtractor {
 
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 
-        List<Optional<Game>> games = IntStream.rangeClosed(start, stop)
-            .mapToObj(epoch -> gameProvider.getGameStartingWithActionsFromStartForEpoch(epoch, actions))
-            .toList();
+        double[][] rewards = new double[stop - start + 1][actions.length];
+        for (int epoch = start; epoch <= stop; epoch++) {
+            rewards[epoch-start] = inference.getInRewards(epoch, actions);
+        }
 
-        System.out.println(listRewardsForTrainedNetworks(games, start, stop, actions.length + 1));
+
+        System.out.println(listRewardsForTrainedNetworks(rewards, start, stop, actions.length));
 
     }
 
     @SuppressWarnings("squid:S1141")
-    public String listRewardsForTrainedNetworks(List<Optional<Game>> games, int start, int stop, int numValues) {
+    public String listRewardsForTrainedNetworks(double[][] rewards, int start, int stop, int numValues) {
 
         StringWriter stringWriter = new StringWriter();
         List<String> header = new ArrayList<>();
@@ -83,9 +89,7 @@ public class TicTacToeRewardExtractor {
                 Object[] objects = new Object[stop - start + 2];
                 objects[0] = t;
                 for (int epoch = start; epoch <= stop; epoch++) {
-                    Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
-                    List<Float> values = game.getGameDTO().getRootRewardsFromInitialInference();
-                    double valuePlayer = values.get(t);
+                    double valuePlayer = rewards[epoch - start][t];
                     if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
                         valuePlayer *= Math.pow(-1, t);
                     }
