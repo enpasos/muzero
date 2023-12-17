@@ -283,6 +283,7 @@ public class Inference {
             NDArray s = modelService.initialInference(game).join().getHiddenState();
             int action =  actions[t];
             rewards[t] = modelService.recurrentInference(s, action).join().getReward();
+            game.apply(action);
         }
         return rewards;
     }
