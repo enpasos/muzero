@@ -7,6 +7,7 @@ import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RewardBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -55,6 +56,7 @@ public class OnnxExport {
                 RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock) network.getRecurrentInference().getBlock();
                 SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) network.getPredictor().getBlock();
                 SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) network.getProjector().getBlock();
+                RewardBlock rewardBlock = (RewardBlock) network.getReward().getBlock();
 
 
                 onnxExport(initialInferenceBlock, inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-InitialInference.onnx", "I_");
@@ -67,6 +69,7 @@ public class OnnxExport {
 
                 onnxExport(similarityPredictorBlock, inputSimilarityPredictor, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityPredictor.onnx", "SPRE_");
                 onnxExport(similarityProjectorBlock, inputSimilarityProjector, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityProjector.onnx", "SPRO_");
+                onnxExport(rewardBlock, inputPrediction, config.getOutputDir() + ONNX + config.getModelName() + "-Reward.onnx", "R_");
             }
 
         } catch (Exception e) {
