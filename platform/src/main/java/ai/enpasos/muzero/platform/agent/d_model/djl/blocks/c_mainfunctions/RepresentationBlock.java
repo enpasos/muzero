@@ -36,7 +36,7 @@ public class RepresentationBlock extends MySequentialBlock implements OnnxIO {
         RepresentationBlock block = new RepresentationBlock();
 
         block
-            .add(Conv3x3.builder().channels(config.getNumChannels()).build())
+            .add( RepresentationStart.builder().config(config).build())
             .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
 
         return block;

@@ -47,13 +47,13 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
 
     private final DynamicsBlock g;
     private final PredictionBlock f;
-    private final RewardBlock r;
+   // private final RewardBlock r;
 
-    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock, RewardBlock rewardBlock) {
+    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock ) {
         super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
         f = this.addChildBlock("Prediction", predictionBlock);
-        r = this.addChildBlock("Reward", rewardBlock);
+      //  r = this.addChildBlock("Reward", rewardBlock);
     }
 
     public DynamicsBlock getG() {
@@ -63,9 +63,9 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     public PredictionBlock getF() {
         return f;
     }
-    public RewardBlock getR() {
-        return r;
-    }
+//    public RewardBlock getR() {
+//        return r;
+//    }
 
     /**
      * @param inputs First input for state, second for action
@@ -73,18 +73,20 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList gResult = g.forward(parameterStore, inputs, training);
-        NDList rResult = r.forward(parameterStore, gResult, training);
+        f.setWithReward(true);
+      //  NDList rResult = r.forward(parameterStore, gResult, training);
         NDList fResult = f.forward(parameterStore, gResult, training);
-        return gResult.addAll(rResult).addAll(fResult);
+        return gResult.addAll(fResult);
     }
 
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
+        f.setWithReward(true);
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
         Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
-        Shape[] rOutputShapes = r.getOutputShapes(gOutputShapes);
-        return ArrayUtils.addAll(ArrayUtils.addAll(gOutputShapes, rOutputShapes), fOutputShapes);
+      //  Shape[] rOutputShapes = r.getOutputShapes(gOutputShapes);
+        return ArrayUtils.addAll(gOutputShapes, fOutputShapes);
     }
 
 

@@ -65,6 +65,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
     @Override
     protected NDList forwardInternal(@NotNull ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+        f.setWithReward(false);
         NDList hResult = h.forward(parameterStore, inputs, training, params);
         NDList fResult = f.forward(parameterStore, hResult, training, params);
         return hResult.addAll(fResult);
@@ -72,6 +73,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
+        f.setWithReward(false);
         Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
         Shape[] fOutputShapes = f.getOutputShapes(hOutputShapes);
         return ArrayUtils.addAll(hOutputShapes, fOutputShapes);

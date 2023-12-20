@@ -63,4 +63,7 @@ public final class BlocksExt {
     }
 
 
+    public static Block identityOnLastInputBlock() {
+        return new LambdaBlockExt(IDENTITY, x -> new NDList(x.get(x.size()-1)));
+    }
 }

@@ -38,7 +38,8 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
      * @return a new {@link LambdaBlockExt} for the function
      */
     public static LambdaBlockExt singleton(Type type, Function<NDArray, NDArray> lambda) {
-        return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
+     //   return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
+        return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply( arrays.get(0))));
     }
 
     private void addOutputToOnnxBlockAsInDJL(OnnxBlock onnxBlock, List<OnnxTensor> input, String outputName) {
@@ -143,6 +144,11 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
                 nodeBuilder.setOpType("Identity");
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
+
+            case IDENTITY_ON_FIRST_INPUT:
+                nodeBuilder.setOpType("IdentityOnFirstInput");
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
+                break;
             case NOT_IMPLEMENTED_YET:
             default:
                 throw new NotImplementedException(type.name());
@@ -152,5 +158,5 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
         return onnxBlock;
     }
 
-    public enum Type {IDENTITY, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d, GLOBAL_MAX_POOL_2d, NOT_IMPLEMENTED_YET}
+    public enum Type {IDENTITY, IDENTITY_ON_FIRST_INPUT, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d, GLOBAL_MAX_POOL_2d, NOT_IMPLEMENTED_YET}
 }

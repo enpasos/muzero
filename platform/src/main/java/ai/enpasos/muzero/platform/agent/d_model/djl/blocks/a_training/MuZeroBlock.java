@@ -41,7 +41,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class MuZeroBlock extends AbstractBlock {
 
-    private final RewardBlock rewardBlock;
+ //   private final RewardBlock rewardBlock;
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
@@ -57,7 +57,7 @@ public class MuZeroBlock extends AbstractBlock {
 
         representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
-        rewardBlock = this.addChildBlock("Reward", new RewardBlock(config));
+      //  rewardBlock = this.addChildBlock("Reward", new RewardBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
         similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
@@ -91,8 +91,9 @@ public class MuZeroBlock extends AbstractBlock {
         // - value layer:  value
 
         // initial Inference
+        predictionBlock.setWithReward(false);
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDArray state = representationResult.get(0);
+        NDList state = representationResult;
 
         NDList predictionResult = predictionBlock.forward(parameterStore, representationResult, training, params);
         for (NDArray prediction : predictionResult.getResourceNDArrays()) {
@@ -103,17 +104,18 @@ public class MuZeroBlock extends AbstractBlock {
 
 
             // recurrent Inference
+
+            predictionBlock.setWithReward(true);
+
             NDArray action = inputs.get(2 * k - 1);
-            NDList dynamicIn = new NDList(state, action);
+
+            NDList dynamicIn = new NDList();
+            dynamicIn.addAll(state);
+            dynamicIn.add(action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
-            state = dynamicsResult.get(0);
-
-
-
-
-
+            state = dynamicsResult;
 
             predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
@@ -128,15 +130,15 @@ public class MuZeroBlock extends AbstractBlock {
             combinedResult.add(similarityPredictorResult);
             combinedResult.add(similarityProjectorResultLabel);
 
-            // rules layer - reward
-            NDList rewardOut = rewardBlock.forward(parameterStore, dynamicsResult, training, params);
-            combinedResult.add(rewardOut.get(0));
-
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
             }
 
-            state = state.scaleGradient(0.5);
+            NDList temp = new NDList();
+            for (int i = 0; i < state.size(); i++) {
+                temp.add(state.get(i).scaleGradient(0.5));
+            }
+            state = temp;
 
         }
         return combinedResult;
@@ -165,7 +167,6 @@ public class MuZeroBlock extends AbstractBlock {
             }
             stateOutputShapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
 
-            outputShapes = ArrayUtils.addAll(outputShapes, rewardBlock.getOutputShapes(stateOutputShapes));
             outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapes));
 
         }
@@ -197,7 +198,7 @@ public class MuZeroBlock extends AbstractBlock {
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
         predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);
-        rewardBlock.initialize(manager, dataType, stateOutputShapes[0]);
+      //  rewardBlock.initialize(manager, dataType, stateOutputShapes[0]);
 
         Shape stateShape = stateOutputShapes[0];
         Shape actionShape = inputShapes[1];

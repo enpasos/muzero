@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.CausalResidualTower;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -35,22 +36,24 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
 
 
     public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannels(), config.getNumBottleneckChannels(), broadcastEveryN);
+        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannelsRules(),  config.getNumChannelsPolicy(), config.getNumChannelsValue(), broadcastEveryN);
     }
 
     @java.lang.SuppressWarnings("java:S107")
-    public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannels, int numBottleneckChannels, int broadcastEveryN) {
-        this.add(ResidualTower.builder()
+    public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannelsRules, int numChannelsPolicy,  int numChannelsValue, int broadcastEveryN) {
+        this.add(CausalResidualTower.builder()
                 .numResiduals(numResiduals)
-                .numChannels(numChannels)
-                .numBottleneckChannels(numBottleneckChannels)
+                .numChannelsRules(numChannelsRules)
+                .numChannelsPolicy(numChannelsPolicy)
+                .numChannelsValue(numChannelsValue)
+              //  .numBottleneckChannels(numBottleneckChannels)
                 .broadcastEveryN(broadcastEveryN)
-
                 .height(height)
                 .width(width)
-                .build())
+                .rescaleOnEnd(true)
+                .build());
 
-            .add(new RescaleBlockExt());
+
 
     }
 }

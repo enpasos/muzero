@@ -92,20 +92,20 @@ public class Network {
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
-        RewardBlock rewardBlock = (RewardBlock) model.getBlock().getChildren().get("03Reward");
-        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("04Dynamics");
-        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("05Projector");
-        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("06Predictor");
+       // RewardBlock rewardBlock = (RewardBlock) model.getBlock().getChildren().get("03Reward");
+        DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
+        SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("04Projector");
+        SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("05Predictor");
 
         representation = new SubModel("representation", model, representationBlock, config);
         prediction = new SubModel("prediction", model, predictionBlock, config);
-        reward = new SubModel("reward", model, rewardBlock, config);
+       // reward = new SubModel("reward", model, rewardBlock, config);
         dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
         projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
-        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock, rewardBlock), config);
+        recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
 
     }
 
