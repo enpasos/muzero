@@ -70,7 +70,7 @@ public class BroadcastResidualBlock extends AbstractBlock implements OnnxIO {
         ;
 
         identity = (SequentialBlockExt) new SequentialBlockExt()
-            .add(BlocksExt.identityBlock());
+                .add(BlocksExt.identityOnLastInputBlock());
 
 
         block = addChildBlock("residualBlock", new ParallelBlockWithAddJoinExt(

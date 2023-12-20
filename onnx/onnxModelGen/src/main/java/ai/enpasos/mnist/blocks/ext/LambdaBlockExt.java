@@ -38,7 +38,8 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
      * @return a new {@link LambdaBlockExt} for the function
      */
     public static LambdaBlockExt singleton(Type type, Function<NDArray, NDArray> lambda) {
-        return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
+     //   return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply(arrays.singletonOrThrow())));
+        return new LambdaBlockExt(type, arrays -> new NDList(lambda.apply( arrays.get(0))));
     }
 
     private void addOutputToOnnxBlockAsInDJL(OnnxBlock onnxBlock, List<OnnxTensor> input, String outputName) {
