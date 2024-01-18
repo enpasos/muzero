@@ -17,6 +17,9 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
+import ai.djl.ndarray.NDList;
+import ai.djl.training.ParameterStore;
+import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
@@ -27,6 +30,15 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
 public class SimilarityProjectorBlock extends MySequentialBlock {
+
+    @Override
+    protected NDList forwardInternal(
+            ParameterStore parameterStore,
+            NDList inputs,
+            boolean training,
+            PairList<String, Object> params) {
+        return super.forwardInternal(parameterStore, inputs, training, params);
+    }
 
 
     private SimilarityProjectorBlock() {

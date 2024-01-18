@@ -3,11 +3,11 @@ lombok = "1.18.30"
 djl = "0.26.0-SNAPSHOT"
 pytorch = "2.1.1"
 
-slf4j = "2.0.9"
-springboot = "3.2.0"
-protobuf = "3.25.1"
+slf4j = "2.0.11"
+springboot = "3.2.1"
+protobuf = "3.25.2"
 junit = "5.10.1"
-jackson = "2.16.0"
+jackson = "2.16.1"
 
 [libraries]
 djl-api = { module = "ai.djl:api", version.ref = "djl" }
