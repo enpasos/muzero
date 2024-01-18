@@ -82,12 +82,16 @@ private boolean withReward;
             valueHead.add(ActivationExt.tanhBlock());
         }
 
+        this.addChildBlock("ValueHead", valueHead);
+
 
         legalActionsHead = new SequentialBlockExt();
         legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
                         .setUnits(actionSpaceSize).build());
+
+        this.addChildBlock( "LegalActionsHead", legalActionsHead);
 
 
         policyHead = new SequentialBlockExt();
@@ -98,8 +102,8 @@ private boolean withReward;
                         .setUnits(actionSpaceSize)
                         .build());
 
-
-        //  if (withReward) {
+        this.addChildBlock( "PolicyHead", policyHead);
+                //  if (withReward) {
 
               rewardHead = new SequentialBlockExt();
 
@@ -114,8 +118,8 @@ private boolean withReward;
               if (isPlayerModeTWOPLAYERS) {
                   rewardHead.add(ActivationExt.tanhBlock());
               }
-
-      //    }
+        this.addChildBlock( "RewardHead", rewardHead);
+                //    }
 
 
     }
