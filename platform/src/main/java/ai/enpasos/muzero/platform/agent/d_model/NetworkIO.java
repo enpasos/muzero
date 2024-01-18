@@ -48,7 +48,10 @@ public class NetworkIO {
 
     private double reward;
 
-    private NDArray hiddenState;
+
+    @Builder.Default
+    private NDArray[] hiddenState = new NDArray[3];
+
     private Action action;
     private MuZeroConfig config;
 

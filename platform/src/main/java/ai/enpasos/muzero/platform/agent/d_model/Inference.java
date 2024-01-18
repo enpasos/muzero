@@ -99,7 +99,7 @@ public class Inference {
         Game game = config.newGame(true,true);
         for (int t = 0; t <= actions.length; t++) {
             NetworkIO infResult = modelService.initialInference(game).join();
-            NDArray s = infResult.getHiddenState();
+            NDArray[] s = infResult.getHiddenState();
             values[actions.length][t] = infResult.getValue();
             System.arraycopy(values[actions.length], 0, values[t], 0, t + 1);
             for (int r = t; r < actions.length + extra; r++) {
@@ -280,7 +280,7 @@ public class Inference {
         double[] rewards = new double[actions.length];
         Game game = config.newGame(true,true);
         for (int t = 0; t < actions.length; t++) {
-            NDArray s = modelService.initialInference(game).join().getHiddenState();
+            NDArray[] s = modelService.initialInference(game).join().getHiddenState();
             int action =  actions[t];
             rewards[t] = modelService.recurrentInference(s, action).join().getReward();
             game.apply(action);

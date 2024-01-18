@@ -35,6 +35,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,55 +45,49 @@ import java.util.stream.IntStream;
 public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx, boolean isRecurrent) {
 
+        // hiddenstate 0, 1, 2
+        // reward 3
+        // legalActions 4
+        // policy 5
+        // value 6
+
+
+
         int offset = 0;
         if (isRecurrent) {
             offset = 1;
         }
 
 
-
-
-        NDArray hiddenStates;
-        NDArray s = list.get(0);
         SubModel submodel = (SubModel) ctx.getModel();
         MuZeroConfig config = submodel.getConfig();
-        if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
-            hiddenStates = s;
-            hiddenStates.attach(submodel.getHiddenStateNDManager());
-        } else {
-            hiddenStates = s.toDevice(Device.cpu(), false);
-            NDManager hiddenStateNDManager = hiddenStates.getManager();
-            hiddenStates.attach(submodel.getHiddenStateNDManager());
-            hiddenStateNDManager.close();
-            s.close();
-        }
 
         NetworkIO outputA = NetworkIO.builder()
-            .hiddenState(hiddenStates)
+            .hiddenState(new NDArray[] {
+                    getHiddenStates(list.get(0), ctx, submodel),
+                    getHiddenStates(list.get(1), ctx, submodel),
+                    getHiddenStates(list.get(2), ctx, submodel)
+            })
             .build();
 
 
-        // 1: reward
+        // 3: reward
         NDArray r_ = null;
         float[] rArray_ = null;
         if (isRecurrent) {
-            r_ = list.get(1);
+            r_ = list.get(3);
             rArray_ = r_.toFloatArray();
-            // int n = (int) r_.getShape().get(0);
-
-            // TODO later: consistency value
-
         }
         float[] rArray  = rArray_;
         NDArray r = r_;
 
-        // 2: legalActions
-        float[]  pLegalArray_ = MyBCELoss.sigmoid(list.get(1 + offset)).toFloatArray();
+        // 3 + offset : legalActions
+        float[]  pLegalArray_ = MyBCELoss.sigmoid(list.get(3 + offset)).toFloatArray();
         final float[] pLegalArray = pLegalArray_;
 
 
-        // 3 + offset: policy
-        NDArray logits = list.get(2+ offset);
+        // 4 + offset: policy
+        NDArray logits = list.get(4 + offset);
         NDArray p = logits.softmax(1);
         int actionSpaceSize = (int) logits.getShape().get(1);
         float[] logitsArray = logits.toFloatArray();
@@ -100,8 +95,8 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
 
 
-        // 3 + offset: value
-        NDArray v = list.get(3+ offset);
+        // 5 + offset: value
+        NDArray v = list.get(5+ offset);
         float[] vArray = v.toFloatArray();
         int n = (int) v.getShape().get(0);
 
@@ -141,10 +136,30 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
 
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
-            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
+            int nh = outputA.getHiddenState().length;
+            for (int h = 0; h < nh; h++) {
+                networkIOs.get(i).getHiddenState()[h] = outputA.getHiddenState()[h].get(i);
+            }
         }
-        hiddenStates.close();
+        Arrays.stream(outputA.getHiddenState()).forEach(h -> h.close()) ;
         return networkIOs;
+    }
+
+    @NotNull
+    private static NDArray getHiddenStates( NDArray s, TranslatorContext ctx, SubModel submodel) {
+        NDArray hiddenStates;
+
+        if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
+            hiddenStates = s;
+            hiddenStates.attach(submodel.getHiddenStateNDManager());
+        } else {
+            hiddenStates = s.toDevice(Device.cpu(), false);
+            NDManager hiddenStateNDManager = hiddenStates.getManager();
+            hiddenStates.attach(submodel.getHiddenStateNDManager());
+            hiddenStateNDManager.close();
+            s.close();
+        }
+        return hiddenStates;
     }
 
     @Override

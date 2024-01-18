@@ -59,7 +59,7 @@ public class Node {
     private double improvedEntropyValue;
     private double valueFromInference;
     private double entropyValueFromInference;
-    private NDArray hiddenState;
+    private NDArray[] hiddenState;
     private double reward;
     private double entropyReward;
     private double multiplierLambda;

@@ -135,7 +135,7 @@ public class ModelService {
 
 
     @Async()
-    public CompletableFuture<NetworkIO> recurrentInference(NDArray hiddenState, int action) {
+    public CompletableFuture<NetworkIO> recurrentInference(NDArray[] hiddenState, int action) {
             Node node = Node.builder()
         .hiddenState(hiddenState)
         .build();

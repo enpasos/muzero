@@ -184,9 +184,13 @@ public class Network {
 
     }
 
-    private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
+    private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray[]> hiddenStateList, List<NDArray> actionList) {
         NetworkIO networkIO = new NetworkIO();
-        NDArray hiddenState = NDArrays.stack(new NDList(hiddenStateList));
+        NDArray[] hiddenState = new NDArray[] {
+                NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[0]).collect(Collectors.toList()))),
+                NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[1]).collect(Collectors.toList()))),
+                NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[2]).collect(Collectors.toList())))
+        };
         networkIO.setHiddenState(hiddenState);
         networkIO.setActionList(actionList);
 
@@ -202,7 +206,9 @@ public class Network {
             e.printStackTrace();
         }
 
-        hiddenState.close();
+        hiddenState[0].close();
+        hiddenState[1].close();
+        hiddenState[2].close();
         return networkOutput;
     }
 
@@ -222,7 +228,7 @@ public class Network {
             getActionSpaceOnDevice().get(action.getIndex())
         ).collect(Collectors.toList());
 
-        List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
+        List<NDArray[]> hiddenStateList = searchPathList.stream().map(searchPath -> {
             Node parent = searchPath.get(searchPath.size() - 2);
             return parent.getHiddenState();
         }).collect(Collectors.toList());

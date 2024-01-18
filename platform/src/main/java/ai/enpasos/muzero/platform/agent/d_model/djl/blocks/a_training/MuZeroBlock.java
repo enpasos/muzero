@@ -24,6 +24,7 @@ import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
+import ai.djl.nn.ParameterList;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
@@ -41,7 +42,6 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class MuZeroBlock extends AbstractBlock {
 
- //   private final RewardBlock rewardBlock;
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
@@ -57,7 +57,6 @@ public class MuZeroBlock extends AbstractBlock {
 
         representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
-      //  rewardBlock = this.addChildBlock("Reward", new RewardBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
         similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
@@ -149,12 +148,14 @@ public class MuZeroBlock extends AbstractBlock {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
+        predictionBlock.setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
         Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapes);
         outputShapes = ArrayUtils.addAll(outputShapes, predictionBlockOutputShapes);
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
             // recurrent Inference
+            predictionBlock.setWithReward(true);
             Shape stateShape = stateOutputShapes[0];
             Shape actionShape = inputShapes[k];
             Shape dynamicsInputShape = null;
@@ -197,13 +198,20 @@ public class MuZeroBlock extends AbstractBlock {
         Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[0]});
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
-        predictionBlock.initialize(manager, dataType, stateOutputShapes[0]);
-      //  rewardBlock.initialize(manager, dataType, stateOutputShapes[0]);
+        predictionBlock.setWithReward(true);
+        predictionBlock.initialize(manager, dataType, stateOutputShapes);
 
-        Shape stateShape = stateOutputShapes[0];
+
         Shape actionShape = inputShapes[1];
+        Shape[] dynamicsInputShape = new Shape[stateOutputShapes.length +1];
+        dynamicsInputShape[0] = stateOutputShapes[0];
+        dynamicsInputShape[1] = stateOutputShapes[1];
+        dynamicsInputShape[2] = stateOutputShapes[2];
+        dynamicsInputShape[3] = actionShape;
 
-        dynamicsBlock.initialize(manager, dataType, stateShape, actionShape);
+        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+
+
     }
 
 

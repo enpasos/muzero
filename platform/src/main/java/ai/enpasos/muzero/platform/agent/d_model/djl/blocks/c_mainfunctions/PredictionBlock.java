@@ -19,6 +19,8 @@ package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.djl.basicdataset.nlp.UniversalDependenciesEnglishEWT;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.training.ParameterStore;
@@ -59,6 +61,9 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO {
 
 @Setter
 private boolean withReward;
+
+
+
 
 
     public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
@@ -126,6 +131,14 @@ private boolean withReward;
         results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
         results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
         return results;
+    }
+
+    @Override
+    public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
+        valueHead.initialize(manager, dataType, new Shape[]{inputShapes[2] });
+        legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
+        policyHead.initialize(manager, dataType, new Shape[]{inputShapes[1] });
+        rewardHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
     }
 
     @Override

@@ -67,7 +67,7 @@ public class CausalBroadcastResidualBlock extends AbstractBlock implements OnnxI
         ;
 
         identity = (SequentialBlockExt) new SequentialBlockExt()
-            .add(BlocksExt.identityOnLastInputBlock());
+            .add(BlocksExt.identityOnLastInput());
 
 
         AbstractBlock blockTemp = new ParallelBlockWithAddJoinExt(Arrays.asList(b1, identity));

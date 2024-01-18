@@ -3,6 +3,8 @@ package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
@@ -15,8 +17,10 @@ import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RewardBlock;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +41,9 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
     // There is no backpropagation across layer boundaries
     public CausalLayers(List<Block> layers ) {
         this.layers = layers;
+        for(Block layer: layers) {
+            this.addChildBlock("CausalLayer", layer);
+        }
     }
 
 
@@ -53,7 +60,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
 
             for(int j = 0; j < k; j++) {
                 // There is no backpropagation across layer boundaries
-                NDArray minorInput = combinedResult.get(j).stopGradient();
+                NDArray minorInput = inputs.get(j).stopGradient();
                 layerInput.add(minorInput);
             }
             NDArray majorInput = inputs.get(k);
@@ -62,7 +69,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
             // The last input is an extra input (action) that is only used by the first layer (rules layer)
             if (k == 0 && layers.size() + 1 == inputs.size()) {
                 NDArray extraInput = inputs.get(inputs.size() - 1);
-                layerInput.add(extraInput);
+                layerInput.add(0, extraInput);
             }
 
             NDArray resultArray = layer.forward(parameterStore, layerInput, training, params).get(0);
@@ -72,10 +79,61 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
     }
 
 
-    // The output format is exactly the same as the input format
+
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        return inputShapes;
+        Shape[] outputShapes = new Shape[layers.size()];
+        for (int i = 0; i < layers.size(); i++) {
+            outputShapes[i] = inputShapes[i];
+        }
+//        for(int k = 0; k < layers.size(); k++) {
+//            Block layer = layers.get(k);
+//            Shape[] layerInputShapes = new Shape[k + 1];
+//
+//            for(int j = 0; j < k; j++) {
+//                Shape inputShape = inputShapes[j];
+//                layerInputShapes[j] = inputShape;
+//            }
+//            Shape majorInputShape = inputShapes[k];
+//            layerInputShapes[k] = majorInputShape;
+//
+//            // The last input is an extra input (action) that is only used by the first layer (rules layer)
+//            if (k == 0 && layers.size() + 1 == inputShapes.length) {
+//                Shape extraInputShape = inputShapes[inputShapes.length - 1];
+//                layerInputShapes = ArrayUtils.add(layerInputShapes, extraInputShape);
+//            }
+//            outputShapes[k] = layer.getOutputShapes(layerInputShapes)[0];
+//        }
+//        return inputShapes;
+
+        return outputShapes;
+    }
+
+
+    @Override
+    public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
+        if (layers.size() > inputShapes.length) {
+            throw new MuZeroException("number of layers must be less or equal to number of inputs");
+        }
+
+        for (int k = 0; k < layers.size(); k++) {
+            List<Shape> layerInputShapes = new ArrayList<>();
+
+            for(int j = 0; j < k; j++) {
+
+                Shape inputShape = inputShapes[j];
+                layerInputShapes.add(inputShape);
+            }
+            Shape majorInputShape = inputShapes[k];
+            layerInputShapes.add(majorInputShape);
+
+            // The last input is an extra input (action) that is only used by the first layer (rules layer)
+            if (k == 0 && layers.size() + 1 == inputShapes.length) {
+                Shape extraInputShape = inputShapes[inputShapes.length - 1];
+                layerInputShapes.add(extraInputShape);
+            }
+            layers.get(k).initialize(manager, dataType,  layerInputShapes.toArray(new Shape[0]));
+        }
     }
 
 

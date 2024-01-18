@@ -74,7 +74,6 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList gResult = g.forward(parameterStore, inputs, training);
         f.setWithReward(true);
-      //  NDList rResult = r.forward(parameterStore, gResult, training);
         NDList fResult = f.forward(parameterStore, gResult, training);
         return gResult.addAll(fResult);
     }
