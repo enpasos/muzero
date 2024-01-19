@@ -63,11 +63,11 @@ muzero:
       numResiduals: 6
       broadcastEveryN: 8  # out of range here
 
-      numChannels: 150    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
+      numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsRules: 100
-      numChannelsPolicy: 100
-      numChannelsValue: 100
+      numChannelsRules: 80
+      numChannelsPolicy: 80
+      numChannelsValue: 80
 
       numBottleneckChannels: 128  # obsolete? ... check
 
