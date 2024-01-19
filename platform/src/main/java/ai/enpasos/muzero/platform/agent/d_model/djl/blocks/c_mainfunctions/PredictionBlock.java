@@ -91,7 +91,7 @@ private boolean withReward;
                 .add(LinearExt.builder()
                         .setUnits(actionSpaceSize).build());
 
-        this.addChildBlock( "LegalActionsHead", legalActionsHead);
+        this.addChildBlock("LegalActionsHead", legalActionsHead);
 
 
         policyHead = new SequentialBlockExt();
@@ -102,24 +102,23 @@ private boolean withReward;
                         .setUnits(actionSpaceSize)
                         .build());
 
-        this.addChildBlock( "PolicyHead", policyHead);
-                //  if (withReward) {
+        this.addChildBlock("PolicyHead", policyHead);
 
-              rewardHead = new SequentialBlockExt();
 
-              rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
-                      .add(BlocksExt.batchFlattenBlock())
-                      .add(LinearExt.builder()
-                              .setUnits(256) // config.getNumChannels())  // originally 256
-                              .build())
-                      .add(ActivationExt.reluBlock())
-                      .add(LinearExt.builder()
-                      .setUnits(1).build());
-              if (isPlayerModeTWOPLAYERS) {
-                  rewardHead.add(ActivationExt.tanhBlock());
-              }
-        this.addChildBlock( "RewardHead", rewardHead);
-                //    }
+        rewardHead = new SequentialBlockExt();
+
+        rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(256) // config.getNumChannels())  // originally 256
+                        .build())
+                .add(ActivationExt.reluBlock())
+                .add(LinearExt.builder()
+                        .setUnits(1).build());
+        if (isPlayerModeTWOPLAYERS) {
+            rewardHead.add(ActivationExt.tanhBlock());
+        }
+        this.addChildBlock("RewardHead", rewardHead);
 
 
     }

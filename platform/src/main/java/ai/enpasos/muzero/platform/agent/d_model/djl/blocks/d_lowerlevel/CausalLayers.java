@@ -65,8 +65,8 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
             NDArray majorInput = inputs.get(k);
             layerInput.add(majorInput);
 
-            // The last input is an extra input (action) that is only used by the first layer (rules layer)
-            if (k == 0 && layers.size() + 1 == inputs.size()) {
+            // The last input is an extra input (action)
+            if (layers.size() + 1 == inputs.size()) {
                 NDArray extraInput = inputs.get(inputs.size() - 1);
                 layerInput.add(0, extraInput);
             }
