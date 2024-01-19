@@ -31,7 +31,6 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RewardBlock;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;

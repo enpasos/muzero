@@ -73,7 +73,7 @@ private boolean withReward;
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
-                        .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                        .setUnits(256) // config.getNumChannels())  // originally 256
                         .build())
                 .add(ActivationExt.reluBlock())
                 .add(LinearExt.builder()
@@ -110,7 +110,7 @@ private boolean withReward;
               rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                       .add(BlocksExt.batchFlattenBlock())
                       .add(LinearExt.builder()
-                              .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                              .setUnits(256) // config.getNumChannels())  // originally 256
                               .build())
                       .add(ActivationExt.reluBlock())
                       .add(LinearExt.builder()
