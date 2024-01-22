@@ -67,13 +67,14 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
             //  .valueInfos(createValueInfoProto(output))
             .build();
 
-        NodeProto.Builder nodeBuilder = NodeProto.newBuilder()
-            .addInput(input.get(0).getName())
-            .addOutput(outputName)
-            .setName("N" + ctx.count());
 
-        switch (this.type) {
+        NodeProto.Builder nodeBuilder = null;
+                switch (this.type) {
             case MAX_POOLING:
+                 nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder
                     .setOpType("MaxPool")
                     .addAttribute(AttributeProto.newBuilder()
@@ -94,6 +95,10 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case BATCH_FLATTEN:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 String shapeName = "batchFlattenNodeShape" + ctx.count();
                 nodeBuilder.setOpType("Reshape")
                     .addInput(shapeName);
@@ -121,32 +126,68 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
 //                addOutputToOnnxBlockAsInDJL(onnxBlock,input, outputName);
 //                break;
             case RELU:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder.setOpType("Relu");
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case SIGMOID:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder.setOpType("Sigmoid");
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case TANH:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder.setOpType("Tanh");
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case GLOBAL_AVG_POOL_2d:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder.setOpType("GlobalAveragePool");
                 addOutputToOnnxBlockAddingMissingDimensions(onnxBlock, input, outputName);
                 break;
             case GLOBAL_MAX_POOL_2d:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder.setOpType("GlobalMaxPool");
                 addOutputToOnnxBlockAddingMissingDimensions(onnxBlock, input, outputName);
                 break;
             case IDENTITY:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
                 nodeBuilder.setOpType("Identity");
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
 
             case IDENTITY_ON_FIRST_INPUT:
-                nodeBuilder.setOpType("IdentityOnFirstInput");
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(0).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
+                nodeBuilder.setOpType("Identity");
+                addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
+                break;
+            case IDENTITY_ON_LAST_INPUT:
+                nodeBuilder = NodeProto.newBuilder()
+                        .addInput(input.get(input.size()-1).getName())
+                        .addOutput(outputName)
+                        .setName("N" + ctx.count());
+                nodeBuilder.setOpType("Identity");
                 addOutputToOnnxBlockAsInDJL(onnxBlock, input, outputName);
                 break;
             case NOT_IMPLEMENTED_YET:
@@ -158,5 +199,5 @@ public class LambdaBlockExt extends LambdaBlock implements OnnxIO {
         return onnxBlock;
     }
 
-    public enum Type {IDENTITY, IDENTITY_ON_FIRST_INPUT, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d, GLOBAL_MAX_POOL_2d, NOT_IMPLEMENTED_YET}
+    public enum Type {IDENTITY, IDENTITY_ON_FIRST_INPUT, IDENTITY_ON_LAST_INPUT, RELU, SIGMOID, TANH, MAX_POOLING, BATCH_FLATTEN, DEFLATE, GLOBAL_AVG_POOL_2d, GLOBAL_MAX_POOL_2d, NOT_IMPLEMENTED_YET}
 }

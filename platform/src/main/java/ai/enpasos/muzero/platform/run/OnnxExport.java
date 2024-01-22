@@ -52,22 +52,22 @@ public class OnnxExport {
                     network = new Network(config, model, Paths.get(config.getNetworkBaseDir()), Map.ofEntries(entry("epoch", epoch + "")));
                 }
                 InitialInferenceBlock initialInferenceBlock = (InitialInferenceBlock) network.getInitialInference().getBlock();
-                RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock) network.getRecurrentInference().getBlock();
-                SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) network.getPredictor().getBlock();
-                SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) network.getProjector().getBlock();
+               RecurrentInferenceBlock recurrentInferenceBlock = (RecurrentInferenceBlock) network.getRecurrentInference().getBlock();
+//                SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) network.getPredictor().getBlock();
+//                SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) network.getProjector().getBlock();
              //   RewardBlock rewardBlock = (RewardBlock) network.getReward().getBlock();
 
 
                 onnxExport(initialInferenceBlock, inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-InitialInference.onnx", "I_");
 
                 onnxExport(recurrentInferenceBlock, inputGeneration, config.getOutputDir() + ONNX + config.getModelName() + "-RecurrentInference.onnx", "R_");
-
-                onnxExport(initialInferenceBlock.getH(), inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-Representation.onnx", "H_");
-                onnxExport(initialInferenceBlock.getF(), inputPrediction, config.getOutputDir() + ONNX + config.getModelName() + "-Prediction.onnx", "F_");
-                onnxExport(recurrentInferenceBlock.getG(), inputGeneration, config.getOutputDir() + ONNX + config.getModelName() + "-Generation.onnx", "G_");
-
-                onnxExport(similarityPredictorBlock, inputSimilarityPredictor, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityPredictor.onnx", "SPRE_");
-                onnxExport(similarityProjectorBlock, inputSimilarityProjector, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityProjector.onnx", "SPRO_");
+//
+//                onnxExport(initialInferenceBlock.getH(), inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-Representation.onnx", "H_");
+//                onnxExport(initialInferenceBlock.getF(), inputPrediction, config.getOutputDir() + ONNX + config.getModelName() + "-Prediction.onnx", "F_");
+//                onnxExport(recurrentInferenceBlock.getG(), inputGeneration, config.getOutputDir() + ONNX + config.getModelName() + "-Generation.onnx", "G_");
+//
+//                onnxExport(similarityPredictorBlock, inputSimilarityPredictor, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityPredictor.onnx", "SPRE_");
+//                onnxExport(similarityProjectorBlock, inputSimilarityProjector, config.getOutputDir() + ONNX + config.getModelName() + "-SimilarityProjector.onnx", "SPRO_");
            //     onnxExport(rewardBlock, inputPrediction, config.getOutputDir() + ONNX + config.getModelName() + "-Reward.onnx", "R_");
             }
 

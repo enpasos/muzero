@@ -56,7 +56,6 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
         for(int k = 0; k < layers.size(); k++) {
             Block layer = layers.get(k);
             NDList layerInput = new NDList();
-
             for(int j = 0; j < k; j++) {
                 // There is no backpropagation across layer boundaries
                 NDArray minorInput = inputs.get(j).stopGradient();
@@ -99,7 +98,6 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
             List<Shape> layerInputShapes = new ArrayList<>();
 
             for(int j = 0; j < k; j++) {
-
                 Shape inputShape = inputShapes[j];
                 layerInputShapes.add(inputShape);
             }
@@ -117,7 +115,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
 
 
 
-    // TODO t.b.d.
+
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
         OnnxBlock onnxBlock = OnnxBlock.builder()
@@ -129,53 +127,38 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
         List<OnnxTensor> outputsToBeConcatenated = new ArrayList<>();
         long size = 0; // along the concatenation dim
         OnnxTensor childOutput = null;
+        int c = 0;
         for (Pair<String, Block> p : this.getChildren()) {
             OnnxIO onnxIO = (OnnxIO) p.getValue();
-            OnnxBlock child = onnxIO.getOnnxBlock(counter, input);
+
+
+
+            List<OnnxTensor> myInput = new ArrayList<>();
+            for(int j = 0; j < c; j++) {
+                OnnxTensor minorInput = input.get(j);
+                myInput.add(minorInput);
+            }
+            OnnxTensor majorInput = input.get(c);
+            myInput.add(majorInput);
+
+            // The last input is an extra input (action) that is only used by the first layer (rules layer)
+            if ( layers.size() + 1 == input.size()) {
+                OnnxTensor extraInput = input.get(input.size() - 1);
+                myInput.add(0, extraInput);
+            }
+
+            OnnxBlock child = onnxIO.getOnnxBlock(counter, myInput);
             onnxBlock.addChild(child);
             if (child.getOutput().size() > 1)
                 throw new RuntimeException("each output is assumed to be a single tensor here");
             childOutput = child.getOutput().get(0);
             outputsToBeConcatenated.add(childOutput);
             size += childOutput.getShape().get(concatDim);
+            c++;
         }
 
-        Shape inputShapeExample = childOutput.getShape();
 
-
-        List<OnnxTensor> output = null;
-        if (inputShapeExample.dimension() == 4) {
-            output = combine(List.of("T" + counter.count()), List.of(
-                new Shape(inputShapeExample.get(0), size, inputShapeExample.get(2), inputShapeExample.get(3))
-            ));
-        } else {
-            output = combine(List.of("T" + counter.count()), List.of(
-                new Shape(inputShapeExample.get(0), size)
-            ));
-        }
-
-        OnnxBlock concatBlock = OnnxBlock.builder()
-            .input(outputsToBeConcatenated)
-            .output(output)
-            .valueInfos(createValueInfoProto(output))
-            .nodes(List.of(
-                NodeProto.newBuilder()
-                    .setName("N" + counter.count())
-                    .setOpType("Concat")
-                    .addAttribute(AttributeProto.newBuilder()
-                        .setType(AttributeProto.AttributeType.INT)
-                        .setName("axis")
-                        .setI(concatDim)
-                        .build())
-                    .addAllInput(getNames(outputsToBeConcatenated))
-                    .addOutput(output.get(0).getName())
-                    .build()
-            ))
-            .valueInfos(createValueInfoProto(output))
-            .build();
-
-        onnxBlock.addChild(concatBlock);
-        onnxBlock.setOutput(concatBlock.getOutput());
+        onnxBlock.setOutput(outputsToBeConcatenated);
 
         return onnxBlock;
     }

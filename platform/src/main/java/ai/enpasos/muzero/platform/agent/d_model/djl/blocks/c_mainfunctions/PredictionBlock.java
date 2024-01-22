@@ -23,7 +23,9 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
+import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -41,8 +43,11 @@ import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("java:S110")
 public class PredictionBlock extends AbstractBlock implements OnnxIO {
@@ -163,10 +168,46 @@ private boolean withReward;
     }
 
 
-    // TODO t.b.d.
+
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-        return null;
+        OnnxBlock onnxBlock = OnnxBlock.builder()
+                .input(input)
+                .valueInfos(createValueInfoProto(input))
+                .build();
+
+        List<OnnxTensor> outputs = new ArrayList<>();
+        OnnxTensor childOutput = null;
+
+
+
+            List<OnnxTensor> myInput = new ArrayList<>();
+            OnnxBlock child = null;
+            if (withReward) {
+                child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(0)));
+                onnxBlock.addChild(child);
+                childOutput = child.getOutput().get(0);
+                outputs.add(childOutput);
+            }
+            child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+
+            child = this.policyHead.getOnnxBlock(counter,  List.of(input.get(1)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+
+            child = this.valueHead.getOnnxBlock(counter,  List.of(input.get(2)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+
+
+        onnxBlock.setOutput(outputs);
+
+        return onnxBlock;
     }
 
 }
