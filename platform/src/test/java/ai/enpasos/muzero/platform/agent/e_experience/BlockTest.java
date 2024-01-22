@@ -5,8 +5,8 @@ import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.BottleneckResidualBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationStart;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +31,68 @@ class BlockTest {
     @Autowired
     MuZeroConfig config;
 
+    @Test
+    void causalBroadcastResidualBlock2RANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalBroadcastResidualBlock2.onnx",
+                new CausalBroadcastResidualBlock(3,3, 80,  false),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 1, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+
+    @Test
+    void representationCausalBottleneckResidualLayersBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalBottleneckResidualLayersBlock.onnx",
+                new CausalBottleneckResidualLayersBlock(80, 80,80, false),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
+    void representationStartBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/RepresentationStartBlock.onnx",
+                new RepresentationStart(config),
+                List.of(new Shape(1, 3, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
+    void bottleneckResidualBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/BottleneckResidualBlock.onnx",
+                new BottleneckResidualBlock(80, 60),
+                List.of(new Shape(1, 80, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
+    void causalBottleneckResidualBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalBottleneckResidualBlock.onnx",
+                new CausalBottleneckResidualBlock(80, 60,  false),
+                List.of(new Shape(1, 80, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+
+
+    @Test
+    void causalBottleneckResidualBlock2RANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalBottleneckResidualBlock2.onnx",
+                new CausalBottleneckResidualBlock(80, 60,  false),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 1, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
 
     @Test
     void dynamicsBlockRANDOM() throws Exception {

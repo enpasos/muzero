@@ -85,26 +85,6 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
         for (int i = 0; i < layers.size(); i++) {
             outputShapes[i] = inputShapes[i];
         }
-//        for(int k = 0; k < layers.size(); k++) {
-//            Block layer = layers.get(k);
-//            Shape[] layerInputShapes = new Shape[k + 1];
-//
-//            for(int j = 0; j < k; j++) {
-//                Shape inputShape = inputShapes[j];
-//                layerInputShapes[j] = inputShape;
-//            }
-//            Shape majorInputShape = inputShapes[k];
-//            layerInputShapes[k] = majorInputShape;
-//
-//            // The last input is an extra input (action) that is only used by the first layer (rules layer)
-//            if (k == 0 && layers.size() + 1 == inputShapes.length) {
-//                Shape extraInputShape = inputShapes[inputShapes.length - 1];
-//                layerInputShapes = ArrayUtils.add(layerInputShapes, extraInputShape);
-//            }
-//            outputShapes[k] = layer.getOutputShapes(layerInputShapes)[0];
-//        }
-//        return inputShapes;
-
         return outputShapes;
     }
 
@@ -126,10 +106,10 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
             Shape majorInputShape = inputShapes[k];
             layerInputShapes.add(majorInputShape);
 
-            // The last input is an extra input (action) that is only used by the first layer (rules layer)
+            // The first input is an extra input (action) - the identity function is later on the last input ... the "majorInput"
             if ( layers.size() + 1 == inputShapes.length) {
                 Shape extraInputShape = inputShapes[inputShapes.length - 1];
-                layerInputShapes.add(extraInputShape);
+                layerInputShapes.add(0, extraInputShape);
             }
             layers.get(k).initialize(manager, dataType,  layerInputShapes.toArray(new Shape[0]));
         }
