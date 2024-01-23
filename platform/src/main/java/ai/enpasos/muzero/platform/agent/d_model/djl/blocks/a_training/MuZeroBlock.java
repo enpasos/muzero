@@ -27,6 +27,7 @@ import ai.djl.nn.Block;
 import ai.djl.nn.ParameterList;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -40,7 +41,7 @@ import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunction
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class MuZeroBlock extends AbstractBlock {
+public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
@@ -215,4 +216,13 @@ public class MuZeroBlock extends AbstractBlock {
     }
 
 
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.predictionBlock.freeze(freeze);
+        this.dynamicsBlock.freeze(freeze);
+        this.similarityPredictorBlock.freezeParameters(freeze[0]);
+        this.similarityProjectorBlock.freezeParameters(freeze[0]);
+        this.representationBlock.freeze(freeze);
+
+    }
 }

@@ -17,11 +17,12 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel;
 
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class CausalResidualTower extends MySequentialBlock {
+    public class CausalResidualTower extends MySequentialBlock implements CausalityFreezing {
 
     private CausalResidualTower() {
     }
@@ -42,4 +43,12 @@ public class CausalResidualTower extends MySequentialBlock {
         return instance;
     }
 
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.getChildren().forEach(b -> {
+            if (b instanceof CausalityFreezing) {
+                ((CausalityFreezing) b).freeze(freeze);
+            }
+        });
+    }
 }

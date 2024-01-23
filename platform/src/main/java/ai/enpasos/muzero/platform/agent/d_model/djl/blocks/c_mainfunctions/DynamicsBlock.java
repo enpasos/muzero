@@ -18,14 +18,14 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.StartResidualBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
+public class DynamicsBlock extends MySequentialBlock implements OnnxIO, CausalityFreezing {
 
 
     public DynamicsBlock() {
@@ -42,4 +42,12 @@ public class DynamicsBlock extends MySequentialBlock implements OnnxIO {
         return block;
     }
 
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.getChildren().forEach(b -> {
+            if (b instanceof CausalityFreezing) {
+                ((CausalityFreezing) b).freeze(freeze);
+            }
+        });
+    }
 }

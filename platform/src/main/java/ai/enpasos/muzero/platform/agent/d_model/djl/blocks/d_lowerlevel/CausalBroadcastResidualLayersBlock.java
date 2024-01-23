@@ -29,6 +29,7 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements OnnxIO {
+public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     public final CausalLayers block;
 
@@ -87,5 +88,10 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
         return block.getOnnxBlock(counter, input);
+    }
+
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.block.freeze(freeze);
     }
 }

@@ -65,9 +65,9 @@ muzero:
 
       numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsRules: 80
-      numChannelsPolicy: 80
-      numChannelsValue: 80
+      numChannelsRules: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
 
       numBottleneckChannels: 128  # obsolete? ... check
 

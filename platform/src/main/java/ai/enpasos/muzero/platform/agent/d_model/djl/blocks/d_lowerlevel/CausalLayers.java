@@ -1,14 +1,12 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel;
 
 import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDArrays;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
-import ai.djl.nn.ParallelBlock;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.Pair;
 import ai.djl.util.PairList;
@@ -16,23 +14,26 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.common.MuZeroException;
-import ai.enpasos.onnx.AttributeProto;
-import ai.enpasos.onnx.NodeProto;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
-import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class CausalLayers extends AbstractBlock implements OnnxIO {
+public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     private final List<Block> layers;
+
+
+    @Override
+    public void freeze(boolean[] freeze) {
+        for(int i = 0; i < freeze.length; i++) {
+            layers.get(i).freezeParameters(freeze[i]);
+        }
+    }
 
 
     // Layers are ordered bottom up in the list
@@ -43,6 +44,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO {
         for(Block layer: layers) {
             this.addChildBlock("CausalLayer", layer);
         }
+
     }
 
 

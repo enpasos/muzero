@@ -16,6 +16,7 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.mnist.blocks.ext.ParallelBlockWithAddJoinExt;
 import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -34,20 +35,29 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 @SuppressWarnings("all")
-public class RepresentationStart extends  AbstractBlock implements OnnxIO {
+public class RepresentationStart extends  AbstractBlock implements OnnxIO, CausalityFreezing {
 
 
 
     ParallelBlockWithCollectChannelJoinExt block;
+    Conv3x3 rulesBlock;
+    Conv3x3 policyBlock;
+    Conv3x3 valueBlock;
 
 
  public RepresentationStart(MuZeroConfig config) {
             super(MYVERSION);
+
+     rulesBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
+     policyBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
+     valueBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
+
+
         block = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(
                 Arrays.asList(
-                        Conv3x3.builder().channels(config.getNumChannelsRules()).build(),
-                        Conv3x3.builder().channels(config.getNumChannelsPolicy()).build(),
-                        Conv3x3.builder().channels(config.getNumChannelsValue()).build() )
+                        rulesBlock ,
+                        policyBlock,
+                        valueBlock )
         ));
     }
 
@@ -86,4 +96,11 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO {
         return block.getOnnxBlock(counter, input);
     }
 
+
+    @Override
+    public void freeze(boolean[] freeze) {
+        rulesBlock.freezeParameters(freeze[0]);
+        policyBlock.freezeParameters(freeze[1]);
+        valueBlock.freezeParameters(freeze[2]);
+    }
 }

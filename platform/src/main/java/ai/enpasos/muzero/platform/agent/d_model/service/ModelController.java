@@ -18,6 +18,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEpochTrainingListener;
 import ai.enpasos.muzero.platform.agent.d_model.djl.TrainingConfigFactory;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
@@ -151,7 +152,8 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
-                    trainNetwork(network.getModel());
+                    model = network.getModel();
+                    trainNetwork(model, task.freeze);
                     break;
                 case START_SCOPE:
                     if (ndScope != null) {
@@ -172,7 +174,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetwork(Model model) {
+    private void trainNetwork(Model model, boolean[] freeze) {
         try (NDScope nDScope = new NDScope()) {
             if (config.offPolicyCorrectionOn()) {
                 determinePRatioMaxForCurrentEpoch();
@@ -191,6 +193,9 @@ public class ModelController implements DisposableBean, Runnable {
                 Shape[] inputShapes = batchFactory.getInputShapes();
                 trainer.initialize(inputShapes);
                 trainer.setMetrics(new Metrics());
+
+
+                ((CausalityFreezing)model.getBlock()).freeze(freeze);
 
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = batchFactory.getBatch(trainer.getManager(), withSymmetryEnrichment)) {

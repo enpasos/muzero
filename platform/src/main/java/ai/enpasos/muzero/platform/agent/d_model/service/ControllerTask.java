@@ -11,7 +11,7 @@ public class ControllerTask {
     private NetworkIO networkOutput;
     private volatile boolean done;
 
-
+    boolean[] freeze = new boolean[3];
 
     int epoch = -1;
 
@@ -30,5 +30,9 @@ public ControllerTask(ControllerTaskType taskType) {
 
     public ControllerTaskType getTaskType() {
         return taskType;
+    }
+
+    public void setFreeze(boolean[] freeze) {
+        this.freeze = freeze;
     }
 }

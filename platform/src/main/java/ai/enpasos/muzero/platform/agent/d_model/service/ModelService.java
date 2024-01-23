@@ -175,8 +175,9 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Void> trainModel() {
+    public CompletableFuture<Void> trainModel(boolean[] freeze) {
         ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL);
+        task.setFreeze(freeze);
         return handleControllerTask(task);
     }
 

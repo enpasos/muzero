@@ -17,15 +17,14 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
-import ai.enpasos.mnist.blocks.ext.RescaleBlockExt;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.CausalResidualTower;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ResidualTower;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
+public class MainRepresentationOrDynamicsBlock extends MySequentialBlock implements CausalityFreezing {
 
 
     /**
@@ -53,7 +52,15 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock {
                 .rescaleOnEnd(true)
                 .build());
 
+    }
 
 
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.getChildren().forEach(b -> {
+            if (b instanceof CausalityFreezing) {
+                ((CausalityFreezing) b).freeze(freeze);
+            }
+        });
     }
 }

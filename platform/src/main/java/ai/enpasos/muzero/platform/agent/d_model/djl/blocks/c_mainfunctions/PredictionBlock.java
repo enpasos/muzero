@@ -17,15 +17,12 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
-import ai.djl.basicdataset.nlp.UniversalDependenciesEnglishEWT;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
-import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
-import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -34,23 +31,21 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
-import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("java:S110")
-public class PredictionBlock extends AbstractBlock implements OnnxIO {
+public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     public PredictionBlock(@NotNull MuZeroConfig config ) {
         this(config.getNumChannels(),
@@ -143,10 +138,11 @@ private boolean withReward;
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        valueHead.initialize(manager, dataType, new Shape[]{inputShapes[2] });
+
         legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
-        policyHead.initialize(manager, dataType, new Shape[]{inputShapes[1] });
         rewardHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
+        policyHead.initialize(manager, dataType, new Shape[]{inputShapes[1] });
+        valueHead.initialize(manager, dataType, new Shape[]{inputShapes[2] });
     }
 
     @Override
@@ -210,4 +206,11 @@ private boolean withReward;
         return onnxBlock;
     }
 
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.legalActionsHead.freezeParameters(freeze[0]);
+        this.rewardHead.freezeParameters(freeze[0]);
+        this.policyHead.freezeParameters(freeze[1]);
+        this.valueHead.freezeParameters(freeze[2]);
+    }
 }

@@ -32,6 +32,7 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
+public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     private final RepresentationBlock h;
     private final PredictionBlock f;
@@ -126,5 +127,11 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO {
         onnxBlock.setOutput(totalOutput);
 
         return onnxBlock;
+    }
+
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.f.freeze(freeze);
+        this.h.freeze(freeze);
     }
 }
