@@ -58,8 +58,8 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
     @Override
     public void freeze(boolean[] freeze) {
         this.getChildren().forEach(b -> {
-            if (b instanceof CausalityFreezing) {
-                ((CausalityFreezing) b).freeze(freeze);
+            if (b.getValue() instanceof CausalityFreezing) {
+                ((CausalityFreezing) b.getValue()).freeze(freeze);
             }
         });
     }

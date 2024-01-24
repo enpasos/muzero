@@ -57,14 +57,9 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
             ndArrayActionStack.attach(ctx.getNDManager());
         }
 
-
-//        return new NDList(moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[0]),
-//                moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[1]),
-//                moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[2]),ndArrayActionStack);
-
         return new NDList(moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[0]),
                 moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[1]),
-                moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[2]),ndArrayActionStack);
+                moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[2]), ndArrayActionStack);
 
     }
 
@@ -72,7 +67,6 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
         if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
             hiddenStateOnTargetDevice = hiddenStateOnTargetDevice.toDevice(Device.gpu(), true);
             hiddenStateOnTargetDevice.attach(ctx.getNDManager());
-            ;
         }
         return hiddenStateOnTargetDevice;
     }

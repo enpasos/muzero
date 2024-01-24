@@ -88,7 +88,7 @@ public class MuZeroLoop {
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
             log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
 
-            boolean[] freeze = new boolean[]{false, false, false};
+            boolean[] freeze = new boolean[]{false, true, true};
             modelService.trainModel(freeze).get();
 
             epoch = modelState.getEpoch();
