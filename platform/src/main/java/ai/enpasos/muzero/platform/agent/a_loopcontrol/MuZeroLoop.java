@@ -92,11 +92,13 @@ public class MuZeroLoop {
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
             log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
 
-//            boolean[] freeze = new boolean[]{false, true, true};
-//            modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
+
 
             boolean[] freeze = new boolean[]{false, true, true};
             modelService.trainModel(freeze, SEQUENTIAL_FROM_ALL_EXPERIENCE).get();
+
+             freeze = new boolean[]{true, false, false};
+             modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
 
             epoch = modelState.getEpoch();
 
