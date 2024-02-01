@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
+
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RANDOM_FROM_BUFFER;
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.SEQUENTIAL_FROM_ALL_EXPERIENCE;
 
 @Slf4j
 @Component
@@ -88,8 +92,11 @@ public class MuZeroLoop {
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
             log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
 
+//            boolean[] freeze = new boolean[]{false, true, true};
+//            modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
+
             boolean[] freeze = new boolean[]{false, true, true};
-            modelService.trainModel(freeze).get();
+            modelService.trainModel(freeze, SEQUENTIAL_FROM_ALL_EXPERIENCE).get();
 
             epoch = modelState.getEpoch();
 

@@ -25,6 +25,7 @@ import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.SequentialCursor;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -48,25 +49,36 @@ public class BatchFactory {
     InputOutputConstruction inputOutputConstruction;
 
 
-    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
-        List<Sample> batch = gameBuffer.sampleBatch(config.getNumUnrollSteps());
 
+    public Batch getSequentialBatchFromAllExperience(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, SequentialCursor cursor) {
+
+        List<Sample> sampleList = gameBuffer.sequentialSampleList(numUnrollSteps, cursor);
+        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+    }
+
+    @NotNull
+    private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList) {
         NDManager nd = ndManager.newSubManager();
 
-        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-
-
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch );
+        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment);
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList);
 
         return new Batch(
-            nd,
-            new NDList(inputs),
-            new NDList(outputs),
-            (int) inputs.get(0).getShape().get(0),
-            null,
-            null,
-            0,
-            0);
+                nd,
+                new NDList(inputs),
+                new NDList(outputs),
+                (int) inputs.get(0).getShape().get(0),
+                null,
+                null,
+                0,
+                0);
+    }
+
+
+    public Batch getRamdomBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+        List<Sample> sampleList = gameBuffer.randomSampleList(numUnrollSteps, batchSize);
+
+        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
     }
 
     public Shape @NotNull [] getInputShapes() {

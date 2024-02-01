@@ -22,9 +22,11 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.SequentialCursor;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +155,7 @@ public class ModelController implements DisposableBean, Runnable {
                     break;
                 case TRAIN_MODEL:
                     model = network.getModel();
-                    trainNetwork(model, task.freeze);
+                    trainNetwork(model, task.freeze, task.getTrainingDatasetType());
                     break;
                 case START_SCOPE:
                     if (ndScope != null) {
@@ -174,7 +176,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetwork(Model model, boolean[] freeze) {
+    private void trainNetwork(Model model, boolean[] freeze, TrainingDatasetType trainingDatasetType) {
         try (NDScope nDScope = new NDScope()) {
             if (config.offPolicyCorrectionOn()) {
                 determinePRatioMaxForCurrentEpoch();
@@ -197,13 +199,40 @@ public class ModelController implements DisposableBean, Runnable {
 
                 ((CausalityFreezing)model.getBlock()).freeze(freeze);
 
-                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = batchFactory.getBatch(trainer.getManager(), withSymmetryEnrichment)) {
-                        log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch );
-                        trainer.step();
-                    }
+
+                switch(trainingDatasetType) {
+                    case RANDOM_FROM_BUFFER:
+                        for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                            try (Batch batch = batchFactory.getRamdomBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize())) {
+                                log.debug("trainBatch " + m);
+                                MyEasyTrain.trainBatch(trainer, batch );
+                                trainer.step();
+                            }
+                        }
+                        break;
+                    case SEQUENTIAL_FROM_ALL_EXPERIENCE:
+                        SequentialCursor cursor =  SequentialCursor.builder()
+                                .batchSize(config.getBatchSize())
+                                .build();
+                        while(cursor.hasNext()) {
+                            try (Batch batch = batchFactory.getSequentialBatchFromAllExperience(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), cursor)) {
+                                //  log.debug("trainBatch " + m);
+
+
+                                MyEasyTrain.trainBatch(trainer, batch);
+                                trainer.step();
+                            }
+                        }
+
+
+
+                        break;
+
+                    default:
+                        throw new MuZeroException("not implemented");
                 }
+
+
 
                 // number of action paths
 
@@ -218,13 +247,13 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void determinePRatioMaxForCurrentEpoch() {
         int epoch = this.modelState.getEpoch();
-        List<Game> games = this.gameBuffer.getGames().stream()
+        List<Game> games = this.gameBuffer.getGamesFromBuffer().stream()
             .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && game.isReanalyse() )
             .collect(Collectors.toList());
         double pRatioMax = determinePRatioMax(games);
         log.info("pRatioMaxREANALYSE({}): {}", epoch, pRatioMax);
 
-        List<Game> games2 = this.gameBuffer.getGames().stream()
+        List<Game> games2 = this.gameBuffer.getGamesFromBuffer().stream()
             .filter(game -> game.getGameDTO().getTrainingEpoch() == epoch && !game.isReanalyse() )
             .collect(Collectors.toList());
         double pRatioMax2 = determinePRatioMax(games2);

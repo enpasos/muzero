@@ -87,6 +87,9 @@ public class GameBuffer {
         return sample;
     }
 
+
+
+
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
@@ -169,32 +172,77 @@ public class GameBuffer {
 
     }
 
+
+    public List<Sample> sequentialSampleList(int numUnrollSteps, SequentialCursor cursor) {
+        List<Sample> sampleList = new ArrayList<>();
+        if (cursor.getPaths() == null) {
+            cursor.setPaths(this.gameBufferIO.getBufferNames());
+        }
+        List<Path> paths = cursor.getPaths();
+        int epochMax = 0;
+        cursor.setEpochs(paths.size());
+        for (int epoch = cursor.getEpoch(); epoch < paths.size()  ; epoch++) {
+            cursor.setEpoch(epoch);
+
+            // cursor.setGameIndex(0);
+            Path path = paths.get(cursor.getEpoch());
+            if (cursor.getPath() == null || !cursor.getPath().equals(path)) {
+                cursor.setPath(path);
+                GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
+                cursor.setGameBufferDTO(gameBufferDTO);
+            }
+
+
+            //    epochMax = Math.max(getEpochFromPath(path), epochMax);
+       //     gameBufferDTO.getGames().forEach(game -> addGame(game, true));
+
+
+            for (int g = cursor.getGameIndex(); g < cursor.getGameBufferDTO().getGames().size(); g++) {
+                cursor.setGameIndex(g);
+                Game game = cursor.getGameBufferDTO().getGames().get(g);
+                for (int gamePos = cursor.getPositionInGame(); gamePos < game.getGameDTO().getActions().size(); gamePos++) {
+                    cursor.setPositionInGame(gamePos);
+                    Sample sample = sampleFromGame(numUnrollSteps, game, gamePos);
+                    sampleList.add(sample);
+                    if (sampleList.size() == batchSize) {
+                        log.info(cursor.toString());
+                        return sampleList;
+                    }
+                }
+            }
+        }
+
+        log.info(cursor.toString());
+        return sampleList;
+    }
+
+
+
+
+
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> sampleBatch(int numUnrollSteps ) {
+    public List<Sample> randomSampleList(int numUnrollSteps, int batchSize ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGames().stream()
+            return sampleGamesFromBuffer(batchSize).stream()
                 .map(game -> sampleFromGame(numUnrollSteps, game))
                 .collect(Collectors.toList());
-
         }
-
-
     }
 
-    public List<Game> sampleGames() {
+    public List<Game> sampleGamesFromBuffer(int batchSize) {
 
-        List<Game> games = getGames();
+        List<Game> games = getGamesFromBuffer();
         Collections.shuffle(games);
 
         return games.stream()
-                .limit(this.batchSize)
+                .limit(batchSize)
                 .collect(Collectors.toList());
     }
 
     @NotNull
-    public List<Game> getGames() {
+    public List<Game> getGamesFromBuffer() {
         List<Game> games = new ArrayList<>(this.buffer.getGames());
         log.trace("Games from buffer: {}",  games.size() );
         return games;
