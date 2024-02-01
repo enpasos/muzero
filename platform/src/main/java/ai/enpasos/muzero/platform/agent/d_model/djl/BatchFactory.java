@@ -53,7 +53,11 @@ public class BatchFactory {
     public Batch getSequentialBatchFromAllExperience(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, SequentialCursor cursor) {
 
         List<Sample> sampleList = gameBuffer.sequentialSampleList(numUnrollSteps, cursor);
-        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+        Batch batch = getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+
+//        sampleList.forEach(s -> s.clear());
+//        sampleList.clear();
+        return batch;
     }
 
     @NotNull

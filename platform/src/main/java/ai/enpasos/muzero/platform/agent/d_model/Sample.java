@@ -62,4 +62,11 @@ public class Sample {
     }
 
 
+    public void clear() {
+        gameBuffer = null;
+        game = null;
+        actionsList.clear();
+        targetList.clear();
+        observations.clear();
+    }
 }

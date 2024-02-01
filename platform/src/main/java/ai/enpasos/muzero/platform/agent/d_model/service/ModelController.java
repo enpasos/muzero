@@ -215,12 +215,14 @@ public class ModelController implements DisposableBean, Runnable {
                                 .batchSize(config.getBatchSize())
                                 .build();
                         while(cursor.hasNext()) {
-                            try (Batch batch = batchFactory.getSequentialBatchFromAllExperience(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), cursor)) {
-                                //  log.debug("trainBatch " + m);
+                            try (NDScope nDScope2 = new NDScope()) {
+                                try (Batch batch = batchFactory.getSequentialBatchFromAllExperience(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), cursor)) {
+                                    //  log.debug("trainBatch " + m);
 
 
-                                MyEasyTrain.trainBatch(trainer, batch);
-                                trainer.step();
+                                    MyEasyTrain.trainBatch(trainer, batch);
+                                    trainer.step();
+                                }
                             }
                         }
 
