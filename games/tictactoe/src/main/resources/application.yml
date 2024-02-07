@@ -75,7 +75,7 @@ muzero:
       consistencyLossWeight: 2
       legalActionsLossWeight: 0.1  # about 1/actionSpaceSize
 
-      numberOfTrainingSteps: 100000
+      numberOfTrainingSteps: 20000
 
       windowSize: 10000
 
@@ -105,8 +105,8 @@ muzero:
           numParallelGamesPlayed: 1000
           tdSteps: 9 # 9 # size * size
           forTdStep0ValueTraining: false
-          numSimulations: 20
-          numSimulationsHybrid: 20
+          numSimulations: 0
+          numSimulationsHybrid: 0
 
           # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
           # dirichlet noise is added before mcts
