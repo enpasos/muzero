@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.EndingAppender.newEndingAppender;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class CausalBottleneckResidualBlock extends AbstractBlock implements OnnxIO {
@@ -42,7 +43,7 @@ public class CausalBottleneckResidualBlock extends AbstractBlock implements Onnx
 private Block block;
 
 
-    public CausalBottleneckResidualBlock(int numChannels, int numBottleneckChannels, boolean rescale) {
+    public CausalBottleneckResidualBlock(int numChannels, int numBottleneckChannels, int numCompressedChannels, boolean rescale) {
         super(MYVERSION);
 
         SequentialBlockExt b1;
@@ -77,7 +78,7 @@ private Block block;
 
         AbstractBlock blockTemp = new ParallelBlockWithAddJoinExt(Arrays.asList(b1, identity));
         if (rescale) {
-            blockTemp = RescaleWrapper.builder().wrappedBlock(blockTemp).build();
+            blockTemp = newEndingAppender(blockTemp, numCompressedChannels);
         }
         block = addChildBlock("causalBottleneckResidualBlock", blockTemp);
 
@@ -95,7 +96,13 @@ private Block block;
 
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
-        return block.forward(parameterStore, inputs, training);
+        try {
+            return block.forward(parameterStore, inputs, training);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
     }
 
     @Override

@@ -17,6 +17,7 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.mnist.blocks.ext.ParallelBlockWithAddJoinExt;
 import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;

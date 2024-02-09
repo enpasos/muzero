@@ -36,7 +36,7 @@ public class DynamicsBlock extends MySequentialBlock implements OnnxIO, Causalit
     @Builder()
     public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config) {
         DynamicsBlock block = new DynamicsBlock();
-
+        block.add(new DynamicsStart(config));
         block.add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
 
         return block;

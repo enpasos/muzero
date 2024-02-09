@@ -32,23 +32,23 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.EndingAppender.newEndingAppender;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class CausalBroadcastResidualBlock extends AbstractBlock implements OnnxIO {
 
 
-    public  final AbstractBlock block;
+    public final AbstractBlock block;
 
-    public CausalBroadcastResidualBlock(int height, int width, int numChannels,  boolean rescale) {
+    public CausalBroadcastResidualBlock(int height, int width, int numChannels, int numCompressedChannels, boolean rescale) {
         super(MYVERSION);
 
         SequentialBlockExt b1;
         SequentialBlockExt identity;
 
         b1 = (SequentialBlockExt) new SequentialBlockExt()
-            .add(new ConcatInputsBlock())
-            .add(Conv3x3.builder().channels(numChannels).build())
-
+                .add(new ConcatInputsBlock())
+                .add(Conv3x3.builder().channels(numChannels).build())
 
                 .add(LayerNormExt.builder().build())
                 .add(ActivationExt.reluBlock())
@@ -63,16 +63,15 @@ public class CausalBroadcastResidualBlock extends AbstractBlock implements OnnxI
                 .add(ActivationExt.reluBlock())
                 .add(Conv1x1.builder().channels(numChannels).build())
 
-
         ;
 
         identity = (SequentialBlockExt) new SequentialBlockExt()
-            .add(BlocksExt.identityOnLastInput());
+                .add(BlocksExt.identityOnLastInput());
 
 
         AbstractBlock blockTemp = new ParallelBlockWithAddJoinExt(Arrays.asList(b1, identity));
         if (rescale) {
-            blockTemp = RescaleWrapper.builder().wrappedBlock(blockTemp).build();
+            blockTemp = newEndingAppender(blockTemp, numCompressedChannels);
         }
         block = addChildBlock("causalBroadcastResidualBlock", blockTemp);
     }

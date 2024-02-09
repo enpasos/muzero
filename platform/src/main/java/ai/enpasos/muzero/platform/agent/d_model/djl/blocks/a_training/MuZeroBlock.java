@@ -93,9 +93,10 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         // initial Inference
         predictionBlock.setWithReward(false);
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDList state = representationResult;
+        NDList stateForPrediction = new NDList(representationResult.get(0), representationResult.get(1), representationResult.get(2));
+        NDList stateForTimeEvolution = new NDList(representationResult.get(3), representationResult.get(4), representationResult.get(5));
 
-        NDList predictionResult = predictionBlock.forward(parameterStore, representationResult, training, params);
+        NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
         for (NDArray prediction : predictionResult.getResourceNDArrays()) {
             combinedResult.add(prediction);
         }
@@ -110,16 +111,20 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
             NDArray action = inputs.get(2 * k - 1);
 
             NDList dynamicIn = new NDList();
-            dynamicIn.addAll(state);
+            dynamicIn.addAll(stateForTimeEvolution);
             dynamicIn.add(action);
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
-            state = dynamicsResult;
+             stateForPrediction = new NDList(dynamicsResult.get(0), dynamicsResult.get(1), dynamicsResult.get(2));
+             stateForTimeEvolution = new NDList(dynamicsResult.get(3), dynamicsResult.get(4), dynamicsResult.get(5));
 
-            predictionResult = predictionBlock.forward(parameterStore, dynamicsResult, training, params);
 
-            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(state), training, params);
+            predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+
+
+            // TODO check similarityProjector input and output
+            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(dynamicsResult.get(0)), training, params);
             NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
 
@@ -135,10 +140,15 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
             }
 
             NDList temp = new NDList();
-            for (int i = 0; i < state.size(); i++) {
-                temp.add(state.get(i).scaleGradient(0.5));
+            for (int i = 0; i < stateForTimeEvolution.size(); i++) {
+                temp.add(stateForTimeEvolution.get(i).scaleGradient(0.5));
             }
-            state = temp;
+            stateForTimeEvolution = temp;
+            temp = new NDList();
+            for (int i = 0; i < stateForPrediction.size(); i++) {
+                temp.add(stateForPrediction.get(i).scaleGradient(0.5));
+            }
+            stateForPrediction = temp;
 
         }
         return combinedResult;
@@ -151,8 +161,15 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         // initial Inference
         predictionBlock.setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
-        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapes);
-        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlockOutputShapes);
+
+        Shape[] stateOutputShapesForPrediction = new Shape[]{stateOutputShapes[0], stateOutputShapes[1], stateOutputShapes[2]};
+        Shape[] stateOutputShapesForTimeEvolution = new Shape[]{stateOutputShapes[3], stateOutputShapes[4], stateOutputShapes[5]};
+
+
+
+
+        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
+        outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
             // recurrent Inference
@@ -169,7 +186,12 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
             }
             stateOutputShapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
 
-            outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapes));
+            stateOutputShapesForPrediction = new Shape[]{stateOutputShapes[0], stateOutputShapes[1], stateOutputShapes[2]};
+             stateOutputShapesForTimeEvolution = new Shape[]{stateOutputShapes[3], stateOutputShapes[4], stateOutputShapes[5]};
+
+
+
+            outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
 
         }
         return outputShapes;
@@ -199,15 +221,22 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[0]});
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
+        Shape[] predictionInputShape = new Shape[3];
+        predictionInputShape[0] = stateOutputShapes[0];
+        predictionInputShape[1] = stateOutputShapes[1];
+        predictionInputShape[2] = stateOutputShapes[2];
+
+
+
         predictionBlock.setWithReward(true);
-        predictionBlock.initialize(manager, dataType, stateOutputShapes);
+        predictionBlock.initialize(manager, dataType, predictionInputShape);
 
 
         Shape actionShape = inputShapes[1];
-        Shape[] dynamicsInputShape = new Shape[stateOutputShapes.length +1];
-        dynamicsInputShape[0] = stateOutputShapes[0];
-        dynamicsInputShape[1] = stateOutputShapes[1];
-        dynamicsInputShape[2] = stateOutputShapes[2];
+        Shape[] dynamicsInputShape = new Shape[4];
+        dynamicsInputShape[0] = stateOutputShapes[3];
+        dynamicsInputShape[1] = stateOutputShapes[4];
+        dynamicsInputShape[2] = stateOutputShapes[5];
         dynamicsInputShape[3] = actionShape;
 
         dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);

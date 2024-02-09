@@ -28,16 +28,16 @@ import org.jetbrains.annotations.NotNull;
     }
 
     @Builder()
-    public static @NotNull CausalResidualTower newCausalResidualTower(int height, int width, int numResiduals,  int numChannelsRules, int numChannelsPolicy, int numChannelsValue,  int broadcastEveryN, boolean rescaleOnEnd) {
+    public static @NotNull CausalResidualTower newCausalResidualTower(int height, int width, int numResiduals,  int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy, int numCompressedChannelsValue,  int broadcastEveryN ) {
         CausalResidualTower instance = new CausalResidualTower();
         for (int i = 0; i < numResiduals; i++) {
             boolean rescale = false;
-            if (i == numResiduals - 1 && rescaleOnEnd) rescale = true;
+            if (i == numResiduals - 1  ) rescale = true;
 
             if (i % broadcastEveryN == broadcastEveryN - 1) {
-                instance.add(new CausalBroadcastResidualLayersBlock(height, width, numChannelsRules, numChannelsPolicy,  numChannelsValue, rescale));
+                instance.add(new CausalBroadcastResidualLayersBlock(height, width, numChannelsRules, numChannelsPolicy,  numChannelsValue,   numCompressedChannelsRules,   numCompressedChannelsPolicy,   numCompressedChannelsValue, rescale));
             } else {
-                instance.add(new CausalBottleneckResidualLayersBlock( numChannelsRules, numChannelsPolicy,  numChannelsValue,  rescale));
+                instance.add(new CausalBottleneckResidualLayersBlock( numChannelsRules, numChannelsPolicy,  numChannelsValue,   numCompressedChannelsRules,   numCompressedChannelsPolicy,   numCompressedChannelsValue, rescale));
             }
         }
         return instance;

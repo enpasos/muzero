@@ -183,6 +183,17 @@ public class MuZeroConfig {
         return getConf().numChannelsValue;
     }
 
+
+    public int getNumCompressedChannelsPolicy() {
+        return getConf().numCompressedChannelsPolicy;
+    }
+    public int getNumCompressedChannelsRules() {
+        return getConf().numCompressedChannelsRules;
+    }
+    public int getNumCompressedChannelsValue() {
+        return getConf().numCompressedChannelsValue;
+    }
+
     public int getNumBottleneckChannels() {
         return getConf().numBottleneckChannels;
     }
@@ -495,9 +506,15 @@ public class MuZeroConfig {
         protected int numObservationLayers;
         protected int numActionLayers;
         protected int numChannels;
+
+
         protected int numChannelsRules;
         protected int numChannelsPolicy;
         protected int numChannelsValue;
+
+        protected int numCompressedChannelsRules;
+        protected int numCompressedChannelsPolicy;
+        protected int numCompressedChannelsValue;
 
         protected int broadcastEveryN;
         protected int numBottleneckChannels;

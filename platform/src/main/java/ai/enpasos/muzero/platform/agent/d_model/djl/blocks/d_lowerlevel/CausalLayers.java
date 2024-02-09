@@ -26,6 +26,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     private final List<Block> layers;
+    private final boolean rescale;
 
 
     @Override
@@ -39,8 +40,9 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
     // Layers are ordered bottom up in the list
     // Each layer may depend on the output of the previous layers (with s)
     // There is no backpropagation across layer boundaries
-    public CausalLayers(List<Block> layers ) {
+    public CausalLayers(List<Block> layers, boolean rescale ) {
         this.layers = layers;
+        this.rescale = rescale;
         for(Block layer: layers) {
             this.addChildBlock("CausalLayer", layer);
         }
@@ -54,7 +56,8 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
     // The inputs to the layers are ordered again bottom up (the major one is the last one)
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
-        NDList combinedResult = new NDList();
+        NDList combinedResultA = new NDList();
+        NDList combinedResultB = new NDList();
         for(int k = 0; k < layers.size(); k++) {
             Block layer = layers.get(k);
             NDList layerInput = new NDList();
@@ -72,19 +75,26 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
                 layerInput.add(0, extraInput);
             }
 
-            NDArray resultArray = layer.forward(parameterStore, layerInput, training, params).get(0);
-            combinedResult.add(resultArray);
+            NDList resultList = layer.forward(parameterStore, layerInput, training, params);
+            combinedResultA.add(resultList.get(0));  // for prediction
+            if (rescale) {
+                combinedResultB.add(resultList.get(1));  // for time evolution
+            }
         }
-        return combinedResult;
+        return combinedResultA.addAll(combinedResultB);
     }
 
 
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        Shape[] outputShapes = new Shape[layers.size()];
+        Shape[] outputShapes = new Shape[rescale ? 2*layers.size() : layers.size()];
         for (int i = 0; i < layers.size(); i++) {
-            outputShapes[i] = inputShapes[i];
+            Shape[] outputShapesHere = layers.get(i).getOutputShapes(new Shape[] {inputShapes[i]});
+            outputShapes[i] = outputShapesHere[0];
+            if (rescale) {
+                outputShapes[i + layers.size()] = outputShapesHere[1];
+            }
         }
         return outputShapes;
     }
@@ -126,14 +136,13 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
             .build();
 
         int concatDim = 1;
-        List<OnnxTensor> outputsToBeConcatenated = new ArrayList<>();
-        long size = 0; // along the concatenation dim
-        OnnxTensor childOutput = null;
+        List<OnnxTensor> outputsA = new ArrayList<>();
+        List<OnnxTensor> outputsB = new ArrayList<>();
+        OnnxTensor childOutputA = null;
+        OnnxTensor childOutputB = null;
         int c = 0;
         for (Pair<String, Block> p : this.getChildren()) {
             OnnxIO onnxIO = (OnnxIO) p.getValue();
-
-
 
             List<OnnxTensor> myInput = new ArrayList<>();
             for(int j = 0; j < c; j++) {
@@ -151,16 +160,18 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
 
             OnnxBlock child = onnxIO.getOnnxBlock(counter, myInput);
             onnxBlock.addChild(child);
-            if (child.getOutput().size() > 1)
-                throw new RuntimeException("each output is assumed to be a single tensor here");
-            childOutput = child.getOutput().get(0);
-            outputsToBeConcatenated.add(childOutput);
-            size += childOutput.getShape().get(concatDim);
+            childOutputA = child.getOutput().get(0);
+            outputsA.add(childOutputA);
+            if (rescale) {
+                childOutputB = child.getOutput().get(1);
+                outputsB.add(childOutputB);
+            }
             c++;
         }
-
-
-        onnxBlock.setOutput(outputsToBeConcatenated);
+        if (rescale) {
+            outputsA.addAll(outputsB);
+        }
+        onnxBlock.setOutput(outputsA);
 
         return onnxBlock;
     }

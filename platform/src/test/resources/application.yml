@@ -53,6 +53,10 @@ muzero:
       numChannelsPolicy: 80
       numChannelsValue: 80
 
+      numCompressedChannelsRules: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
       # Gumbel MuZero parameters
       initialGumbelM: 4
       cVisit: 20  # 50 in paper

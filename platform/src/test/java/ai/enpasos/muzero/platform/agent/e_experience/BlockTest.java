@@ -35,7 +35,7 @@ class BlockTest {
     void causalBroadcastResidualBlock2RANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBroadcastResidualBlock2.onnx",
-                new CausalBroadcastResidualBlock(3,3, 80,  false),
+                new CausalBroadcastResidualBlock(3,3, 80,  20,false),
                 List.of(new Shape(1, 1, 3, 3), new Shape(1, 80, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
@@ -46,7 +46,17 @@ class BlockTest {
     void causalBottleneckResidualLayersBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBottleneckResidualLayersBlock.onnx",
-                new CausalBottleneckResidualLayersBlock(80, 80,80, false),
+                new CausalBottleneckResidualLayersBlock(80, 80,80, 20, 20, 20, false),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
+    void causalBottleneckResidualLayersWithRescaleBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalBottleneckResidualLayersWithRescaleBlock.onnx",
+                new CausalBottleneckResidualLayersBlock(80, 80,80, 20, 20, 20, true),
                 List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
@@ -56,7 +66,7 @@ class BlockTest {
     void causalBottleneckResidualLayersBlock2RANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBottleneckResidualLayersBlock2.onnx",
-                new CausalBottleneckResidualLayersBlock(80, 80,80, false),
+                new CausalBottleneckResidualLayersBlock(80, 80,80, 20, 20, 20, false),
                 List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 3, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
@@ -86,23 +96,41 @@ class BlockTest {
     void causalBottleneckResidualBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBottleneckResidualBlock.onnx",
-                new CausalBottleneckResidualBlock(80, 60,  false),
+                new CausalBottleneckResidualBlock(80, 60,  20,false),
                 List.of(new Shape(1, 80, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
     }
 
-
+    @Test
+    void causalBottleneckResidualBlockWithRescaleRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalBottleneckResidualBlockWithRescale.onnx",
+                new CausalBottleneckResidualBlock(80, 60,  20,true),
+                List.of(new Shape(1, 80, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
 
     @Test
     void causalBottleneckResidualBlock2RANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBottleneckResidualBlock2.onnx",
-                new CausalBottleneckResidualBlock(80, 60,  false),
+                new CausalBottleneckResidualBlock(80, 60, 20, false),
                 List.of(new Shape(1, 1, 3, 3), new Shape(1, 80, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
     }
+
+//    @Test
+//    void endingAppenderRANDOM() throws Exception {
+//        boolean check = compareOnnxWithDJL(
+//                "./build/EndingAppender.onnx",
+//                EndingAppender.newEndingAppender(BroadcastBlock.builder().setUnits(3 * 3).build(), 3),
+//                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3),new Shape(1, 80, 3, 3),new Shape(1, 1, 3, 3)),
+//                RANDOM);
+//        Assertions.assertTrue(check);
+//    }
 
     @Test
     void dynamicsBlockRANDOM() throws Exception {

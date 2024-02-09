@@ -47,13 +47,11 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
 
     private final DynamicsBlock g;
     private final PredictionBlock f;
-   // private final RewardBlock r;
 
     public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock ) {
         super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
         f = this.addChildBlock("Prediction", predictionBlock);
-      //  r = this.addChildBlock("Reward", rewardBlock);
     }
 
     public DynamicsBlock getG() {
@@ -63,9 +61,6 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
     public PredictionBlock getF() {
         return f;
     }
-//    public RewardBlock getR() {
-//        return r;
-//    }
 
     /**
      * @param inputs First input for state, second for action
@@ -74,8 +69,9 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList gResult = g.forward(parameterStore, inputs, training);
         f.setWithReward(true);
-        NDList fResult = f.forward(parameterStore, gResult, training);
-        return gResult.addAll(fResult);
+        NDList fResult = f.forward(parameterStore, new NDList(gResult.get(0), gResult.get(1),gResult.get(2)), training, params);
+        NDList result = new NDList(gResult.get(3), gResult.get(4),gResult.get(5));
+        return result.addAll(fResult);
     }
 
 
@@ -83,18 +79,20 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         f.setWithReward(true);
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
-        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
-      //  Shape[] rOutputShapes = r.getOutputShapes(gOutputShapes);
-        return ArrayUtils.addAll(gOutputShapes, fOutputShapes);
+
+        Shape[] gOutputShapesForPrediction = new Shape[]{gOutputShapes[0], gOutputShapes[1], gOutputShapes[2]};
+        Shape[] gOutputShapesForTimeEvolution = new Shape[]{gOutputShapes[3], gOutputShapes[4], gOutputShapes[5]};
+
+
+
+        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapesForPrediction);
+        return ArrayUtils.addAll(gOutputShapesForTimeEvolution, fOutputShapes);
     }
 
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
 throw new MuZeroException("implemented in MuZeroBlock");
-//        g.initialize(manager, dataType, inputShapes);
-//        Shape[] hOutputShapes = g.getOutputShapes(inputShapes);
-//        f.initialize(manager, dataType, hOutputShapes);
     }
 
     @Override
@@ -120,14 +118,21 @@ throw new MuZeroException("implemented in MuZeroBlock");
         OnnxBlock gOnnx = g.getOnnxBlock(counter, input);
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
-        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutput);
+
+        List<OnnxTensor> gOutputForF = List.of(gOutput.get(0), gOutput.get(1), gOutput.get(2));
+        List<OnnxTensor> gOutputForG = List.of(gOutput.get(3), gOutput.get(4), gOutput.get(5));
+
+
+
+
+        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);
         onnxBlock.addChild(fOnnx);
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
 
         List<OnnxTensor> totalOutput = new ArrayList<>();
-        totalOutput.addAll(gOutput);
+        totalOutput.addAll(gOutputForG);
         totalOutput.addAll(fOutput);
 
         onnxBlock.setOutput(totalOutput);

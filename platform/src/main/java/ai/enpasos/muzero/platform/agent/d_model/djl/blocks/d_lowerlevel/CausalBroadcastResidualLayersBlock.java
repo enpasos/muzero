@@ -44,16 +44,16 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
 
 
 
-    public CausalBroadcastResidualLayersBlock(int height, int width, int numChannelsRules, int numChannelsPolicy, int numChannelsValue, boolean rescale) {
+    public CausalBroadcastResidualLayersBlock(int height, int width, int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy, int numCompressedChannelsValue, boolean rescale) {
         super(MYVERSION);
 
-         CausalBroadcastResidualBlock ruleBlock = new CausalBroadcastResidualBlock(height, width, numChannelsRules, rescale);
-         CausalBroadcastResidualBlock policyBlock = new CausalBroadcastResidualBlock(height, width, numChannelsPolicy,  rescale);
-         CausalBroadcastResidualBlock valueBlock = new CausalBroadcastResidualBlock(height, width,  numChannelsValue,  rescale);
+         CausalBroadcastResidualBlock ruleBlock = new CausalBroadcastResidualBlock(height, width, numChannelsRules, numCompressedChannelsRules,rescale);
+         CausalBroadcastResidualBlock policyBlock = new CausalBroadcastResidualBlock(height, width, numChannelsPolicy, numCompressedChannelsPolicy,  rescale);
+         CausalBroadcastResidualBlock valueBlock = new CausalBroadcastResidualBlock(height, width,  numChannelsValue, numCompressedChannelsValue,  rescale);
 
 
         block = addChildBlock("causalBroadcastResidualLayersBlock", new CausalLayers(
-            Arrays.asList(ruleBlock, policyBlock, valueBlock)));
+            Arrays.asList(ruleBlock, policyBlock, valueBlock), rescale));
     }
 
     @Override
@@ -73,11 +73,12 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
-        List<Shape> shapes = new ArrayList<>();
-        for (Block myblock : block.getChildren().values()) {
-            shapes.add(myblock.getOutputShapes(inputs)[0]);
-        }
-        return shapes.toArray(new Shape[0]);
+        return block.getOutputShapes(inputs);
+//        List<Shape> shapes = new ArrayList<>();
+//        for (Block myblock : block.getChildren().values()) {
+//            shapes.add(myblock.getOutputShapes(inputs)[0]);
+//        }
+//        return shapes.toArray(new Shape[0]);
     }
 
     @Override
