@@ -59,6 +59,10 @@ muzero:
       numChannelsPolicy: 50
       numChannelsValue: 50
 
+      numCompressedChannelsRules: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
 
       numBottleneckChannels: 6
 

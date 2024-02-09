@@ -82,6 +82,14 @@ muzero:
       numChannelsHiddenLayerSimilarityPredictor: 250
       numChannelsOutputLayerSimilarityPredictor: 500
 
+      numChannelsRules: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRules: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
 
       offPolicyCorrectionOn: true
       allOrNothingOn: true
@@ -201,6 +209,14 @@ muzero:
 
       numChannels: 128     # 256 in the paper
       numBottleneckChannels: 64
+
+      numChannelsRules: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRules: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
 
 
       numResiduals: 12
