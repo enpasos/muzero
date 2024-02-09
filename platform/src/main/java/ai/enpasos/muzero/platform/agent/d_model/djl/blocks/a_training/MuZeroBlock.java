@@ -124,7 +124,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
 
             // TODO check similarityProjector input and output
-            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(dynamicsResult.get(0)), training, params);
+            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList( stateForTimeEvolution.get(0)), training, params);
             NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
 
@@ -144,11 +144,11 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
                 temp.add(stateForTimeEvolution.get(i).scaleGradient(0.5));
             }
             stateForTimeEvolution = temp;
-            temp = new NDList();
-            for (int i = 0; i < stateForPrediction.size(); i++) {
-                temp.add(stateForPrediction.get(i).scaleGradient(0.5));
-            }
-            stateForPrediction = temp;
+//            temp = new NDList();
+//            for (int i = 0; i < stateForPrediction.size(); i++) {
+//                temp.add(stateForPrediction.get(i).scaleGradient(0.5));
+//            }
+//            stateForPrediction = temp;
 
         }
         return combinedResult;
