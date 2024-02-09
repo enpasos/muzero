@@ -123,13 +123,13 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
             predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
 
-            // TODO check similarityProjector input and output
+
             NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList( stateForTimeEvolution.get(0)), training, params);
             NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
 
             representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, representationResult, training, params).get(0);
+            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
             combinedResult.add(similarityPredictorResult);
@@ -216,9 +216,9 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         representationBlock.initialize(manager, dataType, inputShapes[0]);
 
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
-        similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[0]);
+        similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[3]);
 
-        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[0]});
+        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[3]});
         this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
         Shape[] predictionInputShape = new Shape[3];
