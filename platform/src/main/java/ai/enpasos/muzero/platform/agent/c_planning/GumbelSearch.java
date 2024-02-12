@@ -11,10 +11,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -390,18 +387,18 @@ public class GumbelSearch {
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
-                    action = getAction(temperature, raw, game);
+                    action = getAction( raw, game, true);
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
                     game.getGameDTO().getPlayoutPolicy().add(d2f(softmax(raw, 1d)));
                     action = selectedAction;
                 } else {
-                    action = getAction(1d, raw, game);
+                    action = getAction(raw, game, false);
                 }
             }
         } else {
-            action = getAction(temperature, raw, game);
+            action = getAction(raw, game, true);
         }
         return action;
 
@@ -409,7 +406,27 @@ public class GumbelSearch {
 
 
 
-    private Action getAction(double temperature, double[] raw, Game game) {
+    private Action getAction(double[] raw, Game game, boolean withTemperature) {
+
+        double[] p = softmax(raw);
+        double pmin = Arrays.stream(p).filter(d -> d > 0d).min().getAsDouble();
+        double zmin = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).min().getAsDouble();
+        double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
+
+
+        double pminThreshold = 0.0001d;  // TODO make configurable and a function of some number of playouts
+        if (withTemperature && pmin < pminThreshold) {
+            double temperature = (zmax - zmin)/Math.log(1/pminThreshold);
+            log.info("temperature: " + temperature);
+            p = softmax(raw, temperature);
+        }
+
+        game.getGameDTO().getPlayoutPolicy().add(d2f(p));
+        int i = draw(p);
+        return config.newAction(i);
+    }
+
+    private Action getActionOld(double temperature, double[] raw, Game game) {
         Action action;
         double[] p = softmax(raw, temperature);
         game.getGameDTO().getPlayoutPolicy().add(d2f(p));

@@ -3,10 +3,10 @@ lombok = "1.18.30"
 djl = "0.26.0"
 pytorch = "2.1.1"
 
-slf4j = "2.0.11"
+slf4j = "2.0.12"
 springboot = "3.2.2"
 protobuf = "3.25.2"
-junit = "5.10.1"
+junit = "5.10.2"
 jackson = "2.16.1"
 
 [libraries]
