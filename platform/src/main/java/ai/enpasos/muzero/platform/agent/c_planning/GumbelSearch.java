@@ -414,7 +414,7 @@ public class GumbelSearch {
         double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
 
 
-        double pminThreshold = 0.001d;  // TODO make configurable and a function of some number of playouts
+        double pminThreshold = 0.01d;  // TODO make configurable and a function of some number of playouts
         if (withTemperature && pmin < pminThreshold) {
             double temperature = (zmax - zmin)/Math.log(1/pminThreshold);
             log.info("temperature: " + temperature);
