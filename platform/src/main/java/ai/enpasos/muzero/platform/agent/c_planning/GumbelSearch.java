@@ -387,18 +387,18 @@ public class GumbelSearch {
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
-                    action = getAction( raw, game, true);
+                    action = getAction(temperature, raw, game, true);
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
                     game.getGameDTO().getPlayoutPolicy().add(d2f(softmax(raw, 1d)));
                     action = selectedAction;
                 } else {
-                    action = getAction(raw, game, false);
+                    action = getAction(1d, raw, game, false);
                 }
             }
         } else {
-            action = getAction(raw, game, true);
+            action = getAction(temperature, raw, game, true);
         }
         return action;
 
@@ -406,17 +406,17 @@ public class GumbelSearch {
 
 
 
-    private Action getAction(double[] raw, Game game, boolean withTemperature) {
+    private Action getAction(double temperature, double[] raw, Game game, boolean explorationTime) {
 
-        double[] p = softmax(raw);
+        double[] p = softmax(raw,  temperature);
         double pmin = Arrays.stream(p).filter(d -> d > 0d).min().getAsDouble();
         double zmin = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).min().getAsDouble();
         double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
 
 
         double pminThreshold = 0.01d;  // TODO make configurable and a function of some number of playouts
-        if (withTemperature && pmin < pminThreshold) {
-            double temperature = (zmax - zmin)/Math.log(1/pminThreshold);
+        if (explorationTime && pmin < pminThreshold) {
+             temperature = temperature * (zmax - zmin)/Math.log(1/pminThreshold);
             log.info("temperature: " + temperature);
             p = softmax(raw, temperature);
         }
