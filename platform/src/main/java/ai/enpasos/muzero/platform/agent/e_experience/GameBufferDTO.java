@@ -67,9 +67,9 @@ public class GameBufferDTO {
         return config.getWindowSize();
     }
 
-    public void removeGame(Game game) {
-        this.episodeMemory.remove(game);
-    }
+//    public void removeGame(Game game) {
+//        this.episodeMemory.remove(game);
+//    }
 
 //    public boolean addGameAndRemoveOldGameIfNecessary(@NotNull Game game ) {
 //        while (isBufferFilled()) {
