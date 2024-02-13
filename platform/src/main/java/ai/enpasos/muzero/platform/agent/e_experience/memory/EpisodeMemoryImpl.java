@@ -28,8 +28,9 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     synchronized public void add(Game game) {
         game.getEpisodeDO().setGame(game);
         while (gameList.size() >= capacity) {
-           Game gameToRemove = gameList.get(0);
-           remove(gameToRemove);
+          // Game gameToRemove = gameList.get(0);
+           gameList.remove(0);
+          // remove(gameToRemove);
         }
         gameList.add(game);
 //        for(TimeStepDO ts : game.getEpisodeDO().getTimeSteps()) {
@@ -37,13 +38,13 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
 //        }
     }
 
-    @Override
-    synchronized public void remove(Game game) {
-        gameList.remove(game);
-//        for(TimeStepDO ts : game.getEpisodeDO().getTimeSteps()) {
-//            remove(game, ts.getT());
-//        }
-    }
+//    @Override
+//    synchronized public void remove(Game game) {
+//        gameList.remove(game);
+////        for(TimeStepDO ts : game.getEpisodeDO().getTimeSteps()) {
+////            remove(game, ts.getT());
+////        }
+//    }
 
 //    @Override
 //    public boolean visitsUnvisitedAction(Game game) {
