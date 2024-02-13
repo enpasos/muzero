@@ -211,7 +211,7 @@ public abstract class Game {
         // perspective is missing
         float reward;
         if (currentIndex > 0 && currentIndex <= this.episodeDO.getLastTimeWithAction()) {
-            reward = this.getReward(currentIndex - 1);
+            reward = episodeDO.getTimeStep(currentIndex - 1).getReward();
         } else {
             reward = 0f;
         }
