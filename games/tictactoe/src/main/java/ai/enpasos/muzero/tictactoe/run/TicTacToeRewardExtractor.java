@@ -19,7 +19,7 @@ package ai.enpasos.muzero.tictactoe.run;
 
 import ai.enpasos.muzero.platform.agent.d_model.Inference;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.e_experience.GameBufferIO;
+import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -48,35 +48,38 @@ public class TicTacToeRewardExtractor {
     @Autowired
     GameProvider gameProvider;
 
-    @Autowired
-    GameBufferIO replayBufferIO;
+
 
     @Autowired
-    Inference inference;
+    NetworkIOService networkIOService;
+
 
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
     public void run() {
 
 
         // a double mistake game
-        int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
+        //int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
+
+        // a normal game
+        int[] actions = {2, 4, 1, 0, 8, 5, 3, 7, 6};
+
+
         int start = 0;
-        int stop =  replayBufferIO.getLatestNetworkEpoch();
+        int stop =  networkIOService.getLatestNetworkEpoch();
 
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 
-        double[][] rewards = new double[stop - start + 1][actions.length];
-        for (int epoch = start; epoch <= stop; epoch++) {
-            rewards[epoch-start] = inference.getInRewards(epoch, actions);
-        }
+        List<Optional<Game>> games = IntStream.rangeClosed(start, stop)
+            .mapToObj(epoch -> gameProvider.getGameStartingWithActionsFromStartForEpoch(epoch, actions))
+            .toList();
 
-
-        System.out.println(listRewardsForTrainedNetworks(rewards, start, stop, actions.length));
+        System.out.println(listEntropyValuesForTrainedNetworks(games, start, stop, actions.length + 1));
 
     }
 
     @SuppressWarnings("squid:S1141")
-    public String listRewardsForTrainedNetworks(double[][] rewards, int start, int stop, int numValues) {
+    public String listEntropyValuesForTrainedNetworks(List<Optional<Game>> games, int start, int stop, int numValues) {
 
         StringWriter stringWriter = new StringWriter();
         List<String> header = new ArrayList<>();
@@ -89,10 +92,10 @@ public class TicTacToeRewardExtractor {
                 Object[] objects = new Object[stop - start + 2];
                 objects[0] = t;
                 for (int epoch = start; epoch <= stop; epoch++) {
-                    double valuePlayer = rewards[epoch - start][t];
-                    if (config.getPlayerMode() == PlayerMode.TWO_PLAYERS) {
-                        valuePlayer *= Math.pow(-1, t);
-                    }
+                    Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
+//                    List<Float> values = game.getGameDTO().getRootEntropyValuesFromInitialInference();
+//                    double valuePlayer = values.get(t);
+                    double valuePlayer = game.getEpisodeDO().getTimeSteps().get(t).getRootEntropyValueFromInitialInference();
                     objects[1 + epoch - start] = NumberFormat.getNumberInstance().format(valuePlayer);
                 }
                 try {

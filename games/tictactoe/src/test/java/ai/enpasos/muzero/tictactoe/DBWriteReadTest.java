@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class ProtobufferTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+class DBWriteReadTest {
 
 
     @Autowired
@@ -50,21 +52,12 @@ class ProtobufferTest {
 
 
 
-    @Test
-    void writeAndReadProtoBufTest() {
 
-        writeAndReadTest();
-    }
 
     @Test
-    void writeAndReadProtoBuf2Test() {
-
-        writeAndRead2Test();
-    }
-
-    private void writeAndReadTest() {
+    void writeAndReadTest() {
         gameBuffer.init();
-        config.setOutputDir("./build/tictactoeTest/");
+       // config.setOutputDir("./build/tictactoeTest/");
         play.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
@@ -76,21 +69,22 @@ class ProtobufferTest {
                             .build());
            // System.out.println(games.get(0).getGameDTO().getActions());
             modelState.setEpoch(10);
-            gameBuffer.addGames(games, false);
+            gameBuffer.addGames(games);
 
             GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
 
             gameBuffer.setBuffer(null);
             gameBuffer.loadLatestStateIfExists();
             GameBufferDTO dtoNew = gameBuffer.getBuffer();
-            assertTrue(dtoOriginal.deepEquals(dtoNew), "game buffers should be the same");
+            assertTrue(deepEquals(dtoOriginal, dtoNew), "game buffers should be the same");
 
         }
     }
 
-    private void writeAndRead2Test() {
+
+    @Test
+    void writeAndRead2Test() {
         gameBuffer.init();
-        config.setOutputDir("./build/tictactoeTest2/");
         play.deleteNetworksAndGames();
         try (Model model = Model.newInstance(config.getModelName(), Device.cpu())) {
             Network network = new Network(config, model);
@@ -99,14 +93,34 @@ class ProtobufferTest {
             List<Game> games = List.of(game);
 
             modelState.setEpoch(10);
-            gameBuffer.addGames(games, false);
+            gameBuffer.addGames(games);
 
             GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
             gameBuffer.setBuffer(null);
             gameBuffer.loadLatestStateIfExists();
             GameBufferDTO dtoNew = gameBuffer.getBuffer();
-            assertTrue(dtoOriginal.deepEquals(dtoNew), "game buffers should be the same");
+            assertTrue(deepEquals(dtoOriginal,dtoNew), "game buffers should be the same");
 
         }
     }
+
+    public boolean deepEquals(GameBufferDTO dtoOld, GameBufferDTO dtoNew) {
+        // implement a deep equals
+        boolean base =  dtoOld.getConfig().equals(dtoNew.getConfig())
+                && dtoOld.getCounter() == dtoNew.getCounter()
+                && dtoOld.getGameClassName().equals(dtoNew.getGameClassName())
+                && dtoOld.getEpisodeMemory().getNumberOfEpisodes() == dtoNew.getEpisodeMemory().getNumberOfEpisodes();
+
+        if (!base) return false;
+
+
+        List<Game> oldGames = dtoOld.getEpisodeMemory().getGameList();
+        List<Game> newGames = dtoNew.getEpisodeMemory().getGameList();
+        for (int i = 0; i < oldGames.size(); i++) {
+            if (!oldGames.get(i).deepEquals(newGames.get(i))) return false;
+        }
+        return true;
+    }
+
+
 }

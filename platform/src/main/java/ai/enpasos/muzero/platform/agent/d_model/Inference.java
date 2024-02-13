@@ -23,6 +23,8 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.b_episode.PlayParameters;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.DeviceType;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -32,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -256,16 +259,70 @@ public class Inference {
                     .replay(false)
                     .build());
 
-            List<Action> actions = games.stream().map(g -> config.newAction(g.getGameDTO().getActions().get(g.getGameDTO().getActions().size()-1))).collect(Collectors.toList());
+
+            games.stream().forEach(g -> {
+                EpisodeDO episodeDO = g.getEpisodeDO();
+                TimeStepDO timeStepDO = episodeDO.getLastTimeStepWithAction();
+                result.add(Pair.create((double) timeStepDO.getRootValueFromInitialInference(), timeStepDO.getAction()));
+            });
+
+        }
+        return result;
+    }
+
+
+    @SuppressWarnings("java:S1135")
+    public List<float[]> policyValuesFromPlanning(boolean withMCTS, Collection<Game> gamesInput) {
+
+
+        List<Game> games = new ArrayList<>();
+        for (Game game : gamesInput) {
+            games.add(game.copy());
+        }
+
+        List<NetworkIO> networkOutputList = null;
+
+
+        int actionIndexSelectedByNetwork;
+
+        List<float[]> result = new ArrayList<>();
+
+        if (!withMCTS) {
+            try {
+                networkOutputList = modelService.initialInference(games).get();
+            } catch (ExecutionException e) {
+                throw new MuZeroException(e);
+            } catch (InterruptedException e) {
+                log.error("Interrupted", e);
+                Thread.interrupted();
+            }
 
             for (int g = 0; g < games.size(); g++) {
                 Game game = games.get(g);
-                Action action = actions.get(g);
-                actionIndexSelectedByNetwork = action.getIndex();
-                List<Float> values = game.getGameDTO().getRootValuesFromInitialInference();
-                double aiValue =  values.get(values.size()-1);
-                result.add(Pair.create(aiValue, actionIndexSelectedByNetwork));
+                List<Action> legalActions = game.legalActions();
+                float[] policyValues = Objects.requireNonNull(networkOutputList).get(g).getPolicyValues();
+                result.add(policyValues);
             }
+
+        } else {
+
+            playService.playGames(games,
+                    PlayParameters.builder()
+                            .render(false)
+                            .fastRulesLearning(false)
+                            .justInitialInferencePolicy(false)
+                            .pRandomActionRawAverage(0)
+                            .untilEnd(false)
+                            .withGumbel(config.isWithGumbel())
+                            .replay(false)
+                            .build());
+
+            games.stream().forEach(g -> {
+                EpisodeDO episodeDO = g.getEpisodeDO();
+                float[] policyValues = episodeDO.getLastTimeStepWithAction().getPolicyTarget();
+                result.add(policyValues);
+            });
+
         }
         return result;
     }

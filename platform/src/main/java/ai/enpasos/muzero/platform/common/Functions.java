@@ -56,6 +56,17 @@ public class Functions {
         return Arrays.stream(vs).map(v -> v / sum).toArray();
     }
 
+
+    public static double nonSimilarity(float[] aF, float[] bF) {
+        double[] a = f2d(aF);
+        double[] b = f2d(bF);
+        double epsilon = 1e-15;
+        double aNorm = Math.sqrt(dotProduct(a, a));
+        double bNorm = Math.sqrt(dotProduct(b, b));
+        double normProd = aNorm * bNorm;
+         return  (normProd-dotProduct(a, b))/(Math.max(normProd,epsilon));
+    }
+
     private static double[] softmax0(double[] raw) {
         double[] result = new double[raw.length];
         int maxi = 0;
@@ -69,6 +80,34 @@ public class Functions {
         result[maxi] = 1.0;
         return result;
     }
+
+    public static double[] rescaleLogitsIfOutsideInterval(double[] raw, double maxScaleInterval) {
+
+        // double minScaleInterval = 0d;
+        double maxRaw = - Double.MAX_VALUE;
+        double minRaw = Double.MAX_VALUE;
+        for (int i = 0; i < raw.length; i++) {
+            if (Double.isInfinite(raw[i])) continue;
+            if (raw[i] > maxRaw) {
+                maxRaw = raw[i];
+            }
+            if (raw[i] < minRaw) {
+                minRaw = raw[i];
+            }
+        }
+        double maxInterval = maxRaw - minRaw;
+
+        if (maxInterval <= maxScaleInterval) return raw;
+
+        double scale =   maxScaleInterval / maxInterval;
+        double[] rescaled = new double[raw.length];
+        for (int i = 0; i < raw.length; i++) {
+            rescaled[i] = (raw[i] == Double.NEGATIVE_INFINITY) ? Double.NEGATIVE_INFINITY : (raw[i] - minRaw) * scale  ;
+        }
+        return rescaled;
+
+    }
+
 
     public static double[] f2d(float[] ps) {
         return IntStream.range(0, ps.length).mapToDouble(i -> ps[i]).toArray();
@@ -150,5 +189,16 @@ public class Functions {
         return IntStream.range(0, a.length).mapToDouble(
             i -> a[i] + b[i]
         ).toArray();
+    }
+
+    public static double dotProduct(double[] a, double[] b) {
+        if (a.length != b.length) {
+            throw new MuZeroException("vectors in add operation should have the same length");
+        }
+        double prod = 0;
+        for(int i = 0; i< a.length ; i++) {
+            prod += a[i] * b[i];
+        }
+        return prod;
     }
 }

@@ -56,14 +56,15 @@ public class GameProvider {
     @NotNull
     public Optional<Game> getGame() {
         gameBuffer.loadLatestStateIfExists();
-        return Optional.of(gameBuffer.getBuffer().getGames().get(gameBuffer.getBuffer().getGames().size() - 1));
+        List<Game> gameList = gameBuffer.getBuffer().getEpisodeMemory().getGameList();
+        return Optional.of( gameList.get( gameList.size() - 1));
 
     }
 
     @NotNull
     public Optional<Game> getGame(int no) {
         gameBuffer.loadLatestStateIfExists();
-        return Optional.of(gameBuffer.getBuffer().getGames().get(no));
+        return Optional.of(gameBuffer.getBuffer().getEpisodeMemory().getGameList().get(no));
     }
 
     public Optional<Game> getGameStartingWithActions(int... actions) {
@@ -73,10 +74,13 @@ public class GameProvider {
 
     public Optional<Game> getGameStartingWithActions(List<Integer> actionsList) {
         gameBuffer.loadLatestStateIfExists();
-        List<Game> games = gameBuffer.getBuffer().getGames();
+        List<Game> games = gameBuffer.getBuffer().getEpisodeMemory().getGameList();
         return games.stream().filter(game ->
-            // check if game.getGameDTO().getActions() starts with actionsList
-            game.getGameDTO().getActions().stream().limit(actionsList.size()).collect(Collectors.toList()).equals(actionsList)
+            // check if game.getEpisodeDO() starts with actionsList
+                        game.getEpisodeDO().getTimeSteps().stream()
+                                .limit(actionsList.size())
+                                .map(timeStepDO -> timeStepDO.getAction())
+                                .collect(Collectors.toList()).equals(actionsList)
         ).findFirst();
     }
 

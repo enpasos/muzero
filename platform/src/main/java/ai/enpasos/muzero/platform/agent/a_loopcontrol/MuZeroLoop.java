@@ -22,10 +22,12 @@ import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import ai.enpasos.muzero.platform.config.TrainingDatasetType;
+import ai.enpasos.muzero.platform.run.FillValueTable;
+import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,6 +47,7 @@ public class MuZeroLoop {
     @Autowired
     MuZeroConfig config;
 
+
     @Autowired
     GameBuffer gameBuffer;
 
@@ -56,6 +59,18 @@ public class MuZeroLoop {
 
     @Autowired
     ModelState modelState;
+
+
+    @Autowired
+    ValueRepo valueRepo;
+
+
+    @Autowired
+    FillValueTable fillValueTable;
+
+
+    @Autowired
+    TemperatureCalculator temperatureCalculator;
 
 
     @SuppressWarnings("java:S106")
@@ -90,7 +105,7 @@ public class MuZeroLoop {
 
             log.info("game counter: " + gameBuffer.getBuffer().getCounter());
             log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getGames().size());
+            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getEpisodeMemory().getGameList().size());
 
 
 

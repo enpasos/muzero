@@ -4,6 +4,8 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.memory.EpisodeMemory;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -15,13 +17,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.common.Functions.add;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.drawActions;
 import static ai.enpasos.muzero.platform.agent.c_planning.GumbelFunctions.sigmas;
 import static ai.enpasos.muzero.platform.agent.c_planning.SequentialHalving.initGumbelInfo;
-import static ai.enpasos.muzero.platform.common.Functions.draw;
-import static ai.enpasos.muzero.platform.common.Functions.softmax;
-import static ai.enpasos.muzero.platform.common.Functions.d2f;
+import static ai.enpasos.muzero.platform.common.Functions.*;
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 import static ai.enpasos.muzero.platform.config.PlayerMode.TWO_PLAYERS;
 
@@ -40,7 +39,7 @@ public class GumbelSearch {
     Action selectedAction;
     MinMaxStats minMaxStatsQValues;
 
-   // MinMaxStats minMaxStatsEntropyQValues;
+ //   MinMaxStats minMaxStatsEntropyQValues;
     MuZeroConfig config;
     boolean debug;
     double pRandomActionRawAverage;
@@ -55,7 +54,6 @@ public class GumbelSearch {
         this.game = game;
         this.minMaxStatsQValues = new MinMaxStats(config.getKnownBounds());
 
-     //   this.minMaxStatsEntropyQValues = new MinMaxStats(config.getKnownBoundsEntropyQValues());
 
         int n = config.getNumSimulations(game);
         int m = config.getInitialGumbelM();
@@ -69,15 +67,10 @@ public class GumbelSearch {
         IntStream.range(0, this.sequentialHalfingInfo.getPhaseNum()).forEach(i -> rootChildrenCandidates.put(i, new ArrayList<>()));
     }
 
-    public static void storeSearchStatistics(Game game, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats) {
-
-        game.getGameDTO().getRootValueTargets().add((float) root.getImprovedValue());
-//        try {
-            game.getGameDTO().getVMix().add((float) root.getVmix());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        game.getGameDTO().getRootEntropyValueTargets().add((float) root.getImprovedEntropyValue());
+    public static void storeSearchStatistics(Game game, TimeStepDO timeStepDO, @NotNull Node root, boolean justPriorValues, MuZeroConfig config, Action selectedAction, MinMaxStats minMaxStats ) {
+        timeStepDO.setRootValueTarget((float) root.getImprovedValue());
+        timeStepDO.setVMix((float) root.getVmix()); timeStepDO.setVMix((float) root.getVmix());
+      //  timeStepDO.setRootEntropyValueTarget((float)  root.getImprovedEntropyValue());
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         if (justPriorValues) {
@@ -107,7 +100,7 @@ public class GumbelSearch {
                 policyTarget[action] = (float) improvedPolicy[i];
             }
         }
-        game.getGameDTO().getPolicyTargets().add(policyTarget);
+        timeStepDO.setPolicyTarget(policyTarget);
     }
 
 
@@ -172,20 +165,6 @@ public class GumbelSearch {
         return gumbelActions.stream().filter(a -> selectedActions.contains(a.actionIndex)).collect(Collectors.toList());
     }
 
-//    public int drawGumbelActionFromAllRootChildren(double temperature) {
-//        int cVisit = config.getCVisit();
-//        double cScale = config.getCScale();
-//        List<GumbelAction> gumbelActions = root.children.stream().map(Node::getGumbelAction).collect(Collectors.toList());
-//        int maxActionVisitCount = root.children.stream().mapToInt(Node::getVisitCount).max().getAsInt();
-//
-//        int[] actions = gumbelActions.stream().mapToInt(GumbelAction::getActionIndex).toArray();
-//        double[] raw = getLogitsAndQs(temperature,true, gumbelActions, cVisit, cScale, maxActionVisitCount);
-//
-//        IntStream.range(0, root.children.size()).forEach(i -> root.children.get(i).setPseudoLogit(raw[i]));
-//
-//        return drawActions(actions, raw, 1).get(0);
-//    }
-
 
     private double[] getLogitsAndQs(double temperature, boolean withGumbel, List<GumbelAction> gumbelActions, int cVisit, double cScale, int maxActionVisitCount) {
         double[] g = gumbelActions.stream().mapToDouble(GumbelAction::getGumbelValue).toArray();
@@ -195,17 +174,7 @@ public class GumbelSearch {
             .map(v -> minMaxStatsQValues.normalize(v))
             .toArray();
 
-
-    //    double scale = config.getEntropyContributionToReward();
-//        double[] scaledEntropyValue = gumbelActions.stream()
-//                .mapToDouble(GumbelAction::getEntropyQValue)
-//                .map(v -> minMaxStatsEntropyQValues.normalize(v))
-//              //  .map(v -> scale * v)
-//                .toArray();
-
-
-      //  double[] sigmas = sigmas(add(qs, scaledEntropyValue), maxActionVisitCount, cVisit, cScale);
-        double[] sigmas = sigmas( qs , maxActionVisitCount, cVisit, cScale);
+         double[] sigmas = sigmas( qs , maxActionVisitCount, cVisit, cScale);
         double[] logitsPlusSigmas = new double[logits.length];
             IntStream.range(0, logits.length).forEach(i -> {
                 logitsPlusSigmas[i] = logits[i] + sigmas[i];
@@ -236,9 +205,14 @@ public class GumbelSearch {
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-            node = node.selectChild();
-            rootChild.getSearchPath().add(node);
+
+
+                node = node.selectChild();
+                rootChild.getSearchPath().add(node);
+
         }
+
+
         return rootChild.getSearchPath();
     }
 
@@ -287,7 +261,7 @@ public class GumbelSearch {
     }
 
 
-    public void expand(NetworkIO networkOutput) {
+    public boolean expand(NetworkIO networkOutput) {
         List<Node> searchPath = getCurrentSearchPath();
         Node node = searchPath.get(searchPath.size() - 1);
         Player toPlayOnNode = node.getParent().getToPlay();
@@ -295,19 +269,17 @@ public class GumbelSearch {
             toPlayOnNode = OneOfTwoPlayer.otherPlayer((OneOfTwoPlayer) toPlayOnNode);
         }
 
-        node.expand(toPlayOnNode, networkOutput);
+        return node.expand(toPlayOnNode, networkOutput);
         // networkOutput.getValue() is from the perspective of the player to play at the node
-        if (debug) {
-            log.trace("value from network at backUp: " + networkOutput.getValue());
-        }
-
-
+//        if (debug) {
+//            log.trace("value from network at backUp: " + networkOutput.getValue());
+//        }
 
     }
 
 
-    public void backpropagate(NetworkIO networkOutputFromRecurrentInference,  double discount) {
-        double value = networkOutputFromRecurrentInference.getValue();
+    public void backpropagate(NetworkIO networkOutput,  double discount) {
+        double value = networkOutput.getValue();
         List<Node> searchPath = getCurrentSearchPath();
         Node node1 = searchPath.get(searchPath.size() - 1);
         Player toPlay = node1.getParent().getToPlay();
@@ -325,49 +297,43 @@ public class GumbelSearch {
             if (start) {
                 node.setValueFromInference(value);
                 node.setImprovedValue(node.getValueFromInference());
-                node.setImprovedEntropyValue(node.getEntropyValueFromInference());
 
                 start = false;
             } else {
                 node.calculateVmix();
-                node.calculateEntropyVmix();
 
                 node.calculateImprovedValue();
-                node.calculateImprovedEntropyValue();
+              //  node.calculateImprovedEntropyValue();
             }
+            node.calculateImprovedPolicy(minMaxStatsQValues , game.isItExplorationTime());
 
-
-            // TODO: At the moment the reward here is on the node the action moved to with
-            // the perspective for the player to play at the node before
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
-
             node.setQValueSum(node.getQValueSum() + value);
-
             minMaxStatsQValues.update(value);
         }
     }
 
-    public void storeSearchStatictics(  boolean fastRuleLearning) {
-        storeSearchStatistics(game, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues);
+    public void storeSearchStatictics(  boolean fastRuleLearning, TimeStepDO timeStepDO) {
+        storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues );
     }
 
-    public Action selectAction( boolean fastRuleLearning, boolean replay ) {
+    public Action selectAction(Action biasedAction, boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO,  EpisodeMemory episodeMemory) {
 
         Action action = null;
 
-        if (replay) {
-            int a = game.getGameDTO().getRootValuesFromInitialInference().size() - 1;
-            if (a < game.getOriginalGameDTO().getActions().size()) {
-                return config.newAction(game.getOriginalGameDTO().getActions().get(a));
+        try {
+            if (replay ) { // TODO check ....|| (hybrid2 && timeStepDO.getT() < game.getEpisodeDO().getTStartNormal())) {
+                return config.newAction(game.getOriginalEpisodeDO().getTimeSteps().get(timeStepDO.getT()).getAction());
             }
-       }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (fastRuleLearning) {
             if (!replay) {
-                float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
-                game.getGameDTO().getPlayoutPolicy().add(policyTarget);
+                timeStepDO.setPlayoutPolicy(timeStepDO.getPolicyTarget());
             }
             return root.getRandomAction();
         }
@@ -380,25 +346,33 @@ public class GumbelSearch {
 
         double temperature = config.getTemperatureRoot();
 
-        float[] policyTarget = game.getGameDTO().getPolicyTargets().get(game.getGameDTO().getPolicyTargets().size() - 1);
+        float[] policyTarget = timeStepDO.getPolicyTarget();
         double[] raw = new double[policyTarget.length];
         for (int i = 0; i < policyTarget.length; i++) {
             raw[i] = Math.log(policyTarget[i]);
         }
         if (config.getTrainingTypeKey() == HYBRID) {
             if (this.game.isItExplorationTime()) {
-                    action = getAction(temperature, raw, game, true);
+
+                action = getAction(temperature, raw, game, timeStepDO, true);
+
+
             } else {
                 //  the Gumbel selection
                 if (config.isGumbelActionSelection()) {
-                    game.getGameDTO().getPlayoutPolicy().add(d2f(softmax(raw, 1d)));
+                    timeStepDO.setPlayoutPolicy(d2f(softmax(raw, 1d)));
                     action = selectedAction;
                 } else {
-                    action = getAction(1d, raw, game, false);
+                    action = getAction(1d, raw, game, timeStepDO, false );
                 }
             }
         } else {
-            action = getAction(temperature, raw, game, true);
+            action = getAction(temperature, raw, game, timeStepDO, false );
+        }
+        if (biasedAction != null) {
+            action = biasedAction;
+            timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
+            timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
         }
         return action;
 
@@ -406,30 +380,23 @@ public class GumbelSearch {
 
 
 
-    private Action getAction(double temperature, double[] raw, Game game, boolean explorationTime) {
+    private Action getAction(double temperature, double[] raw, Game game,  TimeStepDO timeStepDO, boolean isExplorationTime) {
+        Action action;
 
-        double[] p = softmax(raw,  temperature);
-        double pmin = Arrays.stream(p).filter(d -> d > 0d).min().getAsDouble();
-        double zmin = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).min().getAsDouble();
-        double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
+        double[] p = null;
+        if (isExplorationTime) {
+            // try a different exploration scheme that
+            // rescales the logits to a given interval
 
 
-        double pminThreshold = 0.01d;  // TODO make configurable and a function of some number of playouts
-        if (explorationTime && pmin < pminThreshold) {
-             temperature = temperature * (zmax - zmin)/Math.log(1/pminThreshold);
-            log.info("temperature: " + temperature);
+             p = softmax(rescaleLogitsIfOutsideInterval(raw, 6.0),temperature);
+// the normal way
+        //    p = softmax(raw, temperature);
+        } else {
             p = softmax(raw, temperature);
         }
 
-        game.getGameDTO().getPlayoutPolicy().add(d2f(p));
-        int i = draw(p);
-        return config.newAction(i);
-    }
-
-    private Action getActionOld(double temperature, double[] raw, Game game) {
-        Action action;
-        double[] p = softmax(raw, temperature);
-        game.getGameDTO().getPlayoutPolicy().add(d2f(p));
+        timeStepDO.setPlayoutPolicy(d2f(p));
         int i = draw(p);
         action = config.newAction(i);
         return action;
@@ -437,17 +404,14 @@ public class GumbelSearch {
 
 
 
+
     public void drawCandidateAndAddValue() {
         List<GumbelAction> gumbelActions = rootChildrenCandidates.get(currentPhase).stream().map(Node::getGumbelAction).collect(Collectors.toList());
         int maxActionVisitCount = rootChildrenCandidates.get(currentPhase).stream().mapToInt(Node::getVisitCount).max().getAsInt();
-        drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount).get(0);
+        drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount);
     }
 
-    public void drawCandidateAndAddValueStart() {
-        List<Float> vs = new ArrayList<>();
-        float v = (float) this.root.getValueFromInference();
-        vs.add(v);
-    }
+
 
     public void addExplorationNoise() {
         root.addExplorationNoise(config);

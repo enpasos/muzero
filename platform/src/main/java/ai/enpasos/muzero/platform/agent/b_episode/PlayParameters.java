@@ -23,7 +23,7 @@ public class PlayParameters {
     @Builder.Default
     boolean withGumbel = true;
 
-    int averageGameLength;
+    int referenceGameLength;
 
     double pRandomActionRawAverage;
 

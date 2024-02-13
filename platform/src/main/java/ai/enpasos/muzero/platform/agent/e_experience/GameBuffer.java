@@ -22,22 +22,25 @@ import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
+import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import jakarta.persistence.Tuple;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -46,18 +49,26 @@ import java.util.stream.Collectors;
 @Component
 public class GameBuffer {
 
+
+
     public static final String EPOCH_STR = "Epoch";
 
     @Autowired
     private ModelState modelState;
 
+
+    @Autowired
+    private DBService dbService;
+
     private int batchSize;
     private GameBufferDTO buffer;
+    private GameBufferDTO bufferForReanalysedEpisodes;
     @Autowired
     private MuZeroConfig config;
 
     @Autowired
-    private GameBufferIO gameBufferIO;
+    EpisodeRepo episodeRepo;
+
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     private Map<Integer, Double> meanEntropyValuesLosses = new HashMap<>();
     private Map<Integer, Double> entropyExplorationSum = new HashMap<>();
@@ -69,9 +80,16 @@ public class GameBuffer {
     private Map<Integer, Integer> entropyBestEffortCount = new HashMap<>();
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
+    private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
-        int gamePos = samplePosition(game);
+        int gamePos = 0;
+        if (game.isForRulesTrainingOnly) {
+            gamePos = Math.max(0,game.getEpisodeDO().getLastTime()-numUnrollSteps);
+            samplePosition(gamePos, game);
+        } else {
+            gamePos = samplePosition(0, game);
+        }
         Sample sample = null;
         long count = 0;
         do {
@@ -87,18 +105,17 @@ public class GameBuffer {
         return sample;
     }
 
-
-
-
     public  Sample sampleFromGame(int numUnrollSteps, @NotNull Game game, int gamePos) {
         Sample sample = new Sample();
         sample.setGame(game);
+        ObservationModelInput     observation = game.getObservationModelInput(gamePos);
 
-        ObservationModelInput observation = game.getObservationModelInput(gamePos);
         sample.getObservations().add(observation);
+        List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
+                .filter(timeStepDO -> timeStepDO.getAction() != null)
+                .map(timeStepDO -> (Integer)timeStepDO.getAction())
+                .collect(Collectors.toList());
 
-
-        List<Integer> actions = new ArrayList<>(game.getGameDTO().getActions());
         int originalActionSize = actions.size();
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
@@ -112,8 +129,6 @@ public class GameBuffer {
                 observation = game.getObservationModelInput(gamePos + i);
            // }
             sample.getObservations().add(observation);
-
-
         }
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
@@ -122,8 +137,9 @@ public class GameBuffer {
         return sample;
     }
 
-    public static int samplePosition(@NotNull Game game) {
-        return ThreadLocalRandom.current().nextInt(0, game.getGameDTO().getActions().size() + 1);
+    public static int samplePosition(int t0, @NotNull Game game) {
+        int tmax = game.getEpisodeDO().getLastTimeWithAction() + 1 ;
+        return ThreadLocalRandom.current().nextInt(t0, tmax + 1);
     }
 
 
@@ -141,16 +157,15 @@ public class GameBuffer {
     }
 
     public GameBufferDTO getBuffer() {
-
             return this.buffer;
     }
 
     public int getAverageGameLength() {
-        return (int) getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).average().orElse(1000);
+        return   getBuffer().getEpisodeMemory().getAverageGameLength() ;
     }
 
     public int getMaxGameLength() {
-        return getBuffer().getGames().stream().mapToInt(g -> g.getGameDTO().getActions().size()).max().orElse(1000);
+        return getBuffer().getEpisodeMemory().getMaxGameLength();
     }
 
 
@@ -161,90 +176,68 @@ public class GameBuffer {
 
     public void init() {
         this.batchSize = config.getBatchSize();
-        if (this.getBuffer() != null) {
-            this.getBuffer().games.forEach(g -> {
-                g.setGameDTO(null);
-                g.setOriginalGameDTO(null);
-            });
-            this.getBuffer().games.clear();
-        }
         this.buffer = new GameBufferDTO(config);
-
+        this.bufferForReanalysedEpisodes = new GameBufferDTO(config);
     }
-
-
-    public List<Sample> sequentialSampleList(int numUnrollSteps, SequentialCursor cursor) {
-        List<Sample> sampleList = new ArrayList<>();
-        if (cursor.getPaths() == null) {
-            cursor.setPaths(this.gameBufferIO.getBufferNames());
-        }
-        List<Path> paths = cursor.getPaths();
-        int epochMax = 0;
-        cursor.setEpochs(paths.size());
-        for (int epoch = cursor.getEpoch(); epoch < paths.size()  ; epoch++) {
-            cursor.setEpoch(epoch);
-
-            // cursor.setGameIndex(0);
-            Path path = paths.get(cursor.getEpoch());
-            if (cursor.getPath() == null || !cursor.getPath().equals(path)) {
-                cursor.setPath(path);
-                GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
-                cursor.setGameBufferDTO(gameBufferDTO);
-            }
-
-
-            //    epochMax = Math.max(getEpochFromPath(path), epochMax);
-       //     gameBufferDTO.getGames().forEach(game -> addGame(game, true));
-
-
-            for (int g = cursor.getGameIndex(); g < cursor.getGameBufferDTO().getGames().size(); g++) {
-                cursor.setGameIndex(g);
-                Game game = cursor.getGameBufferDTO().getGames().get(g);
-                for (int gamePos = cursor.getPositionInGame(); gamePos < game.getGameDTO().getActions().size(); gamePos++) {
-                    cursor.setPositionInGame(gamePos);
-                    Sample sample = sampleFromGame(numUnrollSteps, game, gamePos);
-                    sampleList.add(sample);
-                    if (sampleList.size() == batchSize) {
-                        log.info(cursor.toString());
-                        return sampleList;
-                    }
-                }
-            }
-        }
-
-        log.info(cursor.toString());
-        return sampleList;
-    }
-
-
-
-
 
     /**
      * @param numUnrollSteps number of actions taken after the chosen position (if there are any)
      */
-    public List<Sample> randomSampleList(int numUnrollSteps, int batchSize ) {
+    public List<Sample> sampleBatch(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGamesFromBuffer(batchSize).stream()
+            return sampleGames().stream()
                 .map(game -> sampleFromGame(numUnrollSteps, game))
                 .collect(Collectors.toList());
         }
     }
 
-    public List<Game> sampleGamesFromBuffer(int batchSize) {
+    public List<Game> sampleGames() {
 
-        List<Game> games = getGamesFromBuffer();
+        List<Game> games = getGames();
         Collections.shuffle(games);
 
-        return games.stream()
-                .limit(batchSize)
-                .collect(Collectors.toList());
+
+        double fractionOfPureExploration = 0.5;
+
+        int n1 = (int) (this.batchSize * fractionOfPureExploration);
+        int n2 = this.batchSize - n1;
+
+        List<Game> gameList = new ArrayList<>();
+        if (n2 > 0) {
+            gameList.addAll(games.stream()
+                    .limit(n2)
+                    .collect(Collectors.toList()));
+        }
+
+
+  //      int n = this.batchSize;
+//        List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n*5);
+//        Collections.shuffle(games3);
+//        games3 = games3.subList(0, Math.min(n, games3.size()));
+        if (n1 > 0) {
+             //     int n = this.batchSize;
+       // List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n1);
+            List<Game> games3 = this.getNRandomSelectedGames(n1);
+            games3.forEach(g -> g.setForRulesTrainingOnly(true));
+            gameList.addAll(games3);
+        }
+
+        Collections.shuffle(gameList);
+         return gameList;
+
     }
 
     @NotNull
-    public List<Game> getGamesFromBuffer() {
-        List<Game> games = new ArrayList<>(this.buffer.getGames());
+    public List<Game> getGames() {
+        List<Game> games = new ArrayList<>(this.buffer.getEpisodeMemory().getGameList());
         log.trace("Games from buffer: {}",  games.size() );
+
+        List<Game> games2 = new ArrayList<>(this.bufferForReanalysedEpisodes.getEpisodeMemory().getGameList());
+        log.trace("Games from bufferForReanalysedEpisodes: {}",  games2.size() );
+        games.addAll(games2);
+
+
+
         return games;
     }
 
@@ -252,35 +245,25 @@ public class GameBuffer {
 
     public void loadLatestStateIfExists() {
         init();
-        List<Path> paths = this.gameBufferIO.getBufferNames();
-        int epochMax = 0;
-        for (int h = 0; h < paths.size() && !this.buffer.isBufferFilled(); h++) {
-            Path path = paths.get(paths.size() - 1 - h);
-            GameBufferDTO gameBufferDTO = this.gameBufferIO.loadState(path);
+        DurAndMem duration = new DurAndMem();
+        duration.on();
+        List<EpisodeDO> episodeDOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(config.getWindowSize());
 
-            epochMax = Math.max(getEpochFromPath(path), epochMax);
-            gameBufferDTO.getGames().forEach(game -> addGame(game, true));
-        }
+        duration.off();
+        log.debug("duration loading buffer from db: " + duration.getDur());
+        this.getBuffer().setInitialEpisodeDOList(episodeDOList);
+        episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
+        episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getBuffer()::setCounter);
+        this.getBuffer().rebuildGames(config );
 
-        this.modelState.setEpoch(epochMax);
     }
 
-    public void sortGamesByLastValueError() {
-        this.getBuffer().getGames().sort(
-            (Game g1, Game g2) -> Float.compare(g2.getError(), g1.getError()));
-    }
 
-    public void removeGames(List<Game> games) {
-        games.forEach(this::removeGame);
-    }
-
-    public void removeGame(Game game) {
-        this.getBuffer().removeGame(game);
-    }
 
     public double getPRandomActionRawAverage() {
-        double sum = this.getBuffer().games.stream().mapToDouble(g -> g.getGameDTO().pRandomActionRawSum).sum();
-        long count = this.getBuffer().games.stream().mapToLong(g -> g.getGameDTO().pRandomActionRawCount).sum();
+        List<Game> gameList = this.getBuffer().getEpisodeMemory().getGameList();
+        double sum = gameList.stream().mapToDouble(g -> g.getEpisodeDO().getPRandomActionRawSum()).sum();
+        long count = gameList.stream().mapToLong(g -> g.getEpisodeDO().getPRandomActionRawCount()).sum();
         if (count == 0) return 1;
         return sum / count;
     }
@@ -288,43 +271,61 @@ public class GameBuffer {
 
 
 
+    public void addGames(List<Game> games ) {
+        if (games.isEmpty()) return;
 
-    public void addGames(List<Game> games, boolean atBeginning) {
-
-        games.forEach(game -> addGameAndRemoveOldGameIfNecessary(game, atBeginning));
+        int countGamesNotVisitingUnvisitedActions = 0;
+        for(Game game : games) {
+            if (!this.buffer.getEpisodeMemory().visitsUnvisitedAction(game)) {
+                countGamesNotVisitingUnvisitedActions++;
+            }
+            addGameAndRemoveOldGameIfNecessary(game );
+        }
+        log.info("### countGamesNotVisitingUnvisitedActions: {} of {}", countGamesNotVisitingUnvisitedActions, games.size());
         if (this.config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
             // do nothing more
         } else {
-            this.timestamps.put(games.get(0).getGameDTO().getTrainingEpoch(), System.currentTimeMillis());
+            this.timestamps.put(games.get(0).getEpisodeDO().getTrainingEpoch(), System.currentTimeMillis());
             logEntropyInfo();
             int epoch = this.getModelState().getEpoch();
 
-            this.gameBufferIO.saveGames(
-                this.getBuffer().games.stream()
-                    .filter(g -> g.getGameDTO().getTrainingEpoch() == epoch)
+
+           List<Game> gamesToSave = this.getBuffer().getEpisodeMemory().getGameList().stream()
+                    .filter(g -> g.getEpisodeDO().getTrainingEpoch() == epoch)
                     .filter(g -> !g.isReanalyse())
-                    .collect(Collectors.toList()),
-                this.getModelState().getCurrentNetworkNameWithEpoch(), this.getConfig());
+
+                    .collect(Collectors.toList());
+
+
+           gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
+
+            List<EpisodeDO> episodes  = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
+
+            dbService.saveEpisodesAndCommit(episodes);
         }
 
     }
 
 
 
-    private void addGameAndRemoveOldGameIfNecessary(Game game, boolean atBeginning ) {
-         memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
+    private void addGameAndRemoveOldGameIfNecessary(Game game ) {
+
+         memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         if (!game.isReanalyse()) {
-            game.getGameDTO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
+            game.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
+            game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
+            buffer.addGame(game );
+        } else {
+            this.bufferForReanalysedEpisodes.addGame(game );
         }
-        game.getGameDTO().setTrainingEpoch(this.getModelState().getEpoch());
-        buffer.addGameAndRemoveOldGameIfNecessary(game, atBeginning);
+
     }
 
 
-    private void addGame(Game game, boolean atBeginning) {
-        memorizeEntropyInfo(game, game.getGameDTO().getTrainingEpoch());
-        getBuffer().addGame(game, atBeginning);
-    }
+//    private void addGame(Game game, boolean atBeginning) {
+//        memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
+//        getBuffer().addGame(game, atBeginning);
+//    }
 
     private void memorizeEntropyInfo(Game game, int epoch) {
         this.entropyBestEffortSum.putIfAbsent(epoch, 0.0);
@@ -335,15 +336,15 @@ public class GameBuffer {
         this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
         this.entropyExplorationCount.putIfAbsent(epoch, 0);
         this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
-        if (game.getGameDTO().hasExploration()) {
-            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getGameDTO().getAverageEntropy());
+        if (game.getEpisodeDO().hasExploration()) {
+            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
             this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
-            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getGameDTO().getAverageActionMaxEntropy());
+            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
             this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
         } else {
-            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageEntropy());
+            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
             this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
-            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getGameDTO().getAverageActionMaxEntropy());
+            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
             this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
         }
     }
@@ -369,28 +370,93 @@ public class GameBuffer {
     public void putMeanValueLoss(int epoch, double meanValueLoss) {
         meanValuesLosses.put(epoch, meanValueLoss);
     }
-//    public void putMeanEntropyValueLoss(int epoch, double meanValueLoss) {
-//        meanEntropyValuesLosses.put(epoch, meanValueLoss);
-//    }
+    public void putMeanEntropyValueLoss(int epoch, double meanValueLoss) {
+        meanEntropyValuesLosses.put(epoch, meanValueLoss);
+    }
 
     public Double getMaxMeanValueLoss() {
         // get max of meanValueLosses values
         return meanValuesLosses.values().stream().max(Double::compare).orElse(0.0);
     }
 
-    public double getDynamicRootTemperature() {
-        return config.getTemperatureRoot();
 
-    }
 
     public List<Game> getGamesToReanalyse() {
         int n =   config.getNumParallelGamesPlayed();
-  //      List<String> networkNames = this.buffer.games.stream().map(g -> g.getGameDTO().getNetworkName()).distinct().collect(Collectors.toList());
-        List<String> networkNames = new ArrayList<>();
-        List<Game> games =  gameBufferIO.loadGamesForReplay(n, networkNames );
-        games.forEach(g -> g.setReanalyse(true));
+
+        return getNRandomSelectedGames(n);
+    }
+
+    public List<Game> getNGamesWithHighestRuleLoss(int n) {
+        List<EpisodeDO> episodeDOList = this.dbService.findNEpisodeIdsWithHighestLossAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+
+        return games;
+    }
+
+    public List<Game> getNRandomSelectedGames(int n) {
+        List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+
+        return games;
+    }
+
+    public Pair<List<Game>, Integer> getGamesByPage( int pageNumber, int pageSize) {
+        Pair<List<EpisodeDO>, Integer> pair = this.dbService.findAll(pageNumber, pageSize);
+        List<EpisodeDO> episodeDOList = pair.getKey();
+//        for(EpisodeDO episodeDO: episodeDOList) {
+//            episodeDO.sortTimeSteps();
+//        }
+//
+//
+
+           List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        return new ImmutablePair<>(games, pair.getRight());
+    }
+
+
+
+    public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {
+     //  GameBufferDTO buffer = new GameBufferDTO();
+     //   buffer.setInitialEpisodeDOList(episodeDOList);
+    //    episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().
+    //    buffer.rebuildGames(config);
+
+        List<Game> games = new ArrayList<>();
+        for (EpisodeDO episodeDO : episodeDOList) {
+            episodeDO.sortTimeSteps();
+            Game game = config.newGame(false,false);
+            game.setEpisodeDO(episodeDO);
+            games.add(game);
+        }
         return games;
     }
 
 
+    public List<Game> getGamesWithHighestTemperatureTimesteps() {
+        int nGamesNeeded = config.getNumParallelGamesPlayed();
+       // int nWindow = config.getWindowSize();
+        List<Tuple> result = episodeRepo.findEpisodeIdsWithHighValueVariance(nGamesNeeded); // TODO nWindow
+
+
+        List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
+        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
+
+        episodeDOList.stream().forEach(episodeDO -> {if (episodeDO.getId() == 678) {
+            log.info("found episodeDO.getId() == 678");
+        }});
+
+
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        Map<Long, Game> idGameMap =
+                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
+            for (int i = 0; i < games.size(); i++) {
+                int t = result.get(i).get(1, Integer.class);
+                long id = ids.get(i);
+                Game game = idGameMap.get(id);
+                game.getEpisodeDO().setTStartNormal(t);
+            }
+
+        return games;
+    }
 }

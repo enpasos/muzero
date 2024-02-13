@@ -45,6 +45,10 @@ dependencies {
     implementation(libs.springboot.starter)
     testImplementation(libs.springboot.starter.test)
 
+    implementation(libs.postgres)
+    implementation(libs.springboot.starter.jpa)
+    testImplementation(libs.h2database)
+
     implementation(libs.commons.lang)
     implementation(libs.commons.collections)
     implementation(libs.commons.math)

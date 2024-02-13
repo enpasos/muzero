@@ -25,13 +25,13 @@ import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.e_experience.SequentialCursor;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -50,15 +50,15 @@ public class BatchFactory {
 
 
 
-    public Batch getSequentialBatchFromAllExperience(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, SequentialCursor cursor) {
-
-        List<Sample> sampleList = gameBuffer.sequentialSampleList(numUnrollSteps, cursor);
-        Batch batch = getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
-
-//        sampleList.forEach(s -> s.clear());
-//        sampleList.clear();
-        return batch;
-    }
+//    public Batch getSequentialBatchFromAllExperience(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, SequentialCursor cursor) {
+//
+//        List<Sample> sampleList = gameBuffer.sequentialSampleList(numUnrollSteps, cursor);
+//        Batch batch = getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//
+////        sampleList.forEach(s -> s.clear());
+////        sampleList.clear();
+//        return batch;
+//    }
 
     @NotNull
     private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList) {
@@ -80,7 +80,7 @@ public class BatchFactory {
 
 
     public Batch getRamdomBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
-        List<Sample> sampleList = gameBuffer.randomSampleList(numUnrollSteps, batchSize);
+        List<Sample> sampleList = new ArrayList<>(); // TODO ... gameBuffer.randomSampleList(numUnrollSteps, batchSize);
 
         return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
     }

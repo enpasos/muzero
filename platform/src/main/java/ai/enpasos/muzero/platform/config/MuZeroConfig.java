@@ -73,6 +73,7 @@ public class MuZeroConfig {
             Game game =  (Game) constructor.newInstance(this);
             if (connectToEnvironment) {game.connectToEnvironment();}
             if (withFirstObservation) {
+                game.getEpisodeDO().addNewTimeStepDO();
                 game.addObservationFromEnvironment();
                 game.addLegalActionFromEnvironment();
             }
@@ -370,7 +371,7 @@ public class MuZeroConfig {
 
     public int getNumSimulations(Game game) {
         if (this.getTrainingTypeKey() == HYBRID &&
-                game.isItExplorationTime(game.getGameDTO().getActions().size())  ) {
+                game.isItExplorationTime(game.getEpisodeDO().getActions().size())  ) {
             return getNumSimulationsHybrid();
         } else {
             return getNumSimulations();

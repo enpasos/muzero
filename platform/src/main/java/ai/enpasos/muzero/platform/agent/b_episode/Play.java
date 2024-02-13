@@ -58,7 +58,7 @@ public class Play {
     public void fillingBuffer(boolean isRandomFill) {
         int windowSize = config.getWindowSize();
         while (!gameBuffer.getBuffer().isBufferFilled()) {
-            log.info(gameBuffer.getBuffer().getGames().size() + " of " + windowSize);
+            log.info(gameBuffer.getBuffer().getEpisodeMemory().getNumberOfEpisodes() + " of " + windowSize);
              playMultipleEpisodes(false, isRandomFill);
         }
     }
@@ -104,7 +104,7 @@ public class Play {
 
         log.info("Played {} games parallel", games.size());
 
-        gameBuffer.addGames(games, false);
+        gameBuffer.addGames(games);
     }
 
 }

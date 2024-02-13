@@ -4,6 +4,18 @@
 #    logging:
 #      level: debug
 
+
+spring:
+  datasource:
+    url: "jdbc:h2:mem:muzero"
+    username: muzero
+    password: muzero
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
 muzero:
   activeGame: TICTACTOE
   run: none
@@ -69,9 +81,6 @@ muzero:
       numChannelsOutputLayerSimilarityProjector: 500
       numChannelsHiddenLayerSimilarityPredictor: 250
       numChannelsOutputLayerSimilarityPredictor: 500
-
-
-      replayFraction: 0.0
 
       offPolicyCorrectionOn: false
       allOrNothingOn: true

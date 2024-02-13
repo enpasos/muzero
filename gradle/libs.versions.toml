@@ -35,7 +35,11 @@ commons-collections = { module = "org.apache.commons:commons-collections4", vers
 
 
 springboot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springboot" }
+springboot-starter-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "springboot" }
 springboot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springboot" }
+
+
+postgres = {module = 'org.postgresql:postgresql', version= "42.6.0" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
@@ -56,6 +60,10 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "24.1.0" }
 
 stochasticsimulation = { module = "ca.umontreal.iro.simul:ssj", version = "3.3.2" }
+
+
+h2database = { module = "com.h2database:h2", version = "2.2.224" }
+
 
 
 [bundles]

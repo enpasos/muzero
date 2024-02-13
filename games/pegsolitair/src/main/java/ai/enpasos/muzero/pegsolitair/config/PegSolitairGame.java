@@ -20,11 +20,11 @@ package ai.enpasos.muzero.pegsolitair.config;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,8 +39,8 @@ import static ai.enpasos.muzero.platform.agent.e_experience.Observation.bitSetTo
 public class PegSolitairGame extends Game {
 
 
-    public PegSolitairGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
-        super(config, gameDTO);
+    public PegSolitairGame(@NotNull MuZeroConfig config, EpisodeDO episodeDO) {
+        super(config, episodeDO);
 
     }
 
@@ -75,12 +75,9 @@ public class PegSolitairGame extends Game {
         int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
         BitSet rawResult = new BitSet(n);
 
-        int tmax =  this.gameDTO.getObservations().size()-1;
-        int observationTime = Math.min(tmax, inputTime);
-        Observation observation = this.gameDTO.getObservations().get(observationTime);
-
-
-        observation.addTo(null, rawResult, 0 );
+        int observationTime = Math.min(this.getEpisodeDO().getLastTime(), inputTime);
+        Observation observation = episodeDO.getTimeStep(observationTime).getObservation();
+         observation.addTo(null, rawResult, 0 );
 
         return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
 
@@ -92,7 +89,7 @@ public class PegSolitairGame extends Game {
         environment = new PegSolitairEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
-            Action action = config.newAction(this.getGameDTO().getActions().get(i));
+            Action action = config.newAction(this.getEpisodeDO().getTimeSteps().get(i).getAction() );
             environment.step(action);
         }
     }
