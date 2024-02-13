@@ -48,10 +48,10 @@ public class TicTacToeFindNetworksDoingABadMove {
 
         config.setPlayTypeKey(PLAYOUT);
 
-        int start = 1;
-        int stop = 26;   //1230;
+        int start = 1250;
+        int stop = 1250;   //1230;
         //config.setOutputDir("./memory/tictactoe-without-exploration/");
-   //     config.setOutputDir("./memory/tictactoe/");
+        //     config.setOutputDir("./memory/tictactoe/");
 
 
 //        int start = 1;
@@ -59,9 +59,12 @@ public class TicTacToeFindNetworksDoingABadMove {
 //        config.setOutputDir("./memory/tictactoe-with-exploration/");
 
 
-        //   List<Integer> startingActions = List.of(4, 5, 8, 0, 6, 2, 3, 1);
-        List<Integer> startingActions = List.of(4, 5, 8, 0, 6, 2);
-        int nextBadAction = 3;
+//        List<Integer> startingActions = List.of(0, 3, 1, 4, 5, 7, 8);
+//        int nextBadAction = 6;
+
+        List<Integer> startingActions = List.of(0, 3, 1, 4);
+        int nextBadAction = 2;
+
 
         //   findNetworkDoingBadAction(startingActions, nextBadAction, start, stop, false);
         findNetworkDoingBadAction(startingActions, nextBadAction, start, stop, true);
@@ -72,7 +75,7 @@ public class TicTacToeFindNetworksDoingABadMove {
     private void findNetworkDoingBadAction(List<Integer> startingActions, int nextBadAction, int start, int stop, boolean withMCTS) {
         for (int epoch = start; epoch <= stop; epoch++) {
             if (nextBadAction == inference.aiDecisionForGame(startingActions, withMCTS, epoch)) {
-                log.info("epoch with bad action {}, withMCTS {}", epoch, withMCTS);
+                log.info("epoch {} with bad action, withMCTS {}", epoch, withMCTS);
             }
         }
     }
