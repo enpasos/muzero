@@ -210,7 +210,7 @@ public abstract class Game {
     private float getReward(int currentIndex) {
         // perspective is missing
         float reward;
-        if (currentIndex > 0 && currentIndex - 1 <= this.episodeDO.getLastTimeWithAction()) {
+        if (currentIndex > 0 && currentIndex <= this.episodeDO.getLastTimeWithAction()) {
             reward = this.getReward(currentIndex - 1);
         } else {
             reward = 0f;
