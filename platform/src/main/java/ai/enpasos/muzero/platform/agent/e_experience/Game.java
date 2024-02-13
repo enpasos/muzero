@@ -197,10 +197,10 @@ public abstract class Game {
 
     public List<Target> makeTarget(int stateIndex, int numUnrollSteps) {
         List<Target> targets = new ArrayList<>();
-        double kappa = ThreadLocalRandom.current().nextDouble(0, 1);
+
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target);
+            fillTarget(currentIndex, target );
             targets.add(target);
         });
         return targets;
@@ -210,7 +210,7 @@ public abstract class Game {
     private float getReward(int currentIndex) {
         // perspective is missing
         float reward;
-        if (currentIndex > 0 && currentIndex <= this.episodeDO.getLastTimeWithAction()) {
+        if (currentIndex > 0 && currentIndex - 1 <= this.episodeDO.getLastTimeWithAction()) {
             reward = this.getReward(currentIndex - 1);
         } else {
             reward = 0f;
@@ -222,70 +222,24 @@ public abstract class Game {
     @SuppressWarnings("java:S3776")
     private void fillTarget(int currentIndex, Target target) {
 
-        if (this.isMarker()) {
-            int i = 42;
-        }
-
         int tmax = this.getEpisodeDO().getLastTime();
-        if (currentIndex == tmax) {
-            int i = 42;
-        }
 
          int   tdSteps = getTdSteps( currentIndex);
          double   value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
-        if (this.isForRulesTrainingOnly) {
-             if (currentIndex < tmax) {
-                 value = MyL2Loss.NULL_VALUE;
-             }
-        }
-
-
-        // TODO generalize ... carefull!
-        if (this.isForRulesTrainingOnly && currentIndex <this.getEpisodeDO().getTimeSteps().size() && this.getEpisodeDO().getTimeSteps().get(currentIndex).getReward() > 0) {
-            value = this.getEpisodeDO().getTimeSteps().get(currentIndex).getReward();
-        }
 
 
 
-//        else {
-//            tdSteps = getTdSteps( currentIndex, kappa);
-//            value = calculateValue(tdSteps, currentIndex);
-//        }
-
-
-        if (currentIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
+        if (currentIndex < this.getEpisodeDO().getLastTime() ) {
 
                 target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions()));
 
             target.setValue((float) value);
             target.setReward(reward);
             float[] policy = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
-            if (this.isForRulesTrainingOnly) {
-                policy = new float[this.actionSpaceSize];
-                Arrays.fill(policy, 0f);
-            }
             target.setPolicy(policy);
-   //     } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getEpisodeDO().getLastTimeWithAction() + 1) {
-            // If we do not train the reward (as only boardgames are treated here)
-            // the value has to take the role of the reward on this node (needed in MCTS)
-            // if we were running the network with reward head
-            // the value would be 0 here
-            // but as we do not get the expected reward from the network
-            // we need use this node to keep the reward value
-            // therefore target.value is not 0f
-            // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
 
-
-//                float[] legalActions = b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions());
-//                target.setLegalActions(legalActions );
-//
-//            target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
-//            target.setReward(reward);
-//            target.setPolicy(new float[this.actionSpaceSize]);
-//            // the idea is not to put any force on the network to learn a particular action where it is not necessary
-//            Arrays.fill(target.getPolicy(), 0f);
         } else {
 
             target.setValue(0f);
@@ -319,6 +273,44 @@ public abstract class Game {
         return tdSteps;
     }
 
+//    public int getTdSteps(int currentIndex, int tMaxHorizon) {
+//        if (!config.offPolicyCorrectionOn()) return 0;
+//        if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
+//        double b = ThreadLocalRandom.current().nextDouble(0, 1);
+//        return getTdSteps(b, currentIndex, tMaxHorizon);
+//    }
+//
+//    public int getTdSteps(double b, int currentIndex, int tMaxHorizon) {
+//        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+//
+//        int tdSteps;
+//
+//        if (currentIndex >= tMaxHorizon) return 0;
+//
+//        for (int t = tMaxHorizon; t >= currentIndex; t--) {
+//
+//            double pBase = 1;
+//            for (int i = currentIndex; i < t; i++) {
+//                pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+//            }
+//            double p = 1;
+//            for (int i = currentIndex; i < t; i++) {
+//                p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+//            }
+//            double pRatio = p / pBase;
+//            if (pRatio > b * localPRatioMax) {
+//                tdSteps = t - currentIndex;
+//                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
+//                    tdSteps = 0;   // if not all then nothing
+//                }
+//                if (tdSteps > 0)
+//                    log.trace("tdSteps (>0): " + tdSteps);
+//                return tdSteps;
+//            }
+//        }
+//        throw new MuZeroNoSampleMatch();
+//    }
+
 
 //    private float getReward(int currentIndex) {
 //        float reward;
@@ -340,35 +332,10 @@ public abstract class Game {
         return value;
     }
 
-    private double calculateEntropyValue(int tdSteps, int currentIndex) {
-        double value = getBootstrapEntropyValue(currentIndex, tdSteps);
-        value = addEntropyValueFromReward(currentIndex, tdSteps, value);
-        return value;
-    }
 
-    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        double value = 0;
-        if (this.getEpisodeDO().isHybrid() || isReanalyse()) {
-            if (  bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
-                value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        } else {
-            if (bootstrapIndex < this.getEpisodeDO().getLastTime() + 1) {
-                value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootEntropyValueTarget()  * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        }
-        return value;
-    }
 
-    // TODO there should be a special discount parameter
-    private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        for (int i = currentIndex + 1; i < this.getEpisodeDO().getLastTime()  + 1 && i < bootstrapIndex; i++) {
-            value += (double) this.getEpisodeDO().getTimeSteps().get(i).getEntropy() * Math.pow(this.discount, i - (double) currentIndex);
-        }
-        return value;
-    }
+
+
 
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;

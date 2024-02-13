@@ -80,8 +80,8 @@ public class BatchFactory {
 
 
     public Batch getRamdomBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
-        List<Sample> sampleList = new ArrayList<>(); // TODO ... gameBuffer.randomSampleList(numUnrollSteps, batchSize);
-
+      //  List<Sample> sampleList = new ArrayList<>(); // TODO ... gameBuffer.randomSampleList(numUnrollSteps, batchSize);
+        List<Sample> sampleList = gameBuffer.sampleBatch(config.getNumUnrollSteps());
         return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
     }
 
