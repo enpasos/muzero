@@ -51,16 +51,8 @@ import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax
 @Slf4j
 public abstract class Game {
 
-   // protected int actionDecision;
+
     static List<Double> v0s = new ArrayList<>();
-
-    protected boolean isForRulesTrainingOnly;
-
-
-    boolean marker;
-
-
-
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected EpisodeDO episodeDO;
@@ -89,7 +81,6 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
-      //  this.gameDTO = new GameDTO();
         this.episodeDO = new EpisodeDO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
