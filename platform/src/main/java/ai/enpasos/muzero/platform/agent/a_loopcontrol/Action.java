@@ -28,9 +28,6 @@ import org.jetbrains.annotations.NotNull;
 @ToString(onlyExplicitlyIncluded = true)
 public abstract class Action implements Comparable<Action> {
 
-
- //   boolean switchToExploration = false;
-
     @ToString.Include
     private int index;
 

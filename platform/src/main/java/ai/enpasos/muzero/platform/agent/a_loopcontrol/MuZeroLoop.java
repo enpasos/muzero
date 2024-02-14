@@ -47,7 +47,6 @@ public class MuZeroLoop {
     @Autowired
     MuZeroConfig config;
 
-
     @Autowired
     GameBuffer gameBuffer;
 
