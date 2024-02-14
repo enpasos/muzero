@@ -35,13 +35,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
@@ -57,8 +51,16 @@ import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax
 @Slf4j
 public abstract class Game {
 
-
+   // protected int actionDecision;
     static List<Double> v0s = new ArrayList<>();
+
+    protected boolean isForRulesTrainingOnly;
+
+
+    boolean marker;
+
+
+
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
     protected EpisodeDO episodeDO;
@@ -87,6 +89,7 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
+      //  this.gameDTO = new GameDTO();
         this.episodeDO = new EpisodeDO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
@@ -104,12 +107,11 @@ public abstract class Game {
 
 
     public boolean isDone(boolean replay) {
-        return !replay && terminal()
-                || !replay && getEpisodeDO().getLastTimeWithAction() >= config.getMaxMoves()
-                || replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
-
+        return     replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction()
+                 || !replay && getEpisodeDO().getLastTimeWithAction() + 1 >= config.getMaxMoves()
+                || this.getEnvironment()!= null && !replay && terminal();
+            //    || this.isHybrid2() &&  getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
     }
-
 
 
     public @NotNull Game copy() {

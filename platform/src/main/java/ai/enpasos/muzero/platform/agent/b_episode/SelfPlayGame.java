@@ -38,20 +38,17 @@ public class SelfPlayGame {
         while (untilEnd &&  playParameters.isReplay() ?
 
                 playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
+ //               && (!game.getEpisodeDO().isHybrid()
+                        //||
+//                        (game.getEpisodeDO().getTStartNormal() <= game.getEpisodeDO().getLastTimeWithAction() + 1
+//                                && game.getEpisodeDO().getTimeStep(game.getEpisodeDO().getLastTimeWithAction() + 2).getK() > config.getKMinLimit()
+//                        )
+//                        )
+
                 :
                 ((!untilEnd && count == 1)
                         || (untilEnd && !game.isDone(playParameters.isJustReplayWithInitialReference())))
-        ){
-
-//            while ((!untilEnd && count == 1)
-//                    || (untilEnd && !game.isDone(
-//                    playParameters.isReplay() || playParameters.isJustReplayWithInitialReference())
-//            )) {
-
-
-
-
-
+                ){
        //     log.info("LastTimeWithAction: " + game.getEpisodeDO().getLastTimeWithAction());
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);

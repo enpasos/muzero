@@ -83,7 +83,13 @@ public class GameBuffer {
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
-        int gamePos  = samplePosition(0, game);
+        int gamePos = 0;
+        if (game.isForRulesTrainingOnly) {
+            gamePos = Math.max(0,game.getEpisodeDO().getLastTime()-numUnrollSteps);
+            samplePosition(gamePos, game);
+        } else {
+            gamePos = samplePosition(0, game);
+        }
         Sample sample = null;
         long count = 0;
         do {
