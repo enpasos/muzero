@@ -302,10 +302,15 @@ public class GumbelSearch {
             }
             node.calculateImprovedPolicy(minMaxStatsQValues , game.isItExplorationTime());
 
+
+            // TODO: At the moment the reward here is on the node the action moved to with
+            // the perspective for the player to play at the node before
             value =  node.getReward()
                     + (config.getPlayerMode() == PlayerMode.TWO_PLAYERS ? -1 : 1) * discount * value;
 
+
             node.setQValueSum(node.getQValueSum() + value);
+
             minMaxStatsQValues.update(value);
         }
     }
@@ -314,7 +319,7 @@ public class GumbelSearch {
         storeSearchStatistics(game, timeStepDO, root, fastRuleLearning, config, selectedAction, minMaxStatsQValues );
     }
 
-    public Action selectAction(Action biasedAction, boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO,  EpisodeMemory episodeMemory) {
+    public Action selectAction(boolean fastRuleLearning, boolean replay, TimeStepDO timeStepDO,  EpisodeMemory episodeMemory) {
 
         Action action = null;
 
@@ -364,33 +369,41 @@ public class GumbelSearch {
         } else {
             action = getAction(temperature, raw, game, timeStepDO, false );
         }
-        if (biasedAction != null) {
-            action = biasedAction;
-            timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
-            timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
-        }
+//        if (biasedAction != null) {
+//            action = biasedAction;
+//            timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
+//            timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
+//        }
         return action;
 
     }
 
 
 
-    private Action getAction(double temperature, double[] raw, Game game,  TimeStepDO timeStepDO, boolean isExplorationTime) {
+    private Action getAction(double temperature, double[] raw, Game game,  TimeStepDO timeStepDO, boolean explorationTime) {
         Action action;
 
-        double[] p = null;
-        if (isExplorationTime) {
-            // try a different exploration scheme that
-            // rescales the logits to a given interval
+        double[] p = softmax(raw,  temperature);
+        double pmin = Arrays.stream(p).filter(d -> d > 0d).min().getAsDouble();
+        double zmin = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).min().getAsDouble();
+        double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
 
 
-             p = softmax(rescaleLogitsIfOutsideInterval(raw, 6.0),temperature);
-// the normal way
-        //    p = softmax(raw, temperature);
-        } else {
+        double pminThreshold = 0.01d;  // TODO make configurable and a function of some number of playouts
+        if (explorationTime && pmin < pminThreshold) {
+             temperature = temperature * (zmax - zmin)/Math.log(1/pminThreshold);
+            log.info("temperature: " + temperature);
             p = softmax(raw, temperature);
         }
 
+        timeStepDO.setPlayoutPolicy(d2f(p));
+        int i = draw(p);
+        return config.newAction(i);
+    }
+
+    private Action getActionOld(double temperature, double[] raw, TimeStepDO timeStepDO) {
+        Action action;
+        double[] p = softmax(raw, temperature);
         timeStepDO.setPlayoutPolicy(d2f(p));
         int i = draw(p);
         action = config.newAction(i);
@@ -406,7 +419,11 @@ public class GumbelSearch {
         drawGumbelActions(1d, gumbelActions, 1, config.getCVisit(), config.getCScale(), maxActionVisitCount);
     }
 
-
+    public void drawCandidateAndAddValueStart() {
+        List<Float> vs = new ArrayList<>();
+        float v = (float) this.root.getValueFromInference();
+        vs.add(v);
+    }
 
     public void addExplorationNoise() {
         root.addExplorationNoise(config);

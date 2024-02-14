@@ -59,6 +59,8 @@ public class PlanAction {
 
 
         timeStepDO.setRootValueFromInitialInference((float) value);
+        // TODO
+      //  timeStepDO.setRewardFromInitialInference((float) value);
 
 
         if (t <= game.getOriginalEpisodeDO().getLastTimeWithAction()) {
@@ -137,19 +139,9 @@ public class PlanAction {
         sm.gumbelActionsStart(withGumbel);
      //   sm.addValueStart();
 
-
-        Action biasedAction = null;
-
         if (!fastRuleLearning && !sm.isSimulationsFinished()) {
             do {
                 List<Node> searchPath = sm.search();
-
-//                String as = Arrays.toString(searchPath.stream().filter(n -> n.getAction() != null).mapToInt(n -> n.getAction().getIndex()).toArray());
-//                System.out.println("search path: " + as   );
-//                if (as.equals("[1, 0]")) {
-//                    int i = 42;
-//                }
-
                 try {
                     networkOutput = modelService.recurrentInference(searchPath).get();
                 } catch (InterruptedException e) {
@@ -157,37 +149,7 @@ public class PlanAction {
                 } catch (ExecutionException e) {
                     throw new RuntimeException(e);
                 }
-
-             //   double oneKindOfExpectedSurprise = networkOutput.entropyOfLegalValues();
-
-// 100 is blocking the shortcut, .... check the idea
-                if ( config.getPlayTypeKey() ==  PlayTypeKey.HYBRID ) {
-                   // log.debug("oneKindOfExpectedSurprise: {}, searchPath.length: {}", oneKindOfExpectedSurprise, searchPath.size());
-                    // the higher the entropy, the more the expected new information when reaching
-                   // this state in the environment, therefore do a shortcut here
-                   Action action = searchPath.get(1).getAction();
-                    biasedAction = action;
-                  // action.setSwitchToExploration(true);
-
-                    // the selected action is now under exploration policy, therefore we need to
-//                    game.getEpisodeDO().setHybrid(true);
-//                   if (game.getEpisodeDO().getTStartNormal()<=t) {
-//                       game.getEpisodeDO().setTStartNormal(t+1);
-//                   }
-//                  // TimeStepDO ts = game.getEpisodeDO().getLastTimeStep();
-//                   timeStepDO.setPolicyTarget(new float[config.getActionSpaceSize()]);
-//                    timeStepDO.setPlayoutPolicy(new float[config.getActionSpaceSize()]);
-//                    timeStepDO.getPlayoutPolicy()[action.getIndex()] = 1f;
-//                    game.setMarker(true);
-//                   return action;
-                }
-
-                boolean debug = false;
-                if (debug) {
-                    int[] actions = searchPath.stream().map(Node::getAction).filter(a -> a != null).mapToInt(Action::getIndex).toArray();
-                    log.info("{}: v={}, p={}", Arrays.toString(actions), networkOutput.getValue(), Arrays.toString(networkOutput.getPolicyValues()));
-                }
-                boolean expanded = sm.expand(networkOutput);
+                sm.expand(networkOutput);
                 sm.backpropagate(networkOutput, config.getDiscount());
                 sm.next();
                 sm.drawCandidateAndAddValue();
@@ -198,7 +160,7 @@ public class PlanAction {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
            // log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(biasedAction, fastRuleLearning, replay, timeStepDO , gameBuffer.getBuffer().getEpisodeMemory());
+        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO , gameBuffer.getBuffer().getEpisodeMemory());
         return action;
     }
 
