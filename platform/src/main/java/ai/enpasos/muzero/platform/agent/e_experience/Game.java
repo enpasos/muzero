@@ -134,7 +134,6 @@ public abstract class Game {
     }
 
 
-
     public abstract boolean terminal();
 
     // TODO simplify Action handling ... just int not Marker Interface
@@ -166,8 +165,9 @@ public abstract class Game {
 
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
-        this.getEpisodeDO().getLastTimeStep().setReward(reward);
-        this.getEpisodeDO().getLastTimeStep().setAction(action.getIndex());
+        TimeStepDO ts = this.getEpisodeDO().getLastTimeStep();
+        ts.setReward(reward);
+        ts.setAction(action.getIndex());
 
         // now ... observation and legal actions already belong to the next timestamp
         getEpisodeDO().addNewTimeStepDO();
@@ -201,7 +201,7 @@ public abstract class Game {
     private float getReward(int currentIndex) {
         // perspective is missing
         float reward;
-        if (currentIndex > 0 && currentIndex-1 <= this.episodeDO.getLastTimeWithAction()) {
+        if (currentIndex > 0 && currentIndex <= this.episodeDO.getLastTime()) {
             reward = episodeDO.getTimeStep(currentIndex - 1).getReward();
         } else {
             reward = 0f;
@@ -248,12 +248,13 @@ public abstract class Game {
     private int getTdSteps(int currentIndex) {
         int tdSteps;
         if (this.reanalyse) {
-            if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
-                tdSteps = 0;
-            } else {
-              //  int tMaxHorizon = episodeDO.getLastTimeWithAction() - 1;    // TODO: check
-                tdSteps = getTdSteps(currentIndex);
-            }
+            throw new MuZeroException("check code");
+//            if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
+//                tdSteps = 0;
+//            } else {
+//                int tMaxHorizon = episodeDO.getLastTime() - 1;
+//                tdSteps = getTdSteps(currentIndex, tMaxHorizon);
+//            }
         } else {
             if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
                 tdSteps = 0;
@@ -357,23 +358,23 @@ public abstract class Game {
         if (this.getEpisodeDO().isHybrid() || isReanalyse()  ) {
             switch(config.getVTarget()) {
                 case V_INFERENCE:  // the default case ... remove the others
-                    if (  bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
+                    if (  bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_CONSISTENT:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
+                    if (bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_MIX:
-                    if (bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
+                    if (bootstrapIndex <= this.getEpisodeDO().getLastTime()) {
                         value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getVMix() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
             }
         } else {
-            if (bootstrapIndex < this.getEpisodeDO().getLastTimeWithAction() + 1) {
+            if (bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
                 value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         }
@@ -472,7 +473,7 @@ public abstract class Game {
 
 
     public boolean isItExplorationTime() {
-        return isItExplorationTime(getEpisodeDO().getLastTime() + 1);
+        return isItExplorationTime(getEpisodeDO().getLastTime() );
     }
 
     public boolean isItExplorationTime(int t) {
