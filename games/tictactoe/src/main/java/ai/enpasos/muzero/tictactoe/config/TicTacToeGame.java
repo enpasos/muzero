@@ -133,7 +133,7 @@ public class TicTacToeGame extends ZeroSumGame {
         r += getEnvironment().render();
         int t = this.getEpisodeDO().getLastTime();
         if (terminal() && t > 0) {
-            if (this.getEpisodeDO().getTimeSteps().get(t).getReward() == 0.0f) {
+            if (this.getEpisodeDO().getTimeSteps().get(t-1).getReward() == 0.0f) {
                 r += "\ndraw";
             } else {
                 r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();
