@@ -83,13 +83,7 @@ public class GameBuffer {
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
-        int gamePos = 0;
-        if (game.isForRulesTrainingOnly) {
-            gamePos = Math.max(0,game.getEpisodeDO().getLastTime()-numUnrollSteps);
-            samplePosition(gamePos, game);
-        } else {
-            gamePos = samplePosition(0, game);
-        }
+        int gamePos  = samplePosition(0, game);
         Sample sample = null;
         long count = 0;
         do {
@@ -199,8 +193,8 @@ public class GameBuffer {
 
         double fractionOfPureExploration = 0.5;
 
-        int n1 = (int) (this.batchSize * fractionOfPureExploration);
-        int n2 = this.batchSize - n1;
+       // int n1 = (int) (this.batchSize * fractionOfPureExploration);
+        int n2 = this.batchSize  ;
 
         List<Game> gameList = new ArrayList<>();
         if (n2 > 0) {
@@ -214,13 +208,13 @@ public class GameBuffer {
 //        List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n*5);
 //        Collections.shuffle(games3);
 //        games3 = games3.subList(0, Math.min(n, games3.size()));
-        if (n1 > 0) {
-             //     int n = this.batchSize;
-       // List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n1);
-            List<Game> games3 = this.getNRandomSelectedGames(n1);
-            games3.forEach(g -> g.setForRulesTrainingOnly(true));
-            gameList.addAll(games3);
-        }
+//        if (n1 > 0) {
+//             //     int n = this.batchSize;
+//       // List<Game> games3 = this.getNGamesWithHighestRuleLoss(  n1);
+//            List<Game> games3 = this.getNRandomSelectedGames(n1);
+//            games3.forEach(g -> g.setForRulesTrainingOnly(true));
+//            gameList.addAll(games3);
+//        }
 
         Collections.shuffle(gameList);
          return gameList;
