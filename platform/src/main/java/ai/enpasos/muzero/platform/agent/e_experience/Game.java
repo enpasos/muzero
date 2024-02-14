@@ -104,12 +104,11 @@ public abstract class Game {
 
 
     public boolean isDone(boolean replay) {
-        return     replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction()
-                 || !replay && getEpisodeDO().getLastTimeWithAction() >= config.getMaxMoves()
-                || this.getEnvironment()!= null && !replay && terminal();
-            //    || this.isHybrid2() &&  getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
-    }
+        return !replay && terminal()
+                || !replay && getEpisodeDO().getLastTimeWithAction() >= config.getMaxMoves()
+                || replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
 
+    }
 
 
 

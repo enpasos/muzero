@@ -174,7 +174,7 @@ public class GumbelSearch {
             .map(v -> minMaxStatsQValues.normalize(v))
             .toArray();
 
-         double[] sigmas = sigmas( qs , maxActionVisitCount, cVisit, cScale);
+        double[] sigmas = sigmas( qs , maxActionVisitCount, cVisit, cScale);
         double[] logitsPlusSigmas = new double[logits.length];
             IntStream.range(0, logits.length).forEach(i -> {
                 logitsPlusSigmas[i] = logits[i] + sigmas[i];
@@ -205,14 +205,9 @@ public class GumbelSearch {
         rootChild.getSearchPath().add(rootChild);
         Node node = rootChild;
         while (node.expanded()) {
-
-
-                node = node.selectChild();
-                rootChild.getSearchPath().add(node);
-
+            node = node.selectChild();
+            rootChild.getSearchPath().add(node);
         }
-
-
         return rootChild.getSearchPath();
     }
 
