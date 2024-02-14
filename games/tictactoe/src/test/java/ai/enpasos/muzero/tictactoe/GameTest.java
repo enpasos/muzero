@@ -45,27 +45,29 @@ class GameTest {
 
     @Test
     void checkTerminal() {
-        check( 1, 5, 0, 4, 7, 2, 8, 6);
-        check(1, 5, 0, 4, 7, 2, 8, 3);
-        check(1, 5, 0, 4, 2);
-        check(0, 5, 4, 3, 8);
-        check(2, 1, 4, 3, 6);
-        check(1, 2, 4, 3, 7);
-        check(3, 1, 4, 0, 5);
-        check(6, 1, 7, 0, 8);
-        check(0,5,2,6,3,8,4,7);
+        check( 1.0f, 1, 5, 0, 4, 7, 2, 8, 6);
+        check(1.0f,1, 5, 0, 4, 7, 2, 8, 3);
+        check(1.0f,1, 5, 0, 4, 2);
+        check(1.0f,0, 5, 4, 3, 8);
+        check(1.0f,2, 1, 4, 3, 6);
+        check(1.0f,1, 2, 4, 3, 7);
+        check(1.0f,3, 1, 4, 0, 5);
+        check(1.0f,6, 1, 7, 0, 8);
+        check(1.0f,0,5,2,6,3,8,4,7);
+        check(0f,0,5,2,6,3,8,4,1,7);
 
     }
 
 
-    private void check(int... actions) {
+    private void check(float reward, int... actions) {
         Game game = config.newGame(true,true);
         for (int i = 0; i < actions.length; i++) {
             int a = actions[i];
             Objects.requireNonNull(game).apply(config.newAction(a));
             if (i == actions.length - 1) {
-                assertTrue(game.terminal());
-                 assertEquals(0,game.legalActions().size());
+                assertTrue(game.terminal() || game.legalActions().size() == 0);
+                assertEquals(reward, game.getReward());
+                assertEquals(0,game.legalActions().size());
             } else {
                 assertFalse(game.terminal());
             }

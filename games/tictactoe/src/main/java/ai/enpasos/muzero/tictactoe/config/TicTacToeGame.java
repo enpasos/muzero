@@ -86,8 +86,6 @@ public class TicTacToeGame extends ZeroSumGame {
     @SuppressWarnings("squid:S2095")
     public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
 
-
-
         int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
 
         BitSet rawResult = new BitSet(n);
