@@ -1,0 +1,166 @@
+logging:
+  file:
+    name: logs/muzero-connect4.log
+    max-size: 10 MB
+  pattern:
+    console: "%d %-5level [%thread] %logger{0} : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    # org.hibernate.SQL: DEBUG
+    # org.hibernate.type: TRACE
+    root: WARN
+    ai.enpasos: DEBUG
+    ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
+    ai.djl: INFO
+spring:
+  datasource:
+    username: muzero
+    password: hd7sge
+    url: jdbc:postgresql://localhost:5432/muzero
+  jpa:
+    properties.hibernate:
+      #jdbc.lob.non_contextual_creation: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
+      ddl-auto: update
+      jdbc:
+        batch_size: 2000
+      order_updates: true
+      order_inserts: true
+
+muzero:
+  activeGame: CONNECT4
+  run: train
+  games:
+    CONNECT4:
+      modelName: MuZero-Connect4
+      gameClassName: ai.enpasos.muzero.connect4.config.Connect4Game
+      actionClassName: ai.enpasos.muzero.connect4.config.Connect4Action
+      playerMode: TWO_PLAYERS
+      valueInterval: [ -1,1 ]
+      numObservationLayers: 3
+      numActionLayers: 1
+
+
+      numberOfTrainingStepsPerEpoch: 40
+
+      numUnrollSteps: 5
+
+      discount: 1.0
+      weightDecay: 0.0001
+      lrInit: 0.0001
+
+      # numberTrainingStepsOnStart: 0
+
+      knownBoundsType: FROM_VALUES
+
+      inferenceDeviceType: GPU
+      outputDir: ./memory/connect4/
+
+      size: 42
+      maxMoves: 42  # size*size
+      boardHeight: 6 # size
+      boardWidth: 7 # size
+      actionSpaceSize: 7  # boardWidth
+
+
+
+      # start with NONE later use the board symmetry
+      symmetryType: NONE
+      batchSize: 256
+
+
+
+      # Gumbel MuZero parameters
+      initialGumbelM: 4
+      cVisit: 20  # 50 in paper
+      cScale: 1.0  # 1.0 in paper
+
+      numResiduals: 6
+      broadcastEveryN: 8  # out of range here
+
+      numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
+
+      numChannelsRules: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRules: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
+      numBottleneckChannels: 128  # obsolete? ... check
+
+      valueLossWeight: 1
+      consistencyLossWeight: 2
+      legalActionsLossWeight: 0.1  # about 1/actionSpaceSize
+
+      numberOfTrainingSteps: 50000
+
+      windowSize: 10000
+
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
+
+
+      offPolicyCorrectionOn: true
+      allOrNothingOn: true
+      offPolicyRatioLimit: 1.0
+
+      numParallelInferences: 1000
+
+
+      playTypes:
+        PLAYOUT:
+          forTraining: false
+          numSimulations: 20
+          rootExplorationFraction: 0.0  # 0.0 means switched off
+          temperatureRoot: 0.0
+          gumbelActionSelection: true
+          withGumbel: false
+        HYBRID:
+          forTraining: true
+          numParallelGamesPlayed: 1000
+          tdSteps: 9 # 9 # size * size
+          forTdStep0ValueTraining: false
+          numSimulations: 20
+          numSimulationsHybrid: 20
+
+          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+          # dirichlet noise is added before mcts
+          rootDirichletAlpha: 1.2
+          rootExplorationFraction: 0.25  # 0.0 means switched off
+
+          # temperatureRoot applies a temperature to the policy target after mcts and after storing it in game statistics but
+          # before drawing the action from the policy target (different from the paper)
+          # it helps to explore the game tree where the policy rules out bad moves and makes the agent blind to what could happen after such a move
+          temperatureRoot: 10.0
+          gumbelActionSelection: true
+
+          fractionOfPureExplorationAdded: 0.3
+          fractionOfPureExploitationAdded: 0.0
+#        REANALYSE:
+#          forTraining: true
+#          numParallelGamesPlayed: 1000
+#          tdSteps: 9
+#          numSimulations: 20
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+#        BEST_EFFORT:
+#          forTraining: true
+#          numParallelGamesPlayed: 1000
+#          tdSteps: 9 # 9 # size * size
+#          numSimulations: 20
+#          # dirichlet noise on root node helps to explore the game tree where the policy is temporarily underestimating some moves
+#          # dirichlet noise is added before mcts
+#          rootDirichletAlpha: 1.2
+#          rootExplorationFraction: 0.25  # 0.0 means switched off
+#          # find difference to HYBRID
+#          temperatureRoot: 1.0
+#          gumbelActionSelection: false
+#          # gumbelActionSelection: true
+

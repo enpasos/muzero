@@ -3,6 +3,7 @@ rootProject.name = "muzero"
 include(":platform")
 include(":games:go")
 include(":games:tictactoe")
+include(":games:connect4")
 include(":games:pegsolitair")
 include(":onnx:onnxModelGen")
 include(":onnx:onnxWithRuntime")

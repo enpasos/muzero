@@ -6,5 +6,7 @@ public enum GameType {
     GO_5,
     GO_9,
 
+    CONNECT4,
+
     TEST
 }
