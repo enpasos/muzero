@@ -8,6 +8,7 @@ springboot = "3.2.2"
 protobuf = "3.25.2"
 junit = "5.10.2"
 jackson = "2.16.1"
+postgres = "42.7.1"
 
 [libraries]
 djl-api = { module = "ai.djl:api", version.ref = "djl" }
@@ -39,7 +40,7 @@ springboot-starter-jpa = { module = "org.springframework.boot:spring-boot-starte
 springboot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springboot" }
 
 
-postgres = {module = 'org.postgresql:postgresql', version= "42.6.0" }
+postgres = {module = 'org.postgresql:postgresql', version.ref= "postgres" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 

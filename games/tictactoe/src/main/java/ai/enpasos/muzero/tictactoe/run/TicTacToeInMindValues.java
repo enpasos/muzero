@@ -49,9 +49,9 @@ public class TicTacToeInMindValues {
     public void run() {
 
 
-        // a double mistake game
-        int[] actions = {4, 5, 8, 0, 6, 2, 3, 1};
-        int epoch = 35;
+        // a multi-mistake game
+        int[] actions = {0, 3, 1, 4, 5, 7, 8, 6};
+        int epoch = 1250;
         int extra = 10;
         //     config.setOutputDir("./memory/tictactoe-without-exploration/");
         //  config.setOutputDir("./memory/tictactoe/");
