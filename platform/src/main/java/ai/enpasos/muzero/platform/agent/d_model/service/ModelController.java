@@ -121,10 +121,12 @@ public class ModelController implements DisposableBean, Runnable {
                 case LOAD_LATEST_MODEL:
                     close();
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
-                    log.info("loadLatestModel with model name {}", config.getModelName());
+
                     if (task.epoch == -1) {
+                        log.info("loadLatestModel for lastest epoch with model name {}", config.getModelName());
                         network = new Network(config, model);
                     } else {
+                        log.info("loadLatestModel for epoch {} with model name {}", task.epoch,  config.getModelName());
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                             Map.ofEntries(entry("epoch", task.epoch + "")));
                     }
