@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class EpisodeDO {
+public class EpisodeDO { //} implements Iterable<TimeStepDO> {
 
     @Builder.Default
     String networkName = "NONE";
@@ -259,4 +260,11 @@ public class EpisodeDO {
     public int getAction() {
         return this.getLastTimeStepWithAction().getAction();
     }
+
+//    @NotNull
+//    @Override
+//    public Iterator<TimeStepDO> iterator() {
+//        sortTimeSteps();
+//        return timeSteps.iterator();
+//    }
 }

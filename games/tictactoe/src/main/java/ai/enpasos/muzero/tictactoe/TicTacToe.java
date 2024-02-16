@@ -65,6 +65,8 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeValueExtractor valueExtractor;
 
 
+    @Autowired
+    private TicTacToeFillRewardLoss fillRewardLoss;
 
     @Autowired
     private TicTacToeFillValueTable fillValueTable;
@@ -104,6 +106,9 @@ public class TicTacToe implements CommandLineRunner {
                 fillValueTable.run();
                 break;
 
+            case FILLREWARDLOSS:
+                fillRewardLoss.run();
+                break;
 
             case TEMPERATURE:
                 temperature.run();

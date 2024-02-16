@@ -41,6 +41,25 @@ public class PlanAction {
     GameBuffer gameBuffer;
 
 
+    public void justReplayActionToGetRewardExpectations(Game game) {
+        log.trace("justReplayActionToGetRewardExpectations");
+
+        EpisodeDO episodeDO = game.getEpisodeDO();
+        int t = game.getObservationInputTime();
+
+        TimeStepDO timeStepDO = episodeDO.getTimeStep(t);
+
+        NetworkIO networkOutput = modelService.initialInference(game).join();
+        networkOutput = modelService.recurrentInference(networkOutput.getHiddenState(), timeStepDO.getAction()).join();
+
+        double rewardExpectation = networkOutput.getReward();
+        double r = timeStepDO.getReward() - rewardExpectation;
+        double loss = r * r;
+        timeStepDO.setRewardLoss((float)loss);
+
+    }
+
+
     public void justReplayActionWithInitialInference(Game game) {
         log.trace("justReplayActionWithInitialInference");
 
@@ -56,15 +75,11 @@ public class PlanAction {
         double reward = networkOutput.getReward();
         root.setValueFromInference(value);
 
-
-
         timeStepDO.setRootValueFromInitialInference((float) value);
         // TODO
       //  timeStepDO.setRewardFromInitialInference((float) value);
 
-
         if (t <= game.getOriginalEpisodeDO().getLastTimeWithAction()) {
-
             try {
                 timeStepDO = episodeDO.getTimeStep(t);
                 timeStepDO.setAction(game.getOriginalEpisodeDO().getTimeSteps().get(t).getAction());
@@ -72,10 +87,7 @@ public class PlanAction {
                 log.error(e.getMessage(), e);
                 throw new MuZeroException(e);
             }
-
         }
-
-
     }
 
 

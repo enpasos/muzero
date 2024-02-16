@@ -80,4 +80,16 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query(value = "update TimeStepDO t set t.statenode = NULL ")
     void deleteStateNodesRefs();
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update TimeStepDO t set t.rewardLoss = 0 ")
+    void deleteRewardLoss();
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update TimeStepDO t set t.rewardLoss = :loss where t.id = :id")
+    void updateRewardLoss(long id, float loss);
 }

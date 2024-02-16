@@ -20,6 +20,12 @@ public class PlayParameters {
 
     @Builder.Default
     boolean justReplayWithInitialReference = false;
+
+
+    @Builder.Default
+    boolean justReplayToGetRewardExpectations = false;
+
+
     @Builder.Default
     boolean withGumbel = true;
 

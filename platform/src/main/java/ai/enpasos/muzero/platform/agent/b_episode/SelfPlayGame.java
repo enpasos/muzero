@@ -4,6 +4,7 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.PlanAction;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,19 @@ public class SelfPlayGame {
         game.getEpisodeDO().setTdSteps(config.getTdSteps());
 
 
+        if (playParameters.isJustReplayToGetRewardExpectations()) {
+            for(int t = 0; t <= game.getEpisodeDO().getLastTimeWithAction(); t++) {
+               // else if (playParameters.isJustReplayToGetRewardExpectations()) {
+                game.setObservationInputTime(t);
+                    playAction.justReplayActionToGetRewardExpectations(game);
+              //  }
+            }
+            game.setObservationInputTime(-1);
+
+            return;
+        }
+
+
 
         int count = 1;
         while (untilEnd &&  playParameters.isReplay() ?
@@ -40,12 +54,14 @@ public class SelfPlayGame {
                 playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
                 :
                 ((!untilEnd && count == 1)
-                        || (untilEnd && !game.isDone(playParameters.isJustReplayWithInitialReference())))
-                ){
+                        || (untilEnd && !game.isDone(
+                                playParameters.isJustReplayWithInitialReference()
+                                    || playParameters.isJustReplayToGetRewardExpectations()
+                )))) {
        //     log.info("LastTimeWithAction: " + game.getEpisodeDO().getLastTimeWithAction());
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
-            } else {
+            }  else {
                 Action action = playAction.planAction(
                         game,
                         render,
@@ -84,10 +100,6 @@ public class SelfPlayGame {
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);
         } else if (playParameters.isReplay()) {
-            // replay
-//            List<Double> ks = new ArrayList<>();
-//IntStream.range(0, game.getEpisodeDO().getLastTime()).forEach(t -> ks.add(game.getEpisodeDO().getTimeStep(t).getK()));
-//    log.info("epoch {}, id {}, ks = {}", game.getEpisodeDO().getTrainingEpoch(), game.getEpisodeDO().getId(),    ks.toString());
 
             game.resetAllOriginalActions();
         }

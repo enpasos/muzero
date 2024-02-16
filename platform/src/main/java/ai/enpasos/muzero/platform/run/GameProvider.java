@@ -118,7 +118,16 @@ public class GameProvider {
             log.debug("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
             resultGames.addAll(playService.justReplayGamesWithInitialInference(gameList));
         }
-
     }
+    public void measureRewardExpectations(List<Game> games) {
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+        List<Game> resultGames = new ArrayList<>();
+        int i = 1;
+        for (List<Game> gameList : gameBatches) {
+            log.debug("justReplayToGetRewardExpectations " + i++ + " of " + gameBatches.size());
+            resultGames.addAll(playService.justReplayToGetRewardExpectations(gameList));
+        }
+    }
+
 
 }

@@ -80,7 +80,7 @@ muzero:
       numResiduals: 6
       broadcastEveryN: 8  # out of range here
 
-      numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
+      numChannels: 150    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
       numChannelsRules: 50
       numChannelsPolicy: 50
@@ -96,7 +96,7 @@ muzero:
       consistencyLossWeight: 2
       legalActionsLossWeight: 0.1  # about 1/actionSpaceSize
 
-      numberOfTrainingSteps: 50000
+      numberOfTrainingSteps: 25000
 
       windowSize: 10000
 

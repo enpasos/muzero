@@ -43,6 +43,7 @@ public class TimeStepDO {
     Integer action;
 
     float reward;
+    float rewardLoss;
     float entropy;
     float[] policyTarget;
     int observationPartSize;
