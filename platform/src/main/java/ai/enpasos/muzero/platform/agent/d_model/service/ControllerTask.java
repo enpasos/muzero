@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 
 public class ControllerTask {
-
+    private boolean background;
     private final ControllerTaskType taskType;
     private NetworkIO networkOutput;
     private volatile boolean done;
@@ -44,5 +44,13 @@ public ControllerTask(ControllerTaskType taskType) {
 
     public void setTrainingDatasetType(TrainingDatasetType trainingDatasetType) {
     this.trainingDatasetType = trainingDatasetType;
+    }
+
+    public boolean isBackground() {
+        return background;
+    }
+
+    public void setBackground(boolean background) {
+        this.background = background;
     }
 }

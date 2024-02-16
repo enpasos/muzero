@@ -52,6 +52,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     private String overrideModelName;
     private Consumer<Trainer> onSaveModel;
     private int epoch;
+    private boolean background;
 
     /**
      * Constructs a {@link MySaveModelTrainingListener} using the model's name.
@@ -78,6 +79,8 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
     @Override
     public void onEpoch(Trainer trainer) {
+        if (background) return;
+
         epoch++;
         if (outputDir == null) {
             return;

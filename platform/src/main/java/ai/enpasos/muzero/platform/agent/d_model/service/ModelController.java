@@ -156,7 +156,7 @@ public class ModelController implements DisposableBean, Runnable {
                     break;
                 case TRAIN_MODEL:
                     model = network.getModel();
-                    trainNetwork(model, task.freeze, task.getTrainingDatasetType());
+                    trainNetwork(model, task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case START_SCOPE:
                     if (ndScope != null) {
@@ -177,7 +177,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetwork(Model model, boolean[] freeze, TrainingDatasetType trainingDatasetType) {
+    private void trainNetwork(Model model, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
 //        switch (trainingDatasetType) {
 //            case PLANNING_BUFFER:
                 try (NDScope nDScope = new NDScope()) {
@@ -185,7 +185,7 @@ public class ModelController implements DisposableBean, Runnable {
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                     boolean withSymmetryEnrichment = true;
                     epochLocal = getEpochFromModel(model);
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal);
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background);
                     int finalEpoch = epochLocal;
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -362,7 +362,7 @@ public class ModelController implements DisposableBean, Runnable {
         } catch (Exception e) {
 
             final int epoch = -1;
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false);
 
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)

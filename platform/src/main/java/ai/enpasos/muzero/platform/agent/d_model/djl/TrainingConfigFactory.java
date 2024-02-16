@@ -33,16 +33,11 @@ public class TrainingConfigFactory {
 
 
 
-    public DefaultTrainingConfig setupTrainingConfig(int epoch) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean background) {
 
         String outputDir = config.getNetworkBaseDir();
-        MySaveModelTrainingListener listener = mySaveModelTrainingListener;
-        mySaveModelTrainingListener.setOutputDir(outputDir);
-        listener.setEpoch(epoch);
+
         SimpleCompositeLoss loss = new SimpleCompositeLoss();
-
-
-
 
 
         float gradientScale = 1f / config.getNumUnrollSteps();
@@ -101,6 +96,9 @@ public class TrainingConfigFactory {
 
         }
 
+        mySaveModelTrainingListener.setOutputDir(outputDir);
+        mySaveModelTrainingListener.setEpoch(epoch);
+        mySaveModelTrainingListener.setBackground(background);
 
         return new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
@@ -112,7 +110,7 @@ public class TrainingConfigFactory {
                         new DivergenceCheckTrainingListener(),
                         new MyLoggingTrainingListener(epoch),
                         new TimeMeasureTrainingListener(outputDir),
-                        listener);
+                        mySaveModelTrainingListener);
     }
 
     private Optimizer setupOptimizer(int trainingStep) {
