@@ -77,6 +77,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
+    @Query(value = "SELECT t.episode_id FROM timestep t GROUP BY t.episode_id ORDER BY MAX(t.reward_loss) DESC LIMIT :n", nativeQuery = true)
+    List<Long> findNEpisodeIdsWithHighestRewardLoss(int n);
+
+
+    @Transactional
     @Modifying
     @Query(value = "update TimeStepDO t set t.statenode = NULL ")
     void deleteStateNodesRefs();

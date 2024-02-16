@@ -114,8 +114,8 @@ public class DBService {
         return result;
     }
     @Transactional
-    public List<EpisodeDO> findNEpisodeIdsWithHighestLossAndConvertToGameDTOList(int n) {
-        List<Long> ids = episodeRepo.findNEpisodeIdsWithHighestLoss(n);
+    public List<EpisodeDO> findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(int n) {
+        List<Long> ids = timestepRepo.findNEpisodeIdsWithHighestRewardLoss(n);
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }

@@ -21,7 +21,6 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.memory.EpisodeMemory;
 import ai.enpasos.muzero.platform.agent.e_experience.memory.EpisodeMemoryImpl;
-import ai.enpasos.muzero.platform.agent.memory.protobuf.GameBufferProto;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,7 +42,7 @@ public class GameBufferDTO {
 
     public static final double BUFFER_IO_VERSION = 1.0;
     private EpisodeMemory episodeMemory;
-   // transient List<Game> games = new ArrayList<>();
+
     transient MuZeroConfig config;
     private List<EpisodeDO> initialEpisodeDOList = new ArrayList<>();
 
@@ -67,42 +66,18 @@ public class GameBufferDTO {
         return config.getWindowSize();
     }
 
-//    public void removeGame(Game game) {
-//        this.episodeMemory.remove(game);
-//    }
-
-//    public boolean addGameAndRemoveOldGameIfNecessary(@NotNull Game game ) {
-//        while (isBufferFilled()) {
-//            games.remove(0);
-//        }
-//        addGame( game );
-//        return !isBufferFilled();
-//    }
 
     public void addGame(@NotNull Game game ) {
-
         this.episodeMemory.add(game);
-//        if (!isBufferFilled()) {
-//            games.add(game);
-//            if (game.getEpisodeDO().getCount() == 0 ) {
-//                counter++;
-//                game.getEpisodeDO().setCount(counter);
-//            } else {
-//                counter = Math.max(counter, game.getEpisodeDO().getCount());
-//            }
-//        }
     }
 
 
     public void rebuildGames(MuZeroConfig config ) {
         log.info("rebuildGames");
-        //games = new ArrayList<>();
         for (EpisodeDO episodeDO : getInitialEpisodeDOList()) {
             Game game = config.newGame(false,false);
             game.setEpisodeDO(episodeDO);
-
-                this.episodeMemory.add(game);
-          //  games.add(game);
+            this.episodeMemory.add(game);
         }
         getInitialEpisodeDOList().clear();
     }

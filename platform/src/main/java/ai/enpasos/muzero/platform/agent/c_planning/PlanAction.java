@@ -9,14 +9,11 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -172,7 +169,7 @@ public class PlanAction {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
            // log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO , gameBuffer.getBuffer().getEpisodeMemory());
+        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO , gameBuffer.getPlanningBuffer().getEpisodeMemory());
         return action;
     }
 

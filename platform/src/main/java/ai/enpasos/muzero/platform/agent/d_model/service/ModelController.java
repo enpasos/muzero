@@ -178,13 +178,9 @@ public class ModelController implements DisposableBean, Runnable {
 
 
     private void trainNetwork(Model model, boolean[] freeze, TrainingDatasetType trainingDatasetType) {
-        switch (trainingDatasetType) {
-            case RANDOM_FROM_BUFFER:
+//        switch (trainingDatasetType) {
+//            case PLANNING_BUFFER:
                 try (NDScope nDScope = new NDScope()) {
-//                    if (config.offPolicyCorrectionOn()) {
-//                        determinePRatioMaxForCurrentEpoch();
-//                    }
-
                     int epochLocal;
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                     boolean withSymmetryEnrichment = true;
@@ -203,16 +199,13 @@ public class ModelController implements DisposableBean, Runnable {
                         ((CausalityFreezing) model.getBlock()).freeze(freeze);
 
 
-                        //                switch(trainingDatasetType) {
-                        //                    case RANDOM_FROM_BUFFER:
                         for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                            try (Batch batch = batchFactory.getRamdomBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize())) {
+                            try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
                                 log.debug("trainBatch " + m);
                                 MyEasyTrain.trainBatch(trainer, batch);
                                 trainer.step();
                             }
                         }
-
 
                         // number of action paths
 
@@ -223,16 +216,9 @@ public class ModelController implements DisposableBean, Runnable {
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
-                break;
-//            case SEQUENTIAL_FROM_ALL_EXPERIENCE:
-//              //  SequentialCursor cursor = SequentialCursor.builder()
-//                    //    .batchSize(config.getBatchSize())
-//                  //      .build();
-//             //   while (cursor.hasNext()) {
+//                break;
+//            case RULES_BUFFER:
 //                    try (NDScope nDScope = new NDScope()) {
-////                        if (config.offPolicyCorrectionOn()) {
-////                            determinePRatioMaxForCurrentEpoch();
-////                        }
 //
 //                        int epochLocal;
 //                        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
@@ -250,22 +236,20 @@ public class ModelController implements DisposableBean, Runnable {
 //
 //
 //                            ((CausalityFreezing) model.getBlock()).freeze(freeze);
-//                            try (Batch batch = batchFactory.getSequentialBatchFromAllExperience(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), null)) {
-//                                //  log.debug("trainBatch " + m);
-//
+//                            try (Batch batch =  batchFactory.getBatchFromRulesBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize())){
 //
 //                                MyEasyTrain.trainBatch(trainer, batch);
 //                                trainer.step();
 //                            }
 //                        }
 //                    }
-//              //  }
+//
 //                modelState.setEpoch(getEpochFromModel(model));
 //               break;
-
-            default:
-                throw new MuZeroException("not implemented");
-        }
+//
+//            default:
+//                throw new MuZeroException("not implemented");
+//        }
 
     }
 

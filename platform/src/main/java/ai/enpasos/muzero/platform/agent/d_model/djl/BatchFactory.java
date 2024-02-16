@@ -26,12 +26,12 @@ import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -79,11 +79,33 @@ public class BatchFactory {
     }
 
 
-    public Batch getRamdomBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
-      //  List<Sample> sampleList = new ArrayList<>(); // TODO ... gameBuffer.randomSampleList(numUnrollSteps, batchSize);
-        List<Sample> sampleList = gameBuffer.sampleBatch(config.getNumUnrollSteps());
+    public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType) {
+        List<Sample> sampleList = null;
+        switch(trainingDatasetType) {
+            case PLANNING_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromPlanningBuffer(config.getNumUnrollSteps());
+                break;
+            case RULES_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
+                break;
+
+            case REANALYSE_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
+                break;
+        }
+
+
         return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
     }
+
+//    public Batch getBatchFromRulesBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+//        List<Sample> sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
+//        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//    }
+//    public Batch getBatchFromReanalyseBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+//        List<Sample> sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
+//        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//    }
 
     public Shape @NotNull [] getInputShapes() {
         return getInputShapes(config.getBatchSize());

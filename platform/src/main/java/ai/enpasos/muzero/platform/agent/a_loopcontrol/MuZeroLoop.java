@@ -22,10 +22,12 @@ import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.GameBufferDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import ai.enpasos.muzero.platform.run.FillRewardLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +39,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RANDOM_FROM_BUFFER;
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.SEQUENTIAL_FROM_ALL_EXPERIENCE;
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
 
 @Slf4j
 @Component
@@ -71,6 +73,9 @@ public class MuZeroLoop {
     @Autowired
     TemperatureCalculator temperatureCalculator;
 
+    @Autowired
+    FillRewardLoss fillRewardLoss;
+
 
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
@@ -102,17 +107,21 @@ public class MuZeroLoop {
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
 
-            log.info("game counter: " + gameBuffer.getBuffer().getCounter());
-            log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getEpisodeMemory().getGameList().size());
+            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
+            if (epoch % 20 == 0) {
+                gameBuffer.setRulesBuffer(new GameBufferDTO(config));
+                fillRewardLoss.fillRewardLossForNetworkOfEpoch( epoch);
+            }
 
-//            boolean[] freeze = new boolean[]{false, true, true};
-//            modelService.trainModel(freeze, SEQUENTIAL_FROM_ALL_EXPERIENCE).get();
+            boolean[] freeze = new boolean[]{false, true, true};
+            modelService.trainModel(freeze, RULES_BUFFER).get();
 
-            boolean[] freeze = new boolean[]{false, false, false};
-             modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
+            freeze = new boolean[]{false, false, false};
+            modelService.trainModel(freeze, PLANNING_BUFFER).get();
 
             epoch = modelState.getEpoch();
 

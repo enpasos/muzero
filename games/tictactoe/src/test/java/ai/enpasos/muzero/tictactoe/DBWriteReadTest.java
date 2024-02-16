@@ -71,11 +71,11 @@ class DBWriteReadTest {
             modelState.setEpoch(10);
             gameBuffer.addGames(games);
 
-            GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
+            GameBufferDTO dtoOriginal = gameBuffer.getPlanningBuffer();
 
-            gameBuffer.setBuffer(null);
+            gameBuffer.setPlanningBuffer(null);
             gameBuffer.loadLatestStateIfExists();
-            GameBufferDTO dtoNew = gameBuffer.getBuffer();
+            GameBufferDTO dtoNew = gameBuffer.getPlanningBuffer();
             assertTrue(deepEquals(dtoOriginal, dtoNew), "game buffers should be the same");
 
         }
@@ -95,10 +95,10 @@ class DBWriteReadTest {
             modelState.setEpoch(10);
             gameBuffer.addGames(games);
 
-            GameBufferDTO dtoOriginal = gameBuffer.getBuffer();
-            gameBuffer.setBuffer(null);
+            GameBufferDTO dtoOriginal = gameBuffer.getPlanningBuffer();
+            gameBuffer.setPlanningBuffer(null);
             gameBuffer.loadLatestStateIfExists();
-            GameBufferDTO dtoNew = gameBuffer.getBuffer();
+            GameBufferDTO dtoNew = gameBuffer.getPlanningBuffer();
             assertTrue(deepEquals(dtoOriginal,dtoNew), "game buffers should be the same");
 
         }
