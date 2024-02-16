@@ -96,7 +96,8 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
      */
     @Override
     public void onTrainingEnd(Trainer trainer) {
-        if (step == -1 || epoch % step != 0) {
+        if (background) return;
+        if (  step == -1 || epoch % step != 0) {
             saveModel(trainer);
         }
     }
