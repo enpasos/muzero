@@ -384,17 +384,17 @@ public class GumbelSearch {
         Action action;
 
         double[] p = softmax(raw,  temperature);
-        double pmin = Arrays.stream(p).filter(d -> d > 0d).min().getAsDouble();
-        double zmin = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).min().getAsDouble();
-        double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
 
-
-        double pminThreshold = 0.01d;  // TODO make configurable and a function of some number of playouts
-        if (explorationTime && pmin < pminThreshold) {
-             temperature = temperature * (zmax - zmin)/Math.log(1/pminThreshold);
-            log.info("temperature: " + temperature);
-            p = softmax(raw, temperature);
-        }
+        // TODO: maybe in global way
+//        double pmin = Arrays.stream(p).filter(d -> d > 0d).min().getAsDouble();
+//        double zmin = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).min().getAsDouble();
+//        double zmax = Arrays.stream(raw).filter(d -> !Double.isInfinite(d)).max().getAsDouble();
+//        double pminThreshold = 0.01d;  // TODO make configurable and a function of some number of playouts
+//        if (explorationTime && pmin < pminThreshold) {
+//             temperature = temperature * (zmax - zmin)/Math.log(1/pminThreshold);
+//            log.info("temperature: " + temperature);
+//            p = softmax(raw, temperature);
+//        }
 
         timeStepDO.setPlayoutPolicy(d2f(p));
         int i = draw(p);
