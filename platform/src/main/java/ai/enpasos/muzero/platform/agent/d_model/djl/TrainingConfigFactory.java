@@ -98,9 +98,8 @@ public class TrainingConfigFactory {
 
         mySaveModelTrainingListener.setOutputDir(outputDir);
         mySaveModelTrainingListener.setEpoch(epoch);
-        mySaveModelTrainingListener.setBackground(background);
 
-        return new DefaultTrainingConfig(loss)
+        DefaultTrainingConfig c =  new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
                 .optOptimizer(setupOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
                 .addTrainingListeners(
@@ -108,9 +107,13 @@ public class TrainingConfigFactory {
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
                         new DivergenceCheckTrainingListener(),
-                        new MyLoggingTrainingListener(epoch),
-                        new TimeMeasureTrainingListener(outputDir),
-                        mySaveModelTrainingListener);
+                        new TimeMeasureTrainingListener(outputDir)
+                        );
+        if (!background) {
+            c.addTrainingListeners(new MyLoggingTrainingListener(epoch)
+            , mySaveModelTrainingListener);
+        }
+        return c;
     }
 
     private Optimizer setupOptimizer(int trainingStep) {
