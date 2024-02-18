@@ -103,15 +103,16 @@ public class TrainingConfigFactory {
                 .optDevices(Engine.getInstance().getDevices(1))
                 .optOptimizer(setupOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
                 .addTrainingListeners(
-                        new MyEpochTrainingListener(),
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
                         new DivergenceCheckTrainingListener(),
                         new TimeMeasureTrainingListener(outputDir)
                         );
         if (!background) {
-            c.addTrainingListeners(new MyLoggingTrainingListener(epoch)
-            , mySaveModelTrainingListener);
+            c.addTrainingListeners(
+                    new MyEpochTrainingListener(),
+                    new MyLoggingTrainingListener(epoch),
+                    mySaveModelTrainingListener);
         }
         return c;
     }

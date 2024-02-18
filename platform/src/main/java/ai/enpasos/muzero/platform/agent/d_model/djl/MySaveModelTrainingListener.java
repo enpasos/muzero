@@ -153,10 +153,12 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     }
 
     public int getEpoch() {
+        logger.trace("getEpoch {}", epoch);
         return epoch;
     }
 
     public void setEpoch(int epoch) {
+        logger.trace("setEpoch from {} to {}", this.epoch, epoch);
         this.epoch = epoch;
     }
 }

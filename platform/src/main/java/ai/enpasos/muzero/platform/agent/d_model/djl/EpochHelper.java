@@ -39,6 +39,7 @@ public class EpochHelper {
         if (prop != null) {
             epoch = Integer.parseInt(prop);
         }
+        log.trace("getEpochFromModel: {}", epoch);
         return epoch;
     }
 }
