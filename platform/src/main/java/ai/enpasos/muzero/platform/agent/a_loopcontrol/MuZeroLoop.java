@@ -112,7 +112,7 @@ public class MuZeroLoop {
             log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
-            if (epoch % 20 == 0 || epoch % 20 == 1) {
+            if (epoch % 5 == 0) {
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
                 gameBuffer.setRulesBuffer(new GameBufferDTO(config));
                 fillRewardLoss.fillRewardLossForNetworkOfEpoch( epoch);
@@ -121,7 +121,7 @@ public class MuZeroLoop {
             boolean[] freeze = new boolean[]{false, true, true};
             modelService.trainModel(freeze, RULES_BUFFER, true).get();
 
-            freeze = new boolean[]{false, false, false};
+            freeze = new boolean[]{true, false, false};
             modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
