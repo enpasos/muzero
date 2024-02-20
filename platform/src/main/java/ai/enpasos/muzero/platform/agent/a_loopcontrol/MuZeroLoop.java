@@ -121,7 +121,7 @@ public class MuZeroLoop {
             boolean[] freeze = new boolean[]{false, true, true};
             modelService.trainModel(freeze, RULES_BUFFER, true).get();
 
-            freeze = new boolean[]{true, false, false};
+            freeze = new boolean[]{false, false, false};
             modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
