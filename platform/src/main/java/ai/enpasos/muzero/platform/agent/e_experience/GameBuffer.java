@@ -230,7 +230,7 @@ public class GameBuffer {
     public List<Game> getGamesFromRulesBuffer() {
         List<Game> games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
         if (games.isEmpty()) {
-            List<Game> gamesForBuffer = getNGamesWithHighestRewardLoss(config.getWindowSize());
+            List<Game> gamesForBuffer = getNGamesWithHighestRewardLoss(2000);
             gamesForBuffer.forEach(game -> this.rulesBuffer.addGame(game));
             games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
         }
