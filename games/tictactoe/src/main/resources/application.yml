@@ -80,9 +80,9 @@ muzero:
       numResiduals: 6
       broadcastEveryN: 8  # out of range here
 
-      numChannels: 150    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
+      numChannels: 200    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsRules: 50
+      numChannelsRules: 100
       numChannelsPolicy: 50
       numChannelsValue: 50
 
