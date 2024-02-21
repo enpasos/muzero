@@ -35,15 +35,15 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
 
 
     public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannelsRules(),  config.getNumChannelsPolicy(), config.getNumChannelsValue(), config.getNumCompressedChannelsRules(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue(), broadcastEveryN);
+        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, new int[] {config.getNumChannelsRules(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()}, new int[] {config.getNumCompressedChannelsRules(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()}, broadcastEveryN);
     }
 
     @java.lang.SuppressWarnings("java:S107")
-    public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannelsRules, int numChannelsPolicy,  int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy,  int numCompressedChannelsValue, int broadcastEveryN) {
+    public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int[] numChannels,  int[] numCompressedChannels,   int broadcastEveryN) {
         this.add(CausalResidualTower.builder()
                 .numResiduals(numResiduals)
-                .numChannels(new int[] {numChannelsRules, numChannelsPolicy, numChannelsValue})
-                .numCompressedChannels (new int[] {numCompressedChannelsRules, numCompressedChannelsPolicy, numCompressedChannelsValue})
+                .numChannels(numChannels)
+                .numCompressedChannels (numCompressedChannels)
                 .broadcastEveryN(broadcastEveryN)
                 .height(height)
                 .width(width)
