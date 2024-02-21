@@ -24,11 +24,13 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.onnx.AttributeProto;
 import ai.enpasos.onnx.NodeProto;
 import lombok.Builder;
+import org.apache.commons.lang3.IntegerRange;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.mnist.blocks.OnnxBlock.combine;
 import static ai.enpasos.mnist.blocks.OnnxBlock.getNames;
@@ -41,24 +43,21 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
 
 
     ParallelBlockWithCollectChannelJoinExt block;
-    Conv3x3 rulesBlock;
-    Conv3x3 policyBlock;
-    Conv3x3 valueBlock;
+
+
+    List<Block> blocks = new ArrayList<>();
 
 
  public RepresentationStart(MuZeroConfig config) {
             super(MYVERSION);
 
-     rulesBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
-     policyBlock = Conv3x3.builder().channels(config.getNumChannelsPolicy()).build();
-     valueBlock = Conv3x3.builder().channels(config.getNumChannelsValue()).build();
+     blocks.add(Conv3x3.builder().channels(config.getNumChannelsRules()).build());
+     blocks.add(Conv3x3.builder().channels(config.getNumChannelsPolicy()).build());
+     blocks.add(Conv3x3.builder().channels(config.getNumChannelsValue()).build());
 
 
         block = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(
-                Arrays.asList(
-                        rulesBlock ,
-                        policyBlock,
-                        valueBlock )
+                blocks
         ));
     }
 
@@ -100,8 +99,10 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
 
     @Override
     public void freeze(boolean[] freeze) {
-        rulesBlock.freezeParameters(freeze[0]);
-        policyBlock.freezeParameters(freeze[1]);
-        valueBlock.freezeParameters(freeze[2]);
+        IntStream.range(0, blocks.size()).forEach(i -> {
+            if (blocks.get(i) instanceof CausalityFreezing) {
+                ((CausalityFreezing) blocks.get(i)).freeze(freeze);
+            }
+        });
     }
 }
