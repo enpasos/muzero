@@ -44,16 +44,18 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
 
 
 
-    public CausalBroadcastResidualLayersBlock(int height, int width, int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy, int numCompressedChannelsValue, boolean rescale) {
+    public CausalBroadcastResidualLayersBlock(int height, int width, int[] numChannels, int[] numCompressedChannels, boolean rescale) {
         super(MYVERSION);
 
-         CausalBroadcastResidualBlock ruleBlock = new CausalBroadcastResidualBlock(height, width, numChannelsRules, numCompressedChannelsRules,rescale);
-         CausalBroadcastResidualBlock policyBlock = new CausalBroadcastResidualBlock(height, width, numChannelsPolicy, numCompressedChannelsPolicy,  rescale);
-         CausalBroadcastResidualBlock valueBlock = new CausalBroadcastResidualBlock(height, width,  numChannelsValue, numCompressedChannelsValue,  rescale);
-
+        if (numChannels.length != numCompressedChannels.length) throw new IllegalArgumentException("num channels and num compressed channels must have the same length");
+        List list = new ArrayList();
+        for (int i = 0; i < numChannels.length; i++) {
+            list.add(new CausalBroadcastResidualBlock(height, width,numChannels[i],   numCompressedChannels[i], rescale));
+        }
 
         block = addChildBlock("causalBroadcastResidualLayersBlock", new CausalLayers(
-            Arrays.asList(ruleBlock, policyBlock, valueBlock), rescale));
+                list, rescale));
+
     }
 
     @Override

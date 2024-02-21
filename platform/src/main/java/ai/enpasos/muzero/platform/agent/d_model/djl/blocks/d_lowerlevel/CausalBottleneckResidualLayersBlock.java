@@ -44,16 +44,16 @@ public class CausalBottleneckResidualLayersBlock extends AbstractBlock implement
 
 
 
-    public CausalBottleneckResidualLayersBlock(int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int  numCompressedChannelsRules,  int numCompressedChannelsPolicy, int  numCompressedChannelsValue, boolean rescale) {
+    public CausalBottleneckResidualLayersBlock( int[] numChannels, int[] numCompressedChannels, boolean rescale) {
         super(MYVERSION);
-
-         CausalBottleneckResidualBlock ruleBlock = new CausalBottleneckResidualBlock(numChannelsRules, numChannelsRules/4*3, numCompressedChannelsRules, rescale);
-         CausalBottleneckResidualBlock policyBlock = new CausalBottleneckResidualBlock(numChannelsPolicy, numChannelsPolicy/4*3, numCompressedChannelsPolicy, rescale);
-         CausalBottleneckResidualBlock valueBlock = new CausalBottleneckResidualBlock(numChannelsValue, numChannelsValue/4*3, numCompressedChannelsValue, rescale);
-
+        if (numChannels.length != numCompressedChannels.length) throw new IllegalArgumentException("num channels and num compressed channels must have the same length");
+        List list = new ArrayList();
+        for (int i = 0; i < numChannels.length; i++) {
+            list.add(new CausalBottleneckResidualBlock(numChannels[i], numChannels[i] / 4 * 3, numCompressedChannels[i], rescale));
+        }
 
         block = addChildBlock("causalBottleneckResidualLayersBlock", new CausalLayers(
-            Arrays.asList(ruleBlock, policyBlock, valueBlock), rescale));
+            list, rescale));
     }
 
     @Override
@@ -74,11 +74,7 @@ public class CausalBottleneckResidualLayersBlock extends AbstractBlock implement
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         return block.getOutputShapes(inputs);
-//        List<Shape> shapes = new ArrayList<>();
-//        for (Block myblock : block.getChildren().values()) {
-//            shapes.add(myblock.getOutputShapes(inputs)[0]);
-//        }
-//        return shapes.toArray(new Shape[0]);
+
     }
 
     @Override
