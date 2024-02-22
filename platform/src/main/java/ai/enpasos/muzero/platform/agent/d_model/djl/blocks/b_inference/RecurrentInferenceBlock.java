@@ -110,7 +110,7 @@ throw new MuZeroException("implemented in MuZeroBlock");
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-
+        f.setWithReward(true);
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .build();
