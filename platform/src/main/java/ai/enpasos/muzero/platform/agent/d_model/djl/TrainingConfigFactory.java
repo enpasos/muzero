@@ -70,6 +70,11 @@ public class TrainingConfigFactory {
             loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
             k++;
 
+            // legal actions
+            log.trace("k={}: LegalActions BCELoss", k);
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, this.config.getLegalActionsLossWeight() * gradientScale, 1), k));
+            k++;
+
 
             // reward
             log.trace("k={}: Reward L2Loss", k);
@@ -78,10 +83,7 @@ public class TrainingConfigFactory {
 
 
 
-            // legal actions
-            log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, this.config.getLegalActionsLossWeight() * gradientScale, 1), k));
-            k++;
+
 
             // policy
             log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);

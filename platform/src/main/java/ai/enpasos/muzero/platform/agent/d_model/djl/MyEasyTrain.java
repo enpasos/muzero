@@ -168,8 +168,9 @@ public final class MyEasyTrain {
         // - recurrent inference  (numUnrollSteps times 6)
         //  - consistency:similarityPredictorResult
         //  - consistency:similarityProjectorResultLabel;
-        //  - reward
+
         //  - legal actions
+        //  - reward
         //  - policy
         //  - value
         if (preds.size() != 3 + 6 * (numRolloutSteps)) {
