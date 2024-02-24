@@ -2,10 +2,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationStart;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -132,12 +129,23 @@ class BlockTest {
 //        Assertions.assertTrue(check);
 //    }
 
+
+    @Test
+    void dynamicsStartBlockRANDOM() throws Exception {
+        boolean check = compareOnnxWithDJL(
+                "./build/DynamicsStartBlock.onnx",
+                new DynamicsStart(config),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3),new Shape(1, 80, 3, 3),new Shape(1, 1, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
     @Test
     void dynamicsBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/DynamicsBlock.onnx",
                  DynamicsBlock.newDynamicsBlock(config),
-                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3),new Shape(1, 80, 3, 3),new Shape(1, 1, 3, 3)),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3),new Shape(1, 80, 3, 3),new Shape(1, 1, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
     }
@@ -228,7 +236,7 @@ class BlockTest {
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
             new PredictionBlock(128, true, 9 ),
-            List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
+            List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
     }
@@ -241,7 +249,7 @@ class BlockTest {
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
             new PredictionBlock(128, true, 9),
-            List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
+            List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
     }

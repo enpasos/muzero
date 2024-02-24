@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.firstHalf;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.secondHalf;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
@@ -69,10 +71,10 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
         f.setWithReward(false);
         NDList hResult = h.forward(parameterStore, inputs, training, params);
         // hResult ist the output from the three causal layers
-        // the first three should go to the representation block
-        // the last three should go to the prediction block
-        NDList fResult = f.forward(parameterStore, new NDList(hResult.get(0), hResult.get(1),hResult.get(2)), training, params);
-        NDList result = new NDList(hResult.get(3), hResult.get(4),hResult.get(5));
+        // the first half should go to the representation block
+        // the second half should go to the prediction block
+        NDList fResult = f.forward(parameterStore, firstHalfNDList(hResult), training, params);
+        NDList result =  secondHalfNDList(hResult);
         return result.addAll(fResult);
     }
 
@@ -81,8 +83,9 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
         f.setWithReward(false);
         Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
 
-        Shape[] hOutputShapesForPrediction = new Shape[]{hOutputShapes[0], hOutputShapes[1], hOutputShapes[2]};
-        Shape[] hOutputShapesForTimeEvolution = new Shape[]{hOutputShapes[3], hOutputShapes[4], hOutputShapes[5]};
+
+        Shape[] hOutputShapesForPrediction = firstHalf(hOutputShapes);
+        Shape[] hOutputShapesForTimeEvolution = secondHalf(hOutputShapes);
 
         Shape[] fOutputShapes = f.getOutputShapes(hOutputShapesForPrediction);
         return ArrayUtils.addAll(hOutputShapesForTimeEvolution, fOutputShapes);
@@ -107,6 +110,20 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
         return sb.toString().replace("\t", "  ");
     }
 
+    public static NDList firstHalfNDList(NDList list) {
+        return list.subNDList(0, list.size()/2);
+    }
+    public static NDList secondHalfNDList(NDList list) {
+        return list.subNDList(list.size()/2, list.size());
+    }
+
+    public static List<OnnxTensor> firstHalfList(List<OnnxTensor> list) {
+        return list.subList(0, list.size()/2);
+    }
+    public static List<OnnxTensor> secondHalfList(List<OnnxTensor> list) {
+        return list.subList(list.size()/2, list.size());
+    }
+
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
@@ -120,8 +137,9 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
 
-        List<OnnxTensor> gOutputForF = List.of(gOutput.get(0), gOutput.get(1), gOutput.get(2));
-        List<OnnxTensor> gOutputForG = List.of(gOutput.get(3), gOutput.get(4), gOutput.get(5));
+        List<OnnxTensor> gOutputForF =  firstHalfList(gOutput);
+        List<OnnxTensor> gOutputForG =  secondHalfList(gOutput);
+
 
 
         OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);

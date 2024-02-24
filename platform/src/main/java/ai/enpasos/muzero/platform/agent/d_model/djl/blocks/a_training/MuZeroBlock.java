@@ -149,7 +149,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         return combinedResult;
     }
 
-    private Shape[] firstHalf(Shape[] inputShapes) {
+public static Shape[] firstHalf(Shape[] inputShapes) {
         int half = inputShapes.length / 2;
         Shape[] outputShapes = new Shape[half];
         for (int i = 0; i < half; i++) {
@@ -157,7 +157,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         }
         return outputShapes;
     }
-    private Shape[] secondHalf(Shape[] inputShapes) {
+    public static Shape[] secondHalf(Shape[] inputShapes) {
         int half = inputShapes.length / 2;
         Shape[] outputShapes = new Shape[half];
         for (int i = 0; i < half; i++) {

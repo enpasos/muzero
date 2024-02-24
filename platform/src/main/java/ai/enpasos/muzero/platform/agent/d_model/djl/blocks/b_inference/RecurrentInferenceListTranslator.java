@@ -57,9 +57,15 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
             ndArrayActionStack.attach(ctx.getNDManager());
         }
 
-        return new NDList(moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[0]),
-                moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[1]),
-                moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[2]), ndArrayActionStack);
+        int n = input.getHiddenState().length;
+
+        NDList result = new NDList();
+        for (int i = 0; i < n; i++) {
+            result.add(moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[i]));
+        }
+        result.add(ndArrayActionStack);
+        return result;
+
 
     }
 

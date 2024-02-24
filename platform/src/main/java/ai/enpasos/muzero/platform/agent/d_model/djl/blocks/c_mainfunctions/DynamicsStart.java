@@ -56,7 +56,8 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
      NDList result = new NDList();
-     IntStream.range(0, blocks.size()).forEach(i -> result.add(blocks.get(i).forward(parameterStore, new NDList(inputs.get(i)), training).get(0)));
+     IntStream.range(0, blocks.size()).forEach(
+             i -> result.add(blocks.get(i).forward(parameterStore, new NDList(inputs.get(i)), training).get(0)));
         result.add(inputs.get(blocks.size()));
         return result;
     }
@@ -95,8 +96,6 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
             OnnxTensor majorInput = input.get(c);
             myInput.add(majorInput);
 
-
-
             OnnxBlock child = onnxIO.getOnnxBlock(counter, myInput);
             onnxBlock.addChild(child);
             childOutputA = child.getOutput().get(0);
@@ -107,8 +106,6 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
         // action input
         OnnxTensor extraInput = input.get(blocks.size());
         outputsA.add(extraInput);
-
-
 
         onnxBlock.setOutput(outputsA);
 

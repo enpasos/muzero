@@ -45,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -185,12 +186,18 @@ public class Network {
     }
 
     private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray[]> hiddenStateList, List<NDArray> actionList) {
+        if (hiddenStateList.isEmpty()) {
+            return new ArrayList<NetworkIO>();
+        }
+        int n = hiddenStateList.get(0).length;
+        NDArray[] hiddenState = new NDArray[n];
+        for(int i = 0; i < n; i++) {
+            final int iFinal = i;
+            hiddenState[i] = NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[iFinal]).collect(Collectors.toList())));
+        }
+
         NetworkIO networkIO = new NetworkIO();
-        NDArray[] hiddenState = new NDArray[] {
-                NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[0]).collect(Collectors.toList()))),
-                NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[1]).collect(Collectors.toList()))),
-                NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[2]).collect(Collectors.toList())))
-        };
+
         networkIO.setHiddenState(hiddenState);
         networkIO.setActionList(actionList);
 
@@ -205,10 +212,9 @@ public class Network {
         } catch (TranslateException e) {
             e.printStackTrace();
         }
-
-        hiddenState[0].close();
-        hiddenState[1].close();
-        hiddenState[2].close();
+        for(int i = 0; i < n; i++) {
+            hiddenState[i].close();
+        }
         return networkOutput;
     }
 

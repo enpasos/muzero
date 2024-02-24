@@ -45,11 +45,13 @@ import java.util.stream.IntStream;
 public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx, boolean isRecurrent) {
 
-        // hiddenstate 0, 1, 2
-        // reward 3
-        // legalActions 4
-        // policy 5
-        // value 6
+        // hiddenstate 0, 1, 2, 3
+
+        // legalActions 3
+        // reward 5
+
+        // policy 6
+        // value 7
 
 
 
@@ -62,32 +64,34 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
         SubModel submodel = (SubModel) ctx.getModel();
         MuZeroConfig config = submodel.getConfig();
 
+        int hN = list.size() - 3 - offset;  //
+        NDArray[] hiddenStates = new NDArray[hN];
+        for (int i = 0; i < hN; i++) {
+            hiddenStates[i] = getHiddenStates(list.get(i), ctx, submodel);
+        }
+
+
         NetworkIO outputA = NetworkIO.builder()
-            .hiddenState(new NDArray[] {
-                    getHiddenStates(list.get(0), ctx, submodel),
-                    getHiddenStates(list.get(1), ctx, submodel),
-                    getHiddenStates(list.get(2), ctx, submodel)
-            })
+            .hiddenState(hiddenStates)
             .build();
 
+        // 4   : legalActions
+        float[]  pLegalArray_ = MyBCELoss.sigmoid(list.get(hN)).toFloatArray();
+        final float[] pLegalArray = pLegalArray_;
 
-        // 3: reward
+
+        // 4: reward
         NDArray r_ = null;
         float[] rArray_ = null;
         if (isRecurrent) {
-            r_ = list.get(3);
+            r_ = list.get(hN+1);
             rArray_ = r_.toFloatArray();
         }
         float[] rArray  = rArray_;
         NDArray r = r_;
 
-        // 3 + offset : legalActions
-        float[]  pLegalArray_ = MyBCELoss.sigmoid(list.get(3 + offset)).toFloatArray();
-        final float[] pLegalArray = pLegalArray_;
-
-
         // 4 + offset: policy
-        NDArray logits = list.get(4 + offset);
+        NDArray logits = list.get(hN + offset + 1);
         NDArray p = logits.softmax(1);
         int actionSpaceSize = (int) logits.getShape().get(1);
         float[] logitsArray = logits.toFloatArray();
@@ -96,7 +100,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
 
         // 5 + offset: value
-        NDArray v = list.get(5+ offset);
+        NDArray v = list.get(hN + offset + 2);
         float[] vArray = v.toFloatArray();
         int n = (int) v.getShape().get(0);
 
@@ -137,6 +141,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
         for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
             int nh = outputA.getHiddenState().length;
+            networkIOs.get(i).setHiddenState(new NDArray[nh]);
             for (int h = 0; h < nh; h++) {
                 networkIOs.get(i).getHiddenState()[h] = outputA.getHiddenState()[h].get(i);
             }
