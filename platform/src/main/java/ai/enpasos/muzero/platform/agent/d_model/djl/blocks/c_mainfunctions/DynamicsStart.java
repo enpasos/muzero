@@ -115,12 +115,6 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
 
     @Override
     public void freeze(boolean[] freeze) {
-        IntStream.range(0, blocks.size()).forEach(i -> {
-            if (blocks.get(i) instanceof CausalityFreezing) {
-                ((CausalityFreezing) blocks.get(i)).freeze(freeze);
-            }   else {
-                throw new IllegalArgumentException("not all blocks are of type CausalityFreezing");
-            }
-        });
+          IntStream.range(0, blocks.size()).forEach(i -> blocks.get(i).freezeParameters(freeze[i]));
     }
 }
