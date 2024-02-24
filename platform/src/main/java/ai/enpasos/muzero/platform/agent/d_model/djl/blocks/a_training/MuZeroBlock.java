@@ -36,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.firstHalfNDList;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.secondHalfNDList;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock.newDynamicsBlock;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock.newRepresentationBlock;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
@@ -93,8 +95,8 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         // initial Inference
         predictionBlock.setWithReward(false);
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDList stateForPrediction = new NDList(representationResult.get(0), representationResult.get(1), representationResult.get(2));
-        NDList stateForTimeEvolution = new NDList(representationResult.get(3), representationResult.get(4), representationResult.get(5));
+        NDList stateForPrediction = firstHalfNDList(representationResult);
+        NDList stateForTimeEvolution = secondHalfNDList(representationResult);
 
         NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
         for (NDArray prediction : predictionResult.getResourceNDArrays()) {
@@ -116,8 +118,8 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
-             stateForPrediction = new NDList(dynamicsResult.get(0), dynamicsResult.get(1), dynamicsResult.get(2));
-             stateForTimeEvolution = new NDList(dynamicsResult.get(3), dynamicsResult.get(4), dynamicsResult.get(5));
+             stateForPrediction = firstHalfNDList(dynamicsResult);
+             stateForTimeEvolution = secondHalfNDList(dynamicsResult);
 
 
             predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
@@ -129,7 +131,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
 
             representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
+            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(stateForPrediction.size())), training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
             combinedResult.add(similarityPredictorResult);
