@@ -118,10 +118,10 @@ public class MuZeroLoop {
                 fillRewardLoss.fillRewardLossForNetworkOfEpoch( epoch);
             }
 
-            boolean[] freeze = new boolean[]{false, true, true};
-            modelService.trainModel(freeze, RULES_BUFFER, true).get();
+          //  boolean[] freeze = new boolean[]{false, true, true};
+           // modelService.trainModel(freeze, RULES_BUFFER, true).get();
 
-            freeze = new boolean[]{false, false, false};
+            boolean[] freeze = new boolean[]{false, false, false, false};
             modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
