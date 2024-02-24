@@ -127,39 +127,40 @@ private boolean withReward;
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
+        int offset = 0;
+        results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0 )), training, params).get(0));
+
         if (withReward) {
-            results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+            results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
+            offset = 1;
         }
-        results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
-        results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
-        results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
+         results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(1+offset)), training, params).get(0));
+        results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(2+offset)), training, params).get(0));
         return results;
     }
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-
-        legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
-        rewardHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
-        policyHead.initialize(manager, dataType, new Shape[]{inputShapes[1] });
-        valueHead.initialize(manager, dataType, new Shape[]{inputShapes[2] });
+        int c = 0;
+        legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes[c++] });
+        if (withReward) {
+            rewardHead.initialize(manager, dataType, new Shape[]{inputShapes[c++] });
+        }
+        policyHead.initialize(manager, dataType, new Shape[]{inputShapes[c++] });
+        valueHead.initialize(manager, dataType, new Shape[]{inputShapes[c++] });
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        Shape[] result = null;
+        Shape[] result = new Shape[withReward ? 4 : 3];
+        int c = 0;
+        result[c] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[c++]})[0];
      if (withReward) {
-         result = new Shape[4];
-         result[0] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
-         result[1] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
-         result[2] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
-         result[3] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
-     } else {
-         result = new Shape[3];
-         result[0] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
-         result[1] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
-         result[2] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
+         result[c] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[c++]})[0];
      }
+         result[c] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[c++]})[0];
+         result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[c++]})[0];
+
         return result;
     }
 
@@ -179,23 +180,25 @@ private boolean withReward;
 
             List<OnnxTensor> myInput = new ArrayList<>();
             OnnxBlock child = null;
+            int c = 0;
+            child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(c++)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
             if (withReward) {
-                child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(0)));
+                child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(c++)));
                 onnxBlock.addChild(child);
                 childOutput = child.getOutput().get(0);
                 outputs.add(childOutput);
             }
-            child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
+
+
+            child = this.policyHead.getOnnxBlock(counter,  List.of(input.get(c++)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
 
-            child = this.policyHead.getOnnxBlock(counter,  List.of(input.get(1)));
-            onnxBlock.addChild(child);
-            childOutput = child.getOutput().get(0);
-            outputs.add(childOutput);
-
-            child = this.valueHead.getOnnxBlock(counter,  List.of(input.get(2)));
+            child = this.valueHead.getOnnxBlock(counter,  List.of(input.get(c++)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
@@ -209,8 +212,8 @@ private boolean withReward;
     @Override
     public void freeze(boolean[] freeze) {
         this.legalActionsHead.freezeParameters(freeze[0]);
-        this.rewardHead.freezeParameters(freeze[0]);
-        this.policyHead.freezeParameters(freeze[1]);
-        this.valueHead.freezeParameters(freeze[2]);
+        this.rewardHead.freezeParameters(freeze[1]);
+        this.policyHead.freezeParameters(freeze[2]);
+        this.valueHead.freezeParameters(freeze[3]);
     }
 }

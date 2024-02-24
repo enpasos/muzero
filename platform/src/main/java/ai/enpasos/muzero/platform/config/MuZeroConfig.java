@@ -177,8 +177,11 @@ public class MuZeroConfig {
     public int getNumChannelsPolicy() {
         return getConf().numChannelsPolicy;
     }
-    public int getNumChannelsRules() {
-        return getConf().numChannelsRules;
+    public int getNumChannelsReward() {
+        return getConf().numChannelsReward;
+    }
+    public int getNumChannelsAllowedActions() {
+        return getConf().numChannelsAllowedActions;
     }
     public int getNumChannelsValue() {
         return getConf().numChannelsValue;
@@ -188,8 +191,11 @@ public class MuZeroConfig {
     public int getNumCompressedChannelsPolicy() {
         return getConf().numCompressedChannelsPolicy;
     }
-    public int getNumCompressedChannelsRules() {
-        return getConf().numCompressedChannelsRules;
+    public int getNumCompressedChannelsReward() {
+        return getConf().numCompressedChannelsReward;
+    }
+    public int getNumCompressedChannelsAllowedActions() {
+        return getConf().numCompressedChannelsAllowedActions;
     }
     public int getNumCompressedChannelsValue() {
         return getConf().numCompressedChannelsValue;
@@ -508,12 +514,13 @@ public class MuZeroConfig {
         protected int numActionLayers;
         protected int numChannels;
 
-
-        protected int numChannelsRules;
+        protected int numChannelsAllowedActions;
+        protected int numChannelsReward;
         protected int numChannelsPolicy;
         protected int numChannelsValue;
 
-        protected int numCompressedChannelsRules;
+        protected int numCompressedChannelsAllowedActions;
+        protected int numCompressedChannelsReward;
         protected int numCompressedChannelsPolicy;
         protected int numCompressedChannelsValue;
 

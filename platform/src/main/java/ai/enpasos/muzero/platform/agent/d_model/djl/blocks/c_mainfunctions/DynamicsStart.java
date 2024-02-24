@@ -13,14 +13,12 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -32,15 +30,13 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
 
     List<Block> blocks = new ArrayList<>();
 
-//    Conv3x3 rulesBlock;
-//    Conv3x3 policyBlock;
-//    Conv3x3 valueBlock;
 
 
  public DynamicsStart(MuZeroConfig config) {
             super(MYVERSION);
+     blocks.add(addChildBlock("dynamicsStartAllowedActions", Conv3x3.builder().channels(config.getNumChannelsAllowedActions()).build()));
 
-     blocks.add(addChildBlock("dynamicsStartRules", Conv3x3.builder().channels(config.getNumChannelsRules()).build()));
+     blocks.add(addChildBlock("dynamicsStartRewards", Conv3x3.builder().channels(config.getNumChannelsReward()).build()));
      blocks.add(addChildBlock("dynamicsStartPolicy", Conv3x3.builder().channels(config.getNumChannelsPolicy()).build()));
      blocks.add(addChildBlock("dynamicsStartValue", Conv3x3.builder().channels(config.getNumChannelsValue()).build()));
 

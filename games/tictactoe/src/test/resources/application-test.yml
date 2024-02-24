@@ -71,6 +71,16 @@ muzero:
       numChannels: 12
       numBottleneckChannels: 12
 
+      numChannelsAllowedActions: 100
+      numChannelsReward: 100
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsAllowedActions: 30
+      numCompressedChannelsReward: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
       valueLossWeight: 1
 
       numberOfTrainingSteps: 10

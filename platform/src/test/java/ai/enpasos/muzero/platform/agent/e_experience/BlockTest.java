@@ -249,11 +249,11 @@ class BlockTest {
     @Test
     void predictionWithRewardRANDOM() throws Exception {
         PredictionBlock predictionBlock = new PredictionBlock(128, true, 9);
-predictionBlock.setWithReward(true);
+        predictionBlock.setWithReward(true);
         boolean check = compareOnnxWithDJL(
                 "./build/PredictionBlockWithReward.onnx",
                 predictionBlock,
-                List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
+                List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
     }

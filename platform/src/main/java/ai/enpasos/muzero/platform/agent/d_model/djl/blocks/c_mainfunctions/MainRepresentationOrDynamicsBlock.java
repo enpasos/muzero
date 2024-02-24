@@ -35,7 +35,7 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
 
 
     public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, new int[] {config.getNumChannelsRules(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()}, new int[] {config.getNumCompressedChannelsRules(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()}, broadcastEveryN);
+        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, new int[] {config.getNumChannelsAllowedActions(), config.getNumChannelsReward(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()}, new int[] {config.getNumCompressedChannelsAllowedActions(),config.getNumCompressedChannelsReward(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()}, broadcastEveryN);
     }
 
     @java.lang.SuppressWarnings("java:S107")
