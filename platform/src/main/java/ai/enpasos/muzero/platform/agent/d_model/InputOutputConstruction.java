@@ -192,15 +192,14 @@ public class InputOutputConstruction {
                 b++;
             }
 
-            if (k>0) {
-                NDArray rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
-                outputs.add(symmetryEnhancerValue(rewardOutput2));
-            }
-
 
             NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
             outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
 
+            if (k>0) {
+                NDArray rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
+                outputs.add(symmetryEnhancerValue(rewardOutput2));
+            }
 
             NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
             outputs.add(symmetryEnhancerPolicy(policyOutput2));
