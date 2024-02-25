@@ -77,7 +77,9 @@ TemperatureCalculator temperatureCalculator;
 
         games.stream().forEach(
                 game -> game.getEpisodeDO().getTimeSteps().stream().forEach(
-                        timestep -> timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss())));
+                        timestep -> timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax())
+                )
+        );
 
     }
 }

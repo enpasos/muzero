@@ -89,6 +89,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.rewardLoss = :loss where t.id = :id")
-    void updateRewardLoss(long id, float loss);
+    @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss where t.id = :id")
+    void updateRewardLoss(long id, float rewardLoss, float legalActionLoss);
 }
