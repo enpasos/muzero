@@ -313,7 +313,7 @@ public class GameBuffer {
 
     private void addGameAndRemoveOldGameIfNecessary(Game game ) {
 
-         memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
+       //  memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         if (!game.isReanalyse()) {
             game.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
             game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
@@ -330,27 +330,27 @@ public class GameBuffer {
 //        getBuffer().addGame(game, atBeginning);
 //    }
 
-    private void memorizeEntropyInfo(Game game, int epoch) {
-        this.entropyBestEffortSum.putIfAbsent(epoch, 0.0);
-        this.maxEntropyBestEffortSum.putIfAbsent(epoch, 0.0);
-        this.entropyExplorationSum.putIfAbsent(epoch, 0.0);
-        this.maxEntropyExplorationSum.putIfAbsent(epoch, 0.0);
-        this.entropyBestEffortCount.putIfAbsent(epoch, 0);
-        this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
-        this.entropyExplorationCount.putIfAbsent(epoch, 0);
-        this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
-        if (game.getEpisodeDO().hasExploration()) {
-            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
-            this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
-            this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
-            this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
-        } else {
-            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
-            this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
-            this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
-            this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
-        }
-    }
+//    private void memorizeEntropyInfo(Game game, int epoch) {
+//        this.entropyBestEffortSum.putIfAbsent(epoch, 0.0);
+//     //   this.maxEntropyBestEffortSum.putIfAbsent(epoch, 0.0);
+//        this.entropyExplorationSum.putIfAbsent(epoch, 0.0);
+//        this.maxEntropyExplorationSum.putIfAbsent(epoch, 0.0);
+//        this.entropyBestEffortCount.putIfAbsent(epoch, 0);
+//        this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
+//        this.entropyExplorationCount.putIfAbsent(epoch, 0);
+//        this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
+//        if (game.getEpisodeDO().hasExploration()) {
+//            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
+//            this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
+//        //    this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
+//        //    this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
+//        } else {
+//            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
+//            this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
+//        //    this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
+//        //    this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
+//        }
+//    }
 
 
     @SuppressWarnings({"java:S106"})

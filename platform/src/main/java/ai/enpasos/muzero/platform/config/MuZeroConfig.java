@@ -269,9 +269,7 @@ public class MuZeroConfig {
         return getConf().consistencyLossWeight;
     }
 
-    public float getLegalActionsLossWeight() {
-        return getConf().legalActionsLossWeight;
-    }
+
 
 
 
@@ -547,7 +545,6 @@ public class MuZeroConfig {
         protected float weightDecay;
         protected float valueLossWeight = 1f;
         protected float consistencyLossWeight = 1f;
-        protected float legalActionsLossWeight = 1f;
         protected float lrInit;
         protected int size;
         protected int maxMoves;

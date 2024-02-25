@@ -207,18 +207,18 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
         return tStartNormal > 0;
     }
 
-    public double getAverageEntropy() {
-        double entropySum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
-        double entropyCount = this.getTimeSteps().stream().count();
-        return entropySum / Math.max(1, entropyCount);
-    }
+//    public double getAverageEntropy() {
+//        double entropySum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
+//        double entropyCount = this.getTimeSteps().stream().count();
+//        return entropySum / Math.max(1, entropyCount);
+//    }
 
-    public double getAverageActionMaxEntropy() {
-        double sum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
-        double count = this.getTimeSteps().stream().count();
-        return sum / Math.max(1, count);
-
-    }
+//    public double getAverageActionMaxEntropy() {
+//        double sum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
+//        double count = this.getTimeSteps().stream().count();
+//        return sum / Math.max(1, count);
+//
+//    }
 
     public List<Integer> getActions() {
         return getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getAction() != null)

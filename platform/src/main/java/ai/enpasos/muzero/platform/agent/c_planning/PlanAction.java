@@ -38,8 +38,8 @@ public class PlanAction {
     GameBuffer gameBuffer;
 
 
-    public void justReplayActionToGetRewardExpectations(Game game) {
-        log.trace("justReplayActionToGetRewardExpectations");
+    public void justReplayActionToGetRulesExpectations(Game game) {
+        log.trace("justReplayActionToGetRulesExpectations");
 
         EpisodeDO episodeDO = game.getEpisodeDO();
         int t = game.getObservationInputTime();
@@ -47,12 +47,32 @@ public class PlanAction {
         TimeStepDO timeStepDO = episodeDO.getTimeStep(t);
 
         NetworkIO networkOutput = modelService.initialInference(game).join();
+
+        double[] laP = f2d(networkOutput.getPLegalValues());
+        boolean[] laTarget = timeStepDO.getLegalact().getLegalActions();
+        timeStepDO.setLegalActionLossMax((float)bceLossMax(laP,  laTarget));
+
         networkOutput = modelService.recurrentInference(networkOutput.getHiddenState(), timeStepDO.getAction()).join();
 
         double rewardExpectation = networkOutput.getReward();
         double r = timeStepDO.getReward() - rewardExpectation;
         double loss = r * r;
         timeStepDO.setRewardLoss((float)loss);
+
+    }
+
+    private double bceLossMax(double[] p, boolean[] pTarget) {
+        double loss = 0;
+        for (int i = 0; i < p.length; i++) {
+            double lossCandidate = 0d;
+            if (pTarget[i]) {
+                lossCandidate -= Math.log(p[i]);
+            } else {
+                lossCandidate -= Math.log(1 - p[i]);
+            }
+            loss = Math.max(loss, lossCandidate);
+        }
+        return loss;
 
     }
 
@@ -225,8 +245,8 @@ public class PlanAction {
     }
 
     private static void storeEntropyInfo(Game game, TimeStepDO timeStepDO,  NetworkIO networkOutput) {
-        List<Action> legalActions = game.legalActions();
-        timeStepDO.setLegalActionMaxEntropy((float) Math.log(legalActions.size()));
+      //  List<Action> legalActions = game.legalActions();
+      //  timeStepDO.setLegalActionMaxEntropy((float) Math.log(legalActions.size()));
         if (networkOutput != null) {
             float[] ps = networkOutput.getPolicyValues();
             timeStepDO.setEntropy((float) entropy(f2d(ps)));

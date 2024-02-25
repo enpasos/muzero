@@ -59,11 +59,11 @@ public interface ValueRepo extends JpaRepository<ValueDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "DROP TABLE IF EXISTS value CASCADE", nativeQuery = true )
+    @Query(value = "DROP TABLE IF EXISTS valuedo CASCADE", nativeQuery = true )
     void dropTable();
 
     @Transactional
     @Modifying
-    @Query(value = "DROP SEQUENCE IF EXISTS value_seq CASCADE", nativeQuery = true )
+    @Query(value = "DROP SEQUENCE IF EXISTS valuedo_seq CASCADE", nativeQuery = true )
     void dropSequence();
 }

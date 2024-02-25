@@ -30,9 +30,7 @@ public class TimeStepDO {
     LegalActionsDO legalact;
 
 
-    @ManyToOne
-    @JoinColumn(name = "statenode_id", nullable = true)
-    StateNodeDO statenode;
+
 
     @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
     private List<ValueDO> values;
@@ -44,6 +42,8 @@ public class TimeStepDO {
 
     float reward;
     float rewardLoss;
+    float legalActionLossMax;
+
     float entropy;
     float[] policyTarget;
     int observationPartSize;
@@ -51,13 +51,12 @@ public class TimeStepDO {
     byte[] observationPartB;
     float[] playoutPolicy;
     float[] simState;
-  //  boolean[] legalActions;
     float rootValueTarget;
     float vMix;
     float rootEntropyValueTarget;
     float rootEntropyValueFromInitialInference;
     float rootValueFromInitialInference;
-    float legalActionMaxEntropy;
+
     boolean exploring;
 
 
@@ -98,7 +97,8 @@ public class TimeStepDO {
                         action == timeStepDO.action &&
                         reward == reward &&
                         entropy == timeStepDO.entropy &&
-                        legalActionMaxEntropy == timeStepDO.legalActionMaxEntropy &&
+                        rewardLoss == timeStepDO.rewardLoss &&
+                        legalActionLossMax == timeStepDO.legalActionLossMax &&
                         rootEntropyValueFromInitialInference == timeStepDO.rootEntropyValueFromInitialInference &&
                         rootEntropyValueTarget == timeStepDO.rootEntropyValueTarget &&
                         rootValueFromInitialInference == timeStepDO.rootValueFromInitialInference &&
@@ -121,7 +121,8 @@ public class TimeStepDO {
                 .observation(getObservation())
                 .episode(episode)
                 .legalact(legalact)
-                .legalActionMaxEntropy(legalActionMaxEntropy)
+                .legalActionLossMax(legalActionLossMax)
+                .rewardLoss(rewardLoss)
                 .playoutPolicy(playoutPolicy)
                 .rootEntropyValueFromInitialInference(rootEntropyValueFromInitialInference)
                 .rootEntropyValueTarget(rootEntropyValueTarget)

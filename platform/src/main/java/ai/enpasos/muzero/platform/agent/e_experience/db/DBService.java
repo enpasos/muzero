@@ -54,6 +54,10 @@ public class DBService {
         timestepRepo.dropSequence();
         valueRepo.dropTable();
         valueRepo.dropSequence();
+        legalActionsRepo.dropTable();
+        legalActionsRepo.dropSequence();
+
+
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -70,10 +70,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Transactional
-    @Modifying
-    @Query(value = "update timestep t set  statenode_id = :id where t.id in :ids", nativeQuery = true )
-    void updateStateNodeIds(long id, List<Long> ids);
+
 
 
     @Transactional
@@ -81,10 +78,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<Long> findNEpisodeIdsWithHighestRewardLoss(int n, double minLoss);
 
 
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.statenode = NULL ")
-    void deleteStateNodesRefs();
+
 
 
     @Transactional

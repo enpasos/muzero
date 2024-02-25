@@ -4,7 +4,6 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.PlanAction;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +35,10 @@ public class SelfPlayGame {
 
         if (playParameters.isJustReplayToGetRewardExpectations()) {
             for(int t = 0; t <= game.getEpisodeDO().getLastTimeWithAction(); t++) {
-               // else if (playParameters.isJustReplayToGetRewardExpectations()) {
+
                 game.setObservationInputTime(t);
-                    playAction.justReplayActionToGetRewardExpectations(game);
-              //  }
+                    playAction.justReplayActionToGetRulesExpectations(game);
+
             }
             game.setObservationInputTime(-1);
 
