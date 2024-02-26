@@ -61,7 +61,7 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
     private SequentialBlockExt rewardHead;
 
 
-    private CausalLayersToPrediction causalLayersToPrediction;
+ //   private CausalLayersToPrediction causalLayersToPrediction;
 
     @Setter
     private boolean withReward;
@@ -71,7 +71,7 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
 
 
     public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
-        causalLayersToPrediction = new CausalLayersToPrediction();
+    //    causalLayersToPrediction = new CausalLayersToPrediction();
 
         valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
@@ -131,7 +131,7 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
-        inputs = causalLayersToPrediction.forward(parameterStore, inputs, training, params);
+    //    inputs = causalLayersToPrediction.forward(parameterStore, inputs, training, params);
         results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
         if (withReward) {
             results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
@@ -143,7 +143,7 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        Shape[] inputShapes_ = causalLayersToPrediction.getOutputShapes(inputShapes);
+        Shape[] inputShapes_ = inputShapes;//causalLayersToPrediction.getOutputShapes(inputShapes);
         legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0] });
         if (withReward) {
             rewardHead.initialize(manager, dataType, new Shape[]{inputShapes_[1] });
@@ -154,7 +154,7 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        inputShapes = causalLayersToPrediction.getOutputShapes(inputShapes);
+     //   inputShapes = causalLayersToPrediction.getOutputShapes(inputShapes);
         Shape[] result = new Shape[withReward ? 4 : 3];
         int c = 0;
         result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
@@ -179,14 +179,12 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
         List<OnnxTensor> outputs = new ArrayList<>();
         OnnxTensor childOutput = null;
 
-        OnnxBlock child =   causalLayersToPrediction.getOnnxBlock(counter, input);
-        onnxBlock.addChild(child);
+//        OnnxBlock child =   causalLayersToPrediction.getOnnxBlock(counter, input);
+//        onnxBlock.addChild(child);
+//         input = child.getOutput();
 
 
-         input = child.getOutput();
-
-
-            child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
+        OnnxBlock   child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
