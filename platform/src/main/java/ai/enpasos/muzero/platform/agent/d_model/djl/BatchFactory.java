@@ -88,7 +88,11 @@ public class BatchFactory {
             case RULES_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
                 break;
+            case LEGAL_ACTIONS_BUFFER:
 
+                sampleList = gameBuffer.sampleBatchFromLegalActionsBuffer(config.getNumUnrollSteps());
+
+                break;
             case REANALYSE_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
                 break;

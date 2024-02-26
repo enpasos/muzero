@@ -39,8 +39,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.*;
 
 @Slf4j
 @Component
@@ -112,16 +111,16 @@ public class MuZeroLoop {
             log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
-//            if (epoch % 5 == 0) {
-//                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
-//                gameBuffer.setRulesBuffer(new GameBufferDTO(config));
-//                fillRewardLoss.fillRewardLossForNetworkOfEpoch( epoch);
-//            }
+            if (epoch % 10 == 0) {
+                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
+                gameBuffer.setRulesBuffer(new GameBufferDTO(config));
+                fillRewardLoss.fillRewardLossForNetworkOfEpoch( epoch);
+            }
 
-          //  boolean[] freeze = new boolean[]{false, true, true};
-           // modelService.trainModel(freeze, RULES_BUFFER, true).get();
+            boolean[] freeze = new boolean[]{false, false, true, true};
+            modelService.trainModel(freeze, LEGAL_ACTIONS_BUFFER, true).get();
 
-            boolean[] freeze = new boolean[]{false, false, false, false};
+            freeze = new boolean[]{false, false, false, false};
             modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
