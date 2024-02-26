@@ -49,15 +49,15 @@ muzero:
 
       numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsAllowedActions: 80
-      numChannelsReward: 80
-      numChannelsPolicy: 80
-      numChannelsValue: 80
+      numChannelsAllowedActions: 81
+      numChannelsReward: 82
+      numChannelsPolicy: 83
+      numChannelsValue: 84
 
-      numCompressedChannelsAllowedActions: 30
-      numCompressedChannelsReward: 30
-      numCompressedChannelsPolicy: 10
-      numCompressedChannelsValue: 10
+      numCompressedChannelsAllowedActions: 11
+      numCompressedChannelsReward: 12
+      numCompressedChannelsPolicy: 13
+      numCompressedChannelsValue: 14
 
       # Gumbel MuZero parameters
       initialGumbelM: 4

@@ -235,28 +235,40 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9 ),
+            new PredictionBlock( true, 9 ),
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
     }
 
 
+    @Test
+    void toPredictionRANDOM() throws Exception {
+
+        boolean check = compareOnnxWithDJL(
+                "./build/CausalLayersToPrediction.onnx",
+                new CausalLayersToPrediction( ),
+                List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
 
     @Test
     void predictionRANDOM() throws Exception {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9),
+            new PredictionBlock( true, 9),
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
     }
 
+
+
     @Test
     void predictionWithRewardRANDOM() throws Exception {
-        PredictionBlock predictionBlock = new PredictionBlock(128, true, 9);
+        PredictionBlock predictionBlock = new PredictionBlock(  true, 9);
         predictionBlock.setWithReward(true);
         boolean check = compareOnnxWithDJL(
                 "./build/PredictionBlockWithReward.onnx",

@@ -69,7 +69,6 @@ muzero:
       broadcastEveryN: 8  # out of range here
 
       numChannels: 12
-      numBottleneckChannels: 12
 
       numChannelsAllowedActions: 100
       numChannelsReward: 100

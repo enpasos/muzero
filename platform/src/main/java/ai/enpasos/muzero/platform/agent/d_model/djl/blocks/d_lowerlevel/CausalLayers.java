@@ -135,7 +135,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
             .valueInfos(createValueInfoProto(input))
             .build();
 
-        int concatDim = 1;
+        //int concatDim = 1;
         List<OnnxTensor> outputsA = new ArrayList<>();
         List<OnnxTensor> outputsB = new ArrayList<>();
         OnnxTensor childOutputA = null;

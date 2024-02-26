@@ -33,6 +33,7 @@ import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.CausalLayersToPrediction;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -48,7 +49,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     public PredictionBlock(@NotNull MuZeroConfig config ) {
-        this(config.getNumChannels(),
+        this(
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize() );
     }
@@ -59,21 +60,24 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
     private SequentialBlockExt policyHead;
     private SequentialBlockExt rewardHead;
 
-@Setter
-private boolean withReward;
+
+    private CausalLayersToPrediction causalLayersToPrediction;
+
+    @Setter
+    private boolean withReward;
 
 
 
 
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
-
+    public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
+        causalLayersToPrediction = new CausalLayersToPrediction();
 
         valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
-                        .setUnits(256) // config.getNumChannels())  // originally 256
+                        .setUnits(256)
                         .build())
                 .add(ActivationExt.reluBlock())
                 .add(LinearExt.builder()
@@ -110,7 +114,7 @@ private boolean withReward;
         rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
-                        .setUnits(256) // config.getNumChannels())  // originally 256
+                        .setUnits(256)
                         .build())
                 .add(ActivationExt.reluBlock())
                 .add(LinearExt.builder()
@@ -127,9 +131,8 @@ private boolean withReward;
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
-        int c = 0;
+        inputs = causalLayersToPrediction.forward(parameterStore, inputs, training, params);
         results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
-
         if (withReward) {
             results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
         }
@@ -140,25 +143,26 @@ private boolean withReward;
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-
-        legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
+        Shape[] inputShapes_ = causalLayersToPrediction.getOutputShapes(inputShapes);
+        legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0] });
         if (withReward) {
-            rewardHead.initialize(manager, dataType, new Shape[]{inputShapes[1] });
+            rewardHead.initialize(manager, dataType, new Shape[]{inputShapes_[1] });
         }
-        policyHead.initialize(manager, dataType, new Shape[]{inputShapes[2] });
-        valueHead.initialize(manager, dataType, new Shape[]{inputShapes[3] });
+        policyHead.initialize(manager, dataType, new Shape[]{inputShapes_[2] });
+        valueHead.initialize(manager, dataType, new Shape[]{inputShapes_[3] });
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
+        inputShapes = causalLayersToPrediction.getOutputShapes(inputShapes);
         Shape[] result = new Shape[withReward ? 4 : 3];
- int c = 0;
+        int c = 0;
         result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
-     if (withReward) {
-         result[c++] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
-     }
-         result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
-         result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[3]})[0];
+        if (withReward) {
+            result[c++] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
+        }
+        result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
+        result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[3]})[0];
 
         return result;
     }
@@ -175,10 +179,12 @@ private boolean withReward;
         List<OnnxTensor> outputs = new ArrayList<>();
         OnnxTensor childOutput = null;
 
+        OnnxBlock child =   causalLayersToPrediction.getOnnxBlock(counter, input);
+        onnxBlock.addChild(child);
 
 
-            List<OnnxTensor> myInput = new ArrayList<>();
-            OnnxBlock child = null;
+         input = child.getOutput();
+
 
             child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
             onnxBlock.addChild(child);

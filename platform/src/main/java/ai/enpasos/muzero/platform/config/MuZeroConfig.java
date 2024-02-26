@@ -201,9 +201,6 @@ public class MuZeroConfig {
         return getConf().numCompressedChannelsValue;
     }
 
-    public int getNumBottleneckChannels() {
-        return getConf().numBottleneckChannels;
-    }
 
 
     public int getNumResiduals() {
@@ -523,7 +520,6 @@ public class MuZeroConfig {
         protected int numCompressedChannelsValue;
 
         protected int broadcastEveryN;
-        protected int numBottleneckChannels;
 
         protected int numResiduals;
 

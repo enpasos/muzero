@@ -82,17 +82,16 @@ muzero:
 
       numChannels: 200    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsAllowedActions: 100
-      numChannelsReward: 100
+      numChannelsAllowedActions: 150
+      numChannelsReward: 3
       numChannelsPolicy: 50
       numChannelsValue: 50
 
-      numCompressedChannelsAllowedActions: 30
-      numCompressedChannelsReward: 30
+      numCompressedChannelsAllowedActions: 20
+      numCompressedChannelsReward: 3
       numCompressedChannelsPolicy: 10
       numCompressedChannelsValue: 10
 
-      numBottleneckChannels: 128  # obsolete? ... check
 
       valueLossWeight: 1
       consistencyLossWeight: 2
