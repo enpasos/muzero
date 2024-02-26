@@ -46,6 +46,8 @@ private Block block;
     public CausalBottleneckResidualBlock(int numChannels, int numBottleneckChannels, int numCompressedChannels, boolean rescale) {
         super(MYVERSION);
 
+        numBottleneckChannels = Math.max(numBottleneckChannels, 1);
+
         SequentialBlockExt b1;
         SequentialBlockExt identity;
 
