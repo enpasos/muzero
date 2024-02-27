@@ -27,7 +27,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import ai.enpasos.muzero.platform.run.FillRewardLoss;
+import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +73,7 @@ public class MuZeroLoop {
     TemperatureCalculator temperatureCalculator;
 
     @Autowired
-    FillRewardLoss fillRewardLoss;
+    FillRulesLoss fillRulesLoss;
 
 
     @SuppressWarnings("java:S106")
@@ -111,11 +111,11 @@ public class MuZeroLoop {
             log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
-//            if (epoch % 10 == 0) {
-//                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
-//                gameBuffer.setRulesBuffer(new GameBufferDTO(config));
-//                fillRewardLoss.fillRewardLossForNetworkOfEpoch( epoch);
-//            }
+            if (epoch % 10 == 0) {
+                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
+                gameBuffer.setRulesBuffer(new GameBufferDTO(config));
+                fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
+            }
 
             boolean[] freeze = new boolean[]{false, false, true, true};
             modelService.trainModel(freeze, LEGAL_ACTIONS_BUFFER, true).get();

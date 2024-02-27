@@ -117,6 +117,14 @@ public class DBService {
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
+
+    @Transactional
+    public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
+        List<Long> ids = timestepRepo.findNRandomEpisodeIdsWeightedA(n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
     @Transactional
     public List<EpisodeDO> findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(int n) {
         double minLoss = 0.001d; // everything else is good enough

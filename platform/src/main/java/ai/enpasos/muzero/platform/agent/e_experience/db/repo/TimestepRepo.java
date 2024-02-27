@@ -91,4 +91,45 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss where t.id = :id")
     void updateRewardLoss(long id, float rewardLoss, float legalActionLoss);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "update timestep set a_weight =  legal_action_loss_max", nativeQuery = true)
+    void calculateAWeight();
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE timestep "+
+                      "SET a_weight_cumulative = cum_sum.a_weight_cumulative "+
+                      "FROM ( "+
+                               "SELECT id, SUM(a_weight) OVER (ORDER BY id) AS a_weight_cumulative "+
+                               "FROM timestep "+
+                           ") AS cum_sum "+
+                      "WHERE timestep.id = cum_sum.id" , nativeQuery = true)
+    void calculateAWeight2();
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE timestep  " +
+            "            SET a_weight_cumulative_prev = COALESCE(prev_values.a_weight_cumulative, 0)  " +
+            "            FROM (   " +
+            "              SELECT id, LAG(a_weight_cumulative) OVER (ORDER BY id) AS a_weight_cumulative   " +
+            "              FROM timestep  " +
+            "              WHERE a_weight_cumulative IS NOT NULL " +
+            "            ) AS prev_values  " +
+            "            WHERE timestep.id = prev_values.id", nativeQuery = true)
+    void calculateAWeight3();
+
+
+
+    @Transactional
+    @Query(value = "WITH random_values AS ( "+
+                           "SELECT generate_series(1, :n) AS gen, (random() * (SELECT MAX(a_weight_cumulative) FROM timestep)) AS random_value "+
+                       ") SELECT t.episode_id "+
+                       "FROM timestep t, random_values rv "+
+                       "WHERE rv.random_value BETWEEN t.a_weight_cumulative_prev AND t.a_weight_cumulative "+
+                       "ORDER BY rv.gen "+
+                       "LIMIT :n "  , nativeQuery = true)
+    List<Long> findNRandomEpisodeIdsWeightedA(int n );
 }

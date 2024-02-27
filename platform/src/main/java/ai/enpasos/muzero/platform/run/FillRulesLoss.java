@@ -15,14 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
 @Slf4j
 @Component
-public class FillRewardLoss {
+public class FillRulesLoss {
     @Autowired
     NetworkIOService networkIOService;
     @Autowired
@@ -48,23 +46,26 @@ TemperatureCalculator temperatureCalculator;
 
     public void run() {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        fillRewardLossForNetworkOfEpoch( epoch);
+        fillRulesLossForNetworkOfEpoch( epoch);
      }
 
-    public void fillRewardLossForNetworkOfEpoch(int epoch) {
-        log.info("filling reward loss for epoch {}", epoch);
+    public void fillRulesLossForNetworkOfEpoch(int epoch) {
+        log.info("filling rules loss for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
         timestepRepo.deleteRewardLoss();
         // the network from epoch
         // has seen trainingEpoch 0...epoch
         for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
-            fillRewardLossForTrainingEpoch(trainingEpoch);
+            fillRulesLossForTrainingEpoch(trainingEpoch);
         }
 
+        timestepRepo.calculateAWeight();
+        timestepRepo.calculateAWeight2();
+        timestepRepo.calculateAWeight3();
 
     }
 
-    private void fillRewardLossForTrainingEpoch(int trainingEpoch) {
+    private void fillRulesLossForTrainingEpoch(int trainingEpoch) {
 
         List<Long> episodeIds = episodeRepo.findAllNonArchivedEpisodeIdsForAnEpoch(trainingEpoch);
         if (episodeIds.isEmpty()) return;

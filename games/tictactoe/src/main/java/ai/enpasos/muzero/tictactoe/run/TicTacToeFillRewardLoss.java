@@ -1,8 +1,7 @@
 package ai.enpasos.muzero.tictactoe.run;
 
 
-import ai.enpasos.muzero.platform.run.FillRewardLoss;
-import ai.enpasos.muzero.platform.run.FillValueTable;
+import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,9 +11,9 @@ import org.springframework.stereotype.Component;
 public class TicTacToeFillRewardLoss {
 
     @Autowired
-    FillRewardLoss fillRewardLoss;
+    FillRulesLoss fillRulesLoss;
 
     public void run() {
-        fillRewardLoss.run();
+        fillRulesLoss.run();
     }
 }

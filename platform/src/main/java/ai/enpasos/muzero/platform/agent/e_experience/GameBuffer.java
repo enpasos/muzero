@@ -197,7 +197,9 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnLegalActions() {
         int n = this.batchSize;
-         List<Game> games  =  getNRandomSelectedGames(n);  // TODO better!!!
+      //   List<Game> games  =  getNRandomSelectedGames(n);
+        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return games;
     }
 
