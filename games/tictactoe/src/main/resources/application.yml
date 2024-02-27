@@ -82,13 +82,13 @@ muzero:
 
       numChannels: 200    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsAllowedActions: 150
+      numChannelsAllowedActions: 50
       numChannelsReward: 50
       numChannelsPolicy: 50
       numChannelsValue: 50
 
-      numCompressedChannelsAllowedActions: 30
-      numCompressedChannelsReward: 30
+      numCompressedChannelsAllowedActions: 10
+      numCompressedChannelsReward: 10
       numCompressedChannelsPolicy: 10
       numCompressedChannelsValue: 10
 
