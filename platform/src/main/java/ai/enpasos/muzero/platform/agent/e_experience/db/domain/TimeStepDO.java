@@ -44,9 +44,9 @@ public class TimeStepDO {
     float rewardLoss;
     float legalActionLossMax;
 
-    float aWeight = 0f;
-    float aWeightCumulative = 0f;
-    float aWeightCumulativePrev = 0f;
+    float aWeight;
+    float aWeightCumulative;
+    float aWeightCumulativePrev;
 
     float entropy;
     float[] policyTarget;
