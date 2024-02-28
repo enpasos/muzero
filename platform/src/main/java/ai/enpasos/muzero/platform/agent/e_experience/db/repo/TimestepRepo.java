@@ -130,7 +130,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query(value = "UPDATE timestep  " +
             "            SET a_weight_class = :groupClass  " +
-            "            WHERE a_weight_class < :groupClass  AND a_weight_cumulative <= :maxWeightCumulative * :groupClass / :n  ", nativeQuery = true)
+            "            WHERE a_weight_class == 0  AND a_weight_cumulative <= :maxWeightCumulative * :groupClass / :n  ", nativeQuery = true)
     void calculateAWeightClass(int groupClass, int n, float maxWeightCumulative);
 
 
