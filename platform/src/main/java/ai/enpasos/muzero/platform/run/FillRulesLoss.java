@@ -52,7 +52,7 @@ TemperatureCalculator temperatureCalculator;
     public void fillRulesLossForNetworkOfEpoch(int epoch) {
         log.info("filling rules loss for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
-        timestepRepo.deleteRewardLoss();
+        timestepRepo.deleteLegalActionLoss();
         // the network from epoch
         // has seen trainingEpoch 0...epoch
         for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
@@ -64,7 +64,7 @@ TemperatureCalculator temperatureCalculator;
 
         float weightACumulatedMax = timestepRepo.getWeightACumulatedMax();
         int n = 5;
-        for (int i = 1; i <= n; i++) {
+        for (int i = n; i >= 0; i--) {
             timestepRepo.calculateAWeightClass(i, n, weightACumulatedMax);
         }
     }

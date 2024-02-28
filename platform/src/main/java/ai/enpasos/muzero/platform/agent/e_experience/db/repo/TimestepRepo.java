@@ -88,8 +88,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.rewardLoss = 0 ")
-    void deleteRewardLoss();
+    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.aWeightClass=0, t.aWeightCumulative=0, t.aWeight=0, t.rewardLoss = 0")
+    void deleteLegalActionLoss();
 
 
     @Transactional
