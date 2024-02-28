@@ -15,13 +15,18 @@ import java.util.List;
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
-   // @Query(value = "select distinct t.episode_id from timestep t left join (select * from value v1 where v1.epoch = :epoch) v on t.id = v.timestep_id where t.episode_id in :episodeIds and t.action is not null and t.exploring = false and v is null ", nativeQuery = true)
-    @Query(value = "select distinct t.episode_id from timestep t left join (select * from value v1 where v1.epoch = :epoch) v on t.id = v.timestep_id where t.episode_id in :episodeIds and t.action is not null  and v is null ", nativeQuery = true)
+      @Query(value = "select distinct t.episode_id from timestep t left join (select * from value v1 where v1.epoch = :epoch) v on t.id = v.timestep_id where t.episode_id in :episodeIds and t.action is not null  and v is null ", nativeQuery = true)
     List<Long> findEpisodeIdsForAnEpoch(int epoch, List<Long>  episodeIds);
 
     @Transactional
     @Query(value = "select t from TimeStepDO t JOIN FETCH t.episode e where e.id in :ids ORDER BY e.id DESC, t.t ASC")
     List<TimeStepDO> findTimeStepDOswithEpisodeIds(List<Long> ids);
+
+
+    @Transactional
+    @Query(value = "SELECT MAX(a_weight_cumulative) FROM timestep", nativeQuery = true)
+    float getWeightACumulatedMax();
+
 
     @Modifying
     @Transactional
@@ -103,33 +108,34 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "UPDATE timestep "+
                       "SET a_weight_cumulative = cum_sum.a_weight_cumulative "+
                       "FROM ( "+
-                               "SELECT id, SUM(a_weight) OVER (ORDER BY id) AS a_weight_cumulative "+
+                               "SELECT id, SUM(a_weight) OVER (ORDER BY a_weight DESC) AS a_weight_cumulative "+
                                "FROM timestep "+
                            ") AS cum_sum "+
                       "WHERE timestep.id = cum_sum.id" , nativeQuery = true)
     void calculateAWeight2();
 
+//    @Transactional
+//    @Modifying
+//    @Query(value = "UPDATE timestep  " +
+//            "            SET a_weight_cumulative_prev = COALESCE(prev_values.a_weight_cumulative, 0)  " +
+//            "            FROM (   " +
+//            "              SELECT id, LAG(a_weight_cumulative) OVER (ORDER BY a_weight DESC) AS a_weight_cumulative   " +
+//            "              FROM timestep  " +
+//            "              WHERE a_weight_cumulative IS NOT NULL " +
+//            "            ) AS prev_values  " +
+//            "            WHERE timestep.id = prev_values.id", nativeQuery = true)
+//    void calculateAWeight3();
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE timestep  " +
-            "            SET a_weight_cumulative_prev = COALESCE(prev_values.a_weight_cumulative, 0)  " +
-            "            FROM (   " +
-            "              SELECT id, LAG(a_weight_cumulative) OVER (ORDER BY id) AS a_weight_cumulative   " +
-            "              FROM timestep  " +
-            "              WHERE a_weight_cumulative IS NOT NULL " +
-            "            ) AS prev_values  " +
-            "            WHERE timestep.id = prev_values.id", nativeQuery = true)
-    void calculateAWeight3();
+            "            SET a_weight_class = :groupClass  " +
+            "            WHERE a_weight_class < :groupClass  AND a_weight_cumulative <= :maxWeightCumulative * :groupClass / :n  ", nativeQuery = true)
+    void calculateAWeightClass(int groupClass, int n, float maxWeightCumulative);
 
 
 
     @Transactional
-    @Query(value = "WITH random_values AS ( "+
-                           "SELECT generate_series(1, :n) AS gen, (random() * (SELECT MAX(a_weight_cumulative) FROM timestep)) AS random_value "+
-                       ") SELECT t.episode_id "+
-                       "FROM timestep t, random_values rv "+
-                       "WHERE rv.random_value BETWEEN t.a_weight_cumulative_prev AND t.a_weight_cumulative "+
-                       "ORDER BY rv.gen "+
-                       "LIMIT :n "  , nativeQuery = true)
-    List<Long> findNRandomEpisodeIdsWeightedA(int n );
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.a_weight_class = :groupClass ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
+    List<Long> findNRandomEpisodeIdsWeightedA(int groupClass, int n );
 }

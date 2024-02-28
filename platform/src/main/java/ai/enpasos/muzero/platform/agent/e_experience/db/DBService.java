@@ -120,7 +120,11 @@ public class DBService {
 
     @Transactional
     public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
-        List<Long> ids = timestepRepo.findNRandomEpisodeIdsWeightedA(n);
+        int classN = 5;
+        List<Long> ids = new ArrayList<>();
+        for (int i = 1; i <= classN; i++) {
+            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n));
+        }
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }

@@ -61,8 +61,12 @@ TemperatureCalculator temperatureCalculator;
 
         timestepRepo.calculateAWeight();
         timestepRepo.calculateAWeight2();
-        timestepRepo.calculateAWeight3();
 
+        float weightACumulatedMax = timestepRepo.getWeightACumulatedMax();
+        int n = 5;
+        for (int i = 1; i <= n; i++) {
+            timestepRepo.calculateAWeightClass(i, n, weightACumulatedMax);
+        }
     }
 
     private void fillRulesLossForTrainingEpoch(int trainingEpoch) {
