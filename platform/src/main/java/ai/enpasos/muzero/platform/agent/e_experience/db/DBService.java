@@ -123,7 +123,7 @@ public class DBService {
         int classN = 5;
         List<Long> ids = new ArrayList<>();
         for (int i = 1; i <= classN; i++) {
-            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n));
+            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n/classN));
         }
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
