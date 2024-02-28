@@ -113,7 +113,7 @@ public class MuZeroLoop {
 
             if (epoch % 10 == 0) {
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
-                gameBuffer.setRulesBuffer(new GameBufferDTO(config));
+               // gameBuffer.setRulesBuffer(new GameBufferDTO(config));
                 fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
             }
 

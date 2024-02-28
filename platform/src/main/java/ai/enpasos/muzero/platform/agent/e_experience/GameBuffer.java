@@ -62,7 +62,7 @@ public class GameBuffer {
 
     private int batchSize;
     private GameBufferDTO planningBuffer;
-    private GameBufferDTO rulesBuffer;
+  //  private GameBufferDTO rulesBuffer;
     private GameBufferDTO reanalyseBuffer;
     @Autowired
     private MuZeroConfig config;
@@ -172,7 +172,7 @@ public class GameBuffer {
     public void init() {
         this.batchSize = config.getBatchSize();
         this.planningBuffer = new GameBufferDTO(config);
-        this.rulesBuffer = new GameBufferDTO(config);
+     //   this.rulesBuffer = new GameBufferDTO(config);
         this.reanalyseBuffer = new GameBufferDTO(config);
     }
 
@@ -203,13 +203,13 @@ public class GameBuffer {
         return games;
     }
 
-    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
-        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
-                    .map(game -> sampleFromGame(numUnrollSteps, game))
-                    .collect(Collectors.toList());
-        }
-    }
+//    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+//        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
+//            return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
+//                    .map(game -> sampleFromGame(numUnrollSteps, game))
+//                    .collect(Collectors.toList());
+//        }
+//    }
 
     public List<Sample> sampleBatchFromReanalyseBuffer(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
@@ -242,16 +242,16 @@ public class GameBuffer {
         return games;
     }
 
-    public List<Game> getGamesFromRulesBuffer() {
-        List<Game> games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
-        if (games.isEmpty()) {
-            List<Game> gamesForBuffer = getNGamesWithHighestRewardLoss(2000);
-            gamesForBuffer.forEach(game -> this.rulesBuffer.addGame(game));
-            games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
-        }
-        log.trace("Games from rules buffer: {}",  games.size() );
-        return games;
-    }
+//    public List<Game> getGamesFromRulesBuffer() {
+//        List<Game> games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
+//        if (games.isEmpty()) {
+//            List<Game> gamesForBuffer = getNGamesWithHighestRewardLoss(2000);
+//            gamesForBuffer.forEach(game -> this.rulesBuffer.addGame(game));
+//            games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
+//        }
+//        log.trace("Games from rules buffer: {}",  games.size() );
+//        return games;
+//    }
 
     public List<Game> getGamesFromReanalyseBuffer() {
         List<Game> games = new ArrayList<>(this.reanalyseBuffer.getEpisodeMemory().getGameList());

@@ -14,7 +14,13 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "timestep", uniqueConstraints =
+@Table(name = "timestep",
+        indexes = {
+                @Index(name = "episode_id_index", columnList = "episode_id"),
+                @Index(name = "a_weight_cumulative_index", columnList = "a_weight_cumulative"),
+                @Index(name = "a_weight_cumulative_prev_index", columnList = "a_weight_cumulative_prev")
+        },
+        uniqueConstraints =
 @UniqueConstraint(name = "UniqueEpisodeIDandTime", columnNames = {"episode_id", "t"}))
 @Data
 @Builder
