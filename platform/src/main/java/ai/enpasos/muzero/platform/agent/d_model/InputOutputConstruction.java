@@ -52,7 +52,7 @@ public class InputOutputConstruction {
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
         addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss);
-        addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment, isWithConsistencyLoss);
+        addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
         inputs.add(inputsH.get(0));
         IntStream.range(0, inputsA.size()).forEach(i -> {
             inputs.add(inputsA.get(i));
@@ -124,9 +124,9 @@ public class InputOutputConstruction {
         }
     }
 
-    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment, boolean isWithConsistencyLoss) {
+    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment ) {
 
-        for (int k = 0; k <  (isWithConsistencyLoss ? numUnrollSteps : 1); k++) {
+        for (int k = 0; k <    numUnrollSteps ; k++) {
 
             List<NDArray> list = new ArrayList<>();
             for (Sample s : batch) {
