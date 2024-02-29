@@ -52,7 +52,7 @@ public class InputOutputConstruction {
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
         addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss);
-        addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
+        addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment, isWithConsistencyLoss);
         inputs.add(inputsH.get(0));
         IntStream.range(0, inputsA.size()).forEach(i -> {
             inputs.add(inputsA.get(i));
