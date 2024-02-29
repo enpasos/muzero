@@ -63,6 +63,8 @@ TemperatureCalculator temperatureCalculator;
         timestepRepo.calculateAWeight();
         timestepRepo.calculateAWeightCumulated();
 
+
+        timestepRepo.deleteAWeightClass();
         float weightACumulatedMax = timestepRepo.getWeightACumulatedMax();
         int n = 5;
         for (int i = 1; i <= n; i++) {

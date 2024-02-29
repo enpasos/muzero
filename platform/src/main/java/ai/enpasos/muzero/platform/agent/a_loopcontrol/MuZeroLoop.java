@@ -111,11 +111,11 @@ public class MuZeroLoop {
             log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
-            if (epoch % 10 == 0) {
+         //   if (epoch % 10 == 0) {
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
                // gameBuffer.setRulesBuffer(new GameBufferDTO(config));
                 fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
-            }
+          //  }
 
             boolean[] freeze = new boolean[]{false, false, true, true};
             modelService.trainModel(freeze, LEGAL_ACTIONS_BUFFER, true).get();

@@ -95,6 +95,12 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
+    @Query(value = "update TimeStepDO t set t.aWeightClass=0")
+    void deleteAWeightClass();
+
+
+    @Transactional
+    @Modifying
     @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss where t.id = :id")
     void updateRewardLoss(long id, float rewardLoss, float legalActionLoss);
 
@@ -115,17 +121,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
                       "WHERE timestep.id = cum_sum.id" , nativeQuery = true)
     void calculateAWeightCumulated();
 
-//    @Transactional
-//    @Modifying
-//    @Query(value = "UPDATE timestep  " +
-//            "            SET a_weight_cumulative_prev = COALESCE(prev_values.a_weight_cumulative, 0)  " +
-//            "            FROM (   " +
-//            "              SELECT id, LAG(a_weight_cumulative) OVER (ORDER BY a_weight DESC) AS a_weight_cumulative   " +
-//            "              FROM timestep  " +
-//            "              WHERE a_weight_cumulative IS NOT NULL " +
-//            "            ) AS prev_values  " +
-//            "            WHERE timestep.id = prev_values.id", nativeQuery = true)
-//    void calculateAWeight3();
 
     @Transactional
     @Modifying
