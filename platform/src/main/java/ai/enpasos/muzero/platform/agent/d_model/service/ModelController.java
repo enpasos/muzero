@@ -184,7 +184,7 @@ public class ModelController implements DisposableBean, Runnable {
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                     boolean withSymmetryEnrichment = true;
                     epochLocal = getEpochFromModel(model);
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background);
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, config.isWithConsistencyLoss());
                     int finalEpoch = epochLocal;
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -321,7 +321,7 @@ public class ModelController implements DisposableBean, Runnable {
         } catch (Exception e) {
 
             final int epoch = -1;
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss());
 
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)

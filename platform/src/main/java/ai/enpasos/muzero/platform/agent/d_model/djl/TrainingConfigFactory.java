@@ -33,7 +33,7 @@ public class TrainingConfigFactory {
 
 
 
-    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean background) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean background, boolean isWithConsistencyLoss) {
 
         String outputDir = config.getNetworkBaseDir();
 
@@ -65,10 +65,12 @@ public class TrainingConfigFactory {
 
         for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
 
-            // similarity
-            log.trace("k={}: Similarity L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
-            k++;
+            if (isWithConsistencyLoss) {
+                // similarity
+                log.trace("k={}: Similarity L2Loss", k);
+                loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
+                k++;
+            }
 
             // legal actions
             log.trace("k={}: LegalActions BCELoss", k);
