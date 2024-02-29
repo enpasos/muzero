@@ -50,6 +50,7 @@ TemperatureCalculator temperatureCalculator;
      }
 
     public void fillRulesLossForNetworkOfEpoch(int epoch) {
+        if (epoch % 10 != 0) { return; }
         log.info("filling rules loss for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
         timestepRepo.deleteLegalActionLossWhereAClassIsZeroOrOne();
@@ -57,16 +58,16 @@ TemperatureCalculator temperatureCalculator;
         // has seen trainingEpoch 0...epoch
         //  for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
         fillRulesLossForAClass(0);
-        if (epoch % 10 == 0) {
+        if (epoch % 50 == 0) {
             fillRulesLossForAClass(2);
     }
-        if (epoch % 50 == 0) {
+        if (epoch % 100 == 0) {
             fillRulesLossForAClass(3);
         }
-        if (epoch % 250 == 0) {
+        if (epoch % 300 == 0) {
             fillRulesLossForAClass(4);
         }
-        if (epoch % 500 == 0) {
+        if (epoch % 1000 == 0) {
             fillRulesLossForAClass(5);
         }
            // fillRulesLossForAClass(1);
