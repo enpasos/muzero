@@ -50,8 +50,8 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
     private final DynamicsBlock dynamicsBlock;
 
     private final MuZeroConfig config;
-    private final SimilarityPredictorBlock similarityPredictorBlock;
-    private final SimilarityProjectorBlock similarityProjectorBlock;
+    private final SimilarityPredictorBlock similarityPredictorBlock ;
+    private final SimilarityProjectorBlock similarityProjectorBlock ;
 
     public MuZeroBlock(MuZeroConfig config) {
         super(MYVERSION);
@@ -62,11 +62,15 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
-        similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
-            config.getNumChannelsHiddenLayerSimilarityProjector(), config.getNumChannelsOutputLayerSimilarityProjector()));
-        similarityPredictorBlock = this.addChildBlock("Predictor", SimilarityPredictorBlock.newPredictorBlock(
-            config.getNumChannelsHiddenLayerSimilarityPredictor(), config.getNumChannelsOutputLayerSimilarityPredictor()));
-
+        if (config.isWithConsistencyLoss()) {
+            similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
+                    config.getNumChannelsHiddenLayerSimilarityProjector(), config.getNumChannelsOutputLayerSimilarityProjector()));
+            similarityPredictorBlock = this.addChildBlock("Predictor", SimilarityPredictorBlock.newPredictorBlock(
+                    config.getNumChannelsHiddenLayerSimilarityPredictor(), config.getNumChannelsOutputLayerSimilarityPredictor()));
+        } else {
+            similarityProjectorBlock = null;
+            similarityPredictorBlock = null;
+        }
 
         inputNames = new ArrayList<>();
         inputNames.add("observation");
@@ -124,18 +128,19 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
             predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
+            if (config.isWithConsistencyLoss()) {
+
+                NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(stateForTimeEvolution.get(0)), training, params);
+                NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
 
-            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList( stateForTimeEvolution.get(0)), training, params);
-            NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
+                representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
+                NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(stateForPrediction.size())), training, params).get(0);
+                similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
-
-            representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(stateForPrediction.size())), training, params).get(0);
-            similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
-
-            combinedResult.add(similarityPredictorResult);
-            combinedResult.add(similarityProjectorResultLabel);
+                combinedResult.add(similarityPredictorResult);
+                combinedResult.add(similarityProjectorResultLabel);
+            }
 
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
@@ -229,11 +234,14 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         representationBlock.initialize(manager, dataType, inputShapes[0]);
 
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
-        Shape similarityProjectorInputShape =  secondHalf(stateOutputShapes)[0];
-        similarityProjectorBlock.initialize(manager, dataType, similarityProjectorInputShape);
 
-        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{similarityProjectorInputShape});
-        this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+        if (config.isWithConsistencyLoss()) {
+            Shape similarityProjectorInputShape = secondHalf(stateOutputShapes)[0];
+            similarityProjectorBlock.initialize(manager, dataType, similarityProjectorInputShape);
+
+            Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{similarityProjectorInputShape});
+            this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+        }
 
         Shape[] predictionInputShape =  firstHalf(stateOutputShapes);
 
@@ -267,8 +275,10 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
     public void freeze(boolean[] freeze) {
         this.predictionBlock.freeze(freeze);
         this.dynamicsBlock.freeze(freeze);
-        this.similarityPredictorBlock.freezeParameters(freeze[0]);
-        this.similarityProjectorBlock.freezeParameters(freeze[0]);
+        if (config.isWithConsistencyLoss()) {
+            this.similarityPredictorBlock.freezeParameters(freeze[0]);
+            this.similarityProjectorBlock.freezeParameters(freeze[0]);
+        }
         this.representationBlock.freeze(freeze);
     }
 }

@@ -46,12 +46,12 @@ public class InputOutputConstruction {
     MuZeroConfig config;
 
 
-    public List<NDArray> constructInput(@NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment) {
+    public List<NDArray> constructInput(@NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment, boolean isWithConsistencyLoss) {
 
         List<NDArray> inputs = new ArrayList<>();
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
-        addObservation(numUnrollSteps, ndManager, batch, inputsH);
+        addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss);
         addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
         inputs.add(inputsH.get(0));
         IntStream.range(0, inputsA.size()).forEach(i -> {
@@ -108,8 +108,8 @@ public class InputOutputConstruction {
     }
 
 
-    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
-        for (int k = 0; k < numUnrollSteps + 1; k++) {
+    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs, boolean isWithConsistencyLoss) {
+        for (int k = 0; k < (isWithConsistencyLoss ? numUnrollSteps + 1: 1); k++) {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
                 .map(sample -> {

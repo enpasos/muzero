@@ -78,7 +78,7 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numResiduals: 6
-      broadcastEveryN: 8  # out of range here
+      broadcastEveryN: 10  # out of range here
 
       numChannels: 200    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
@@ -94,6 +94,8 @@ muzero:
 
 
       valueLossWeight: 1
+
+      withConsistencyLoss: false
       consistencyLossWeight: 2
       # legalActionsLossWeight: 0.1111  # 1/actionSpaceSize
 

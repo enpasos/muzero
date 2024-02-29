@@ -123,9 +123,9 @@ public final class MyEasyTrain {
         NDList preds = trainer.forward(data, labels);
 
 
-
-        reorganizePredictionsAndLabels( preds, labels );
-
+        if (preds.size() != labels.size()) {
+            reorganizePredictionsAndLabels(preds, labels);
+        }
 
 
 

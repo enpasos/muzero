@@ -116,13 +116,12 @@ public class GameBuffer {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
         }
         sample.setActionsList(new ArrayList<>());
-        for (int i = 0; i < numUnrollSteps; i++) {
+        for (int i = 0; i <  (config.isWithConsistencyLoss() ? numUnrollSteps : 1); i++) {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 
-          //  if (gamePos + i <= originalActionSize) {
-                observation = game.getObservationModelInput(gamePos + i);
-           // }
+            observation = game.getObservationModelInput(gamePos + i);
+
             sample.getObservations().add(observation);
         }
         sample.setGamePos(gamePos);

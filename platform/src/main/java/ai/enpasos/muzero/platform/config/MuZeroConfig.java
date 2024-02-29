@@ -265,6 +265,9 @@ public class MuZeroConfig {
     public float getConsistencyLossWeight() {
         return getConf().consistencyLossWeight;
     }
+    public boolean isWithConsistencyLoss() {
+        return getConf().withConsistencyLoss;
+    }
 
 
 
@@ -540,6 +543,7 @@ public class MuZeroConfig {
         protected float komi;
         protected float weightDecay;
         protected float valueLossWeight = 1f;
+        protected boolean withConsistencyLoss = true;
         protected float consistencyLossWeight = 1f;
         protected float lrInit;
         protected int size;
