@@ -52,15 +52,16 @@ TemperatureCalculator temperatureCalculator;
     public void fillRulesLossForNetworkOfEpoch(int epoch) {
         log.info("filling rules loss for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
-        timestepRepo.deleteLegalActionLoss();
+        timestepRepo.deleteLegalActionLossWhereAClassIsZeroOrOne();
         // the network from epoch
         // has seen trainingEpoch 0...epoch
-        for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
-            fillRulesLossForTrainingEpoch(trainingEpoch);
-        }
+      //  for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
+            fillRulesLossForAClass(0);
+           // fillRulesLossForAClass(1);
+      //  }
 
         timestepRepo.calculateAWeight();
-        timestepRepo.calculateAWeight2();
+        timestepRepo.calculateAWeightCumulated();
 
         float weightACumulatedMax = timestepRepo.getWeightACumulatedMax();
         int n = 5;
@@ -69,9 +70,9 @@ TemperatureCalculator temperatureCalculator;
         }
     }
 
-    private void fillRulesLossForTrainingEpoch(int trainingEpoch) {
+    private void fillRulesLossForAClass( int wClass) {
 
-        List<Long> episodeIds = episodeRepo.findAllNonArchivedEpisodeIdsForAnEpoch(trainingEpoch);
+        List<Long> episodeIds = timestepRepo.findAllEpisodeIdsForAClass(wClass);
         if (episodeIds.isEmpty()) return;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);

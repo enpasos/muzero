@@ -1,12 +1,9 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -83,13 +80,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<Long> findNEpisodeIdsWithHighestRewardLoss(int n, double minLoss);
 
 
+    @Transactional
+    @Query(value = "select t.episode_id from timestep t where t.a_weight_class = :wClass GROUP BY t.episode_id", nativeQuery = true)
+    List<Long> findAllEpisodeIdsForAClass(int wClass);
+
 
 
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.aWeightClass=0, t.aWeightCumulative=0, t.aWeight=0, t.rewardLoss = 0")
-    void deleteLegalActionLoss();
+    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.aWeightClass=0, t.aWeightCumulative=0, t.aWeight=0, t.rewardLoss = 0 where t.aWeightClass = 0 or t.aWeightClass = 1")
+    void deleteLegalActionLossWhereAClassIsZeroOrOne();
 
 
     @Transactional
@@ -100,7 +101,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update timestep set a_weight =  legal_action_loss_max", nativeQuery = true)
+    @Query(value = "update timestep set a_weight =  legal_action_loss_max * legal_action_loss_max * legal_action_loss_max  ", nativeQuery = true)
     void calculateAWeight();
 
     @Transactional
@@ -112,7 +113,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
                                "FROM timestep "+
                            ") AS cum_sum "+
                       "WHERE timestep.id = cum_sum.id" , nativeQuery = true)
-    void calculateAWeight2();
+    void calculateAWeightCumulated();
 
 //    @Transactional
 //    @Modifying
