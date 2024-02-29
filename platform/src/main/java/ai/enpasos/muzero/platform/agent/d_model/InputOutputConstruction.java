@@ -122,9 +122,9 @@ public class InputOutputConstruction {
         }
     }
 
-    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
+    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment, boolean isWithConsistencyLoss) {
 
-        for (int k = 0; k < numUnrollSteps; k++) {
+        for (int k = 0; k <  (isWithConsistencyLoss ? numUnrollSteps : 1); k++) {
 
             List<NDArray> list = new ArrayList<>();
             for (Sample s : batch) {
