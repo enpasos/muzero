@@ -114,7 +114,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
             predictionBlock.setWithReward(true);
 
-            NDArray action = inputs.get(2 * k - 1);
+            NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k );
 
             NDList dynamicIn = new NDList();
             dynamicIn.addAll(stateForTimeEvolution);
