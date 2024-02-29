@@ -55,8 +55,20 @@ TemperatureCalculator temperatureCalculator;
         timestepRepo.deleteLegalActionLossWhereAClassIsZeroOrOne();
         // the network from epoch
         // has seen trainingEpoch 0...epoch
-      //  for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
-            fillRulesLossForAClass(0);
+        //  for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
+        fillRulesLossForAClass(0);
+        if (epoch % 10 == 0) {
+            fillRulesLossForAClass(2);
+    }
+        if (epoch % 50 == 0) {
+            fillRulesLossForAClass(3);
+        }
+        if (epoch % 250 == 0) {
+            fillRulesLossForAClass(4);
+        }
+        if (epoch % 500 == 0) {
+            fillRulesLossForAClass(5);
+        }
            // fillRulesLossForAClass(1);
       //  }
 
