@@ -61,15 +61,15 @@ TemperatureCalculator temperatureCalculator;
         if (epoch % 50 == 0) {
             fillRulesLossForAClass(2);
     }
-        if (epoch % 100 == 0) {
-            fillRulesLossForAClass(3);
-        }
-        if (epoch % 300 == 0) {
-            fillRulesLossForAClass(4);
-        }
-        if (epoch % 1000 == 0) {
-            fillRulesLossForAClass(5);
-        }
+//        if (epoch % 100 == 0) {
+//            fillRulesLossForAClass(3);
+//        }
+//        if (epoch % 300 == 0) {
+//            fillRulesLossForAClass(4);
+//        }
+//        if (epoch % 1000 == 0) {
+//            fillRulesLossForAClass(5);
+//        }
            // fillRulesLossForAClass(1);
       //  }
 
