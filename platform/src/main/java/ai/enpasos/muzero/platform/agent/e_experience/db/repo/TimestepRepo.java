@@ -81,8 +81,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
-    @Query(value = "select t.episode_id from timestep t where t.a_weight_class = :wClass GROUP BY t.episode_id", nativeQuery = true)
-    List<Long> findAllEpisodeIdsForAClass(int wClass);
+    @Query(value = "select t.episode_id from timestep t where t.a_weight_class = :wClass GROUP BY t.episode_id order by t.episode_id LIMIT :limit  OFFSET :offset", nativeQuery = true)
+    List<Long> findAllEpisodeIdsForAClass(int wClass, int limit, int offset);
 
 
 

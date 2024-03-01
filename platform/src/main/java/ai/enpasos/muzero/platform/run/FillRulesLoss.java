@@ -55,23 +55,23 @@ TemperatureCalculator temperatureCalculator;
         modelService.loadLatestModel(epoch).join();
         timestepRepo.deleteLegalActionLossWhereAClassIsZeroOrOne();
         // the network from epoch
-        // has seen trainingEpoch 0...epoch
-        //  for (int trainingEpoch = 0; trainingEpoch <= epoch; trainingEpoch++) {
-        fillRulesLossForAClass(0);
-        if (epoch % 50 == 0) {
-            fillRulesLossForAClass(2);
-    }
-//        if (epoch % 100 == 0) {
-//            fillRulesLossForAClass(3);
-//        }
-//        if (epoch % 300 == 0) {
-//            fillRulesLossForAClass(4);
-//        }
-//        if (epoch % 1000 == 0) {
-//            fillRulesLossForAClass(5);
-//        }
-           // fillRulesLossForAClass(1);
-      //  }
+ int offset = 0;
+ int limit = 50000;
+            fillRulesLossForAClass(0, offset, limit);
+            if (epoch % 50 == 0) {
+                fillRulesLossForAClass( 2, offset, limit);
+            }
+        if (epoch % 100 == 0) {
+            fillRulesLossForAClass(3, offset, limit);
+        }
+        if (epoch % 300 == 0) {
+            fillRulesLossForAClass(4, offset, limit);
+        }
+        if (epoch % 1000 == 0) {
+            fillRulesLossForAClass(5, offset, limit);
+        }
+            // fillRulesLossForAClass(1);
+            //  }
 
         timestepRepo.calculateAWeight();
         timestepRepo.calculateAWeightCumulated();
@@ -85,9 +85,9 @@ TemperatureCalculator temperatureCalculator;
         }
     }
 
-    private void fillRulesLossForAClass( int wClass) {
+    private void fillRulesLossForAClass(int wClass, int offset, int limit) {
 
-        List<Long> episodeIds = timestepRepo.findAllEpisodeIdsForAClass(wClass);
+        List<Long> episodeIds = timestepRepo.findAllEpisodeIdsForAClass(wClass, limit, offset);
         if (episodeIds.isEmpty()) return;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
