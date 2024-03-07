@@ -77,17 +77,17 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 6
+      numResiduals: 9
       broadcastEveryN: 10  # out of range here
 
       numChannels: 200    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
-      numChannelsAllowedActions: 50
-      numChannelsReward: 50
+      numChannelsAllowedActions: 100
+      numChannelsReward: 20
       numChannelsPolicy: 50
       numChannelsValue: 50
 
-      numCompressedChannelsAllowedActions: 10
+      numCompressedChannelsAllowedActions: 20
       numCompressedChannelsReward: 10
       numCompressedChannelsPolicy: 10
       numCompressedChannelsValue: 10

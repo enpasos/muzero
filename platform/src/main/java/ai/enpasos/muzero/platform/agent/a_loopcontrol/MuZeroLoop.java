@@ -97,14 +97,14 @@ public class MuZeroLoop {
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-            if (epoch != 0) {
-                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                    config.setPlayTypeKey(key);
-                    play.playGames(params.isRender(), trainingStep);
-                }
-                config.setPlayTypeKey(originalPlayTypeKey);
-            }
+//            if (epoch != 0) {
+//                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+//                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+//                    config.setPlayTypeKey(key);
+//                    play.playGames(params.isRender(), trainingStep);
+//                }
+//                config.setPlayTypeKey(originalPlayTypeKey);
+//            }
 
             log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
             log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
@@ -116,11 +116,12 @@ public class MuZeroLoop {
                 fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
 
 
-            boolean[] freeze = new boolean[]{false, false, true, true};
-            modelService.trainModel(freeze, LEGAL_ACTIONS_BUFFER, true).get();
+            boolean[] freeze = new boolean[]{false, true, true, true};
+         //   modelService.trainModel(freeze, LEGAL_ACTIONS_BUFFER, false).get();
+            modelService.trainModel(freeze, LEGAL_ACTIONS_BUFFER, false).get();
 
-           freeze = new boolean[]{true, false, false, false};
-            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+//           freeze = new boolean[]{true, false, false, false};
+//            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
 
