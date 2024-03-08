@@ -33,10 +33,9 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
 
 
  public DynamicsStart(MuZeroConfig config) {
-            super(MYVERSION);
-     blocks.add(addChildBlock("dynamicsStartAllowedActions", Conv3x3.builder().channels(config.getNumChannelsAllowedActions()).build()));
-
-     blocks.add(addChildBlock("dynamicsStartRewards", Conv3x3.builder().channels(config.getNumChannelsReward()).build()));
+     super(MYVERSION);
+     blocks.add(addChildBlock("dynamicsStartRulesInitial", Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build()));
+     blocks.add(addChildBlock("dynamicsStartRulesRecurrent", Conv3x3.builder().channels(config.getNumChannelsRulesRecurrent()).build()));
      blocks.add(addChildBlock("dynamicsStartPolicy", Conv3x3.builder().channels(config.getNumChannelsPolicy()).build()));
      blocks.add(addChildBlock("dynamicsStartValue", Conv3x3.builder().channels(config.getNumChannelsValue()).build()));
 

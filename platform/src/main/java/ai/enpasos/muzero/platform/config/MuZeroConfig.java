@@ -177,11 +177,11 @@ public class MuZeroConfig {
     public int getNumChannelsPolicy() {
         return getConf().numChannelsPolicy;
     }
-    public int getNumChannelsReward() {
-        return getConf().numChannelsReward;
+    public int getNumChannelsRulesRecurrent() {
+        return getConf().numChannelsRulesRecurrent;
     }
-    public int getNumChannelsAllowedActions() {
-        return getConf().numChannelsAllowedActions;
+    public int getNumChannelsRulesInitial() {
+        return getConf().numChannelsRulesInitial;
     }
     public int getNumChannelsValue() {
         return getConf().numChannelsValue;
@@ -191,11 +191,11 @@ public class MuZeroConfig {
     public int getNumCompressedChannelsPolicy() {
         return getConf().numCompressedChannelsPolicy;
     }
-    public int getNumCompressedChannelsReward() {
-        return getConf().numCompressedChannelsReward;
+    public int getNumCompressedChannelsRulesRecurrent() {
+        return getConf().numCompressedChannelsRulesRecurrent;
     }
-    public int getNumCompressedChannelsAllowedActions() {
-        return getConf().numCompressedChannelsAllowedActions;
+    public int getNumCompressedChannelsRulesInitial() {
+        return getConf().numCompressedChannelsRulesInitial;
     }
     public int getNumCompressedChannelsValue() {
         return getConf().numCompressedChannelsValue;
@@ -512,13 +512,13 @@ public class MuZeroConfig {
         protected int numActionLayers;
         protected int numChannels;
 
-        protected int numChannelsAllowedActions;
-        protected int numChannelsReward;
+        protected int numChannelsRulesInitial;
+        protected int numChannelsRulesRecurrent;
         protected int numChannelsPolicy;
         protected int numChannelsValue;
 
-        protected int numCompressedChannelsAllowedActions;
-        protected int numCompressedChannelsReward;
+        protected int numCompressedChannelsRulesInitial;
+        protected int numCompressedChannelsRulesRecurrent;
         protected int numCompressedChannelsPolicy;
         protected int numCompressedChannelsValue;
 

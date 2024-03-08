@@ -39,8 +39,8 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
  public RepresentationStart(MuZeroConfig config) {
             super(MYVERSION);
 
-     blocks.add(Conv3x3.builder().channels(config.getNumChannelsAllowedActions()).build());
-     blocks.add(Conv3x3.builder().channels(config.getNumChannelsReward()).build());
+     blocks.add(Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build());
+     blocks.add(Conv3x3.builder().channels(config.getNumChannelsRulesRecurrent()).build());
      blocks.add(Conv3x3.builder().channels(config.getNumChannelsPolicy()).build());
      blocks.add(Conv3x3.builder().channels(config.getNumChannelsValue()).build());
 

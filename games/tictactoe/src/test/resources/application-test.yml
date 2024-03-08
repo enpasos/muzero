@@ -70,15 +70,18 @@ muzero:
 
       numChannels: 12
 
-      numChannelsAllowedActions: 100
-      numChannelsReward: 100
+      numChannelsRulesInitial: 100
+      numChannelsRulesRecurrent: 100
       numChannelsPolicy: 50
       numChannelsValue: 50
 
-      numCompressedChannelsAllowedActions: 30
-      numCompressedChannelsReward: 30
+      numCompressedChannelsRulesInitial: 30
+      numCompressedChannelsRulesRecurrent: 30
       numCompressedChannelsPolicy: 10
       numCompressedChannelsValue: 10
+
+
+
 
       valueLossWeight: 1
 
