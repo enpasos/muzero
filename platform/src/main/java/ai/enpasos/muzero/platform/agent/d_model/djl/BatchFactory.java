@@ -125,6 +125,18 @@ public class BatchFactory {
         return shapes;
     }
 
+    public Shape @NotNull [] getInputShapesForInitialRules() {
+        return getInputShapesForInitialRules(config.getBatchSize());
+    }
 
+    public Shape @NotNull [] getInputShapesForInitialRules(int batchSize) {
+        Shape[] shapes = new Shape[2];
+        // for observation input
+        shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
+      //  for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+            shapes[1] = new Shape(batchSize, config.getNumActionLayers(), config.getBoardHeight(), config.getBoardWidth());
+     //   }
+        return shapes;
+    }
 }
 

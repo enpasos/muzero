@@ -30,6 +30,7 @@ import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,7 +43,10 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
 
     public final CausalLayers block;
 
-
+    public CausalBroadcastResidualLayersBlock(CausalLayers causalLayers) {
+        super(MYVERSION);
+        this.block = addChildBlock("causalBroadcastResidualLayersBlock", causalLayers);
+    }
 
     public CausalBroadcastResidualLayersBlock(int height, int width, int[] numChannels, int[] numCompressedChannels, boolean rescale) {
         super(MYVERSION);
@@ -76,11 +80,6 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         return block.getOutputShapes(inputs);
-//        List<Shape> shapes = new ArrayList<>();
-//        for (Block myblock : block.getChildren().values()) {
-//            shapes.add(myblock.getOutputShapes(inputs)[0]);
-//        }
-//        return shapes.toArray(new Shape[0]);
     }
 
     @Override
@@ -96,5 +95,9 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
     @Override
     public void freeze(boolean[] freeze) {
         this.block.freeze(freeze);
+    }
+
+    public Block getBlockForInitialRulesOnly() {
+        return new CausalBroadcastResidualLayersBlock(this.block.getBlockForInitialRulesOnly());
     }
 }

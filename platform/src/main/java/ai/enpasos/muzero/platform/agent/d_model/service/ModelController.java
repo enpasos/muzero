@@ -155,8 +155,10 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
-                    model = network.getModel();
-                    trainNetwork(model, task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    break;
+                case TRAIN_MODEL_RULES_INITIAL:
+                    trainNetworkInitialRules(  );
                     break;
                 case START_SCOPE:
                     if (ndScope != null) {
@@ -177,8 +179,8 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetwork(Model model, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
-
+    private void trainNetwork( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
+        Model model = network.getModel();
                 try (NDScope nDScope = new NDScope()) {
                     int epochLocal;
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
@@ -208,6 +210,67 @@ public class ModelController implements DisposableBean, Runnable {
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
+
+
+    }
+
+
+    private void trainNetworkInitialRules(  ) {
+
+        try (NDScope nDScope = new NDScope()) {
+
+
+            // initialization
+            Model model =  network.getModel();
+
+                int epochLocal;
+                int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+                boolean withSymmetryEnrichment = true;
+                epochLocal = getEpochFromModel(model);
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, false, config.isWithConsistencyLoss());
+                int finalEpoch = epochLocal;
+//                djlConfig.getTrainingListeners().stream()
+//                        .filter(MyEpochTrainingListener.class::isInstance)
+//                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+//                try (Trainer trainer = model.newTrainer(djlConfig)) {
+//                    Shape[] inputShapes = batchFactory.getInputShapes();
+//                    trainer.initialize(inputShapes);
+//                }
+
+
+
+            model =  network.getRulesInitial();
+
+            // special
+             djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+
+            djlConfig.getTrainingListeners().stream()
+                    .filter(MyEpochTrainingListener.class::isInstance)
+                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+                Shape[] inputShapes = batchFactory.getInputShapesForInitialRules();
+                trainer.initialize(inputShapes);
+                trainer.setMetrics(new Metrics());
+                //((CausalityFreezing) model.getBlock()).freeze(freeze);
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                    // TODO batch has to be adjusted
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), TrainingDatasetType.PLANNING_BUFFER)) {
+                        log.debug("trainBatch " + m);
+
+                        // special
+                        MyEasyTrain.trainBatch(trainer, batch);
+                        trainer.step();
+                    }
+                }
+
+                handleMetrics(trainer, model, epochLocal);
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+            }
+
+
+            modelState.setEpoch(getEpochFromModel(model));
+        }
+
 
 
     }

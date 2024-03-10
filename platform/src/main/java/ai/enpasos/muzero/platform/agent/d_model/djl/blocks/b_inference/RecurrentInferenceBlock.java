@@ -71,7 +71,7 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList gResult = g.forward(parameterStore, inputs, training);
-        f.setWithReward(true);
+        f.setHeadUsage(new boolean[] {true, true, true, true});
 
 
 
@@ -83,7 +83,7 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        f.setWithReward(true);
+        f.setHeadUsage(new boolean[] {true, true, true, true});
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
 
         Shape[] gOutputShapesForPrediction = firstHalf(gOutputShapes);
@@ -116,7 +116,7 @@ throw new MuZeroException("implemented in MuZeroBlock");
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-        f.setWithReward(true);
+        f.setHeadUsage(new boolean[] {true, true, true, true});
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .build();

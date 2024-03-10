@@ -27,17 +27,22 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("java:S110")
 public class RepresentationBlock extends MySequentialBlock implements OnnxIO, CausalityFreezing {
 
-    public RepresentationBlock() {
+    private RepresentationBlock() {
         super();
     }
+
+    RepresentationStart representationStart;
+    MainRepresentationOrDynamicsBlock mainRepresentationOrDynamicsBlock;
 
     @Builder()
     public static @NotNull RepresentationBlock newRepresentationBlock(MuZeroConfig config) {
         RepresentationBlock block = new RepresentationBlock();
+        block.representationStart = new RepresentationStart(config);
+        block.mainRepresentationOrDynamicsBlock = new MainRepresentationOrDynamicsBlock(config );
 
         block
-            .add(new RepresentationStart(config))
-            .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
+            .add(block.representationStart)
+            .add(block.mainRepresentationOrDynamicsBlock);
 
         return block;
 
@@ -52,4 +57,12 @@ public class RepresentationBlock extends MySequentialBlock implements OnnxIO, Ca
         });
     }
 
+    public RepresentationBlock getBlockForInitialRulesOnly(MuZeroConfig config) {
+        RepresentationBlock block2 = new RepresentationBlock();
+        block2
+                .add(representationStart.getBlockForInitialRulesOnly())
+                .add(mainRepresentationOrDynamicsBlock.getBlockForInitialRulesOnly(config));
+
+        return block2;
+    }
 }

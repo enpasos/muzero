@@ -30,24 +30,35 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
 
 
 
-    ParallelBlockWithCollectChannelJoinExt block;
+    Block parentBlock;
 
 
-    List<Block> blocks = new ArrayList<>();
 
 
- public RepresentationStart(MuZeroConfig config) {
-            super(MYVERSION);
+    List<Block> childBlocks = new ArrayList<>();
 
-     blocks.add(Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build());
-     blocks.add(Conv3x3.builder().channels(config.getNumChannelsRulesRecurrent()).build());
-     blocks.add(Conv3x3.builder().channels(config.getNumChannelsPolicy()).build());
-     blocks.add(Conv3x3.builder().channels(config.getNumChannelsValue()).build());
+    public RepresentationStart() {
+        super(MYVERSION);
+    }
+
+    Block rulesInitialBlock;
 
 
-        block = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(
-                blocks
+    public RepresentationStart(MuZeroConfig config) {
+        this();
+
+        rulesInitialBlock = Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build();
+
+        childBlocks.add(rulesInitialBlock);
+        childBlocks.add(Conv3x3.builder().channels(config.getNumChannelsRulesRecurrent()).build());
+        childBlocks.add(Conv3x3.builder().channels(config.getNumChannelsPolicy()).build());
+        childBlocks.add(Conv3x3.builder().channels(config.getNumChannelsValue()).build());
+
+
+        parentBlock = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(
+                childBlocks
         ));
+
     }
 
 
@@ -63,13 +74,13 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
 
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
-        return block.forward(parameterStore, inputs, training);
+        return parentBlock.forward(parameterStore, inputs, training);
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         List<Shape> shapes = new ArrayList<>();
-        for (Block myblock : block.getChildren().values()) {
+        for (Block myblock : parentBlock.getChildren().values()) {
             shapes.add(myblock.getOutputShapes(inputs)[0]);
         }
         return shapes.toArray(new Shape[0]);
@@ -77,21 +88,33 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        block.initialize(manager, dataType, inputShapes);
+        parentBlock.initialize(manager, dataType, inputShapes);
     }
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-        return block.getOnnxBlock(counter, input);
+        return ((OnnxIO)parentBlock).getOnnxBlock(counter, input);
     }
 
 
     @Override
     public void freeze(boolean[] freeze) {
-        IntStream.range(0, blocks.size()).forEach(i -> {
-            if (blocks.get(i) instanceof CausalityFreezing) {
-                ((CausalityFreezing) blocks.get(i)).freeze(freeze);
+        IntStream.range(0, childBlocks.size()).forEach(i -> {
+            if (childBlocks.get(i) instanceof CausalityFreezing) {
+                ((CausalityFreezing) childBlocks.get(i)).freeze(freeze);
             }
         });
+    }
+
+    public RepresentationStart getBlockForInitialRulesOnly() {
+        RepresentationStart block = new RepresentationStart();
+
+        block.childBlocks.add(rulesInitialBlock);
+        block.parentBlock = block.addChildBlockPublic("representationStartForInitialRulesOnly", rulesInitialBlock);
+        return block;
+    }
+
+    private Block addChildBlockPublic(String name, Block block) {
+        return this.addChildBlock(name, block);
     }
 }

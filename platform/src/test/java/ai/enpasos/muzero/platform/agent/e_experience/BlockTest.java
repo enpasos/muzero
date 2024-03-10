@@ -2,11 +2,13 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.InitialRulesBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -269,7 +271,7 @@ class BlockTest {
     @Test
     void predictionWithRewardRANDOM() throws Exception {
         PredictionBlock predictionBlock = new PredictionBlock(  true, 9);
-        predictionBlock.setWithReward(true);
+        predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
         boolean check = compareOnnxWithDJL(
                 "./build/PredictionBlockWithReward.onnx",
                 predictionBlock,
@@ -277,5 +279,46 @@ class BlockTest {
                 RANDOM);
         Assertions.assertTrue(check);
     }
+
+
+//    @Test
+//
+//    void initialRulesBlockRANDOM() throws Exception {
+//        PredictionBlock predictionBlock = new PredictionBlock(  true, 9);
+//        boolean check = compareOnnxWithDJL(
+//                "./build/PredictionBlock.onnx",
+//                predictionBlock,
+//                List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
+//                RANDOM);
+//        Assertions.assertTrue(check);
+//
+//
+//
+//
+//        RepresentationBlock representationBlock = RepresentationBlock.builder().config(config).build();
+//        check = compareOnnxWithDJL(
+//                "./build/RepresentationBlock.onnx",
+//                representationBlock,
+//                List.of(new Shape(1, 3, 3, 3)),
+//                RANDOM);
+//        Assertions.assertTrue(check);
+//
+//
+//        DynamicsBlock dynamicsBlock = DynamicsBlock.newDynamicsBlock(config);
+//         check = compareOnnxWithDJL(
+//                "./build/DynamicsBlock.onnx",
+//                 dynamicsBlock,
+//                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3),new Shape(1, 80, 3, 3),new Shape(1, 1, 3, 3)),
+//                RANDOM);
+//        Assertions.assertTrue(check);
+//
+//
+//        check = compareOnnxWithDJL(
+//                "./build/InitialRulesBlock.onnx",
+//                new InitialRulesBlock(representationBlock, predictionBlock, dynamicsBlock, config),
+//                List.of(new Shape(1, 3, 3, 3)),
+//                RANDOM);
+//        Assertions.assertTrue(check);
+//    }
 
 }

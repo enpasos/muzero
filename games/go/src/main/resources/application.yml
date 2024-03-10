@@ -214,10 +214,6 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-
-
-
-
       # Gumbel MuZero parameters
       initialGumbelM: 16
       cVisit: 50  # 50 in paper

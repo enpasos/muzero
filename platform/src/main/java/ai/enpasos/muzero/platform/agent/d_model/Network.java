@@ -27,6 +27,7 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.training.Trainer;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.InitialRulesBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceListTranslator;
@@ -70,6 +71,8 @@ public class Network {
     private SubModel projector;
     private SubModel predictor;
 
+    private SubModel rulesInitial;
+
     private List<NDArray> actionSpaceOnDevice;
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
@@ -93,7 +96,6 @@ public class Network {
 
         RepresentationBlock representationBlock = (RepresentationBlock) model.getBlock().getChildren().get("01Representation");
         PredictionBlock predictionBlock = (PredictionBlock) model.getBlock().getChildren().get("02Prediction");
-       // RewardBlock rewardBlock = (RewardBlock) model.getBlock().getChildren().get("03Reward");
         DynamicsBlock dynamicsBlock = (DynamicsBlock) model.getBlock().getChildren().get("03Dynamics");
         SimilarityProjectorBlock similarityProjectorBlock = (SimilarityProjectorBlock) model.getBlock().getChildren().get("04Projector");
         SimilarityPredictorBlock similarityPredictorBlock = (SimilarityPredictorBlock) model.getBlock().getChildren().get("05Predictor");
@@ -108,6 +110,7 @@ public class Network {
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
 
+        rulesInitial = new SubModel("initialRules", model, new InitialRulesBlock(representationBlock, predictionBlock, dynamicsBlock, config), config);
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {

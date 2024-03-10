@@ -55,23 +55,36 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
     }
 
 
-    private SequentialBlockExt valueHead;
-    private SequentialBlockExt legalActionsHead;
-    private SequentialBlockExt policyHead;
-    private SequentialBlockExt rewardHead;
+    private SequentialBlockExt legalActionsHead;   //0
+
+    private SequentialBlockExt rewardHead;  //1
+    private SequentialBlockExt policyHead;   //2
 
 
- //   private CausalLayersToPrediction causalLayersToPrediction;
+    private SequentialBlockExt valueHead;  //3
+
 
     @Setter
-    private boolean withReward;
+    private boolean[] headUsage = {true, true, true, true};
 
+    private int countHeadsUsed() {
+        int count = 0;
+        for (boolean b : headUsage) {
+            if (b) count++;
+        }
+        return count;
+    }
 
+  //  private boolean withReward = false;
+
+    public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean[] headUsage) {
+        this(isPlayerModeTWOPLAYERS, actionSpaceSize);
+        this.headUsage = headUsage;
+}
 
 
 
     public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
-    //    causalLayersToPrediction = new CausalLayersToPrediction();
 
         valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
@@ -131,38 +144,55 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
-    //    inputs = causalLayersToPrediction.forward(parameterStore, inputs, training, params);
-        results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
-        if (withReward) {
+        if (headUsage[0]) {
+            results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+        }
+        if (headUsage[1]) {
             results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
         }
-         results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
-        results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(3)), training, params).get(0));
+        if (headUsage[2]) {
+            results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
+        }
+        if (headUsage[3]) {
+            results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(3)), training, params).get(0));
+        }
         return results;
     }
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
         Shape[] inputShapes_ = inputShapes;//causalLayersToPrediction.getOutputShapes(inputShapes);
-        legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0] });
-        if (withReward) {
+        if (headUsage[0]) {
+            legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0]});
+        }
+        if (headUsage[1]) {
             rewardHead.initialize(manager, dataType, new Shape[]{inputShapes_[1] });
         }
-        policyHead.initialize(manager, dataType, new Shape[]{inputShapes_[2] });
-        valueHead.initialize(manager, dataType, new Shape[]{inputShapes_[3] });
+        if (headUsage[2]) {
+            policyHead.initialize(manager, dataType, new Shape[]{inputShapes_[2]});
+        }
+        if (headUsage[3]) {
+            valueHead.initialize(manager, dataType, new Shape[]{inputShapes_[3]});
+        }
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
      //   inputShapes = causalLayersToPrediction.getOutputShapes(inputShapes);
-        Shape[] result = new Shape[withReward ? 4 : 3];
+        Shape[] result = new Shape[countHeadsUsed()];
         int c = 0;
-        result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
-        if (withReward) {
+        if (headUsage[0]) {
+            result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
+        }
+        if (headUsage[1]) {
             result[c++] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
         }
-        result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
-        result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[3]})[0];
+        if (headUsage[2]) {
+            result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
+        }
+        if (headUsage[3]) {
+            result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[3]})[0];
+        }
 
         return result;
     }
@@ -178,34 +208,32 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
 
         List<OnnxTensor> outputs = new ArrayList<>();
         OnnxTensor childOutput = null;
-
-//        OnnxBlock child =   causalLayersToPrediction.getOnnxBlock(counter, input);
-//        onnxBlock.addChild(child);
-//         input = child.getOutput();
-
-
-        OnnxBlock   child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
+        OnnxBlock   child = null;
+        if (headUsage[0]) {
+            child = this.legalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
-            if (withReward) {
+        }
+        if (headUsage[1]) {
                 child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(1)));
                 onnxBlock.addChild(child);
                 childOutput = child.getOutput().get(0);
                 outputs.add(childOutput);
             }
 
-
-            child = this.policyHead.getOnnxBlock(counter,  List.of(input.get(2)));
+        if (headUsage[2]) {
+            child = this.policyHead.getOnnxBlock(counter, List.of(input.get(2)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
-
-            child = this.valueHead.getOnnxBlock(counter,  List.of(input.get(3)));
+        }
+        if (headUsage[3]) {
+            child = this.valueHead.getOnnxBlock(counter, List.of(input.get(3)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
-
+        }
 
         onnxBlock.setOutput(outputs);
 

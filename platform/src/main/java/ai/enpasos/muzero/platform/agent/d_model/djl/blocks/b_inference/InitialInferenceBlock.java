@@ -68,7 +68,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
 
     @Override
     protected NDList forwardInternal(@NotNull ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
-        f.setWithReward(false);
+        f.setHeadUsage(new boolean[] {true, false, true, true});
         NDList hResult = h.forward(parameterStore, inputs, training, params);
         // hResult ist the output from the three causal layers
         // the first half should go to the representation block
@@ -80,7 +80,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        f.setWithReward(false);
+        f.setHeadUsage(new boolean[] {true, false, true, true});
         Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
 
 

@@ -97,7 +97,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         // - value layer:  value
 
         // initial Inference
-        predictionBlock.setWithReward(false);
+        predictionBlock.setHeadUsage(new boolean[] {true, false, true, true});
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
         NDList stateForPrediction = firstHalfNDList(representationResult);
         NDList stateForTimeEvolution = secondHalfNDList(representationResult);
@@ -112,7 +112,7 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
             // recurrent Inference
 
-            predictionBlock.setWithReward(true);
+            predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
 
             NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k );
 
@@ -178,7 +178,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
-        predictionBlock.setWithReward(false);
+        predictionBlock.setHeadUsage(new boolean[] {true, false, true, true});
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
         Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
@@ -189,25 +189,15 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
             // recurrent Inference
-            predictionBlock.setWithReward(true);
-            Shape stateShape = stateOutputShapesForTimeEvolution[0];
+            predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
+
             Shape actionShape = inputShapes[k];
+            Shape[] dynamicInShape =  ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
 
-
-            Shape dynamicsInputShape = null;
-            if (stateShape.dimension() == 4) {
-                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-            } else if (stateShape.size() == 2) {
-                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1));
-            } else {
-                throw new MuZeroException("wrong input shape");
-            }
-            stateOutputShapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
+            stateOutputShapes = dynamicsBlock.getOutputShapes(dynamicInShape);
 
             stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-             stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
-
-
+            stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
             outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
 
@@ -245,19 +235,13 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
         Shape[] predictionInputShape =  firstHalf(stateOutputShapes);
 
-
-
-        predictionBlock.setWithReward(true);
+        predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
         predictionBlock.initialize(manager, dataType, predictionInputShape);
-
 
         Shape actionShape = inputShapes[1];
         Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
 
-
         dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
-
-
     }
 
     @NotNull

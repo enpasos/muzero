@@ -102,11 +102,18 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        if (layers.size() > inputShapes.length) {
-            throw new MuZeroException("number of layers must be less or equal to number of inputs");
+//        if (layers.size() > inputShapes.length) {
+//            throw new MuZeroException("number of layers must be less or equal to number of inputs");
+//        }
+
+
+        // TODO: more explicit
+        int n =  layers.size() ;
+        if (inputShapes.length < layers.size()) {
+            n = 1;
         }
 
-        for (int k = 0; k < layers.size(); k++) {
+        for (int k = 0; k < n; k++) {
             List<Shape> layerInputShapes = new ArrayList<>();
 
             for(int j = 0; j < k; j++) {
@@ -177,4 +184,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
     }
 
 
+    public CausalLayers getBlockForInitialRulesOnly() {
+        return new CausalLayers(layers.subList(0,1), rescale);
+    }
 }

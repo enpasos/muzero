@@ -17,6 +17,7 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
+import ai.djl.nn.Block;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.CausalResidualTower;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
@@ -34,13 +35,16 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
      */
 
 
-    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, new int[] {config.getNumChannelsRulesInitial(), config.getNumChannelsRulesRecurrent(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()}, new int[] {config.getNumCompressedChannelsRulesInitial(),config.getNumCompressedChannelsRulesRecurrent(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()}, broadcastEveryN);
+    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config  ) {
+        this(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), new int[] {config.getNumChannelsRulesInitial(), config.getNumChannelsRulesRecurrent(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()}, new int[] {config.getNumCompressedChannelsRulesInitial(),config.getNumCompressedChannelsRulesRecurrent(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()}, config.getBroadcastEveryN());
     }
+
+    CausalResidualTower causalResidualTower;
 
     @java.lang.SuppressWarnings("java:S107")
     public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int[] numChannels,  int[] numCompressedChannels,   int broadcastEveryN) {
-        this.add(CausalResidualTower.builder()
+
+        causalResidualTower = CausalResidualTower.builder()
                 .numResiduals(numResiduals)
                 .numChannels(numChannels)
                 .numCompressedChannels (numCompressedChannels)
@@ -48,7 +52,9 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
                 .height(height)
                 .width(width)
 
-                .build());
+                .build();
+
+        this.add(causalResidualTower);
 
     }
 
@@ -60,5 +66,13 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
                 ((CausalityFreezing) b.getValue()).freeze(freeze);
             }
         });
+    }
+
+    public Block getBlockForInitialRulesOnly( MuZeroConfig config) {
+        MainRepresentationOrDynamicsBlock  block2 = new MainRepresentationOrDynamicsBlock(config);
+        block2
+                .add(causalResidualTower.getBlockForInitialRulesOnly(config)  )  ;
+
+        return block2;
     }
 }
