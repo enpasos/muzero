@@ -30,12 +30,10 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.mnist.blocks.ext.ActivationExt;
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
-import ai.enpasos.mnist.blocks.ext.LinearExt;
-import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
+import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Setter;
@@ -72,13 +70,9 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
     }
 
 
-    private SequentialBlockExt legalActionsHead;   //0
-
-    private SequentialBlockExt rewardHead;  //1
-    private SequentialBlockExt policyHead;   //2
-
-
-    private SequentialBlockExt valueHead;  //3
+    private ParallelBlockWithCollectChannelJoinExt rewardAndLegalActionsHead;   //0
+     private SequentialBlockExt policyHead;   //1
+    private SequentialBlockExt valueHead;  //2
 
 
     @Setter
@@ -102,6 +96,51 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
 
+
+        List<Block> childBlocks = new ArrayList<>();
+
+
+        SequentialBlockExt  legalActionsHead = new SequentialBlockExt();
+        legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(actionSpaceSize).build());
+
+        childBlocks.add(legalActionsHead);
+
+
+        SequentialBlockExt rewardHead = new SequentialBlockExt();
+
+        rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(256)
+                        .build())
+                .add(ActivationExt.reluBlock())
+                .add(LinearExt.builder()
+                        .setUnits(1).build());
+        if (isPlayerModeTWOPLAYERS) {
+            rewardHead.add(ActivationExt.tanhBlock());
+        }
+        childBlocks.add(rewardHead);
+
+
+        rewardAndLegalActionsHead = addChildBlock("rewardAndLegalActionsHead", new ParallelBlockWithCollectChannelJoinExt(
+                childBlocks
+        ));
+
+
+        policyHead = new SequentialBlockExt();
+        policyHead
+                .add(Conv1x1LayerNormRelu.builder().channels(2).build())
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(actionSpaceSize)
+                        .build());
+
+        this.addChildBlock("PolicyHead", policyHead);
+
+
         valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
@@ -118,41 +157,6 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
         this.addChildBlock("ValueHead", valueHead);
 
 
-        legalActionsHead = new SequentialBlockExt();
-        legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
-                .add(BlocksExt.batchFlattenBlock())
-                .add(LinearExt.builder()
-                        .setUnits(actionSpaceSize).build());
-
-        this.addChildBlock("LegalActionsHead", legalActionsHead);
-
-
-        policyHead = new SequentialBlockExt();
-        policyHead
-                .add(Conv1x1LayerNormRelu.builder().channels(2).build())
-                .add(BlocksExt.batchFlattenBlock())
-                .add(LinearExt.builder()
-                        .setUnits(actionSpaceSize)
-                        .build());
-
-        this.addChildBlock("PolicyHead", policyHead);
-
-
-        rewardHead = new SequentialBlockExt();
-
-        rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
-                .add(BlocksExt.batchFlattenBlock())
-                .add(LinearExt.builder()
-                        .setUnits(256)
-                        .build())
-                .add(ActivationExt.reluBlock())
-                .add(LinearExt.builder()
-                        .setUnits(1).build());
-        if (isPlayerModeTWOPLAYERS) {
-            rewardHead.add(ActivationExt.tanhBlock());
-        }
-        this.addChildBlock("RewardHead", rewardHead);
-
 
     }
 
@@ -161,12 +165,12 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
         if (headUsage[0] && this.noOfActiveLayers >= 1) {
-            results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+            results.add(this.rewardAndLegalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
         }
-        if (headUsage[1] && this.noOfActiveLayers >= 1) {
-            results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
+        if (headUsage[1] && this.noOfActiveLayers >= 2) {
+            results.add(this.rewardAndLegalActionsHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
         }
-        if (headUsage[2] && this.noOfActiveLayers >= 3) {
+         if (headUsage[2] && this.noOfActiveLayers >= 3) {
             results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
         }
         if (headUsage[3] && this.noOfActiveLayers >= 4) {
@@ -177,13 +181,12 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-
         Shape[] inputShapes_ = inputShapes;
         if (headUsage[0]  && this.noOfActiveLayers >= 1) {
-            legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0]});
+            rewardAndLegalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0]});
         }
-        if (headUsage[1]  && this.noOfActiveLayers >= 1) {
-            rewardHead.initialize(manager, dataType, new Shape[]{inputShapes_[1] });
+        if (headUsage[1]  && this.noOfActiveLayers >= 2) {
+            rewardAndLegalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[1]});
         }
         if (headUsage[2]  && this.noOfActiveLayers >= 3) {
             policyHead.initialize(manager, dataType, new Shape[]{inputShapes_[2]});
@@ -198,10 +201,10 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
         Shape[] result = new Shape[countHeadsUsed()];
         int c = 0;
         if (headUsage[0] && this.noOfActiveLayers >= 1) {
-            result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
+            result[c++] = this.rewardAndLegalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
         }
-        if (headUsage[1] && this.noOfActiveLayers >= 1) {
-            result[c++] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
+        if (headUsage[1] && this.noOfActiveLayers >= 2) {
+            result[c++] = this.rewardAndLegalActionsHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
         }
         if (headUsage[2] && this.noOfActiveLayers >= 3) {
             result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
@@ -226,18 +229,17 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
         OnnxTensor childOutput = null;
         OnnxBlock   child = null;
         if (headUsage[0]  && this.noOfActiveLayers >= 1) {
-            child = this.legalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
+            child = this.rewardAndLegalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
         }
-        if (headUsage[1]  && this.noOfActiveLayers >= 1) {
-                child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(1)));
-                onnxBlock.addChild(child);
-                childOutput = child.getOutput().get(0);
-                outputs.add(childOutput);
-            }
-
+        if (headUsage[1]  && this.noOfActiveLayers >= 2) {
+            child = this.rewardAndLegalActionsHead.getOnnxBlock(counter, List.of(input.get(1)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+        }
         if (headUsage[2]  && this.noOfActiveLayers >= 3) {
             child = this.policyHead.getOnnxBlock(counter, List.of(input.get(2)));
             onnxBlock.addChild(child);
@@ -250,16 +252,13 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
         }
-
         onnxBlock.setOutput(outputs);
-
         return onnxBlock;
     }
 
     @Override
     public void freeze(boolean[] freeze) {
-        this.legalActionsHead.freezeParameters(freeze[0]);
-        this.rewardHead.freezeParameters(freeze[1]);
+        this.rewardAndLegalActionsHead.freezeParameters(freeze[0]);
         this.policyHead.freezeParameters(freeze[2]);
         this.valueHead.freezeParameters(freeze[3]);
     }
