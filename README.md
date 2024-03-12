@@ -14,7 +14,7 @@ All the common logic is encapsulated in a platform module, while each game with 
 in a separate module:
 
 * Two player zero-sum games with a final reward only:
-    * **TicTacToe** is used for integration testing. Starting from scratch it learns playing on a single GPU (NVIDIA GeForce RTX 4090). We are testing for perfect play: Each relevant decision on the decision tree. This includes exploitability.
+    * **TicTacToe**: The agent learns the perfect game in the tic-tac-toe integration test on a single GPU (NVIDIA GeForce RTX 4090). Perfect means that every possible decision in the decision tree is correct and stable from epoch to epoch. It also means that the agent is not exploitable in any way. However, it goes beyond exploitability: the agent chooses actions that are rewarded with the same probability in the optimal course of the game with the same probability. This means that the agent does not specialize, but remains broadly positioned. This ensures stability against potential changes in the environment.
     * **Go**. We have started training the game of go, board sizes 5x5 and 9x9.
 * One player games with a final reward only:
     * **PegSolitair**: On the classic english board it learns perfect play: starting with one hole and end up with one
