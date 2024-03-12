@@ -491,6 +491,9 @@ public class MuZeroConfig {
             .collect(Collectors.toSet());
     }
 
+    public void setNumObservationLayers(int numObservationLayers) {
+        getConf().setNumObservationLayers(numObservationLayers);
+    }
 
     @Data
     public static class Conf {

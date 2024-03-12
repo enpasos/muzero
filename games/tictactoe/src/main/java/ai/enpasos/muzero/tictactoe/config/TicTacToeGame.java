@@ -86,17 +86,30 @@ public class TicTacToeGame extends ZeroSumGame {
     @SuppressWarnings("squid:S2095")
     public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
 
-        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
+        int n0 =   config.getBoardHeight() * config.getBoardWidth();
+        int n = config.getNumObservationLayers() * n0;
+        int nTimeSteps =  config.getNumObservationLayers() - config.getNumActionLayers();
 
         BitSet rawResult = new BitSet(n);
 
         OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
-        int index = 0;
         int observationTime = Math.min(this.getEpisodeDO().getLastTime(), inputTime);
-        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.getEpisodeDO().getTimeSteps().get(observationTime).getObservation();
 
-        index = observation.addTo(currentPlayer, rawResult, index);
+        int index = 0;
+        for (int i = nTimeSteps-1; i >= 0; i--) {
+            ObservationTwoPlayers observation =
+                    observationTime -i >= 0 ?
+                            (ObservationTwoPlayers)this.episodeDO.getTimeStep(observationTime -i).getObservation():
+                            ObservationTwoPlayers.builder()
+                                    .partSize(n0)
+                                    .partA(new BitSet(n0))
+                                    .partB(new BitSet(n0))
+                                    .build();
+
+            index = observation.addTo(currentPlayer, rawResult, index);
+        }
+
 
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
