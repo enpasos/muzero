@@ -22,6 +22,12 @@ import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.nn.Block;
+import ai.djl.nn.Parameter;
+import ai.djl.training.Trainer;
+import ai.djl.training.TrainingConfig;
+import ai.djl.training.initializer.Initializer;
+import ai.djl.util.Pair;
+import ai.djl.util.PairList;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
@@ -29,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.function.Predicate;
 
 
 @Slf4j
@@ -44,6 +51,35 @@ public class SubModel extends BaseModel {
         this.setModel(model);
         super.setBlock(block);
         this.config = config;
+    }
+
+
+    @Override
+    public Trainer newTrainer(TrainingConfig trainingConfig) {
+//        try(Trainer trainer = model.newTrainer(trainingConfig)) {
+//            // go nothing
+//            System.out.println("");
+//        }
+
+
+      //  PairList<Initializer, Predicate<Parameter>> initializer = trainingConfig.getInitializers();
+        if (block == null) {
+            throw new IllegalStateException(
+                    "You must set a block for the model before creating a new trainer");
+        }
+     //   if (wasLoaded) {
+
+            block.freezeParameters(
+                    false,
+                    p -> p.getType() != Parameter.Type.RUNNING_MEAN && p.getType() != Parameter.Type.RUNNING_VAR);
+     //   }
+//        for (Pair<Initializer, Predicate<Parameter>> pair : initializer) {
+//            if (pair.getKey() != null && pair.getValue() != null) {
+//                block.setInitializer(pair.getKey(), pair.getValue());
+//            }
+//        }
+
+        return new Trainer(this, trainingConfig);
     }
 
     @Override

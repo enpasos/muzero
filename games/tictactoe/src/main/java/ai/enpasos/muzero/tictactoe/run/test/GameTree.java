@@ -104,7 +104,7 @@ public class GameTree {
         List<Game> gameList = nodeList.stream().map(DNode::getGame).collect(Collectors.toList());
 
 
-        int[] actions = inference.aiDecisionForGames(gameList, withMCTS, epoch);
+        int[] actions = inference.aiDecisionForGames(gameList, withMCTS, epoch );
 
         List<DNode> badDecisionNodes = new ArrayList<>();
 
@@ -126,7 +126,7 @@ public class GameTree {
     }
 
     private void printActions(List<DNode> nodes) {
-        nodes.forEach(n -> log.info("{}", n.getGame().getGameDTO().getActions()));
+        nodes.forEach(n -> log.info("{}", n.getGame().getEpisodeDO().getActions()));
     }
 
 

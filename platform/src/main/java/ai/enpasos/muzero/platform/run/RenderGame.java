@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -44,8 +45,9 @@ public class RenderGame {
         Game replayGame = config.newGame(true, true);
 
         log.info("\n" + Objects.requireNonNull(replayGame).render());
-        for (int i = 0; i < game.getGameDTO().getActions().size(); i++) {
-            Action action = config.newAction(game.getGameDTO().getActions().get(i));
+        List<Integer> actions = game.getEpisodeDO().getActions();
+        for (int i = 0; i < actions.size(); i++) {
+            Action action = config.newAction(actions.get(i));
 
 
             replayGame.apply(action);

@@ -20,10 +20,16 @@ public class PlayParameters {
 
     @Builder.Default
     boolean justReplayWithInitialReference = false;
+
+
+    @Builder.Default
+    boolean justReplayToGetRewardExpectations = false;
+
+
     @Builder.Default
     boolean withGumbel = true;
 
-    int averageGameLength;
+    int referenceGameLength;
 
     double pRandomActionRawAverage;
 

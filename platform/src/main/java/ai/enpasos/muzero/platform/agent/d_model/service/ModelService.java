@@ -5,6 +5,7 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +136,7 @@ public class ModelService {
 
 
     @Async()
-    public CompletableFuture<NetworkIO> recurrentInference(NDArray hiddenState, int action) {
+    public CompletableFuture<NetworkIO> recurrentInference(NDArray[] hiddenState, int action) {
             Node node = Node.builder()
         .hiddenState(hiddenState)
         .build();
@@ -175,8 +176,18 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Void> trainModel() {
+    public CompletableFuture<Void> trainModelRulesInitial() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES_INITIAL);
+
+        return handleControllerTask(task);
+    }
+
+    @Async()
+    public CompletableFuture<Void> trainModel(boolean[] freeze, TrainingDatasetType trainingDatasetType, boolean background) {
         ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL);
+        task.setFreeze(freeze);
+        task.setBackground(background);
+        task.setTrainingDatasetType(trainingDatasetType);
         return handleControllerTask(task);
     }
 

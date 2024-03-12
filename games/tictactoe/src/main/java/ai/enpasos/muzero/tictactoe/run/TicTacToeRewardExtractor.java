@@ -17,10 +17,12 @@
 
 package ai.enpasos.muzero.tictactoe.run;
 
+import ai.enpasos.muzero.platform.agent.d_model.Inference;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
-import ai.enpasos.muzero.platform.agent.e_experience.GameBufferIO;
+import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayerMode;
 import ai.enpasos.muzero.platform.run.GameProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -39,7 +41,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @SuppressWarnings("squid:S106")
 @Component
-public class TicTacToeEntropyValueExtractor {
+public class TicTacToeRewardExtractor {
     @Autowired
     MuZeroConfig config;
 
@@ -49,7 +51,7 @@ public class TicTacToeEntropyValueExtractor {
 
 
     @Autowired
-    GameBufferIO replayBufferIO;
+    NetworkIOService networkIOService;
 
 
     @SuppressWarnings({"squid:S125", "CommentedOutCode"})
@@ -64,7 +66,7 @@ public class TicTacToeEntropyValueExtractor {
 
 
         int start = 0;
-        int stop =  replayBufferIO.getLatestNetworkEpoch();
+        int stop =  networkIOService.getLatestNetworkEpoch();
 
         //   Optional<Game> game = surpriseExtractor.getGameStartingWithActionsFromStart(4, 5, 8, 0, 6, 2, 3, 1);
 
@@ -91,8 +93,9 @@ public class TicTacToeEntropyValueExtractor {
                 objects[0] = t;
                 for (int epoch = start; epoch <= stop; epoch++) {
                     Game game = games.get(epoch - start).orElseThrow(MuZeroException::new);
-                    List<Float> values = game.getGameDTO().getRootEntropyValuesFromInitialInference();
-                    double valuePlayer = values.get(t);
+//                    List<Float> values = game.getGameDTO().getRootEntropyValuesFromInitialInference();
+//                    double valuePlayer = values.get(t);
+                    double valuePlayer = game.getEpisodeDO().getTimeSteps().get(t).getRootEntropyValueFromInitialInference();
                     objects[1 + epoch - start] = NumberFormat.getNumberInstance().format(valuePlayer);
                 }
                 try {

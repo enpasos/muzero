@@ -9,6 +9,22 @@ logging:
     ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
     ai.djl: INFO
 
+spring:
+  datasource:
+    username: muzero
+    password: hd7sge
+    url: jdbc:postgresql://localhost:5432/muzero
+  jpa:
+    properties.hibernate:
+      #jdbc.lob.non_contextual_creation: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
+      ddl-auto: update
+      jdbc:
+        batch_size: 2000
+      order_updates: true
+      order_inserts: true
+
 muzero:
   activeGame: GO_5
   run: train
@@ -28,7 +44,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.go.config.GoGame
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       inferenceDeviceType: GPU
 
       # game/environment
@@ -65,7 +80,6 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numChannels: 256     # 256 in the paper
-      numBottleneckChannels: 128
 
       numResiduals: 12
       broadcastEveryN: 8  # out of range here
@@ -84,13 +98,22 @@ muzero:
       numChannelsOutputLayerSimilarityPredictor: 500
 
 
+      numChannelsRulesInitial: 50
+      numChannelsRulesRecurrent: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRulesInitial: 30
+      numCompressedChannelsRulesRecurrent: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
+
       offPolicyCorrectionOn: true
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
 
       numParallelInferences: 1000
-
-      withLegalActionsHead: false
 
 
 
@@ -191,17 +214,24 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-
-
-
-
       # Gumbel MuZero parameters
       initialGumbelM: 16
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
       numChannels: 128     # 256 in the paper
-      numBottleneckChannels: 64
+
+
+      numChannelsRulesInitial: 50
+      numChannelsRulesRecurrent: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRulesInitial: 30
+      numCompressedChannelsRulesRecurrent: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
 
 
       numResiduals: 12

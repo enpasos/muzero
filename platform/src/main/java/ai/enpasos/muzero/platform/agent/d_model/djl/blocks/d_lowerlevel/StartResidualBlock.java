@@ -34,6 +34,7 @@ import ai.enpasos.mnist.blocks.ext.ParallelBlockWithAddJoinExt;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,11 +80,11 @@ public class StartResidualBlock extends AbstractBlock implements OnnxIO {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
-        Shape[] current = inputs;
+        List<Shape> shapes = new ArrayList<>();
         for (Block myblock : block.getChildren().values()) {
-            current = myblock.getOutputShapes(current);
+            shapes.add(myblock.getOutputShapes(inputs)[0]);
         }
-        return current;
+        return shapes.toArray(new Shape[0]);
     }
 
     @Override

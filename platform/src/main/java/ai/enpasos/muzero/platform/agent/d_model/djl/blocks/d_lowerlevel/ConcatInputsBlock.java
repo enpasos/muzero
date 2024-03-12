@@ -52,16 +52,21 @@ public class ConcatInputsBlock extends AbstractBlock implements OnnxIO {
      */
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-        NDArray state = inputs.get(0);
-        NDArray externalInput = inputs.get(1);
 
-
-        return new NDList(NDArrays.concat(new NDList(state, externalInput), 1));
+        if (inputs.size() == 1) {
+            return inputs;
+        }
+        return new NDList(NDArrays.concat(inputs, 1));
     }
 
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
+
+
+        if (inputShapes.length == 1) {
+            return inputShapes;
+        }
         long size = 0;
         Shape[] shapes = new Shape[1];
         for (Shape inputShape : inputShapes) {

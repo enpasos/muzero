@@ -30,17 +30,37 @@ public class SelfPlayGame {
         boolean untilEnd = playParameters.isUntilEnd();
         boolean justInitialInferencePolicy = playParameters.isJustInitialInferencePolicy();
 
-        game.getGameDTO().setTdSteps(config.getTdSteps());
+        game.getEpisodeDO().setTdSteps(config.getTdSteps());
+
+
+        if (playParameters.isJustReplayToGetRewardExpectations()) {
+            for(int t = 0; t <= game.getEpisodeDO().getLastTimeWithAction(); t++) {
+
+                game.setObservationInputTime(t);
+                    playAction.justReplayActionToGetRulesExpectations(game);
+
+            }
+            game.setObservationInputTime(-1);
+
+            return;
+        }
+
 
 
         int count = 1;
-        while ((!untilEnd && count == 1)
-                || (untilEnd && !game.isDone(
-                playParameters.isReplay() || playParameters.isJustReplayWithInitialReference())
-        )) {
+        while (untilEnd &&  playParameters.isReplay() ?
+
+                playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
+                :
+                ((!untilEnd && count == 1)
+                        || (untilEnd && !game.isDone(
+                                playParameters.isJustReplayWithInitialReference()
+                                    || playParameters.isJustReplayToGetRewardExpectations()
+                )))) {
+       //     log.info("LastTimeWithAction: " + game.getEpisodeDO().getLastTimeWithAction());
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
-            } else {
+            }  else {
                 Action action = playAction.planAction(
                         game,
                         render,
@@ -52,9 +72,25 @@ public class SelfPlayGame {
                         playParameters.withGumbel);   // check parameter withRandomActions
              //   Action action = playAction.planActionOld(game, render, fastRulesLearning, justInitialInferencePolicy, playParameters.getPRandomActionRawAverage(), playParameters.isDrawNotMaxWhenJustWithInitialInference());
                 if (playParameters.isReplay()) {
-                    game.pseudoApplyFromOriginalGame(action);
+                    game.calculateK();
+                    game.justRemoveLastAction(action);
+
                 } else {
-                    game.apply(action);
+//                    if (playParameters.hybrid2) {
+//                       game.hybrid2ApplyAction(action);
+//                    } else {
+                       game.apply(action);
+
+
+
+                       // TODO: switch??
+
+
+
+
+
+
+                  //  }
                 }
             }
             count++;
@@ -62,6 +98,9 @@ public class SelfPlayGame {
 
         if (playParameters.isJustReplayWithInitialReference()) {
             playAction.justReplayActionWithInitialInference(game);
+        } else if (playParameters.isReplay()) {
+
+            game.resetAllOriginalActions();
         }
         if (untilEnd) game.setEnvironment(null);
 

@@ -39,14 +39,19 @@ import static ai.enpasos.muzero.platform.common.Functions.f2d;
 public class NetworkIO {
     private float[] logits;
     private float[] policyValues;
-    private float[] valueDistribution;
+
+    private float[] pLegalValues;
+
+    private float[] similarityVector;
     private double value;
 
-    private double entropyValue;
 
     private double reward;
 
-    private NDArray hiddenState;
+
+   // @Builder.Default
+    private NDArray[] hiddenState; // = new NDArray[3];
+
     private Action action;
     private MuZeroConfig config;
 

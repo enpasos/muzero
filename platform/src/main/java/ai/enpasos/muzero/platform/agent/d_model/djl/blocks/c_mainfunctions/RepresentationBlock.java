@@ -17,30 +17,69 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
+import ai.djl.nn.Block;
+import ai.djl.util.Pair;
 import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class RepresentationBlock extends MySequentialBlock implements OnnxIO {
+public class RepresentationBlock extends MySequentialBlock implements OnnxIO, DCLAware {
 
-    public RepresentationBlock() {
+    private  int noOfActiveLayers = 4;      // default
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
+
+    private RepresentationBlock() {
         super();
     }
+
+    RepresentationStart representationStart;
+    MainRepresentationOrDynamicsBlock mainRepresentationOrDynamicsBlock;
 
     @Builder()
     public static @NotNull RepresentationBlock newRepresentationBlock(MuZeroConfig config) {
         RepresentationBlock block = new RepresentationBlock();
+        block.representationStart = new RepresentationStart(config);
+        block.mainRepresentationOrDynamicsBlock = new MainRepresentationOrDynamicsBlock(config );
 
         block
-            .add(Conv3x3.builder().channels(config.getNumChannels()).build())
-            .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
+            .add(block.representationStart)
+            .add(block.mainRepresentationOrDynamicsBlock);
 
         return block;
 
     }
 
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.getChildren().forEach(b -> {
+            if (b.getValue() instanceof DCLAware) {
+                ((DCLAware) b.getValue()).freeze(freeze);
+            }
+        });
+    }
+
+    public RepresentationBlock getBlockForInitialRulesOnly(MuZeroConfig config) {
+        RepresentationBlock block2 = new RepresentationBlock();
+        block2
+                .add(representationStart.getBlockForInitialRulesOnly())
+                .add(mainRepresentationOrDynamicsBlock.getBlockForInitialRulesOnly(config));
+
+        return block2;
+    }
 }

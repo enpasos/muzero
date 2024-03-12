@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,26 +49,67 @@ public class BatchFactory {
     InputOutputConstruction inputOutputConstruction;
 
 
-    public Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment) {
-        List<Sample> batch = gameBuffer.sampleBatch(config.getNumUnrollSteps());
 
+//    public Batch getSequentialBatchFromAllExperience(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, SequentialCursor cursor) {
+//
+//        List<Sample> sampleList = gameBuffer.sequentialSampleList(numUnrollSteps, cursor);
+//        Batch batch = getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//
+////        sampleList.forEach(s -> s.clear());
+////        sampleList.clear();
+//        return batch;
+//    }
+
+    @NotNull
+    private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList) {
         NDManager nd = ndManager.newSubManager();
 
-        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, config.getNumUnrollSteps(), batch, withSymmetryEnrichment);
-
-
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, config.getNumUnrollSteps(), batch, config.withLegalActionsHead());
+        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss());
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList);
 
         return new Batch(
-            nd,
-            new NDList(inputs),
-            new NDList(outputs),
-            (int) inputs.get(0).getShape().get(0),
-            null,
-            null,
-            0,
-            0);
+                nd,
+                new NDList(inputs),
+                new NDList(outputs),
+                (int) inputs.get(0).getShape().get(0),
+                null,
+                null,
+                0,
+                0);
     }
+
+
+    public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType) {
+        List<Sample> sampleList = null;
+        switch(trainingDatasetType) {
+            case PLANNING_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromPlanningBuffer(config.getNumUnrollSteps());
+                break;
+//            case RULES_BUFFER:
+//                sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
+//                break;
+            case LEGAL_ACTIONS_BUFFER:
+
+                sampleList = gameBuffer.sampleBatchFromLegalActionsBuffer(config.getNumUnrollSteps());
+
+                break;
+            case REANALYSE_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
+                break;
+        }
+
+
+        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+    }
+
+//    public Batch getBatchFromRulesBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+//        List<Sample> sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
+//        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//    }
+//    public Batch getBatchFromReanalyseBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+//        List<Sample> sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
+//        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//    }
 
     public Shape @NotNull [] getInputShapes() {
         return getInputShapes(config.getBatchSize());
@@ -83,6 +125,18 @@ public class BatchFactory {
         return shapes;
     }
 
+    public Shape @NotNull [] getInputShapesForInitialRules() {
+        return getInputShapesForInitialRules(config.getBatchSize());
+    }
 
+    public Shape @NotNull [] getInputShapesForInitialRules(int batchSize) {
+        Shape[] shapes = new Shape[2];
+        // for observation input
+        shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
+      //  for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+            shapes[1] = new Shape(batchSize, config.getNumActionLayers(), config.getBoardHeight(), config.getBoardWidth());
+     //   }
+        return shapes;
+    }
 }
 

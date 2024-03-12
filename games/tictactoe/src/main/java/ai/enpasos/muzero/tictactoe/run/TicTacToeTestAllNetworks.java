@@ -43,12 +43,12 @@ public class TicTacToeTestAllNetworks {
     public void run() {
 
 
-        int start = 286;
-        int stop = 385;
+        int start  = 760;
+        int stop =  760;
 
         boolean onOptimalPathOnly = false;
 
-       // config.setOutputDir("./memory/tictactoe-without-exploration/");
+        //config.setOutputDir("./memory/tictactoe-without-exploration/");
         //config.setOutputDir("./memory/tictactoe-with-exploration/");
 
         Map<Integer, BadDecisions> map = new TreeMap<>();
@@ -58,13 +58,11 @@ public class TicTacToeTestAllNetworks {
             map.put(epoch, test.findBadDecisions(epoch, gameTree, onOptimalPathOnly));
         }
 
-
         System.out.println("epoch;total;withoutMCTS;withMCTS");
         for (Map.Entry<Integer, BadDecisions> entry : map.entrySet()) {
             BadDecisions bd = entry.getValue();
             System.out.println(entry.getKey() + ";" + bd.total() + ";" + bd.getModelBased() + ";" + bd.getPlanningBased());
         }
-
 
     }
 

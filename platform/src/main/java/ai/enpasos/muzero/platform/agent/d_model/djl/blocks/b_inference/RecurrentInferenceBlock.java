@@ -24,6 +24,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -31,6 +32,8 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,18 +41,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.firstHalf;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.secondHalf;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.*;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
+public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, DCLAware {
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     private final DynamicsBlock g;
     private final PredictionBlock f;
 
-    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock) {
+    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock ) {
         super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
         f = this.addChildBlock("Prediction", predictionBlock);
+
+        this.setNoOfActiveLayers(4);
     }
 
     public DynamicsBlock getG() {
@@ -66,25 +89,34 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList gResult = g.forward(parameterStore, inputs, training);
-        NDList fResult = f.forward(parameterStore, gResult, training);
-        return gResult.addAll(fResult);
+        f.setHeadUsage(new boolean[] {true, true, true, true});
+
+
+
+        NDList fResult = f.forward(parameterStore, firstHalfNDList(gResult), training, params);
+        NDList result = secondHalfNDList(gResult);
+        return result.addAll(fResult);
     }
 
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
+        f.setHeadUsage(new boolean[] {true, true, true, true});
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
-        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapes);
-        return ArrayUtils.addAll(gOutputShapes, fOutputShapes);
+
+        Shape[] gOutputShapesForPrediction = firstHalf(gOutputShapes);
+        Shape[] gOutputShapesForTimeEvolution = secondHalf(gOutputShapes);
+
+
+
+        Shape[] fOutputShapes = f.getOutputShapes(gOutputShapesForPrediction);
+        return ArrayUtils.addAll(gOutputShapesForTimeEvolution, fOutputShapes);
     }
 
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-
-        g.initialize(manager, dataType, inputShapes);
-        Shape[] hOutputShapes = g.getOutputShapes(inputShapes);
-        f.initialize(manager, dataType, hOutputShapes);
+throw new MuZeroException("implemented in MuZeroBlock");
     }
 
     @Override
@@ -102,7 +134,7 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-
+        f.setHeadUsage(new boolean[] {true, true, true, true});
         OnnxBlock onnxBlock = OnnxBlock.builder()
             .input(input)
             .build();
@@ -110,18 +142,31 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO {
         OnnxBlock gOnnx = g.getOnnxBlock(counter, input);
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
-        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutput);
+
+        List<OnnxTensor> gOutputForF = firstHalfList(gOutput);
+        List<OnnxTensor> gOutputForG = secondHalfList(gOutput);
+
+
+
+
+        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);
         onnxBlock.addChild(fOnnx);
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
         onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
 
         List<OnnxTensor> totalOutput = new ArrayList<>();
-        totalOutput.addAll(gOutput);
+        totalOutput.addAll(gOutputForG);
         totalOutput.addAll(fOutput);
 
         onnxBlock.setOutput(totalOutput);
 
         return onnxBlock;
+    }
+
+    @Override
+    public void freeze(boolean[] freeze) {
+this.f.freeze(freeze);
+this.g.freeze(freeze);
     }
 }

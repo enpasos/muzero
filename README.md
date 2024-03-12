@@ -51,7 +51,7 @@ gradlew build
 ## Run integration test on tictactoc
 
 ``` 
-java -jar games/tictactoe/build/libs/tictactoe-0.7.0-SNAPSHOT-exec.jar  
+java -jar games/tictactoe/build/libs/tictactoe-0.8.0-SNAPSHOT-exec.jar  
 ```
 
 ## Further info
@@ -61,3 +61,34 @@ java -jar games/tictactoe/build/libs/tictactoe-0.7.0-SNAPSHOT-exec.jar
 ## License
 
 This project is licensed under the [Apache-2.0 License](platform/LICENSE).
+
+
+## Database
+
+postgres 16.2
+https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+
+database superuser
+postgres
+363-cbe-724-kew-4g3            (or something safe ;-)
+
+port 5432
+
+#### Local Database Setup
+
+```
+Run as database postgres user;
+```
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM muzero;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM muzero;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM muzero;
+REVOKE ALL ON DATABASE muzero FROM muzero;  
+REVOKE ALL ON SCHEMA public FROM muzero;  
+DROP USER IF EXISTS muzero;
+DROP DATABASE IF EXISTS muzero;
+ 
+CREATE DATABASE muzero  WITH ENCODING 'UTF8';
+CREATE USER muzero WITH ENCRYPTED PASSWORD 'hd7sge';
+\c muzero;
+grant usage,create on schema public to muzero;
+```

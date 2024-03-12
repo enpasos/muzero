@@ -57,9 +57,16 @@ public class Sample {
     private int gamePos;
     private int numUnrollSteps;
 
-    public void makeTarget(boolean withLegalActionHead) {
-        targetList = game.makeTarget(gamePos, numUnrollSteps,  withLegalActionHead );
+    public void makeTarget( ) {
+        targetList = game.makeTarget(gamePos, numUnrollSteps  );
     }
 
 
+    public void clear() {
+        gameBuffer = null;
+        game = null;
+        actionsList.clear();
+        targetList.clear();
+        observations.clear();
+    }
 }

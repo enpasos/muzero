@@ -131,7 +131,7 @@ public class GameTree {
     }
 
     private void printActions(List<DNode> nodes) {
-        nodes.forEach(n -> log.info("{}", n.getGame().getGameDTO().getActions()));
+        nodes.forEach(n -> log.info("{}", n.getGame().getEpisodeDO().getActions()));
     }
 
 

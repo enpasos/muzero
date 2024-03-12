@@ -63,7 +63,7 @@ class SearchManagerTest {
         config.setNumSimulations(  n);
         config.setCVisit(16);
         Game game = config.newGame(true,true);
-        Objects.requireNonNull(game).apply(0, 3, 1, 4, 2);
+        Objects.requireNonNull(game).apply(0, 3, 1, 4);
         game.initSearchManager(0);
         GumbelSearch searchManager = game.getSearchManager();
         NetworkIO networkIO = modelService.initialInference(game).join();

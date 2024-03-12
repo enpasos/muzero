@@ -19,12 +19,12 @@ package ai.enpasos.muzero.tictactoe.config;
 
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
-import ai.enpasos.muzero.platform.agent.e_experience.GameDTO;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import ai.enpasos.muzero.platform.agent.e_experience.ZeroSumGame;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.environment.EnvironmentBase;
 import ai.enpasos.muzero.platform.environment.OneOfTwoPlayer;
@@ -47,8 +47,8 @@ public class TicTacToeGame extends ZeroSumGame {
     public static final String PASS = "pass: ";
 
 
-    public TicTacToeGame(@NotNull MuZeroConfig config, GameDTO gameDTO) {
-        super(config, gameDTO);
+    public TicTacToeGame(@NotNull MuZeroConfig config, EpisodeDO episodeDO) {
+        super(config, episodeDO);
 
     }
 
@@ -77,7 +77,7 @@ public class TicTacToeGame extends ZeroSumGame {
         environment = new TicTacToeEnvironment(config);
         if (stateIndex == -1) return;
         for (int i = 0; i < stateIndex; i++) {
-            Action action = config.newAction(this.getGameDTO().getActions().get(i));
+            Action action = config.newAction(this.getEpisodeDO().getActions().get(i));
             environment.step(action);
         }
     }
@@ -86,20 +86,30 @@ public class TicTacToeGame extends ZeroSumGame {
     @SuppressWarnings("squid:S2095")
     public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
 
-        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
+        int n0 =   config.getBoardHeight() * config.getBoardWidth();
+        int n = config.getNumObservationLayers() * n0;
+        int nTimeSteps =  config.getNumObservationLayers() - config.getNumActionLayers();
 
         BitSet rawResult = new BitSet(n);
 
         OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
+        int observationTime = Math.min(this.getEpisodeDO().getLastTime(), inputTime);
+
         int index = 0;
-        int tmax =  this.gameDTO.getObservations().size()-1;
-        int observationTime = Math.min(tmax, inputTime);
+        for (int i = nTimeSteps-1; i >= 0; i--) {
+            ObservationTwoPlayers observation =
+                    observationTime -i >= 0 ?
+                            (ObservationTwoPlayers)this.episodeDO.getTimeStep(observationTime -i).getObservation():
+                            ObservationTwoPlayers.builder()
+                                    .partSize(n0)
+                                    .partA(new BitSet(n0))
+                                    .partB(new BitSet(n0))
+                                    .build();
 
-        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.gameDTO.getObservations().get(observationTime);
+            index = observation.addTo(currentPlayer, rawResult, index);
+        }
 
-
-        index = observation.addTo(currentPlayer, rawResult, index);
 
         float v = currentPlayer.getActionValue();
         for (int i = 0; i < config.getBoardHeight(); i++) {
@@ -114,27 +124,27 @@ public class TicTacToeGame extends ZeroSumGame {
 
     @Override
     public Player toPlay() {
-        return this.getGameDTO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
+        return this.getEpisodeDO().getActions().size() % 2 == 0 ? OneOfTwoPlayer.PLAYER_A: OneOfTwoPlayer.PLAYER_B;
     }
 
 
     @Override
     public String render() {
-        if (getEnvironment() == null)  return "no rendering when not connected to the environment";  // TODO: environment decoupling needed
-        String r = this.getGameDTO().getActions().size() + ": ";
+        if (getEnvironment() == null)  return "no rendering when not connected to the environment";
+        String r = this.getEpisodeDO().getActions().size() + ": ";
         OneOfTwoPlayer player = null;
-        if (!this.getGameDTO().getActions().isEmpty()) {
-            Action action = config.newAction(this.getGameDTO().getActions().get(this.getGameDTO().getActions().size() - 1));
+        if (!this.getEpisodeDO().getActions().isEmpty()) {
+            Action action = config.newAction(this.getEpisodeDO().getActions().get(this.getEpisodeDO().getActions().size() - 1));
             int colLastMove = ((TicTacToeAction) action).getCol();
 
             player = OneOfTwoPlayer.otherPlayer(this.getEnvironment().getPlayerToMove());
             r += player.getSymbol() + " move (" + (((TicTacToeAction) action).getRow() + 1) + ", " + (char) (colLastMove + 65) + ") index " + action.getIndex();
         }
         r += "\n";
-
-            r += getEnvironment().render();
-        if (terminal() && !this.getGameDTO().getRewards().isEmpty()) {
-            if (this.getGameDTO().getRewards().get(this.getGameDTO().getRewards().size() - 1) == 0.0f) {
+        r += getEnvironment().render();
+        int t = this.getEpisodeDO().getLastTime();
+        if (terminal() && t > 0) {
+            if (this.getEpisodeDO().getTimeSteps().get(t-1).getReward() == 0.0f) {
                 r += "\ndraw";
             } else {
                 r += "\nwinning: " + Objects.requireNonNull(player).getSymbol();

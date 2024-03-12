@@ -43,7 +43,7 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
-        return getNetworkIOS(list, ctx);
+        return getNetworkIOS(list, ctx, true);
     }
 
 
@@ -53,16 +53,28 @@ public class RecurrentInferenceListTranslator implements Translator<NetworkIO, L
 
         NDArray ndArrayActionStack = NDArrays.stack(new NDList(input.getActionList()));  // on gpu
 
-        NDArray hiddenStateOnTargetDevice = input.getHiddenState();
         if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
-            hiddenStateOnTargetDevice = input.getHiddenState().toDevice(Device.gpu(), true);
-            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
             ndArrayActionStack.attach(ctx.getNDManager());
-            return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
         }
 
-        return new NDList(hiddenStateOnTargetDevice, ndArrayActionStack);
+        int n = input.getHiddenState().length;
 
+        NDList result = new NDList();
+        for (int i = 0; i < n; i++) {
+            result.add(moveHiddenStateToTargetDevice(ctx, input.getHiddenState()[i]));
+        }
+        result.add(ndArrayActionStack);
+        return result;
+
+
+    }
+
+    private static NDArray moveHiddenStateToTargetDevice(TranslatorContext ctx, NDArray hiddenStateOnTargetDevice) {
+        if (!MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU && ctx.getNDManager().getDevice().equals(Device.gpu())) {
+            hiddenStateOnTargetDevice = hiddenStateOnTargetDevice.toDevice(Device.gpu(), true);
+            hiddenStateOnTargetDevice.attach(ctx.getNDManager());
+        }
+        return hiddenStateOnTargetDevice;
     }
 
 

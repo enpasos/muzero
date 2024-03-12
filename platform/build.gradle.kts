@@ -1,10 +1,10 @@
-import com.google.protobuf.gradle.*
+// import com.google.protobuf.gradle.*
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("com.enpasos.muzero.java-conventions")
     id("idea")
-    alias(libs.plugins.protobuf)
+ //   alias(libs.plugins.protobuf)
     alias(libs.plugins.springboot)
     alias(libs.plugins.spring.dependencyManagement)
 }
@@ -24,6 +24,10 @@ dependencies {
     implementation(libs.protobuf)
 
     implementation(libs.onnxruntime)
+
+    testImplementation(libs.h2database)
+
+    implementation(libs.springboot.starter.jpa)
 
     implementation(libs.springboot.starter)
     testImplementation(libs.springboot.starter.test)
@@ -60,8 +64,8 @@ configurations {
 
 description = "platform"
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.21.4"
-    }
- }
+//protobuf {
+//    protoc {
+//        artifact = "com.google.protobuf:protoc:3.21.4"
+//    }
+// }

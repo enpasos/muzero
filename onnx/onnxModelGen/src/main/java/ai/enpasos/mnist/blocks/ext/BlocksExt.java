@@ -5,8 +5,7 @@ import ai.djl.ndarray.NDList;
 import ai.djl.nn.Block;
 import ai.djl.nn.Blocks;
 
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.BATCH_FLATTEN;
-import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.IDENTITY;
+import static ai.enpasos.mnist.blocks.ext.LambdaBlockExt.Type.*;
 
 /**
  * Utility class that provides some useful blocks.
@@ -63,4 +62,11 @@ public final class BlocksExt {
     }
 
 
+    public static Block identityOnLastInput() {
+        return new LambdaBlockExt(IDENTITY_ON_LAST_INPUT, x -> new NDList(x.get(x.size()-1)));
+    }
+
+    public static Block identityOnFirstInput() {
+        return new LambdaBlockExt(IDENTITY_ON_FIRST_INPUT, x -> new NDList(x.get(0)));
+    }
 }

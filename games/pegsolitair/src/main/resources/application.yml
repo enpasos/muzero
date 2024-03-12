@@ -2,6 +2,22 @@ logging:
   level.root: WARN
   level.ai.enpasos: DEBUG
 
+spring:
+  datasource:
+    username: muzero
+    password: hd7sge
+    url: jdbc:postgresql://localhost:5432/muzero
+  jpa:
+    properties.hibernate:
+      #jdbc.lob.non_contextual_creation: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
+      ddl-auto: update
+      jdbc:
+        batch_size: 2000
+      order_updates: true
+      order_inserts: true
+
 muzero:
   activeGame: PEG_SOLITAIR
   run: train

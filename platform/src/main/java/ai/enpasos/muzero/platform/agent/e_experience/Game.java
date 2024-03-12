@@ -23,6 +23,9 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -31,15 +34,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
@@ -59,12 +55,13 @@ public abstract class Game {
     static List<Double> v0s = new ArrayList<>();
     protected boolean purelyRandom;
     @EqualsAndHashCode.Include
-    protected GameDTO gameDTO;
+    protected EpisodeDO episodeDO;
     protected MuZeroConfig config;
     protected int actionSpaceSize;
     protected double discount;
     protected Environment environment;
-    protected GameDTO originalGameDTO;
+    protected EpisodeDO originalEpisodeDO;
+    protected TimeStepDO currentTimeStepDO;
     //   @Builder.Default
     List<Double> valueImprovements = new ArrayList<>();
     boolean playedMoreThanOnce;
@@ -84,67 +81,49 @@ public abstract class Game {
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
-        this.gameDTO = new GameDTO();
+        this.episodeDO = new EpisodeDO();
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
 
         r = new Random();
     }
 
-    protected Game(@NotNull MuZeroConfig config, GameDTO gameDTO) {
+    protected Game(@NotNull MuZeroConfig config, EpisodeDO episodeDO) {
         this.config = config;
-        this.gameDTO = gameDTO;
+        this.episodeDO = episodeDO;
         this.actionSpaceSize = config.getActionSpaceSize();
         this.discount = config.getDiscount();
     }
 
-    public static Game decode(@NotNull MuZeroConfig config, byte @NotNull [] bytes) {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
-            GameDTO dto = (GameDTO) objectInputStream.readObject();
-            Game game = config.newGame(false, false);
-            Objects.requireNonNull(game).setGameDTO(dto);
-            return game;
-        } catch (Exception e) {
-            throw new MuZeroException(e);
-        }
-    }
+
 
     public boolean isDone(boolean replay) {
-        return !replay && terminal()
-                || !replay && getGameDTO().getActions().size() >= config.getMaxMoves()
-                || replay && getOriginalGameDTO().getActions().size() == getGameDTO().getActions().size();
+        return     replay && getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction()
+                 || !replay && getEpisodeDO().getLastTimeWithAction() + 1 >= config.getMaxMoves()
+                || this.getEnvironment()!= null && !replay && terminal();
+            //    || this.isHybrid2() &&  getOriginalEpisodeDO().getLastTimeWithAction() == getEpisodeDO().getLastTimeWithAction();
     }
 
-    public float calculateSquaredDistanceBetweenOriginalAndCurrentValue() {
-        this.error = 0;
-        for (int i = 0; i < this.originalGameDTO.getRootValuesFromInitialInference().size(); i++) {
-            double d = this.originalGameDTO.getRootValuesFromInitialInference().get(i)
-                    - this.getGameDTO().getRootValuesFromInitialInference().get(i);
-            this.error += d * d;
-        }
-        return this.error;
-    }
 
     public @NotNull Game copy() {
         Game copy = getConfig().newGame(this.environment != null, false);
-        copy.setGameDTO(this.gameDTO.copy());
+        copy.setEpisodeDO(this.episodeDO.copy());
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         if (environment != null)
-            copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
+            copy.replayToPositionInEnvironment(copy.getEpisodeDO().getLastTimeWithAction()+1);  // todo: check
         return copy;
     }
 
     public @NotNull Game copy(int numberOfActions) {
         Game copy = getConfig().newGame(this.environment != null, false);
-        copy.setGameDTO(this.gameDTO.copy(numberOfActions));
+        copy.setEpisodeDO(this.episodeDO.copy(numberOfActions));
         copy.setConfig(this.getConfig());
         copy.setDiscount(this.getDiscount());
         copy.setActionSpaceSize(this.getActionSpaceSize());
         if (environment != null)
-            copy.replayToPositionInEnvironment(copy.getGameDTO().getActions().size());
+            copy.replayToPositionInEnvironment(copy.getEpisodeDO().getLastTimeWithAction()+1);
         return copy;
     }
 
@@ -154,17 +133,14 @@ public abstract class Game {
         throw new MuZeroException("assertion violated: " + s);
     }
 
-    public @Nullable Float getReward() {
-        if (getGameDTO().getRewards().size() == 0) return null;
-        return getGameDTO().getRewards().get(getGameDTO().getRewards().size() - 1);
-    }
 
     public abstract boolean terminal();
 
-    // TODO simplify Action handling
+    // TODO simplify Action handling ... just int not Marker Interface
     public List<Action> legalActions() {
+        boolean[] b = this.episodeDO.getLegalActionsFromLatestTimeStepWithoutAction();
+
         List<Action> actionList = new ArrayList<>();
-        boolean[] b = this.gameDTO.getLegalActions().get(this.gameDTO.getLegalActions().size() - 1);
         for (int i = 0; i < actionSpaceSize; i++) {
             if (b[i]) {
                 actionList.add(config.newAction(i));
@@ -189,75 +165,81 @@ public abstract class Game {
 
     public void apply(@NotNull Action action) {
         float reward = this.environment.step(action);
-        this.getGameDTO().getRewards().add(reward);
-        this.getGameDTO().getActions().add(action.getIndex());
+        TimeStepDO ts = this.getEpisodeDO().getLastTimeStep();
+        ts.setReward(reward);
+        ts.setAction(action.getIndex());
+
+        // now ... observation and legal actions already belong to the next timestamp
+        getEpisodeDO().addNewTimeStepDO();
         addObservationFromEnvironment();
         addLegalActionFromEnvironment();
         setActionApplied(true);
     }
 
-    public void pseudoApplyFromOriginalGame(Action action) {
-        this.getGameDTO().getActions().add(action.getIndex());
-        this.getGameDTO().getRewards().add(this.getOriginalGameDTO().getRewards().get(this.getGameDTO().getRewards().size()));
-        this.getGameDTO().getObservations().add(this.getOriginalGameDTO().getObservations().get(this.getGameDTO().getObservations().size()));
-        this.getGameDTO().getLegalActions().add(this.getOriginalGameDTO().getLegalActions().get(this.getGameDTO().getLegalActions().size()));
-        setActionApplied(true);
+    public void justRemoveLastAction(Action action) {
+        this.getEpisodeDO().removeTheLastAction();
+  setActionApplied(true);
     }
 
-    public List<Target> makeTarget(int stateIndex, int numUnrollSteps, boolean isWithLegalActionHead) {
+
+//    public void hybrid2ApplyAction(Action action) {
+//        apply(action);
+//    }
+
+    public List<Target> makeTarget(int stateIndex, int numUnrollSteps) {
         List<Target> targets = new ArrayList<>();
 
         IntStream.range(stateIndex, stateIndex + numUnrollSteps + 1).forEach(currentIndex -> {
             Target target = new Target();
-            fillTarget(currentIndex, target, isWithLegalActionHead);
+            fillTarget(currentIndex, target );
             targets.add(target);
         });
         return targets;
     }
 
-    @SuppressWarnings("java:S3776")
-    private void fillTarget(int currentIndex, Target target, boolean isWithLegalActionHead) {
 
-        int tdSteps = getTdSteps(currentIndex);
-        double value = calculateValue(tdSteps, currentIndex);
+    private float getReward(int currentIndex) {
+        // perspective is missing
+        float reward;
+        if (currentIndex > 0 && currentIndex <= this.episodeDO.getLastTime()) {
+            reward = episodeDO.getTimeStep(currentIndex - 1).getReward();
+        } else {
+            reward = 0f;
+        }
+        return reward;
+    }
+
+
+    @SuppressWarnings("java:S3776")
+    private void fillTarget(int currentIndex, Target target) {
+
+        int tmax = this.getEpisodeDO().getLastTime();
+
+         int   tdSteps = getTdSteps( currentIndex);
+         double   value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
 
 
 
-        if (currentIndex < this.getGameDTO().getPolicyTargets().size()) {
-            if (isWithLegalActionHead) {
-                target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
-            }
-            target.setValue((float) value);
-            target.setReward(reward);
-            target.setPolicy(this.getGameDTO().getPolicyTargets().get(currentIndex));
-        } else if (!config.isNetworkWithRewardHead() && currentIndex == this.getGameDTO().getPolicyTargets().size()) {
-            // If we do not train the reward (as only boardgames are treated here)
-            // the value has to take the role of the reward on this node (needed in MCTS)
-            // if we were running the network with reward head
-            // the value would be 0 here
-            // but as we do not get the expected reward from the network
-            // we need use this node to keep the reward value
-            // therefore target.value is not 0f
-            // To make the whole thing clear. The cases with and without a reward head should be treated in a clearer separation
-            if (isWithLegalActionHead) {
-                target.setLegalActions(b2f(this.getGameDTO().getLegalActions().get(currentIndex)));
-            }
-            target.setValue((float) value); // this is not really the value, it is taking the role of the reward here
-            target.setReward(reward);
-            target.setPolicy(new float[this.actionSpaceSize]);
-            // the idea is not to put any force on the network to learn a particular action where it is not necessary
-            Arrays.fill(target.getPolicy(), 0f);
-        } else {
+        if (currentIndex < this.getEpisodeDO().getLastTime() ) {
+
+                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions()));
 
             target.setValue((float) value);
+            target.setReward(reward);
+            float[] policy = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
+            target.setPolicy(policy);
+
+        } else {
+
+            target.setValue(0f);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
             // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
             float[]legalActions = new float[this.actionSpaceSize];
-            Arrays.fill(legalActions, 1f);
+            Arrays.fill(legalActions, 0f);
             target.setLegalActions(legalActions);
         }
 
@@ -266,69 +248,75 @@ public abstract class Game {
     private int getTdSteps(int currentIndex) {
         int tdSteps;
         if (this.reanalyse) {
-            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)) {
-                tdSteps = 0;
-            } else {
-                int tMaxHorizon = this.getGameDTO().getRewards().size() - 1;
-                tdSteps = getTdSteps(currentIndex, tMaxHorizon);
-            }
+            throw new MuZeroException("check code");
+//            if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
+//                tdSteps = 0;
+//            } else {
+//                int tMaxHorizon = episodeDO.getLastTime() - 1;
+//                tdSteps = getTdSteps(currentIndex, tMaxHorizon);
+//            }
         } else {
-            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)) {
+            if (episodeDO.isHybrid() && isItExplorationTime(currentIndex)) {
                 tdSteps = 0;
             } else {
-                tdSteps = this.getGameDTO().getTdSteps();
+                tdSteps = episodeDO.getTdSteps();
             }
         }
         return tdSteps;
     }
 
-    public int getTdSteps(int currentIndex, int tMaxHorizon) {
-        if (!config.offPolicyCorrectionOn()) return 0;
-        if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
-        double b = ThreadLocalRandom.current().nextDouble(0, 1);
-        return getTdSteps(b, currentIndex, tMaxHorizon);
-    }
+//    public int getTdSteps(int currentIndex, int tMaxHorizon) {
+//        if (!config.offPolicyCorrectionOn()) return 0;
+//        if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
+//        double b = ThreadLocalRandom.current().nextDouble(0, 1);
+//        return getTdSteps(b, currentIndex, tMaxHorizon);
+//    }
+//
+//    public int getTdSteps(double b, int currentIndex, int tMaxHorizon) {
+//        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+//
+//        int tdSteps;
+//
+//        if (currentIndex >= tMaxHorizon) return 0;
+//
+//        for (int t = tMaxHorizon; t >= currentIndex; t--) {
+//
+//            double pBase = 1;
+//            for (int i = currentIndex; i < t; i++) {
+//                pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
+//            }
+//            double p = 1;
+//            for (int i = currentIndex; i < t; i++) {
+//                p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
+//            }
+//            double pRatio = p / pBase;
+//            if (pRatio > b * localPRatioMax) {
+//                tdSteps = t - currentIndex;
+//                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
+//                    tdSteps = 0;   // if not all then nothing
+//                }
+//                if (tdSteps > 0)
+//                    log.trace("tdSteps (>0): " + tdSteps);
+//                return tdSteps;
+//            }
+//        }
+//        throw new MuZeroNoSampleMatch();
+//    }
 
-    public int getTdSteps(double b, int currentIndex, int tMaxHorizon) {
-        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
 
-        int tdSteps;
-
-        if (currentIndex >= tMaxHorizon) return 0;
-
-        for (int t = tMaxHorizon; t >= currentIndex; t--) {
-
-            double pBase = 1;
-            for (int i = currentIndex; i < t; i++) {
-                pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
-            }
-            double p = 1;
-            for (int i = currentIndex; i < t; i++) {
-                p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
-            }
-            double pRatio = p / pBase;
-            if (pRatio > b * localPRatioMax) {
-                tdSteps = t - currentIndex;
-                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
-                    tdSteps = 0;   // if not all then nothing
-                }
-                if (tdSteps > 0)
-                    log.trace("tdSteps (>0): " + tdSteps);
-                return tdSteps;
-            }
-        }
-        throw new MuZeroNoSampleMatch();
-    }
-
-    private float getReward(int currentIndex) {
-        float reward;
-        if (currentIndex > 0 && currentIndex <= this.getGameDTO().getRewards().size()) {
-            reward = this.getGameDTO().getRewards().get(currentIndex - 1);
-        } else {
-            reward = 0f;
-        }
-        return reward;
-    }
+//    private float getReward(int currentIndex) {
+//        float reward;
+//        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().getT() + 1) ) {
+//            reward = this.getEpisodeDO().getTimeSteps().get(currentIndex - 1).getReward();
+//        } else {
+//            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)) {
+//                tdSteps = 0;
+//            } else {
+//                tdSteps = this.getGameDTO().getTdSteps();
+//            }
+//        }
+////        return tdSteps;
+//    }
 
     private double calculateValue(int tdSteps, int currentIndex) {
         double value = getBootstrapValue(currentIndex, tdSteps);
@@ -338,38 +326,18 @@ public abstract class Game {
 
 
 
-    private double getBootstrapEntropyValue(int currentIndex, int tdSteps) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        double value = 0;
-        if (gameDTO.isHybrid() || isReanalyse()) {
-            if (bootstrapIndex < this.getGameDTO().getRootEntropyValuesFromInitialInference().size()) {
-                value = this.getGameDTO().getRootEntropyValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        } else {
-            if (bootstrapIndex < this.getGameDTO().getRootEntropyValueTargets().size()) {
-                value = this.getGameDTO().getRootEntropyValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-            }
-        }
-        return value;
-    }
 
-    // TODO there should be a special discount parameter
-    private double addEntropyValueFromReward(int currentIndex, int tdSteps, double value) {
-        int bootstrapIndex = currentIndex + tdSteps;
-        for (int i = currentIndex + 1; i < this.getGameDTO().getEntropies().size() && i < bootstrapIndex; i++) {
-            value += (double) this.getGameDTO().getEntropies().get(i) * Math.pow(this.discount, i - (double) currentIndex);
-        }
-        return value;
-    }
+
 
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
-        if (currentIndex > this.getGameDTO().getRewards().size() - 1) {
-            int i = this.getGameDTO().getRewards().size() - 1;
-            value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
+
+        if (currentIndex > this.getEpisodeDO().getLastTimeWithAction()) {
+            int i = this.getEpisodeDO().getLastTimeWithAction();
+            value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
         } else {
-            for (int i = currentIndex; i < this.getGameDTO().getRewards().size() && i < bootstrapIndex; i++) {
-                value += (double) this.getGameDTO().getRewards().get(i) * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
+            for (int i = currentIndex; i < this.getEpisodeDO().getLastTimeWithAction() + 1 && i < bootstrapIndex; i++) {
+                value += (double) this.getEpisodeDO().getTimeSteps().get(i).getReward() * Math.pow(this.discount, i - (double) currentIndex) * getPerspective(i - currentIndex);
             }
         }
         return value;
@@ -387,27 +355,27 @@ public abstract class Game {
     private double getBootstrapValue(int currentIndex, int tdSteps) {
         int bootstrapIndex = currentIndex + tdSteps;
         double value = 0;
-        if (gameDTO.isHybrid() || isReanalyse()) {
+        if (this.getEpisodeDO().isHybrid() || isReanalyse()  ) {
             switch(config.getVTarget()) {
-                case V_INFERENCE:
-                    if (bootstrapIndex < this.getGameDTO().getRootValuesFromInitialInference().size()) {
-                        value = this.getGameDTO().getRootValuesFromInitialInference().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                case V_INFERENCE:  // the default case ... remove the others
+                    if (  bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
+                        value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueFromInitialInference() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_CONSISTENT:
-                    if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
-                        value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                    if (bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
+                        value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
                 case V_MIX:
-                    if (bootstrapIndex < this.getGameDTO().getVMix().size()) {
-                        value = this.getGameDTO().getVMix().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+                    if (bootstrapIndex <= this.getEpisodeDO().getLastTime()) {
+                        value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getVMix() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
                     }
                     break;
             }
         } else {
-            if (bootstrapIndex < this.getGameDTO().getRootValueTargets().size()) {
-                value = this.getGameDTO().getRootValueTargets().get(bootstrapIndex) * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+            if (bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
+                value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getRootValueTarget() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
             }
         }
         return value;
@@ -417,14 +385,26 @@ public abstract class Game {
 
     public abstract String render();
 
-    public abstract ObservationModelInput getObservationModelInput(int gamePosision);
+    public abstract ObservationModelInput getObservationModelInput(int inputTime);
+
+
+
+    // functions as a cursor
+    private int observationInputTime = -1;
+
+
+
 
     public ObservationModelInput getObservationModelInput() {
-        return this.getObservationModelInput(this.gameDTO.getObservations().size() - 1);
+        int t = observationInputTime;
+        if (t == -1) {
+            t = this.getEpisodeDO().getLastTimeWithAction() + 1;
+        }
+        return this.getObservationModelInput(t);
     }
 
     public void addObservationFromEnvironment() {
-        gameDTO.getObservations().add(environment.getObservation());
+        this.getEpisodeDO().getLastTimeStep().setObservation(environment.getObservation());
     }
 
     public void addLegalActionFromEnvironment() {
@@ -433,7 +413,7 @@ public abstract class Game {
         for (Action action : actions) {
             result[action.getIndex()] = true;
         }
-        gameDTO.getLegalActions().add(result);
+        this.getEpisodeDO().getLastTimeStep().addLegalActions( result);
     }
 
     public abstract void replayToPositionInEnvironment(int stateIndex);
@@ -453,22 +433,24 @@ public abstract class Game {
 
     public abstract void renderMCTSSuggestion(MuZeroConfig config, float[] childVisits);
 
-    public void beforeReplayWithoutChangingActionHistory() {
-        this.originalGameDTO = this.gameDTO;
-        this.gameDTO = this.gameDTO.copyWithoutActions();
-        this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
-        this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
+    public void beforeReplayWithoutChangingActionHistory() {  // TODO check
+        this.originalEpisodeDO = this.episodeDO;
+        this.episodeDO = this.episodeDO.copyWithoutTimeSteps();
+
+        int tend = this.originalEpisodeDO.getLastTimeWithAction();
+        IntStream.range(0, tend + 1).forEach(i -> {
+            this.episodeDO.getTimeSteps().add(this.originalEpisodeDO.getTimeStep(i).copyPolicyTargetAndObservation());
+        });
+        this.episodeDO.addNewTimeStepDO();
+        int t = this.episodeDO.getLastTime();
+        this.episodeDO.getTimeStep(t).setObservation(this.originalEpisodeDO.getTimeStep(t).getObservation());
+        this.episodeDO.getTimeStep(t).setId(this.originalEpisodeDO.getTimeStep(t).getId());
+
     }
 
-    public void beforeReplayWithoutChangingActionHistory(int backInTime) {
-        this.originalGameDTO = this.gameDTO;
-        this.gameDTO = this.gameDTO.copy(this.gameDTO.getActions().size() - backInTime);
-        this.gameDTO.setPolicyTargets(this.originalGameDTO.getPolicyTargets());
-        this.gameDTO.getObservations().add(this.originalGameDTO.getObservations().get(0));
-    }
 
     public void afterReplay() {
-        this.setOriginalGameDTO(null);
+        this.setOriginalEpisodeDO(null);
     }
 
     public abstract void connectToEnvironment();
@@ -478,35 +460,171 @@ public abstract class Game {
     }
 
     public double getPRatioMax() {
-        int n = getGameDTO().getActions().size();
-        int tStart = Math.max(0, (int) this.getGameDTO().getTHybrid());
-        if (tStart >= n) return 1d;
-        double[] pRatios = new double[n - tStart];
-//try {
-    IntStream.range(tStart, n).forEach(i -> {
-        int a = getGameDTO().getActions().get(i);
-        if (getGameDTO().getPlayoutPolicy().isEmpty()) {
-            pRatios[i - tStart] = 1;
-        } else {
-            pRatios[i - tStart] = getGameDTO().getPolicyTargets().get(i)[a] / getGameDTO().getPlayoutPolicy().get(i)[a];
-        }
-    });
-//} catch (Exception e) {
-//    e.printStackTrace();
-//}
+        int t = getEpisodeDO().getLastTimeWithAction() + 1;
+        int tStart = (int) getEpisodeDO().getTStartNormal();
+        if (tStart >= t) return 1d;
+        double[] pRatios = new double[t - tStart];
+        IntStream.range(tStart, t).forEach(i -> {
+            TimeStepDO timeStepDO = getEpisodeDO().getTimeSteps().get(i);
+            int a = timeStepDO.getAction() ;
+            if (getEpisodeDO().getTimeSteps().get(0).getPlayoutPolicy() == null) {
+                pRatios[i - tStart] = 1;
+            } else {
+                pRatios[i - tStart] = timeStepDO.getPolicyTarget()[a] / timeStepDO.getPlayoutPolicy()[a];
+            }
+        });
         return getProductPathMax(pRatios);
     }
 
 
     public boolean isItExplorationTime() {
-        return isItExplorationTime(this.getGameDTO().getActions().size());
+        return isItExplorationTime(getEpisodeDO().getLastTime() );
     }
 
     public boolean isItExplorationTime(int t) {
-        return t < this.getGameDTO().getTHybrid();
+        return t < getEpisodeDO().getTStartNormal();
     }
 
     public boolean deepEquals(Game game) {
-        return this.getGameDTO().deepEquals(game.getGameDTO());
+        return getEpisodeDO().deepEquals(game.getEpisodeDO());
+    }
+
+//    public int findNewTReanalyseMin() {
+//
+//        this.tReanalyseMin = (int)Math.max(getEpisodeDO().getTHybrid(), this.tReanalyseMin);
+//
+//        int tMaxHorizon = getEpisodeDO().getLastTime();
+//
+//        double localPRatioMax = 1;
+//
+//        for (int t = tMaxHorizon; t >= this.tReanalyseMin; t--) {
+//
+//            double pBase = 1;
+//            for (int i = this.tReanalyseMin; i < t; i++) {
+//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
+//                pBase *= timeStepDO.getPlayoutPolicy()[timeStepDO.getAction()];
+//            }
+//            double p = 1;
+//            for (int i = this.tReanalyseMin; i < t; i++) {
+//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
+//                p *= timeStepDO.getPolicyTarget() [timeStepDO.getAction()];
+//            }
+//            double pRatio = p / pBase;
+//            log.info("pRatio = %", pRatio);
+//            if (pRatio < this.config.getKMinLimit() * localPRatioMax) {
+//                this.tReanalyseMin = t+1;
+//                break;
+//            }
+//        }
+//        log.info("newTReanalyseMin = %", this.tReanalyseMin);
+//        return this.tReanalyseMin;
+//    }
+
+
+    public  float getReward() {
+         TimeStepDO  timeStepDO = this.episodeDO.getLastTimeStepWithAction();
+        if (timeStepDO == null) return 0f;
+        return timeStepDO.getReward();
+    }
+
+    public void resetAllOriginalActions() {
+        int n = this.originalEpisodeDO.getTimeSteps().size();
+        IntStream.range(0,n).forEach(t -> {
+            this.episodeDO.getTimeStep(t).setAction(this.originalEpisodeDO.getTimeStep(t).getAction());
+        });
+    }
+
+    // TODO: performance optimize in storing intermediate results
+    public void calculateK() {
+        /// int i = 42;
+
+        int tmax = episodeDO.getLastTime() - 1;
+
+        int t0 = episodeDO.getLastTimeWithAction() + 1;
+
+
+        // double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+
+        double pBase = 1;
+        for (int t = t0; t <= tmax; t++) {
+            TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(t);
+            TimeStepDO originalTimeStepDO = this.getOriginalEpisodeDO().getTimeSteps().get(t);
+            pBase *= timeStepDO.getPlayoutPolicy()[originalTimeStepDO.getAction()];
+        }
+        double p = 1;
+        for (int t = t0; t <= tmax; t++) {
+            TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(t);
+            TimeStepDO originalTimeStepDO = this.getOriginalEpisodeDO().getTimeSteps().get(t);
+            p *= timeStepDO.getPolicyTarget()[originalTimeStepDO.getAction()];
+        }
+        double pRatio = p / pBase;
+        TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(t0);
+        timeStepDO.setK(pRatio / config.getOffPolicyRatioLimit());
+        //  int k = 42;
+
+
+
+
+
+//        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
+//
+//        int tdSteps;
+//
+//
+//
+//        for (int t = tMaxHorizon; t >= currentIndex; t--) {
+//
+//            double pBase = 1;
+//            for (int i = currentIndex; i < t; i++) {
+//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
+//                pBase *= timeStepDO.getPlayoutPolicy()[timeStepDO.getAction()];
+//            }
+//            double p = 1;
+//            for (int i = currentIndex; i < t; i++) {
+//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
+//                p *= timeStepDO.getPolicyTarget()[timeStepDO.getAction()];
+//            }
+//            double pRatio = p / pBase;
+//            if (pRatio > b * localPRatioMax) {
+//                tdSteps = t - currentIndex;
+//                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
+//                    tdSteps = 0;   // if not all then nothing
+//                }
+//                if (tdSteps > 0)
+//                    log.trace("tdSteps (>0): " + tdSteps);
+//                return tdSteps;
+//            }
+//        }
+//        throw new MuZeroNoSampleMatch();
+//    }
+    }
+
+    public int getFirstSamplePosition() {
+        if (!this.isReanalyse()) {
+            if (episodeDO.isHybrid())
+            {
+                return (int) episodeDO.getTStartNormal();
+            } else {
+                return 0;
+            }
+
+        } else {
+            for (int t = 0; t < this.getEpisodeDO().getLastTimeWithAction(); t++) {
+                if (this.getEpisodeDO().getTimeStep(t).getK() != 0d) return t;
+            }
+            return 0;
+        }
+    }
+
+    public void hybrid2ApplyAction(Action action) {
+        float reward = this.environment.step(action);
+        this.getEpisodeDO().getLastTimeStep().setReward(reward);
+        this.getEpisodeDO().getLastTimeStep().setAction(action.getIndex());
+
+        // now ... observation and legal actions already belong to the next timestamp
+        getEpisodeDO().addNewTimeStepDO();
+        addObservationFromEnvironment();
+        addLegalActionFromEnvironment();
+        setActionApplied(true);
     }
 }

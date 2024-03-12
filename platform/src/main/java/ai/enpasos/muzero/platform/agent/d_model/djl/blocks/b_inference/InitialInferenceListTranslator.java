@@ -27,6 +27,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCELoss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
@@ -34,6 +35,7 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,11 +43,117 @@ import java.util.stream.IntStream;
 
 
 public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
-    public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx) {
-        NDArray hiddenStates;
-        NDArray s = list.get(0);
+    public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx, boolean isRecurrent) {
+
+        // hiddenstate 0, 1, 2, 3
+
+        // legalActions 3
+        // reward 5
+
+        // policy 6
+        // value 7
+
+
+
+        int offset = 0;
+        if (isRecurrent) {
+            offset = 1;
+        }
+
+
         SubModel submodel = (SubModel) ctx.getModel();
         MuZeroConfig config = submodel.getConfig();
+
+        int hN = list.size() - 3 - offset;  //
+        NDArray[] hiddenStates = new NDArray[hN];
+        for (int i = 0; i < hN; i++) {
+            hiddenStates[i] = getHiddenStates(list.get(i), ctx, submodel);
+        }
+
+
+        NetworkIO outputA = NetworkIO.builder()
+            .hiddenState(hiddenStates)
+            .build();
+
+        // 4   : legalActions
+        float[]  pLegalArray_ = MyBCELoss.sigmoid(list.get(hN)).toFloatArray();
+        final float[] pLegalArray = pLegalArray_;
+
+
+        // 4: reward
+        NDArray r_ = null;
+        float[] rArray_ = null;
+        if (isRecurrent) {
+            r_ = list.get(hN+1);
+            rArray_ = r_.toFloatArray();
+        }
+        float[] rArray  = rArray_;
+        NDArray r = r_;
+
+        // 4 + offset: policy
+        NDArray logits = list.get(hN + offset + 1);
+        NDArray p = logits.softmax(1);
+        int actionSpaceSize = (int) logits.getShape().get(1);
+        float[] logitsArray = logits.toFloatArray();
+        float[] pArray = p.toFloatArray();
+
+
+
+        // 5 + offset: value
+        NDArray v = list.get(hN + offset + 2);
+        float[] vArray = v.toFloatArray();
+        int n = (int) v.getShape().get(0);
+
+
+
+
+        List<NetworkIO> networkIOs = IntStream.range(0, n)
+            .mapToObj(i ->
+            {
+                float[] ps = new float[actionSpaceSize];
+                float[] psLegal = null;
+                if (pLegalArray != null) {
+                    psLegal = new float[actionSpaceSize];
+                }
+
+                float[] logits2 = new float[actionSpaceSize];
+                System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
+                System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
+                if (pLegalArray != null) {
+                    System.arraycopy(pLegalArray, i * actionSpaceSize, psLegal, 0, actionSpaceSize);
+                }
+                double scale = config.getValueSpan() / 2.0;
+
+                double reward = isRecurrent ? scale * rArray[i] : 0.0;
+
+
+                return NetworkIO.builder()
+                    .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
+                    .pLegalValues(psLegal)
+                    .policyValues(ps)
+                        .reward(reward)
+                    .logits(logits2)
+                    .build();
+
+            })
+            .collect(Collectors.toList());
+
+
+        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
+            int nh = outputA.getHiddenState().length;
+            networkIOs.get(i).setHiddenState(new NDArray[nh]);
+            for (int h = 0; h < nh; h++) {
+                networkIOs.get(i).getHiddenState()[h] = outputA.getHiddenState()[h].get(i);
+            }
+        }
+        Arrays.stream(outputA.getHiddenState()).forEach(h -> h.close()) ;
+        return networkIOs;
+    }
+
+    @NotNull
+    private static NDArray getHiddenStates( NDArray s, TranslatorContext ctx, SubModel submodel) {
+        NDArray hiddenStates;
+
         if (MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU || ctx.getNDManager().getDevice().equals(Device.cpu())) {
             hiddenStates = s;
             hiddenStates.attach(submodel.getHiddenStateNDManager());
@@ -56,59 +164,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             hiddenStateNDManager.close();
             s.close();
         }
-
-        NetworkIO outputA = NetworkIO.builder()
-            .hiddenState(hiddenStates)
-            .build();
-
-
-        NDArray logits = list.get(1);
-
-        NDArray p = logits.softmax(1);
-
-        int actionSpaceSize = (int) logits.getShape().get(1);
-
-
-        float[] logitsArray = logits.toFloatArray();
-
-        float[] pArray = p.toFloatArray();
-
-        NDArray v = list.get(2);
-        float[] vArray = v.toFloatArray();
-
-        boolean  withEntropyValuePrediction = list.size() > 3;
-
-        final float[] vEntropyArrayFinal = withEntropyValuePrediction ? list.get(3).toFloatArray() : null;
-
-        int n = (int) v.getShape().get(0);
-
-        List<NetworkIO> networkIOs = IntStream.range(0, n)
-            .mapToObj(i ->
-            {
-                float[] ps = new float[actionSpaceSize];
-
-                float[] logits2 = new float[actionSpaceSize];
-                System.arraycopy(logitsArray, i * actionSpaceSize, logits2, 0, actionSpaceSize);
-                System.arraycopy(pArray, i * actionSpaceSize, ps, 0, actionSpaceSize);
-
-                double scale = config.getValueSpan() / 2.0;
-
-                return NetworkIO.builder()
-                    .value(vArray[i] == MyL2Loss.NULL_VALUE ? MyL2Loss.NULL_VALUE : scale * vArray[i])
-                    .entropyValue(withEntropyValuePrediction ? vEntropyArrayFinal[i] : 0f)
-                    .policyValues(ps)
-                    .logits(logits2)
-                    .build();
-
-            })
-            .collect(Collectors.toList());
-
-
-        for (int i = 0; i < Objects.requireNonNull(networkIOs).size(); i++) {
-            networkIOs.get(i).setHiddenState(Objects.requireNonNull(outputA).getHiddenState().get(i));
-        }
-        hiddenStates.close();
-        return networkIOs;
+        return hiddenStates;
     }
 
     @Override
@@ -118,7 +174,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
 
     @Override
     public List<NetworkIO> processOutput(TranslatorContext ctx, @NotNull NDList list) {
-        return getNetworkIOS(list, ctx);
+        return getNetworkIOS(list, ctx, false);
     }
 
     @Override

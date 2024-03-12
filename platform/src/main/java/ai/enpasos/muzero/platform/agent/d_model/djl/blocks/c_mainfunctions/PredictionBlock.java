@@ -17,71 +17,250 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
+import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.AbstractBlock;
+import ai.djl.nn.Block;
+import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
+import ai.djl.util.PairList;
+import ai.enpasos.mnist.blocks.OnnxBlock;
+import ai.enpasos.mnist.blocks.OnnxCounter;
+import ai.enpasos.mnist.blocks.OnnxIO;
+import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
-import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
+import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("java:S110")
-public class PredictionBlock extends MySequentialBlock {
+public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
-    public PredictionBlock(@NotNull MuZeroConfig config) {
-        this(config.getNumChannels(),
-                config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
-                config.getActionSpaceSize(),
-                config.withLegalActionsHead());
+    private  int noOfActiveLayers = 4; // default
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
     }
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean withLegalActionsHead) {
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
+
+    public PredictionBlock(@NotNull MuZeroConfig config ) {
+        this(
+                config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
+                config.getActionSpaceSize() );
+
+    }
 
 
-        SequentialBlockExt valueHead = new SequentialBlockExt();
+    private SequentialBlockExt legalActionsHead;   //0
+
+    private SequentialBlockExt rewardHead;  //1
+    private SequentialBlockExt policyHead;   //2
+
+
+    private SequentialBlockExt valueHead;  //3
+
+
+    @Setter
+    private boolean[] headUsage = {true, true, true, true};
+
+    private int countHeadsUsed() {
+        int count = 0;
+        for (boolean b : headUsage) {
+            if (b) count++;
+        }
+        return count;
+    }
+
+
+    public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean[] headUsage) {
+        this(isPlayerModeTWOPLAYERS, actionSpaceSize);
+        this.headUsage = headUsage;
+}
+
+
+
+    public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
+
+        valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
-                .add(BlocksExt.batchFlattenBlock());
-        valueHead.add(LinearExt.builder()
-                        .setUnits(numChannels) // config.getNumChannels())  // originally 256
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(256)
                         .build())
-                .add(ActivationExt.reluBlock());
-        valueHead.add(LinearExt.builder()
-                .setUnits(1).build());
+                .add(ActivationExt.reluBlock())
+                .add(LinearExt.builder()
+                        .setUnits(1).build());
         if (isPlayerModeTWOPLAYERS) {
             valueHead.add(ActivationExt.tanhBlock());
         }
 
-        SequentialBlockExt legalActionsHead = null;
-        if (withLegalActionsHead) {
-            legalActionsHead = new SequentialBlockExt();
-            legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
-                    .add(BlocksExt.batchFlattenBlock());
-            legalActionsHead.add(LinearExt.builder()
-                    .setUnits(actionSpaceSize).build());
+        this.addChildBlock("ValueHead", valueHead);
 
-        }
 
-        SequentialBlockExt policyHead = new SequentialBlockExt();
+        legalActionsHead = new SequentialBlockExt();
+        legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(actionSpaceSize).build());
+
+        this.addChildBlock("LegalActionsHead", legalActionsHead);
+
+
+        policyHead = new SequentialBlockExt();
         policyHead
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())
-                .add(BlocksExt.batchFlattenBlock());
-        policyHead.add(LinearExt.builder()
-                .setUnits(actionSpaceSize)
-                .build());
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(actionSpaceSize)
+                        .build());
+
+        this.addChildBlock("PolicyHead", policyHead);
 
 
+        rewardHead = new SequentialBlockExt();
+
+        rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
+                .add(BlocksExt.batchFlattenBlock())
+                .add(LinearExt.builder()
+                        .setUnits(256)
+                        .build())
+                .add(ActivationExt.reluBlock())
+                .add(LinearExt.builder()
+                        .setUnits(1).build());
+        if (isPlayerModeTWOPLAYERS) {
+            rewardHead.add(ActivationExt.tanhBlock());
+        }
+        this.addChildBlock("RewardHead", rewardHead);
 
 
-        add(new ParallelBlockWithCollectChannelJoinExt(
-                withLegalActionsHead ?
-                        Arrays.asList(policyHead, valueHead, legalActionsHead) : Arrays.asList(policyHead, valueHead))
-        );
     }
 
 
+    @Override
+    protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+        NDList results = new NDList();
+        if (headUsage[0] && this.noOfActiveLayers >= 1) {
+            results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+        }
+        if (headUsage[1] && this.noOfActiveLayers >= 1) {
+            results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
+        }
+        if (headUsage[2] && this.noOfActiveLayers >= 3) {
+            results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
+        }
+        if (headUsage[3] && this.noOfActiveLayers >= 4) {
+            results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(3)), training, params).get(0));
+        }
+        return results;
+    }
+
+    @Override
+    public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
+
+        Shape[] inputShapes_ = inputShapes;
+        if (headUsage[0]  && this.noOfActiveLayers >= 1) {
+            legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0]});
+        }
+        if (headUsage[1]  && this.noOfActiveLayers >= 1) {
+            rewardHead.initialize(manager, dataType, new Shape[]{inputShapes_[1] });
+        }
+        if (headUsage[2]  && this.noOfActiveLayers >= 3) {
+            policyHead.initialize(manager, dataType, new Shape[]{inputShapes_[2]});
+        }
+        if (headUsage[3]  && this.noOfActiveLayers >= 4) {
+            valueHead.initialize(manager, dataType, new Shape[]{inputShapes_[3]});
+        }
+    }
+
+    @Override
+    public Shape[] getOutputShapes(Shape[] inputShapes) {
+        Shape[] result = new Shape[countHeadsUsed()];
+        int c = 0;
+        if (headUsage[0] && this.noOfActiveLayers >= 1) {
+            result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
+        }
+        if (headUsage[1] && this.noOfActiveLayers >= 1) {
+            result[c++] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
+        }
+        if (headUsage[2] && this.noOfActiveLayers >= 3) {
+            result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
+        }
+        if (headUsage[3] && this.noOfActiveLayers >= 4) {
+            result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[3]})[0];
+        }
+
+        return result;
+    }
+
+
+
+    @Override
+    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
+        OnnxBlock onnxBlock = OnnxBlock.builder()
+                .input(input)
+                .valueInfos(createValueInfoProto(input))
+                .build();
+
+        List<OnnxTensor> outputs = new ArrayList<>();
+        OnnxTensor childOutput = null;
+        OnnxBlock   child = null;
+        if (headUsage[0]  && this.noOfActiveLayers >= 1) {
+            child = this.legalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+        }
+        if (headUsage[1]  && this.noOfActiveLayers >= 1) {
+                child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(1)));
+                onnxBlock.addChild(child);
+                childOutput = child.getOutput().get(0);
+                outputs.add(childOutput);
+            }
+
+        if (headUsage[2]  && this.noOfActiveLayers >= 3) {
+            child = this.policyHead.getOnnxBlock(counter, List.of(input.get(2)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+        }
+        if (headUsage[3]  && this.noOfActiveLayers >= 4) {
+            child = this.valueHead.getOnnxBlock(counter, List.of(input.get(3)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+        }
+
+        onnxBlock.setOutput(outputs);
+
+        return onnxBlock;
+    }
+
+    @Override
+    public void freeze(boolean[] freeze) {
+        this.legalActionsHead.freezeParameters(freeze[0]);
+        this.rewardHead.freezeParameters(freeze[1]);
+        this.policyHead.freezeParameters(freeze[2]);
+        this.valueHead.freezeParameters(freeze[3]);
+    }
 }

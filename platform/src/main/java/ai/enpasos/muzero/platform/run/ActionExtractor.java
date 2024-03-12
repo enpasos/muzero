@@ -59,10 +59,10 @@ public class ActionExtractor {
         try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, CSVFormat.EXCEL.builder().setDelimiter(';').build())) {
 
             int count = 0;
-            for (Game game : gameBuffer.getBuffer().getGames()) {
+            for (Game game : gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList()) {
                 List<String> valueList = new ArrayList<>();
                 valueList.add("" + count++);
-                valueList.addAll(game.getGameDTO().getActions().stream().map(a -> a + "").collect(Collectors.toList()));
+                valueList.addAll(game.getEpisodeDO().getActions().stream().map(a -> a + "").collect(Collectors.toList()));
 
                 String[] values = valueList.toArray(new String[0]);
 
@@ -82,7 +82,7 @@ public class ActionExtractor {
 
         System.out.println(stringWriter);
         int count = 0;
-        for (Game game : gameBuffer.getBuffer().getGames()) {
+        for (Game game : gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList()) {
             System.out.println(count++);
             System.out.println(game.render());
         }

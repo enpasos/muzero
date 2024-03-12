@@ -73,6 +73,7 @@ public class MuZeroConfig {
             Game game =  (Game) constructor.newInstance(this);
             if (connectToEnvironment) {game.connectToEnvironment();}
             if (withFirstObservation) {
+                game.getEpisodeDO().addNewTimeStepDO();
                 game.addObservationFromEnvironment();
                 game.addLegalActionFromEnvironment();
             }
@@ -137,19 +138,10 @@ public class MuZeroConfig {
         return getConf().playerMode;
     }
 
-
-    public boolean isNetworkWithRewardHead() {
-        return getConf().networkWithRewardHead;
-    }
-
-
     public boolean offPolicyCorrectionOn() {
         return getConf().offPolicyCorrectionOn;
     }
 
-    public boolean withLegalActionsHead() {
-        return getConf().withLegalActionsHead;
-    }
 
     public boolean allOrNothingOn() {
         return getConf().allOrNothingOn;
@@ -182,14 +174,40 @@ public class MuZeroConfig {
         return getConf().numChannels;
     }
 
-    public int getNumBottleneckChannels() {
-        return getConf().numBottleneckChannels;
+    public int getNumChannelsPolicy() {
+        return getConf().numChannelsPolicy;
     }
+    public int getNumChannelsRulesRecurrent() {
+        return getConf().numChannelsRulesRecurrent;
+    }
+    public int getNumChannelsRulesInitial() {
+        return getConf().numChannelsRulesInitial;
+    }
+    public int getNumChannelsValue() {
+        return getConf().numChannelsValue;
+    }
+
+
+    public int getNumCompressedChannelsPolicy() {
+        return getConf().numCompressedChannelsPolicy;
+    }
+    public int getNumCompressedChannelsRulesRecurrent() {
+        return getConf().numCompressedChannelsRulesRecurrent;
+    }
+    public int getNumCompressedChannelsRulesInitial() {
+        return getConf().numCompressedChannelsRulesInitial;
+    }
+    public int getNumCompressedChannelsValue() {
+        return getConf().numCompressedChannelsValue;
+    }
+
 
 
     public int getNumResiduals() {
         return getConf().numResiduals;
     }
+
+
 
 
     public int[] getValues() {
@@ -246,6 +264,9 @@ public class MuZeroConfig {
     }
     public float getConsistencyLossWeight() {
         return getConf().consistencyLossWeight;
+    }
+    public boolean isWithConsistencyLoss() {
+        return getConf().withConsistencyLoss;
     }
 
 
@@ -354,7 +375,7 @@ public class MuZeroConfig {
 
     public int getNumSimulations(Game game) {
         if (this.getTrainingTypeKey() == HYBRID &&
-                game.isItExplorationTime(game.getGameDTO().getActions().size())  ) {
+                game.isItExplorationTime(game.getEpisodeDO().getActions().size())  ) {
             return getNumSimulationsHybrid();
         } else {
             return getNumSimulations();
@@ -470,6 +491,9 @@ public class MuZeroConfig {
             .collect(Collectors.toSet());
     }
 
+    public void setNumObservationLayers(int numObservationLayers) {
+        getConf().setNumObservationLayers(numObservationLayers);
+    }
 
     @Data
     public static class Conf {
@@ -491,8 +515,17 @@ public class MuZeroConfig {
         protected int numActionLayers;
         protected int numChannels;
 
+        protected int numChannelsRulesInitial;
+        protected int numChannelsRulesRecurrent;
+        protected int numChannelsPolicy;
+        protected int numChannelsValue;
+
+        protected int numCompressedChannelsRulesInitial;
+        protected int numCompressedChannelsRulesRecurrent;
+        protected int numCompressedChannelsPolicy;
+        protected int numCompressedChannelsValue;
+
         protected int broadcastEveryN;
-        protected int numBottleneckChannels;
 
         protected int numResiduals;
 
@@ -513,6 +546,7 @@ public class MuZeroConfig {
         protected float komi;
         protected float weightDecay;
         protected float valueLossWeight = 1f;
+        protected boolean withConsistencyLoss = true;
         protected float consistencyLossWeight = 1f;
         protected float lrInit;
         protected int size;
@@ -530,7 +564,6 @@ public class MuZeroConfig {
 
         protected PlayTypeKey playTypeKey;
         protected int initialGumbelM;
-
         protected int cVisit;
         protected double cScale;
         protected int numPurePolicyPlays;
@@ -541,8 +574,6 @@ public class MuZeroConfig {
 
         protected boolean allOrNothingOn;
 
-
-        protected boolean withLegalActionsHead;
         protected double offPolicyRatioLimit;
 
         public PlayTypeKey getPlayTypeKey() {

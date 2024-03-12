@@ -56,10 +56,10 @@ public class Node {
     private double entropy;
     private double prior;
     private double improvedValue;
-    private double improvedEntropyValue;
+  //  private double improvedEntropyValue;
     private double valueFromInference;
     private double entropyValueFromInference;
-    private NDArray hiddenState;
+    private NDArray[] hiddenState;
     private double reward;
     private double entropyReward;
     private double multiplierLambda;
@@ -120,41 +120,9 @@ public class Node {
         }
     }
 
-    public void calculateEntropyVmix() {
-        double vHat = this.getEntropyValueFromInference();
-        vEntropyMix = vHat;
-        if (this.getVisitCount() == 0) return;
-
-        double b = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-                .mapToDouble(node -> node.getPrior() * node.getEntropyQValue()).sum();
-        double c = this.getChildren().stream().filter(node -> node.getVisitCount() > 0)
-                .mapToDouble(Node::getPrior).sum();
-        int d = this.getChildren().stream()
-                .mapToInt(Node::getVisitCount).sum();
-
-        if (d == 0d) {
-            vEntropyMix = vHat;
-        } else {
-            vEntropyMix = 1d / (1d + d) * (vHat + d / c * b);  // check signs
-        }
-    }
 
 
 
-
-//    public double[] getCompletedQEntropyValuesNormalized(MinMaxStats minMaxStatsEntropyQValues) {
-//        double scale = config.getEntropyContributionToReward();
-//        return children.stream().mapToDouble(node -> {
-//                    if (node.getVisitCount() > 0) {
-//                        return node.getEntropyQValue();
-//                    } else {
-//                        return getVEntropyMix();
-//                    }
-//                })
-//                .map(minMaxStatsEntropyQValues::normalize)
-//                .map(v -> v* scale)
-//                .toArray();
-//    }
 
 
     public double[] getCompletedQValuesNormalized(MinMaxStats minMaxStats) {
@@ -169,7 +137,9 @@ public class Node {
             .toArray();
     }
 
-    public void calculateImprovedPolicy(MinMaxStats minMaxStats, MinMaxStats minMaxStatsEntropyQValues) {
+    public void calculateImprovedPolicy(MinMaxStats minMaxStats, boolean isItExplorationTime) {
+        if (getChildren().isEmpty()) return;
+
         int maxActionVisitCount = getChildren().stream().mapToInt(Node::getVisitCount).max().getAsInt();
 
         double[] logits = getChildren().stream().mapToDouble(Node::getLogit).toArray();
@@ -177,8 +147,7 @@ public class Node {
       //  double[] completedEntropyQsNormalized = getCompletedQEntropyValuesNormalized(minMaxStatsEntropyQValues);
 
         double[] raw = add(logits, sigmas(
-               // isItExplorationTime ?  add(completedQsNormalized, completedEntropyQsNormalized) :
-                        completedQsNormalized
+                                 completedQsNormalized
                 , maxActionVisitCount, config.getCVisit(), config.getCScale()));
         double[] improvedPolicy = softmax(raw);
         IntStream.range(0, improvedPolicy.length).forEach(i -> getChildren().get(i).improvedPolicyValue = improvedPolicy[i]);
@@ -223,10 +192,9 @@ public class Node {
     }
 
 
-    public void expand(Player toPlay, NetworkIO networkOutput) {
+    public boolean expand(Player toPlay, NetworkIO networkOutput) {
         if (networkOutput != null) {
             setValueFromInference(networkOutput.getValue());
-            setEntropyValueFromInference(networkOutput.getEntropyValue());
         }
         setToPlay(toPlay);
 
@@ -238,15 +206,22 @@ public class Node {
 
         Map<Action, Pair<Float, Float>> policyMap = new HashMap<>();
         for (int i = 0; i < networkOutput.getPolicyValues().length; i++) {
-            policyMap.put(config.newAction(i), new Pair<>(
-                    networkOutput.getPolicyValues()[i],
-                    networkOutput.getLogits()[i]
-                )
-            );
+            // TODO configurable
+           // if (networkOutput.getPLegalValues()[i] > 0.1f) {
+                policyMap.put(config.newAction(i), new Pair<>(
+                                networkOutput.getPolicyValues()[i],
+                                networkOutput.getLogits()[i]
+                        )
+                );
+           // }
         }
-        renormPrior(policyMap);
         setRewardFromModel(networkOutput);
-        setEntropyRewardFromModel(networkOutput);
+        if (!policyMap.isEmpty()) {
+            renormPrior(policyMap);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void renormPrior(Map<Action, Pair<Float, Float>> policyMap) {
@@ -274,7 +249,6 @@ public class Node {
         if (!this.root) throw new MuZeroException("expandRootNode should only be called on the root node");
         if (networkOutput != null) {
             setValueFromInference(networkOutput.getValue());
-            setEntropyValueFromInference(networkOutput.getEntropyValue());
         }
         setToPlay(toPlay);
         if (!fastRuleLearning) {
@@ -284,7 +258,7 @@ public class Node {
             setHiddenState(networkOutput.getHiddenState());
 
             setRewardFromModel(networkOutput);
-            setEntropyRewardFromModel(networkOutput);
+       //     setEntropyRewardFromModel(networkOutput);
         }
         if (fastRuleLearning) {
             double p = 1d / actions.size();
@@ -311,9 +285,9 @@ public class Node {
     }
 
 
-    private void setEntropyRewardFromModel(NetworkIO networkOutput) {
-        setEntropyReward(networkOutput.getEntropyFromPolicyValues());
-    }
+//    private void setEntropyRewardFromModel(NetworkIO networkOutput) {
+//        setEntropyReward(networkOutput.getEntropyFromPolicyValues());
+//    }
 
 
     public double comparisonValue(int nSum) {
@@ -337,11 +311,7 @@ public class Node {
             .sum();
     }
 
-    public void calculateImprovedEntropyValue() {
-        this.improvedEntropyValue = this.getChildren().stream()
-                .mapToDouble(node -> node.getImprovedPolicyValue() * node.getEntropyQValue())
-                .sum();
-    }
+
 
 
     public void addExplorationNoise(MuZeroConfig config) {

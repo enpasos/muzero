@@ -32,9 +32,12 @@ public class TicTacToeTrainingAndTest {
     @SuppressWarnings({"java:S2583", "java:S2589"})
     public void run() {
 
-        boolean startFromScratch = true;
 
-        if (startFromScratch) {
+        // TODO separate model and memory from scratch
+
+        boolean deleteModel = false;
+
+        if (deleteModel) {
             rmDir(config.getOutputDir());
         }
 

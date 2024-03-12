@@ -14,7 +14,6 @@ muzero:
 
       actionClassName: ai.enpasos.muzero.platform.agent.e_experience.TestAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
@@ -48,7 +47,17 @@ muzero:
       symmetryType: SQUARE
       batchSize: 256
 
+      numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 
+      numChannelsRulesInitial: 81
+      numChannelsRulesRecurrent: 82
+      numChannelsPolicy: 83
+      numChannelsValue: 84
+
+      numCompressedChannelsRulesInitial: 11
+      numCompressedChannelsRulesRecurrent: 12
+      numCompressedChannelsPolicy: 13
+      numCompressedChannelsValue: 14
 
       # Gumbel MuZero parameters
       initialGumbelM: 4
@@ -58,8 +67,6 @@ muzero:
       numResiduals: 6
       broadcastEveryN: 8  # out of range here
 
-      numChannels: 256
-      numBottleneckChannels: 128
 
       valueLossWeight: 1
 
@@ -67,10 +74,11 @@ muzero:
 
       windowSize: 10000
 
-      numChannelsHiddenLayerSimilarity: 250
-      numChannelsOutputLayerSimilarity: 500
+      numChannelsHiddenLayerSimilarityProjector: 500
+      numChannelsOutputLayerSimilarityProjector: 500
+      numChannelsHiddenLayerSimilarityPredictor: 250
+      numChannelsOutputLayerSimilarityPredictor: 500
 
-      replayFraction: 0.0
 
       offPolicyCorrectionOn: true
       offPolicyRatioLimit: 10.0

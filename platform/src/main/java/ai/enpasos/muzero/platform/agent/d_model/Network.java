@@ -27,16 +27,14 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.training.Trainer;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.InitialRulesBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceListTranslator;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.RecurrentInferenceListTranslator;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityPredictorBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.SimilarityProjectorBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
@@ -49,6 +47,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -63,6 +62,7 @@ public class Network {
     Model model;
     private SubModel representation;
     private SubModel prediction;
+    private SubModel reward;
     private SubModel dynamics;
 
     private SubModel initialInference;
@@ -71,6 +71,13 @@ public class Network {
 
     private SubModel projector;
     private SubModel predictor;
+
+    private SubModel rulesInitial;
+
+    public SubModel getRulesInitial() {
+        ((DCLAware)rulesInitial.getBlock()).setNoOfActiveLayers(1);
+        return rulesInitial;
+    }
 
     private List<NDArray> actionSpaceOnDevice;
 
@@ -101,12 +108,17 @@ public class Network {
 
         representation = new SubModel("representation", model, representationBlock, config);
         prediction = new SubModel("prediction", model, predictionBlock, config);
+       // reward = new SubModel("reward", model, rewardBlock, config);
         dynamics = new SubModel("dynamics", model, dynamicsBlock, config);
         projector = new SubModel("similarityProjector", model,  similarityProjectorBlock, config);
         predictor = new SubModel("similarityPredictor", model,  similarityPredictorBlock, config);
 
         initialInference = new SubModel("initialInference", model, new InitialInferenceBlock(representationBlock, predictionBlock), config);
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
+
+        rulesInitial = new SubModel("initialRules", model, new InitialRulesBlock(representationBlock, predictionBlock, dynamicsBlock, config), config);
+        rulesInitial.setDataType(model.getDataType());
+
 
     }
 
@@ -185,9 +197,19 @@ public class Network {
 
     }
 
-    private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray> hiddenStateList, List<NDArray> actionList) {
+    private @Nullable List<NetworkIO> recurrentInferenceListDirect(@NotNull List<NDArray[]> hiddenStateList, List<NDArray> actionList) {
+        if (hiddenStateList.isEmpty()) {
+            return new ArrayList<NetworkIO>();
+        }
+        int n = hiddenStateList.get(0).length;
+        NDArray[] hiddenState = new NDArray[n];
+        for(int i = 0; i < n; i++) {
+            final int iFinal = i;
+            hiddenState[i] = NDArrays.stack(new NDList(hiddenStateList.stream().map(h->h[iFinal]).collect(Collectors.toList())));
+        }
+
         NetworkIO networkIO = new NetworkIO();
-        NDArray hiddenState = NDArrays.stack(new NDList(hiddenStateList));
+
         networkIO.setHiddenState(hiddenState);
         networkIO.setActionList(actionList);
 
@@ -202,8 +224,9 @@ public class Network {
         } catch (TranslateException e) {
             e.printStackTrace();
         }
-
-        hiddenState.close();
+        for(int i = 0; i < n; i++) {
+            hiddenState[i].close();
+        }
         return networkOutput;
     }
 
@@ -223,7 +246,7 @@ public class Network {
             getActionSpaceOnDevice().get(action.getIndex())
         ).collect(Collectors.toList());
 
-        List<NDArray> hiddenStateList = searchPathList.stream().map(searchPath -> {
+        List<NDArray[]> hiddenStateList = searchPathList.stream().map(searchPath -> {
             Node parent = searchPath.get(searchPath.size() - 2);
             return parent.getHiddenState();
         }).collect(Collectors.toList());

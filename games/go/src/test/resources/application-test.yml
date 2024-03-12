@@ -1,3 +1,14 @@
+spring:
+  datasource:
+    url: "jdbc:h2:mem:platform;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS muzero;"
+    username: muzero
+    password: muzero
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
 muzero:
   activeGame: GO_5
   run: none
@@ -18,7 +29,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.go.config.GoGame
       actionClassName: ai.enpasos.muzero.go.config.GoAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       inferenceDeviceType: GPU
 
       # game/environment
@@ -54,8 +64,19 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 12     # 256 in the paper
-      numBottleneckChannels: 6
+      numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
+
+      numChannelsRulesInitial: 50
+      numChannelsRulesRecurrent: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRulesInitial: 30
+      numCompressedChannelsRulesRecurrent: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
+
 
       numResiduals: 6
       broadcastEveryN: 4  # out of range here

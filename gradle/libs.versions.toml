@@ -1,13 +1,14 @@
 [versions]
 lombok = "1.18.30"
-djl = "0.26.0-SNAPSHOT"
+djl = "0.26.0"
 pytorch = "2.1.1"
 
-slf4j = "2.0.9"
-springboot = "3.2.0"
-protobuf = "3.25.1"
-junit = "5.10.1"
-jackson = "2.16.0"
+slf4j = "2.0.12"
+springboot = "3.2.3"
+protobuf = "3.25.3"
+junit = "5.10.2"
+jackson = "2.16.2"
+postgres = "42.7.2"
 
 [libraries]
 djl-api = { module = "ai.djl:api", version.ref = "djl" }
@@ -16,14 +17,8 @@ djl-basicdataset = { module = "ai.djl:basicdataset", version.ref = "djl" }
 djl-pytorch-engine = { module = "ai.djl.pytorch:pytorch-engine", version.ref = "djl" }
 djl-pytorch-model-zoo = { module = "ai.djl.pytorch:pytorch-model-zoo", version.ref = "djl" }
 djl-pytorch-native-cu121 = { module = "ai.djl.pytorch:pytorch-native-cu121", version.ref = "pytorch" }
-#djl-pytorch-native-cu118 = { module = "ai.djl.pytorch:pytorch-native-cu118", version.ref = "pytorch" }
-# djl-pytorch-native-cu117 = { module = "ai.djl.pytorch:pytorch-native-cu117", version.ref = "pytorch" }
-# djl-pytorch-native-cu116 = { module = "ai.djl.pytorch:pytorch-native-cu116", version.ref = "pytorch" }
-# djl-pytorch-native-cu113 = { module = "ai.djl.pytorch:pytorch-native-cu113", version.ref = "pytorch" }
-
 
 djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", version.ref = "djl" }
-
 
 commons-math = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
 commons-csv = { module = "org.apache.commons:commons-csv", version = "1.10.0" }
@@ -32,10 +27,11 @@ commons-io = { module = "commons-io:commons-io", version = "2.15.1" }
 commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.14.0" }
 commons-collections = { module = "org.apache.commons:commons-collections4", version = "4.4" }
 
-
-
 springboot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "springboot" }
+springboot-starter-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "springboot" }
 springboot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springboot" }
+
+postgres = {module = 'org.postgresql:postgresql', version.ref= "postgres" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
@@ -48,7 +44,7 @@ javax-annotation-api = { module = "javax.annotation:javax.annotation-api", versi
 
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 
-onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version = "1.16.3" }
+onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version = "1.17.1" }
 
 gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
@@ -56,6 +52,8 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "24.1.0" }
 
 stochasticsimulation = { module = "ca.umontreal.iro.simul:ssj", version = "3.3.2" }
+
+h2database = { module = "com.h2database:h2", version = "2.2.224" }
 
 
 [bundles]

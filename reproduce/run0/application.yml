@@ -20,7 +20,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1

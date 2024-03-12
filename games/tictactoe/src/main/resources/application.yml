@@ -6,10 +6,27 @@ logging:
     console: "%d %-5level [%thread] %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
   level:
+    # org.hibernate.SQL: DEBUG
+    # org.hibernate.type: TRACE
     root: WARN
     ai.enpasos: DEBUG
     ai.enpasos.muzero.platform.agent.d_model.service.ModelController: INFO
     ai.djl: INFO
+spring:
+  datasource:
+    username: muzero
+    password: hd7sge
+    url: jdbc:postgresql://localhost:5432/muzero
+  jpa:
+    properties.hibernate:
+      #jdbc.lob.non_contextual_creation: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
+      ddl-auto: update
+      jdbc:
+        batch_size: 2000
+      order_updates: true
+      order_inserts: true
 
 muzero:
   activeGame: TICTACTOE
@@ -20,7 +37,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
@@ -61,14 +77,27 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 6
-      broadcastEveryN: 8  # out of range here
+      numResiduals: 9
+      broadcastEveryN: 10  # out of range here
 
-      numChannels: 256
-      numBottleneckChannels: 128
+      numChannels: 200    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
+
+      numChannelsRulesInitial: 100
+      numChannelsRulesRecurrent: 20
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRulesInitial: 20
+      numCompressedChannelsRulesRecurrent: 10
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
 
       valueLossWeight: 1
+
+      withConsistencyLoss: false
       consistencyLossWeight: 2
+      # legalActionsLossWeight: 0.1111  # 1/actionSpaceSize
 
       numberOfTrainingSteps: 50000
 
@@ -85,10 +114,6 @@ muzero:
       offPolicyRatioLimit: 1.0
 
       numParallelInferences: 1000
-
-      withLegalActionsHead: false
-
-
 
 
       playTypes:

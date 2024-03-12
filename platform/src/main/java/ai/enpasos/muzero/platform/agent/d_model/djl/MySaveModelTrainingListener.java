@@ -52,6 +52,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     private String overrideModelName;
     private Consumer<Trainer> onSaveModel;
     private int epoch;
+  //  private boolean background;
 
     /**
      * Constructs a {@link MySaveModelTrainingListener} using the model's name.
@@ -78,6 +79,8 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
     @Override
     public void onEpoch(Trainer trainer) {
+
+
         epoch++;
         if (outputDir == null) {
             return;
@@ -93,7 +96,7 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
      */
     @Override
     public void onTrainingEnd(Trainer trainer) {
-        if (step == -1 || epoch % step != 0) {
+        if (  step == -1 || epoch % step != 0) {
             saveModel(trainer);
         }
     }
@@ -150,10 +153,12 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
     }
 
     public int getEpoch() {
+        logger.trace("getEpoch {}", epoch);
         return epoch;
     }
 
     public void setEpoch(int epoch) {
+        logger.trace("setEpoch from {} to {}", this.epoch, epoch);
         this.epoch = epoch;
     }
 }

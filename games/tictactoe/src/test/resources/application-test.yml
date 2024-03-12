@@ -4,6 +4,18 @@
 #    logging:
 #      level: debug
 
+
+spring:
+  datasource:
+    url: "jdbc:h2:mem:muzero"
+    username: muzero
+    password: muzero
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
 muzero:
   activeGame: TICTACTOE
   run: none
@@ -13,7 +25,6 @@ muzero:
       gameClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeGame
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
-      networkWithRewardHead: false
       valueInterval: [ -1,1 ]
       numObservationLayers: 3
       numActionLayers: 1
@@ -58,7 +69,19 @@ muzero:
       broadcastEveryN: 8  # out of range here
 
       numChannels: 12
-      numBottleneckChannels: 12
+
+      numChannelsRulesInitial: 100
+      numChannelsRulesRecurrent: 100
+      numChannelsPolicy: 50
+      numChannelsValue: 50
+
+      numCompressedChannelsRulesInitial: 30
+      numCompressedChannelsRulesRecurrent: 30
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
+
+
+
 
       valueLossWeight: 1
 
@@ -70,9 +93,6 @@ muzero:
       numChannelsOutputLayerSimilarityProjector: 500
       numChannelsHiddenLayerSimilarityPredictor: 250
       numChannelsOutputLayerSimilarityPredictor: 500
-
-
-      replayFraction: 0.0
 
       offPolicyCorrectionOn: false
       allOrNothingOn: true

@@ -24,6 +24,8 @@ import ai.djl.ndarray.index.NDIndex;
 import ai.djl.training.loss.Loss;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 /**
  * {@code BCELoss} is a type of {@link Loss} that calculates the binary cross entropy loss.
  *
@@ -99,18 +101,37 @@ public class MyBCELoss extends Loss {
     //   \min (0,x) - \ln( 1+e^{-|x|})
     // naive implementation: sigmoid (x).log();
     // sigmoid:   x.mul(-1).exp().add(1).getNDArrayInternal().rdiv(1);
-    public NDArray logSigmoid(NDArray x) {
+    public static NDArray logSigmoid(NDArray x) {
         return x.abs().neg().exp().add(1).log().neg().add(x.minimum(0));
     }
 
-//    public NDArray sigmoid (NDArray x) {
-//        return x.mul(-1).exp().add(1).getNDArrayInternal().rdiv(1);
-//    }
+    public static NDArray sigmoid (NDArray x) {
+        return x.mul(-1).exp().add(1).getNDArrayInternal().rdiv(1);
+    }
+    public static double sigmoid (double x) {
+        return 1d/(1d+Math.exp(-x));
+    }
 
 
-    public NDArray logOneMinusSigmoid(NDArray x) {
+    public static NDArray logOneMinusSigmoid(NDArray x) {
         return x.abs().neg().exp().add(1).log().add(x.maximum(0)).neg();
     }
+
+
+    public static double[] sigmoid(double[] legalActions) {
+       return Arrays.stream(legalActions).map(MyBCELoss::sigmoid).toArray();
+    }
+
+    public static double entropy(double[] legalActions) {
+        double entropy = 0d;
+        for (int i = 0; i < legalActions.length; i++) {
+            double p = legalActions[i];
+            double[] ps = {p, 1d-p};
+            entropy += ai.enpasos.muzero.platform.common.Functions.entropy(ps);
+        }
+        return entropy;
+    }
+
 
 
 }
