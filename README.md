@@ -1,7 +1,7 @@
 # MuZero implemented in Java based on DJL and PyTorch
 
 ## About
-
+ 
 We have implemented
 Gumbel [MuZero](https://deepmind.com/blog/article/muzero-mastering-go-chess-shogi-and-atari-without-rules)
 with [DJL](https://djl.ai/) (pure Java code running on top of PyTorch native) following
