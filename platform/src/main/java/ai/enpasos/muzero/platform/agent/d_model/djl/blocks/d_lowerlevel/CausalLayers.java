@@ -14,8 +14,7 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
-import ai.enpasos.muzero.platform.common.MuZeroException;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +22,13 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class CausalLayers extends AbstractBlock implements OnnxIO, DCLAware {
 
     private final List<Block> layers;
     private final boolean rescale;
+
+
+
 
 
     @Override
@@ -40,13 +42,13 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
     // Layers are ordered bottom up in the list
     // Each layer may depend on the output of the previous layers (with s)
     // There is no backpropagation across layer boundaries
-    public CausalLayers(List<Block> layers, boolean rescale ) {
+    public CausalLayers(List<Block> layers, boolean rescale) {
+        this.setNoOfActiveLayers(layers.size()); // default
         this.layers = layers;
         this.rescale = rescale;
         for(Block layer: layers) {
             this.addChildBlock("CausalLayer", layer);
         }
-
     }
 
 
@@ -58,7 +60,11 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList combinedResultA = new NDList();
         NDList combinedResultB = new NDList();
-        for(int k = 0; k < layers.size(); k++) {
+
+        int n = this.getNoOfActiveLayers();
+      //  int n = 1;
+
+        for(int k = 0; k < n; k++) {
             Block layer = layers.get(k);
             NDList layerInput = new NDList();
             for(int j = 0; j < k; j++) {
@@ -70,7 +76,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
             layerInput.add(majorInput);
 
             // The last input is an extra input (action)
-            if ( layers.size() + 1 == inputs.size()) {
+            if ( n + 1 == inputs.size()) {
                 NDArray extraInput = inputs.get(inputs.size() - 1);
                 layerInput.add(0, extraInput);
             }
@@ -88,12 +94,15 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        Shape[] outputShapes = new Shape[rescale ? 2*layers.size() : layers.size()];
-        for (int i = 0; i < layers.size(); i++) {
+
+     int n = this.getNoOfActiveLayers();
+     //   int n = 1;
+        Shape[] outputShapes = new Shape[rescale ? 2*n : n];
+        for (int i = 0; i < n; i++) {
             Shape[] outputShapesHere = layers.get(i).getOutputShapes(new Shape[] {inputShapes[i]});
             outputShapes[i] = outputShapesHere[0];
             if (rescale) {
-                outputShapes[i + layers.size()] = outputShapesHere[1];
+                outputShapes[i + n] = outputShapesHere[1];
             }
         }
         return outputShapes;
@@ -102,16 +111,9 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-//        if (layers.size() > inputShapes.length) {
-//            throw new MuZeroException("number of layers must be less or equal to number of inputs");
-//        }
 
-
-        // TODO: more explicit
-        int n =  layers.size() ;
-        if (inputShapes.length < layers.size()) {
-            n = 1;
-        }
+        int n = this.getNoOfActiveLayers();
+     //   int n = 1;
 
         for (int k = 0; k < n; k++) {
             List<Shape> layerInputShapes = new ArrayList<>();
@@ -142,13 +144,16 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
             .valueInfos(createValueInfoProto(input))
             .build();
 
-        //int concatDim = 1;
+          int n = this.getNoOfActiveLayers();
+     //   int n = 1;
+
         List<OnnxTensor> outputsA = new ArrayList<>();
         List<OnnxTensor> outputsB = new ArrayList<>();
         OnnxTensor childOutputA = null;
         OnnxTensor childOutputB = null;
         int c = 0;
-        for (Pair<String, Block> p : this.getChildren()) {
+        for (int k = 0; k < n; k++) {
+            Pair<String, Block> p = this.getChildren().get(k);
             OnnxIO onnxIO = (OnnxIO) p.getValue();
 
             List<OnnxTensor> myInput = new ArrayList<>();
@@ -160,7 +165,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
             myInput.add(majorInput);
 
             // The last input is an extra input (action) that is only used by the first layer (rules layer)
-            if ( layers.size() + 1 == input.size()) {
+            if (n + 1 == input.size()) {
                 OnnxTensor extraInput = input.get(input.size() - 1);
                 myInput.add(0, extraInput);
             }
@@ -185,6 +190,27 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFree
 
 
     public CausalLayers getBlockForInitialRulesOnly() {
-        return new CausalLayers(layers.subList(0,1), rescale);
+//        if (rescale) {
+//            int i = 42;
+//        }
+//          if (layers.get(0).getChildren().values().get(0) instanceof EndingAppender) {
+//              int i = 43;
+//          }
+
+        CausalLayers  causalLayers =  new CausalLayers(layers.subList(0,1), rescale );
+        causalLayers.setNoOfActiveLayers(1);
+        return causalLayers;
+    }
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+
+        this.noOfActiveLayers = noOfActiveLayers;
+
     }
 }

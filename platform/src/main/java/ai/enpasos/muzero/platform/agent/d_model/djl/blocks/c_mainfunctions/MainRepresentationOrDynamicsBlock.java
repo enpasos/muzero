@@ -18,14 +18,30 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.djl.nn.Block;
+import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.CausalResidualTower;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class MainRepresentationOrDynamicsBlock extends MySequentialBlock implements CausalityFreezing {
+public class MainRepresentationOrDynamicsBlock extends MySequentialBlock implements DCLAware {
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
 
     /**
@@ -35,11 +51,16 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
      */
 
 
+   private MainRepresentationOrDynamicsBlock( CausalResidualTower causalResidualTower ) {
+       this.causalResidualTower = causalResidualTower;
+       this.add(causalResidualTower);
+        }
+
     public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config  ) {
         this(config.getBoardHeight(), config.getBoardWidth(), config.getNumResiduals(), new int[] {config.getNumChannelsRulesInitial(), config.getNumChannelsRulesRecurrent(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()}, new int[] {config.getNumCompressedChannelsRulesInitial(),config.getNumCompressedChannelsRulesRecurrent(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()}, config.getBroadcastEveryN());
     }
 
-    CausalResidualTower causalResidualTower;
+  final private CausalResidualTower causalResidualTower;
 
     @java.lang.SuppressWarnings("java:S107")
     public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int[] numChannels,  int[] numCompressedChannels,   int broadcastEveryN) {
@@ -62,17 +83,14 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
     @Override
     public void freeze(boolean[] freeze) {
         this.getChildren().forEach(b -> {
-            if (b.getValue() instanceof CausalityFreezing) {
-                ((CausalityFreezing) b.getValue()).freeze(freeze);
+            if (b.getValue() instanceof DCLAware) {
+                ((DCLAware) b.getValue()).freeze(freeze);
             }
         });
     }
 
     public Block getBlockForInitialRulesOnly( MuZeroConfig config) {
-        MainRepresentationOrDynamicsBlock  block2 = new MainRepresentationOrDynamicsBlock(config);
-        block2
-                .add(causalResidualTower.getBlockForInitialRulesOnly(config)  )  ;
+        return new MainRepresentationOrDynamicsBlock(causalResidualTower.getBlockForInitialRulesOnly(config));
 
-        return block2;
     }
 }

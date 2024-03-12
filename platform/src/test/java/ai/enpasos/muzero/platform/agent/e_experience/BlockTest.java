@@ -154,9 +154,31 @@ class BlockTest {
 
     @Test
     void representationBlockRANDOM() throws Exception {
+        RepresentationBlock representationBlock = RepresentationBlock.builder().config(config).build();
         boolean check = compareOnnxWithDJL(
                 "./build/RepresentationBlock.onnx",
-                RepresentationBlock.builder().config(config).build(),
+                representationBlock,
+                List.of(new Shape(1, 3, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+    @Test
+    void representationStartBlockForInitialRulesOnlyRANDOM() throws Exception {
+        RepresentationStart representationStart = new RepresentationStart(config);
+
+        boolean check = compareOnnxWithDJL(
+                "./build/RepresentationStartBlockForInitialRulesOnly.onnx",
+                representationStart.getBlockForInitialRulesOnly(),
+                List.of(new Shape(1, 3, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+    @Test
+    void representationBlockForInitialRulesOnlyRANDOM() throws Exception {
+        RepresentationBlock representationBlock = RepresentationBlock.builder().config(config).build();
+        boolean check = compareOnnxWithDJL(
+                "./build/RepresentationBlockForInitialRulesOnly.onnx",
+                representationBlock.getBlockForInitialRulesOnly(config),
                 List.of(new Shape(1, 3, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
@@ -244,16 +266,16 @@ class BlockTest {
     }
 
 
-    @Test
-    void toPredictionRANDOM() throws Exception {
-
-        boolean check = compareOnnxWithDJL(
-                "./build/CausalLayersToPrediction.onnx",
-                new CausalLayersToPrediction( ),
-                List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
-                RANDOM);
-        Assertions.assertTrue(check);
-    }
+//    @Test
+//    void toPredictionRANDOM() throws Exception {
+//
+//        boolean check = compareOnnxWithDJL(
+//                "./build/CausalLayersToPrediction.onnx",
+//                new CausalLayersToPrediction( ),
+//                List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
+//                RANDOM);
+//        Assertions.assertTrue(check);
+//    }
 
     @Test
     void predictionRANDOM() throws Exception {

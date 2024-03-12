@@ -24,6 +24,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -32,7 +33,7 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +47,22 @@ import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZ
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLAware {
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     private final RepresentationBlock h;
     private final PredictionBlock f;
@@ -56,6 +72,8 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
 
         h = this.addChildBlock("Representation", representationBlock);
         f = this.addChildBlock("Prediction", predictionBlock);
+
+        this.setNoOfActiveLayers(4);
     }
 
     public RepresentationBlock getH() {

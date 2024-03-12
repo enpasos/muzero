@@ -27,6 +27,7 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.training.Trainer;
 import ai.djl.translate.TranslateException;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.InitialRulesBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock;
@@ -73,6 +74,11 @@ public class Network {
 
     private SubModel rulesInitial;
 
+    public SubModel getRulesInitial() {
+        ((DCLAware)rulesInitial.getBlock()).setNoOfActiveLayers(1);
+        return rulesInitial;
+    }
+
     private List<NDArray> actionSpaceOnDevice;
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model, Path modelPath) {
@@ -111,6 +117,9 @@ public class Network {
         recurrentInference = new SubModel("recurrentInference", model, new RecurrentInferenceBlock(dynamicsBlock, predictionBlock), config);
 
         rulesInitial = new SubModel("initialRules", model, new InitialRulesBlock(representationBlock, predictionBlock, dynamicsBlock, config), config);
+        rulesInitial.setDataType(model.getDataType());
+
+
     }
 
     public Network(@NotNull MuZeroConfig config, @NotNull Model model) {

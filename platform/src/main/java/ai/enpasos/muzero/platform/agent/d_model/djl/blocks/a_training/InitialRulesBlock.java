@@ -25,22 +25,15 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
-import ai.enpasos.mnist.blocks.OnnxBlock;
-import ai.enpasos.mnist.blocks.OnnxCounter;
-import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.firstHalf;
@@ -49,7 +42,27 @@ import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.In
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class InitialRulesBlock extends AbstractBlock { //implements OnnxIO  {
+public class InitialRulesBlock extends AbstractBlock implements DCLAware {
+
+    private  int noOfActiveLayers;
+
+    @Override
+    public void freeze(boolean[] freeze) {
+
+    }
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
@@ -61,7 +74,7 @@ public class InitialRulesBlock extends AbstractBlock { //implements OnnxIO  {
 
         this.representationBlock = this.addChildBlock("Representation", representationBlock.getBlockForInitialRulesOnly(config));
         this.predictionBlock = this.addChildBlock("Prediction", predictionBlock);
-        this.dynamicsBlock = this.addChildBlock("Dynamics", dynamicsBlock);
+        this.dynamicsBlock = this.addChildBlock("Dynamics", dynamicsBlock.getBlockForInitialRulesOnly(config));
     }
 
 //    public RepresentationBlock getH() {
@@ -143,16 +156,8 @@ public class InitialRulesBlock extends AbstractBlock { //implements OnnxIO  {
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
         this.representationBlock.initialize(manager, dataType, inputShapes );
 
-
-
-
-
-
-
-
-
         // initial Inference
-        predictionBlock.setHeadUsage(new boolean[]{true, false, true, true});
+        predictionBlock.setHeadUsage(new boolean[]{true, false, false, false});
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
         Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
@@ -164,7 +169,7 @@ public class InitialRulesBlock extends AbstractBlock { //implements OnnxIO  {
 
         int k = 1;
         // recurrent Inference
-        predictionBlock.setHeadUsage(new boolean[]{true, true, true, true});
+        predictionBlock.setHeadUsage(new boolean[]{false, true, false, false});
 
         Shape actionShape = inputShapes[k];
         Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
@@ -185,7 +190,7 @@ public class InitialRulesBlock extends AbstractBlock { //implements OnnxIO  {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
-        predictionBlock.setHeadUsage(new boolean[]{true, false, true, true});
+        predictionBlock.setHeadUsage(new boolean[]{true, false, false, false});
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
         Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
@@ -196,7 +201,7 @@ public class InitialRulesBlock extends AbstractBlock { //implements OnnxIO  {
 
         int k = 1;
         // recurrent Inference
-        predictionBlock.setHeadUsage(new boolean[]{true, true, true, true});
+        predictionBlock.setHeadUsage(new boolean[]{false, true, false, false});
 
         Shape actionShape = inputShapes[k];
         Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);

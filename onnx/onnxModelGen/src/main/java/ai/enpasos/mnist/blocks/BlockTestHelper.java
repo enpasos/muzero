@@ -67,7 +67,7 @@ class BlockTestHelper {
                 outputDJL = trainer.forward(input).toDevice(Device.cpu(), true);
                 onnxExport(model, inputShapes, modelPath, "");
             } catch (Exception e) {
-                // ignore
+                e.printStackTrace();
             }
 
 

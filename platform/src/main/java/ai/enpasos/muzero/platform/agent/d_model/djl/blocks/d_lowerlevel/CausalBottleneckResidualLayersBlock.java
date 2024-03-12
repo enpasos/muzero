@@ -24,40 +24,38 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class CausalBottleneckResidualLayersBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class CausalBottleneckResidualLayersBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
-    public final CausalLayers block;
+    public final CausalLayers causalLayers;
 
     public CausalBottleneckResidualLayersBlock(CausalLayers causalLayers) {
         super(MYVERSION);
-        this.block = addChildBlock("causalBottleneckResidualLayersBlock", causalLayers);
+        this.causalLayers = addChildBlock("causalBottleneckResidualLayersBlock", causalLayers);
     }
 
-    public CausalBottleneckResidualLayersBlock( int[] numChannels, int[] numCompressedChannels, boolean rescale) {
+    public CausalBottleneckResidualLayersBlock( int[] numChannels, int[] numCompressedChannels, boolean rescale ) {
         super(MYVERSION);
         if (numChannels.length != numCompressedChannels.length) throw new IllegalArgumentException("num channels and num compressed channels must have the same length");
         List list = new ArrayList();
         for (int i = 0; i < numChannels.length; i++) {
             list.add(new CausalBottleneckResidualBlock(numChannels[i], numChannels[i] / 4 * 3, numCompressedChannels[i], rescale));
         }
-
-        block = addChildBlock("causalBottleneckResidualLayersBlock", new CausalLayers(
-            list, rescale));
+        CausalLayers causalLayers = new CausalLayers(list, rescale);
+        this.causalLayers = addChildBlock("causalBottleneckResidualLayersBlock", causalLayers);
     }
 
     @Override
@@ -72,31 +70,53 @@ public class CausalBottleneckResidualLayersBlock extends AbstractBlock implement
 
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
-        return block.forward(parameterStore, inputs, training);
+        return causalLayers.forward(parameterStore, inputs, training);
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
-        return block.getOutputShapes(inputs);
+        return causalLayers.getOutputShapes(inputs);
 
     }
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        block.initialize(manager, dataType, inputShapes);
+        causalLayers.initialize(manager, dataType, inputShapes);
     }
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-        return block.getOnnxBlock(counter, input);
+        return causalLayers.getOnnxBlock(counter, input);
     }
 
     @Override
     public void freeze(boolean[] freeze) {
-        this.block.freeze(freeze);
+        this.causalLayers.freeze(freeze);
+    }
+
+
+
+
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        this.causalLayers.setNoOfActiveLayers(noOfActiveLayers);
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
     }
 
     public Block getBlockForInitialRulesOnly() {
-        return new CausalBroadcastResidualLayersBlock(this.block.getBlockForInitialRulesOnly());
+        CausalBottleneckResidualLayersBlock block2 = new CausalBottleneckResidualLayersBlock(causalLayers.getBlockForInitialRulesOnly());
+        block2.setNoOfActiveLayers(1);
+        return block2;
     }
 }

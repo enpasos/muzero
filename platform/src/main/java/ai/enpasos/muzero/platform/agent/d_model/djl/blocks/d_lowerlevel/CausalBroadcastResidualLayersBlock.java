@@ -24,28 +24,43 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
-    public final CausalLayers block;
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        this.causalLayers.setNoOfActiveLayers(noOfActiveLayers);
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
+
+    public final CausalLayers causalLayers;
 
     public CausalBroadcastResidualLayersBlock(CausalLayers causalLayers) {
         super(MYVERSION);
-        this.block = addChildBlock("causalBroadcastResidualLayersBlock", causalLayers);
+        this.causalLayers = addChildBlock("causalBroadcastResidualLayersBlock", causalLayers);
     }
 
     public CausalBroadcastResidualLayersBlock(int height, int width, int[] numChannels, int[] numCompressedChannels, boolean rescale) {
@@ -57,7 +72,7 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
             list.add(new CausalBroadcastResidualBlock(height, width,numChannels[i],   numCompressedChannels[i], rescale));
         }
 
-        block = addChildBlock("causalBroadcastResidualLayersBlock", new CausalLayers(
+        causalLayers = addChildBlock("causalBroadcastResidualLayersBlock", new CausalLayers(
                 list, rescale));
 
     }
@@ -74,30 +89,33 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
 
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
-        return block.forward(parameterStore, inputs, training);
+        return causalLayers.forward(parameterStore, inputs, training);
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
-        return block.getOutputShapes(inputs);
+        return causalLayers.getOutputShapes(inputs);
     }
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        block.initialize(manager, dataType, inputShapes);
+        causalLayers.initialize(manager, dataType, inputShapes);
     }
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
-        return block.getOnnxBlock(counter, input);
+        return causalLayers.getOnnxBlock(counter, input);
     }
 
     @Override
     public void freeze(boolean[] freeze) {
-        this.block.freeze(freeze);
+        this.causalLayers.freeze(freeze);
     }
 
+
     public Block getBlockForInitialRulesOnly() {
-        return new CausalBroadcastResidualLayersBlock(this.block.getBlockForInitialRulesOnly());
+        CausalBroadcastResidualLayersBlock block2 = new CausalBroadcastResidualLayersBlock(causalLayers.getBlockForInitialRulesOnly());
+        block2.setNoOfActiveLayers(1);
+        return block2;
     }
 }

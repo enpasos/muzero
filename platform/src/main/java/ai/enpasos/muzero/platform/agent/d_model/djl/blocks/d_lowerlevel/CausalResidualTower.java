@@ -18,13 +18,29 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel;
 
 import ai.djl.nn.Block;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.djl.util.Pair;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-    public class CausalResidualTower extends MySequentialBlock implements CausalityFreezing {
+    public class CausalResidualTower extends MySequentialBlock implements DCLAware {
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     private CausalResidualTower() {
     }
@@ -34,7 +50,9 @@ import org.jetbrains.annotations.NotNull;
         CausalResidualTower instance = new CausalResidualTower();
         for (int i = 0; i < numResiduals; i++) {
             boolean rescale = false;
-            if (i == numResiduals - 1  ) rescale = true;
+            if (i == numResiduals - 1  ) {
+                rescale = true;
+            }
 
             if (i % broadcastEveryN == broadcastEveryN - 1) {
                 instance.add(new CausalBroadcastResidualLayersBlock(height, width, numChannels,  numCompressedChannels, rescale));
@@ -48,30 +66,28 @@ import org.jetbrains.annotations.NotNull;
     @Override
     public void freeze(boolean[] freeze) {
         this.getChildren().forEach(b -> {
-            if (b.getValue() instanceof CausalityFreezing) {
-                ((CausalityFreezing) b.getValue()).freeze(freeze);
+            if (b.getValue() instanceof DCLAware) {
+                ((DCLAware) b.getValue()).freeze(freeze);
             }
         });
     }
 
-    public Block getBlockForInitialRulesOnly(MuZeroConfig config) {
+    public CausalResidualTower getBlockForInitialRulesOnly(MuZeroConfig config) {
         int numResiduals = config.getNumResiduals();
-        int broadcastEveryN = config.getBroadcastEveryN();
-        int height = config.getBoardHeight();
-        int width = config.getBoardWidth();
-        int[] numChannels = new int[] {config.getNumChannelsRulesInitial(), config.getNumChannelsRulesRecurrent(),  config.getNumChannelsPolicy(), config.getNumChannelsValue()};
-        int[] numCompressedChannels = new int[] {config.getNumCompressedChannelsRulesInitial(),config.getNumCompressedChannelsRulesRecurrent(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue()};
-
         CausalResidualTower instance = new CausalResidualTower();
         int c = 0;
         for (int i = 0; i < numResiduals; i++) {
-            Block child = getChildren().get(c).getValue();
-            if(child instanceof CausalBroadcastResidualLayersBlock specialChild) {
+            Block child = getChildren().get(i).getValue();
+//            if (i ==5) {
+//                int j = 42;
+//            }
+            if(child instanceof CausalBroadcastResidualLayersBlock  specialChild) {
                 instance.add(specialChild.getBlockForInitialRulesOnly());
             } else if(child instanceof CausalBottleneckResidualLayersBlock specialChild) {
                 instance.add(specialChild.getBlockForInitialRulesOnly());
+            } else {
+                throw new IllegalArgumentException("unexpected child");
             }
-
         }
         return instance;
     }

@@ -18,7 +18,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEpochTrainingListener;
 import ai.enpasos.muzero.platform.agent.d_model.djl.TrainingConfigFactory;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
@@ -195,7 +195,7 @@ public class ModelController implements DisposableBean, Runnable {
                         Shape[] inputShapes = batchFactory.getInputShapes();
                         trainer.initialize(inputShapes);
                         trainer.setMetrics(new Metrics());
-                        ((CausalityFreezing) model.getBlock()).freeze(freeze);
+                        ((DCLAware) model.getBlock()).freeze(freeze);
                         for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                             try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
                                 log.debug("trainBatch " + m);
@@ -240,6 +240,7 @@ public class ModelController implements DisposableBean, Runnable {
 
 
             model =  network.getRulesInitial();
+
 
             // special
              djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);

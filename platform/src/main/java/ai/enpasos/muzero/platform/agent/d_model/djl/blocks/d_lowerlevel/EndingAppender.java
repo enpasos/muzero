@@ -24,9 +24,11 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.*;
 import ai.enpasos.mnist.blocks.ext.*;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -37,10 +39,12 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
 @SuppressWarnings("java:S110")
-public class EndingAppender extends SequentialBlockExt {
+public class EndingAppender extends SequentialBlockExt  {
 
 private EndingAppender() {
 }
+
+
 
     public static EndingAppender newEndingAppender(Block wrappedBlock, int numCompressedChannels) {
         return (EndingAppender) new EndingAppender()

@@ -24,12 +24,11 @@ import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
-import ai.djl.nn.ParameterList;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +42,22 @@ import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunction
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
+public class MuZeroBlock extends AbstractBlock implements DCLAware {
+
+    private  int noOfActiveLayers;
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
@@ -77,6 +91,8 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
             inputNames.add("action_" + k);
         }
+
+        this.setNoOfActiveLayers(4);
     }
 
 

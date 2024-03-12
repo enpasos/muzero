@@ -13,7 +13,7 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
@@ -26,15 +26,32 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 @SuppressWarnings("all")
-public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFreezing {
+public class DynamicsStart extends  AbstractBlock implements OnnxIO, DCLAware {
+
+    private  int noOfActiveLayers = 4; // default
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     List<Block> blocks = new ArrayList<>();
 
-
+    Block rulesInitialBlock;
 
  public DynamicsStart(MuZeroConfig config) {
      super(MYVERSION);
-     blocks.add(addChildBlock("dynamicsStartRulesInitial", Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build()));
+     rulesInitialBlock = Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build();
+
+     blocks.add(addChildBlock("dynamicsStartRulesInitial",rulesInitialBlock));
      blocks.add(addChildBlock("dynamicsStartRulesRecurrent", Conv3x3.builder().channels(config.getNumChannelsRulesRecurrent()).build()));
      blocks.add(addChildBlock("dynamicsStartPolicy", Conv3x3.builder().channels(config.getNumChannelsPolicy()).build()));
      blocks.add(addChildBlock("dynamicsStartValue", Conv3x3.builder().channels(config.getNumChannelsValue()).build()));
@@ -55,7 +72,7 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
      NDList result = new NDList();
-     IntStream.range(0, blocks.size()).forEach(
+     IntStream.range(0, this.noOfActiveLayers).forEach(
              i -> result.add(blocks.get(i).forward(parameterStore, new NDList(inputs.get(i)), training).get(0)));
         result.add(inputs.get(blocks.size()));
         return result;
@@ -64,14 +81,14 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         List<Shape> shapes = new ArrayList<>();
-        IntStream.range(0, blocks.size()).forEach(i -> shapes.add(blocks.get(i).getOutputShapes(new Shape[] {inputs[i]})[0]));
-        shapes.add(inputs[blocks.size()]);
+        IntStream.range(0, this.noOfActiveLayers).forEach(i -> shapes.add(blocks.get(i).getOutputShapes(new Shape[] {inputs[i]})[0]));
+        shapes.add(inputs[this.noOfActiveLayers]);
         return shapes.toArray(new Shape[0]);
     }
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        IntStream.range(0, blocks.size()).forEach(i -> blocks.get(i).initialize(manager, dataType, new Shape[] {inputShapes[i]}));
+        IntStream.range(0, this.noOfActiveLayers).forEach(i -> blocks.get(i).initialize(manager, dataType, new Shape[] {inputShapes[i]}));
     }
 
     @Override
@@ -115,5 +132,13 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
     @Override
     public void freeze(boolean[] freeze) {
           IntStream.range(0, blocks.size()).forEach(i -> blocks.get(i).freezeParameters(freeze[i]));
+    }
+
+    public Block getBlockForInitialRulesOnly(MuZeroConfig config) {
+
+        DynamicsStart block2 = new DynamicsStart(config);
+        block2.blocks.add(addChildBlock("dynamicsStartRulesInitial",rulesInitialBlock));
+
+        return block2;
     }
 }

@@ -22,7 +22,9 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
+import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
+import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
@@ -32,8 +34,7 @@ import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.CausalLayersToPrediction;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
@@ -46,12 +47,28 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("java:S110")
-public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
+
+    private  int noOfActiveLayers = 4; // default
+
+    public int getNoOfActiveLayers() {
+        return noOfActiveLayers;
+    }
+
+    public void setNoOfActiveLayers(int noOfActiveLayers) {
+        this.noOfActiveLayers = noOfActiveLayers;
+        for (Pair<String, Block> child : this.children) {
+            if(child.getValue() instanceof DCLAware dclAware) {
+                dclAware.setNoOfActiveLayers(noOfActiveLayers);
+            }
+        }
+    }
 
     public PredictionBlock(@NotNull MuZeroConfig config ) {
         this(
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize() );
+
     }
 
 
@@ -75,7 +92,6 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
         return count;
     }
 
-  //  private boolean withReward = false;
 
     public PredictionBlock(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, boolean[] headUsage) {
         this(isPlayerModeTWOPLAYERS, actionSpaceSize);
@@ -144,16 +160,16 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
-        if (headUsage[0]) {
+        if (headUsage[0] && this.noOfActiveLayers >= 1) {
             results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
         }
-        if (headUsage[1]) {
+        if (headUsage[1] && this.noOfActiveLayers >= 1) {
             results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
         }
-        if (headUsage[2]) {
+        if (headUsage[2] && this.noOfActiveLayers >= 3) {
             results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
         }
-        if (headUsage[3]) {
+        if (headUsage[3] && this.noOfActiveLayers >= 4) {
             results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(3)), training, params).get(0));
         }
         return results;
@@ -161,36 +177,36 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        Shape[] inputShapes_ = inputShapes;//causalLayersToPrediction.getOutputShapes(inputShapes);
-        if (headUsage[0]) {
+
+        Shape[] inputShapes_ = inputShapes;
+        if (headUsage[0]  && this.noOfActiveLayers >= 1) {
             legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes_[0]});
         }
-        if (headUsage[1]) {
+        if (headUsage[1]  && this.noOfActiveLayers >= 1) {
             rewardHead.initialize(manager, dataType, new Shape[]{inputShapes_[1] });
         }
-        if (headUsage[2]) {
+        if (headUsage[2]  && this.noOfActiveLayers >= 3) {
             policyHead.initialize(manager, dataType, new Shape[]{inputShapes_[2]});
         }
-        if (headUsage[3]) {
+        if (headUsage[3]  && this.noOfActiveLayers >= 4) {
             valueHead.initialize(manager, dataType, new Shape[]{inputShapes_[3]});
         }
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-     //   inputShapes = causalLayersToPrediction.getOutputShapes(inputShapes);
         Shape[] result = new Shape[countHeadsUsed()];
         int c = 0;
-        if (headUsage[0]) {
+        if (headUsage[0] && this.noOfActiveLayers >= 1) {
             result[c++] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
         }
-        if (headUsage[1]) {
+        if (headUsage[1] && this.noOfActiveLayers >= 1) {
             result[c++] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
         }
-        if (headUsage[2]) {
+        if (headUsage[2] && this.noOfActiveLayers >= 3) {
             result[c++] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
         }
-        if (headUsage[3]) {
+        if (headUsage[3] && this.noOfActiveLayers >= 4) {
             result[c] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[3]})[0];
         }
 
@@ -209,26 +225,26 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityF
         List<OnnxTensor> outputs = new ArrayList<>();
         OnnxTensor childOutput = null;
         OnnxBlock   child = null;
-        if (headUsage[0]) {
+        if (headUsage[0]  && this.noOfActiveLayers >= 1) {
             child = this.legalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
         }
-        if (headUsage[1]) {
+        if (headUsage[1]  && this.noOfActiveLayers >= 1) {
                 child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(1)));
                 onnxBlock.addChild(child);
                 childOutput = child.getOutput().get(0);
                 outputs.add(childOutput);
             }
 
-        if (headUsage[2]) {
+        if (headUsage[2]  && this.noOfActiveLayers >= 3) {
             child = this.policyHead.getOnnxBlock(counter, List.of(input.get(2)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
         }
-        if (headUsage[3]) {
+        if (headUsage[3]  && this.noOfActiveLayers >= 4) {
             child = this.valueHead.getOnnxBlock(counter, List.of(input.get(3)));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);

@@ -98,14 +98,8 @@ private Block block;
 
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> pairList) {
-        try {
-            return block.forward(parameterStore, inputs, training);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
-    }
+             return block.forward(parameterStore, inputs, training);
+     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
