@@ -233,14 +233,12 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
         if (headUsage[0]  && this.noOfActiveLayers >= 1) {
             child = this.rewardAndLegalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
             onnxBlock.addChild(child);
-            childOutput = child.getOutput().get(0);
-            outputs.add(childOutput);
+            outputs.addAll(child.getOutput());
         }
         if (headUsage[1]  && this.noOfActiveLayers >= 2) {
             child = this.rewardAndLegalActionsHead.getOnnxBlock(counter, List.of(input.get(1)));
             onnxBlock.addChild(child);
-            childOutput = child.getOutput().get(0);
-            outputs.add(childOutput);
+            outputs.addAll(child.getOutput());
         }
         if (headUsage[2]  && this.noOfActiveLayers >= 3) {
             child = this.policyHead.getOnnxBlock(counter, List.of(input.get(2)));

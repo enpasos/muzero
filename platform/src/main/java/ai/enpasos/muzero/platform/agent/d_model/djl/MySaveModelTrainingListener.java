@@ -23,6 +23,8 @@ import ai.djl.training.Trainer;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.listener.TrainingListenerAdapter;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -145,7 +147,14 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
             }
             Path modelPath = Paths.get(outputDir);
 
-            model.save(modelPath, modelName);
+
+            ((DCLAware)model.getBlock()).setNoOfActiveLayers(4);   // TODO: setNoOfActiveLayersToInitialState();
+           // ((MuZeroBlock)model.getBlock()).setInputShape(gameBuffer.getEnv().getObservationShape());
+
+
+            ((MuZeroBlock)model.getBlock()).useDefaultInputShapesIfSet();
+                 model.save(modelPath, modelName);
+            ((MuZeroBlock)model.getBlock()).useCurrentInputShapes();
         } catch (IOException e) {
             logger.error("Failed to save checkpoint", e);
         }

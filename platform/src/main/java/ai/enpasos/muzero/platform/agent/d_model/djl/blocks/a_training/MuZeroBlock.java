@@ -29,6 +29,7 @@ import ai.djl.util.Pair;
 import ai.djl.util.PairList;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.*;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -45,12 +46,24 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     private int noOfActiveLayers;
+    private Shape[] currentInputShapes;
+    private Shape[] defaultInputShapes;
+
+    public void setDefaultInputShapes(Shape[] defaultInputShapes) {
+        this.defaultInputShapes = defaultInputShapes;
+    }
 
     public int getNoOfActiveLayers() {
         return noOfActiveLayers;
     }
 
     public void setNoOfActiveLayers(int noOfActiveLayers) {
+
+        this.getParameters();
+
+
+
+
         this.noOfActiveLayers = noOfActiveLayers;
         for (Pair<String, Block> child : this.children) {
             if(child.getValue() instanceof DCLAware dclAware) {
@@ -58,6 +71,8 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
             }
         }
     }
+
+
 
     private final RepresentationBlock representationBlock;
     private final PredictionBlock predictionBlock;
@@ -98,76 +113,91 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     @Override
     protected @NotNull NDList forwardInternal(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
+
+        if (inputs.size() < this.noOfActiveLayers) {
+            throw new MuZeroException("inputs.size() < this.noOfActiveLayers: " + inputs.size() + " < " + this.noOfActiveLayers);
+        }
         NDList combinedResult = new NDList();
 
-        // added predictions to the combinedResult in the following order:
-        // initial inference
-        // - rules layer: legal actions
-        // - policy layer:  policy
-        // - value layer:  value
-        // each recurrent inference
-        // - rules layer: consistency loss
-        // - rules layer: reward
-        // - rules layer: legal actions
-        // - policy layer:  policy
-        // - value layer:  value
-
-        // initial Inference
-        predictionBlock.setHeadUsage(new boolean[] {true, false, true, true});
-        NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDList stateForPrediction = firstHalfNDList(representationResult);
-        NDList stateForTimeEvolution = secondHalfNDList(representationResult);
-
-        NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
-            combinedResult.add(prediction);
-        }
-
-        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-
-
-            // recurrent Inference
-
-            predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
-
-            NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k );
-
-            NDList dynamicIn = new NDList();
-            dynamicIn.addAll(stateForTimeEvolution);
-            dynamicIn.add(action);
-
-            NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
-
-             stateForPrediction = firstHalfNDList(dynamicsResult);
-             stateForTimeEvolution = secondHalfNDList(dynamicsResult);
-
-
-            predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-
-            if (config.isWithConsistencyLoss()) {
-
-                NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(stateForTimeEvolution.get(1)), training, params);
-                NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(1);
-
-
-                representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-                NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(stateForPrediction.size())), training, params).get(1);
-                similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
-
-                combinedResult.add(similarityPredictorResult);
-                combinedResult.add(similarityProjectorResultLabel);
+        if (this.noOfActiveLayers == 1) {
+            predictionBlock.setHeadUsage(new boolean[]{true, false, false, false});
+            NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
+            NDList stateForPrediction = firstHalfNDList(representationResult);
+            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+            for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+                combinedResult.add(prediction);
             }
+        } else {
 
+            // added predictions to the combinedResult in the following order:
+            // initial inference
+            // - rules layer: legal actions
+            // - policy layer:  policy
+            // - value layer:  value
+            // each recurrent inference
+            // - rules layer: consistency loss
+            // - rules layer: reward
+            // - rules layer: legal actions
+            // - policy layer:  policy
+            // - value layer:  value
+
+            // initial Inference
+            predictionBlock.setHeadUsage(new boolean[]{true, false, true, true});
+            NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
+            NDList stateForPrediction = firstHalfNDList(representationResult);
+            NDList stateForTimeEvolution = secondHalfNDList(representationResult);
+
+            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
             }
 
-            NDList temp = new NDList();
-            for (int i = 0; i < stateForTimeEvolution.size(); i++) {
-                temp.add(stateForTimeEvolution.get(i).scaleGradient(0.5));
-            }
-            stateForTimeEvolution = temp;
+            for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
+
+                // recurrent Inference
+
+                predictionBlock.setHeadUsage(new boolean[]{true, true, true, true});
+
+                NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k);
+
+                NDList dynamicIn = new NDList();
+                dynamicIn.addAll(stateForTimeEvolution);
+                dynamicIn.add(action);
+
+                NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
+
+                stateForPrediction = firstHalfNDList(dynamicsResult);
+                stateForTimeEvolution = secondHalfNDList(dynamicsResult);
+
+
+                predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+
+                if (config.isWithConsistencyLoss()) {
+
+                    NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(stateForTimeEvolution.get(1)), training, params);
+                    NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(1);
+
+
+                    representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
+                    NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(stateForPrediction.size())), training, params).get(1);
+                    similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
+
+                    combinedResult.add(similarityPredictorResult);
+                    combinedResult.add(similarityProjectorResultLabel);
+                }
+
+                for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+                    combinedResult.add(prediction);
+                }
+
+                NDList temp = new NDList();
+                for (int i = 0; i < stateForTimeEvolution.size(); i++) {
+                    temp.add(stateForTimeEvolution.get(i).scaleGradient(0.5));
+                }
+                stateForTimeEvolution = temp;
+
+            }
         }
         return combinedResult;
     }
@@ -191,34 +221,42 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        Shape[] outputShapes = new Shape[0];
+        if (this.noOfActiveLayers == 1) {
+            predictionBlock.setHeadUsage(new boolean[]{true, false, false, false});
+            Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
+            Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+            Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
+            return predictionBlockOutputShapes;
+        } else {
+            Shape[] outputShapes = new Shape[0];
 
-        // initial Inference
-        predictionBlock.setHeadUsage(new boolean[] {true, false, true, true});
-        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
+            // initial Inference
+            predictionBlock.setHeadUsage(new boolean[]{true, false, true, true});
+            Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
-        Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-        Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+            Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+            Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
-        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
-        outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
+            Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
+            outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
 
-        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-            // recurrent Inference
-            predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
+            for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+                // recurrent Inference
+                predictionBlock.setHeadUsage(new boolean[]{true, true, true, true});
 
-            Shape actionShape = inputShapes[k];
-            Shape[] dynamicInShape =  ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
+                Shape actionShape = inputShapes[k];
+                Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
 
-            stateOutputShapes = dynamicsBlock.getOutputShapes(dynamicInShape);
+                stateOutputShapes = dynamicsBlock.getOutputShapes(dynamicInShape);
 
-            stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-            stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+                stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+                stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
-            outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
+                outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
 
+            }
+            return outputShapes;
         }
-        return outputShapes;
     }
 
 
@@ -237,27 +275,36 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {
-        representationBlock.initialize(manager, dataType, inputShapes[0]);
+        if (this.noOfActiveLayers == 1) {
+            representationBlock.initialize(manager, dataType, inputShapes[0]);
+            Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
+            Shape[] predictionInputShape = firstHalf(stateOutputShapes);
 
-        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
+            predictionBlock.setHeadUsage(new boolean[]{true, false, false, false});
+            predictionBlock.initialize(manager, dataType, predictionInputShape);
+        } else {
+            representationBlock.initialize(manager, dataType, inputShapes[0]);
 
-        if (config.isWithConsistencyLoss()) {
-            Shape similarityProjectorInputShape = secondHalf(stateOutputShapes)[0];
-            similarityProjectorBlock.initialize(manager, dataType, similarityProjectorInputShape);
+            Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
-            Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{similarityProjectorInputShape});
-            this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+            if (config.isWithConsistencyLoss()) {
+                Shape similarityProjectorInputShape = secondHalf(stateOutputShapes)[0];
+                similarityProjectorBlock.initialize(manager, dataType, similarityProjectorInputShape);
+
+                Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{similarityProjectorInputShape});
+                this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+            }
+
+            Shape[] predictionInputShape = firstHalf(stateOutputShapes);
+
+            predictionBlock.setHeadUsage(new boolean[]{true, true, true, true});
+            predictionBlock.initialize(manager, dataType, predictionInputShape);
+
+            Shape actionShape = inputShapes[1];
+            Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
+
+            dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
         }
-
-        Shape[] predictionInputShape =  firstHalf(stateOutputShapes);
-
-        predictionBlock.setHeadUsage(new boolean[] {true, true, true, true});
-        predictionBlock.initialize(manager, dataType, predictionInputShape);
-
-        Shape actionShape = inputShapes[1];
-        Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
-
-        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
     }
 
     @NotNull
@@ -280,5 +327,20 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
             this.similarityProjectorBlock.freezeParameters(freeze[0]);
         }
         this.representationBlock.freeze(freeze);
+    }
+
+    public void useDefaultInputShapesIfSet() {
+        if (this.defaultInputShapes == null) {
+            return;
+        }
+        this.currentInputShapes = this.inputShapes;
+        this.inputShapes = this.defaultInputShapes;
+    }
+    public  Shape[] getDefaultInputShapes() {
+        return this.defaultInputShapes;
+    }
+
+    public void useCurrentInputShapes() {
+        this.inputShapes = this.currentInputShapes;
     }
 }

@@ -217,32 +217,43 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkInitialRules(  ) {
 
+
+
         try (NDScope nDScope = new NDScope()) {
 
 
             // initialization
             Model model =  network.getModel();
 
+
                 int epochLocal;
                 int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                 boolean withSymmetryEnrichment = true;
                 epochLocal = getEpochFromModel(model);
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, false, config.isWithConsistencyLoss());
+            //    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, false, config.isWithConsistencyLoss());
                 int finalEpoch = epochLocal;
 
 
-            model =  network.getRulesInitial();
-
+                // TODO the following is a hack - find a good solution
+       //     ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(batchFactory.getInputShapes());
+         //   model =  network.getRulesInitial();
+            ( (DCLAware)model.getBlock()).setNoOfActiveLayers(1);
 
             // special
-             djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+            DefaultTrainingConfig   djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
 
             djlConfig.getTrainingListeners().stream()
                     .filter(MyEpochTrainingListener.class::isInstance)
                     .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = batchFactory.getInputShapesForInitialRules();
+
+                Shape[] inputShapes = batchFactory.getInputShapes();
                 trainer.initialize(inputShapes);
+                ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
+
+                 inputShapes = batchFactory.getInputShapesForInitialRules();
+                trainer.initialize(inputShapes);
+
                 trainer.setMetrics(new Metrics());
                 //((CausalityFreezing) model.getBlock()).freeze(freeze);
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {

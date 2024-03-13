@@ -287,10 +287,11 @@ class BlockTest {
 
     @Test
     void predictionRANDOM() throws Exception {
-
+        PredictionBlock pb = new PredictionBlock( true, 9);
+        pb.setNoOfActiveLayers(4);
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock( true, 9),
+            pb,
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
