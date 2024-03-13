@@ -185,20 +185,20 @@ public class GameBuffer {
                 .collect(Collectors.toList());
         }
     }
-    public List<Sample> sampleBatchFromLegalActionsBuffer(int numUnrollSteps ) {
+    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
 
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGamesFrom( getGamesToLearnLegalActions()).stream()
+            return sampleGamesFrom( getGamesToLearnRules()).stream()
                     .map(game -> sampleFromGame(numUnrollSteps, game))
                     .collect(Collectors.toList());
         }
     }
 
-    private List<Game> getGamesToLearnLegalActions() {
+    private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
-      //   List<Game> games  =  getNRandomSelectedGames(n);
-        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+         List<Game> games  =  getNRandomSelectedGames(n);
+//        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+//        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return games;
     }
 

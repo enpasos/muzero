@@ -131,18 +131,18 @@ public class TrainingConfigFactory {
 
         float gradientScale = 1f / config.getNumUnrollSteps();
 
-        int k = 0;
+ int k = 0;
 
         //  legal actions
         log.trace("k={}: LegalActions BCELoss", k);
-        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/this.config.getActionSpaceSize(), 1), k));
+        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + k, 1f/this.config.getActionSpaceSize(), 1), k));
         k++;
 
-        int i = 1;
+
 
         // reward
         log.trace("k={}: Reward L2Loss", k);
-        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
+        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + k, config.getValueLossWeight() * gradientScale), k));
 
         mySaveModelTrainingListener.setOutputDir(outputDir);
         mySaveModelTrainingListener.setEpoch(epoch);

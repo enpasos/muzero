@@ -229,14 +229,6 @@ public class ModelController implements DisposableBean, Runnable {
                 epochLocal = getEpochFromModel(model);
                 DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, false, config.isWithConsistencyLoss());
                 int finalEpoch = epochLocal;
-//                djlConfig.getTrainingListeners().stream()
-//                        .filter(MyEpochTrainingListener.class::isInstance)
-//                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-//                try (Trainer trainer = model.newTrainer(djlConfig)) {
-//                    Shape[] inputShapes = batchFactory.getInputShapes();
-//                    trainer.initialize(inputShapes);
-//                }
-
 
 
             model =  network.getRulesInitial();
@@ -255,7 +247,7 @@ public class ModelController implements DisposableBean, Runnable {
                 //((CausalityFreezing) model.getBlock()).freeze(freeze);
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     // TODO batch has to be adjusted
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), TrainingDatasetType.PLANNING_BUFFER)) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
                         log.debug("trainBatch " + m);
 
                         // special

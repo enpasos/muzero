@@ -61,11 +61,11 @@ public class BatchFactory {
 //    }
 
     @NotNull
-    private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList) {
+    private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList, TrainingDatasetType trainingDatasetType) {
         NDManager nd = ndManager.newSubManager();
 
-        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss());
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList);
+        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss(), trainingDatasetType);
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList, trainingDatasetType);
 
         return new Batch(
                 nd,
@@ -85,12 +85,11 @@ public class BatchFactory {
             case PLANNING_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromPlanningBuffer(config.getNumUnrollSteps());
                 break;
-//            case RULES_BUFFER:
-//                sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
-//                break;
-            case LEGAL_ACTIONS_BUFFER:
 
-                sampleList = gameBuffer.sampleBatchFromLegalActionsBuffer(config.getNumUnrollSteps());
+
+            case RULES_BUFFER:
+
+                sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
 
                 break;
             case REANALYSE_BUFFER:
@@ -99,7 +98,7 @@ public class BatchFactory {
         }
 
 
-        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList, trainingDatasetType);
     }
 
 //    public Batch getBatchFromRulesBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {

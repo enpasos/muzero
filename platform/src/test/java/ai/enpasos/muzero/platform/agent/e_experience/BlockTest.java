@@ -72,10 +72,37 @@ class BlockTest {
     }
 
     @Test
-    void representationStartBlockRANDOM() throws Exception {
+    void representationStartBlock4RANDOM() throws Exception {
+        RepresentationStart r = new RepresentationStart(config) ;
+        r.setNoOfActiveLayers(4);
         boolean check = compareOnnxWithDJL(
-                "./build/RepresentationStartBlock.onnx",
-                new RepresentationStart(config),
+                "./build/RepresentationStartBlock4.onnx",
+                r,
+                List.of(new Shape(1, 3, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+
+    @Test
+    void representationStartBlock1RANDOM() throws Exception {
+        RepresentationStart r = new RepresentationStart(config) ;
+        r.setNoOfActiveLayers(1);
+        boolean check = compareOnnxWithDJL(
+                "./build/RepresentationStartBlock1.onnx",
+                r,
+                List.of(new Shape(1, 3, 3, 3)),
+                RANDOM);
+        Assertions.assertTrue(check);
+    }
+
+    @Test
+    void representationStartBlock2RANDOM() throws Exception {
+        RepresentationStart r = new RepresentationStart(config) ;
+        r.setNoOfActiveLayers(2);
+        boolean check = compareOnnxWithDJL(
+                "./build/RepresentationStartBlock2.onnx",
+                r,
                 List.of(new Shape(1, 3, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
@@ -162,27 +189,8 @@ class BlockTest {
                 RANDOM);
         Assertions.assertTrue(check);
     }
-    @Test
-    void representationStartBlockForInitialRulesOnlyRANDOM() throws Exception {
-        RepresentationStart representationStart = new RepresentationStart(config);
 
-        boolean check = compareOnnxWithDJL(
-                "./build/RepresentationStartBlockForInitialRulesOnly.onnx",
-                representationStart.getBlockForInitialRulesOnly(),
-                List.of(new Shape(1, 3, 3, 3)),
-                RANDOM);
-        Assertions.assertTrue(check);
-    }
-    @Test
-    void representationBlockForInitialRulesOnlyRANDOM() throws Exception {
-        RepresentationBlock representationBlock = RepresentationBlock.builder().config(config).build();
-        boolean check = compareOnnxWithDJL(
-                "./build/RepresentationBlockForInitialRulesOnly.onnx",
-                representationBlock.getBlockForInitialRulesOnly(config),
-                List.of(new Shape(1, 3, 3, 3)),
-                RANDOM);
-        Assertions.assertTrue(check);
-    }
+
 
 
     @Test

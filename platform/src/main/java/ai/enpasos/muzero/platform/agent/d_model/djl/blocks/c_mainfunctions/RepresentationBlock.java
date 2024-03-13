@@ -74,12 +74,5 @@ public class RepresentationBlock extends MySequentialBlock implements OnnxIO, DC
         });
     }
 
-    public RepresentationBlock getBlockForInitialRulesOnly(MuZeroConfig config) {
-        RepresentationBlock block2 = new RepresentationBlock();
-        block2
-                .add(representationStart.getBlockForInitialRulesOnly())
-                .add(mainRepresentationOrDynamicsBlock.getBlockForInitialRulesOnly(config));
 
-        return block2;
-    }
 }

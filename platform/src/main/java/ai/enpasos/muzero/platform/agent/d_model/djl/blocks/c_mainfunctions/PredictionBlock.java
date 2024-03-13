@@ -76,7 +76,7 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
 
     @Setter
-    private boolean[] headUsage = {true, true, true, true};
+    private boolean[] headUsage = {true, true, true, true};  // obsolete?
 
     private int countHeadsUsed() {
         int count = 0;
@@ -165,10 +165,12 @@ public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
         if (headUsage[0] && this.noOfActiveLayers >= 1) {
-            results.add(this.rewardAndLegalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+            this.rewardAndLegalActionsHead.freezeParameters(false);
+            results.addAll(this.rewardAndLegalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params));
         }
         if (headUsage[1] && this.noOfActiveLayers >= 2) {
-            results.add(this.rewardAndLegalActionsHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
+            this.rewardAndLegalActionsHead.freezeParameters(true);
+            results.addAll(this.rewardAndLegalActionsHead.forward(parameterStore, new NDList(inputs.get(1)), training, params));
         }
          if (headUsage[2] && this.noOfActiveLayers >= 3) {
             results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));

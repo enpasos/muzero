@@ -16,6 +16,7 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.mnist.blocks.ext.ParallelBlockWithCollectChannelJoinExt;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv3x3;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ParallelBlockWithCollectChannelJoinExtDCLAware;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +30,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 @SuppressWarnings("all")
 public class RepresentationStart extends  AbstractBlock implements OnnxIO, DCLAware {
 
-    private  int noOfActiveLayers = 4;
+    private  int noOfActiveLayers;
 
     public int getNoOfActiveLayers() {
         return noOfActiveLayers;
@@ -58,18 +59,17 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, DCLAw
     public RepresentationStart(MuZeroConfig config) {
         this();
 
-        rulesInitialBlock = Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build();
+        this.rulesInitialBlock = Conv3x3.builder().channels(config.getNumChannelsRulesInitial()).build();
 
-        childBlocks.add(rulesInitialBlock);
+        childBlocks.add(this.rulesInitialBlock);
         childBlocks.add(Conv3x3.builder().channels(config.getNumChannelsRulesRecurrent()).build());
         childBlocks.add(Conv3x3.builder().channels(config.getNumChannelsPolicy()).build());
         childBlocks.add(Conv3x3.builder().channels(config.getNumChannelsValue()).build());
 
-
-        parentBlock = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(
+        parentBlock = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExtDCLAware(
                 childBlocks
         ));
-
+        setNoOfActiveLayers(4); // default
     }
 
 
@@ -91,9 +91,11 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, DCLAw
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         List<Shape> shapes = new ArrayList<>();
-        for (Block myblock : parentBlock.getChildren().values()) {
-            shapes.add(myblock.getOutputShapes(inputs)[0]);
-        }
+        IntStream.range(0, this.noOfActiveLayers).forEach(
+                i -> {Block myBlock = parentBlock.getChildren().values().get(i);
+                    shapes.add(myBlock.getOutputShapes(inputs)[0]);
+                }
+        );
         return shapes.toArray(new Shape[0]);
     }
 
@@ -117,13 +119,13 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, DCLAw
         });
     }
 
-    public RepresentationStart getBlockForInitialRulesOnly() {
-        RepresentationStart block2 = new RepresentationStart();
-
-        block2.childBlocks.add(rulesInitialBlock);
-        block2.parentBlock = block2.addChildBlockPublic("representationStartForInitialRulesOnly", rulesInitialBlock);
-        return block2;
-    }
+//    public RepresentationStart getBlockForInitialRulesOnly() {
+//        RepresentationStart block2 = new RepresentationStart();
+//
+//        block2.childBlocks.add(rulesInitialBlock);
+//        block2.parentBlock = block2.addChildBlockPublic("representationStartForInitialRulesOnly", rulesInitialBlock);
+//        return block2;
+//    }
 
     private Block addChildBlockPublic(String name, Block block) {
         return this.addChildBlock(name, block);

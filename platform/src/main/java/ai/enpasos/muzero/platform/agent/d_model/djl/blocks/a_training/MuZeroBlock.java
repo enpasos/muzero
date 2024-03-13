@@ -44,7 +44,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
-    private  int noOfActiveLayers;
+    private int noOfActiveLayers;
 
     public int getNoOfActiveLayers() {
         return noOfActiveLayers;
