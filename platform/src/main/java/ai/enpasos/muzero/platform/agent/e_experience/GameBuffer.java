@@ -116,7 +116,7 @@ public class GameBuffer {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
         }
         sample.setActionsList(new ArrayList<>());
-        for (int i = 0; i <  (config.isWithConsistencyLoss() ? numUnrollSteps : 1); i++) {
+        for (int i = 0; i <  (config.isWithConsistencyLoss() ? numUnrollSteps : 0); i++) {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 
@@ -188,7 +188,7 @@ public class GameBuffer {
     public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
 
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGamesFrom( getGamesToLearnRules()).stream()
+            return  getGamesToLearnRules().stream()
                     .map(game -> sampleFromGame(numUnrollSteps, game))
                     .collect(Collectors.toList());
         }
@@ -197,6 +197,7 @@ public class GameBuffer {
     private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
          List<Game> games  =  getNRandomSelectedGames(n);
+         Collections.shuffle(games);
 //        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
 //        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return games;

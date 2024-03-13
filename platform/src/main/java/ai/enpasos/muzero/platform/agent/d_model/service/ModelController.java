@@ -258,7 +258,7 @@ public class ModelController implements DisposableBean, Runnable {
                 //((CausalityFreezing) model.getBlock()).freeze(freeze);
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     // TODO batch has to be adjusted
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, 0, config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
                         log.debug("trainBatch " + m);
 
                         // special

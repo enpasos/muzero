@@ -83,17 +83,17 @@ public class BatchFactory {
         List<Sample> sampleList = null;
         switch(trainingDatasetType) {
             case PLANNING_BUFFER:
-                sampleList = gameBuffer.sampleBatchFromPlanningBuffer(config.getNumUnrollSteps());
+                sampleList = gameBuffer.sampleBatchFromPlanningBuffer(numUnrollSteps);
                 break;
 
 
             case RULES_BUFFER:
 
-                sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
+                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
 
                 break;
             case REANALYSE_BUFFER:
-                sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
+                sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(numUnrollSteps);
                 break;
         }
 
