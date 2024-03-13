@@ -85,23 +85,13 @@ public class LossExtractor {
                         int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                         csvPrinter.printRecord(trainingSteps,
                             NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLegalActionLoss")),
+                                nf.format(getDoubleValue(model, "MeanLegalActionLoss")),
 
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanRewardLoss")),
+                                nf.format(getDoubleValue(model, "MeanRewardLoss")),
                                 nf.format(getDoubleValue(model, "MeanSimilarityLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanPolicyLoss")),
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanValueLoss"))
+                                nf.format(getDoubleValue(model, "MeanPolicyLoss")),
+                                nf.format(getDoubleValue(model, "MeanValueLoss"))
 
-
-
-                            //,
-
-//                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanLoss")),
-//                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanValueLoss")),
-//                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanPolicyLoss")),
-//                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "POLICY_INDEPENDENTMeanSimilarityLoss"))
-                            //,
-                            //NumberFormat.getNumberInstance().format(getDoubleValue(model, "NumActionPaths"))
                         );
                     } catch (Exception ignored) {
                         log.debug("player " + i + " model.load not successfull");
