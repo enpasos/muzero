@@ -80,7 +80,6 @@ muzero:
       cScale: 1.0  # 1.0 in paper
 
       numChannels: 256     # 256 in the paper
-      numBottleneckChannels: 128
 
       numResiduals: 12
       broadcastEveryN: 8  # out of range here
@@ -112,8 +111,6 @@ muzero:
       offPolicyRatioLimit: 1.0
 
       numParallelInferences: 1000
-
-      withLegalActionsHead: false
 
 
 
@@ -214,17 +211,12 @@ muzero:
 
       knownBoundsType: FROM_VALUES
 
-
-
-
-
       # Gumbel MuZero parameters
       initialGumbelM: 16
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
       numChannels: 128     # 256 in the paper
-      numBottleneckChannels: 64
 
       numChannelsRules: 50
       numChannelsPolicy: 50

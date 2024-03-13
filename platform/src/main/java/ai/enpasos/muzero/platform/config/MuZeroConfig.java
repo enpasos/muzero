@@ -195,9 +195,6 @@ public class MuZeroConfig {
         return getConf().numCompressedChannelsValue;
     }
 
-    public int getNumBottleneckChannels() {
-        return getConf().numBottleneckChannels;
-    }
 
 
     public int getNumResiduals() {
@@ -263,9 +260,7 @@ public class MuZeroConfig {
         return getConf().consistencyLossWeight;
     }
 
-    public float getLegalActionsLossWeight() {
-        return getConf().legalActionsLossWeight;
-    }
+
 
 
 
@@ -518,7 +513,6 @@ public class MuZeroConfig {
         protected int numCompressedChannelsValue;
 
         protected int broadcastEveryN;
-        protected int numBottleneckChannels;
 
         protected int numResiduals;
 
@@ -540,7 +534,6 @@ public class MuZeroConfig {
         protected float weightDecay;
         protected float valueLossWeight = 1f;
         protected float consistencyLossWeight = 1f;
-        protected float legalActionsLossWeight = 1f;
         protected float lrInit;
         protected int size;
         protected int maxMoves;

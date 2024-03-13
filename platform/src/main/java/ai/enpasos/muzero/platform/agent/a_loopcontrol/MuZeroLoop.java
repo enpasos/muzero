@@ -112,7 +112,7 @@ public class MuZeroLoop {
 //            modelService.trainModel(freeze, SEQUENTIAL_FROM_ALL_EXPERIENCE).get();
 
             boolean[] freeze = new boolean[]{false, false, false};
-             modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
+            modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
 
             epoch = modelState.getEpoch();
 

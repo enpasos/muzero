@@ -75,7 +75,6 @@ muzero:
       numCompressedChannelsValue: 10
 
 
-      numBottleneckChannels: 6
 
       numResiduals: 6
       broadcastEveryN: 4  # out of range here
