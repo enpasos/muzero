@@ -102,8 +102,13 @@ public class PairList<K, V> implements Iterable<Pair<K, V>> {
      * @param value the value
      */
     public void add(int index, K key, V value) {
+        try {
         keys.add(index, key);
         values.add(index, value);
+        } catch (Exception e) {
+            int i = 42;
+            throw e;
+        }
     }
 
     /**
@@ -113,8 +118,13 @@ public class PairList<K, V> implements Iterable<Pair<K, V>> {
      * @param value the value
      */
     public void add(K key, V value) {
+        try {
         keys.add(key);
         values.add(value);
+        } catch (Exception e) {
+            int i = 42;
+            throw e;
+        }
     }
 
     /**
@@ -123,8 +133,13 @@ public class PairList<K, V> implements Iterable<Pair<K, V>> {
      * @param pair the key-value pair
      */
     public void add(Pair<K, V> pair) {
+        try{
         keys.add(pair.getKey());
         values.add(pair.getValue());
+        } catch (Exception e) {
+            int i = 42;
+            throw e;
+        }
     }
 
     /**
@@ -133,9 +148,14 @@ public class PairList<K, V> implements Iterable<Pair<K, V>> {
      * @param other the {@code PairList} containing elements to be added to this list
      */
     public void addAll(PairList<K, V> other) {
+        try{
         if (other != null) {
             keys.addAll(other.keys());
             values.addAll(other.values());
+        }
+        } catch (Exception e) {
+            int i = 42;
+            throw e;
         }
     }
 
