@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.tictactoe.config;
 
+import ai.djl.ndarray.NDManager;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +39,10 @@ class TicTacToeGameTest {
             Objects.requireNonNull(game).apply(config.newAction(a));
         }
         TicTacToeGame ticTacToeGame = (TicTacToeGame) game;
+
+
+    //    System.out.println(Arrays.toString(ticTacToeGame.getObservationModelInput(3).getValue()));
+
         assertEquals(ticTacToeGame.getObservationModelInputOld(3), ticTacToeGame.getObservationModelInput(3));
     }
 }
