@@ -82,19 +82,46 @@ public class TicTacToeGame extends ZeroSumGame {
         }
     }
 
+    @SuppressWarnings("squid:S2095")
+    public @NotNull ObservationModelInput getObservationModelInputOld(int inputTime) {
+
+        int n = config.getNumObservationLayers() * config.getBoardHeight() * config.getBoardWidth();
+
+        BitSet rawResult = new BitSet(n);
+
+
+
+        int index = 0;
+        int observationTime = Math.min(this.getEpisodeDO().getLastTime(), inputTime);
+        OneOfTwoPlayer currentPlayer =  observationTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
+        ObservationTwoPlayers observation = (ObservationTwoPlayers)this.getEpisodeDO().getTimeSteps().get(observationTime).getObservation();
+
+        index = observation.addTo(currentPlayer, rawResult, index);
+
+        float v = currentPlayer.getActionValue();
+        for (int i = 0; i < config.getBoardHeight(); i++) {
+            for (int j = 0; j < config.getBoardWidth(); j++) {
+                rawResult.set(index++, v == 1f);
+            }
+        }
+
+        return new ObservationModelInput(bitSetToFloatArray(n, rawResult), new long[]{config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth()});
+    }
+
 
     @SuppressWarnings("squid:S2095")
     public @NotNull ObservationModelInput getObservationModelInput(int inputTime) {
 
         int n0 =   config.getBoardHeight() * config.getBoardWidth();
         int n = config.getNumObservationLayers() * n0;
-        int nTimeSteps =  config.getNumObservationLayers() - config.getNumActionLayers();
+        int nTimeSteps =  (config.getNumObservationLayers() - config.getNumActionLayers()) / 2;
 
         BitSet rawResult = new BitSet(n);
 
-        OneOfTwoPlayer currentPlayer =  inputTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
+
 
         int observationTime = Math.min(this.getEpisodeDO().getLastTime(), inputTime);
+        OneOfTwoPlayer currentPlayer =  observationTime % 2 == 0 ? OneOfTwoPlayer.PLAYER_A : OneOfTwoPlayer.PLAYER_B;
 
         int index = 0;
         for (int i = nTimeSteps-1; i >= 0; i--) {

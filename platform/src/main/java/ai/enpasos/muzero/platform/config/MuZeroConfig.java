@@ -483,6 +483,12 @@ public class MuZeroConfig {
     }
 
 
+
+    public void setNumObservationLayers(int numObservationLayers) {
+        getConf().setNumObservationLayers(numObservationLayers);
+    }
+
+
     @Data
     public static class Conf {
         public Map<PlayTypeKey, PlayType> playTypes;

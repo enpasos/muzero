@@ -26,7 +26,7 @@ muzero:
       actionClassName: ai.enpasos.muzero.tictactoe.config.TicTacToeAction
       playerMode: TWO_PLAYERS
       valueInterval: [ -1,1 ]
-      numObservationLayers: 3
+      numObservationLayers: 5
       numActionLayers: 1
 
 
