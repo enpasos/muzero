@@ -106,6 +106,9 @@ public class TicTacToe implements CommandLineRunner {
                 fillValueTable.run();
                 break;
 
+            case FILLREWARDLOSS:
+                fillRewardLoss.run();
+                break;
 
             case TEMPERATURE:
                 temperature.run();
