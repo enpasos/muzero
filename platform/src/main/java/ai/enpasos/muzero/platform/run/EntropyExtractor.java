@@ -81,7 +81,7 @@ public class EntropyExtractor {
 
 
         gameBuffer.loadLatestStateIfExists();
-        List<Game> gameList = gameBuffer.getBuffer().getEpisodeMemory().getGameList();
+        List<Game> gameList = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList();
         Game game = gameList.get(gameList.size() - 1);
 
         List<Integer> actions = game.getEpisodeDO().getActions();

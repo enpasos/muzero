@@ -121,10 +121,12 @@ public class ModelController implements DisposableBean, Runnable {
                 case LOAD_LATEST_MODEL:
                     close();
                     Model model = Model.newInstance(config.getModelName(), Device.gpu());
-                    log.info("loadLatestModel with model name {}", config.getModelName());
+
                     if (task.epoch == -1) {
+                        log.info("loadLatestModel for lastest epoch with model name {}", config.getModelName());
                         network = new Network(config, model);
                     } else {
+                        log.info("loadLatestModel for epoch {} with model name {}", task.epoch,  config.getModelName());
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
                             Map.ofEntries(entry("epoch", task.epoch + "")));
                     }
@@ -153,8 +155,10 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
-                    model = network.getModel();
-                    trainNetwork(model, task.freeze, task.getTrainingDatasetType());
+                    trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    break;
+                case TRAIN_MODEL_RULES_INITIAL:
+                    trainNetworkInitialRules(  );
                     break;
                 case START_SCOPE:
                     if (ndScope != null) {
@@ -175,19 +179,14 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetwork(Model model, boolean[] freeze, TrainingDatasetType trainingDatasetType) {
-        switch (trainingDatasetType) {
-            case RANDOM_FROM_BUFFER:
+    private void trainNetwork( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
+        Model model = network.getModel();
                 try (NDScope nDScope = new NDScope()) {
-//                    if (config.offPolicyCorrectionOn()) {
-//                        determinePRatioMaxForCurrentEpoch();
-//                    }
-
                     int epochLocal;
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                     boolean withSymmetryEnrichment = true;
                     epochLocal = getEpochFromModel(model);
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal);
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, config.isWithConsistencyLoss());
                     int finalEpoch = epochLocal;
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -196,74 +195,87 @@ public class ModelController implements DisposableBean, Runnable {
                         Shape[] inputShapes = batchFactory.getInputShapes();
                         trainer.initialize(inputShapes);
                         trainer.setMetrics(new Metrics());
-
-
                         ((CausalityFreezing) model.getBlock()).freeze(freeze);
-
-
-                        //                switch(trainingDatasetType) {
-                        //                    case RANDOM_FROM_BUFFER:
                         for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                            try (Batch batch = batchFactory.getRamdomBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize())) {
+                            try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
                                 log.debug("trainBatch " + m);
                                 MyEasyTrain.trainBatch(trainer, batch);
                                 trainer.step();
                             }
                         }
 
-
-                        // number of action paths
-
                         handleMetrics(trainer, model, epochLocal);
-
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                     }
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
-                break;
-//            case SEQUENTIAL_FROM_ALL_EXPERIENCE:
-//              //  SequentialCursor cursor = SequentialCursor.builder()
-//                    //    .batchSize(config.getBatchSize())
-//                  //      .build();
-//             //   while (cursor.hasNext()) {
-//                    try (NDScope nDScope = new NDScope()) {
-////                        if (config.offPolicyCorrectionOn()) {
-////                            determinePRatioMaxForCurrentEpoch();
-////                        }
-//
-//                        int epochLocal;
-//                        int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-//                        boolean withSymmetryEnrichment = true;
-//                        epochLocal = getEpochFromModel(model);
-//                        DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal);
-//                        int finalEpoch = epochLocal;
-//                        djlConfig.getTrainingListeners().stream()
-//                                .filter(MyEpochTrainingListener.class::isInstance)
-//                                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-//                        try (Trainer trainer = model.newTrainer(djlConfig)) {
-//                            Shape[] inputShapes = batchFactory.getInputShapes();
-//                            trainer.initialize(inputShapes);
-//                            trainer.setMetrics(new Metrics());
-//
-//
-//                            ((CausalityFreezing) model.getBlock()).freeze(freeze);
-//                            try (Batch batch = batchFactory.getSequentialBatchFromAllExperience(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), null)) {
-//                                //  log.debug("trainBatch " + m);
-//
-//
-//                                MyEasyTrain.trainBatch(trainer, batch);
-//                                trainer.step();
-//                            }
-//                        }
-//                    }
-//              //  }
-//                modelState.setEpoch(getEpochFromModel(model));
-//               break;
 
-            default:
-                throw new MuZeroException("not implemented");
+
+    }
+
+
+    private void trainNetworkInitialRules(  ) {
+
+
+
+        try (NDScope nDScope = new NDScope()) {
+
+
+            // initialization
+            Model model =  network.getModel();
+
+
+                int epochLocal;
+                int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+                boolean withSymmetryEnrichment = true;
+                epochLocal = getEpochFromModel(model);
+            //    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, false, config.isWithConsistencyLoss());
+                int finalEpoch = epochLocal;
+
+
+                // TODO the following is a hack - find a good solution
+       //     ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(batchFactory.getInputShapes());
+         //   model =  network.getRulesInitial();
+          //  ( (CausalityFreezing)model.getBlock()).setNoOfActiveLayers(1);
+
+            // special
+            DefaultTrainingConfig   djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+
+            djlConfig.getTrainingListeners().stream()
+                    .filter(MyEpochTrainingListener.class::isInstance)
+                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+
+                Shape[] inputShapes = batchFactory.getInputShapes();
+                trainer.initialize(inputShapes);
+            //    ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
+
+                 inputShapes = batchFactory.getInputShapesForInitialRules();
+                trainer.initialize(inputShapes);
+
+                trainer.setMetrics(new Metrics());
+                //((CausalityFreezing) model.getBlock()).freeze(freeze);
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                    // TODO batch has to be adjusted
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, 0, config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
+                        log.debug("trainBatch " + m);
+
+                        // special
+                        MyEasyTrain.trainBatch(trainer, batch);
+                        trainer.step();
+                    }
+                }
+
+                handleMetrics(trainer, model, epochLocal);
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+            }
+
+
+            modelState.setEpoch(getEpochFromModel(model));
         }
+
+
 
     }
 
@@ -376,7 +388,7 @@ public class ModelController implements DisposableBean, Runnable {
         } catch (Exception e) {
 
             final int epoch = -1;
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss());
 
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)

@@ -102,6 +102,14 @@ public class PlayService {
             .justReplayWithInitialReference(true)
             .build());
     }
+    public List<Game> justReplayToGetRewardExpectations(List<Game> games) {
+        return  playGames( games,
+                PlayParameters.builder()
+                        .render(false)
+                        .fastRulesLearning(false)
+                        .justReplayToGetRewardExpectations(true)
+                        .build());
+    }
 
     private void hybridConfiguration(List<Game> games) {
         int gameLength = gameBuffer.getMaxGameLength();

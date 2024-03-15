@@ -26,12 +26,12 @@ import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -61,11 +61,11 @@ public class BatchFactory {
 //    }
 
     @NotNull
-    private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList) {
+    private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList, TrainingDatasetType trainingDatasetType) {
         NDManager nd = ndManager.newSubManager();
 
-        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment);
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList);
+        List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss(), trainingDatasetType);
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList, trainingDatasetType);
 
         return new Batch(
                 nd,
@@ -79,11 +79,36 @@ public class BatchFactory {
     }
 
 
-    public Batch getRamdomBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
-      //  List<Sample> sampleList = new ArrayList<>(); // TODO ... gameBuffer.randomSampleList(numUnrollSteps, batchSize);
-        List<Sample> sampleList = gameBuffer.sampleBatch(config.getNumUnrollSteps());
-        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+    public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType) {
+        List<Sample> sampleList = null;
+        switch(trainingDatasetType) {
+            case PLANNING_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromPlanningBuffer(numUnrollSteps);
+                break;
+
+
+            case RULES_BUFFER:
+
+                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
+
+                break;
+            case REANALYSE_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(numUnrollSteps);
+                break;
+        }
+
+
+        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList, trainingDatasetType);
     }
+
+//    public Batch getBatchFromRulesBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+//        List<Sample> sampleList = gameBuffer.sampleBatchFromRulesBuffer(config.getNumUnrollSteps());
+//        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//    }
+//    public Batch getBatchFromReanalyseBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize) {
+//        List<Sample> sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(config.getNumUnrollSteps());
+//        return getBatch(ndManager, withSymmetryEnrichment, numUnrollSteps, sampleList);
+//    }
 
     public Shape @NotNull [] getInputShapes() {
         return getInputShapes(config.getBatchSize());
@@ -99,6 +124,18 @@ public class BatchFactory {
         return shapes;
     }
 
+    public Shape @NotNull [] getInputShapesForInitialRules() {
+        return getInputShapesForInitialRules(config.getBatchSize());
+    }
 
+    public Shape @NotNull [] getInputShapesForInitialRules(int batchSize) {
+        Shape[] shapes = new Shape[2];
+        // for observation input
+        shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
+      //  for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+            shapes[1] = new Shape(batchSize, config.getNumActionLayers(), config.getBoardHeight(), config.getBoardWidth());
+     //   }
+        return shapes;
+    }
 }
 

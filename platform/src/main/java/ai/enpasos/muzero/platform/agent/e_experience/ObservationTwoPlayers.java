@@ -17,7 +17,6 @@ public class ObservationTwoPlayers implements Observation {
     private BitSet partB;
 
 
-    // if currentPlayer is player A, then the first part is for player A, the second part for player B
 
     @Override
     public int addTo(Player player, BitSet rawResult, int index) {

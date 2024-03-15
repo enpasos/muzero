@@ -26,6 +26,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.enpasos.muzero.platform.agent.e_experience.Target;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,19 +47,37 @@ public class InputOutputConstruction {
     MuZeroConfig config;
 
 
-    public List<NDArray> constructInput(@NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment) {
-
+    public List<NDArray> constructInput(@NotNull NDManager ndManager, int numUnrollSteps, @NotNull List<Sample> batch, boolean withSymmetryEnrichment, boolean isWithConsistencyLoss, TrainingDatasetType trainingDatasetType) {
         List<NDArray> inputs = new ArrayList<>();
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
-        addObservation(numUnrollSteps, ndManager, batch, inputsH);
-        addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
-        inputs.add(inputsH.get(0));
-        IntStream.range(0, inputsA.size()).forEach(i -> {
-            inputs.add(inputsA.get(i));
-            inputs.add(inputsH.get(1 + i));
-        });
-        return inputs;
+
+        switch (trainingDatasetType) {
+            case  RULES_BUFFER:
+                addObservation(0, ndManager, batch, inputsH, isWithConsistencyLoss);
+                //addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
+                inputs.add(inputsH.get(0));
+//                IntStream.range(0, inputsA.size()).forEach(i -> {
+//                    inputs.add(inputsA.get(i));
+//                    if (isWithConsistencyLoss) {
+//                        inputs.add(inputsH.get(1 + i));
+//                    }
+//                });
+                return inputs;
+
+            default:
+                addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss);
+                addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
+                inputs.add(inputsH.get(0));
+                IntStream.range(0, inputsA.size()).forEach(i -> {
+                    inputs.add(inputsA.get(i));
+                    if (isWithConsistencyLoss) {
+                        inputs.add(inputsH.get(1 + i));
+                    }
+                });
+                return inputs;
+        }
+
 
     }
 
@@ -108,8 +127,8 @@ public class InputOutputConstruction {
     }
 
 
-    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs) {
-        for (int k = 0; k < numUnrollSteps + 1; k++) {
+    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs, boolean isWithConsistencyLoss) {
+        for (int k = 0; k < (isWithConsistencyLoss ? numUnrollSteps + 1: 1); k++) {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
                 .map(sample -> {
@@ -122,9 +141,9 @@ public class InputOutputConstruction {
         }
     }
 
-    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment) {
+    public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment ) {
 
-        for (int k = 0; k < numUnrollSteps; k++) {
+        for (int k = 0; k <    numUnrollSteps ; k++) {
 
             List<NDArray> list = new ArrayList<>();
             for (Sample s : batch) {
@@ -150,66 +169,100 @@ public class InputOutputConstruction {
     }
 
     @SuppressWarnings("java:S2095")
-    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, TrainingDatasetType trainingDatasetType) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();
-        for (int k = 0; k <= numUnrollSteps; k++) {
-            int b = 0;
-            float[] valueArray = new float[batch.size()];
-            float[] rewardArray = new float[batch.size()];
 
-            float[] policyArray = new float[batch.size() * actionSize];
-            float[] legalActionsArray =   new float[batch.size() * actionSize]  ;
+        switch (trainingDatasetType) {
+            case RULES_BUFFER:
 
-            for (Sample s : batch) {
-                List<Target> targets = s.getTargetList();
-                log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
-                Target target = targets.get(k);
+                int b = 0;
+                float[] rewardArray = new float[batch.size()];
+                float[] legalActionsArray = new float[batch.size() * actionSize];
 
-                log.trace("valuetarget: {}", target.getValue());
-                double scale = 2.0 / config.getValueSpan();
-                valueArray[b] = (float) (target.getValue() * scale);
+                for (Sample s : batch) {
+                    List<Target> targets = s.getTargetList();
+                    log.trace("target.size(): {}, b: {}", targets.size(),   b);
+                    Target target = targets.get(0);
 
+                    log.trace("legalactionstarget: {}", target.getLegalActions());
+                    System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
 
-                System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
-                log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
-
-
-                log.trace("legalactionstarget: {}", target.getLegalActions());
-                System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
-
-
-                if (k>0) {
                     log.trace("rewardtarget: {}", target.getReward());
-                    if (target.getReward() > 0f) {
-                        int i = 42;
-                    }
-
-                    scale = 2.0 / config.getValueSpan();
+                    double scale = 2.0 / config.getValueSpan();
+//                    if (target.getReward() != 0f) {
+//                        int i = 42;
+//                    }
                     rewardArray[b] = (float) (target.getReward() * scale);
+
+                    b++;
                 }
 
-                b++;
-            }
+                NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
+                outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
 
-            if (k>0) {
                 NDArray rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
                 outputs.add(symmetryEnhancerValue(rewardOutput2));
-            }
+
+                return outputs;
+            default:
+                for (int k = 0; k <= numUnrollSteps; k++) {
+                    b = 0;
+                    float[] valueArray = new float[batch.size()];
+                     rewardArray = new float[batch.size()];
+
+                    float[] policyArray = new float[batch.size() * actionSize];
+                     legalActionsArray = new float[batch.size() * actionSize];
+
+                    for (Sample s : batch) {
+                        List<Target> targets = s.getTargetList();
+                        log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
+                        Target target = targets.get(k);
+
+                        log.trace("valuetarget: {}", target.getValue());
+                        double scale = 2.0 / config.getValueSpan();
+                        valueArray[b] = (float) (target.getValue() * scale);
 
 
-            NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
-            outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+                        System.arraycopy(target.getPolicy(), 0, policyArray, b * actionSize, actionSize);
+                        log.trace("policytarget: {}", Arrays.toString(target.getPolicy()));
 
 
-            NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
-            outputs.add(symmetryEnhancerPolicy(policyOutput2));
+                        log.trace("legalactionstarget: {}", target.getLegalActions());
+                        System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
 
-            NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
-            outputs.add(symmetryEnhancerValue(valueOutput2));
 
+                        if (k > 0) {
+                            log.trace("rewardtarget: {}", target.getReward());
+//                            if (target.getReward() > 0f) {
+//                                int i = 42;
+//                            }
+
+                            scale = 2.0 / config.getValueSpan();
+                            rewardArray[b] = (float) (target.getReward() * scale);
+                        }
+
+                        b++;
+                    }
+                    if (k > 0) {
+                        rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
+                        outputs.add(symmetryEnhancerValue(rewardOutput2));
+                    }
+
+
+                      legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
+                    outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+
+
+                    NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
+                    outputs.add(symmetryEnhancerPolicy(policyOutput2));
+
+                    NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
+                    outputs.add(symmetryEnhancerValue(valueOutput2));
+
+                }
+                return outputs;
         }
-        return outputs;
     }
 
 }

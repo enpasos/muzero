@@ -176,9 +176,17 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Void> trainModel(boolean[] freeze, TrainingDatasetType trainingDatasetType) {
+    public CompletableFuture<Void> trainModelRulesInitial() {
+        ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES_INITIAL);
+
+        return handleControllerTask(task);
+    }
+
+    @Async()
+    public CompletableFuture<Void> trainModel(boolean[] freeze, TrainingDatasetType trainingDatasetType, boolean background) {
         ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL);
         task.setFreeze(freeze);
+        task.setBackground(background);
         task.setTrainingDatasetType(trainingDatasetType);
         return handleControllerTask(task);
     }

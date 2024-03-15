@@ -57,8 +57,8 @@ public class Play {
 
     public void fillingBuffer(boolean isRandomFill) {
         int windowSize = config.getWindowSize();
-        while (!gameBuffer.getBuffer().isBufferFilled()) {
-            log.info(gameBuffer.getBuffer().getEpisodeMemory().getNumberOfEpisodes() + " of " + windowSize);
+        while (!gameBuffer.getPlanningBuffer().isBufferFilled()) {
+            log.info(gameBuffer.getPlanningBuffer().getEpisodeMemory().getNumberOfEpisodes() + " of " + windowSize);
              playMultipleEpisodes(false, isRandomFill);
         }
     }

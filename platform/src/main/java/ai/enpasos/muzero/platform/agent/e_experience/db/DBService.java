@@ -54,6 +54,10 @@ public class DBService {
         timestepRepo.dropSequence();
         valueRepo.dropTable();
         valueRepo.dropSequence();
+        legalActionsRepo.dropTable();
+        legalActionsRepo.dropSequence();
+
+
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -113,9 +117,22 @@ public class DBService {
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
+
     @Transactional
-    public List<EpisodeDO> findNEpisodeIdsWithHighestLossAndConvertToGameDTOList(int n) {
-        List<Long> ids = episodeRepo.findNEpisodeIdsWithHighestLoss(n);
+    public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
+        int classN = 5;
+        List<Long> ids = new ArrayList<>();
+        for (int i = 1; i <= classN; i++) {
+            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n/classN));
+        }
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
+    @Transactional
+    public List<EpisodeDO> findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(int n) {
+        double minLoss = 0.001d; // everything else is good enough
+        List<Long> ids = timestepRepo.findNEpisodeIdsWithHighestRewardLoss(n, minLoss);
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }

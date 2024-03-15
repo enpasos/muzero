@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class EpisodeDO {
+public class EpisodeDO { //} implements Iterable<TimeStepDO> {
 
     @Builder.Default
     String networkName = "NONE";
@@ -206,18 +207,18 @@ public class EpisodeDO {
         return tStartNormal > 0;
     }
 
-    public double getAverageEntropy() {
-        double entropySum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
-        double entropyCount = this.getTimeSteps().stream().count();
-        return entropySum / Math.max(1, entropyCount);
-    }
+//    public double getAverageEntropy() {
+//        double entropySum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getEntropy()).sum();
+//        double entropyCount = this.getTimeSteps().stream().count();
+//        return entropySum / Math.max(1, entropyCount);
+//    }
 
-    public double getAverageActionMaxEntropy() {
-        double sum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
-        double count = this.getTimeSteps().stream().count();
-        return sum / Math.max(1, count);
-
-    }
+//    public double getAverageActionMaxEntropy() {
+//        double sum = this.getTimeSteps().stream().mapToDouble(timeStepDO -> timeStepDO.getLegalActionMaxEntropy()).sum();
+//        double count = this.getTimeSteps().stream().count();
+//        return sum / Math.max(1, count);
+//
+//    }
 
     public List<Integer> getActions() {
         return getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getAction() != null)
@@ -259,4 +260,11 @@ public class EpisodeDO {
     public int getAction() {
         return this.getLastTimeStepWithAction().getAction();
     }
+
+//    @NotNull
+//    @Override
+//    public Iterator<TimeStepDO> iterator() {
+//        sortTimeSteps();
+//        return timeSteps.iterator();
+//    }
 }

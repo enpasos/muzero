@@ -9,14 +9,11 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -41,6 +38,45 @@ public class PlanAction {
     GameBuffer gameBuffer;
 
 
+    public void justReplayActionToGetRulesExpectations(Game game) {
+        log.trace("justReplayActionToGetRulesExpectations");
+
+        EpisodeDO episodeDO = game.getEpisodeDO();
+        int t = game.getObservationInputTime();
+
+        TimeStepDO timeStepDO = episodeDO.getTimeStep(t);
+
+        NetworkIO networkOutput = modelService.initialInference(game).join();
+
+        double[] laP = f2d(networkOutput.getPLegalValues());
+        boolean[] laTarget = timeStepDO.getLegalact().getLegalActions();
+        timeStepDO.setLegalActionLossMax((float)bceLossMax(laP,  laTarget));
+
+        networkOutput = modelService.recurrentInference(networkOutput.getHiddenState(), timeStepDO.getAction()).join();
+
+        double rewardExpectation = networkOutput.getReward();
+        double r = timeStepDO.getReward() - rewardExpectation;
+        double loss = r * r;
+        timeStepDO.setRewardLoss((float)loss);
+
+    }
+
+    private double bceLossMax(double[] p, boolean[] pTarget) {
+        double loss = 0;
+        for (int i = 0; i < p.length; i++) {
+            double lossCandidate = 0d;
+            if (pTarget[i]) {
+                lossCandidate -= Math.log(p[i]);
+            } else {
+                lossCandidate -= Math.log(1 - p[i]);
+            }
+            loss = Math.max(loss, lossCandidate);
+        }
+        return loss;
+
+    }
+
+
     public void justReplayActionWithInitialInference(Game game) {
         log.trace("justReplayActionWithInitialInference");
 
@@ -56,15 +92,11 @@ public class PlanAction {
         double reward = networkOutput.getReward();
         root.setValueFromInference(value);
 
-
-
         timeStepDO.setRootValueFromInitialInference((float) value);
         // TODO
       //  timeStepDO.setRewardFromInitialInference((float) value);
 
-
         if (t <= game.getOriginalEpisodeDO().getLastTimeWithAction()) {
-
             try {
                 timeStepDO = episodeDO.getTimeStep(t);
                 timeStepDO.setAction(game.getOriginalEpisodeDO().getTimeSteps().get(t).getAction());
@@ -72,10 +104,7 @@ public class PlanAction {
                 log.error(e.getMessage(), e);
                 throw new MuZeroException(e);
             }
-
         }
-
-
     }
 
 
@@ -160,7 +189,7 @@ public class PlanAction {
             game.renderMCTSSuggestion(config, timeStepDO.getPolicyTarget() );
            // log.info("\n" + game.render());
         }
-        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO , gameBuffer.getBuffer().getEpisodeMemory());
+        Action action = sm.selectAction(fastRuleLearning, replay, timeStepDO , gameBuffer.getPlanningBuffer().getEpisodeMemory());
         return action;
     }
 
@@ -216,8 +245,8 @@ public class PlanAction {
     }
 
     private static void storeEntropyInfo(Game game, TimeStepDO timeStepDO,  NetworkIO networkOutput) {
-        List<Action> legalActions = game.legalActions();
-        timeStepDO.setLegalActionMaxEntropy((float) Math.log(legalActions.size()));
+      //  List<Action> legalActions = game.legalActions();
+      //  timeStepDO.setLegalActionMaxEntropy((float) Math.log(legalActions.size()));
         if (networkOutput != null) {
             float[] ps = networkOutput.getPolicyValues();
             timeStepDO.setEntropy((float) entropy(f2d(ps)));

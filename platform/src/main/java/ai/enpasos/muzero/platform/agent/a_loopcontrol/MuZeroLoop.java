@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
+import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RANDOM_FROM_BUFFER;
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.SEQUENTIAL_FROM_ALL_EXPERIENCE;
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
 
 @Slf4j
 @Component
@@ -102,9 +102,9 @@ public class MuZeroLoop {
                 config.setPlayTypeKey(originalPlayTypeKey);
             }
 
-            log.info("game counter: " + gameBuffer.getBuffer().getCounter());
-            log.info("window size: " + gameBuffer.getBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getBuffer().getEpisodeMemory().getGameList().size());
+            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
 
@@ -112,7 +112,7 @@ public class MuZeroLoop {
 //            modelService.trainModel(freeze, SEQUENTIAL_FROM_ALL_EXPERIENCE).get();
 
             boolean[] freeze = new boolean[]{false, false, false};
-            modelService.trainModel(freeze, RANDOM_FROM_BUFFER).get();
+            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
 

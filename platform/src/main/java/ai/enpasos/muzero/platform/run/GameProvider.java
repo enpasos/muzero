@@ -56,7 +56,7 @@ public class GameProvider {
     @NotNull
     public Optional<Game> getGame() {
         gameBuffer.loadLatestStateIfExists();
-        List<Game> gameList = gameBuffer.getBuffer().getEpisodeMemory().getGameList();
+        List<Game> gameList = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList();
         return Optional.of( gameList.get( gameList.size() - 1));
 
     }
@@ -64,7 +64,7 @@ public class GameProvider {
     @NotNull
     public Optional<Game> getGame(int no) {
         gameBuffer.loadLatestStateIfExists();
-        return Optional.of(gameBuffer.getBuffer().getEpisodeMemory().getGameList().get(no));
+        return Optional.of(gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().get(no));
     }
 
     public Optional<Game> getGameStartingWithActions(int... actions) {
@@ -74,7 +74,7 @@ public class GameProvider {
 
     public Optional<Game> getGameStartingWithActions(List<Integer> actionsList) {
         gameBuffer.loadLatestStateIfExists();
-        List<Game> games = gameBuffer.getBuffer().getEpisodeMemory().getGameList();
+        List<Game> games = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList();
         return games.stream().filter(game ->
             // check if game.getEpisodeDO() starts with actionsList
                         game.getEpisodeDO().getTimeSteps().stream()
@@ -118,7 +118,16 @@ public class GameProvider {
             log.debug("justReplayGamesWithInitialInference " + i++ + " of " + gameBatches.size());
             resultGames.addAll(playService.justReplayGamesWithInitialInference(gameList));
         }
-
     }
+    public void measureRewardExpectations(List<Game> games) {
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+        List<Game> resultGames = new ArrayList<>();
+        int i = 1;
+        for (List<Game> gameList : gameBatches) {
+            log.debug("justReplayToGetRewardExpectations " + i++ + " of " + gameBatches.size());
+            resultGames.addAll(playService.justReplayToGetRewardExpectations(gameList));
+        }
+    }
+
 
 }

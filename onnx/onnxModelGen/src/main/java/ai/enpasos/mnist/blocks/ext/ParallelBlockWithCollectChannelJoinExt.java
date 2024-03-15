@@ -20,7 +20,10 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 public class ParallelBlockWithCollectChannelJoinExt extends ParallelBlock implements OnnxIO {
 
 
+
+
     public ParallelBlockWithCollectChannelJoinExt(List<Block> blocks) {
+
         super(
 
             list -> {

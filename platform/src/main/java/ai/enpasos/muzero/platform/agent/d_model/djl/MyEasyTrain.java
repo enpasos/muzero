@@ -123,9 +123,9 @@ public final class MyEasyTrain {
         NDList preds = trainer.forward(data, labels);
 
 
-
-        reorganizePredictionsAndLabels( preds, labels );
-
+        if (preds.size() != labels.size()) {
+            reorganizePredictionsAndLabels(preds, labels);
+        }
 
 
 
@@ -168,6 +168,8 @@ public final class MyEasyTrain {
         // - recurrent inference  (numUnrollSteps times 6)
         //  - consistency:similarityPredictorResult
         //  - consistency:similarityProjectorResultLabel;
+
+        //  - legal actions
         //  - reward
         //  - legal actions
         //  - policy

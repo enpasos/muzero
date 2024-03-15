@@ -33,6 +33,19 @@ public class SelfPlayGame {
         game.getEpisodeDO().setTdSteps(config.getTdSteps());
 
 
+        if (playParameters.isJustReplayToGetRewardExpectations()) {
+            for(int t = 0; t <= game.getEpisodeDO().getLastTimeWithAction(); t++) {
+
+                game.setObservationInputTime(t);
+                    playAction.justReplayActionToGetRulesExpectations(game);
+
+            }
+            game.setObservationInputTime(-1);
+
+            return;
+        }
+
+
 
         int count = 1;
         while (untilEnd &&  playParameters.isReplay() ?
@@ -40,12 +53,14 @@ public class SelfPlayGame {
                 playParameters.isReplay() && count <= game.getOriginalEpisodeDO().getLastTimeWithAction()+1
                 :
                 ((!untilEnd && count == 1)
-                        || (untilEnd && !game.isDone(playParameters.isJustReplayWithInitialReference())))
-                ){
+                        || (untilEnd && !game.isDone(
+                                playParameters.isJustReplayWithInitialReference()
+                                    || playParameters.isJustReplayToGetRewardExpectations()
+                )))) {
        //     log.info("LastTimeWithAction: " + game.getEpisodeDO().getLastTimeWithAction());
             if (playParameters.isJustReplayWithInitialReference()) {
                 playAction.justReplayActionWithInitialInference(game);
-            } else {
+            }  else {
                 Action action = playAction.planAction(
                         game,
                         render,

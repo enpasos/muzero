@@ -14,7 +14,13 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "timestep", uniqueConstraints =
+@Table(name = "timestep",
+//        indexes = {
+//                @Index(name = "episode_id_index", columnList = "episode_id"),
+//                @Index(name = "a_weight_cumulative_index", columnList = "a_weight_cumulative"),
+//                @Index(name = "a_weight_cumulative_prev_index", columnList = "a_weight_cumulative_prev")
+//        },
+        uniqueConstraints =
 @UniqueConstraint(name = "UniqueEpisodeIDandTime", columnNames = {"episode_id", "t"}))
 @Data
 @Builder
@@ -30,9 +36,7 @@ public class TimeStepDO {
     LegalActionsDO legalact;
 
 
-    @ManyToOne
-    @JoinColumn(name = "statenode_id", nullable = true)
-    StateNodeDO statenode;
+
 
     @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
     private List<ValueDO> values;
@@ -43,6 +47,14 @@ public class TimeStepDO {
     Integer action;
 
     float reward;
+    float rewardLoss;
+    float legalActionLossMax;
+
+    float aWeight;
+    float aWeightCumulative;
+  //  float aWeightCumulativePrev;
+    int aWeightClass;
+
     float entropy;
     float[] policyTarget;
     int observationPartSize;
@@ -50,13 +62,12 @@ public class TimeStepDO {
     byte[] observationPartB;
     float[] playoutPolicy;
     float[] simState;
-  //  boolean[] legalActions;
     float rootValueTarget;
     float vMix;
     float rootEntropyValueTarget;
     float rootEntropyValueFromInitialInference;
     float rootValueFromInitialInference;
-    float legalActionMaxEntropy;
+
     boolean exploring;
 
 
@@ -97,7 +108,8 @@ public class TimeStepDO {
                         action == timeStepDO.action &&
                         reward == reward &&
                         entropy == timeStepDO.entropy &&
-                        legalActionMaxEntropy == timeStepDO.legalActionMaxEntropy &&
+                        rewardLoss == timeStepDO.rewardLoss &&
+                        legalActionLossMax == timeStepDO.legalActionLossMax &&
                         rootEntropyValueFromInitialInference == timeStepDO.rootEntropyValueFromInitialInference &&
                         rootEntropyValueTarget == timeStepDO.rootEntropyValueTarget &&
                         rootValueFromInitialInference == timeStepDO.rootValueFromInitialInference &&
@@ -120,7 +132,8 @@ public class TimeStepDO {
                 .observation(getObservation())
                 .episode(episode)
                 .legalact(legalact)
-                .legalActionMaxEntropy(legalActionMaxEntropy)
+                .legalActionLossMax(legalActionLossMax)
+                .rewardLoss(rewardLoss)
                 .playoutPolicy(playoutPolicy)
                 .rootEntropyValueFromInitialInference(rootEntropyValueFromInitialInference)
                 .rootEntropyValueTarget(rootEntropyValueTarget)

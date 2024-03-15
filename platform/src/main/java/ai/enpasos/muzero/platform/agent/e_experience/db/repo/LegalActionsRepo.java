@@ -23,4 +23,15 @@ public interface LegalActionsRepo extends JpaRepository<LegalActionsDO,Long> {
     @Transactional
     @Query(value = "select e from LegalActionsDO e JOIN FETCH e.timeSteps t where e.id = :legalActionId")
     LegalActionsDO findLegalActionsDOWithTimeStepDOs(long legalActionId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DROP TABLE IF EXISTS legalactions CASCADE", nativeQuery = true )
+    void dropTable();
+
+    @Transactional
+    @Modifying
+    @Query(value = "DROP SEQUENCE IF EXISTS legalactions_seq CASCADE", nativeQuery = true )
+    void dropSequence();
+
 }
