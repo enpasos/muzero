@@ -127,10 +127,11 @@ private boolean withReward;
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
+
+        results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
         if (withReward) {
             results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
         }
-        results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
         results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(1)), training, params).get(0));
         results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
         return results;
@@ -150,8 +151,8 @@ private boolean withReward;
         Shape[] result = null;
      if (withReward) {
          result = new Shape[4];
-         result[0] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
-         result[1] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
+         result[1] = this.rewardHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
+         result[0] = this.legalActionsHead.getOutputShapes(new Shape[]{inputShapes[0]})[0];
          result[2] = this.policyHead.getOutputShapes(new Shape[]{inputShapes[1]})[0];
          result[3] = this.valueHead.getOutputShapes(new Shape[]{inputShapes[2]})[0];
      } else {
@@ -179,16 +180,18 @@ private boolean withReward;
 
             List<OnnxTensor> myInput = new ArrayList<>();
             OnnxBlock child = null;
+        child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
+        onnxBlock.addChild(child);
+        childOutput = child.getOutput().get(0);
+        outputs.add(childOutput);
+
             if (withReward) {
                 child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(0)));
                 onnxBlock.addChild(child);
                 childOutput = child.getOutput().get(0);
                 outputs.add(childOutput);
             }
-            child = this.legalActionsHead.getOnnxBlock(counter,  List.of(input.get(0)));
-            onnxBlock.addChild(child);
-            childOutput = child.getOutput().get(0);
-            outputs.add(childOutput);
+
 
             child = this.policyHead.getOnnxBlock(counter,  List.of(input.get(1)));
             onnxBlock.addChild(child);

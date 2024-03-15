@@ -388,12 +388,7 @@ public abstract class Game {
     public abstract ObservationModelInput getObservationModelInput(int inputTime);
 
 
-
-    // functions as a cursor
     private int observationInputTime = -1;
-
-
-
 
     public ObservationModelInput getObservationModelInput() {
         int t = observationInputTime;

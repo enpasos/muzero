@@ -85,8 +85,8 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         // - value layer:  value
         // each recurrent inference
         // - rules layer: consistency loss
-        // - rules layer: reward
         // - rules layer: legal actions
+        // - rules layer: reward
         // - policy layer:  policy
         // - value layer:  value
 
