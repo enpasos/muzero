@@ -113,7 +113,7 @@ public class MuZeroLoop {
 
 
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
-                fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
+           //     fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
 
 
             boolean[] freeze = new boolean[]{false, true, true};
