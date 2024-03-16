@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.config.TrainingDatasetType;
+import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
 
 @Slf4j
 @Component
@@ -71,6 +73,9 @@ public class MuZeroLoop {
     @Autowired
     TemperatureCalculator temperatureCalculator;
 
+    @Autowired
+    FillRulesLoss fillRulesLoss;
+
 
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
@@ -93,26 +98,29 @@ public class MuZeroLoop {
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-            if (epoch != 0) {
-                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                    config.setPlayTypeKey(key);
-                    play.playGames(params.isRender(), trainingStep);
-                }
-                config.setPlayTypeKey(originalPlayTypeKey);
-            }
+//            if (epoch != 0) {
+//                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+//                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+//                    config.setPlayTypeKey(key);
+//                    play.playGames(params.isRender(), trainingStep);
+//                }
+//                config.setPlayTypeKey(originalPlayTypeKey);
+//            }
 
-            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+//            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+//            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+//            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
+                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
+                fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
 
-//            boolean[] freeze = new boolean[]{false, true, true};
-//            modelService.trainModel(freeze, SEQUENTIAL_FROM_ALL_EXPERIENCE).get();
 
-            boolean[] freeze = new boolean[]{false, false, false};
-            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+            boolean[] freeze = new boolean[]{false, true, true};
+            modelService.trainModel(freeze, RULES_BUFFER, false).get();
+
+   //         boolean[] freeze = new boolean[]{false, false, false};
+  //          modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
 

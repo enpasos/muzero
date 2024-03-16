@@ -196,11 +196,13 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
-         List<Game> games  =  getNRandomSelectedGames(n);
+        List<Game> games  =  getNRandomSelectedGamesForRewardLearning(n);
+        List<Game> games2  =  getNRandomSelectedGamesForLegalActionsLearning(n- games.size());
+        games.addAll(games2);
          Collections.shuffle(games);
 //        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
 //        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        return games;
+        return games.subList(0, Math.min(n, games.size()));
     }
 
 //    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
@@ -418,6 +420,20 @@ public class GameBuffer {
 
     public List<Game> getNRandomSelectedGames(int n) {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+
+        return games;
+    }
+
+    public List<Game> getNRandomSelectedGamesForRewardLearning(int n) {
+        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantForRewardLearningAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+
+        return games;
+    }
+
+    public List<Game> getNRandomSelectedGamesForLegalActionsLearning(int n) {
+        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(n);// gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
         return games;

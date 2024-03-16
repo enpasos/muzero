@@ -465,6 +465,13 @@ public class MuZeroConfig {
         return getConf().numChannelsOutputLayerSimilarityPredictor;
     }
 
+    public double getRewardLossThreshold() {
+        return getConf().rewardLossThreshold;
+    }
+    public double getLegalActionLossMaxThreshold() {
+        return getConf().legalActionLossMaxThreshold;
+    }
+
 
     public void setWindowSize(int windowSize) {
         getConf().setWindowSize(windowSize);
@@ -571,6 +578,11 @@ public class MuZeroConfig {
         protected boolean allOrNothingOn;
 
         protected double offPolicyRatioLimit;
+
+
+
+        protected double rewardLossThreshold;
+        protected double legalActionLossMaxThreshold;
 
         public PlayTypeKey getPlayTypeKey() {
             if (playTypeKey == null) {

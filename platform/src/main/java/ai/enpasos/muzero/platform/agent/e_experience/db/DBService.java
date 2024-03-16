@@ -119,6 +119,20 @@ public class DBService {
     }
 
     @Transactional
+    public List<EpisodeDO> findRandomNRelevantForRewardLearningAndConvertToGameDTOList(int n) {
+        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
+    @Transactional
+    public List<EpisodeDO> findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(int n) {
+        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), n);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
+    @Transactional
     public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
         int classN = 5;
         List<Long> ids = new ArrayList<>();

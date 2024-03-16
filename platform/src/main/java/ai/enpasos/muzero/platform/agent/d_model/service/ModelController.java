@@ -155,11 +155,13 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
+                case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
                     trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
-                case TRAIN_MODEL_RULES_INITIAL:
-                    trainNetworkInitialRules(  );
-                    break;
+                    // TODO: only train rules part of the network
+//                case TRAIN_MODEL_RULES:
+//                    trainNetworkRules(  );
+//                    break;
                 case START_SCOPE:
                     if (ndScope != null) {
                         ndScope.close();
@@ -215,32 +217,24 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetworkInitialRules(  ) {
-
-
+    private void trainNetworkRules() {
 
         try (NDScope nDScope = new NDScope()) {
 
-
             // initialization
-            Model model =  network.getModel();
+            Model model = network.getModel();
 
 
-                int epochLocal;
-                int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-                boolean withSymmetryEnrichment = true;
-                epochLocal = getEpochFromModel(model);
-            //    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, false, config.isWithConsistencyLoss());
-                int finalEpoch = epochLocal;
+            int epochLocal;
+            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+            boolean withSymmetryEnrichment = true;
+            epochLocal = getEpochFromModel(model);
+            int finalEpoch = epochLocal;
 
-
-                // TODO the following is a hack - find a good solution
-       //     ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(batchFactory.getInputShapes());
-         //   model =  network.getRulesInitial();
-          //  ( (CausalityFreezing)model.getBlock()).setNoOfActiveLayers(1);
 
             // special
-            DefaultTrainingConfig   djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+         //   DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
 
             djlConfig.getTrainingListeners().stream()
                     .filter(MyEpochTrainingListener.class::isInstance)
@@ -249,9 +243,9 @@ public class ModelController implements DisposableBean, Runnable {
 
                 Shape[] inputShapes = batchFactory.getInputShapes();
                 trainer.initialize(inputShapes);
-            //    ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
+                //    ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
 
-                 inputShapes = batchFactory.getInputShapesForInitialRules();
+                inputShapes = batchFactory.getInputShapesForInitialRules();
                 trainer.initialize(inputShapes);
 
                 trainer.setMetrics(new Metrics());
@@ -274,7 +268,6 @@ public class ModelController implements DisposableBean, Runnable {
 
             modelState.setEpoch(getEpochFromModel(model));
         }
-
 
 
     }

@@ -177,7 +177,7 @@ public class ModelService {
 
     @Async()
     public CompletableFuture<Void> trainModelRulesInitial() {
-        ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES_INITIAL);
+        ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES);
 
         return handleControllerTask(task);
     }

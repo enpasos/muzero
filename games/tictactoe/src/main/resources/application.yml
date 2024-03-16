@@ -114,6 +114,10 @@ muzero:
       numParallelInferences: 1000
 
 
+      rewardLossThreshold: 0.01
+      legalActionLossMaxThreshold: 0.3
+
+
       playTypes:
         PLAYOUT:
           forTraining: false

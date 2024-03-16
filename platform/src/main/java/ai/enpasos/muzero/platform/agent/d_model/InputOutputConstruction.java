@@ -52,20 +52,25 @@ public class InputOutputConstruction {
         List<NDArray> inputsH = new ArrayList<>();
         List<NDArray> inputsA = new ArrayList<>();
 
+        if (batch.size() == 0) {
+            return inputs;
+        }
+
         switch (trainingDatasetType) {
             case  RULES_BUFFER:
-                addObservation(0, ndManager, batch, inputsH, isWithConsistencyLoss);
-                //addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
-                inputs.add(inputsH.get(0));
-//                IntStream.range(0, inputsA.size()).forEach(i -> {
-//                    inputs.add(inputsA.get(i));
-//                    if (isWithConsistencyLoss) {
-//                        inputs.add(inputsH.get(1 + i));
-//                    }
-//                });
-                return inputs;
+//                addObservation(0, ndManager, batch, inputsH, isWithConsistencyLoss);
+//                //addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
+//                inputs.add(inputsH.get(0));
+////                IntStream.range(0, inputsA.size()).forEach(i -> {
+////                    inputs.add(inputsA.get(i));
+////                    if (isWithConsistencyLoss) {
+////                        inputs.add(inputsH.get(1 + i));
+////                    }
+////                });
+//                return inputs;
 
             default:
+
                 addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss);
                 addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
                 inputs.add(inputsH.get(0));

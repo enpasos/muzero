@@ -64,6 +64,7 @@ public class BatchFactory {
     private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList, TrainingDatasetType trainingDatasetType) {
         NDManager nd = ndManager.newSubManager();
 
+
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss(), trainingDatasetType);
         List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList, trainingDatasetType);
 
@@ -71,7 +72,7 @@ public class BatchFactory {
                 nd,
                 new NDList(inputs),
                 new NDList(outputs),
-                (int) inputs.get(0).getShape().get(0),
+                inputs.size() > 0 ? (int) inputs.get(0).getShape().get(0) : 0,
                 null,
                 null,
                 0,
@@ -85,12 +86,8 @@ public class BatchFactory {
             case PLANNING_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromPlanningBuffer(numUnrollSteps);
                 break;
-
-
             case RULES_BUFFER:
-
                 sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
-
                 break;
             case REANALYSE_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(numUnrollSteps);

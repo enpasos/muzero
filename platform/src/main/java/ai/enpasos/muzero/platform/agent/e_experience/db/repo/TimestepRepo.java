@@ -134,4 +134,15 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Transactional
     @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.a_weight_class = :groupClass ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
     List<Long> findNRandomEpisodeIdsWeightedA(int groupClass, int n );
+
+    @Transactional
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.reward_loss > :rewardLossThreshold order by random() limit :n ", nativeQuery = true)
+
+    List<Long> findRandomNEpisodeIdsRelevantForRewardLearning(double rewardLossThreshold, int n);
+
+
+    @Transactional
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.legal_action_loss_max > :legalActionLossMaxThreshold order by random() limit :n ", nativeQuery = true)
+
+    List<Long> findRandomNEpisodeIdsRelevantForLegalActionLearning(double legalActionLossMaxThreshold, int n);
 }
