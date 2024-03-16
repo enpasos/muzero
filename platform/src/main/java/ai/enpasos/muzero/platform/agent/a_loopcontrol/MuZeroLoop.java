@@ -98,18 +98,18 @@ public class MuZeroLoop {
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-//            if (epoch != 0) {
-//                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-//                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-//                    config.setPlayTypeKey(key);
-//                    play.playGames(params.isRender(), trainingStep);
-//                }
-//                config.setPlayTypeKey(originalPlayTypeKey);
-//            }
-//
-//            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-//            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-//            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+            if (epoch != 0) {
+                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                    config.setPlayTypeKey(key);
+                    play.playGames(params.isRender(), trainingStep);
+                }
+                config.setPlayTypeKey(originalPlayTypeKey);
+            }
+
+            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
 //            log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
