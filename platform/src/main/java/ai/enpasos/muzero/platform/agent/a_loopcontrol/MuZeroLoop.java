@@ -98,29 +98,29 @@ public class MuZeroLoop {
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-            if (epoch != 0) {
-                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                    config.setPlayTypeKey(key);
-                    play.playGames(params.isRender(), trainingStep);
-                }
-                config.setPlayTypeKey(originalPlayTypeKey);
-            }
-
-            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
-
-
-            //    log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
-           //     fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
+//            if (epoch != 0) {
+//                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+//                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+//                    config.setPlayTypeKey(key);
+//                    play.playGames(params.isRender(), trainingStep);
+//                }
+//                config.setPlayTypeKey(originalPlayTypeKey);
+//            }
+//
+//            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+//            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+//            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
-      //      boolean[] freeze = new boolean[]{false, true, true};
-   //         modelService.trainModel(freeze, RULES_BUFFER, false).get();
+            log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch("+ epoch +")");
+            fillRulesLoss.fillRulesLossForNetworkOfEpoch( epoch);
 
-            boolean[] freeze = new boolean[]{false, false, false};
-            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+
+            boolean[] freeze = new boolean[]{false, true, true};
+            modelService.trainModel(freeze, RULES_BUFFER, false).get();
+
+//            boolean[] freeze = new boolean[]{false, false, false};
+//            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
             epoch = modelState.getEpoch();
 
