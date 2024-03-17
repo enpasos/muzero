@@ -5,10 +5,10 @@ pytorch = "2.1.1"
 
 slf4j = "2.0.12"
 springboot = "3.2.3"
-protobuf = "3.25.3"
+protobuf = "4.26.0"
 junit = "5.10.2"
-jackson = "2.16.2"
-postgres = "42.7.2"
+jackson = "2.17.0"
+postgres = "42.7.3"
 
 [libraries]
 djl-api = { module = "ai.djl:api", version.ref = "djl" }
