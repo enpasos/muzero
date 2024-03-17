@@ -196,11 +196,13 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
-//        List<Game> games  =  getNRandomSelectedGamesForRewardLearning(n);
-//        List<Game> games2  =  getNRandomSelectedGamesForLegalActionsLearning(n- games.size());
-//        games.addAll(games2);
-        List<Game> games  = getNRandomSelectedGames(  n);
-                Collections.shuffle(games);
+        List<Game> games  =  getNRandomSelectedGamesForRewardLearning(n/3);
+        List<Game> games2  =  getNRandomSelectedGamesForLegalActionsLearning(n/3);
+        games.addAll(games2);
+        List<Game> games3  = getNRandomSelectedGames(  n);
+
+        games.addAll(games3);
+        Collections.shuffle(games);
 //        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
 //        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return games.subList(0, Math.min(n, games.size()));
