@@ -46,52 +46,27 @@ public class FillRulesLoss {
 
     public void run() {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        fillRulesLossForNetworkOfEpoch( epoch);
+        evaluatedRulesLearningForNetworkOfEpoch( epoch);
      }
 
-    public void fillRulesLossForNetworkOfEpoch(int epoch) {
-       // if (epoch % 10 != 0) { return; }
-        log.info("filling rules loss for epoch {}", epoch);
+    public void evaluatedRulesLearningForNetworkOfEpoch(int epoch) {
+         log.info("evaluate rules learning for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
-        timestepRepo.deleteLegalActionLossWhereAClassIsZeroOrOne();
+        timestepRepo.deleteRulesLearningResults();
         // the network from epoch
          int offset = 0;
          int limit = 50000;
          boolean existsMore = true;
          do {
-             existsMore = fillRulesLossForAClass(0, offset, limit);
+             existsMore = evaluateRulesLearning( offset, limit);
              offset += limit;
          }  while (existsMore);
-//            if (epoch % 50 == 0) {
-//                fillRulesLossForAClass( 2, offset, limit);
-//            }
-//        if (epoch % 100 == 0) {
-//            fillRulesLossForAClass(3, offset, limit);
-//        }
-//        if (epoch % 300 == 0) {
-//            fillRulesLossForAClass(4, offset, limit);
-//        }
-//        if (epoch % 1000 == 0) {
-//            fillRulesLossForAClass(5, offset, limit);
-//        }
-            // fillRulesLossForAClass(1);
-            //  }
 
-//        timestepRepo.calculateAWeight();
-//        timestepRepo.calculateAWeightCumulated();
-//
-//
-//        timestepRepo.deleteAWeightClass();
-//        float weightACumulatedMax = timestepRepo.getWeightACumulatedMax();
-//        int n = 5;
-//        for (int i = 1; i <= n; i++) {
-//            timestepRepo.calculateAWeightClass(i, n, weightACumulatedMax);
-//        }
     }
 
-    private boolean fillRulesLossForAClass(int wClass, int offset, int limit) {
+    private boolean evaluateRulesLearning( int offset, int limit) {
 
-        List<Long> episodeIds = timestepRepo.findAllEpisodeIdsForAClass(wClass, limit, offset);
+        List<Long> episodeIds = episodeRepo.findAllEpisodeIds(limit, offset);
         if (episodeIds.isEmpty()) return false;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
@@ -100,9 +75,19 @@ public class FillRulesLoss {
 
         gameProvider.measureRewardExpectations(games);
 
+
+        double thresholdA = config.getLegalActionLossMaxThreshold();
+        double thresholdR = config.getRewardLossThreshold();
+
         games.stream().forEach(
                 game -> game.getEpisodeDO().getTimeSteps().stream().forEach(
-                        timestep -> timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax())
+                        timestep -> {
+                            boolean known = timestep.getRewardLoss() < thresholdR && timestep.getLegalActionLossMax() < thresholdA;
+                            // box 0, ...: box for learning
+                            int box = timestep.getBox();
+                            box = known ? box + 1 : 0;
+                            timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax(), box);
+                        }
                 )
         );
         return true;

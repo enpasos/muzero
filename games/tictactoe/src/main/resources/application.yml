@@ -77,8 +77,8 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 9
-      broadcastEveryN: 10  # out of range here
+      numResiduals: 12
+      broadcastEveryN: 14  # out of range here
 
       numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
 

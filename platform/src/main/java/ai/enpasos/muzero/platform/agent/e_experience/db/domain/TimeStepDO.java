@@ -1,13 +1,11 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 
-import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -50,10 +48,10 @@ public class TimeStepDO {
     float rewardLoss;
     float legalActionLossMax;
 
-    float aWeight;
-    float aWeightCumulative;
+   // float aWeight;
+   // float aWeightCumulative;
   //  float aWeightCumulativePrev;
-    int aWeightClass;
+    int box;
 
     float entropy;
     float[] policyTarget;
@@ -61,7 +59,7 @@ public class TimeStepDO {
     byte[] observationPartA;
     byte[] observationPartB;
     float[] playoutPolicy;
-    float[] simState;
+  //  float[] simState;
     float rootValueTarget;
     float vMix;
     float rootEntropyValueTarget;

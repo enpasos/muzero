@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -43,6 +44,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 @Slf4j
@@ -69,6 +71,9 @@ public class GameBuffer {
 
     @Autowired
     EpisodeRepo episodeRepo;
+
+    @Autowired
+    TimestepRepo timestepRepo;
 
     private Map<Integer, Double> meanValuesLosses = new HashMap<>();
     private Map<Integer, Double> meanEntropyValuesLosses = new HashMap<>();
@@ -196,25 +201,14 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
-        List<Game> games  =  getNRandomSelectedGamesForRewardLearning(n/3);
-        List<Game> games2  =  getNRandomSelectedGamesForLegalActionsLearning(n/3);
-        games.addAll(games2);
-        List<Game> games3  = getNRandomSelectedGames(  n);
-
-        games.addAll(games3);
-        Collections.shuffle(games);
-//        List<EpisodeDO> episodeDOList = this.dbService.findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
-//        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        return games.subList(0, Math.min(n, games.size()));
+        List<Game> games = new ArrayList<>();
+        int maxBox = timestepRepo.maxBox();
+        IntStream.rangeClosed(0, maxBox).forEach(box ->
+             games.addAll(getNRandomSelectedGamesFromBox( n / (box + 1) ,   box) )
+        );
+         Collections.shuffle(games);
+         return games.subList(0, Math.min(n, games.size()));
     }
-
-//    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
-//        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-//            return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
-//                    .map(game -> sampleFromGame(numUnrollSteps, game))
-//                    .collect(Collectors.toList());
-//        }
-//    }
 
     public List<Sample> sampleBatchFromReanalyseBuffer(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
@@ -432,6 +426,12 @@ public class GameBuffer {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantForRewardLearningAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
+        return games;
+    }
+
+    public List<Game> getNRandomSelectedGamesFromBox(int n, int box) {
+        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantFromBoxAndConvertToGameDTOList(n, box);
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return games;
     }
 

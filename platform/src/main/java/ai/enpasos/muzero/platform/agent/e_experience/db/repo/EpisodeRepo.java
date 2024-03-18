@@ -28,6 +28,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<EpisodeDO> findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List<Long> ids);
 
 
+    @Transactional
+    @Query(value = "select e.id from episode e  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
+    List<Long> findAllEpisodeIds(int limit, int offset);
 
 
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
@@ -37,9 +40,7 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
     List<Long> findRandomNEpisodeIds(int n);
 
-//    @Transactional
-//    @Query(value = "select e.id from episode e order by random() limit :n", nativeQuery = true)
-//    List<Long> findRandomNEpisodeIds2(int n, double threshold);
+
 
     @Transactional
     @Query(value = "select e.id from episode e order by e.rule_loss desc limit :n", nativeQuery = true)
@@ -50,11 +51,6 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Transactional
     @Query(value = "select e.id from episode e where e.training_epoch = :epoch and e.archived = false", nativeQuery = true)
     List<Long> findAllNonArchivedEpisodeIdsForAnEpoch(int epoch);
-
-
-
-
-
 
 
     @Transactional

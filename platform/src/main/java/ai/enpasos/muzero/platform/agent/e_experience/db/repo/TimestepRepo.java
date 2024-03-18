@@ -58,21 +58,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void dropSequence();
 
 
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.simState = NULL ")
-    void clearSimState();
-
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t  set  t.simState = :similarityVector where  t.id = :id" )
-    void saveSimilarityVectors( long id, float[] similarityVector);
-
-
-
-
 
 
     @Transactional
@@ -80,54 +65,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<Long> findNEpisodeIdsWithHighestRewardLoss(int n, double minLoss);
 
 
+
     @Transactional
-    @Query(value = "select t.episode_id from timestep t where t.a_weight_class = :wClass GROUP BY t.episode_id order by t.episode_id LIMIT :limit  OFFSET :offset", nativeQuery = true)
-    List<Long> findAllEpisodeIdsForAClass(int wClass, int limit, int offset);
-
-
+    @Modifying
+    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.box=0,t.rewardLoss = 0")
+    void deleteRulesLearningResults();
 
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.aWeightClass=0, t.aWeightCumulative=0, t.aWeight=0, t.rewardLoss = 0 where t.aWeightClass = 0 or t.aWeightClass = 1")
-    void deleteLegalActionLossWhereAClassIsZeroOrOne();
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.aWeightClass=0")
-    void deleteAWeightClass();
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss where t.id = :id")
-    void updateRewardLoss(long id, float rewardLoss, float legalActionLoss);
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "update timestep set a_weight =  legal_action_loss_max * legal_action_loss_max * legal_action_loss_max  ", nativeQuery = true)
-    void calculateAWeight();
-
-    @Transactional
-    @Modifying
-    @Query(value = "UPDATE timestep "+
-                      "SET a_weight_cumulative = cum_sum.a_weight_cumulative "+
-                      "FROM ( "+
-                               "SELECT id, SUM(a_weight) OVER (ORDER BY a_weight DESC) AS a_weight_cumulative "+
-                               "FROM timestep "+
-                           ") AS cum_sum "+
-                      "WHERE timestep.id = cum_sum.id" , nativeQuery = true)
-    void calculateAWeightCumulated();
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "UPDATE timestep  " +
-            "            SET a_weight_class = :groupClass  " +
-            "            WHERE a_weight_class = 0  AND a_weight_cumulative <= :maxWeightCumulative * :groupClass / :n  ", nativeQuery = true)
-    void calculateAWeightClass(int groupClass, int n, float maxWeightCumulative);
+    @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss, t.box = :newBox where t.id = :id")
+    void updateRewardLoss(long id, float rewardLoss, float legalActionLoss, int newBox);
 
 
 
@@ -145,4 +93,15 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.legal_action_loss_max > :legalActionLossMaxThreshold order by random() limit :n ", nativeQuery = true)
 
     List<Long> findRandomNEpisodeIdsRelevantForLegalActionLearning(double legalActionLossMaxThreshold, int n);
+
+
+    @Transactional
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box = :box order by random() limit :n ", nativeQuery = true)
+
+    List<Long> findRandomNEpisodeIdsFromBox(int n, int box);
+
+
+    @Transactional
+    @Query(value = "SELECT max(t.box) FROM timestep t  ", nativeQuery = true)
+    int maxBox();
 }

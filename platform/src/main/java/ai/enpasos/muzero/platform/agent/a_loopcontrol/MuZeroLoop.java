@@ -26,7 +26,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
@@ -111,15 +110,17 @@ public class MuZeroLoop {
             log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
             log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
+
+           // log.info("Epoch(" + epoch + ")");
             if (epoch > 100 && epoch % 100 == 0) {
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
-                fillRulesLoss.fillRulesLossForNetworkOfEpoch(epoch);
+                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch);
             }
 
             boolean[] freeze = new boolean[]{false, true, true};
             modelService.trainModel(freeze, RULES_BUFFER, false).get();
 
-            freeze = new boolean[]{false, false, false};
+            freeze = new boolean[]{true, false, false};
             modelService.trainModel(freeze, PLANNING_BUFFER, true).get();
 
             epoch = modelState.getEpoch();

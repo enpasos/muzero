@@ -126,6 +126,13 @@ public class DBService {
     }
 
     @Transactional
+    public List<EpisodeDO> findRandomNRelevantFromBoxAndConvertToGameDTOList(int n, int box) {
+        List<Long> ids = timestepRepo.findRandomNEpisodeIdsFromBox(n, box);
+        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+        return result;
+    }
+
+    @Transactional
     public List<EpisodeDO> findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(int n) {
         List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), n);
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
