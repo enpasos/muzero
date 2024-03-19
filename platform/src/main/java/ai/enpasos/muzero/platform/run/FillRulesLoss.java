@@ -46,7 +46,7 @@ public class FillRulesLoss {
 
     public void run() {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        evaluatedRulesLearningForNetworkOfEpoch( epoch, 4);
+        evaluatedRulesLearningForNetworkOfEpoch( epoch, 3);
      }
 
     public void evaluatedRulesLearningForNetworkOfEpoch(int epoch, int maxBox) {
@@ -70,7 +70,7 @@ public class FillRulesLoss {
 
 
 
-        List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithMaxBox(limit, offset, maxBox);
+        List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMaxBox(limit, offset, maxBox);
         if (episodeIds.isEmpty()) return false;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
@@ -92,7 +92,9 @@ public class FillRulesLoss {
                             int box = timestep.getBox();
                             int oldBox = box;
                             box = known ? box + 1 : 0;
-                            if (oldBox != box) changeCount[0]++;
+                            if (oldBox != box) {
+                                changeCount[0]++;
+                            }
                             timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax(), box);
                         }
                 )

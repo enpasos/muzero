@@ -29,8 +29,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
     @Transactional
-    @Query(value = "select e.id from episode e where e.max_box = :maxBox  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
-    List<Long> findAllEpisodeIdsWithMaxBox(int limit, int offset, int maxBox);
+    @Query(value = "select e.id from episode e where e.max_box <= :maxBox  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
+    List<Long> findAllEpisodeIdsWithBoxSmallerOrEqualsMaxBox(int limit, int offset, int maxBox);
 
 
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
