@@ -57,14 +57,16 @@ public class FillRulesLoss {
          int offset = 0;
          int limit = 50000;
          boolean existsMore = true;
+        int[] changeCount = new int[1];
          do {
-             existsMore = evaluateRulesLearning( offset, limit);
+             changeCount = new int[1];
+             existsMore = evaluateRulesLearning( offset, limit, changeCount);
              offset += limit;
-         }  while (existsMore);
+         }  while (existsMore && changeCount[0] > 0);
 
     }
 
-    private boolean evaluateRulesLearning( int offset, int limit) {
+    private boolean evaluateRulesLearning( int offset, int limit, int[] changeCount) {
 
         List<Long> episodeIds = episodeRepo.findAllEpisodeIds(limit, offset);
         if (episodeIds.isEmpty()) return false;
@@ -79,13 +81,16 @@ public class FillRulesLoss {
         double thresholdA = config.getLegalActionLossMaxThreshold();
         double thresholdR = config.getRewardLossThreshold();
 
+
         games.stream().forEach(
                 game -> game.getEpisodeDO().getTimeSteps().stream().forEach(
                         timestep -> {
                             boolean known = timestep.getRewardLoss() < thresholdR && timestep.getLegalActionLossMax() < thresholdA;
                             // box 0, ...: box for learning
                             int box = timestep.getBox();
+                            int oldBox = box;
                             box = known ? box + 1 : 0;
+                            if (oldBox != box) changeCount[0]++;
                             timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax(), box);
                         }
                 )

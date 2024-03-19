@@ -112,7 +112,7 @@ public class MuZeroLoop {
 
 
            // log.info("Epoch(" + epoch + ")");
-            if (epoch > 100 && epoch % 100 == 0) {
+            if (epoch % 100 == 0) {
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
                 fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch);
             }

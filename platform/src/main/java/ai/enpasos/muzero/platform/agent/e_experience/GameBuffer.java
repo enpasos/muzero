@@ -204,10 +204,10 @@ public class GameBuffer {
         List<Game> games = new ArrayList<>();
         int maxBox = timestepRepo.maxBox();
         IntStream.rangeClosed(0, maxBox).forEach(box ->
-             games.addAll(getNRandomSelectedGamesFromBox( n / (box + 1) ,   box) )
+             games.addAll(getNRandomSelectedGamesFromBoxZeroOrOne( n ) )
         );
          Collections.shuffle(games);
-         return games.subList(0, Math.min(n, games.size()));
+         return games;
     }
 
     public List<Sample> sampleBatchFromReanalyseBuffer(int numUnrollSteps ) {
@@ -431,6 +431,12 @@ public class GameBuffer {
 
     public List<Game> getNRandomSelectedGamesFromBox(int n, int box) {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantFromBoxAndConvertToGameDTOList(n, box);
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        return games;
+    }
+
+    public List<Game> getNRandomSelectedGamesFromBoxZeroOrOne(int n) {
+        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantFromBoxZeroOrOneAndConvertToGameDTOList(n);
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return games;
     }
