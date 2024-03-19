@@ -77,7 +77,7 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 12
+      numResiduals: 9
       broadcastEveryN: 14  # out of range here
 
 

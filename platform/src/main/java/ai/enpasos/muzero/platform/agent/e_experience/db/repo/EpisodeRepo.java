@@ -29,8 +29,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
     @Transactional
-    @Query(value = "select e.id from episode e  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
-    List<Long> findAllEpisodeIds(int limit, int offset);
+    @Query(value = "select e.id from episode e where e.max_box = :maxBox  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
+    List<Long> findAllEpisodeIdsWithMaxBox(int limit, int offset, int maxBox);
 
 
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
@@ -97,14 +97,20 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     void dropSequence();
 
 
-    @Transactional
-    @Modifying
-    @Query(value = "update EpisodeDO e set e.ruleLoss = :loss where e.id = :id")
-    void updateRuleLoss(long id, float loss);
+//    @Transactional
+//    @Modifying
+//    @Query(value = "update EpisodeDO e set e.ruleLoss = :loss where e.id = :id")
+//    void updateRuleLoss(long id, float loss);
+//
+//
+//    @Transactional
+//    @Modifying
+//    @Query(value = "update EpisodeDO e set e.ruleLoss = 0")
+//    void initRuleLoss();
 
 
     @Transactional
     @Modifying
-    @Query(value = "update EpisodeDO e set e.ruleLoss = 0")
-    void initRuleLoss();
+    @Query(value = "update episode e set max_box = t.box from SELECT t.episode_id, max(t.box) FROM timestep t group by t.episode_id where e.id = t.episode_id", nativeQuery = true )
+    void updateMaxBox(  );
 }

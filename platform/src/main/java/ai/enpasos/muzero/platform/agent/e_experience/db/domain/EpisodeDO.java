@@ -41,8 +41,7 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
 
 
     float ruleLoss;
-    int ruleBox;
-
+    int maxBox;
 
     int trainingEpoch;
     int tdSteps;
