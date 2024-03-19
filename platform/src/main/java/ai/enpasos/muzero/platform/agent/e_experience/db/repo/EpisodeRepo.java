@@ -111,7 +111,14 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update episode e set min_box = t.box from SELECT t.episode_id, min(t.box) FROM timestep t group by t.episode_id where e.id = t.episode_id", nativeQuery = true )
+    @Query(value = "UPDATE episode e \n" +
+            "SET min_box = t.min_box\n" +
+            "FROM (\n" +
+            "    SELECT episode_id, MIN(box) as min_box\n" +
+            "    FROM timestep\n" +
+            "    GROUP BY episode_id\n" +
+            ") t\n" +
+            "WHERE e.id = t.episode_id", nativeQuery = true )
     void updateMinBox(  );
 
 
