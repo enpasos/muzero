@@ -48,7 +48,7 @@ import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
 
     public PredictionBlock(@NotNull MuZeroConfig config ) {
-        this(config.getNumChannels(),
+        this(
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize() );
     }
@@ -66,7 +66,7 @@ private boolean withReward;
 
 
 
-    public PredictionBlock(int numChannels, boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
+    public PredictionBlock( boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
 
 
         valueHead = new SequentialBlockExt();

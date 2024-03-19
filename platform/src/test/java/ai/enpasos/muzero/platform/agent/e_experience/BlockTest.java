@@ -56,8 +56,8 @@ class BlockTest {
     void causalBottleneckResidualLayersWithRescaleBlockRANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBottleneckResidualLayersWithRescaleBlock.onnx",
-                new CausalBottleneckResidualLayersBlock(80, 80,80, 20, 20, 20, true),
-                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3)),
+                new CausalBottleneckResidualLayersBlock(80, 81,82, 20, 21, 22, true),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 81, 3, 3), new Shape(1, 82, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
     }
@@ -66,8 +66,8 @@ class BlockTest {
     void causalBottleneckResidualLayersBlock2RANDOM() throws Exception {
         boolean check = compareOnnxWithDJL(
                 "./build/CausalBottleneckResidualLayersBlock2.onnx",
-                new CausalBottleneckResidualLayersBlock(80, 80,80, 20, 20, 20, false),
-                List.of(new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 80, 3, 3), new Shape(1, 3, 3, 3)),
+                new CausalBottleneckResidualLayersBlock(80, 81,82, 20, 21, 22, false),
+                List.of(new Shape(1, 80, 3, 3), new Shape(1, 81, 3, 3), new Shape(1, 82, 3, 3), new Shape(1, 3, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);
     }
@@ -227,7 +227,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9 ),
+            new PredictionBlock( true, 9 ),
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -240,7 +240,7 @@ class BlockTest {
 
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock(128, true, 9),
+            new PredictionBlock( true, 9),
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
@@ -248,7 +248,7 @@ class BlockTest {
 
     @Test
     void predictionWithRewardRANDOM() throws Exception {
-        PredictionBlock predictionBlock = new PredictionBlock(128, true, 9);
+        PredictionBlock predictionBlock = new PredictionBlock( true, 9);
 predictionBlock.setWithReward(true);
         boolean check = compareOnnxWithDJL(
                 "./build/PredictionBlockWithReward.onnx",

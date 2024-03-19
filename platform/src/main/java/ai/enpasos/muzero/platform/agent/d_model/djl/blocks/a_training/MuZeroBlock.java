@@ -36,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.firstHalfNDList;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.secondHalfNDList;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock.newDynamicsBlock;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock.newRepresentationBlock;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
@@ -60,11 +62,15 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
-        similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
-            config.getNumChannelsHiddenLayerSimilarityProjector(), config.getNumChannelsOutputLayerSimilarityProjector()));
-        similarityPredictorBlock = this.addChildBlock("Predictor", SimilarityPredictorBlock.newPredictorBlock(
-            config.getNumChannelsHiddenLayerSimilarityPredictor(), config.getNumChannelsOutputLayerSimilarityPredictor()));
-
+        if (config.isWithConsistencyLoss()) {
+            similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(
+                    config.getNumChannelsHiddenLayerSimilarityProjector(), config.getNumChannelsOutputLayerSimilarityProjector()));
+            similarityPredictorBlock = this.addChildBlock("Predictor", SimilarityPredictorBlock.newPredictorBlock(
+                    config.getNumChannelsHiddenLayerSimilarityPredictor(), config.getNumChannelsOutputLayerSimilarityPredictor()));
+        } else {
+            similarityProjectorBlock = null;
+            similarityPredictorBlock = null;
+        }
 
         inputNames = new ArrayList<>();
         inputNames.add("observation");
@@ -93,13 +99,13 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         // initial Inference
         predictionBlock.setWithReward(false);
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDList stateForPrediction = new NDList(representationResult.get(0), representationResult.get(1), representationResult.get(2));
-        NDList stateForTimeEvolution = new NDList(representationResult.get(3), representationResult.get(4), representationResult.get(5));
+        NDList stateForPrediction = firstHalfNDList(representationResult);
+        NDList stateForTimeEvolution = secondHalfNDList(representationResult);
 
-        NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
-            combinedResult.add(prediction);
-        }
+            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+            for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+                combinedResult.add(prediction);
+            }
 
         for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
 
@@ -116,12 +122,13 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
 
             NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
-             stateForPrediction = new NDList(dynamicsResult.get(0), dynamicsResult.get(1), dynamicsResult.get(2));
-             stateForTimeEvolution = new NDList(dynamicsResult.get(3), dynamicsResult.get(4), dynamicsResult.get(5));
+                stateForPrediction = firstHalfNDList(dynamicsResult);
+                stateForTimeEvolution = secondHalfNDList(dynamicsResult);
 
 
             predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
+                if (config.isWithConsistencyLoss()) {
 
 
             NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList( stateForTimeEvolution.get(0)), training, params);
@@ -132,8 +139,9 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
             NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
             similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
-            combinedResult.add(similarityPredictorResult);
-            combinedResult.add(similarityProjectorResultLabel);
+                    combinedResult.add(similarityPredictorResult);
+                    combinedResult.add(similarityProjectorResultLabel);
+                }
 
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
@@ -154,6 +162,23 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         return combinedResult;
     }
 
+public static Shape[] firstHalf(Shape[] inputShapes) {
+        int half = inputShapes.length / 2;
+        Shape[] outputShapes = new Shape[half];
+        for (int i = 0; i < half; i++) {
+            outputShapes[i] = inputShapes[i];
+        }
+        return outputShapes;
+    }
+    public static Shape[] secondHalf(Shape[] inputShapes) {
+        int half = inputShapes.length / 2;
+        Shape[] outputShapes = new Shape[half];
+        for (int i = 0; i < half; i++) {
+            outputShapes[i] = inputShapes[half + i];
+        }
+        return outputShapes;
+    }
+
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
         Shape[] outputShapes = new Shape[0];
@@ -162,11 +187,8 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         predictionBlock.setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
-        Shape[] stateOutputShapesForPrediction = new Shape[]{stateOutputShapes[0], stateOutputShapes[1], stateOutputShapes[2]};
-        Shape[] stateOutputShapesForTimeEvolution = new Shape[]{stateOutputShapes[3], stateOutputShapes[4], stateOutputShapes[5]};
-
-
-
+            Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+            Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
         Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
         outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
@@ -176,20 +198,13 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
             predictionBlock.setWithReward(true);
             Shape stateShape = stateOutputShapes[0];
             Shape actionShape = inputShapes[k];
-            Shape dynamicsInputShape = null;
-            if (stateShape.dimension() == 4) {
-                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1), stateShape.get(2), stateShape.get(3));
-            } else if (stateShape.size() == 2) {
-                dynamicsInputShape = new Shape(stateShape.get(0), stateShape.get(1) + actionShape.get(1));
-            } else {
-                throw new MuZeroException("wrong input shape");
-            }
-            stateOutputShapes = dynamicsBlock.getOutputShapes(new Shape[]{dynamicsInputShape});
+            Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
 
-            stateOutputShapesForPrediction = new Shape[]{stateOutputShapes[0], stateOutputShapes[1], stateOutputShapes[2]};
-             stateOutputShapesForTimeEvolution = new Shape[]{stateOutputShapes[3], stateOutputShapes[4], stateOutputShapes[5]};
+            stateOutputShapes = dynamicsBlock.getOutputShapes( dynamicInShape );
 
 
+                stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+                stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
             outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
 
@@ -227,21 +242,25 @@ public class MuZeroBlock extends AbstractBlock implements  CausalityFreezing {
         predictionInputShape[2] = stateOutputShapes[2];
 
 
-
         predictionBlock.setWithReward(true);
         predictionBlock.initialize(manager, dataType, predictionInputShape);
 
 
         Shape actionShape = inputShapes[1];
-        Shape[] dynamicsInputShape = new Shape[4];
-        dynamicsInputShape[0] = stateOutputShapes[3];
-        dynamicsInputShape[1] = stateOutputShapes[4];
-        dynamicsInputShape[2] = stateOutputShapes[5];
-        dynamicsInputShape[3] = actionShape;
+        Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
+
 
         dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+    }
 
-
+    @NotNull
+    private Shape[] getDynamicsInputShape(Shape[] stateOutputShapes, Shape actionShape) {
+        Shape[] dynamicsInputShape;
+        Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
+        dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
+        System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
+        dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
+        return dynamicsInputShape;
     }
 
 

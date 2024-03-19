@@ -50,8 +50,8 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, Causa
             super(MYVERSION);
 
      rulesBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
-     policyBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
-     valueBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
+     policyBlock = Conv3x3.builder().channels(config.getNumChannelsPolicy()).build();
+     valueBlock = Conv3x3.builder().channels(config.getNumChannelsValue()).build();
 
 
         block = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(

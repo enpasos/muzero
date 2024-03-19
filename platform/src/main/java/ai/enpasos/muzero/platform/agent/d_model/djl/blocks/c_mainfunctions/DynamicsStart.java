@@ -102,8 +102,6 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
             OnnxTensor majorInput = input.get(c);
             myInput.add(majorInput);
 
-
-
             OnnxBlock child = onnxIO.getOnnxBlock(counter, myInput);
             onnxBlock.addChild(child);
             childOutputA = child.getOutput().get(0);
@@ -114,8 +112,6 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, CausalityFr
         // action input
             OnnxTensor extraInput = input.get(3);
         outputsA.add(extraInput);
-
-
 
         onnxBlock.setOutput(outputsA);
 

@@ -170,9 +170,6 @@ public class MuZeroConfig {
         return getConf().numActionLayers;
     }
 
-    public int getNumChannels() {
-        return getConf().numChannels;
-    }
 
     public int getNumChannelsPolicy() {
         return getConf().numChannelsPolicy;
@@ -517,8 +514,6 @@ public class MuZeroConfig {
 
         protected int numObservationLayers;
         protected int numActionLayers;
-        protected int numChannels;
-
 
         protected int numChannelsRules;
         protected int numChannelsPolicy;

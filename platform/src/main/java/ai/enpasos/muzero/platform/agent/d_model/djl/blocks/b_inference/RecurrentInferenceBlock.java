@@ -40,6 +40,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.firstHalf;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.secondHalf;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.*;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
@@ -69,8 +72,8 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
     protected NDList forwardInternal(ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList gResult = g.forward(parameterStore, inputs, training);
         f.setWithReward(true);
-        NDList fResult = f.forward(parameterStore, new NDList(gResult.get(0), gResult.get(1),gResult.get(2)), training, params);
-        NDList result = new NDList(gResult.get(3), gResult.get(4),gResult.get(5));
+        NDList fResult = f.forward(parameterStore, firstHalfNDList(gResult), training, params);
+        NDList result = secondHalfNDList(gResult);
         return result.addAll(fResult);
     }
 
@@ -80,8 +83,8 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, Ca
         f.setWithReward(true);
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
 
-        Shape[] gOutputShapesForPrediction = new Shape[]{gOutputShapes[0], gOutputShapes[1], gOutputShapes[2]};
-        Shape[] gOutputShapesForTimeEvolution = new Shape[]{gOutputShapes[3], gOutputShapes[4], gOutputShapes[5]};
+        Shape[] gOutputShapesForPrediction = firstHalf(gOutputShapes);
+        Shape[] gOutputShapesForTimeEvolution = secondHalf(gOutputShapes);
 
 
 
@@ -119,8 +122,8 @@ throw new MuZeroException("implemented in MuZeroBlock");
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
 
-        List<OnnxTensor> gOutputForF = List.of(gOutput.get(0), gOutput.get(1), gOutput.get(2));
-        List<OnnxTensor> gOutputForG = List.of(gOutput.get(3), gOutput.get(4), gOutput.get(5));
+        List<OnnxTensor> gOutputForF = firstHalfList(gOutput);
+        List<OnnxTensor> gOutputForG = secondHalfList(gOutput);
 
 
 
