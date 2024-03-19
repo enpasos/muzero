@@ -64,8 +64,6 @@ muzero:
       cVisit: 50  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numChannels: 240    # must be the sum of numChannelsRules, numChannelsPolicy and numChannelsValue
-
       numChannelsRules: 50
       numChannelsPolicy: 50
       numChannelsValue: 50
