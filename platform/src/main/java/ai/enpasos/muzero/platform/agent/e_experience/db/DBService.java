@@ -134,7 +134,7 @@ public class DBService {
 
     @Transactional
     public List<EpisodeDO> findRandomNRelevantFromBoxZeroOrOneAndConvertToGameDTOList(int n) {
-        List<Long> ids = timestepRepo.findRandomNEpisodeIdsFromBoxZeroOrOne(n );
+        List<Long> ids = episodeRepo.findRandomNEpisodeIdsFromBoxZeroOrOne(n );
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }

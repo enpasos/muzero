@@ -70,7 +70,7 @@ public class FillRulesLoss {
 
 
 
-        List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMaxBox(limit, offset, maxBox);
+        List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(limit, offset, maxBox);
         if (episodeIds.isEmpty()) return false;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
@@ -101,7 +101,7 @@ public class FillRulesLoss {
         );
 
 
-        episodeRepo.updateMaxBox(  );
+        episodeRepo.updateMinBox(  );
         return true;
 
 
