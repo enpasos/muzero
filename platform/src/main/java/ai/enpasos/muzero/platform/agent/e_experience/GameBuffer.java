@@ -201,12 +201,9 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
-        List<Game> games = new ArrayList<>();
-        int maxBox = timestepRepo.maxBox();
-        IntStream.rangeClosed(0, maxBox).forEach(box ->
-             games.addAll(getNRandomSelectedGamesFromBoxZeroOrOne( n ) )
-        );
-         Collections.shuffle(games);
+        List<Game> games =  getNRandomSelectedGamesFromBoxZeroOrOne( n ) ;
+
+      //   Collections.shuffle(games);
          return games;
     }
 
