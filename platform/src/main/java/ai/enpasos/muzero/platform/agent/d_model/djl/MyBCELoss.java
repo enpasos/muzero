@@ -85,7 +85,9 @@ public class MyBCELoss extends Loss {
         NDArray lossA = logSigmoid(pred).mul(lab).neg();
         NDArray lossB = logOneMinusSigmoid(pred).mul(lab.mul(-1).add(1)).neg();
 
-        loss = lossA.add(lossB).sum(new int[]{classAxis}, true);
+        loss = lossA.add(lossB);
+        loss.set(loss.lt(0.01f), 0f);
+        loss = loss.sum(new int[]{classAxis}, true);
     //    loss = lossA.sum(new int[]{classAxis}, true);
 
         if (weight != 1) {

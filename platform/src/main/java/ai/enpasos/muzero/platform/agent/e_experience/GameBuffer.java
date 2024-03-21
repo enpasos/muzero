@@ -201,7 +201,9 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnRules() {
         int n = this.batchSize;
-        List<Game> games =  getNRandomSelectedGamesFromBoxZeroOrOne( n ) ;
+
+        List<Game> games =  getNRandomSelectedGames( n ) ;
+       // List<Game> games =  getNRandomSelectedGamesFromBoxZeroOrOne( n ) ;
 
       //   Collections.shuffle(games);
          return games;
