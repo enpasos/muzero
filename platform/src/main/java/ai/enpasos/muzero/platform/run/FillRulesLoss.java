@@ -99,8 +99,7 @@ public class FillRulesLoss {
                         }
                 )
         );
-
-
+        log.info("changeCount: " + changeCount[0] + " for " + episodeIds.size() + " episodes");
         episodeRepo.updateMinBox(  );
         return true;
 

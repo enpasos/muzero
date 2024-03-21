@@ -259,6 +259,9 @@ public class MuZeroConfig {
     public boolean isWithConsistencyLoss() {
         return getConf().withConsistencyLoss;
     }
+    public boolean isWithSymmetryEnrichment() {
+        return getConf().withSymmetryEnrichment;
+    }
 
 
 
@@ -501,6 +504,9 @@ public class MuZeroConfig {
         public Map<PlayTypeKey, PlayType> playTypes;
 
         protected double numSimThreshold;
+
+
+        protected boolean withSymmetryEnrichment = true;
 
 
         protected String modelName;

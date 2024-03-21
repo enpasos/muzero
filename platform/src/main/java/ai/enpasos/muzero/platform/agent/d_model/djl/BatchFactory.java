@@ -66,7 +66,7 @@ public class BatchFactory {
 
 
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss(), trainingDatasetType);
-        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList, trainingDatasetType);
+        List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList, trainingDatasetType, withSymmetryEnrichment);
 
         return new Batch(
                 nd,

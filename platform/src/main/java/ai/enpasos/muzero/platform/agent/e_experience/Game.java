@@ -215,28 +215,21 @@ public abstract class Game {
 
         int tmax = this.getEpisodeDO().getLastTime();
 
-         int   tdSteps = getTdSteps( currentIndex);
-         double   value = calculateValue(tdSteps, currentIndex);
+        int   tdSteps = getTdSteps( currentIndex);
+        double   value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);
 
-
-
-
         if (currentIndex < this.getEpisodeDO().getLastTime() ) {
-
-                target.setLegalActions(b2f(this.getEpisodeDO().getTimeSteps().get(currentIndex).getLegalact().getLegalActions()));
-
+            TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(currentIndex);
+            target.setLegalActions(b2f(timeStepDO.getLegalact().getLegalActions()));
             target.setValue((float) value);
             target.setReward(reward);
-            float[] policy = this.getEpisodeDO().getTimeSteps().get(currentIndex).getPolicyTarget();
+            float[] policy = timeStepDO.getPolicyTarget();
             target.setPolicy(policy);
-
         } else {
-
             target.setValue(0f);
             target.setReward(reward);
             target.setPolicy(new float[this.actionSpaceSize]);
-            // the idea is not to put any force on the network to learn a particular action where it is not necessary
             Arrays.fill(target.getPolicy(), 0f);
             float[]legalActions = new float[this.actionSpaceSize];
             Arrays.fill(legalActions, 0f);

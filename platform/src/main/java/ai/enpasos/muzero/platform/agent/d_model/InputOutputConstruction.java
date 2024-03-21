@@ -71,7 +71,7 @@ public class InputOutputConstruction {
 
             default:
 
-                addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss);
+                addObservation(numUnrollSteps, ndManager, batch, inputsH, isWithConsistencyLoss, withSymmetryEnrichment);
                 addActionInput(numUnrollSteps, batch, ndManager, inputsA, withSymmetryEnrichment);
                 inputs.add(inputsH.get(0));
                 IntStream.range(0, inputsA.size()).forEach(i -> {
@@ -132,7 +132,7 @@ public class InputOutputConstruction {
     }
 
 
-    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs, boolean isWithConsistencyLoss) {
+    private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs, boolean isWithConsistencyLoss, boolean withSymmetryEnrichment) {
         for (int k = 0; k < (isWithConsistencyLoss ? numUnrollSteps + 1: 1); k++) {
             final int kFinal = k;
             List<NDArray> o = batch.stream()
@@ -142,7 +142,13 @@ public class InputOutputConstruction {
                 })
                 .collect(Collectors.toList());
 
-            inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+        //    inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+
+            if (withSymmetryEnrichment) {
+                inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
+            } else {
+                inputs.add(NDArrays.stack(new NDList(o)));
+            }
         }
     }
 
@@ -174,7 +180,7 @@ public class InputOutputConstruction {
     }
 
     @SuppressWarnings("java:S2095")
-    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, TrainingDatasetType trainingDatasetType) {
+    public @NotNull List<NDArray> constructOutput(@NotNull NDManager nd, int numUnrollSteps, @NotNull List<Sample> batch, TrainingDatasetType trainingDatasetType, boolean withSymmetryEnrichment) {
         List<NDArray> outputs = new ArrayList<>();
         int actionSize = config.getActionSpaceSize();
 
@@ -255,19 +261,35 @@ public class InputOutputConstruction {
 
 
                     legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
-                    outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+                    if (withSymmetryEnrichment) {
+                        outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+                    } else {
+                        outputs.add(legalActionsOutput2);
+                    }
 
                     if (k > 0) {
                         rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
-                        outputs.add(symmetryEnhancerValue(rewardOutput2));
+                        if (withSymmetryEnrichment) {
+                            outputs.add(symmetryEnhancerValue(rewardOutput2));
+                        } else {
+                            outputs.add(rewardOutput2);
+                        }
                     }
 
 
                     NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));
-                    outputs.add(symmetryEnhancerPolicy(policyOutput2));
+                    if (withSymmetryEnrichment) {
+                        outputs.add(symmetryEnhancerPolicy(policyOutput2));
+                    } else {
+                        outputs.add(policyOutput2);
+                    }
 
                     NDArray valueOutput2 = nd.create(valueArray).reshape(new Shape(batch.size(), 1));
-                    outputs.add(symmetryEnhancerValue(valueOutput2));
+                    if (withSymmetryEnrichment) {
+                        outputs.add(symmetryEnhancerValue(valueOutput2));
+                    } else {
+                        outputs.add(valueOutput2);
+                    }
 
                 }
                 return outputs;

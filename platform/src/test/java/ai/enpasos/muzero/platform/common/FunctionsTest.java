@@ -67,6 +67,16 @@ class FunctionsTest {
         //assertArrayEquals(a, b, 0.000001d);
     }
 
+    @Test
+    void b2f() {
+        boolean[] a = {true, false, false};
+        float[] b = Functions.b2f(a);
+        System.out.println(Arrays.toString(b));
+        assertEquals(1f, b[0]);
+        assertEquals(0f, b[1]);
+        assertEquals(0f, b[2]);
+    }
+
 //    @Test
 //    void rescaleLogitsIfOutsideInterval2() {
 //        double maxScaleInterval = 5d;

@@ -186,7 +186,7 @@ public class ModelController implements DisposableBean, Runnable {
                 try (NDScope nDScope = new NDScope()) {
                     int epochLocal;
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-                    boolean withSymmetryEnrichment = true;
+                    boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
                     epochLocal = getEpochFromModel(model);
                     DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, config.isWithConsistencyLoss());
                     int finalEpoch = epochLocal;
@@ -227,7 +227,8 @@ public class ModelController implements DisposableBean, Runnable {
 
             int epochLocal;
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-            boolean withSymmetryEnrichment = true;
+
+            boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
             epochLocal = getEpochFromModel(model);
             int finalEpoch = epochLocal;
 
