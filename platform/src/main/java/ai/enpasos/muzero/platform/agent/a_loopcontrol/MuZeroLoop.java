@@ -25,7 +25,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
 
 @Slf4j
@@ -97,14 +95,14 @@ public class MuZeroLoop {
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-            if (epoch != 0) {
-                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                    config.setPlayTypeKey(key);
-                    play.playGames(params.isRender(), trainingStep);
-                }
-                config.setPlayTypeKey(originalPlayTypeKey);
-            }
+//            if (epoch != 0) {
+//                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+//                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+//                    config.setPlayTypeKey(key);
+//                    play.playGames(params.isRender(), trainingStep);
+//                }
+//                config.setPlayTypeKey(originalPlayTypeKey);
+//            }
 
             log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
             log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
@@ -112,16 +110,22 @@ public class MuZeroLoop {
 
 
            // log.info("Epoch(" + epoch + ")");
-            if (epoch % 100 == 0) {
+           // if (epoch % 10 == 0) {
                 log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
-                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch, 3);
-            }
+                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
+         //   }
 
             boolean[] freeze = new boolean[]{false, true, true};
-            modelService.trainModel(freeze, RULES_BUFFER, false).get();
+            int unknowns = 0;
+            do {
+                modelService.trainModel(freeze, RULES_BUFFER, false).get();
+                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
+                unknowns = fillRulesLoss.numBox(0);
+                log.info("unknowns: " + unknowns);
+            } while (unknowns > 0);
 
-            freeze = new boolean[]{true, false, false};
-            modelService.trainModel(freeze, PLANNING_BUFFER, true).get();
+//            freeze = new boolean[]{true, false, false};
+//            modelService.trainModel(freeze, PLANNING_BUFFER, true).get();
 
             epoch = modelState.getEpoch();
 

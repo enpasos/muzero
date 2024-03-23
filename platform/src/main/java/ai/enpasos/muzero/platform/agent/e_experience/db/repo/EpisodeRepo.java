@@ -33,6 +33,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<Long> findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(int limit, int offset, int minBox);
 
 
+    @Transactional
+    @Query(value = "select e.id from episode e   order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
+    List<Long> findAllEpisodeIds(int limit, int offset );
     @Query(value = "select max(e.trainingEpoch) from EpisodeDO e")
     int getMaxTrainingEpoch ();
 
@@ -126,4 +129,9 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "SELECT e.id FROM episode e WHERE e.min_box = 0 or e.min_box = 1 order by random() limit :n ", nativeQuery = true)
 
     List<Long> findRandomNEpisodeIdsFromBoxZeroOrOne(int n );
+
+
+
+
+
 }

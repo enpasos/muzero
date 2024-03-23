@@ -104,7 +104,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-//    @Transactional
-//    @Query(value = "SELECT max(t.box) FROM timestep t  ", nativeQuery = true)
-//    int maxBox();
+    @Transactional
+    @Query(value = "SELECT count(*) FROM  timestep t where box = :box", nativeQuery = true)
+    int numBox(int box);
+
+
+
 }

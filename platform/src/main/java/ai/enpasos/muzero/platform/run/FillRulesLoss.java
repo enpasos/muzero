@@ -46,10 +46,10 @@ public class FillRulesLoss {
 
     public void run() {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        evaluatedRulesLearningForNetworkOfEpoch( epoch, 3);
+        evaluatedRulesLearningForNetworkOfEpochForBox0( epoch );
      }
 
-    public void evaluatedRulesLearningForNetworkOfEpoch(int epoch, int maxBox) {
+    public void evaluatedRulesLearningForNetworkOfEpoch(int epoch ) {
          log.info("evaluate rules learning for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
         timestepRepo.deleteRulesLearningResults();
@@ -60,17 +60,55 @@ public class FillRulesLoss {
         int[] changeCount = new int[1];
          do {
              changeCount = new int[1];
-             existsMore = evaluateRulesLearning( offset, limit, changeCount, maxBox);
+             existsMore = evaluateRulesLearning( offset, limit, changeCount );
              offset += limit;
-         }  while (existsMore && changeCount[0] > 0);
+         }  while (existsMore  );
 
     }
+    public void evaluatedRulesLearningForNetworkOfEpochForBox0(int epoch) {
+        log.info("evaluate rules learning for epoch {}", epoch);
+        modelService.loadLatestModel(epoch).join();
+        timestepRepo.deleteRulesLearningResults();
+        // the network from epoch
+        int offset = 0;
+        int limit = 50000;
+        boolean existsMore = true;
+        int[] changeCount = new int[1];
+        do {
+            changeCount = new int[1];
+            existsMore = evaluateRulesLearning( offset, limit, changeCount, 0);
+            offset += limit;
+        }  while (existsMore  );
+
+    }
+//    public void evaluatedRulesLearningForNetworkOfEpoch(int epoch ) {
+//        log.info("evaluate rules learning for epoch {}", epoch);
+//        modelService.loadLatestModel(epoch).join();
+//        timestepRepo.deleteRulesLearningResults();
+//        // the network from epoch
+//        int offset = 0;
+//        int limit = 50000;
+//        boolean existsMore = true;
+//        int[] changeCount = new int[1];
+//        do {
+//            changeCount = new int[1];
+//            existsMore = evaluateRulesLearning( offset, limit, changeCount, maxBox);
+//            offset += limit;
+//        }  while (existsMore  );
+//
+//    }
 
     private boolean evaluateRulesLearning( int offset, int limit, int[] changeCount, int maxBox) {
-
-
-
         List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(limit, offset, maxBox);
+        return evaluateRulesLearning(changeCount, episodeIds);
+    }
+
+    private boolean evaluateRulesLearning( int offset, int limit, int[] changeCount ) {
+        List<Long> episodeIds = episodeRepo.findAllEpisodeIds (limit, offset );
+        return evaluateRulesLearning(changeCount, episodeIds);
+    }
+
+    private boolean evaluateRulesLearning(int[] changeCount, List<Long> episodeIds) {
         if (episodeIds.isEmpty()) return false;
 
         List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
@@ -102,9 +140,9 @@ public class FillRulesLoss {
         log.info("changeCount: " + changeCount[0] + " for " + episodeIds.size() + " episodes");
         episodeRepo.updateMinBox(  );
         return true;
+    }
 
-
-
-
+    public int numBox( int n) {
+        return timestepRepo.numBox(n);
     }
 }
