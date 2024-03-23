@@ -123,7 +123,6 @@ public class MuZeroLoop {
                 fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
                 unknowns = fillRulesLoss.numBox(0);
                 log.info("unknowns: " + unknowns);
-
             } while (unknowns > 0);
 
 //            freeze = new boolean[]{true, false, false};
