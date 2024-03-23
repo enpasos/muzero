@@ -118,7 +118,9 @@ public class MuZeroLoop {
             boolean[] freeze = new boolean[]{false, true, true};
             int unknowns = 0;
             do {
-                modelService.trainModel(freeze, RULES_BUFFER, false).get();
+                for (int i = 0; i < 10; i++) {
+                    modelService.trainModel(freeze, RULES_BUFFER, false).get();
+                }
                 epoch = modelState.getEpoch();
                 fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
                 unknowns = fillRulesLoss.numBox(0);
