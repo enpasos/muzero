@@ -31,7 +31,7 @@ import java.util.Arrays;
  * <p>{@code label} should contain probability distribution and its shape should be the same as
  * the shape of {@code prediction}.
  */
-public class MyBCELoss extends Loss {
+public class MyBCESquaredLoss extends Loss {
 
     private final float weight;
     private final int classAxis;
@@ -40,7 +40,7 @@ public class MyBCELoss extends Loss {
     /**
      * Creates a new instance of {@code MyBCELoss} with default parameters.
      */
-    public MyBCELoss() {
+    public MyBCESquaredLoss() {
         this("BCELoss");
     }
 
@@ -49,7 +49,7 @@ public class MyBCELoss extends Loss {
      *
      * @param name the name of the loss
      */
-    public MyBCELoss(String name) {
+    public MyBCESquaredLoss(String name) {
         this(name, 1, -1 );
     }
 
@@ -60,7 +60,7 @@ public class MyBCELoss extends Loss {
      * @param weight      the weight to apply on the loss value, default 1
      * @param classAxis   the axis that represents the class probabilities, default -1
      */
-    public MyBCELoss(
+    public MyBCESquaredLoss(
         String name, float weight, int classAxis ) {
         super(name);
         this.weight = weight;
@@ -85,8 +85,9 @@ public class MyBCELoss extends Loss {
         NDArray lossB = logOneMinusSigmoid(pred).mul(lab.mul(-1).add(1)).neg();
 
 
-
-        loss = lossA.add(lossB) .sum(new int[]{classAxis}, true);
+        // the square is not correct for bce loss
+        // here we use square because we are very intolerant to single errors
+        loss = lossA.add(lossB).square().sum(new int[]{classAxis}, true);
     //    loss = lossA.sum(new int[]{classAxis}, true);
 
         if (weight != 1) {
@@ -120,7 +121,7 @@ public class MyBCELoss extends Loss {
 
 
     public static double[] sigmoid(double[] legalActions) {
-       return Arrays.stream(legalActions).map(MyBCELoss::sigmoid).toArray();
+       return Arrays.stream(legalActions).map(MyBCESquaredLoss::sigmoid).toArray();
     }
 
     public static double entropy(double[] legalActions) {

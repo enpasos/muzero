@@ -27,7 +27,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
-import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCELoss;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCESquaredLoss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.d_model.djl.SubModel;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
@@ -74,7 +74,7 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
             .build();
 
         // 4   : legalActions
-        float[]  pLegalArray_ = MyBCELoss.sigmoid(list.get(hN)).toFloatArray();
+        float[]  pLegalArray_ = MyBCESquaredLoss.sigmoid(list.get(hN)).toFloatArray();
         final float[] pLegalArray = pLegalArray_;
 
 
