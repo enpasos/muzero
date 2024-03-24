@@ -104,28 +104,28 @@ public class MuZeroLoop {
 //                config.setPlayTypeKey(originalPlayTypeKey);
 //            }
 
-            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+//            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+//            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+//            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
            // log.info("Epoch(" + epoch + ")");
            // if (epoch % 10 == 0) {
-                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
-                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
+//                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
+//                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
          //   }
 
-            boolean[] freeze = new boolean[]{false, true, true};
-            int unknowns = 0;
-            do {
-                for (int i = 0; i < 10; i++) {
+           boolean[] freeze = new boolean[]{false, true, true};
+//            int unknowns = 0;
+//            do {
+//                for (int i = 0; i < 10; i++) {
                     modelService.trainModel(freeze, RULES_BUFFER, false).get();
-                }
-                epoch = modelState.getEpoch();
-                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
-                unknowns = fillRulesLoss.numBox(0);
-                log.info("unknowns: " + unknowns);
-            } while (unknowns > 0);
+//                }
+             //     epoch = modelState.getEpoch();
+//                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
+//                unknowns = fillRulesLoss.numBox(0);
+//                log.info("unknowns: " + unknowns);
+//            } while (unknowns > 0);
 
 //            freeze = new boolean[]{true, false, false};
 //            modelService.trainModel(freeze, PLANNING_BUFFER, true).get();

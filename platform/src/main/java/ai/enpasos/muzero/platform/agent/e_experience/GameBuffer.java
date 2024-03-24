@@ -204,13 +204,13 @@ public class GameBuffer {
         // half of the batch is from all games as a background force
         // half of the batch are the timesteps which still have to be improved
 
+        return getNRandomSelectedGames( n ) ;
 
-
-        List<Game> games =  getNRandomSelectedGamesFromBox( n/2, 0 ) ;
-        List<Game> games2 =  getNRandomSelectedGames( n/2 ) ;
-        games.addAll(games2);
-        Collections.shuffle(games);
-         return games;
+//        List<Game> games =  getNRandomSelectedGamesFromBox( n/2, 0 ) ;
+//        List<Game> games2 =  getNRandomSelectedGames( n/2 ) ;
+//        games.addAll(games2);
+//        Collections.shuffle(games);
+//         return games;
     }
 
     public List<Sample> sampleBatchFromReanalyseBuffer(int numUnrollSteps ) {
