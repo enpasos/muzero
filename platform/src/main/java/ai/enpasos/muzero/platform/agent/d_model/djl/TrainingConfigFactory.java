@@ -79,8 +79,8 @@ public class TrainingConfigFactory {
 
 
             // reward
-            log.trace("k={}: Reward L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
+            log.trace("k={}: Reward L4Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL4Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
             k++;
 
 
