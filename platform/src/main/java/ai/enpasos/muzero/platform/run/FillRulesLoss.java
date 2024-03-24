@@ -46,7 +46,7 @@ public class FillRulesLoss {
 
     public void run() {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        evaluatedRulesLearningForNetworkOfEpochForBox0( epoch );
+        evaluatedRulesLearningForNetworkOfEpoch( epoch );
      }
 
     public void evaluatedRulesLearningForNetworkOfEpoch(int epoch ) {
