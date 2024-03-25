@@ -81,9 +81,9 @@ muzero:
       broadcastEveryN: 14  # out of range here
 
 
-      numChannelsRules: 200
-      numChannelsPolicy: 50
-      numChannelsValue: 50
+      numChannelsRules: 150
+      numChannelsPolicy: 30
+      numChannelsValue: 30
 
       numCompressedChannelsRules: 50
       numCompressedChannelsPolicy: 20
