@@ -135,7 +135,7 @@ public class TrainingConfigFactory {
 
         //  legal actions
         log.trace("k={}: LegalActions BCELoss", k);
-        loss.addLoss(new MyIndexLoss(new MyBCESquaredLoss(LEGAL_ACTIONS_LOSS_VALUE + k, 1f/this.config.getActionSpaceSize(), 1), k));
+        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + k, 1f/this.config.getActionSpaceSize(), 1), k));
         k++;
 
 

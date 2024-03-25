@@ -72,8 +72,8 @@ public class LossExtractor {
     private void extractABlockOfLosses(MuZeroBlock block, CSVPrinter csvPrinter, int start, int end) {
 
        NumberFormat nf = NumberFormat.getNumberInstance();
-       nf.setMaximumFractionDigits(6);
-        nf.setMinimumFractionDigits(6);
+       nf.setMaximumFractionDigits(8);
+        nf.setMinimumFractionDigits(8);
 
         try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
             model.setBlock(block);
