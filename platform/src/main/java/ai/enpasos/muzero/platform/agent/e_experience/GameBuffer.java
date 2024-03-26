@@ -200,39 +200,56 @@ public class GameBuffer {
     }
 
 
- List<Long> episodeIdsRewardLearning;
+ Set<Long> episodeIdsRewardLearning;
+    Set<Long> episodeIdsLegalActionLossLearning;
 
     private List<Game> getGamesToLearnRules() {
+        int limit = 50000;
         if (episodeIdsRewardLearning == null) {
-            // TODO get all instead of 50000
-            episodeIdsRewardLearning =   timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), 50000);
-        }
-
-
-
+            int offset = 0;
+            episodeIdsRewardLearning = new HashSet<>();
+            List newIds;
+            do {
+                newIds = timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), limit, offset);
+                episodeIdsRewardLearning.addAll(newIds);
+                offset += limit;
+            } while (newIds.size() > 0);
+         }
+        if(episodeIdsLegalActionLossLearning == null) {
+            int offset = 0;
+            episodeIdsLegalActionLossLearning = new HashSet<>();
+            List newIds;
+            do {
+                newIds = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), limit, offset);
+                episodeIdsLegalActionLossLearning.addAll(newIds);
+                offset += limit;
+            } while (newIds.size() > 0);
+         }
 
         int n = this.batchSize;
-        // half of the batch is from all games as a background force
-        // half of the batch are the timesteps which still have to be improved
 
         List<Game> games = getNRandomSelectedGames( n ) ;
 
+        // shuffle episodeIdsRewardLearning
+        List<Long> episodeIdsRewardLearningList = new ArrayList<>(this.episodeIdsRewardLearning);
+        Collections.shuffle(episodeIdsRewardLearningList);
 
-        Collections.shuffle(episodeIdsRewardLearning);
-        List<EpisodeDO> episodeDOList2 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRewardLearning.subList(0, Math.min(n/3, episodeIdsRewardLearning.size())));
+
+        List<Long> episodeIdsLegalActionLossLearningList = new ArrayList<>(this.episodeIdsLegalActionLossLearning);
+        Collections.shuffle(episodeIdsLegalActionLossLearningList);
+
+        List<EpisodeDO> episodeDOList2 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRewardLearningList.subList(0, Math.min(n/10, episodeIdsRewardLearningList.size())));
         List<Game> games2 =   convertEpisodeDOsToGames(episodeDOList2, config);
-
-
-
         games.addAll(games2);
+
+        List<EpisodeDO> episodeDOList3 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsLegalActionLossLearningList.subList(0, Math.min(n/10, episodeIdsLegalActionLossLearningList.size())));
+        List<Game> games3 =   convertEpisodeDOsToGames(episodeDOList3, config);
+        games.addAll(games3);
+
+
         Collections.shuffle(games);
         return games.subList(0, Math.min(n, games.size()));
 
-//        List<Game> games =  getNRandomSelectedGamesFromBox( n/2, 0 ) ;
-//        List<Game> games2 =  getNRandomSelectedGames( n/2 ) ;
-//        games.addAll(games2);
-//        Collections.shuffle(games);
-//         return games;
     }
 
     public List<Sample> sampleBatchFromReanalyseBuffer(int numUnrollSteps ) {
