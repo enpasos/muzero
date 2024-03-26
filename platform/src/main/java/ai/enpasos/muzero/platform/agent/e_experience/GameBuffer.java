@@ -199,14 +199,31 @@ public class GameBuffer {
         }
     }
 
+
+ List<Long> episodeIdsRewardLearning;
+
     private List<Game> getGamesToLearnRules() {
+        if (episodeIdsRewardLearning == null) {
+            // TODO get all instead of 50000
+            episodeIdsRewardLearning =   timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), 50000);
+        }
+
+
+
+
         int n = this.batchSize;
         // half of the batch is from all games as a background force
         // half of the batch are the timesteps which still have to be improved
 
         List<Game> games = getNRandomSelectedGames( n ) ;
 
-        List<Game> games2 = getNRandomSelectedGamesForRewardLearning(n/2);
+
+        Collections.shuffle(episodeIdsRewardLearning);
+        List<EpisodeDO> episodeDOList2 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRewardLearning.subList(0, Math.min(n/3, episodeIdsRewardLearning.size())));
+        List<Game> games2 =   convertEpisodeDOsToGames(episodeDOList2, config);
+
+
+
         games.addAll(games2);
         Collections.shuffle(games);
         return games.subList(0, Math.min(n, games.size()));
