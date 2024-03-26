@@ -86,7 +86,7 @@ private boolean withReward;
 
 
         legalActionsHead = new SequentialBlockExt();
-        legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())   // 1 channel?
+        legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(2).build())   // 1 channel?
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
                         .setUnits(actionSpaceSize).build());

@@ -214,7 +214,7 @@ public class GameBuffer {
                 episodeIdsRewardLearning.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
-         }
+        }
         if(episodeIdsLegalActionLossLearning == null) {
             int offset = 0;
             episodeIdsLegalActionLossLearning = new HashSet<>();
@@ -224,7 +224,7 @@ public class GameBuffer {
                 episodeIdsLegalActionLossLearning.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
-         }
+        }
 
         int n = this.batchSize;
 
