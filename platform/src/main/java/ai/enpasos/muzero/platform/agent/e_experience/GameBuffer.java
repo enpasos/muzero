@@ -238,11 +238,11 @@ public class GameBuffer {
         List<Long> episodeIdsLegalActionLossLearningList = new ArrayList<>(this.episodeIdsLegalActionLossLearning);
         Collections.shuffle(episodeIdsLegalActionLossLearningList);
 
-        List<EpisodeDO> episodeDOList2 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRewardLearningList.subList(0, Math.min(n/10, episodeIdsRewardLearningList.size())));
+        List<EpisodeDO> episodeDOList2 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRewardLearningList.subList(0, Math.min(n/3, episodeIdsRewardLearningList.size())));
         List<Game> games2 =   convertEpisodeDOsToGames(episodeDOList2, config);
         games.addAll(games2);
 
-        List<EpisodeDO> episodeDOList3 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsLegalActionLossLearningList.subList(0, Math.min(n/10, episodeIdsLegalActionLossLearningList.size())));
+        List<EpisodeDO> episodeDOList3 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsLegalActionLossLearningList.subList(0, Math.min(n/3, episodeIdsLegalActionLossLearningList.size())));
         List<Game> games3 =   convertEpisodeDOsToGames(episodeDOList3, config);
         games.addAll(games3);
 
