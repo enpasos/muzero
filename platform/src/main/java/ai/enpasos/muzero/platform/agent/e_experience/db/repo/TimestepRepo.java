@@ -83,6 +83,13 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.a_weight_class = :groupClass ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
     List<Long> findNRandomEpisodeIdsWeightedA(int groupClass, int n );
 
+
+    @Transactional
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box < :maxBox order by random() limit :limit OFFSET :offset", nativeQuery = true)
+
+    List<Long> findRandomNEpisodeIdsRelevantForRuleLearning(int maxBox, int limit, int offset);
+
+
     @Transactional
     @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.reward_loss > :rewardLossThreshold order by random() limit :limit OFFSET :offset", nativeQuery = true)
 
@@ -107,6 +114,13 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Transactional
     @Query(value = "SELECT count(*) FROM  timestep t where box = :box", nativeQuery = true)
     int numBox(int box);
+
+
+
+    @Transactional
+    @Query(value = "SELECT max(t.box) FROM  timestep t", nativeQuery = true)
+    int maxBox( );
+
 
 
 
