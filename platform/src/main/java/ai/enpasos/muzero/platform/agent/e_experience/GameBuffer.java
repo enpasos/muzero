@@ -204,13 +204,14 @@ public class GameBuffer {
    // Set<Long> episodeIdsLegalActionLossLearning;
     Set<Long> episodeIdsRulesLearning;
 
+
     private List<Game> getGamesToLearnRules() {
         int limit = 50000;
 
-        int maxBox = timestepRepo.maxBox();
-
 
         if (episodeIdsRulesLearning == null) {
+            int maxBox = timestepRepo.maxBox();
+
             int offset = 0;
             episodeIdsRulesLearning = new HashSet<>();
             List newIds;
