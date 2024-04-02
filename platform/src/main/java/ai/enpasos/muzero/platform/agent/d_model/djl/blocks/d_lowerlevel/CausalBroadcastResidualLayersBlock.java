@@ -22,23 +22,21 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
-import ai.djl.nn.Block;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
-public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     public final CausalLayers block;
 
@@ -92,7 +90,12 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
     }
 
     @Override
-    public void freeze(boolean[] freeze) {
-        this.block.freeze(freeze);
+    public void freezeParameters(boolean[] freeze) {
+        this.block.freezeParameters(freeze);
+    }
+
+    @Override
+    public void setExportFilter(boolean[] exportFilter) {
+        this.block.setExportFilter(exportFilter);
     }
 }

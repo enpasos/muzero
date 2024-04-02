@@ -13,6 +13,8 @@ public class ControllerTask {
     private volatile boolean done;
 
     boolean[] freeze = new boolean[3];
+
+    private boolean[] exportFilter = {true, true, true};
     TrainingDatasetType trainingDatasetType;
 
     int epoch = -1;
@@ -52,5 +54,13 @@ public ControllerTask(ControllerTaskType taskType) {
 
     public void setBackground(boolean background) {
         this.background = background;
+    }
+
+    public void setExportFilter(boolean[] exportFilter) {
+        this.exportFilter = exportFilter;
+    }
+
+    public boolean[] getExportFilter() {
+        return exportFilter;
     }
 }

@@ -32,7 +32,7 @@ import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZ
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
-public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     private final RepresentationBlock h;
     private final PredictionBlock f;
@@ -158,8 +158,14 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, Caus
     }
 
     @Override
-    public void freeze(boolean[] freeze) {
-        this.f.freeze(freeze);
-        this.h.freeze(freeze);
+    public void freezeParameters(boolean[] freeze) {
+        this.f.freezeParameters(freeze);
+        this.h.freezeParameters(freeze);
+    }
+
+    @Override
+    public void setExportFilter(boolean[] exportFilter) {
+        this.f.setExportFilter(exportFilter);
+        this.h.setExportFilter(exportFilter);
     }
 }

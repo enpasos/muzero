@@ -18,14 +18,14 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.enpasos.mnist.blocks.OnnxIO;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.MySequentialBlock;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("java:S110")
-public class RepresentationBlock extends MySequentialBlock implements OnnxIO, CausalityFreezing {
+public class RepresentationBlock extends MySequentialBlock implements OnnxIO, DCLAware {
 
     public RepresentationBlock() {
         super();
@@ -44,10 +44,19 @@ public class RepresentationBlock extends MySequentialBlock implements OnnxIO, Ca
     }
 
     @Override
-    public void freeze(boolean[] freeze) {
+    public void freezeParameters(boolean[] freeze) {
         this.getChildren().forEach(b -> {
-            if (b.getValue() instanceof CausalityFreezing) {
-                ((CausalityFreezing) b.getValue()).freeze(freeze);
+            if (b.getValue() instanceof DCLAware) {
+                ((DCLAware) b.getValue()).freezeParameters(freeze);
+            }
+        });
+    }
+
+    @Override
+    public void setExportFilter(boolean[] exportFilter) {
+        this.getChildren().forEach(b -> {
+            if (b.getValue() instanceof DCLAware) {
+                ((DCLAware) b.getValue()).setExportFilter(exportFilter);
             }
         });
     }

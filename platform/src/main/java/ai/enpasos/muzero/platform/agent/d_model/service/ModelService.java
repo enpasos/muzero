@@ -101,6 +101,17 @@ public class ModelService {
     }
 
     @Async()
+    public CompletableFuture<Void> saveLatestModel( ) {
+        ControllerTask task = new ControllerTask(ControllerTaskType.SAVE_LATEST_MODEL);
+        return handleControllerTask(task);
+    }
+    @Async()
+    public CompletableFuture<Void> saveLatestModel(boolean[] exportFilter) {
+        ControllerTask task = new ControllerTask(ControllerTaskType.SAVE_LATEST_MODEL);
+        task.setExportFilter(exportFilter);
+        return handleControllerTask(task);
+    }
+    @Async()
     public CompletableFuture<Void> loadLatestModel() {
         ControllerTask task = new ControllerTask(ControllerTaskType.LOAD_LATEST_MODEL);
         return handleControllerTask(task);

@@ -17,14 +17,23 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel;
 
+import ai.djl.MalformedModelException;
+import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.Block;
+import ai.djl.nn.Parameter;
 import ai.enpasos.mnist.blocks.ext.Conv2dExt;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.StoringOnOff;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 
 @SuppressWarnings("java:S110")
-public class Conv3x3 extends MySequentialBlock {
+public class Conv3x3 extends MySequentialBlock implements StoringOnOff {
 
 
     private Conv3x3() {
@@ -44,4 +53,27 @@ public class Conv3x3 extends MySequentialBlock {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveParameters(DataOutputStream os) throws IOException {
+        if (storing) super.saveParameters(os);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadParameters(NDManager manager, DataInputStream is)
+            throws IOException, MalformedModelException {
+        if (storing) super.loadParameters(manager, is);
+    }
+
+    boolean storing = true;
+
+    @Override
+    public void setStoring(boolean storing) {
+        this.storing = storing;
+    }
 }

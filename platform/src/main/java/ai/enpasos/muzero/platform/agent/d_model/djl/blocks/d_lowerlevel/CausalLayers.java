@@ -14,7 +14,8 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.StoringOnOff;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 
 import java.util.ArrayList;
@@ -23,16 +24,23 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("all")
-public class CausalLayers extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class CausalLayers extends AbstractBlock implements OnnxIO, DCLAware {
 
     private final List<Block> layers;
     private final boolean rescale;
 
 
     @Override
-    public void freeze(boolean[] freeze) {
+    public void freezeParameters(boolean[] freeze) {
         for(int i = 0; i < freeze.length; i++) {
             layers.get(i).freezeParameters(freeze[i]);
+        }
+    }
+
+    @Override
+    public void setExportFilter(boolean[] exportFilter) {
+        for(int i = 0; i < exportFilter.length; i++) {
+            ((StoringOnOff) layers.get(i)).setStoring(exportFilter[i]);
         }
     }
 

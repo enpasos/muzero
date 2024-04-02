@@ -18,7 +18,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEasyTrain;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyEpochTrainingListener;
 import ai.enpasos.muzero.platform.agent.d_model.djl.TrainingConfigFactory;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -118,9 +119,24 @@ public class ModelController implements DisposableBean, Runnable {
 
         for (ControllerTask task : localControllerTaskList) {
             switch (task.getTaskType()) {
+                case SAVE_LATEST_MODEL:
+                    Model model = network.getModel();
+                    String modelName = config.getModelName();
+                    try {
+//                        model.setProperty("Epoch", String.valueOf(epoch));
+//                        if (onSaveModel != null) {
+//                            onSaveModel.accept(trainer);
+//                        }
+                        Path modelPath = Paths.get(config.getNetworkBaseDir());
+                        ((DCLAware)model.getBlock()).setExportFilter(task.getExportFilter());
+                        model.save(modelPath, modelName);
+                    } catch (IOException e) {
+                        log.error("Failed to save checkpoint", e);
+                    }
+                    break;
                 case LOAD_LATEST_MODEL:
                     close();
-                    Model model = Model.newInstance(config.getModelName(), Device.gpu());
+                    model = Model.newInstance(config.getModelName(), Device.gpu());
 
                     if (task.epoch == -1) {
                         log.info("loadLatestModel for lastest epoch with model name {}", config.getModelName());
@@ -197,7 +213,7 @@ public class ModelController implements DisposableBean, Runnable {
                         Shape[] inputShapes = batchFactory.getInputShapes();
                         trainer.initialize(inputShapes);
                         trainer.setMetrics(new Metrics());
-                        ((CausalityFreezing) model.getBlock()).freeze(freeze);
+                        ((DCLAware) model.getBlock()).freezeParameters(freeze);
                         for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                             try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
                                 log.debug("trainBatch " + m);

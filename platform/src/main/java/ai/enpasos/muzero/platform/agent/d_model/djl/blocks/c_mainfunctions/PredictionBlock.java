@@ -17,11 +17,14 @@
 
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
+import ai.djl.MalformedModelException;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
+import ai.djl.nn.Block;
+import ai.djl.nn.Parameter;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
@@ -32,20 +35,23 @@ import ai.enpasos.mnist.blocks.ext.ActivationExt;
 import ai.enpasos.mnist.blocks.ext.BlocksExt;
 import ai.enpasos.mnist.blocks.ext.LinearExt;
 import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.CausalityFreezing;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayerMode;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("java:S110")
-public class PredictionBlock extends AbstractBlock implements OnnxIO, CausalityFreezing {
+public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     public PredictionBlock(@NotNull MuZeroConfig config ) {
         this(
@@ -210,10 +216,58 @@ private boolean withReward;
     }
 
     @Override
-    public void freeze(boolean[] freeze) {
+    public void freezeParameters(boolean[] freeze) {
         this.legalActionsHead.freezeParameters(freeze[0]);
         this.rewardHead.freezeParameters(freeze[0]);
         this.policyHead.freezeParameters(freeze[1]);
         this.valueHead.freezeParameters(freeze[2]);
+    }
+
+
+    /** {@inheritDoc} */
+    @Override
+    public void saveParameters(DataOutputStream os) throws IOException {
+        os.write(version);
+        saveMetadata(os);
+        if (exportFilter[2]) {
+            this.valueHead.saveParameters(os);
+        }
+        if (exportFilter[0]) {
+            this.legalActionsHead.saveParameters(os);
+        }
+        if (exportFilter[1]) {
+            this.policyHead.saveParameters(os);
+        }
+        if (exportFilter[0]) {
+            this.rewardHead.saveParameters(os);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void loadParameters(NDManager manager, DataInputStream is)
+            throws IOException, MalformedModelException {
+        byte loadVersion = is.readByte();
+        loadMetadata(loadVersion, is);
+        if (exportFilter[2]) {
+            this.valueHead.loadParameters(manager, is);
+        }
+        if (exportFilter[0]) {
+            this.legalActionsHead.loadParameters(manager, is);
+        }
+        if (exportFilter[1]) {
+            this.policyHead.loadParameters(manager, is);
+        }
+        if (exportFilter[0]) {
+            this.rewardHead.loadParameters(manager, is);
+        }
+    }
+
+
+
+    private boolean[] exportFilter = new boolean[]{true, true, true};
+    @Override
+    public void setExportFilter(boolean[] exportFilter) {
+        this.exportFilter = exportFilter;
     }
 }
