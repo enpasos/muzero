@@ -2,10 +2,8 @@ package ai.enpasos.muzero.tictactoe.run;
 
 
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
-import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
-import ai.enpasos.muzero.platform.run.FillValueTable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,10 +26,16 @@ public class TicTacToeImportExport {
             config.setNetworkBaseDir(config.getOutputDir() + "/networks");
             modelService.loadLatestModel().get();
             log.info("modelService.loadLatestModel().get()  ... done");
-
+//
             config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput");
-            modelService.saveLatestModel(new boolean[] {false, false, true}).get();
+           modelService.saveLatestModelParts(new boolean[] {true, true, true}).get();
 
+//            config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput");
+//            modelService.loadLatestModelParts(new boolean[] {true, true, true}).get();
+//            log.info("modelService.loadLatestModel().get()  ... done");
+
+//            config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput2");
+//            modelService.saveLatestModelParts(new boolean[] {true, true, true}).get();
         } catch (InterruptedException e) {
             log.error("Interrupted", e);
             Thread.interrupted();

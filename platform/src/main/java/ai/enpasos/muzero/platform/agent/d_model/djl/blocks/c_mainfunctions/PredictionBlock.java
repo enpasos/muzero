@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.djl.MalformedModelException;
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
@@ -129,7 +130,6 @@ private boolean withReward;
 
     }
 
-
     @Override
     protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         NDList results = new NDList();
@@ -142,6 +142,21 @@ private boolean withReward;
         results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(2)), training, params).get(0));
         return results;
     }
+//    @Override
+//    protected NDList forwardInternal(ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
+//        NDList results = new NDList();
+//
+//        results.add(this.legalActionsHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+//        if (withReward) {
+//            results.add(this.rewardHead.forward(parameterStore, new NDList(inputs.get(0)), training, params).get(0));
+//        }
+//        NDArray input0StopGradient = inputs.get(0).stopGradient();
+//        NDArray input1StopGradient = inputs.get(1).stopGradient();
+//
+//        results.add(this.policyHead.forward(parameterStore, new NDList(inputs.get(1).concat(input0StopGradient, 1)), training, params).get(0));
+//        results.add(this.valueHead.forward(parameterStore, new NDList(inputs.get(2).concat(input1StopGradient, 1).concat(input0StopGradient, 1)), training, params).get(0));
+//        return results;
+//    }
 
     @Override
     public void initializeChildBlocks(NDManager manager, DataType dataType, Shape... inputShapes) {

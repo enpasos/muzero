@@ -1,12 +1,14 @@
 package ai.enpasos.muzero.platform.agent.d_model.service;
 
 import ai.djl.Device;
+import ai.djl.MalformedModelException;
 import ai.djl.Model;
 import ai.djl.metric.Metric;
 import ai.djl.metric.Metrics;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.NDScope;
 import ai.djl.ndarray.types.Shape;
+import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
@@ -27,6 +29,7 @@ import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -128,8 +131,35 @@ public class ModelController implements DisposableBean, Runnable {
 //                            onSaveModel.accept(trainer);
 //                        }
                         Path modelPath = Paths.get(config.getNetworkBaseDir());
-                        ((DCLAware)model.getBlock()).setExportFilter(task.getExportFilter());
+
                         model.save(modelPath, modelName);
+                    } catch (IOException e) {
+                        log.error("Failed to save checkpoint", e);
+                    }
+                    break;
+                case SAVE_LATEST_MODEL_PARTS:
+                    model = network.getModel();
+                    modelName = config.getModelName();
+                    try {
+//                        model.setProperty("Epoch", String.valueOf(epoch));
+//                        if (onSaveModel != null) {
+//                            onSaveModel.accept(trainer);
+//                        }
+//                        Path modelPath = Paths.get(config.getNetworkBaseDir());
+//                        ((DCLAware)model.getBlock()).setExportFilter(task.getExportFilter());
+//                        model.save(modelPath, modelName);
+
+                        List<String> parts = List.of("A", "B", "C");
+                        modelName =  config.getModelName();
+                        for (int p = 0; p < parts.size(); p++) {
+                            if (task.getExportFilter()[p]) {
+                                String part = parts.get(p);
+                                boolean[] localExportFilter = new boolean[3];
+                                localExportFilter[p] = true;
+                                ((DCLAware)model.getBlock()).setExportFilter(localExportFilter);
+                                 model.save(Paths.get(config.getNetworkBaseDir()),modelName + "-" + part );
+                            }
+                        }
                     } catch (IOException e) {
                         log.error("Failed to save checkpoint", e);
                     }
@@ -137,7 +167,6 @@ public class ModelController implements DisposableBean, Runnable {
                 case LOAD_LATEST_MODEL:
                     close();
                     model = Model.newInstance(config.getModelName(), Device.gpu());
-
                     if (task.epoch == -1) {
                         log.info("loadLatestModel for lastest epoch with model name {}", config.getModelName());
                         network = new Network(config, model);
@@ -151,11 +180,64 @@ public class ModelController implements DisposableBean, Runnable {
                     network.setHiddenStateNDManager(nDManager);
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
+                case LOAD_LATEST_MODEL_PARTS:
+                    close();
+                    model = Model.newInstance(config.getModelName(), Device.gpu());
+                    Block block = new MuZeroBlock(config);
+                    model.setBlock(block);
+
+
+                    Map<String, ?> options = null;
+                    if (task.epoch != -1) {
+                        options = Map.ofEntries(entry("epoch", task.epoch + ""));
+                    }
+
+
+                    List<String> parts = List.of("A", "B", "C");
+                    modelName =  config.getModelName();
+                    for (int p = 0; p < parts.size(); p++) {
+                        if (task.getExportFilter()[p]) {
+                            String part = parts.get(p);
+                            boolean[] localExportFilter = new boolean[3];
+                            localExportFilter[p] = true;
+                            ((DCLAware)model.getBlock()).setExportFilter(localExportFilter);
+                            try {
+                                model.load(Paths.get(config.getNetworkBaseDir()), modelName + "-" + part, options);
+                            } catch (@NotNull IOException | MalformedModelException e) {
+                                log.warn(e.getMessage());
+                            }
+                        }
+                    }
+
+                    network = new Network(config, model);
+
+                    nDManager = network.getNDManager().newSubManager();
+                    network.initActionSpaceOnDevice(nDManager);
+                    network.setHiddenStateNDManager(nDManager);
+                    final int epoch = getEpochFromModel(model);
+                    this.modelState.setEpoch(epoch);
+
+
+                  // final int epoch = -1;
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss());
+
+                    djlConfig.getTrainingListeners().stream()
+                            .filter(MyEpochTrainingListener.class::isInstance)
+                            .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
+                    try (Trainer trainer = model.newTrainer(djlConfig)) {
+                        Shape[] inputShapes = batchFactory.getInputShapes();
+                        trainer.initialize(inputShapes);
+                     //   trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                    }
+
+
+
+                    break;
                 case LOAD_LATEST_MODEL_OR_CREATE_IF_NOT_EXISTING:
                     close();
                     model = Model.newInstance(config.getModelName(), Device.gpu());
                     if (model.getBlock() == null) {
-                        MuZeroBlock block = new MuZeroBlock(config);
+                        block = new MuZeroBlock(config);
                         model.setBlock(block);
                         if (task.epoch == -1) {
                             loadModelParametersOrCreateIfNotExisting(model);
