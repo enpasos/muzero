@@ -101,7 +101,7 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Void> saveLatestModelParts( ) {
+    public CompletableFuture<Void> saveLatestModel( ) {
         ControllerTask task = new ControllerTask(ControllerTaskType.SAVE_LATEST_MODEL);
         return handleControllerTask(task);
     }
