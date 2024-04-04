@@ -208,7 +208,7 @@ public class ModelController implements DisposableBean, Runnable {
                             }
                         }
                     }
-
+                    ((DCLAware)model.getBlock()).setExportFilter(new boolean[]{true, true, true});
                     network = new Network(config, model);
 
                     nDManager = network.getNDManager().newSubManager();

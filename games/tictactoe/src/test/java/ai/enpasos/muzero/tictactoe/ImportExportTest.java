@@ -15,6 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.BufferedReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 
 @ActiveProfiles("test")
@@ -33,28 +38,32 @@ public class ImportExportTest   {
 
     @Test
     public void testImportExport() {
-       log.info("ImportExportTest.run()");
+        log.info("ImportExportTest.run()");
         try {
- //       config.setNetworkBaseDir(config.getOutputDir() + "/networks");
             modelService.loadLatestModelOrCreateIfNotExisting().get();
-      //  modelService.loadLatestModel().get();
-        log.info("modelService.loadLatestModel().get()  ... done");
-//
- //       config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput");
-        modelService.saveLatestModelParts(new boolean[] {true, true, true}).get();
-
-//            config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput");
-//            modelService.loadLatestModelParts(new boolean[] {true, true, true}).get();
-//            log.info("modelService.loadLatestModel().get()  ... done");
-
-//            config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput2");
-//            modelService.saveLatestModelParts(new boolean[] {true, true, true}).get();
-    } catch (InterruptedException e) {
-        log.error("Interrupted", e);
-        Thread.interrupted();
-    } catch (Exception e) {
-        throw new MuZeroException(e);
+            log.info("modelService.loadLatestModel().get()  ... done");
+            config.setNetworkBaseDir(config.getOutputDir() + "/networksOutput");
+            modelService.saveLatestModelParts(new boolean[]{true, true, true}).get();
+            modelService.loadLatestModelParts(new boolean[]{true, true, true}).get();
+            modelService.saveLatestModel().get();
+            checkFilesAreTheSame(
+                    config.getOutputDir() + "/networks" + "/MuZero-TicTacToe-0000.params",
+                    config.getOutputDir() + "/networksOutput" + "/MuZero-TicTacToe-0000.params"
+            );
+        } catch (InterruptedException e) {
+            log.error("Interrupted", e);
+            Thread.interrupted();
+        } catch (Exception e) {
+            throw new MuZeroException(e);
+        }
     }
+
+public void checkFilesAreTheSame(String pathToFile1, String pathToFile2) throws Exception{
+    byte[] file1Bytes = Files.readAllBytes(Paths.get(pathToFile1));
+    byte[] file2Bytes = Files.readAllBytes(Paths.get(pathToFile2));
+
+    assertArrayEquals(file1Bytes, file2Bytes, "Files' binary content differs");
+
 }
 
 
