@@ -216,7 +216,7 @@ public class GameBuffer {
             episodeIdsRulesLearning = new HashSet<>();
             List newIds;
             do {
-                newIds = timestepRepo.findRandomNEpisodeIdsRelevantForRuleLearning(maxBox, limit, offset);
+                newIds = timestepRepo.findNEpisodeIdsRelevantForRuleLearning(maxBox, limit, offset);
                 episodeIdsRulesLearning.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
