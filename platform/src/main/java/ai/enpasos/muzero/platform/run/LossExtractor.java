@@ -4,6 +4,7 @@ import ai.djl.Device;
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
+import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Component;
 import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.d_model.Network.getDoubleValue;
 import static ai.enpasos.muzero.platform.agent.d_model.Network.getEpoch;
@@ -30,6 +31,9 @@ public class LossExtractor {
 
     @Autowired
     BatchFactory networkHelfer;
+
+    @Autowired
+    NetworkIOService networkIOService;
 
 
     private LossExtractor() {
@@ -49,17 +53,12 @@ public class LossExtractor {
                     , "similarityLoss"
                     , "policyLoss"
                 , "valueLoss"
-
-                //  , "actionPaths"
             ).build())) {
 
-            extractABlockOfLosses(block, csvPrinter, 1, 500);
-            extractABlockOfLosses(block, csvPrinter, 500, 1000);
-            extractABlockOfLosses(block, csvPrinter, 1000, 1500);
-            extractABlockOfLosses(block, csvPrinter, 1500, 2000);
-            extractABlockOfLosses(block, csvPrinter, 2000, 2500);
-            extractABlockOfLosses(block, csvPrinter, 2500, 3000);
-            extractABlockOfLosses(block, csvPrinter, 3000, 3500);
+
+            int[] epochs = networkIOService.getNetworkEpochs();
+
+            extractLosses(block, csvPrinter, epochs);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -69,36 +68,41 @@ public class LossExtractor {
         System.out.println(stringWriter);
     }
 
-    private void extractABlockOfLosses(MuZeroBlock block, CSVPrinter csvPrinter, int start, int end) {
+    private int[] extractEpochs() {
+        return null;
+    }
 
-       NumberFormat nf = NumberFormat.getNumberInstance();
-       nf.setMaximumFractionDigits(8);
+    private void extractLosses(MuZeroBlock block, CSVPrinter csvPrinter, int[] epochs) {
+
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
 
-        try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
-            model.setBlock(block);
-            IntStream.range(start, end).forEach(
-                i -> {
-                    try {
-                        model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", i));
-                        int epoch = getEpoch(model);
+
+        Arrays.stream(epochs).forEach(
+                epoch -> {
+                    log.info("epoch = {}", epoch);
+                    try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
+                        model.setBlock(block);
+                        model.load(Paths.get(config.getNetworkBaseDir()), model.getName(), Map.of("epoch", epoch));
+
                         int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                         csvPrinter.printRecord(trainingSteps,
-                            NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
                                 nf.format(getDoubleValue(model, "MeanLegalActionLoss")),
-
                                 nf.format(getDoubleValue(model, "MeanRewardLoss")),
                                 nf.format(getDoubleValue(model, "MeanSimilarityLoss")),
                                 nf.format(getDoubleValue(model, "MeanPolicyLoss")),
                                 nf.format(getDoubleValue(model, "MeanValueLoss"))
 
                         );
-                    } catch (Exception ignored) {
-                        log.debug("player " + i + " model.load not successfull");
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
+
                 }
-            );
-        }
+        );
+
     }
 
 
