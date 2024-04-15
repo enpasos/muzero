@@ -44,4 +44,24 @@ public class NetworkIOService {
 
     }
 
+    public int[] getNetworkEpochs() {
+        Path path = Paths.get(config.getNetworkBaseDir());
+        if (Files.notExists(path)) {
+            try {
+                Files.createFile(Files.createDirectories(path));
+            } catch (IOException e) {
+                log.warn(e.getMessage());
+            }
+        }
+        try (Stream<Path> walk = Files.walk(path)) {
+            return walk.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().endsWith(".params"))
+                    .mapToInt(path2 -> Integer.parseInt(path2.toString().substring((config.getNetworkBaseDir() + "\\"  ).length()).replace(".params", "").replace(config.getModelName(), "").replace("-", "")))
+                    .toArray();
+        } catch (IOException e) {
+            throw new MuZeroException(e);
+        }
+
+    }
+
 }
