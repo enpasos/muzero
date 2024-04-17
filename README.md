@@ -92,3 +92,10 @@ CREATE USER muzero WITH ENCRYPTED PASSWORD 'hd7sge';
 \c muzero;
 grant usage,create on schema public to muzero;
 ```
+
+#### Export, Import Database
+
+```
+pg_dump -U muzero -h localhost -d muzero > "C:\temp\muzero.sql"
+psql -U muzero -d muzero -f "C:\temp\muzero.sql"
+```

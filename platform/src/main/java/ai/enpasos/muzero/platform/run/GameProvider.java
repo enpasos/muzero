@@ -129,5 +129,15 @@ public class GameProvider {
         }
     }
 
+    public void measureRewardExpectationsFromStart(List<Game> games) {
+        List<List<Game>> gameBatches = ListUtils.partition(games, config.getNumParallelGamesPlayed());
+        List<Game> resultGames = new ArrayList<>();
+        int i = 1;
+        for (List<Game> gameList : gameBatches) {
+            log.debug("justReplayToGetRewardExpectationsFromStart " + i++ + " of " + gameBatches.size());
+            resultGames.addAll(playService.justReplayToGetRewardExpectationsFromStart(gameList));
+        }
+    }
+
 
 }

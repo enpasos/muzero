@@ -44,7 +44,16 @@ public class SelfPlayGame {
 
             return;
         }
+        if (playParameters.isJustReplayToGetRewardExpectationsFromStart()) {
 
+            int t = 0;
+                game.setObservationInputTime(t);
+                playAction.justReplayActionToGetRulesExpectationsFromStart(game);
+
+         //   game.setObservationInputTime(-1);
+
+            return;
+        }
 
 
         int count = 1;

@@ -50,6 +50,11 @@ public class TicTacToe implements CommandLineRunner {
 
 
     @Autowired
+    private TicTacToeTestRulesLossFromStart testRulesLossFromStart;
+
+
+
+    @Autowired
     private TicTacToeTestAllNetworksExploitability testAllNetworksExploitability;
 
     @Autowired
@@ -66,7 +71,10 @@ public class TicTacToe implements CommandLineRunner {
 
 
     @Autowired
-    private TicTacToeFillRewardLoss fillRewardLoss;
+    private TicTacToeFillRulesLoss fillRulesLoss;
+
+
+
     @Autowired
     private TicTacToeImportExport importExport;
 
@@ -110,8 +118,8 @@ public class TicTacToe implements CommandLineRunner {
             case IMPORTEXPORT:
                 importExport.run();
                 break;
-            case FILLREWARDLOSS:
-                fillRewardLoss.run();
+            case TESTRULESLOSSFROMSTART:
+                testRulesLossFromStart.run();
                 break;
 
             case TEMPERATURE:

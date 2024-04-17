@@ -27,6 +27,10 @@ public class PlayParameters {
 
 
     @Builder.Default
+    boolean justReplayToGetRewardExpectationsFromStart = false;
+
+
+    @Builder.Default
     boolean withGumbel = true;
 
     int referenceGameLength;

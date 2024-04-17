@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TicTacToeFillRewardLoss {
+public class TicTacToeFillRulesLoss {
 
     @Autowired
     FillRulesLoss fillRulesLoss;

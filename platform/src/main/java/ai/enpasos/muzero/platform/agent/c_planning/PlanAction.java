@@ -37,6 +37,33 @@ public class PlanAction {
     @Autowired
     GameBuffer gameBuffer;
 
+    public void justReplayActionToGetRulesExpectationsFromStart(Game game) {
+        log.trace("justReplayActionToGetRulesExpectations");
+
+        EpisodeDO episodeDO = game.getEpisodeDO();
+        int t = game.getObservationInputTime();
+        TimeStepDO timeStepDO = episodeDO.getTimeStep(t);
+        NetworkIO networkOutput = modelService.initialInference(game).join();
+
+        double[] laP = f2d(networkOutput.getPLegalValues());
+        boolean[] laTarget = timeStepDO.getLegalact().getLegalActions();
+        timeStepDO.setLegalActionLossMax((float)bceLossMax(laP,  laTarget));
+
+        for ( t = 0; t < game.getEpisodeDO().getLastTime(); t++) {
+            timeStepDO = episodeDO.getTimeStep(t);
+            networkOutput = modelService.recurrentInference(networkOutput.getHiddenState(), timeStepDO.getAction()).join();
+            double rewardExpectation = networkOutput.getReward();
+            double r = timeStepDO.getReward() - rewardExpectation;
+            double loss = r * r;
+            timeStepDO.setRewardLoss((float)loss);
+            laP = f2d(networkOutput.getPLegalValues());
+            laTarget = timeStepDO.getLegalact().getLegalActions();
+            timeStepDO.setLegalActionLossMax((float)bceLossMax(laP,  laTarget));
+        }
+
+    }
+
+
 
     public void justReplayActionToGetRulesExpectations(Game game) {
         log.trace("justReplayActionToGetRulesExpectations");

@@ -61,6 +61,11 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "update episode set archived = (max_value_variance < :quantile)", nativeQuery = true )
     void markArchived( double quantile);
 
+    @Transactional
+    @Modifying
+    @Query(value = "update episode set archived = false", nativeQuery = true )
+    void markAllNonArchived();
+
 
     @Modifying
     @Transactional

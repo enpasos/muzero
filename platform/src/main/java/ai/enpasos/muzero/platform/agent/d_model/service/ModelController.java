@@ -478,7 +478,7 @@ public class ModelController implements DisposableBean, Runnable {
             mkDir(outputDir);
             model.load(modelPath == null ? Paths.get(outputDir) : modelPath,  null,  options);
         } catch (Exception e) {
-
+            e.printStackTrace();
             final int epoch = -1;
             DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss());
 
