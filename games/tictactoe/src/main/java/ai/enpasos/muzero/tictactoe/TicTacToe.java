@@ -121,7 +121,9 @@ public class TicTacToe implements CommandLineRunner {
             case TESTRULESLOSSFROMSTART:
                 testRulesLossFromStart.run();
                 break;
-
+            case FILLRULESLOSS:
+                fillRulesLoss.run();
+                break;
             case TEMPERATURE:
                 temperature.run();
                 break;
