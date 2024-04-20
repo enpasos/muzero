@@ -210,13 +210,13 @@ public class GameBuffer {
 
 
         if (episodeIdsRulesLearning == null) {
-            int maxBox = timestepRepo.maxBox();
-
+           // int maxBox = timestepRepo.maxBox();
+            int box = 1;
             int offset = 0;
             episodeIdsRulesLearning = new HashSet<>();
             List newIds;
             do {
-                newIds = timestepRepo.findNEpisodeIdsRelevantForRuleLearning(maxBox, limit, offset);
+                newIds = timestepRepo.findNEpisodeIdsRelevantForRuleLearning(box, limit, offset);
                 episodeIdsRulesLearning.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);

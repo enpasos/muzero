@@ -85,9 +85,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
-    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box < :maxBox order by t.id limit :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box < :box order by t.id limit :limit OFFSET :offset", nativeQuery = true)
 
-    List<Long> findNEpisodeIdsRelevantForRuleLearning(int maxBox, int limit, int offset);
+    List<Long> findNEpisodeIdsRelevantForRuleLearning(int box, int limit, int offset);
 
 
     @Transactional
