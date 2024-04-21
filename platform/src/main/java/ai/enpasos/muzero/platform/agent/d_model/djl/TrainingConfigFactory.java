@@ -46,7 +46,7 @@ public class TrainingConfigFactory {
 
         //  legal actions
         log.trace("k={}: LegalActions BCELoss", k);
-        loss.addLoss(new MyIndexLoss(new MyActivatedBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/this.config.getActionSpaceSize(), 1, (float)config.getLegalActionLossMaxThreshold()), k));
+        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/this.config.getActionSpaceSize(), 1), k));
         k++;
 
 
@@ -74,17 +74,14 @@ public class TrainingConfigFactory {
 
             // legal actions
             log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyActivatedBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, 1f/this.config.getActionSpaceSize() * gradientScale, 1, (float)config.getLegalActionLossMaxThreshold()), k));
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, 1f/this.config.getActionSpaceSize() * gradientScale, 1), k));
             k++;
 
 
             // reward
             log.trace("k={}: Reward L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyActivatedL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale, (float)config.getRewardLossThreshold()), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale), k));
             k++;
-
-
-
 
 
             // policy
