@@ -42,14 +42,16 @@ public class FillRulesLoss {
     @Autowired
     TemperatureCalculator temperatureCalculator;
 
+    public void run( ) {
+        run(-1);
+    }
 
-
-    public void run() {
+    public void run(int maxBox) {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        evaluatedRulesLearningForNetworkOfEpoch( epoch );
+        evaluatedRulesLearningForNetworkOfEpoch( epoch, maxBox );
      }
 
-    public void evaluatedRulesLearningForNetworkOfEpoch(int epoch ) {
+    public void evaluatedRulesLearningForNetworkOfEpoch(int epoch, int maxBox ) {
          log.info("evaluate rules learning for epoch {}", epoch);
         modelService.loadLatestModel(epoch).join();
         timestepRepo.deleteRulesLearningResults();
@@ -60,7 +62,11 @@ public class FillRulesLoss {
         int[] changeCount = new int[1];
          do {
              changeCount = new int[1];
-             existsMore = evaluateRulesLearning( offset, limit, changeCount );
+             if (maxBox == -1) {
+                 existsMore = evaluateRulesLearning( offset, limit, changeCount );
+             } else {
+                 existsMore = evaluateRulesLearning( offset, limit, changeCount, maxBox );
+             }
              offset += limit;
          }  while (existsMore  );
 
