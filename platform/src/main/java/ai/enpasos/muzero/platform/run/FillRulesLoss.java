@@ -46,9 +46,10 @@ public class FillRulesLoss {
         run(-1);
     }
 
-    public void run(int maxBox) {
+    public void run(int box) {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        evaluatedRulesLearningForNetworkOfEpoch( epoch, maxBox );
+        episodeRepo.updateMinBox(  );
+        evaluatedRulesLearningForNetworkOfEpoch( epoch, box );
      }
 
     public void evaluatedRulesLearningForNetworkOfEpoch(int epoch, int maxBox ) {
