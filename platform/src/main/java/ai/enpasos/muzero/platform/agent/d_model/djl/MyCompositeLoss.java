@@ -100,6 +100,8 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 NDArray logicalAndResult = intArray.min(new int[]{1}, true);
                 masks[i] = logicalAndResult.eq(1);
                 legalActionMasks.add(masks[i]);
+
+                lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartA(innerLabels, innerPredictions);
                  masks[i] = lossComponents[i].lte(0.01f);
