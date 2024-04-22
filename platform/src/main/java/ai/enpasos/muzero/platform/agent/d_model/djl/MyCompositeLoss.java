@@ -97,7 +97,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 NDArray  mask = lossComponents[i].lte(0.3f);
 
                 NDArray intArray = mask.toType(DataType.INT32, false);
-                NDArray logicalAndResult = intArray.min(new int[]{1}, true);
+                 mask = intArray.min(new int[]{1}, true);
 
                 legalActionMasks.add(mask);
                 iMap[i]  =  legalActionMasks.size() - 1;
