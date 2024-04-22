@@ -83,7 +83,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
     @Override
     public NDArray evaluate(NDList labels, NDList predictions) {
         NDArray[] lossComponents = new NDArray[components.size()];
-        NDArray[] masks = new NDArray[components.size()];
+        int[] iMap = new int[components.size()];
         List<NDArray> rewardMasks = new ArrayList<>();
         List<NDArray> legalActionMasks = new ArrayList<>();
         for (int i = 0; i < components.size(); i++) {
@@ -94,18 +94,19 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
             if (loss.getName().contains("legal_actions")) {
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartA(innerLabels, innerPredictions);
-                 masks[i] = lossComponents[i].lte(0.3f);
+                NDArray  mask = lossComponents[i].lte(0.3f);
 
-                NDArray intArray = masks[i].toType(DataType.INT32, false);
+                NDArray intArray = mask.toType(DataType.INT32, false);
                 NDArray logicalAndResult = intArray.min(new int[]{1}, true);
-                masks[i] = logicalAndResult.eq(1);
-                legalActionMasks.add(masks[i]);
 
+                legalActionMasks.add(mask);
+                iMap[i]  =  legalActionMasks.size() - 1;
                 lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartA(innerLabels, innerPredictions);
-                 masks[i] = lossComponents[i].lte(0.01f);
-                rewardMasks.add(masks[i]);
+                NDArray  mask = lossComponents[i].lte(0.01f);
+                rewardMasks.add(mask);
+                iMap[i]  =  rewardMasks.size() - 1;
             } else {
                 lossComponents[i] = loss.evaluate(innerLabels, innerPredictions);
             }
@@ -125,10 +126,10 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-                lossComponents[i].set(okMasksLegalActions.get(i).logicalNot(), 0.0f);
+                lossComponents[i].set(okMasksLegalActions.get(iMap[i]).logicalNot(), 0.0f);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
             } else if (loss.getName().contains("reward")) {
-                lossComponents[i].set(okMasksReward.get(i).logicalNot(), 0.0f);
+                lossComponents[i].set(okMasksReward.get(iMap[i]).logicalNot(), 0.0f);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
             }
         }
