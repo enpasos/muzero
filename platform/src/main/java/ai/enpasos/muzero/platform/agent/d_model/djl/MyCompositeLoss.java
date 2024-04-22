@@ -119,8 +119,10 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         NDArray oks = manager.ones(legalActionMasks.get(0).getShape(),  BOOLEAN);
         okMasksReward.add(oks);
         okMasksLegalActions.add(oks);
-        for (int i = 0; i < rewardMasks.size() - 1; i++) {
+        for (int i = 0; i < rewardMasks.size()-1; i++) {
             okMasksReward.add(okMasksReward.get(i).logicalAnd(rewardMasks.get(i)));
+        }
+        for (int i = 0; i < legalActionMasks.size()-1; i++) {
             okMasksLegalActions.add(okMasksLegalActions.get(i).logicalAnd(legalActionMasks.get(i)));
         }
         for (int i = 0; i < components.size(); i++) {
