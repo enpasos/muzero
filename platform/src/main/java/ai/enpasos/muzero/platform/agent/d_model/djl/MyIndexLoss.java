@@ -46,14 +46,14 @@ public class MyIndexLoss extends Loss {
         return loss.evaluate(getLabels(labels), getPredictions(predictions));
     }
 
-    private NDList getPredictions(NDList predictions) {
+    public NDList getPredictions(NDList predictions) {
         if (predictionsIndex == null) {
             return predictions;
         }
         return new NDList(predictions.get(predictionsIndex));
     }
 
-    private NDList getLabels(NDList labels) {
+    public NDList getLabels(NDList labels) {
         if (labelsIndex == null) {
             return labels;
         }

@@ -60,10 +60,15 @@ public class MyL2Loss extends Loss {
      */
     @Override
     public NDArray evaluate(NDList label, NDList prediction) {
+        return evaluatePartB(evaluatePartA(label, prediction));
+    }
+    public NDArray evaluatePartA(NDList label, NDList prediction) {
         NDArray pred = prediction.singletonOrThrow();
         NDArray labelReshaped = label.singletonOrThrow().reshape(pred.getShape());
         NDArray mask = labelReshaped.neq(NULL_VALUE);
-        NDArray loss = mask.mul(labelReshaped.sub(pred).square().mul(weight));
-        return loss.mean();
+        return mask.mul(labelReshaped.sub(pred).square().mul(weight));
+    }
+    public NDArray evaluatePartB(NDArray preSumLoss) {
+        return preSumLoss.mean();
     }
 }

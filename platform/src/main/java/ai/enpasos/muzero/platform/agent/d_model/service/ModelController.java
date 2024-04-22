@@ -315,61 +315,61 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetworkRules() {
-
-        try (NDScope nDScope = new NDScope()) {
-
-            // initialization
-            Model model = network.getModel();
-
-
-            int epochLocal;
-            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-
-            boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
-            epochLocal = getEpochFromModel(model);
-            int finalEpoch = epochLocal;
-
-
-            // special
-         //   DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
-
-            djlConfig.getTrainingListeners().stream()
-                    .filter(MyEpochTrainingListener.class::isInstance)
-                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-            try (Trainer trainer = model.newTrainer(djlConfig)) {
-
-                Shape[] inputShapes = batchFactory.getInputShapes();
-                trainer.initialize(inputShapes);
-                //    ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
-
-                inputShapes = batchFactory.getInputShapesForInitialRules();
-                trainer.initialize(inputShapes);
-
-                trainer.setMetrics(new Metrics());
-                //((CausalityFreezing) model.getBlock()).freeze(freeze);
-                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    // TODO batch has to be adjusted
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, 0, config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
-                        log.debug("trainBatch " + m);
-
-                        // special
-                        MyEasyTrain.trainBatch(trainer, batch);
-                        trainer.step();
-                    }
-                }
-
-                handleMetrics(trainer, model, epochLocal);
-                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-            }
-
-
-            modelState.setEpoch(getEpochFromModel(model));
-        }
-
-
-    }
+//    private void trainNetworkRules() {
+//
+//        try (NDScope nDScope = new NDScope()) {
+//
+//            // initialization
+//            Model model = network.getModel();
+//
+//
+//            int epochLocal;
+//            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+//
+//            boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
+//            epochLocal = getEpochFromModel(model);
+//            int finalEpoch = epochLocal;
+//
+//
+//            // special
+//         //   DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+//            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
+//
+//            djlConfig.getTrainingListeners().stream()
+//                    .filter(MyEpochTrainingListener.class::isInstance)
+//                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+//            try (Trainer trainer = model.newTrainer(djlConfig)) {
+//
+//                Shape[] inputShapes = batchFactory.getInputShapes();
+//                trainer.initialize(inputShapes);
+//                //    ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
+//
+//                inputShapes = batchFactory.getInputShapesForInitialRules();
+//                trainer.initialize(inputShapes);
+//
+//                trainer.setMetrics(new Metrics());
+//                //((CausalityFreezing) model.getBlock()).freeze(freeze);
+//                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+//                    // TODO batch has to be adjusted
+//                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, 0, config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
+//                        log.debug("trainBatch " + m);
+//
+//                        // special
+//                        MyEasyTrain.trainBatch(trainer, batch);
+//                        trainer.step();
+//                    }
+//                }
+//
+//                handleMetrics(trainer, model, epochLocal);
+//                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+//            }
+//
+//
+//            modelState.setEpoch(getEpochFromModel(model));
+//        }
+//
+//
+//    }
 
 //    private void determinePRatioMaxForCurrentEpoch() {
 //        int epoch = this.modelState.getEpoch();

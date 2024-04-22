@@ -72,31 +72,28 @@ public class MyBCELoss extends Loss {
      */
     @Override
     public NDArray evaluate(@NotNull NDList label, @NotNull NDList prediction) {
+        return evaluatePartB(evaluatePartA(label, prediction));
+    }
+
+
+    public NDArray evaluatePartA(@NotNull NDList label, @NotNull NDList prediction) {
         NDArray pred = prediction.singletonOrThrow();
         NDArray lab = label.singletonOrThrow();
 
-        NDArray loss;
-
-
         lab = lab.reshape(pred.getShape());
-
-
         NDArray lossA = logSigmoid(pred).mul(lab).neg();
         NDArray lossB = logOneMinusSigmoid(pred).mul(lab.mul(-1).add(1)).neg();
 
-
-
-        loss = lossA.add(lossB) .sum(new int[]{classAxis}, true);
-    //    loss = lossA.sum(new int[]{classAxis}, true);
-
+        NDArray lossPreSum = lossA.add(lossB);
+        return lossPreSum;
+    }
+    public NDArray evaluatePartB(NDArray lossPreSum) {
+        NDArray loss = lossPreSum.sum(new int[]{classAxis}, true);
         if (weight != 1) {
             loss = loss.mul(weight);
         }
         return loss.mean();
     }
-
-
-
 
 
     //   \min (0,x) - \ln( 1+e^{-|x|})
