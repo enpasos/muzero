@@ -123,10 +123,10 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-                lossComponents[i].set(okMasksLegalActions.get(i).neg(), 0.0f);
+                lossComponents[i].set(okMasksLegalActions.get(i).logicalNot(), 0.0f);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
             } else if (loss.getName().contains("reward")) {
-                lossComponents[i].set(okMasksReward.get(i).neg(), 0.0f);
+                lossComponents[i].set(okMasksReward.get(i).logicalNot(), 0.0f);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
             }
         }
