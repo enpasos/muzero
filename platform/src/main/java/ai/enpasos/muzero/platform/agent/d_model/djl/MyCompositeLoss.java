@@ -37,9 +37,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         this("CompositeLoss");
     }
 
-//    List<Loss> legalActionLosses;
-//    List<Loss> rewardLosses;
-
 
     /**
      * Creates a new empty instance of {@code CompositeLoss} that can combine the given {@link Loss}
@@ -50,8 +47,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
     public MyCompositeLoss(String name) {
         super(name);
         components = new ArrayList<>();
-//        legalActionLosses = new ArrayList<>();
-//        rewardLosses = new ArrayList<>();
     }
 
     /**
@@ -62,12 +57,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
      */
     public MyCompositeLoss addLoss(Loss loss) {
         components.add(loss);
-//        if (loss.getName().contains("legal_actions")) {
-//            legalActionLosses.add(loss);
-//        }
-//        if (loss.getName().contains("reward")) {
-//            rewardLosses.add(loss);
-//        }
         return this;
     }
 
@@ -87,14 +76,14 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         List<NDArray> rewardMasks = new ArrayList<>();
         List<NDArray> legalActionMasks = new ArrayList<>();
         for (int i = 0; i < components.size(); i++) {
-            Pair<NDList, NDList> inputs = inputForComponent(i, labels, predictions);
+           // Pair<NDList, NDList> inputs = inputForComponent(i, labels, predictions);
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             NDList innerLabels = ((MyIndexLoss)components.get(i)).getLabels(labels);
             NDList innerPredictions = ((MyIndexLoss)components.get(i)).getPredictions(predictions);
 
             if (loss.getName().contains("legal_actions")) {
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartA(innerLabels, innerPredictions);
-                NDArray  mask = lossComponents[i].lte(0.3f);
+                NDArray  mask = lossComponents[i].stopGradient().lte(0.3f);
 
                 NDArray intArray = mask.toType(DataType.INT32, false);
                  mask = intArray.min(new int[]{1}, true);
@@ -104,7 +93,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartA(innerLabels, innerPredictions);
-                NDArray  mask = lossComponents[i].lte(0.01f);
+                NDArray  mask = lossComponents[i].stopGradient().lte(0.01f);
                 rewardMasks.add(mask);
                 iMap[i]  =  rewardMasks.size() - 1;
             } else {
@@ -128,10 +117,13 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-                lossComponents[i].set(okMasksLegalActions.get(iMap[i]).logicalNot(), 0.0f);
+                NDArray intMask = okMasksLegalActions.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
+                lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
             } else if (loss.getName().contains("reward")) {
-                lossComponents[i].set(okMasksReward.get(iMap[i]).logicalNot(), 0.0f);
+
+                NDArray intMask = okMasksReward.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
+                lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
             }
         }

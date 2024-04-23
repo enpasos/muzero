@@ -131,7 +131,9 @@ public final class MyEasyTrain {
 
         long time = System.nanoTime();
         NDArray lossValue = trainer.getLoss().evaluate(labels, preds);
+        System.out.println("before backward");
         collector.backward(lossValue);
+        System.out.println("after backward");
         trainer.addMetric("backward", time);
         time = System.nanoTime();
         batchData.getLabels().put(labels.get(0).getDevice(), labels);
