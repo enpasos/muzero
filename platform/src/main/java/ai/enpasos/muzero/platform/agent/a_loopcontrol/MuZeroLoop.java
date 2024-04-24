@@ -37,6 +37,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
+
+import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
 
 @Slf4j
@@ -109,11 +112,11 @@ public class MuZeroLoop {
 //            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
 
 
-           // log.info("Epoch(" + epoch + ")");
-           // if (epoch % 10 == 0) {
+//            log.info("Epoch(" + epoch + ")");
+//            if (epoch % 10 == 0) {
 //                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
-         //   }
+//            }
 
            boolean[] freeze = new boolean[]{false, true, true};
 //            int unknowns = 0;
@@ -121,7 +124,7 @@ public class MuZeroLoop {
 //                for (int i = 0; i < 10; i++) {
                     modelService.trainModel(freeze, RULES_BUFFER, false).get();
 //                }
-             //     epoch = modelState.getEpoch();
+            //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
 //                unknowns = fillRulesLoss.numBox(0);
 //                log.info("unknowns: " + unknowns);
