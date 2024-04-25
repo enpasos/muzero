@@ -81,6 +81,7 @@ public class LossExtractor {
 
         Arrays.stream(epochs).forEach(
                 epoch -> {
+                    if (epoch == 0) return;
                     log.info("epoch = {}", epoch);
                     try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                         model.setBlock(block);
