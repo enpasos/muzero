@@ -29,8 +29,6 @@ public class TrainParams {
     @Builder.Default
     boolean render = false;
 
-    @Builder.Default
-    boolean randomFill = true;
 
 
 }

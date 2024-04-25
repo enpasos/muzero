@@ -89,10 +89,7 @@ public class MuZeroLoop {
 
         gameBuffer.loadLatestStateIfExists();
 
-        config.setWindowSize(20000);  // todo configurable
-        play.fillingBuffer(params.isRandomFill());
-        config.setWindowSize(10000);
-
+        play.randomEpisodes(config.getInitialRandomEpisodes());
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;

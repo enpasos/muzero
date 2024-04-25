@@ -55,11 +55,11 @@ public class Play {
     @Autowired
     PlayService playService;
 
-    public void fillingBuffer(boolean isRandomFill) {
-        int windowSize = config.getWindowSize();
-        while (!gameBuffer.getPlanningBuffer().isBufferFilled()) {
-            log.info(gameBuffer.getPlanningBuffer().getEpisodeMemory().getNumberOfEpisodes() + " of " + windowSize);
-             playMultipleEpisodes(false, isRandomFill);
+    public void randomEpisodes(int n) {
+        int c = 0;
+        while (c < n) {
+            //log.info(gameBuffer.getPlanningBuffer().getEpisodeMemory().getNumberOfEpisodes() + " of " + windowSize);
+            c += playMultipleEpisodes(false, true);
         }
     }
 
@@ -80,7 +80,7 @@ public class Play {
     }
 
 
-    public void playMultipleEpisodes(boolean render, boolean fastRuleLearning) {
+    public int playMultipleEpisodes(boolean render, boolean fastRuleLearning) {
         List<Game> games;
         List<Game> gamesToReanalyse = null;
         if (config.getPlayTypeKey() == PlayTypeKey.REANALYSE) {
@@ -105,6 +105,7 @@ public class Play {
         log.info("Played {} games parallel", games.size());
 
         gameBuffer.addGames(games);
+        return games.size();
     }
 
 }

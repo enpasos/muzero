@@ -484,6 +484,9 @@ public class MuZeroConfig {
     public int getWindowSize() {
         return getConf().windowSize;
     }
+    public int getInitialRandomEpisodes() {
+        return getConf().initialRandomEpisodes;
+    }
 
     public Set<PlayTypeKey> getPlayTypeKeysForTraining() {
         return getConf().getPlayTypes().entrySet().stream()
@@ -536,6 +539,7 @@ public class MuZeroConfig {
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;
         protected int windowSize;
+        protected int initialRandomEpisodes;
 
         protected int numChannelsHiddenLayerSimilarityProjector;
         protected int numChannelsOutputLayerSimilarityProjector;
