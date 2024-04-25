@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
@@ -36,8 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
-
-import ai.enpasos.muzero.platform.config.PlayTypeKey;
 
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
@@ -92,37 +91,42 @@ public class MuZeroLoop {
         play.fillingBuffer(params.isRandomFill());
 
 
+        boolean policyValueTraining = false;   // true: policy and value training, false: rules training
+
+
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
 
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-//            if (epoch != 0) {
-//                PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-//                for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-//                    config.setPlayTypeKey(key);
-//                    play.playGames(params.isRender(), trainingStep);
-//                }
-//                config.setPlayTypeKey(originalPlayTypeKey);
-//            }
+            if (policyValueTraining) {
+                if (epoch != 0) {
+                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey(key);
+                        play.playGames(params.isRender(), trainingStep);
+                    }
+                    config.setPlayTypeKey(originalPlayTypeKey);
+                }
 
-//            log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-//            log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-//            log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+                log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+                log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+                log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+            }
 
-
-//            log.info("Epoch(" + epoch + ")");
-//            if (epoch % 10 == 0) {
+            // log.info("Epoch(" + epoch + ")");
+            // if (epoch % 10 == 0) {
 //                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
-//            }
+            //   }
 
-           boolean[] freeze = new boolean[]{false, true, true};
+            boolean[] freeze = new boolean[]{false, true, true};
 //            int unknowns = 0;
 //            do {
 //                for (int i = 0; i < 10; i++) {
-                    modelService.trainModel(freeze, RULES_BUFFER, false).get();
+            if (!policyValueTraining)
+                modelService.trainModel(freeze, RULES_BUFFER, false).get();
 //                }
             //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
@@ -130,8 +134,10 @@ public class MuZeroLoop {
 //                log.info("unknowns: " + unknowns);
 //            } while (unknowns > 0);
 
-//            freeze = new boolean[]{true, false, false};
-//            modelService.trainModel(freeze, PLANNING_BUFFER, true).get();
+            if (policyValueTraining) {
+                freeze = new boolean[]{true, false, false};
+                modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+            }
 
             epoch = modelState.getEpoch();
 
