@@ -88,13 +88,24 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
 
         gameBuffer.loadLatestStateIfExists();
+
+        config.setWindowSize(20000);  // todo configurable
         play.fillingBuffer(params.isRandomFill());
+        config.setWindowSize(10000);
 
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
-
+        boolean rulesTraining = true;
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
+
+            if ( !policyValueTraining && epoch > 0 && epoch % 100 == 0) {
+                fillRulesLoss.run();
+                int n0 = fillRulesLoss.numBox(0);
+                if (n0 == 0) {
+                    policyValueTraining = true;
+                }
+            }
 
 
             DurAndMem duration = new DurAndMem();
@@ -125,9 +136,9 @@ public class MuZeroLoop {
 //            int unknowns = 0;
 //            do {
 //                for (int i = 0; i < 10; i++) {
-            if (!policyValueTraining)
-                modelService.trainModel(freeze, RULES_BUFFER, false).get();
-//                }
+            if (rulesTraining) {
+                modelService.trainModel(freeze, RULES_BUFFER, !policyValueTraining).get();
+             }
             //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
 //                unknowns = fillRulesLoss.numBox(0);
@@ -135,7 +146,7 @@ public class MuZeroLoop {
 //            } while (unknowns > 0);
 
             if (policyValueTraining) {
-                freeze = new boolean[]{true, false, false};
+                freeze = new boolean[]{false, false, false};
                 modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
             }
 

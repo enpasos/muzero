@@ -193,9 +193,12 @@ public class GameBuffer {
     public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
 
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return  getGamesToLearnRules().stream()
+            return getNRandomSelectedGames( this.batchSize ).stream()
                     .map(game -> sampleFromGame(numUnrollSteps, game))
                     .collect(Collectors.toList());
+//            return  getGamesToLearnRules().stream()
+//                    .map(game -> sampleFromGame(numUnrollSteps, game))
+//                    .collect(Collectors.toList());
         }
     }
 
@@ -217,6 +220,7 @@ public class GameBuffer {
             List newIds;
             do {
                 newIds = timestepRepo.findNEpisodeIdsRelevantForRuleLearning(box, limit, offset);
+           //     newIds = episodeRepo.findAllEpisodeIds( limit, offset);
                 episodeIdsRulesLearning.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
