@@ -229,10 +229,13 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         representationBlock.initialize(manager, dataType, inputShapes[0]);
 
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
-        similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[3]);
+        if (similarityProjectorBlock != null && this.similarityPredictorBlock != null) {
+            similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[3]);
+            Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[3]});
 
-        Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[3]});
-        this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+                this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
+
+        }
 
         Shape[] predictionInputShape = new Shape[3];
         predictionInputShape[0] = stateOutputShapes[0];
@@ -275,8 +278,11 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
     public void setExportFilter(boolean[] exportFilter) {
         this.predictionBlock.setExportFilter(exportFilter);
         this.dynamicsBlock.setExportFilter(exportFilter);
-        this.similarityPredictorBlock.setExportFilter(exportFilter);
-        this.similarityProjectorBlock.setExportFilter(exportFilter);
+        if (this.similarityPredictorBlock != null && this.similarityProjectorBlock != null) {
+            this.similarityPredictorBlock.setExportFilter(exportFilter);
+            this.similarityProjectorBlock.setExportFilter(exportFilter);
+        }
+
         this.representationBlock.setExportFilter(exportFilter);
     }
 }
