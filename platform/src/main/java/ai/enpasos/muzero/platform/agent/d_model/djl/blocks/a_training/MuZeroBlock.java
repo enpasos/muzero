@@ -126,20 +126,19 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
             predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
-                if (config.isWithConsistencyLoss()) {
+            if (config.isWithConsistencyLoss()) {
+
+                NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(stateForTimeEvolution.get(0)), training, params);
+                NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
 
-            NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList( stateForTimeEvolution.get(0)), training, params);
-            NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
+                representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
+                NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
+                similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
-
-            representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-            NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
-            similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
-
-                    combinedResult.add(similarityPredictorResult);
-                    combinedResult.add(similarityProjectorResultLabel);
-                }
+                combinedResult.add(similarityPredictorResult);
+                combinedResult.add(similarityProjectorResultLabel);
+            }
 
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
@@ -269,8 +268,10 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
     public void freezeParameters(boolean[] freeze) {
         this.predictionBlock.freezeParameters(freeze);
         this.dynamicsBlock.freezeParameters(freeze);
-        this.similarityPredictorBlock.freezeParameters(freeze[0]);
-        this.similarityProjectorBlock.freezeParameters(freeze[0]);
+        if (this.similarityPredictorBlock != null && this.similarityProjectorBlock != null) {
+            this.similarityPredictorBlock.freezeParameters(freeze[0]);
+            this.similarityProjectorBlock.freezeParameters(freeze[0]);
+        }
         this.representationBlock.freezeParameters(freeze);
     }
 
