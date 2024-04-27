@@ -143,7 +143,7 @@ public class MuZeroLoop {
 //            } while (unknowns > 0);
 
             if (policyValueTraining) {
-                freeze = new boolean[]{false, false, false};
+                freeze = new boolean[]{true, false, false};
                 modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
             }
 
