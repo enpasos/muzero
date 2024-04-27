@@ -80,7 +80,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             NDList innerLabels = ((MyIndexLoss)components.get(i)).getLabels(labels);
             NDList innerPredictions = ((MyIndexLoss)components.get(i)).getPredictions(predictions);
-
+            int sCount = 0;
             if (loss.getName().contains("legal_actions")) {
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartA(innerLabels, innerPredictions);
                 NDArray  mask = lossComponents[i].stopGradient().lte(0.3f);
@@ -98,7 +98,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 iMap[i]  =  rewardMasks.size() - 1;
             } else if (loss.getName().contains("similarity")) {
                 lossComponents[i] = ((MySimilarityLoss) loss).evaluatePartA(innerLabels, innerPredictions);
-                iMap[i]  =  rewardMasks.size() - 1;
+                iMap[i]  =  sCount++;
             } else {
                 lossComponents[i] = loss.evaluate(innerLabels, innerPredictions);
             }
