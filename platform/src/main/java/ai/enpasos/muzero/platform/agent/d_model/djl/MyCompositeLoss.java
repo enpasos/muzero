@@ -96,12 +96,16 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 NDArray  mask = lossComponents[i].stopGradient().lte(0.01f);
                 rewardMasks.add(mask);
                 iMap[i]  =  rewardMasks.size() - 1;
+            } else if (loss.getName().contains("similarity")) {
+                lossComponents[i] = ((MySimilarityLoss) loss).evaluatePartA(innerLabels, innerPredictions);
+                iMap[i]  =  rewardMasks.size() - 1;
             } else {
                 lossComponents[i] = loss.evaluate(innerLabels, innerPredictions);
             }
         }
         List<NDArray> okMasksReward = new ArrayList<>();
         List<NDArray> okMasksLegalActions = new ArrayList<>();
+        List<NDArray> okMasksSimilarity = new ArrayList<>();
 
 
         NDManager manager = legalActionMasks.get(0).getManager();
@@ -114,6 +118,10 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         for (int i = 0; i < legalActionMasks.size()-1; i++) {
             okMasksLegalActions.add(okMasksLegalActions.get(i).logicalAnd(legalActionMasks.get(i)));
         }
+        for (int i = 0; i < rewardMasks.size()-1; i++) {
+            okMasksSimilarity.add(okMasksReward.get(i).logicalOr(okMasksLegalActions.get(i+1)));
+        }
+
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
@@ -121,10 +129,13 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
             } else if (loss.getName().contains("reward")) {
-
                 NDArray intMask = okMasksReward.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
                 lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
+            } else if (loss.getName().contains("similarity")) {
+                NDArray intMask = okMasksSimilarity.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
+                lossComponents[i] = lossComponents[i].mul(intMask);
+                lossComponents[i] = ((MySimilarityLoss) loss).evaluatePartB(lossComponents[i]);;
             }
         }
         return NDArrays.add(lossComponents);

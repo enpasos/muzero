@@ -33,6 +33,10 @@ public class MySimilarityLoss extends Loss {
      */
     @Override
     public NDArray evaluate(NDList label, NDList prediction) {
+        return evaluatePartB(evaluatePartA(label, prediction));
+    }
+
+    public NDArray evaluatePartA(NDList label, NDList prediction) {
         NDArray pred = prediction.singletonOrThrow();
         NDArray lab = label.singletonOrThrow();
 
@@ -42,8 +46,9 @@ public class MySimilarityLoss extends Loss {
         NDArray predNorm = pred.norm(axis, false);
         NDArray normProd = labNorm.mul(predNorm).maximum(epsilon);
 
-        NDArray loss = lab.mul(pred).sum(axis).div(normProd).sub(1).mul(-weight);
-
-        return loss.mean();
+        return lab.mul(pred).sum(axis).div(normProd).sub(1).mul(-weight);
+    }
+    public NDArray evaluatePartB(NDArray preSumLoss) {
+        return preSumLoss.mean();
     }
 }
