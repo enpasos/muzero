@@ -39,8 +39,12 @@ public class LossExtractor {
     private LossExtractor() {
     }
 
-    @SuppressWarnings("squid:S106")
     public void listLossesForTrainedNetworks() {
+        listLossesForTrainedNetworks(1);
+    }
+
+    @SuppressWarnings("squid:S106")
+    public void listLossesForTrainedNetworks(int startingEpoch) {
         MuZeroBlock block = new MuZeroBlock(config);
 
         StringWriter stringWriter = new StringWriter();
@@ -58,7 +62,7 @@ public class LossExtractor {
 
             int[] epochs = networkIOService.getNetworkEpochs();
 
-            extractLosses(block, csvPrinter, epochs);
+            extractLosses(block, csvPrinter, epochs, startingEpoch);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -72,7 +76,7 @@ public class LossExtractor {
         return null;
     }
 
-    private void extractLosses(MuZeroBlock block, CSVPrinter csvPrinter, int[] epochs) {
+    private void extractLosses(MuZeroBlock block, CSVPrinter csvPrinter, int[] epochs, int startingEpoch) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -81,7 +85,7 @@ public class LossExtractor {
 
         Arrays.stream(epochs).forEach(
                 epoch -> {
-                    if (epoch == 0) return;
+                    if (epoch < startingEpoch) return;
                     log.info("epoch = {}", epoch);
                     try (Model model = Model.newInstance(config.getModelName(), Device.gpu())) {
                         model.setBlock(block);
