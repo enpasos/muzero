@@ -96,7 +96,6 @@ public class MuZeroLoop {
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
             play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
         }
-        play.randomEpisodes(config.getInitialRandomEpisodes());
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
