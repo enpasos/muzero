@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -68,6 +69,9 @@ public class MuZeroLoop {
     @Autowired
     FillValueTable fillValueTable;
 
+    @Autowired
+    EpisodeRepo episodeRepo;
+
 
     @Autowired
     TemperatureCalculator temperatureCalculator;
@@ -89,6 +93,9 @@ public class MuZeroLoop {
 
         gameBuffer.loadLatestStateIfExists();
 
+        if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
+            play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
+        }
         play.randomEpisodes(config.getInitialRandomEpisodes());
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
@@ -96,12 +103,10 @@ public class MuZeroLoop {
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
-            if ( !policyValueTraining && epoch > 0 && epoch % 100 == 0) {
+            if ( epoch > 0 && epoch % 100 == 0) {
                 fillRulesLoss.run();
                 int n0 = fillRulesLoss.numBox(0);
-                if (n0 == 0) {
-                    policyValueTraining = true;
-                }
+                policyValueTraining =n0 == 0;
             }
 
 
