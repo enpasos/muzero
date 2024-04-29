@@ -18,9 +18,13 @@ public class ControllerTask {
     TrainingDatasetType trainingDatasetType;
 
     int epoch = -1;
+    int numUnrollSteps = -1;
 
 public ControllerTask(ControllerTaskType taskType) {
     this.taskType = taskType;
+}
+public synchronized void setNumUnrollSteps(int numUnrollSteps) {
+    this.numUnrollSteps = numUnrollSteps;
 }
 
 

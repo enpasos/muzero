@@ -51,6 +51,9 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
     private final SimilarityPredictorBlock similarityPredictorBlock;
     private final SimilarityProjectorBlock similarityProjectorBlock;
 
+
+    private boolean rulesModel = false;
+
     public MuZeroBlock(MuZeroConfig config) {
         super(MYVERSION);
         this.config = config;
@@ -77,9 +80,89 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
         }
     }
 
-
     @Override
     protected @NotNull NDList forwardInternal(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
+       if (rulesModel) {
+            return forwardInternalRulesModel(parameterStore, inputs, training, params);
+        } else {
+            return forwardInternalMuZeroModel(parameterStore, inputs, training, params);
+        }
+    }
+
+    private int numUnrollSteps = 0;
+    public void setNumUnrollSteps(int numUnrollSteps) {
+        this.numUnrollSteps = numUnrollSteps;
+    }
+    public int getNumUnrollSteps() {
+        return this.numUnrollSteps;
+    }
+
+    protected @NotNull NDList forwardInternalRulesModel(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
+
+        NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
+        //  NDList stateForPrediction = firstHalfNDList(representationResult);
+        NDList stateForTimeEvolution = secondHalfNDList(representationResult);
+
+        NDList stateForPrediction = null;
+        for (int k = 1; k <= this.numUnrollSteps; k++) {
+            NDArray action = inputs.get(k);
+
+            NDList dynamicIn = new NDList();
+            dynamicIn.addAll(stateForTimeEvolution);
+            dynamicIn.add(action);
+
+            NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
+
+            stateForTimeEvolution = secondHalfNDList(dynamicsResult);
+            stateForPrediction = firstHalfNDList(dynamicsResult);
+        }
+
+
+        NDList combinedResult = new NDList();
+
+
+        // added predictions to the combinedResult in the following order:
+        // initial inference
+        // - rules layer: legal actions
+        // - policy layer:  policy
+        // - value layer:  value
+        // each recurrent inference
+        // - rules layer: consistency loss
+        // - rules layer: legal actions
+        // - rules layer: reward
+        // - policy layer:  policy
+        // - value layer:  value
+
+        // "initial Inference"
+        predictionBlock.setWithReward(false);
+        NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+            combinedResult.add(prediction);
+        }
+        int k = config.getNumUnrollSteps() + 1;
+
+
+        // recurrent Inference
+        predictionBlock.setWithReward(true);
+        NDArray action = inputs.get(k);
+        NDList dynamicIn = new NDList();
+        dynamicIn.addAll(stateForTimeEvolution);
+        dynamicIn.add(action);
+
+        NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
+
+        stateForPrediction = firstHalfNDList(dynamicsResult);
+        predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+
+        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+            combinedResult.add(prediction);
+        }
+
+        return combinedResult;
+    }
+
+
+    protected @NotNull NDList forwardInternalMuZeroModel(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
         NDList combinedResult = new NDList();
 
         // added predictions to the combinedResult in the following order:
@@ -178,6 +261,15 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
+        if (rulesModel) {
+            return getOutputShapesRulesModel(inputShapes);
+        } else {
+            return getOutputShapesMuZeroModel(inputShapes);
+        }
+    }
+
+
+    public Shape[] getOutputShapesMuZeroModel(Shape[] inputShapes) {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
@@ -253,8 +345,49 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
     }
 
+
     @NotNull
     private Shape[] getDynamicsInputShape(Shape[] stateOutputShapes, Shape actionShape) {
+        if (rulesModel) {
+            return getDynamicsInputShapeRulesModel(stateOutputShapes, actionShape);
+        } else {
+            return getDynamicsInputShapeMuZeroModel(stateOutputShapes, actionShape);
+        }
+    }
+
+
+    public Shape[] getOutputShapesRulesModel(Shape[] inputShapes) {
+        Shape[] outputShapes = new Shape[0];
+
+        // initial Inference
+        predictionBlock.setWithReward(false);
+        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
+
+        Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+        Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+
+        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
+        outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
+
+        int k = 1;
+        // recurrent Inference
+        predictionBlock.setWithReward(true);
+        Shape stateShape = stateOutputShapes[0];
+        Shape actionShape = inputShapes[k];
+        Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
+
+        stateOutputShapes = dynamicsBlock.getOutputShapes( dynamicInShape );
+
+        stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+
+        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
+
+        return outputShapes;
+    }
+
+
+    @NotNull
+    private Shape[] getDynamicsInputShapeRulesModel(Shape[] stateOutputShapes, Shape actionShape) {
         Shape[] dynamicsInputShape;
         Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
         dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
@@ -262,6 +395,17 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
         return dynamicsInputShape;
     }
+
+    @NotNull
+    private Shape[] getDynamicsInputShapeMuZeroModel(Shape[] stateOutputShapes, Shape actionShape) {
+        Shape[] dynamicsInputShape;
+        Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
+        dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
+        System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
+        dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
+        return dynamicsInputShape;
+    }
+
 
 
     @Override
@@ -285,5 +429,13 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         }
 
         this.representationBlock.setExportFilter(exportFilter);
+    }
+
+    public boolean isRulesModel() {
+        return rulesModel;
+    }
+
+    public void setRulesModel(boolean rulesModel) {
+        this.rulesModel = rulesModel;
     }
 }
