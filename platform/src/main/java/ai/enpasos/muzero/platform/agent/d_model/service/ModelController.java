@@ -253,8 +253,10 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
-                case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
                     trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    break;
+                case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
+                    trainNetworkRules( task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
                     break;
                     // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -281,6 +283,9 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetwork( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
         Model model = network.getModel();
+
+        MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
+        muZeroBlock.setRulesModel(false);
                 try (NDScope nDScope = new NDScope()) {
                     int epochLocal;
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
@@ -310,6 +315,44 @@ public class ModelController implements DisposableBean, Runnable {
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
+
+
+    }
+
+    private void trainNetworkRules( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int s) {
+        Model model = network.getModel();
+        MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
+        muZeroBlock.setRulesModel(true);
+
+        try (NDScope nDScope = new NDScope()) {
+            int epochLocal;
+            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+            boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
+            epochLocal = getEpochFromModel(model);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigRules(epochLocal, background);
+            int finalEpoch = epochLocal;
+            djlConfig.getTrainingListeners().stream()
+                    .filter(MyEpochTrainingListener.class::isInstance)
+                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+                Shape[] inputShapes = batchFactory.getInputShapes();
+                trainer.initialize(inputShapes);
+                trainer.setMetrics(new Metrics());
+                ((DCLAware) model.getBlock()).freezeParameters(freeze);
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
+                        log.debug("trainBatch " + m);
+                        MyEasyTrain.trainBatch(trainer, batch);
+                        trainer.step();
+                    }
+                }
+
+                handleMetrics(trainer, model, epochLocal);
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+            }
+        }
+
+        modelState.setEpoch(getEpochFromModel(model));
 
 
     }

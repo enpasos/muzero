@@ -18,7 +18,7 @@ public class ControllerTask {
     TrainingDatasetType trainingDatasetType;
 
     int epoch = -1;
-    int numUnrollSteps = -1;
+    private int numUnrollSteps = -1;
 
 public ControllerTask(ControllerTaskType taskType) {
     this.taskType = taskType;
@@ -34,6 +34,10 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
 
     public synchronized void setDone(boolean done) {
         this.done = done;
+    }
+
+    public int getNumUnrollSteps() {
+        return numUnrollSteps;
     }
 
     public ControllerTaskType getTaskType() {
@@ -67,4 +71,6 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
     public boolean[] getExportFilter() {
         return exportFilter;
     }
+
+
 }

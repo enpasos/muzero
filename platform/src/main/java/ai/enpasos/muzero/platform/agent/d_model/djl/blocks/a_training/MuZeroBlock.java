@@ -348,12 +348,13 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @NotNull
     private Shape[] getDynamicsInputShape(Shape[] stateOutputShapes, Shape actionShape) {
-        if (rulesModel) {
-            return getDynamicsInputShapeRulesModel(stateOutputShapes, actionShape);
-        } else {
-            return getDynamicsInputShapeMuZeroModel(stateOutputShapes, actionShape);
+            Shape[] dynamicsInputShape;
+            Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
+            dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
+            System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
+            dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
+            return dynamicsInputShape;
         }
-    }
 
 
     public Shape[] getOutputShapesRulesModel(Shape[] inputShapes) {
@@ -386,17 +387,9 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
     }
 
 
-    @NotNull
-    private Shape[] getDynamicsInputShapeRulesModel(Shape[] stateOutputShapes, Shape actionShape) {
-        Shape[] dynamicsInputShape;
-        Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
-        dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
-        System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
-        dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
-        return dynamicsInputShape;
-    }
 
-    @NotNull
+
+/*    @NotNull
     private Shape[] getDynamicsInputShapeMuZeroModel(Shape[] stateOutputShapes, Shape actionShape) {
         Shape[] dynamicsInputShape;
         Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
@@ -404,7 +397,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
         dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
         return dynamicsInputShape;
-    }
+    }*/
 
 
 
