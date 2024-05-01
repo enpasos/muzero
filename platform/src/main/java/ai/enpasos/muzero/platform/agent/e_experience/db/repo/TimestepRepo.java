@@ -68,7 +68,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.rewardLoss = 0")
+    @Query(value = "UPDATE timestep SET legal_action_loss_max = 0, reward_loss = 0", nativeQuery = true)
     void deleteRulesLearningResults();
 
 
