@@ -335,7 +335,7 @@ public class ModelController implements DisposableBean, Runnable {
                     .filter(MyEpochTrainingListener.class::isInstance)
                     .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = batchFactory.getInputShapes();
+                Shape[] inputShapes = batchFactory.getInputShapesForRules();
                 trainer.initialize(inputShapes);
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);

@@ -190,15 +190,15 @@ public class GameBuffer {
                 .collect(Collectors.toList());
         }
     }
-    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps) {
 
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return getNRandomSelectedGames( this.batchSize ).stream()
-                    .map(game -> sampleFromGame(numUnrollSteps, game))
-                    .collect(Collectors.toList());
-//            return  getGamesToLearnRules().stream()
+//            return getNRandomSelectedGames( this.batchSize ).stream()
 //                    .map(game -> sampleFromGame(numUnrollSteps, game))
 //                    .collect(Collectors.toList());
+            return  getGamesToLearnRules().stream()
+                    .map(game -> sampleFromGame(numUnrollSteps, game))
+                    .collect(Collectors.toList());
         }
     }
 

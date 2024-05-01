@@ -45,9 +45,9 @@ public class TimeStepDO {
     float rewardLoss;
     float legalActionLossMax;
 
-   // float aWeight;
-   // float aWeightCumulative;
-  //  float aWeightCumulativePrev;
+    int ruleTrained = -1;  // -1 means not trained, s>=0 means trained with in-mind steps s before
+    boolean ruleTrainingSuccess ;  // if trained, was it successful?
+
     int box;
 
     float entropy;

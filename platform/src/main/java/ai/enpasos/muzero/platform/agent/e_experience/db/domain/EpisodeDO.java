@@ -37,6 +37,8 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     long tStartNormal = -1;
 
 
+
+
     boolean archived;
 
 
