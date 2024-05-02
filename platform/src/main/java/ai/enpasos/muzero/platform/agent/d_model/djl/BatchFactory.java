@@ -23,8 +23,13 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.d_model.InputOutputConstruction;
+import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +37,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
 
 @Slf4j
@@ -80,15 +89,52 @@ public class BatchFactory {
     }
 
 
+
+    private RulesBuffer rulesBuffer;
+    public Batch getRulesBatchFromBuffer(List<TimeStepDO> batchTimeSteps, NDManager ndManager, boolean withSymmetryEnrichment, int s, int batchSize ) {
+
+        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, s)).collect(Collectors.toList());
+
+      return getBatch(ndManager, withSymmetryEnrichment, s+1, sampleList, TrainingDatasetType.RULES_BUFFER);
+
+    }
+
+
+    public  Sample rulesSampleFromTimeStep(TimeStepDO ts, int s) {
+        Sample sample = new Sample();
+        Game game = config.newGame(false,false);
+        game.setEpisodeDO(ts.getEpisode());
+        sample.setGame(game);
+        int gamePos = ts.getT() - s;
+        ObservationModelInput observation = game.getObservationModelInput(gamePos);
+
+        sample.getObservations().add(observation);
+        List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
+                .filter(timeStepDO -> timeStepDO.getAction() != null)
+                .map(timeStepDO -> (Integer)timeStepDO.getAction())
+                .collect(Collectors.toList());
+
+        sample.setActionsList(new ArrayList<>());
+        for (int i = 0; i <=  s; i++) {
+            int actionIndex = actions.get(gamePos + i);
+            sample.getActionsList().add(actionIndex);
+        }
+        sample.setGamePos(gamePos);
+        sample.setNumUnrollSteps(s);
+
+        sample.makeTarget( );
+        return sample;
+    }
+
     public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType) {
         List<Sample> sampleList = null;
         switch(trainingDatasetType) {
             case PLANNING_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromPlanningBuffer(numUnrollSteps);
                 break;
-            case RULES_BUFFER:
-                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
-                break;
+//            case RULES_BUFFER:
+//                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
+//                break;
             case REANALYSE_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(numUnrollSteps);
                 break;
@@ -130,6 +176,16 @@ public class BatchFactory {
         shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
         shapes[1] = new Shape(batchSize, config.getNumActionLayers(), config.getBoardHeight(), config.getBoardWidth());
         return shapes;
+    }
+
+
+    boolean hasMoreRulesBatches = true;  // for testing
+    public boolean hasMoreRulesBatches(int s) {
+        if (hasMoreRulesBatches) {
+            hasMoreRulesBatches = false;
+            return true;
+        }
+        return false;
     }
 }
 

@@ -16,14 +16,14 @@ import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
-import ai.enpasos.muzero.platform.agent.d_model.djl.BatchFactory;
-import ai.enpasos.muzero.platform.agent.d_model.djl.MyEasyTrain;
-import ai.enpasos.muzero.platform.agent.d_model.djl.MyEpochTrainingListener;
-import ai.enpasos.muzero.platform.agent.d_model.djl.TrainingConfigFactory;
+import ai.enpasos.muzero.platform.agent.d_model.djl.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -38,12 +38,14 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.d_model.djl.EpochHelper.getEpochFromModel;
+import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
 import static java.util.Map.entry;
@@ -256,7 +258,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules( task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
+                    trainNetworkRules( task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                     // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -319,7 +321,11 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
-    private void trainNetworkRules( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int s) {
+    @Autowired
+    EpisodeRepo episodeRepo;
+
+
+    private void trainNetworkRules( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
         Model model = network.getModel();
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
@@ -339,14 +345,40 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.initialize(inputShapes);
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
-                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
-                        log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch);
-                        trainer.step();
-                    }
-                }
 
+
+                RulesBuffer  rulesBuffer = new RulesBuffer();
+                rulesBuffer.setWindowSize(config.getWindowSize());
+                rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
+                int w = 0;
+                for( RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator();iterator.hasNext();) {
+                     List<Long> episodeIdsRulesLearningList = iterator.next();
+                     List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+                     List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+                     Collections.shuffle(gameBuffer);
+                     int s = 0;
+
+                     ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
+                     List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
+                     Collections.shuffle(timesteps);
+
+                     // batch loop over timesteps with batch sizes of config.getBatchSize()
+                     for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
+                         log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
+                         int fromIndex = i;
+                         int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
+                         List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+
+                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+
+                             List<Boolean> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                             trainer.step();
+                         }
+
+                     }
+                    log.info("trainNetworkRules:  done for window w = {}, s = {} ", w, s);
+                     w++;
+                 }
                 handleMetrics(trainer, model, epochLocal);
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
@@ -357,6 +389,12 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
+    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int s) {
+        // ignore s and return all timestep ids for Timesteps in gameBuffer with actions
+        return gameBuffer.stream().flatMap(game -> game.getEpisodeDO().getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getAction() != null))
+                .collect(Collectors.toList());
+
+    }
 
 //    private void trainNetworkRules() {
 //

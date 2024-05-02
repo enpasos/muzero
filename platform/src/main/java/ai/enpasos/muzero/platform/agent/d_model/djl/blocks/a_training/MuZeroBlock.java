@@ -92,7 +92,19 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
     private int numUnrollSteps = 0;
     public void setNumUnrollSteps(int numUnrollSteps) {
         this.numUnrollSteps = numUnrollSteps;
+        if (rulesModel) {
+            setRulesModelInputNames();
+        }
     }
+
+    private void setRulesModelInputNames() {
+        inputNames = new ArrayList<>();
+        inputNames.add("observation");
+        for (int k = 1; k <= 1 + this.getNumUnrollSteps() ; k++) {
+            inputNames.add("action_" + 1);
+        }
+    }
+
     public int getNumUnrollSteps() {
         return this.numUnrollSteps;
     }
@@ -100,12 +112,11 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
     protected @NotNull NDList forwardInternalRulesModel(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
 
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        //  NDList stateForPrediction = firstHalfNDList(representationResult);
+        NDList stateForPrediction = firstHalfNDList(representationResult);
         NDList stateForTimeEvolution = secondHalfNDList(representationResult);
 
-        NDList stateForPrediction = null;
-        for (int k = 1; k <= this.numUnrollSteps; k++) {
-            NDArray action = inputs.get(k);
+        for (int k = 0; k < this.numUnrollSteps; k++) {
+            NDArray action = inputs.get(1 + k);
 
             NDList dynamicIn = new NDList();
             dynamicIn.addAll(stateForTimeEvolution);
@@ -135,15 +146,20 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
         // "initial Inference"
         predictionBlock.setWithReward(false);
+
+        predictionBlock.setWithValue(false);
+        predictionBlock.setWithPolicy(false);
+        predictionBlock.setWithLegalAction(true);
         NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
         for (NDArray prediction : predictionResult.getResourceNDArrays()) {
             combinedResult.add(prediction);
         }
-        int k = config.getNumUnrollSteps() + 1;
+        int k = this.numUnrollSteps + 1;
 
 
         // recurrent Inference
         predictionBlock.setWithReward(true);
+        predictionBlock.setWithLegalAction(false);
         NDArray action = inputs.get(k);
         NDList dynamicIn = new NDList();
         dynamicIn.addAll(stateForTimeEvolution);
@@ -179,6 +195,9 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
         // initial Inference
         predictionBlock.setWithReward(false);
+        predictionBlock.setWithValue(true);
+        predictionBlock.setWithPolicy(true);
+        predictionBlock.setWithLegalAction(true);
         NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
         NDList stateForPrediction = firstHalfNDList(representationResult);
         NDList stateForTimeEvolution = secondHalfNDList(representationResult);
@@ -335,6 +354,9 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
 
         predictionBlock.setWithReward(true);
+        predictionBlock.setWithValue(true);
+        predictionBlock.setWithPolicy(true);
+        predictionBlock.setWithLegalAction(true);
         predictionBlock.initialize(manager, dataType, predictionInputShape);
 
 
@@ -362,6 +384,9 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
         // initial Inference
         predictionBlock.setWithReward(false);
+        predictionBlock.setWithValue(false);
+        predictionBlock.setWithLegalAction(true);
+        predictionBlock.setWithPolicy(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
         Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
@@ -373,6 +398,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         int k = 1;
         // recurrent Inference
         predictionBlock.setWithReward(true);
+
         Shape stateShape = stateOutputShapes[0];
         Shape actionShape = inputShapes[k];
         Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
@@ -387,17 +413,6 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
     }
 
 
-
-
-/*    @NotNull
-    private Shape[] getDynamicsInputShapeMuZeroModel(Shape[] stateOutputShapes, Shape actionShape) {
-        Shape[] dynamicsInputShape;
-        Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
-        dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
-        System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
-        dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;
-        return dynamicsInputShape;
-    }*/
 
 
 
@@ -430,5 +445,14 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     public void setRulesModel(boolean rulesModel) {
         this.rulesModel = rulesModel;
+        if (rulesModel) {
+            setRulesModelInputNames();
+        } else {
+            inputNames = new ArrayList<>();
+            inputNames.add("observation");
+            for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+                inputNames.add("action_" + k);
+            }
+        }
     }
 }

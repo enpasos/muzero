@@ -187,40 +187,49 @@ public class InputOutputConstruction {
         NDArray legalActionsOutput2;
         NDArray rewardOutput2;
 
+
         switch (trainingDatasetType) {
             case RULES_BUFFER:
-//
+                int k = 0;
                 int b = 0;
+
                 float[] rewardArray = new float[batch.size()];
                 float[] legalActionsArray = new float[batch.size() * actionSize];
-//
-//                for (Sample s : batch) {
-//                    List<Target> targets = s.getTargetList();
-//                    log.trace("target.size(): {}, b: {}", targets.size(),   b);
-//                    Target target = targets.get(0);
-//
-//                    log.trace("legalactionstarget: {}", target.getLegalActions());
-//                    System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
-//
-//                    log.trace("rewardtarget: {}", target.getReward());
-//                    double scale = 2.0 / config.getValueSpan();
-////                    if (target.getReward() != 0f) {
-////                        int i = 42;
-////                    }
-//                    rewardArray[b] = (float) (target.getReward() * scale);
-//
-//                    b++;
-//                }
-//
-//                NDArray legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
-//                outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
-//
-//                NDArray rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
-//                outputs.add(symmetryEnhancerValue(rewardOutput2));
-//
-//                return outputs;
+
+                for (Sample s : batch) {
+                    List<Target> targets = s.getTargetList();
+                    log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
+                    Target target = targets.get(k);
+
+                    log.trace("legalactionstarget: {}", target.getLegalActions());
+                    System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
+
+                    log.trace("rewardtarget: {}", target.getReward());
+
+                    double scale = 2.0 / config.getValueSpan();
+                    rewardArray[b] = (float) (target.getReward() * scale);
+
+                    b++;
+                }
+
+                legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
+                if (withSymmetryEnrichment) {
+                    outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+                } else {
+                    outputs.add(legalActionsOutput2);
+                }
+
+                rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
+                if (withSymmetryEnrichment) {
+                    outputs.add(symmetryEnhancerValue(rewardOutput2));
+                } else {
+                    outputs.add(rewardOutput2);
+                }
+
+
+                return outputs;
             default:
-                for (int k = 0; k <= numUnrollSteps; k++) {
+                for (k = 0; k <= numUnrollSteps; k++) {
                     b = 0;
                     float[] valueArray = new float[batch.size()];
                      rewardArray = new float[batch.size()];
@@ -248,9 +257,6 @@ public class InputOutputConstruction {
 
                         if (k > 0) {
                             log.trace("rewardtarget: {}", target.getReward());
-//                            if (target.getReward() > 0f) {
-//                                int i = 42;
-//                            }
 
                             scale = 2.0 / config.getValueSpan();
                             rewardArray[b] = (float) (target.getReward() * scale);

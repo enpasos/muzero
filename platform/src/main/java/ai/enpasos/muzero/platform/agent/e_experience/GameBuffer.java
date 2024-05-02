@@ -44,7 +44,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Data
 @Slf4j
@@ -190,85 +189,47 @@ public class GameBuffer {
                 .collect(Collectors.toList());
         }
     }
-    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps) {
-
-        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-//            return getNRandomSelectedGames( this.batchSize ).stream()
+//    public List<Sample> sampleBatchFromRulesBuffer(int s) {
+//        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
+//            return  getGamesToLearnRules().stream()
 //                    .map(game -> sampleFromGame(numUnrollSteps, game))
 //                    .collect(Collectors.toList());
-            return  getGamesToLearnRules().stream()
-                    .map(game -> sampleFromGame(numUnrollSteps, game))
-                    .collect(Collectors.toList());
-        }
-    }
+//        }
+//    }
 
 
  //Set<Long> episodeIdsRewardLearning;
    // Set<Long> episodeIdsLegalActionLossLearning;
-    Set<Long> episodeIdsRulesLearning;
+    private List<Long> episodeIds;
 
 
-    private List<Game> getGamesToLearnRules() {
+    public void clearEpisodeIds() {
+        episodeIds = null;
+    }
+
+    public List<Long> getEpisodeIds() {
         int limit = 50000;
-
-
-        if (episodeIdsRulesLearning == null) {
-           // int maxBox = timestepRepo.maxBox();
-            int box = 1;
+        if (episodeIds == null) {
             int offset = 0;
-            episodeIdsRulesLearning = new HashSet<>();
+            episodeIds = new ArrayList<>();
             List newIds;
             do {
-                newIds = timestepRepo.findNEpisodeIdsRelevantForRuleLearning(box, limit, offset);
-           //     newIds = episodeRepo.findAllEpisodeIds( limit, offset);
-                episodeIdsRulesLearning.addAll(newIds);
+                newIds = episodeRepo.findAllEpisodeIds( limit, offset);
+                episodeIds.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
+            Collections.shuffle(episodeIds);
         }
-//        if (episodeIdsRewardLearning == null) {
-//            int offset = 0;
-//            episodeIdsRewardLearning = new HashSet<>();
-//            List newIds;
-//            do {
-//                newIds = timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), limit, offset);
-//                episodeIdsRewardLearning.addAll(newIds);
-//                offset += limit;
-//            } while (newIds.size() > 0);
-//        }
-//        if(episodeIdsLegalActionLossLearning == null) {
-//            int offset = 0;
-//            episodeIdsLegalActionLossLearning = new HashSet<>();
-//            List newIds;
-//            do {
-//                newIds = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), limit, offset);
-//                episodeIdsLegalActionLossLearning.addAll(newIds);
-//                offset += limit;
-//            } while (newIds.size() > 0);
-//        }
+        return episodeIds;
+    }
 
-        int n = this.batchSize;
+    private List<Game> getGamesToLearnRules() {
 
-        List<Game> games = getNRandomSelectedGames( n ) ;
+        int n = this.getConfig().getWindowSize();
 
-        // shuffle episodeIdsRulesLearning
-        List<Long> episodeIdsRulesLearningList = new ArrayList<>(this.episodeIdsRulesLearning);
-        Collections.shuffle(episodeIdsRulesLearningList);
-
-
-//        List<Long> episodeIdsLegalActionLossLearningList = new ArrayList<>(this.episodeIdsLegalActionLossLearning);
-//        Collections.shuffle(episodeIdsLegalActionLossLearningList);
-
-        List<EpisodeDO> episodeDOList2 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList.subList(0, Math.min(n/2, episodeIdsRulesLearningList.size())));
-        List<Game> games2 =   convertEpisodeDOsToGames(episodeDOList2, config);
-        games.addAll(games2);
-
-//        List<EpisodeDO> episodeDOList3 = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsLegalActionLossLearningList.subList(0, Math.min(n/3, episodeIdsLegalActionLossLearningList.size())));
-//        List<Game> games3 =   convertEpisodeDOsToGames(episodeDOList3, config);
-//        games.addAll(games3);
-
-
-        Collections.shuffle(games);
-        return games.subList(0, Math.min(n, games.size()));
+        List<Long> episodeIdsRulesLearningList = this.getEpisodeIds();
+        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+        return   convertEpisodeDOsToGames(episodeDOList, config);
 
     }
 
@@ -538,6 +499,7 @@ public class GameBuffer {
             game.setEpisodeDO(episodeDO);
             games.add(game);
         }
+
         return games;
     }
 

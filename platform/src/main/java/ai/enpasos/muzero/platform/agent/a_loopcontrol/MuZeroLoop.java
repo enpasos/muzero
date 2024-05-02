@@ -139,7 +139,7 @@ public class MuZeroLoop {
 //            do {
 //                for (int i = 0; i < 10; i++) {
             if (rulesTraining) {
-                modelService.trainModelRules(freeze, 0).get();
+                modelService.trainModelRules(freeze).get();
              }
             //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);

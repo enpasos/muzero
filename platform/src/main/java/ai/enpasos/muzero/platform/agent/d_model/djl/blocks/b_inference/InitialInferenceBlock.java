@@ -69,6 +69,10 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
     @Override
     protected NDList forwardInternal(@NotNull ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
         f.setWithReward(false);
+
+        f.setWithValue(true);
+        f.setWithPolicy(true);
+        f.setWithLegalAction(true);
         NDList hResult = h.forward(parameterStore, inputs, training, params);
         // hResult ist the output from the three causal layers
         // the first half should go to the representation block

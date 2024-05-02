@@ -250,6 +250,9 @@ class BlockTest {
     void predictionWithRewardRANDOM() throws Exception {
         PredictionBlock predictionBlock = new PredictionBlock( true, 9);
 predictionBlock.setWithReward(true);
+        predictionBlock.setWithValue(true);
+        predictionBlock.setWithPolicy(true);
+        predictionBlock.setWithLegalAction(true);
         boolean check = compareOnnxWithDJL(
                 "./build/PredictionBlockWithReward.onnx",
                 predictionBlock,
