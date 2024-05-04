@@ -12,6 +12,7 @@ import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
+import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
@@ -38,6 +39,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -330,9 +332,13 @@ public class ModelController implements DisposableBean, Runnable {
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
 
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        nf.setMaximumFractionDigits(8);
+        nf.setMinimumFractionDigits(8);
+
         try (NDScope nDScope = new NDScope()) {
             int epochLocal;
-            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+            // int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
             boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
             epochLocal = getEpochFromModel(model);
             DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigRules(epochLocal, background);
@@ -351,6 +357,8 @@ public class ModelController implements DisposableBean, Runnable {
                 rulesBuffer.setWindowSize(config.getWindowSize());
                 rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
                 int w = 0;
+
+                System.out.println( "w;s;i;sumLoss;countOk");
                 for( RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator();iterator.hasNext();) {
                      List<Long> episodeIdsRulesLearningList = iterator.next();
                      List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
@@ -364,19 +372,22 @@ public class ModelController implements DisposableBean, Runnable {
 
                      // batch loop over timesteps with batch sizes of config.getBatchSize()
                      for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
-                         log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
+                       //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
                          int fromIndex = i;
                          int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
                          List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
 
                          try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
 
-                             List<Boolean> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                             Pair<List<Boolean>, Double>  oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                             int countOk = (int) oks.getKey().stream().filter(b -> b).count();
+                             double sumLoss = oks.getValue();
+                             System.out.println(w +";" + s +";" + i +";" + nf.format(sumLoss) +";" + countOk);
                              trainer.step();
                          }
 
                      }
-                    log.info("trainNetworkRules:  done for window w = {}, s = {} ", w, s);
+                  //  log.info("trainNetworkRules:  done for window w = {}, s = {} ", w, s);
                      w++;
                  }
                 handleMetrics(trainer, model, epochLocal);

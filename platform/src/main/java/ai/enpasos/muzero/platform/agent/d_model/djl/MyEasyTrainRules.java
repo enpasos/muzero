@@ -83,9 +83,10 @@ public final class MyEasyTrainRules {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static List<Boolean> trainBatch(Trainer trainer, Batch batch ) {
+    public static  Pair<List<Boolean>, Double> trainBatch(Trainer trainer, Batch batch ) {
 
-        List<Boolean> result = new ArrayList<>();
+        List<Boolean> listBoolean = new ArrayList<>();
+        Double loss = 0.0;
 
 
         if (trainer.getManager().getEngine() != batch.getManager().getEngine()) {
@@ -101,7 +102,7 @@ public final class MyEasyTrainRules {
             if (splits.length > 1 && trainer.getExecutorService().isPresent()) {
                 // multi-threaded
                 ExecutorService executor = trainer.getExecutorService().orElseThrow(MuZeroException::new);
-                List<CompletableFuture<List<Boolean>>> futures = new ArrayList<>(splits.length);
+                List<CompletableFuture<Pair<List<Boolean>, Double>>> futures = new ArrayList<>(splits.length);
                 for (Batch split : splits) {
                     futures.add(
                             CompletableFuture.supplyAsync(
@@ -110,9 +111,10 @@ public final class MyEasyTrainRules {
                 }
 
                 //CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new));
-                for (CompletableFuture<List<Boolean>> future : futures) {
+                for (CompletableFuture<Pair<List<Boolean>, Double>> future : futures) {
                     try {
-                        result.addAll(future.get());
+                        listBoolean.addAll(future.get().getKey());
+                        loss += future.get().getValue();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     } catch (ExecutionException e) {
@@ -122,17 +124,19 @@ public final class MyEasyTrainRules {
             } else {
                 // sequence
                 for (Batch split : splits) {
-                    result.addAll(trainSplit(trainer, collector, batchData, split));
+                    Pair<List<Boolean>, Double> r0 = trainSplit(trainer, collector, batchData, split);
+                    loss +=  r0.getValue();
+                    listBoolean.addAll(r0.getKey());
                 }
             }
         }
 
         trainer.notifyListeners(listener -> listener.onTrainingBatch(trainer, batchData));
 
-        return result;
+        return new Pair(listBoolean, loss);
     }
 
-    private static List<Boolean> trainSplit(
+    private static Pair<List<Boolean>, Double> trainSplit(
             Trainer trainer, GradientCollector collector, TrainingListener.BatchData batchData, Batch split) {
         NDList data = split.getData();
         NDList labels = split.getLabels();
@@ -155,10 +159,10 @@ public final class MyEasyTrainRules {
 
         // System.out.println("before backward");
 
-        NDArray intOkMask = okMask.toType(DataType.INT32, true);
-        NDArray intOkMaskSum = intOkMask.sum() ;
-
-        System.out.println("okMaskSum: " + intOkMaskSum.toArray()[0] + ", lossValue: " + lossValue.toArray()[0]);
+//        NDArray intOkMask = okMask.toType(DataType.INT32, true);
+//        NDArray intOkMaskSum = intOkMask.sum() ;
+//
+//        System.out.println("okMaskSum: " + intOkMaskSum.toArray()[0] + ", lossValue: " + lossValue.toArray()[0]);
 
 
         collector.backward(lossValue);
@@ -169,12 +173,13 @@ public final class MyEasyTrainRules {
         batchData.getPredictions().put(preds.get(0).getDevice(), preds);
         trainer.addMetric("training-metrics", time);
 
-         boolean[] preResult = okMask.toBooleanArray();
-            List<Boolean> result = new ArrayList<>();
-            for (boolean b : preResult) {
-                result.add(b);
-            }
-        return result;
+        boolean[] booleanArray = okMask.toBooleanArray();
+        List<Boolean> listBoolean = new ArrayList<>();
+        for (boolean b : booleanArray) {
+            listBoolean.add(b);
+        }
+        return new Pair(listBoolean, (double) lossValue.toFloatArray()[0]);
+
     }
 
     private static void reorganizePredictionsAndLabels( NDList preds, NDList labels ) {

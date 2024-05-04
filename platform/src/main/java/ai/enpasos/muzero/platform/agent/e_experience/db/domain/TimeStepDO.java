@@ -45,8 +45,14 @@ public class TimeStepDO {
     float rewardLoss;
     float legalActionLossMax;
 
+    int s; // in-mind training steps before this time step, s-1 is the last in-mind step successfully trained
+
+    @Transient
+    @Builder.Default
     int ruleTrained = -1;  // -1 means not trained, s>=0 means trained with in-mind steps s before
+    @Transient
     boolean ruleTrainingSuccess ;  // if trained, was it successful?
+
 
     int box;
 

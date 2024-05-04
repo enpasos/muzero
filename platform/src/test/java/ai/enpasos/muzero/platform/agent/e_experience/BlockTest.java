@@ -224,10 +224,14 @@ class BlockTest {
 
     @Test
     void predictionZERO() throws Exception {
-
+        PredictionBlock block = new PredictionBlock( true, 9);
+        block.setWithPolicy(true);
+        block.setWithValue(true);
+        block.setWithLegalAction(true);
+        block.setWithReward(true);
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock( true, 9 ),
+            block,
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             ZERO);
         Assertions.assertTrue(check);
@@ -237,10 +241,14 @@ class BlockTest {
 
     @Test
     void predictionRANDOM() throws Exception {
-
+        PredictionBlock block = new PredictionBlock( true, 9);
+        block.setWithPolicy(true);
+        block.setWithValue(true);
+        block.setWithLegalAction(true);
+        block.setWithReward(true);
         boolean check = compareOnnxWithDJL(
             "./build/PredictionBlock.onnx",
-            new PredictionBlock( true, 9),
+            block,
             List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
             RANDOM);
         Assertions.assertTrue(check);
