@@ -353,43 +353,46 @@ public class ModelController implements DisposableBean, Runnable {
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
 
-                RulesBuffer  rulesBuffer = new RulesBuffer();
+                RulesBuffer rulesBuffer = new RulesBuffer();
                 rulesBuffer.setWindowSize(config.getWindowSize());
                 rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
                 int w = 0;
 
-                System.out.println( "w;s;i;sumLoss;countOk");
-                for( RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator();iterator.hasNext();) {
-                     List<Long> episodeIdsRulesLearningList = iterator.next();
-                     List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-                     List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-                     Collections.shuffle(gameBuffer);
-                     int s = 0;
+                System.out.println("w;s;i;sumLoss;countOk");
+                for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
+                    List<Long> episodeIdsRulesLearningList = iterator.next();
+                    List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+                    List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+                    Collections.shuffle(gameBuffer);
+                    for (int s = 0; s <= 1; s++) {
 
-                     ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
-                     List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
-                     Collections.shuffle(timesteps);
+                        ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
+                        List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
+                        Collections.shuffle(timesteps);
 
-                     // batch loop over timesteps with batch sizes of config.getBatchSize()
-                     for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
-                       //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
-                         int fromIndex = i;
-                         int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
-                         List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+                        // batch loop over timesteps with batch sizes of config.getBatchSize()
+                        for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
+                            //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
+                            int fromIndex = i;
+                            int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
+                            List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
 
-                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+                            try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
 
-                             Pair<List<Boolean>, Double>  oks = MyEasyTrainRules.trainBatch(trainer, batch);
-                             int countOk = (int) oks.getKey().stream().filter(b -> b).count();
-                             double sumLoss = oks.getValue();
-                             System.out.println(w +";" + s +";" + i +";" + nf.format(sumLoss) +";" + countOk);
-                             trainer.step();
-                         }
+                                Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                                int countOk = (int) oks.getKey().stream().filter(b -> b).count();
+                                rememberOks(batchTimeSteps, oks.getKey(), s);
+                                double sumLoss = oks.getValue();
+                                System.out.println(w + ";" + s + ";" + i + ";" + nf.format(sumLoss) + ";" + countOk);
+                                trainer.step();
+                            }
 
-                     }
-                  //  log.info("trainNetworkRules:  done for window w = {}, s = {} ", w, s);
-                     w++;
-                 }
+                        }
+                    }
+                    //  log.info("trainNetworkRules:  done for window w = {}, s = {} ", w, s);
+                    w++;
+
+                }
                 handleMetrics(trainer, model, epochLocal);
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
@@ -400,9 +403,21 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
+    private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
+        IntStream.range(0, batchTimeSteps.size()).forEach(i -> {
+            TimeStepDO timeStepDO = batchTimeSteps.get(i);
+            timeStepDO.setRuleTrainingSuccess(oks.get(i));
+            timeStepDO.setRuleTrained(s);
+            if (oks.get(i)) {
+                timeStepDO.setS(s+1);
+            }
+        });
+    }
+
     private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int s) {
         // ignore s and return all timestep ids for Timesteps in gameBuffer with actions
-        return gameBuffer.stream().flatMap(game -> game.getEpisodeDO().getTimeSteps().stream().filter(timeStepDO -> timeStepDO.getAction() != null))
+        return gameBuffer.stream().flatMap(game -> game.getEpisodeDO().getTimeSteps().stream()
+                        .filter(timeStepDO -> timeStepDO.getAction() != null && timeStepDO.getT() >= s && s <= timeStepDO.getS() ))
                 .collect(Collectors.toList());
 
     }

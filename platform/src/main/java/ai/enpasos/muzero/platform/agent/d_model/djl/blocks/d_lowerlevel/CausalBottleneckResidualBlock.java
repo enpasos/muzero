@@ -85,7 +85,7 @@ private Block block;
         if (rescale) {
             blockTemp = newEndingAppender(blockTemp, numCompressedChannels);
         }
-        block = addChildBlock("causalBottleneckResidualBlock", blockTemp);
+        block = addChildBlock("bneck", blockTemp);
 
     }
 

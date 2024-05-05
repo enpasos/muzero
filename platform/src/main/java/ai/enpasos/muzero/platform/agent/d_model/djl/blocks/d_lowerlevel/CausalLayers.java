@@ -52,7 +52,7 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, DCLAware {
         this.layers = layers;
         this.rescale = rescale;
         for(Block layer: layers) {
-            this.addChildBlock("CausalLayer", layer);
+            this.addChildBlock("cl", layer);
         }
 
     }

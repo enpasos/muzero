@@ -59,7 +59,7 @@ public class StartResidualBlock extends AbstractBlock implements OnnxIO {
         identity = (SequentialBlockExt) new SequentialBlockExt()
             .add(BlocksExt.identityBlock());
 
-        block = addChildBlock("startResidualBlock", new ParallelBlockWithAddJoinExt(
+        block = addChildBlock("sr", new ParallelBlockWithAddJoinExt(
             Arrays.asList(b1, identity)));
     }
 

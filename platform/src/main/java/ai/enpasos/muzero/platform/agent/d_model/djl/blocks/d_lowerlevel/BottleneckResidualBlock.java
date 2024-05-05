@@ -75,7 +75,7 @@ public class BottleneckResidualBlock extends AbstractBlock implements OnnxIO {
             .add(BlocksExt.identityBlock());
 
 
-        block = addChildBlock("residualBlock", new ParallelBlockWithAddJoinExt(
+        block = addChildBlock("res", new ParallelBlockWithAddJoinExt(
             Arrays.asList(b1, identity)));
     }
 

@@ -48,7 +48,7 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, DCLAw
      valueBlock = Conv3x3.builder().channels(config.getNumChannelsValue()).build();
 
 
-        block = addChildBlock("representationStart", new ParallelBlockWithCollectChannelJoinExt(
+        block = addChildBlock("rS", new ParallelBlockWithCollectChannelJoinExt(
                 Arrays.asList(
                         rulesBlock ,
                         policyBlock,

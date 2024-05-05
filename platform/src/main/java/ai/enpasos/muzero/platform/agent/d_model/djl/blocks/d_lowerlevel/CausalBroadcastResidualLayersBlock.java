@@ -50,7 +50,7 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
          CausalBroadcastResidualBlock valueBlock = new CausalBroadcastResidualBlock(height, width,  numChannelsValue, numCompressedChannelsValue,  rescale);
 
 
-        block = addChildBlock("causalBroadcastResidualLayersBlock", new CausalLayers(
+        block = addChildBlock("cbrl", new CausalLayers(
             Arrays.asList(ruleBlock, policyBlock, valueBlock), rescale));
     }
 
