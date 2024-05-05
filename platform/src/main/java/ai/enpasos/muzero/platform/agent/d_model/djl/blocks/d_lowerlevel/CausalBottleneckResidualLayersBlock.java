@@ -50,7 +50,7 @@ public class CausalBottleneckResidualLayersBlock extends AbstractBlock implement
          CausalBottleneckResidualBlock valueBlock = new CausalBottleneckResidualBlock(numChannelsValue, numChannelsValue/4*3, numCompressedChannelsValue, rescale);
 
 
-        block = addChildBlock("causalBottleneckResidualLayersBlock", new CausalLayers(
+        block = addChildBlock("cbrl", new CausalLayers(
             Arrays.asList(ruleBlock, policyBlock, valueBlock), rescale));
     }
 

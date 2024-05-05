@@ -78,7 +78,7 @@ public class CausalBroadcastResidualBlock extends AbstractBlock implements OnnxI
         if (rescale) {
             blockTemp = newEndingAppender(blockTemp, numCompressedChannels);
         }
-        block = addChildBlock("causalBroadcastResidualBlock", blockTemp);
+        block = addChildBlock("cbr", blockTemp);
     }
 
     @Override
