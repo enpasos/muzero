@@ -101,7 +101,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
         inputNames = new ArrayList<>();
         inputNames.add("observation");
         for (int k = 1; k <= 1 + this.getNumUnrollSteps() ; k++) {
-            inputNames.add("action_" + 1);
+            inputNames.add("action_" + k);
         }
     }
 

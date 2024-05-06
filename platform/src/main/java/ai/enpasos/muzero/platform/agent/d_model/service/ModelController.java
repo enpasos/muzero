@@ -347,8 +347,7 @@ public class ModelController implements DisposableBean, Runnable {
                     .filter(MyEpochTrainingListener.class::isInstance)
                     .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
-                Shape[] inputShapes = batchFactory.getInputShapesForRules();
-                trainer.initialize(inputShapes);
+
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
@@ -365,7 +364,8 @@ public class ModelController implements DisposableBean, Runnable {
                     List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
                     Collections.shuffle(gameBuffer);
                     for (int s = 0; s <= 1; s++) {
-
+                        Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
+                        trainer.initialize(inputShapes);
                         ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
                         List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
                         Collections.shuffle(timesteps);
