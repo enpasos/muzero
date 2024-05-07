@@ -12,6 +12,7 @@ import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
+import ai.djl.training.optimizer.Adam;
 import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
@@ -327,6 +328,9 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
+
+
+
     private void trainNetworkRules( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
         Model model = network.getModel();
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
@@ -336,69 +340,103 @@ public class ModelController implements DisposableBean, Runnable {
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
 
+        //  local-102-zipper
+        //for (int k = 0; k < 10; k++) {
+        //    System.out.println("k = " + k);
+
+
+
+               // for (int k = 0; k < 10; k++) {   // local-103-zipper
+                   // System.out.println("k = " + k);
+
+                    int epochLocal;
+                    // int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+                    boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
+                    epochLocal = getEpochFromModel(model);
+
+
+
+
+
+
+//                Adam optimizer = (Adam)djlConfigRules.getOptimizer();
+//                optimizer.
+
         try (NDScope nDScope = new NDScope()) {
-            int epochLocal;
-            // int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-            boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
-            epochLocal = getEpochFromModel(model);
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigRules(epochLocal, background);
+            DefaultTrainingConfig djlConfigRules  = trainingConfigFactory.setupTrainingConfigRules(epochLocal, background);
+
             int finalEpoch = epochLocal;
-            djlConfig.getTrainingListeners().stream()
+            djlConfigRules.getTrainingListeners().stream()
                     .filter(MyEpochTrainingListener.class::isInstance)
                     .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-            try (Trainer trainer = model.newTrainer(djlConfig)) {
-
-                trainer.setMetrics(new Metrics());
-                ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
 
-                RulesBuffer rulesBuffer = new RulesBuffer();
-                rulesBuffer.setWindowSize(config.getWindowSize());
-                rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
-                int w = 0;
+                try (Trainer trainer = model.newTrainer(djlConfigRules)) {
 
-                System.out.println("w;s;i;sumLoss;countOk");
-                for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
-                    List<Long> episodeIdsRulesLearningList = iterator.next();
-                    List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-                    List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-                    Collections.shuffle(gameBuffer);
-                    for (int s = 0; s <= 1; s++) {
-                        Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
-                        trainer.initialize(inputShapes);
-                        ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
-                        List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
-                        Collections.shuffle(timesteps);
+                    trainer.setMetrics(new Metrics());
+                    ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
-                        // batch loop over timesteps with batch sizes of config.getBatchSize()
-                        for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
-                            //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
-                            int fromIndex = i;
-                            int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
-                            List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+                    for (int k = 0; k < 100; k++) {
+                      //  System.out.println("epoch = " + epochLocal + ", k = " + k);
 
-                            try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+//                        for (int k = 0; k < 10; k++) {   // local-104-zipper
+//                            System.out.println("k = " + k);
 
-                                Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
-                                int countOk = (int) oks.getKey().stream().filter(b -> b).count();
-                                rememberOks(batchTimeSteps, oks.getKey(), s);
-                                double sumLoss = oks.getValue();
-                                System.out.println(w + ";" + s + ";" + i + ";" + nf.format(sumLoss) + ";" + countOk);
-                                trainer.step();
+
+                        RulesBuffer rulesBuffer = new RulesBuffer();
+                        rulesBuffer.setWindowSize(config.getWindowSize());
+                        rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
+                        int w = 0;
+
+                        System.out.println("epoch;w;s;smax;i;sumLoss;countOk");
+                        for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
+                            List<Long> episodeIdsRulesLearningList = iterator.next();
+                            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+                            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+                            Collections.shuffle(gameBuffer);
+                            int smax = 0;
+                            for (int s = 0; s <= smax; s++) {
+                                Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
+                                trainer.initialize(inputShapes);
+                                ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
+                                List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
+                                Collections.shuffle(timesteps);
+
+                                // batch loop over timesteps with batch sizes of config.getBatchSize()
+                                for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
+                                    //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
+                                    int fromIndex = i;
+                                    int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
+                                    List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+
+                                    try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+
+                                        Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                                        int countOk = (int) oks.getKey().stream().filter(b -> b).count();
+                                        rememberOks(batchTimeSteps, oks.getKey(), s);
+                                        double sumLoss = oks.getValue();
+                                        System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumLoss) + ";" + countOk);
+                                        trainer.step();
+                                    }
+
+                                }
+                                smax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getTimeSteps().stream()
+                                        .mapToInt(TimeStepDO::getS).max().orElse(0)
+                                ).max().orElse(0);
                             }
+                            w++;
 
                         }
+
+                        handleMetrics(trainer, model, epochLocal);
+                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                        epochLocal = getEpochFromModel(model);
+                        modelState.setEpoch(epochLocal);
                     }
-                    //  log.info("trainNetworkRules:  done for window w = {}, s = {} ", w, s);
-                    w++;
-
                 }
-                handleMetrics(trainer, model, epochLocal);
-                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-            }
-        }
 
-        modelState.setEpoch(getEpochFromModel(model));
+            }
+
 
 
     }
