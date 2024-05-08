@@ -354,11 +354,6 @@ public class ModelController implements DisposableBean, Runnable {
                     boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
                     epochLocal = getEpochFromModel(model);
 
-
-
-
-
-
 //                Adam optimizer = (Adam)djlConfigRules.getOptimizer();
 //                optimizer.
 
@@ -376,7 +371,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainer.setMetrics(new Metrics());
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
-                    for (int k = 0; k < 100; k++) {
+                //    for (int k = 0; k < 10; k++) {
                       //  System.out.println("epoch = " + epochLocal + ", k = " + k);
 
 //                        for (int k = 0; k < 10; k++) {   // local-104-zipper
@@ -433,7 +428,7 @@ public class ModelController implements DisposableBean, Runnable {
                         epochLocal = getEpochFromModel(model);
                         modelState.setEpoch(epochLocal);
                     }
-                }
+             //   }
 
             }
 
