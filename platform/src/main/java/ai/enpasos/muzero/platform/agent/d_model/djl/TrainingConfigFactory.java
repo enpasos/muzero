@@ -139,7 +139,7 @@ public class TrainingConfigFactory {
 
         DefaultTrainingConfig c = new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupSGDOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
+                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
                 .addTrainingListeners(
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
@@ -203,6 +203,7 @@ public class TrainingConfigFactory {
         log.info("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 
+
         return Optimizer.sgd()
                 .setLearningRateTracker(learningRateTracker)
                 .optWeightDecays(config.getWeightDecay())
@@ -211,7 +212,7 @@ public class TrainingConfigFactory {
 
     }
     private Optimizer setupAdamOptimizer(int trainingStep) {
-        float lr = config.getLr(trainingStep);
+        float lr = config.getLr(trainingStep) / 10;
         log.info("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 

@@ -372,7 +372,7 @@ public class ModelController implements DisposableBean, Runnable {
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
                         RulesBuffer rulesBuffer = new RulesBuffer();
-                        rulesBuffer.setWindowSize(config.getWindowSize());
+                        rulesBuffer.setWindowSize(1000);
                         rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
                         int w = 0;
 
