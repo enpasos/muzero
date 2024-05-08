@@ -5,7 +5,6 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.listener.DivergenceCheckTrainingListener;
 import ai.djl.training.listener.MemoryTrainingListener;
 import ai.djl.training.listener.TimeMeasureTrainingListener;
-import ai.djl.training.loss.SimpleCompositeLoss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -102,7 +101,7 @@ public class TrainingConfigFactory {
 
         DefaultTrainingConfig c =  new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
+                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
                 .addTrainingListeners(
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
@@ -140,7 +139,7 @@ public class TrainingConfigFactory {
 
         DefaultTrainingConfig c = new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
+                .optOptimizer(setupSGDOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
                 .addTrainingListeners(
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
@@ -199,8 +198,19 @@ public class TrainingConfigFactory {
 //        return c;
 //    }
 
+    private Optimizer setupSGDOptimizer(int trainingStep) {
+        float lr = config.getLr(trainingStep);
+        log.info("trainingStep = {}, lr = {}", trainingStep, lr);
+        Tracker learningRateTracker = Tracker.fixed(lr);
 
-    private Optimizer setupOptimizer(int trainingStep) {
+        return Optimizer.sgd()
+                .setLearningRateTracker(learningRateTracker)
+                .optWeightDecays(config.getWeightDecay())
+                .optClipGrad(1f)
+                .build();
+
+    }
+    private Optimizer setupAdamOptimizer(int trainingStep) {
         float lr = config.getLr(trainingStep);
         log.info("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
