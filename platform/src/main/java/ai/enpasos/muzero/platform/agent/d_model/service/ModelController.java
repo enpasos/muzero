@@ -376,7 +376,7 @@ public class ModelController implements DisposableBean, Runnable {
                         rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
                         int w = 0;
 
-                        System.out.println("epoch;w;s;smax;i;sumLoss;countOk");
+                        System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
                         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
                             List<Long> episodeIdsRulesLearningList = iterator.next();
                             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
@@ -400,10 +400,12 @@ public class ModelController implements DisposableBean, Runnable {
                                     try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
 
                                         Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
-                                        int countOk = (int) oks.getKey().stream().filter(b -> b).count();
+                                        int count = oks.getKey().size();
+                                        int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
                                         rememberOks(batchTimeSteps, oks.getKey(), s);
                                         double sumLoss = oks.getValue();
-                                        System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumLoss) + ";" + countOk);
+                                        double sumMeanLoss = sumLoss / count;
+                                        System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
                                         trainer.step();
                                     }
 

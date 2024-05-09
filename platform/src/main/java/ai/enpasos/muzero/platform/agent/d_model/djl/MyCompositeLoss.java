@@ -78,7 +78,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         List<NDArray> legalActionMasks = new ArrayList<>();
         int sCount = 0;
         for (int i = 0; i < components.size(); i++) {
-           // Pair<NDList, NDList> inputs = inputForComponent(i, labels, predictions);
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             NDList innerLabels = ((MyIndexLoss)components.get(i)).getLabels(labels);
             NDList innerPredictions = ((MyIndexLoss)components.get(i)).getPredictions(predictions);
@@ -98,56 +97,27 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 rewardMasks.add(mask);
                 iMap[i]  =  rewardMasks.size() - 1;
             }
-//            else if (loss.getName().contains("similarity")) {
-//                lossComponents[i] = ((MySimilarityLoss) loss).evaluatePartA(innerLabels, innerPredictions);
-//                iMap[i]  =  sCount++;
-//            }
+
             else {
                 lossComponents[i] = loss.evaluate(innerLabels, innerPredictions);
             }
         }
-   //     List<NDArray> okMasksReward = new ArrayList<>();
-    //    List<NDArray> okMasksLegalActions = new ArrayList<>();
-     //   List<NDArray> okMasksSimilarity = new ArrayList<>();
-
-
 
         if (legalActionMasks.size() != 1) throw new MuZeroException("legalActionMasks.size() != 1");
         if (rewardMasks.size() != 1) throw new MuZeroException("rewardMasks.size() != 1");
 
         NDArray okMask = legalActionMasks.get(0).logicalAnd(rewardMasks.get(0));
 
-//        NDManager manager = legalActionMasks.get(0).getManager();
-//        NDArray oks = manager.ones(legalActionMasks.get(0).getShape(),  BOOLEAN);
-//        okMasksReward.add(oks);
-//        okMasksLegalActions.add(oks);
-//       // okMasksSimilarity.add(oks);
-//        for (int i = 0; i < rewardMasks.size()-1; i++) {
-//            okMasksReward.add(okMasksReward.get(i).logicalAnd(rewardMasks.get(i)));
-//        }
-//        for (int i = 0; i < legalActionMasks.size()-1; i++) {
-//            okMasksLegalActions.add(okMasksLegalActions.get(i).logicalAnd(legalActionMasks.get(i)));
-//        }
-//        for (int i = 0; i < rewardMasks.size()-1; i++) {
-//            okMasksSimilarity.add(okMasksReward.get(i).logicalOr(okMasksLegalActions.get(i+1)));
-//        }
+
 
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-           //    NDArray intMask = okMasksLegalActions.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
-            //    lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
             } else if (loss.getName().contains("reward")) {
-        //        NDArray intMask = okMasksReward.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
-        //        lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
             }
-//            else if (loss.getName().contains("similarity")) {
-//                NDArray intMask = okMasksSimilarity.get(iMap[i]).toType(DataType.INT32, true).stopGradient();
-//                lossComponents[i] = lossComponents[i].mul(intMask);
-//                lossComponents[i] = ((MySimilarityLoss) loss).evaluatePartB(lossComponents[i]);;
-//            }
+
         }
         return new Pair(NDArrays.add(lossComponents), okMask);
     }
