@@ -82,11 +82,84 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     @Override
     protected @NotNull NDList forwardInternal(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-       if (rulesModel) {
-            return forwardInternalRulesModel(parameterStore, inputs, training, params);
-        } else {
-            return forwardInternalMuZeroModel(parameterStore, inputs, training, params);
-        }
+            NDList combinedResult = new NDList();
+
+            int numUnrollSteps = config.getNumUnrollSteps();
+            if (isRulesModel()) {
+                numUnrollSteps = this.numUnrollSteps;
+            }
+
+            // added predictions to the combinedResult in the following order:
+            // initial inference
+            // - rules layer: legal actions
+            // - policy layer:  policy
+            // - value layer:  value
+            // each recurrent inference
+            // - rules layer: consistency loss
+            // - rules layer: legal actions
+            // - rules layer: reward
+            // - policy layer:  policy
+            // - value layer:  value
+
+            // initial Inference
+            predictionBlock.setWithReward(false);
+
+            predictionBlock.setWithValue(isRulesModel() ? false : true);
+            predictionBlock.setWithPolicy(isRulesModel() ? false : true);
+            predictionBlock.setWithLegalAction(true);
+
+            NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
+            NDList stateForPrediction = firstHalfNDList(representationResult);
+            NDList stateForTimeEvolution = secondHalfNDList(representationResult);
+
+            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+            for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+                combinedResult.add(prediction);
+            }
+
+            for (int k = 1; k <= numUnrollSteps; k++) {
+                // recurrent Inference
+                predictionBlock.setWithReward(true);
+
+                NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k);
+
+                NDList dynamicIn = new NDList();
+                dynamicIn.addAll(stateForTimeEvolution);
+                dynamicIn.add(action);
+
+                NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
+
+                stateForPrediction = firstHalfNDList(dynamicsResult);
+                stateForTimeEvolution = secondHalfNDList(dynamicsResult);
+
+                predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+
+                if (config.isWithConsistencyLoss()) {
+
+                    NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(stateForTimeEvolution.get(0)), training, params);
+                    NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
+
+                    representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
+                    NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
+                    similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
+
+                    combinedResult.add(similarityPredictorResult);
+                    combinedResult.add(similarityProjectorResultLabel);
+                }
+
+                for (NDArray prediction : predictionResult.getResourceNDArrays()) {
+                    combinedResult.add(prediction);
+                }
+
+                NDList temp = new NDList();
+                for (int i = 0; i < stateForTimeEvolution.size(); i++) {
+                    temp.add(stateForTimeEvolution.get(i).scaleGradient(0.5));
+                }
+                stateForTimeEvolution = temp;
+
+            }
+            return combinedResult;
+
     }
 
     private int numUnrollSteps = 0;
@@ -96,170 +169,21 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
             setRulesModelInputNames();
         }
     }
-
     private void setRulesModelInputNames() {
         inputNames = new ArrayList<>();
         inputNames.add("observation");
-        for (int k = 1; k <= 1 + this.getNumUnrollSteps() ; k++) {
+        for (int k = 0; k < this.getNumUnrollSteps() ; k++) {
             inputNames.add("action_" + k);
         }
     }
+
+
 
     public int getNumUnrollSteps() {
         return this.numUnrollSteps;
     }
 
-    protected @NotNull NDList forwardInternalRulesModel(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
 
-        NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDList stateForPrediction = firstHalfNDList(representationResult);
-        NDList stateForTimeEvolution = secondHalfNDList(representationResult);
-
-        for (int k = 0; k < this.numUnrollSteps; k++) {
-            NDArray action = inputs.get(1 + k);
-
-            NDList dynamicIn = new NDList();
-            dynamicIn.addAll(stateForTimeEvolution);
-            dynamicIn.add(action);
-
-            NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
-
-            stateForTimeEvolution = secondHalfNDList(dynamicsResult);
-            stateForPrediction = firstHalfNDList(dynamicsResult);
-        }
-
-
-        NDList combinedResult = new NDList();
-
-
-        // added predictions to the combinedResult in the following order:
-        // initial inference
-        // - rules layer: legal actions
-        // - policy layer:  policy
-        // - value layer:  value
-        // each recurrent inference
-        // - rules layer: consistency loss
-        // - rules layer: legal actions
-        // - rules layer: reward
-        // - policy layer:  policy
-        // - value layer:  value
-
-        // "initial Inference"
-        predictionBlock.setWithReward(false);
-
-        predictionBlock.setWithValue(false);
-        predictionBlock.setWithPolicy(false);
-        predictionBlock.setWithLegalAction(true);
-        NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
-            combinedResult.add(prediction);
-        }
-        int k = this.numUnrollSteps + 1;
-
-
-        // recurrent Inference
-        predictionBlock.setWithReward(true);
-        predictionBlock.setWithLegalAction(false);
-        NDArray action = inputs.get(k);
-        NDList dynamicIn = new NDList();
-        dynamicIn.addAll(stateForTimeEvolution);
-        dynamicIn.add(action);
-
-        NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
-
-        stateForPrediction = firstHalfNDList(dynamicsResult);
-        predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-
-        for (NDArray prediction : predictionResult.getResourceNDArrays()) {
-            combinedResult.add(prediction);
-        }
-
-        return combinedResult;
-    }
-
-
-    protected @NotNull NDList forwardInternalMuZeroModel(@NotNull ParameterStore parameterStore, @NotNull NDList inputs, boolean training, PairList<String, Object> params) {
-        NDList combinedResult = new NDList();
-
-        // added predictions to the combinedResult in the following order:
-        // initial inference
-        // - rules layer: legal actions
-        // - policy layer:  policy
-        // - value layer:  value
-        // each recurrent inference
-        // - rules layer: consistency loss
-        // - rules layer: legal actions
-        // - rules layer: reward
-        // - policy layer:  policy
-        // - value layer:  value
-
-        // initial Inference
-        predictionBlock.setWithReward(false);
-        predictionBlock.setWithValue(true);
-        predictionBlock.setWithPolicy(true);
-        predictionBlock.setWithLegalAction(true);
-        NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-        NDList stateForPrediction = firstHalfNDList(representationResult);
-        NDList stateForTimeEvolution = secondHalfNDList(representationResult);
-
-            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-            for (NDArray prediction : predictionResult.getResourceNDArrays()) {
-                combinedResult.add(prediction);
-            }
-
-        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-
-
-            // recurrent Inference
-
-            predictionBlock.setWithReward(true);
-
-            NDArray action = inputs.get( config.isWithConsistencyLoss() ? 2 * k - 1 : k);
-
-            NDList dynamicIn = new NDList();
-            dynamicIn.addAll(stateForTimeEvolution);
-            dynamicIn.add(action);
-
-            NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
-
-                stateForPrediction = firstHalfNDList(dynamicsResult);
-                stateForTimeEvolution = secondHalfNDList(dynamicsResult);
-
-
-            predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
-
-            if (config.isWithConsistencyLoss()) {
-
-                NDList similarityProjectorResultList = this.similarityProjectorBlock.forward(parameterStore, new NDList(stateForTimeEvolution.get(0)), training, params);
-                NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
-
-
-                representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-                NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
-                similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
-
-                combinedResult.add(similarityPredictorResult);
-                combinedResult.add(similarityProjectorResultLabel);
-            }
-
-            for (NDArray prediction : predictionResult.getResourceNDArrays()) {
-                combinedResult.add(prediction);
-            }
-
-            NDList temp = new NDList();
-            for (int i = 0; i < stateForTimeEvolution.size(); i++) {
-                temp.add(stateForTimeEvolution.get(i).scaleGradient(0.5));
-            }
-            stateForTimeEvolution = temp;
-//            temp = new NDList();
-//            for (int i = 0; i < stateForPrediction.size(); i++) {
-//                temp.add(stateForPrediction.get(i).scaleGradient(0.5));
-//            }
-//            stateForPrediction = temp;
-
-        }
-        return combinedResult;
-    }
 
 public static Shape[] firstHalf(Shape[] inputShapes) {
         int half = inputShapes.length / 2;
@@ -280,28 +204,26 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        if (rulesModel) {
-            return getOutputShapesRulesModel(inputShapes);
-        } else {
-            return getOutputShapesMuZeroModel(inputShapes);
+
+
+        int numUnrollSteps = config.getNumUnrollSteps();
+        if (isRulesModel()) {
+            numUnrollSteps = this.numUnrollSteps;
         }
-    }
 
-
-    public Shape[] getOutputShapesMuZeroModel(Shape[] inputShapes) {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
         predictionBlock.setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
-            Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-            Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+        Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+        Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
         Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
         outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
 
-        for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+        for (int k = 1; k <= numUnrollSteps; k++) {
             // recurrent Inference
             predictionBlock.setWithReward(true);
             Shape stateShape = stateOutputShapes[0];
@@ -445,14 +367,14 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     public void setRulesModel(boolean rulesModel) {
         this.rulesModel = rulesModel;
-        if (rulesModel) {
-            setRulesModelInputNames();
-        } else {
-            inputNames = new ArrayList<>();
-            inputNames.add("observation");
-            for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
-                inputNames.add("action_" + k);
-            }
-        }
+//        if (rulesModel) {
+//            setRulesModelInputNames();
+//        } else {
+//            inputNames = new ArrayList<>();
+//            inputNames.add("observation");
+//            for (int k = 1; k <= config.getNumUnrollSteps(); k++) {
+//                inputNames.add("action_" + k);
+//            }
+//        }
     }
 }

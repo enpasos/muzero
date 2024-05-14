@@ -224,7 +224,7 @@ public class ModelController implements DisposableBean, Runnable {
 
 
                   // final int epoch = -1;
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss());
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
 
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -296,7 +296,7 @@ public class ModelController implements DisposableBean, Runnable {
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                     boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
                     epochLocal = getEpochFromModel(model);
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, config.isWithConsistencyLoss());
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
                     int finalEpoch = epochLocal;
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -331,39 +331,64 @@ public class ModelController implements DisposableBean, Runnable {
 
 
 
-    private void trainNetworkRules( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
+    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
         Model model = network.getModel();
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
+
+
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
 
-        //  local-102-zipper
-        //for (int k = 0; k < 10; k++) {
-        //    System.out.println("k = " + k);
+
+        int epochLocal;
+        boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
+        epochLocal = getEpochFromModel(model);
+
+
+        // start pseudocode for one episode
+        // boolean[][] b_OK = new boolean[tmax+1][tmax+1];
+        // boolean[i][j]: starting i, ending j
+        // int tmax = t of the last timestep with action
+        //
+        // for (int k = 0; k <= tmax; k++) {
+        //     int t = tmax - k;
+        //     int u = determineUnrollSteps(b_OK, t);   // 0 <= u <= tmax-t
+        //     trainingOnTAndUnrollStepsAndUpdateB_OK(t, u, b_OK);
+        //     b_OK can be completely filled up to here for i = t,
+        // }
+        // end pseudocode for one episode
+
+
+        // pseudocode for episodes in a buffer
+        //
+        // how to batch the episodes within the buffer?
+        // sort the episodes according to their u
+        // take the batches starting from the smallest u
+        // for each batch, determine the maximum u
+        //
+        // in principle keep the t loop, but globally iterate the difference to the maximum tmax per episode.
+        // end pseudocode
 
 
 
-               // for (int k = 0; k < 10; k++) {   // local-103-zipper
-                   // System.out.println("k = " + k);
 
-                    int epochLocal;
-                    // int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-                    boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
-                    epochLocal = getEpochFromModel(model);
+        // TODO: dynamic numUnrollStepsMax
+        for (int numUnrollSteps = 1; numUnrollSteps <= 9; numUnrollSteps++) {
 
-//                Adam optimizer = (Adam)djlConfigRules.getOptimizer();
-//                optimizer.
+            muZeroBlock.setNumUnrollSteps(numUnrollSteps);
 
-        try (NDScope nDScope = new NDScope()) {
-            DefaultTrainingConfig djlConfigRules  = trainingConfigFactory.setupTrainingConfigRules(epochLocal, background);
 
-            int finalEpoch = epochLocal;
-            djlConfigRules.getTrainingListeners().stream()
-                    .filter(MyEpochTrainingListener.class::isInstance)
-                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+            try (NDScope nDScope = new NDScope()) {
+
+                DefaultTrainingConfig djlConfigRules = trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, numUnrollSteps);
+
+                int finalEpoch = epochLocal;
+                djlConfigRules.getTrainingListeners().stream()
+                        .filter(MyEpochTrainingListener.class::isInstance)
+                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
 
 
                 try (Trainer trainer = model.newTrainer(djlConfigRules)) {
@@ -371,62 +396,61 @@ public class ModelController implements DisposableBean, Runnable {
                     trainer.setMetrics(new Metrics());
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
-                        RulesBuffer rulesBuffer = new RulesBuffer();
-                        rulesBuffer.setWindowSize(1000);
-                        rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
-                        int w = 0;
+                    RulesBuffer rulesBuffer = new RulesBuffer();
+                    rulesBuffer.setWindowSize(1000);
+                    rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
+                    int w = 0;
 
-                        System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
-                        for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
-                            List<Long> episodeIdsRulesLearningList = iterator.next();
-                            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-                            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-                            Collections.shuffle(gameBuffer);
-                            int smax = 0;
-                            for (int s = 0; s <= smax; s++) {
-                                Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
-                                trainer.initialize(inputShapes);
-                                ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
-                                List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
-                                Collections.shuffle(timesteps);
+                    System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
+                    for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
+                        List<Long> episodeIdsRulesLearningList = iterator.next();
+                        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+                        List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+                        Collections.shuffle(gameBuffer);
+                        int smax = 0;
+                        for (int s = 0; s <= smax; s++) {
+                            Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
+                            trainer.initialize(inputShapes);
+                            ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
+                            List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
+                            Collections.shuffle(timesteps);
 
-                                // batch loop over timesteps with batch sizes of config.getBatchSize()
-                                for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
-                                    //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
-                                    int fromIndex = i;
-                                    int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
-                                    List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+                            // batch loop over timesteps with batch sizes of config.getBatchSize()
+                            for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
+                                //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
+                                int fromIndex = i;
+                                int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
+                                List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
 
-                                    try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+                                try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
 
-                                        Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
-                                        int count = oks.getKey().size();
-                                        int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                                        rememberOks(batchTimeSteps, oks.getKey(), s);
-                                        double sumLoss = oks.getValue();
-                                        double sumMeanLoss = sumLoss / count;
-                                        System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
-                                        trainer.step();
-                                    }
-
+                                    Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                                    int count = oks.getKey().size();
+                                    int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+                                    rememberOks(batchTimeSteps, oks.getKey(), s);
+                                    double sumLoss = oks.getValue();
+                                    double sumMeanLoss = sumLoss / count;
+                                    System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
+                                    trainer.step();
                                 }
-                                smax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getTimeSteps().stream()
-                                        .mapToInt(TimeStepDO::getS).max().orElse(0)
-                                ).max().orElse(0);
+
                             }
-                            w++;
-
+                            smax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getTimeSteps().stream()
+                                    .mapToInt(TimeStepDO::getS).max().orElse(0)
+                            ).max().orElse(0);
                         }
+                        w++;
 
-                        handleMetrics(trainer, model, epochLocal);
-                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                        epochLocal = getEpochFromModel(model);
-                        modelState.setEpoch(epochLocal);
                     }
 
+                    handleMetrics(trainer, model, epochLocal);
+                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                    epochLocal = getEpochFromModel(model);
+                    modelState.setEpoch(epochLocal);
+                }
+
             }
-
-
+        }
 
     }
 
@@ -614,7 +638,7 @@ public class ModelController implements DisposableBean, Runnable {
         } catch (Exception e) {
             e.printStackTrace();
             final int epoch = -1;
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss());
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
 
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)

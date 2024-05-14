@@ -30,16 +30,13 @@ public class TrainingConfigFactory {
     MySaveModelTrainingListener mySaveModelTrainingListener;
 
 
-
-
-    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean background, boolean isWithConsistencyLoss) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean background, boolean isWithConsistencyLoss, boolean isRulesModel, int numUnrollSteps) {
 
         String outputDir = config.getNetworkBaseDir();
 
         MyCompositeLoss loss = new MyCompositeLoss();
 
-
-        float gradientScale = 1f / config.getNumUnrollSteps();
+        float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
 
         int k = 0;
 
@@ -62,7 +59,7 @@ public class TrainingConfigFactory {
 
 
         // switched off gradient scale for legal_action_loss and reward loss
-        for (int i = 1; i <= config.getNumUnrollSteps(); i++) {
+        for (int i = 1; i <= numUnrollSteps; i++) {
 
             if (isWithConsistencyLoss) {
                 // similarity
@@ -117,43 +114,43 @@ public class TrainingConfigFactory {
         return c;
     }
 
-    public DefaultTrainingConfig setupTrainingConfigRules(int epoch, boolean background) {
-
-        String outputDir = config.getNetworkBaseDir();
-
-        MyCompositeLoss loss = new MyCompositeLoss();
-
-        int k = 0;
-
-        //  legal actions
-        log.trace("k={}: LegalActions BCELoss", k);
-        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f / this.config.getActionSpaceSize(), 1), k));
-        k++;
-
-        // reward
-        log.trace("k={}: Reward L2Loss", k);
-        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + 1, config.getValueLossWeight()), k));
-
-        mySaveModelTrainingListener.setOutputDir(outputDir);
-        mySaveModelTrainingListener.setEpoch(epoch);
-
-        DefaultTrainingConfig c = new DefaultTrainingConfig(loss)
-                .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
-                .addTrainingListeners(
-                        new MemoryTrainingListener(outputDir),
-                        new MyEvaluatorTrainingListener(),
-                        new DivergenceCheckTrainingListener(),
-                        new TimeMeasureTrainingListener(outputDir)
-                );
-        if (!background) {
-            c.addTrainingListeners(
-                    new MyEpochTrainingListener(),
-                    new MyLoggingTrainingListener(epoch),
-                    mySaveModelTrainingListener);
-        }
-        return c;
-    }
+//    public DefaultTrainingConfig setupTrainingConfigRules(int epoch, boolean background) {
+//
+//        String outputDir = config.getNetworkBaseDir();
+//
+//        MyCompositeLoss loss = new MyCompositeLoss();
+//
+//        int k = 0;
+//
+//        //  legal actions
+//        log.trace("k={}: LegalActions BCELoss", k);
+//        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f / this.config.getActionSpaceSize(), 1), k));
+//        k++;
+//
+//        // reward
+//        log.trace("k={}: Reward L2Loss", k);
+//        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + 1, config.getValueLossWeight()), k));
+//
+//        mySaveModelTrainingListener.setOutputDir(outputDir);
+//        mySaveModelTrainingListener.setEpoch(epoch);
+//
+//        DefaultTrainingConfig c = new DefaultTrainingConfig(loss)
+//                .optDevices(Engine.getInstance().getDevices(1))
+//                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
+//                .addTrainingListeners(
+//                        new MemoryTrainingListener(outputDir),
+//                        new MyEvaluatorTrainingListener(),
+//                        new DivergenceCheckTrainingListener(),
+//                        new TimeMeasureTrainingListener(outputDir)
+//                );
+//        if (!background) {
+//            c.addTrainingListeners(
+//                    new MyEpochTrainingListener(),
+//                    new MyLoggingTrainingListener(epoch),
+//                    mySaveModelTrainingListener);
+//        }
+//        return c;
+//    }
 
 //    public DefaultTrainingConfig setupTrainingConfigForRulesInitial(int epoch) {
 //
