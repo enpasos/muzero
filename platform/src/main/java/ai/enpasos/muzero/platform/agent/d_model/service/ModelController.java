@@ -41,9 +41,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -337,7 +335,6 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
 
 
-
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
@@ -373,85 +370,190 @@ public class ModelController implements DisposableBean, Runnable {
         // end pseudocode
 
 
+        // start real code
+        // first the buffer loop
+        RulesBuffer rulesBuffer = new RulesBuffer();
+        rulesBuffer.setWindowSize(1000);
+        rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
+        int w = 0;
 
+        System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
+        for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
+            List<Long> episodeIdsRulesLearningList = iterator.next();
+            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+            Collections.shuffle(gameBuffer);
+            // now the game buffer is filled with games from the database
+            // find tmaxmax as the maximum tmax of all games
+            int[] tmax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getLastTimeWithAction()).toArray();
+            int tmaxmax = Arrays.stream(tmax).max().orElse(0);
+            boolean[][][] b_OK = new boolean[gameBuffer.size()][tmaxmax + 1][tmaxmax + 1];
+            for (int k = 0; k <= tmaxmax; k++) {
+                int[] us = determineUnrollSteps(b_OK, tmax, k);
+                int[] sortedIndices = IntStream.range(0, us.length).boxed().sorted(Comparator.comparingInt(i -> us[i])).mapToInt(i -> i).toArray();
+                // batch loop over timesteps with batch sizes of config.getBatchSize()
+                for (int i = 0; i < sortedIndices.length; i += config.getBatchSize()) {
 
-        // TODO: dynamic numUnrollStepsMax
-        for (int numUnrollSteps = 1; numUnrollSteps <= 9; numUnrollSteps++) {
-
-            muZeroBlock.setNumUnrollSteps(numUnrollSteps);
-
-
-            try (NDScope nDScope = new NDScope()) {
-
-                DefaultTrainingConfig djlConfigRules = trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, numUnrollSteps);
-
-                int finalEpoch = epochLocal;
-                djlConfigRules.getTrainingListeners().stream()
-                        .filter(MyEpochTrainingListener.class::isInstance)
-                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-
-
-                try (Trainer trainer = model.newTrainer(djlConfigRules)) {
-
-                    trainer.setMetrics(new Metrics());
-                    ((DCLAware) model.getBlock()).freezeParameters(freeze);
-
-                    RulesBuffer rulesBuffer = new RulesBuffer();
-                    rulesBuffer.setWindowSize(1000);
-                    rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
-                    int w = 0;
-
-                    System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
-                    for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
-                        List<Long> episodeIdsRulesLearningList = iterator.next();
-                        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-                        List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-                        Collections.shuffle(gameBuffer);
-                        int smax = 0;
-                        for (int s = 0; s <= smax; s++) {
-                            Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
-                            trainer.initialize(inputShapes);
-                            ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
-                            List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
-                            Collections.shuffle(timesteps);
-
-                            // batch loop over timesteps with batch sizes of config.getBatchSize()
-                            for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
-                                //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
-                                int fromIndex = i;
-                                int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
-                                List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
-
-                                try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
-
-                                    Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
-                                    int count = oks.getKey().size();
-                                    int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                                    rememberOks(batchTimeSteps, oks.getKey(), s);
-                                    double sumLoss = oks.getValue();
-                                    double sumMeanLoss = sumLoss / count;
-                                    System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
-                                    trainer.step();
-                                }
-
-                            }
-                            smax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getTimeSteps().stream()
-                                    .mapToInt(TimeStepDO::getS).max().orElse(0)
-                            ).max().orElse(0);
+                    int i_start = i;
+                    int i_end_excluded = Math.min(i + config.getBatchSize(), sortedIndices.length);
+                    int u = us[i_end_excluded - 1];
+                    Shape[] inputShapes = batchFactory.getInputShapesForRules(u);  // TODO check
+                    try (Trainer trainer = model.newTrainer(trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, u))) {
+                        trainer.setMetrics(new Metrics());
+                        ((DCLAware) model.getBlock()).freezeParameters(freeze);
+                        List<TimeStepDO> batchTimeSteps = extractTimeSteps(gameBuffer, i_start, i_end_excluded, u);  // TODO: implement
+                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u, config.getBatchSize())) {
+                            Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+                            int count = oks.getKey().size();
+                            int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+                            rememberOks(batchTimeSteps, oks.getKey(), u);
+                            double sumLoss = oks.getValue();
+                            double sumMeanLoss = sumLoss / count;
+                            System.out.println(epochLocal + ";" + w + ";" + u + ";" + "n.a." + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
+                            trainer.step();
                         }
-                        w++;
-
+                        handleMetrics(trainer, model, epochLocal);
+                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                        epochLocal = getEpochFromModel(model);  // TODO: check epoch handling and numbering
+                        modelState.setEpoch(epochLocal);
                     }
-
-                    handleMetrics(trainer, model, epochLocal);
-                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                    epochLocal = getEpochFromModel(model);
-                    modelState.setEpoch(epochLocal);
                 }
 
             }
+            w++;
+
         }
 
+
+
+
+                //                for (int i = 0; i < sortedIndices.length; i++) {
+//                    int j = sortedIndices[i];
+//                    int t = tmax[j] - k;
+//                    int s = 0;
+//                    int smax = 0;
+//                    while (s <= smax) {
+//                        Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
+//                        try (Trainer trainer = model.newTrainer(trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, s))) {
+//                            trainer.setMetrics(new Metrics());
+//                            ((DCLAware) model.getBlock()).freezeParameters(freeze);
+//                            List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
+//                            Collections.shuffle(timesteps);
+//                            for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
+//                                int fromIndex = i;
+//                                int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
+//                                List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+//                                try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+//                                    Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+//                                    int count = oks.getKey().size();
+//                                    int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+//                                    rememberOks(batchTimeSteps, oks.getKey(), s);
+//                                    double sumLoss = oks.getValue();
+//                                    double sumMeanLoss = sumLoss / count;
+//                                    System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
+//                                    trainer.step();
+//                                }
+//                            }
+//                            smax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getTimeSteps().stream()
+//                                    .mapToInt(TimeStepDO::getS).max().orElse(0)
+//                            ).max().orElse(0);
+//                        }
+//                    }
+              //  }
+
+
+         //   }
+
+    //    }
+
+
+
+//
+//        // TODO: dynamic numUnrollStepsMax
+//        for (int numUnrollSteps = 1; numUnrollSteps <= 9; numUnrollSteps++) {
+//
+//            muZeroBlock.setNumUnrollSteps(numUnrollSteps);
+//
+//
+//            try (NDScope nDScope = new NDScope()) {
+//
+//                DefaultTrainingConfig djlConfigRules = trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, numUnrollSteps);
+//
+//                int finalEpoch = epochLocal;
+//                djlConfigRules.getTrainingListeners().stream()
+//                        .filter(MyEpochTrainingListener.class::isInstance)
+//                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+//
+//
+//                try (Trainer trainer = model.newTrainer(djlConfigRules)) {
+//
+//                    trainer.setMetrics(new Metrics());
+//                    ((DCLAware) model.getBlock()).freezeParameters(freeze);
+//
+//                    RulesBuffer rulesBuffer = new RulesBuffer();
+//                    rulesBuffer.setWindowSize(1000);
+//                    rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
+//                    int w = 0;
+//
+//                    System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
+//                    for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
+//                        List<Long> episodeIdsRulesLearningList = iterator.next();
+//                        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+//                        List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+//                        Collections.shuffle(gameBuffer);
+//                        int smax = 0;
+//                        for (int s = 0; s <= smax; s++) {
+//                            Shape[] inputShapes = batchFactory.getInputShapesForRules(s);
+//                            trainer.initialize(inputShapes);
+//                            ((MuZeroBlock) model.getBlock()).setNumUnrollSteps(s);
+//                            List<TimeStepDO> timesteps = extractTimeSteps(gameBuffer, s);
+//                            Collections.shuffle(timesteps);
+//
+//                            // batch loop over timesteps with batch sizes of config.getBatchSize()
+//                            for (int i = 0; i < timesteps.size(); i += config.getBatchSize()) {
+//                                //  log.info("trainNetworkRules: w = {}, s = {}, i = {} of {}", w, s, i, timesteps.size());
+//                                int fromIndex = i;
+//                                int toIndex = Math.min(i + config.getBatchSize(), timesteps.size());
+//                                List<TimeStepDO> batchTimeSteps = timesteps.subList(fromIndex, toIndex);
+//
+//                                try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, s, config.getBatchSize())) {
+//
+//                                    Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
+//                                    int count = oks.getKey().size();
+//                                    int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+//                                    rememberOks(batchTimeSteps, oks.getKey(), s);
+//                                    double sumLoss = oks.getValue();
+//                                    double sumMeanLoss = sumLoss / count;
+//                                    System.out.println(epochLocal + ";" + w + ";" + s + ";" + smax + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
+//                                    trainer.step();
+//                                }
+//
+//                            }
+//                            smax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getTimeSteps().stream()
+//                                    .mapToInt(TimeStepDO::getS).max().orElse(0)
+//                            ).max().orElse(0);
+//                        }
+//                        w++;
+//
+//                    }
+//
+//                    handleMetrics(trainer, model, epochLocal);
+//                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+//                    epochLocal = getEpochFromModel(model);
+//                    modelState.setEpoch(epochLocal);
+//                }
+//
+//            }
+//        }
+
+    }
+
+    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int iStart, int iEndExcluded, int u) {
+        return null;
+    }
+
+    private int[] determineUnrollSteps(boolean[][][] bOk, int[] tmax, int k) {
+        return new int[0];
     }
 
     private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
