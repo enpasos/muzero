@@ -45,17 +45,17 @@ public class TrainingConfigFactory {
         loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/this.config.getActionSpaceSize(), 1), k));
         k++;
 
+        if (!isRulesModel) {
+            // policy
+            log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
+            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
+            k++;
 
-        // policy
-        log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
-        loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + 0, 1.0f, 1, false, true), k));
-        k++;
-
-        // value
-        log.trace("k={}: Value L2Loss", k);
-        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
-        k++;
-
+            // value
+            log.trace("k={}: Value L2Loss", k);
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight()), k));
+            k++;
+        }
 
 
         // switched off gradient scale for legal_action_loss and reward loss
@@ -67,11 +67,12 @@ public class TrainingConfigFactory {
                 loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
                 k++;
             }
-
-            // legal actions
-            log.trace("k={}: LegalActions BCELoss", k);
-            loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, 1f/this.config.getActionSpaceSize() * gradientScale, 1), k));
-            k++;
+            if (i != numUnrollSteps) {
+                // legal actions
+                log.trace("k={}: LegalActions BCELoss", k);
+                loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, 1f / this.config.getActionSpaceSize() * gradientScale, 1), k));
+                k++;
+            }
 
 
             // reward
@@ -79,17 +80,17 @@ public class TrainingConfigFactory {
             loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale ), k));
             k++;
 
+            if (!isRulesModel) {
+                // policy
+                log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
+                loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
+                k++;
 
-            // policy
-            log.trace("k={}: Policy SoftmaxCrossEntropyLoss", k);
-            loss.addLoss(new MyIndexLoss(new MySoftmaxCrossEntropyLoss("loss_policy_" + i, gradientScale, 1, false, true), k));
-            k++;
-
-            // value
-            log.trace("k={}: Value L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
-            k++;
-
+                // value
+                log.trace("k={}: Value L2Loss", k);
+                loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale), k));
+                k++;
+            }
 
         }
 

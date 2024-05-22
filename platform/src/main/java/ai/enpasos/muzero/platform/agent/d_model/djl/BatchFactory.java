@@ -93,7 +93,7 @@ public class BatchFactory {
     private RulesBuffer rulesBuffer;
     public Batch getRulesBatchFromBuffer(List<TimeStepDO> batchTimeSteps, NDManager ndManager, boolean withSymmetryEnrichment, int s, int batchSize ) {
 
-        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, s)).collect(Collectors.toList());
+        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, s+1)).collect(Collectors.toList());
 
       return getBatch(ndManager, withSymmetryEnrichment, s+1, sampleList, TrainingDatasetType.RULES_BUFFER);
 
@@ -105,7 +105,7 @@ public class BatchFactory {
         Game game = config.newGame(false,false);
         game.setEpisodeDO(ts.getEpisode());
         sample.setGame(game);
-        int gamePos = ts.getT() - s;
+        int gamePos = ts.getT() ;
         ObservationModelInput observation = game.getObservationModelInput(gamePos);
 
         sample.getObservations().add(observation);
@@ -115,7 +115,7 @@ public class BatchFactory {
                 .collect(Collectors.toList());
 
         sample.setActionsList(new ArrayList<>());
-        for (int i = 0; i <=  s; i++) {
+        for (int i = 0; i <  s; i++) {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
         }

@@ -12,8 +12,6 @@ import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
-import ai.djl.training.optimizer.Adam;
-import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
@@ -385,31 +383,64 @@ public class ModelController implements DisposableBean, Runnable {
             Collections.shuffle(gameBuffer);
             // now the game buffer is filled with games from the database
             // find tmaxmax as the maximum tmax of all games
-            int[] tmax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getLastTimeWithAction()).toArray();
-            int tmaxmax = Arrays.stream(tmax).max().orElse(0);
-            boolean[][][] b_OK = new boolean[gameBuffer.size()][tmaxmax + 1][tmaxmax + 1];
+          //  int[] tmax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getLastTimeWithAction()).toArray();
+          //  int tmaxmax = Arrays.stream(tmax).max().orElse(0);
+            int tmaxmax = 0;
+            boolean[][][] b_OK = new boolean[gameBuffer.size()][][];
+            for (int e = 0; e < b_OK.length; e++) {
+                int tmax = gameBuffer.get(e).getEpisodeDO().getLastTimeWithAction();
+                tmaxmax = Math.max(tmaxmax, tmax);
+                b_OK[e] = new boolean[tmax + 1][tmax + 1];
+            }
             for (int k = 0; k <= tmaxmax; k++) {
-                int[] us = determineUnrollSteps(b_OK, tmax, k);
-                int[] sortedIndices = IntStream.range(0, us.length).boxed().sorted(Comparator.comparingInt(i -> us[i])).mapToInt(i -> i).toArray();
+                int[] us = ZipperFunctions.determineUnrollSteps(ZipperFunctions.trainingNeeded(b_OK),   k);
+                int[] sortedIndices = ZipperFunctions.sortedAndFilteredIndices(us);
                 // batch loop over timesteps with batch sizes of config.getBatchSize()
                 for (int i = 0; i < sortedIndices.length; i += config.getBatchSize()) {
 
                     int i_start = i;
                     int i_end_excluded = Math.min(i + config.getBatchSize(), sortedIndices.length);
                     int u = us[i_end_excluded - 1];
-                    Shape[] inputShapes = batchFactory.getInputShapesForRules(u);  // TODO check
-                    try (Trainer trainer = model.newTrainer(trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, u))) {
+                    int symFactor = config.getSymmetryType().getSymmetryEnhancementFactor();
+                    boolean[][][] b_OK_batch = new boolean[symFactor*(i_end_excluded - i_start)][][];
+                    // transfer b_OK from the global array to the batch array
+                    for (int j = i_start; j < i_end_excluded; j++) {
+                        for (int s = 0; s < symFactor; s++) {
+                            b_OK_batch[s*(i_end_excluded - i_start) + (j - i_start)] = b_OK[sortedIndices[j]];
+                        }
+                    }
+
+                    muZeroBlock.setNumUnrollSteps(u + 1);
+                    Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
+                    try (Trainer trainer = model.newTrainer(trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, u+1))) {
                         trainer.setMetrics(new Metrics());
+                        trainer.initialize(inputShapes);
                         ((DCLAware) model.getBlock()).freezeParameters(freeze);
-                        List<TimeStepDO> batchTimeSteps = extractTimeSteps(gameBuffer, i_start, i_end_excluded, u);  // TODO: implement
+                        List<TimeStepDO> batchTimeSteps = extractTimeSteps(gameBuffer, i_start, i_end_excluded, sortedIndices, k);
                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u, config.getBatchSize())) {
-                            Pair<List<Boolean>, Double> oks = MyEasyTrainRules.trainBatch(trainer, batch);
-                            int count = oks.getKey().size();
-                            int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                            rememberOks(batchTimeSteps, oks.getKey(), u);
-                            double sumLoss = oks.getValue();
-                            double sumMeanLoss = sumLoss / count;
-                            System.out.println(epochLocal + ";" + w + ";" + u + ";" + "n.a." + ";" + i + ";" + nf.format(sumMeanLoss) + ";" + countNOK);
+                            Statistics stats = new Statistics();
+                                    MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, k, stats);
+
+                            // transfer b_OK back from batch array to the global array
+                            for (int j = i_start; j < i_end_excluded; j++) {
+                                for (int s = 0; s < symFactor; s++) {
+                                    b_OK[sortedIndices[j]] = b_OK_batch[s*(i_end_excluded - i_start) + (j - i_start)];
+                                }
+                            }
+
+                            int countNOK = countNOKFromB_OK(b_OK_batch);
+
+
+
+                            int count = stats.getCount();
+                         //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+                         //  rememberOks(batchTimeSteps, oks.getKey(), u);
+                            double sumLossR = stats.getSumLossReward();
+                            double sumMeanLossR = sumLossR / count;
+
+                            double sumLossL = stats.getSumLossLegalActions();
+                            double sumMeanLossL = sumLossL / count;
+                            System.out.println(epochLocal + ";" + w + ";" + u + ";"  + ";" + i + ";" + nf.format(sumMeanLossL)+ ";" + nf.format(sumMeanLossR)+ ";" + countNOK);
                             trainer.step();
                         }
                         handleMetrics(trainer, model, epochLocal);
@@ -548,103 +579,47 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
-    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int iStart, int iEndExcluded, int u) {
-        return null;
-    }
-
-    private int[] determineUnrollSteps(boolean[][][] bOk, int[] tmax, int k) {
-        return new int[0];
-    }
-
-    private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
-        IntStream.range(0, batchTimeSteps.size()).forEach(i -> {
-            TimeStepDO timeStepDO = batchTimeSteps.get(i);
-            timeStepDO.setRuleTrainingSuccess(oks.get(i));
-            timeStepDO.setRuleTrained(s);
-            if (oks.get(i)) {
-                timeStepDO.setS(s+1);
+    private int countNOKFromB_OK(boolean[][][] bOkBatch) {
+        int countNOK = 0;
+        for (int e = 0; e < bOkBatch.length; e++) {
+            for (int i = 0; i < bOkBatch[e].length; i++) { // from
+                for (int j = i; j < bOkBatch[e][i].length; j++) { // to
+                    if (!bOkBatch[e][i][j]) {
+                        countNOK++;
+                    }
+                }
             }
-        });
+        }
+        return countNOK;
     }
 
-    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int s) {
-        // ignore s and return all timestep ids for Timesteps in gameBuffer with actions
-        return gameBuffer.stream().flatMap(game -> game.getEpisodeDO().getTimeSteps().stream()
-                        .filter(timeStepDO -> timeStepDO.getAction() != null && timeStepDO.getT() >= s && s <= timeStepDO.getS() ))
-                .collect(Collectors.toList());
 
-    }
-
-//    private void trainNetworkRules() {
-//
-//        try (NDScope nDScope = new NDScope()) {
-//
-//            // initialization
-//            Model model = network.getModel();
-//
-//
-//            int epochLocal;
-//            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-//
-//            boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
-//            epochLocal = getEpochFromModel(model);
-//            int finalEpoch = epochLocal;
-//
-//
-//            // special
-//         //   DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
-//            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfigForRulesInitial(epochLocal);
-//
-//            djlConfig.getTrainingListeners().stream()
-//                    .filter(MyEpochTrainingListener.class::isInstance)
-//                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-//            try (Trainer trainer = model.newTrainer(djlConfig)) {
-//
-//                Shape[] inputShapes = batchFactory.getInputShapes();
-//                trainer.initialize(inputShapes);
-//                //    ((MuZeroBlock)model.getBlock()).setDefaultInputShapes(inputShapes);
-//
-//                inputShapes = batchFactory.getInputShapesForInitialRules();
-//                trainer.initialize(inputShapes);
-//
-//                trainer.setMetrics(new Metrics());
-//                //((CausalityFreezing) model.getBlock()).freeze(freeze);
-//                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-//                    // TODO batch has to be adjusted
-//                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, 0, config.getBatchSize(), TrainingDatasetType.RULES_BUFFER)) {
-//                        log.debug("trainBatch " + m);
-//
-//                        // special
-//                        MyEasyTrain.trainBatch(trainer, batch);
-//                        trainer.step();
-//                    }
-//                }
-//
-//                handleMetrics(trainer, model, epochLocal);
-//                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+//    private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
+//        IntStream.range(0, batchTimeSteps.size()).forEach(i -> {
+//            TimeStepDO timeStepDO = batchTimeSteps.get(i);
+//            timeStepDO.setRuleTrainingSuccess(oks.get(i));
+//            timeStepDO.setRuleTrained(s);
+//            if (oks.get(i)) {
+//                timeStepDO.setS(s+1);
 //            }
-//
-//
-//            modelState.setEpoch(getEpochFromModel(model));
-//        }
-//
-//
+//        });
 //    }
 
-//    private void determinePRatioMaxForCurrentEpoch() {
-//        int epoch = this.modelState.getEpoch();
-//        List<Game> games = this.gameBuffer.getGamesFromBuffer().stream()
-//            .filter(game -> game.getEpisodeDO().getTrainingEpoch() == epoch && game.isReanalyse() )
-//            .collect(Collectors.toList());
-//        double pRatioMax = determinePRatioMax(games);
-//        log.info("pRatioMaxREANALYSE({}): {}", epoch, pRatioMax);
-//
-//        List<Game> games2 = this.gameBuffer.getGamesFromBuffer().stream()
-//            .filter(game -> game.getEpisodeDO().getTrainingEpoch() == epoch && !game.isReanalyse() )
-//            .collect(Collectors.toList());
-//        double pRatioMax2 = determinePRatioMax(games2);
-//        log.info("pRatioMax({}): {}", epoch, pRatioMax2);
-//    }
+
+    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int iStart, int iEndExcluded, int[] sortedIndices, int k) {
+        List<Game> games = new ArrayList<>();
+        try {
+            for (int i = iStart; i < iEndExcluded; i++) {
+                games.add(gameBuffer.get(sortedIndices[i]));  // TODO check
+            }
+            return games.stream().map(game -> game.getEpisodeDO().getTimeSteps().get(game.getEpisodeDO().getLastTimeWithAction() - k))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("extractTimeSteps", e);
+            throw e;
+        }
+    }
+
 
     private double determinePRatioMax(List<Game> games) {
         double pRatioMax = games.stream().mapToDouble(Game::getPRatioMax).max().orElse(1.0);

@@ -132,6 +132,9 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
                 stateForPrediction = firstHalfNDList(dynamicsResult);
                 stateForTimeEvolution = secondHalfNDList(dynamicsResult);
 
+                if (k == numUnrollSteps) {
+                    predictionBlock.setWithLegalAction(false);
+                }
                 predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
                 if (config.isWithConsistencyLoss()) {

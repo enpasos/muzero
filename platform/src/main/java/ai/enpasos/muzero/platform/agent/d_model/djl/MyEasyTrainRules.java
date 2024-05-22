@@ -3,7 +3,6 @@ package ai.enpasos.muzero.platform.agent.d_model.djl;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.types.DataType;
 import ai.djl.training.GradientCollector;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
@@ -55,7 +54,7 @@ public final class MyEasyTrainRules {
 
                 // During trainBatch, we update the loss and evaluators with the results for the
                 // training batch
-                trainBatch(trainer, batch);
+                trainBatch(trainer, batch, null, -1, new Statistics());
 
                 // Now, we update the model parameters based on the results of the latest trainBatch
                 trainer.step();
@@ -83,10 +82,10 @@ public final class MyEasyTrainRules {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static  Pair<List<Boolean>, Double> trainBatch(Trainer trainer, Batch batch ) {
+    public static void trainBatch(Trainer trainer, Batch batch, boolean[][][] bOK, int k, Statistics statistics ) {
 
-        List<Boolean> listBoolean = new ArrayList<>();
-        Double loss = 0.0;
+     //   List<Boolean> listBoolean = new ArrayList<>();
+     //   Double loss = 0.0;
 
 
         if (trainer.getManager().getEngine() != batch.getManager().getEngine()) {
@@ -102,19 +101,20 @@ public final class MyEasyTrainRules {
             if (splits.length > 1 && trainer.getExecutorService().isPresent()) {
                 // multi-threaded
                 ExecutorService executor = trainer.getExecutorService().orElseThrow(MuZeroException::new);
-                List<CompletableFuture<Pair<List<Boolean>, Double>>> futures = new ArrayList<>(splits.length);
+                List<CompletableFuture<Boolean>> futures = new ArrayList<>(splits.length);
                 for (Batch split : splits) {
                     futures.add(
                             CompletableFuture.supplyAsync(
-                                    () -> trainSplit(trainer, collector, batchData, split),
+                                    () -> trainSplit(trainer, collector, batchData, split, bOK, k, statistics),
                                     executor));
                 }
 
                 //CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new));
-                for (CompletableFuture<Pair<List<Boolean>, Double>> future : futures) {
+                for (CompletableFuture<Boolean> future : futures) {
                     try {
-                        listBoolean.addAll(future.get().getKey());
-                        loss += future.get().getValue();
+                    //    listBoolean.addAll(future.get().getKey());
+                      //  loss +=
+                                future.get(); //.getValue();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     } catch (ExecutionException e) {
@@ -124,21 +124,26 @@ public final class MyEasyTrainRules {
             } else {
                 // sequence
                 for (Batch split : splits) {
-                    Pair<List<Boolean>, Double> r0 = trainSplit(trainer, collector, batchData, split);
-                    loss +=  r0.getValue();
-                    listBoolean.addAll(r0.getKey());
+                     trainSplit(trainer, collector, batchData, split, bOK, k, statistics);
+                 //   loss +=  r0.getValue();
+                  //  listBoolean.addAll(r0.getKey());
                 }
             }
         }
 
         trainer.notifyListeners(listener -> listener.onTrainingBatch(trainer, batchData));
 
-        return new Pair(listBoolean, loss);
+
     }
 
-    private static Pair<List<Boolean>, Double> trainSplit(
-            Trainer trainer, GradientCollector collector, TrainingListener.BatchData batchData, Batch split) {
+    private static boolean trainSplit(
+            Trainer trainer, GradientCollector collector, TrainingListener.BatchData batchData, Batch split, boolean[][][] bOK, int k, Statistics statistics) {
         NDList data = split.getData();
+
+//        if (data.size() != bOK.length) {
+//            throw new MuZeroException("need to implement split for bOK");
+//        }
+
         NDList labels = split.getLabels();
         NDList preds = trainer.forward(data, labels);
 
@@ -153,9 +158,10 @@ public final class MyEasyTrainRules {
         MyCompositeLoss loss = (MyCompositeLoss) trainer.getLoss();
 
 
-        Pair<NDArray, NDArray> r = loss.evaluateWithReturn(labels, preds);
-        NDArray lossValue = r.getKey();
-        NDArray okMask = r.getValue();
+        NDArray lossValue = loss.evaluateWhatToTrain(labels, preds, bOK, k, statistics);
+       // NDArray lossValue = r.getKey();
+      //  NDArray okMasks = r.getValue();
+      //  int i = 42;
 
         // System.out.println("before backward");
 
@@ -173,13 +179,13 @@ public final class MyEasyTrainRules {
         batchData.getPredictions().put(preds.get(0).getDevice(), preds);
         trainer.addMetric("training-metrics", time);
 
-        boolean[] booleanArray = okMask.toBooleanArray();
-        List<Boolean> listBoolean = new ArrayList<>();
-        for (boolean b : booleanArray) {
-            listBoolean.add(b);
-        }
-        return new Pair(listBoolean, (double) lossValue.toFloatArray()[0]);
-
+//        boolean[] booleanArray = okMasks.toBooleanArray();
+//        List<Boolean> listBoolean = new ArrayList<>();
+//        for (boolean b : booleanArray) {
+//            listBoolean.add(b);
+//        }
+     //   return new Pair(listBoolean, (double) lossValue.toFloatArray()[0]);
+return true;
     }
 
     private static void reorganizePredictionsAndLabels( NDList preds, NDList labels ) {

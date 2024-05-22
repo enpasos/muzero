@@ -190,52 +190,55 @@ public class InputOutputConstruction {
 
         switch (trainingDatasetType) {
             case RULES_BUFFER:
-                int k = 0;
-                int b = 0;
+                for (int k = 0; k <= numUnrollSteps; k++) {
 
-                float[] rewardArray = new float[batch.size()];
-                float[] legalActionsArray = new float[batch.size() * actionSize];
+                    int b = 0;
 
-                for (Sample s : batch) {
-                    List<Target> targets = s.getTargetList();
-                    log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
-                    Target target = targets.get(k);
+                    float[] rewardArray = new float[batch.size()];
+                    float[] legalActionsArray = new float[batch.size() * actionSize];
 
-                    log.trace("legalactionstarget: {}", target.getLegalActions());
-                    System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
+                    for (Sample s : batch) {
+                        List<Target> targets = s.getTargetList();
+                        log.trace("target.size(): {}, k: {}, b: {}", targets.size(), k, b);
+                        Target target = targets.get(k);
 
-                    log.trace("rewardtarget: {}", target.getReward());
+                        log.trace("legalactionstarget: {}", target.getLegalActions());
+                        System.arraycopy(target.getLegalActions(), 0, legalActionsArray, b * actionSize, actionSize);
 
-                    double scale = 2.0 / config.getValueSpan();
-                    rewardArray[b] = (float) (target.getReward() * scale);
+                        log.trace("rewardtarget: {}", target.getReward());
 
-                    b++;
+                        double scale = 2.0 / config.getValueSpan();
+                        rewardArray[b] = (float) (target.getReward() * scale);
+
+                        b++;
+                    }
+                    if (k != numUnrollSteps) {
+                        legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
+                        if (withSymmetryEnrichment) {
+                            outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
+                        } else {
+                            outputs.add(legalActionsOutput2);
+                        }
+                    }
+                    if (k > 0) {
+                        rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
+                        if (withSymmetryEnrichment) {
+                            outputs.add(symmetryEnhancerValue(rewardOutput2));
+                        } else {
+                            outputs.add(rewardOutput2);
+                        }
+                    }
+
                 }
-
-                legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
-                if (withSymmetryEnrichment) {
-                    outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
-                } else {
-                    outputs.add(legalActionsOutput2);
-                }
-
-                rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
-                if (withSymmetryEnrichment) {
-                    outputs.add(symmetryEnhancerValue(rewardOutput2));
-                } else {
-                    outputs.add(rewardOutput2);
-                }
-
-
                 return outputs;
             default:
-                for (k = 0; k <= numUnrollSteps; k++) {
-                    b = 0;
+                for (int k = 0; k <= numUnrollSteps; k++) {
+                    int b = 0;
                     float[] valueArray = new float[batch.size()];
-                     rewardArray = new float[batch.size()];
+                    float[]  rewardArray = new float[batch.size()];
 
                     float[] policyArray = new float[batch.size() * actionSize];
-                     legalActionsArray = new float[batch.size() * actionSize];
+                    float[]  legalActionsArray = new float[batch.size() * actionSize];
 
                     for (Sample s : batch) {
                         List<Target> targets = s.getTargetList();
