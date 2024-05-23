@@ -400,7 +400,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                     int i_start = i;
                     int i_end_excluded = Math.min(i + config.getBatchSize(), sortedIndices.length);
-                    int u = us[i_end_excluded - 1];
+                    int u = us[sortedIndices[i_end_excluded - 1]];
                     int symFactor = config.getSymmetryType().getSymmetryEnhancementFactor();
                     boolean[][][] b_OK_batch = new boolean[symFactor*(i_end_excluded - i_start)][][];
                     // transfer b_OK from the global array to the batch array
