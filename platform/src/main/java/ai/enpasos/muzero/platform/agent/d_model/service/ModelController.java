@@ -424,8 +424,8 @@ public class ModelController implements DisposableBean, Runnable {
                                         b_OK[sortedIndices[j]] = b_OK_batch[s * (i_end_excluded - i_start) + (j - i_start)];
                                     }
                                 }
-
-                                int countNOK = countNOKFromB_OK(b_OK_batch);
+                                int tau = 0;   // start with tau = 0
+                                int countNOK = countNOKFromB_OK(b_OK_batch, tau);
                                 int count = stats.getCount();
                                 //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
                                 //  rememberOks(batchTimeSteps, oks.getKey(), u);
@@ -454,15 +454,23 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
-    private int countNOKFromB_OK(boolean[][][] bOkBatch) {
+    private int countNOKFromB_OK(boolean[][][] bOkBatch, int tau) {
         int countNOK = 0;
         for (int e = 0; e < bOkBatch.length; e++) {
+
+
+
+
+
             for (int i = 0; i < bOkBatch[e].length; i++) { // from
-                for (int j = i; j < bOkBatch[e][i].length; j++) { // to
+                int j = i + tau;
+                if (j < bOkBatch[e][i].length) {
+                    // for (int j = i; j < bOkBatch[e][i].length; j++) { // to
                     if (!bOkBatch[e][i][j]) {
                         countNOK++;
                     }
                 }
+              //  }
             }
         }
         return countNOK;

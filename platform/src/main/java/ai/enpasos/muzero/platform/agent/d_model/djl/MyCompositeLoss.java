@@ -108,7 +108,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 int n = bOK[j].length;
                 int tFrom = n - 1 - k + tau;
                 int tTo = tFrom + tau;
-                bOK[j][tFrom][tTo] = okUpdateInfo[j];
+                bOK[j][tFrom][tTo] = okUpdateInfo[j];   // TODO check, what could lead to an "index 0 out of bounds for length 9"
             }
 
          }
@@ -133,10 +133,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             masks.add(intMask);
 
         }
-
-
-
-
 
         // now the actual masking should happen according to the trainingNeeded
         for (int i = 0; i < components.size(); i++) {
