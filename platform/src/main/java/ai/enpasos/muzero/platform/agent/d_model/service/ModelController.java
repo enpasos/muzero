@@ -332,6 +332,8 @@ public class ModelController implements DisposableBean, Runnable {
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
 
+        background = true;
+
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -375,7 +377,7 @@ public class ModelController implements DisposableBean, Runnable {
         rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
         int w = 0;
 
-        System.out.println("epoch;w;s;smax;i;sumMeanLoss;countNOK");
+        System.out.println("epoch;unrollSteps;w;k;i;sumMeanLossL;sumMeanLossR;countNOK");
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
@@ -419,31 +421,30 @@ public class ModelController implements DisposableBean, Runnable {
                         List<TimeStepDO> batchTimeSteps = extractTimeSteps(gameBuffer, i_start, i_end_excluded, sortedIndices, k);
                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u, config.getBatchSize())) {
                             Statistics stats = new Statistics();
-                                    MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, k, stats);
+                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, k, stats);
 
                             // transfer b_OK back from batch array to the global array
                             for (int j = i_start; j < i_end_excluded; j++) {
                                 for (int s = 0; s < symFactor; s++) {
-                                    b_OK[sortedIndices[j]] = b_OK_batch[s*(i_end_excluded - i_start) + (j - i_start)];
+                                    b_OK[sortedIndices[j]] = b_OK_batch[s * (i_end_excluded - i_start) + (j - i_start)];
                                 }
                             }
 
                             int countNOK = countNOKFromB_OK(b_OK_batch);
-
-
-
                             int count = stats.getCount();
-                         //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                         //  rememberOks(batchTimeSteps, oks.getKey(), u);
+                            //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+                            //  rememberOks(batchTimeSteps, oks.getKey(), u);
                             double sumLossR = stats.getSumLossReward();
                             double sumMeanLossR = sumLossR / count;
 
                             double sumLossL = stats.getSumLossLegalActions();
                             double sumMeanLossL = sumLossL / count;
-                            System.out.println(epochLocal + ";" + w + ";" + u + ";"  + ";" + i + ";" + nf.format(sumMeanLossL)+ ";" + nf.format(sumMeanLossR)+ ";" + countNOK);
+                            System.out.println(epochLocal + ";" + u + ";" + w + ";" + k +  ";" + i + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK);
                             trainer.step();
                         }
-                        handleMetrics(trainer, model, epochLocal);
+                        if (!background) {
+                            handleMetrics(trainer, model, epochLocal);
+                        }
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                         epochLocal = getEpochFromModel(model);  // TODO: check epoch handling and numbering
                         modelState.setEpoch(epochLocal);

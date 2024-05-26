@@ -198,7 +198,7 @@ public class TrainingConfigFactory {
 
     private Optimizer setupSGDOptimizer(int trainingStep) {
         float lr = config.getLr(trainingStep);
-        log.info("trainingStep = {}, lr = {}", trainingStep, lr);
+        log.trace("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 
 
@@ -211,7 +211,7 @@ public class TrainingConfigFactory {
     }
     private Optimizer setupAdamOptimizer(int trainingStep) {
         float lr = config.getLr(trainingStep) / 10;
-        log.info("trainingStep = {}, lr = {}", trainingStep, lr);
+        log.trace("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 
         return Optimizer.adam()
