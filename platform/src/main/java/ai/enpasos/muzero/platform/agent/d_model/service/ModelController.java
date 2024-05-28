@@ -365,8 +365,16 @@ public class ModelController implements DisposableBean, Runnable {
                 muZeroBlock.setNumUnrollSteps(u + 1);
                 int epochLocal = getEpochFromModel(model);
 
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, u + 1);
+                int finalEpoch = epochLocal;
+                djlConfig.getTrainingListeners().stream()
+                        .filter(MyEpochTrainingListener.class::isInstance)
+                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
 
-                try (Trainer trainer = model.newTrainer(trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, u + 1))) {
+
+
+
+                try (Trainer trainer = model.newTrainer(djlConfig)) {
                     trainer.setMetrics(new Metrics());
                     trainer.initialize(inputShapes);
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
@@ -407,9 +415,9 @@ public class ModelController implements DisposableBean, Runnable {
                         handleMetrics(trainer, model, epochLocal);
                     }
                     trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                    epochLocal = getEpochFromModel(model);  // TODO: check epoch handling and numbering
-                    modelState.setEpoch(epochLocal);
                 }
+
+                modelState.setEpoch(getEpochFromModel(model));
 
             }
             w++;

@@ -102,12 +102,12 @@ public class MuZeroLoop {
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
-            if ( epoch > 0 && epoch % 100 == 0) {
-                fillRulesLoss.run();
-                int n0 = fillRulesLoss.numBox(0);
-                policyValueTraining = n0 == 0;
-            }
-            rulesTraining = !policyValueTraining;
+//            if ( epoch > 0 && epoch % 100 == 0) {
+//                fillRulesLoss.run();
+//                int n0 = fillRulesLoss.numBox(0);
+//                policyValueTraining = n0 == 0;
+//            }
+//            rulesTraining = !policyValueTraining;
 
 
             DurAndMem duration = new DurAndMem();
