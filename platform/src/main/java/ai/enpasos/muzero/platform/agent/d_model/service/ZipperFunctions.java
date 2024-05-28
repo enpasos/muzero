@@ -1,6 +1,10 @@
 package ai.enpasos.muzero.platform.agent.d_model.service;
 
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public class ZipperFunctions {
@@ -66,5 +70,37 @@ public class ZipperFunctions {
      */
     static int[] sortedAndFilteredIndices(int[] us) {
         return IntStream.range(0, us.length).boxed().filter(i -> us[i]!=-1).sorted(Comparator.comparingInt(i -> us[i])).mapToInt(i -> i).toArray();
+    }
+
+    public static int minUnrollSteps(boolean[][][] trainingNeeded) {
+        int min = Integer.MAX_VALUE;
+        for (int e = 0; e < trainingNeeded.length; e++) {
+            for (int t1 = 0; t1 < trainingNeeded[e].length; t1++) {
+                for (int t2 = t1; t2 < trainingNeeded[e].length; t2++) {
+                    if (trainingNeeded[e][t1][t2]) {
+                         min = Math.min(min, t2 - t1);
+                    }
+                }
+            }
+        }
+        return min;
+    }
+
+    public static void transferB_OK_to_Episodes(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
+
+        for (int e = 0; e < episodeDOList.size(); e++) {
+            EpisodeDO episodeDO = episodeDOList.get(e);
+            for (int t = 0; t <=  episodeDO.getLastTimeWithAction(); t++) {
+                int s = 0;
+                for (int i = 0; i <= t; i++) {
+                    if (bOkBatch[e][t - i][t]) {
+                        s = i;
+                    } else {
+                        break;
+                    }
+                }
+                episodeDO.getTimeStep(t).setS(s);
+            }
+        }
     }
 }

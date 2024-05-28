@@ -69,7 +69,12 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
 
 
-    public NDArray  evaluateWhatToTrain(NDList labels, NDList predictions, boolean[][][] bOK, int k, Statistics statistics) {
+    public NDArray  evaluateWhatToTrain(NDList labels, NDList predictions, boolean[][][] bOK, int[] from, Statistics statistics) {
+        int symmetryEnhancementFactor = (int)labels.get(0).getShape().get(0)/bOK.length;  // TODO
+
+
+
+
         NDArray[] lossComponents = new NDArray[components.size()];
         int[] iMap = new int[components.size()];
         List<NDArray> rewardMasks = new ArrayList<>();
@@ -104,13 +109,12 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
              // update BOK
             boolean[] okUpdateInfo = okMask.toBooleanArray();
-            for (int j = 0; j < okUpdateInfo.length; j++) {
-                int n = bOK[j].length;
-                int tFrom = n - 1 - k + tau;
+            for (int j = 0; j < bOK.length; j++) {
+               // int n = bOK[j].length;
+                int tFrom =  from[j] ;
                 int tTo = tFrom + tau;
                 bOK[j][tFrom][tTo] = okUpdateInfo[j];   // TODO check, what could lead to an "index 0 out of bounds for length 9"
             }
-
          }
         boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(bOK);
 
@@ -121,9 +125,9 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
             boolean[] okUpdateInfo_ = okMask_.toBooleanArray();
             boolean[] trainingNeeded_ = new boolean[okUpdateInfo_.length];
-            for (int j = 0; j < okUpdateInfo_.length; j++) {
-                int n = bOK[j].length;
-                int tFrom = n - 1 - k + tau;
+            for (int j = 0; j < bOK.length; j++) {
+             //   int n = bOK[j].length;
+                int tFrom =  from[j]  ;
                 int tTo = tFrom + tau;
                 trainingNeeded_[j] = trainingNeeded[j][tFrom][tTo];
             }

@@ -207,7 +207,7 @@ public class GameBuffer {
         episodeIds = null;
     }
 
-    public List<Long> getEpisodeIds() {
+    public List<Long> getShuffledEpisodeIds() {
         int limit = 50000;
         if (episodeIds == null) {
             int offset = 0;
@@ -218,8 +218,8 @@ public class GameBuffer {
                 episodeIds.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
-            Collections.shuffle(episodeIds);
         }
+        Collections.shuffle(episodeIds);
         return episodeIds;
     }
 
@@ -227,7 +227,7 @@ public class GameBuffer {
 
         int n = this.getConfig().getWindowSize();
 
-        List<Long> episodeIdsRulesLearningList = this.getEpisodeIds();
+        List<Long> episodeIdsRulesLearningList = this.getShuffledEpisodeIds();
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
         return   convertEpisodeDOsToGames(episodeDOList, config);
 

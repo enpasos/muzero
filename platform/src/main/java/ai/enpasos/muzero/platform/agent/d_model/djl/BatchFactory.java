@@ -91,11 +91,11 @@ public class BatchFactory {
 
 
     private RulesBuffer rulesBuffer;
-    public Batch getRulesBatchFromBuffer(List<TimeStepDO> batchTimeSteps, NDManager ndManager, boolean withSymmetryEnrichment, int s, int batchSize ) {
+    public Batch getRulesBatchFromBuffer(List<TimeStepDO> batchTimeSteps, NDManager ndManager, boolean withSymmetryEnrichment, int u ) {
 
-        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, s+1)).collect(Collectors.toList());
+        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, u+1)).collect(Collectors.toList());
 
-      return getBatch(ndManager, withSymmetryEnrichment, s+1, sampleList, TrainingDatasetType.RULES_BUFFER);
+      return getBatch(ndManager, withSymmetryEnrichment, u+1, sampleList, TrainingDatasetType.RULES_BUFFER);
 
     }
 
@@ -154,7 +154,7 @@ public class BatchFactory {
 //    }
 
     public Shape @NotNull [] getInputShapes() {
-        return getInputShapes(config.getBatchSize());
+        return getInputShapes(config.getBatchSize() * config.getSymmetryType().getSymmetryEnhancementFactor());
     }
 
     public Shape @NotNull [] getInputShapes(int batchSize) {
