@@ -95,7 +95,7 @@ public class ZipperFunctions {
                 int s = 0;
                 for (int i = 0; i <= t; i++) {
                     if (bOkBatch[e][t - i][t]) {
-                        s = i;
+                        s = i+1;
                     } else {
                         break;
                     }
