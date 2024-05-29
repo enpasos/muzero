@@ -383,42 +383,43 @@ public class ModelController implements DisposableBean, Runnable {
 
                     allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.01, u);
 
+                    if (!allTimeSteps.isEmpty()) {
+
+                        for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
+                            List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
+                            try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {
+                                Statistics stats = new Statistics();
+                                List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
+
+                                int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
+
+                                boolean[][][] b_OK_batch = b_OK_From_Episodes(episodes);
+                                MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
+
+                                // transfer b_OK back from batch array to the games parameter s
+                                ZipperFunctions.transferB_OK_to_Episodes(b_OK_batch, episodes);
+                                dbService.updateEpisodes_S(episodes);
 
 
-                    for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
-                        List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {
-                            Statistics stats = new Statistics();
-                            List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode() ).toList();  // TODO simplify
+                                int tau = 0;   // start with tau = 0
+                                int countNOK = countNOKFromB_OK(b_OK_batch, tau);
+                                int count = stats.getCount();
+                                //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+                                //  rememberOks(batchTimeSteps, oks.getKey(), u);
+                                double sumLossR = stats.getSumLossReward();
+                                double sumMeanLossR = sumLossR / count;
 
-                            int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
-
-                            boolean[][][] b_OK_batch = b_OK_From_Episodes(episodes);
-                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
-
-                            // transfer b_OK back from batch array to the games parameter s
-                          ZipperFunctions.transferB_OK_to_Episodes(b_OK_batch, episodes);
-                            dbService.updateEpisodes_S(episodes);
-
-
-                            int tau = 0;   // start with tau = 0
-                            int countNOK = countNOKFromB_OK(b_OK_batch, tau);
-                            int count = stats.getCount();
-                            //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                            //  rememberOks(batchTimeSteps, oks.getKey(), u);
-                            double sumLossR = stats.getSumLossReward();
-                            double sumMeanLossR = sumLossR / count;
-
-                            double sumLossL = stats.getSumLossLegalActions();
-                            double sumMeanLossL = sumLossL / count;
-                            System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK);
-                            trainer.step();
+                                double sumLossL = stats.getSumLossLegalActions();
+                                double sumMeanLossL = sumLossL / count;
+                                System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK);
+                                trainer.step();
+                            }
                         }
+                        if (!background) {
+                            handleMetrics(trainer, model, epochLocal);
+                        }
+                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                     }
-                    if (!background) {
-                        handleMetrics(trainer, model, epochLocal);
-                    }
-                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
