@@ -111,7 +111,7 @@ public class ZipperFunctions {
 
 
     // stay focused on the timesteps with the given s
-    public static void assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(List<TimeStepDO> allTimeSteps, double fraction, int u) {
+    public static List<TimeStepDO> assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(List<TimeStepDO> allTimeSteps, double fraction, int u) {
         int n = allTimeSteps.size();
         int maxWithoutS = (int) ((1-fraction) * n);
 
@@ -119,11 +119,12 @@ public class ZipperFunctions {
         List<TimeStepDO> allTimeStepsWith = allTimeSteps.stream().filter(ts -> ts.getS() == u).toList();
 
         if (allTimeStepsWithoutS.size() > maxWithoutS) {
-            allTimeSteps.clear();
+            allTimeSteps = new ArrayList<>();
             allTimeSteps.addAll(allTimeStepsWith);
             allTimeSteps.addAll(allTimeStepsWithoutS.subList(0, maxWithoutS));
             Collections.shuffle(allTimeSteps);
         }
+        return allTimeSteps;
 
     }
 }
