@@ -4,6 +4,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -118,7 +119,8 @@ public class ZipperFunctions {
         List<TimeStepDO> allTimeStepsWith = allTimeSteps.stream().filter(ts -> ts.getS() == u).toList();
 
         if (allTimeStepsWithoutS.size() > maxWithoutS) {
-            allTimeSteps = allTimeStepsWith;
+            allTimeSteps.clear();
+            allTimeSteps.addAll(allTimeStepsWith);
             allTimeSteps.addAll(allTimeStepsWithoutS.subList(0, maxWithoutS));
             Collections.shuffle(allTimeSteps);
         }
