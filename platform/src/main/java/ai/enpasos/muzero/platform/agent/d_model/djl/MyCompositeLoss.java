@@ -110,9 +110,10 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
              // update BOK
             boolean[] okUpdateInfo = okMask.toBooleanArray();
             for (int j = 0; j < bOK.length; j++) {
-               // int n = bOK[j].length;
+                int n = bOK[j].length;
                 int tFrom =  from[j] ;
                 int tTo = tFrom + tau;
+                if (tTo >= n) continue;
                 bOK[j][tFrom][tTo] = okUpdateInfo[j];   // TODO check, what could lead to an "index 0 out of bounds for length 9"
             }
          }
@@ -126,8 +127,10 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             boolean[] okUpdateInfo_ = okMask_.toBooleanArray();
             boolean[] trainingNeeded_ = new boolean[okUpdateInfo_.length];
             for (int j = 0; j < trainingNeeded.length; j++) {
+                int n = bOK[j].length;
                 int tFrom =  from[j]  ;
                 int tTo = tFrom + tau;
+                if (tTo >= n) continue;
                 trainingNeeded_[j] = trainingNeeded[j][tFrom][tTo];
             }
             NDArray maskBoolean = ndManager.create(trainingNeeded_);

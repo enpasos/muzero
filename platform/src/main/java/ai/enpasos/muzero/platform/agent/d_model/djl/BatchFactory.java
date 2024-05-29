@@ -115,9 +115,11 @@ public class BatchFactory {
                 .collect(Collectors.toList());
 
         sample.setActionsList(new ArrayList<>());
-        for (int i = 0; i <  s; i++) {
-            int actionIndex = actions.get(gamePos + i);
-            sample.getActionsList().add(actionIndex);
+        for (int i = 0; i < s; i++) {
+            if (actions.size() > gamePos + i) {
+                int actionIndex = actions.get(gamePos + i);
+                sample.getActionsList().add(actionIndex);
+            }
         }
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(s);
