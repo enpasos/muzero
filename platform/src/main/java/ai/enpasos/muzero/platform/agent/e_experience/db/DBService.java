@@ -246,8 +246,8 @@ public class DBService {
     }
 
 
-    @Autowired
-    GameBuffer gameBuffer;
+//    @Autowired
+//    GameBuffer gameBuffer;
 
     public void updateEpisodes_S(List<EpisodeDO> episodes) {
        // Map<Long,Long> timeStepID_AttributeS = new HashMap<>();
