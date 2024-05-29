@@ -375,14 +375,16 @@ public class ModelController implements DisposableBean, Runnable {
                         .filter(MyEpochTrainingListener.class::isInstance)
                         .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
 
-
-
-
                 try (Trainer trainer = model.newTrainer(djlConfig)) {
                     trainer.setMetrics(new Metrics());
                     trainer.initialize(inputShapes);
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
                     List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer );
+
+                    ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.01, u);
+
+
+
                     for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                         List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {

@@ -4,6 +4,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -105,5 +106,22 @@ public class ZipperFunctions {
                 ts.setS(s);
             }
         }
+    }
+
+
+    // stay focused on the timesteps with the given s
+    public static void assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(List<TimeStepDO> allTimeSteps, double fraction, int u) {
+        int n = allTimeSteps.size();
+        int maxWithoutS = (int) ((1-fraction) * n);
+
+        List<TimeStepDO> allTimeStepsWithoutS = allTimeSteps.stream().filter(ts -> ts.getS() != u).toList();
+        List<TimeStepDO> allTimeStepsWith = allTimeSteps.stream().filter(ts -> ts.getS() == u).toList();
+
+        if (allTimeStepsWithoutS.size() > maxWithoutS) {
+            allTimeSteps = allTimeStepsWith;
+            allTimeSteps.addAll(allTimeStepsWithoutS.subList(0, maxWithoutS));
+            Collections.shuffle(allTimeSteps);
+        }
+
     }
 }
