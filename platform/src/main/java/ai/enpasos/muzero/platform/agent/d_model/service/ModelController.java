@@ -357,7 +357,8 @@ public class ModelController implements DisposableBean, Runnable {
 
             boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(b_OK);
 
-            int u = ZipperFunctions.minUnrollSteps(trainingNeeded);
+      //      int u = ZipperFunctions.minUnrollSteps(trainingNeeded);
+            int u = 1; // for testing
 
             Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
 
@@ -381,9 +382,9 @@ public class ModelController implements DisposableBean, Runnable {
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
                     List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer );
 
-                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.1, u);
-
-                    if (!allTimeSteps.isEmpty()) {
+//                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.1, u);
+//
+//                    if (!allTimeSteps.isEmpty()) {
 
                         for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                             List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
@@ -419,7 +420,7 @@ public class ModelController implements DisposableBean, Runnable {
                             handleMetrics(trainer, model, epochLocal);
                         }
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                    }
+                   // }
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
