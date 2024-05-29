@@ -381,7 +381,7 @@ public class ModelController implements DisposableBean, Runnable {
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
                     List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer );
 
-                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.01, u);
+                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.1, u);
 
                     if (!allTimeSteps.isEmpty()) {
 
