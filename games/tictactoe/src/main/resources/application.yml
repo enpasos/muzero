@@ -47,8 +47,8 @@ muzero:
       numUnrollSteps: 5
 
       discount: 1.0
-      weightDecay: 0.0001
-      lrInit: 0.0001
+      weightDecay: 0.00001
+      lrInit: 0.00001
 
       # numberTrainingStepsOnStart: 0
 
@@ -96,7 +96,7 @@ muzero:
       consistencyLossWeight: 2
       # legalActionsLossWeight: 0.1111  # 1/actionSpaceSize
 
-      numberOfTrainingSteps: 50000
+      numberOfTrainingSteps: 1000000
 
       windowSize: 10000
       initialRandomEpisodes: 20000

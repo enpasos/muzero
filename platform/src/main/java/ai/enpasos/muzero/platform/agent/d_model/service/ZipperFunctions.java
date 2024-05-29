@@ -2,6 +2,7 @@ package ai.enpasos.muzero.platform.agent.d_model.service;
 
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 
 import java.util.Comparator;
 import java.util.List;
@@ -99,7 +100,9 @@ public class ZipperFunctions {
                         break;
                     }
                 }
-                episodeDO.getTimeStep(t).setS(s);
+                TimeStepDO ts = episodeDO.getTimeStep(t);
+                ts.setSChanged(ts.getS() != s);
+                ts.setS(s);
             }
         }
     }

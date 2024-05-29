@@ -125,8 +125,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
             boolean[] okUpdateInfo_ = okMask_.toBooleanArray();
             boolean[] trainingNeeded_ = new boolean[okUpdateInfo_.length];
-            for (int j = 0; j < bOK.length; j++) {
-             //   int n = bOK[j].length;
+            for (int j = 0; j < trainingNeeded.length; j++) {
                 int tFrom =  from[j]  ;
                 int tTo = tFrom + tau;
                 trainingNeeded_[j] = trainingNeeded[j][tFrom][tTo];

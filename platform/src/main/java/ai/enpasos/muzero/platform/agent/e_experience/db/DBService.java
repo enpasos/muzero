@@ -243,4 +243,20 @@ public class DBService {
         valueRepo.markArchived();
         log.info("...markArchived.");
     }
+
+    public void updateEpisodes_S(List<EpisodeDO> episodes) {
+       // Map<Long,Long> timeStepID_AttributeS = new HashMap<>();
+         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+                     //  timeStepID_AttributeS.put(ts.getId(), (long)ts.getS())
+                     if (ts.isSChanged()) {
+                         timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS());
+                     }
+                 }
+                 ));
+
+
+
+
+
+    }
 }

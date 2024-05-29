@@ -21,6 +21,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
@@ -70,6 +71,9 @@ public class ModelController implements DisposableBean, Runnable {
     private Network network;
     @Autowired
     private ModelState modelState;
+
+    @Autowired
+    private DBService dbService;
 
     private final DurAndMem inferenceDuration = new DurAndMem();
 
@@ -392,11 +396,9 @@ public class ModelController implements DisposableBean, Runnable {
 
                             // transfer b_OK back from batch array to the games parameter s
                           ZipperFunctions.transferB_OK_to_Episodes(b_OK_batch, episodes);
-//                                for (int j = i_start; j < i_end_excluded; j++) {
-//                                    for (int s = 0; s < symFactor; s++) {
-//                                        b_OK[sortedIndices[j]] = b_OK_batch[s * (i_end_excluded - i_start) + (j - i_start)];
-//                                    }
-//                                }
+                            dbService.updateEpisodes_S(episodes);
+
+
                             int tau = 0;   // start with tau = 0
                             int countNOK = countNOKFromB_OK(b_OK_batch, tau);
                             int count = stats.getCount();

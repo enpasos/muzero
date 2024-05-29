@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
@@ -124,6 +125,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     int maxBox( );
 
 
-
-
+    @Transactional
+    @Modifying
+    @Query(value = "update TimeStepDO t set t.s = :s where t.id = :id" )
+    void updateAttributeS(Long id, long s);
 }

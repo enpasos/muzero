@@ -210,7 +210,7 @@ public class TrainingConfigFactory {
 
     }
     private Optimizer setupAdamOptimizer(int trainingStep) {
-        float lr = config.getLr(trainingStep) / 10;
+        float lr = config.getLr(trainingStep)  ;
         log.trace("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 
