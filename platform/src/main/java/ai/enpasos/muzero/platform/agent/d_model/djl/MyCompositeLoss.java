@@ -114,7 +114,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 int tFrom =  from[j] ;
                 int tTo = tFrom + tau;
                 if (tTo >= n) continue;
-                bOK[j][tFrom][tTo] = okUpdateInfo[j];   // TODO check, what could lead to an "index 0 out of bounds for length 9"
+                bOK[j][tFrom][tTo] = okUpdateInfo[j];   // not taking the symmetry into account here, a voting mechanism could be implemented
             }
          }
         boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(bOK);
@@ -122,16 +122,19 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         List<NDArray> masks = new ArrayList<>();
         NDManager ndManager = legalActionMasks.get(0).getManager();
         for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-            NDArray okMask_ = legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau));
+         //   NDArray okMask_ = legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau));
 
-            boolean[] okUpdateInfo_ = okMask_.toBooleanArray();
-            boolean[] trainingNeeded_ = new boolean[okUpdateInfo_.length];
+          //  boolean[] okUpdateInfo_ = okMask_.toBooleanArray();
+            boolean[] trainingNeeded_ = new boolean[bOK.length * symmetryEnhancementFactor];
             for (int j = 0; j < trainingNeeded.length; j++) {
                 int n = bOK[j].length;
                 int tFrom =  from[j]  ;
                 int tTo = tFrom + tau;
                 if (tTo >= n) continue;
-                trainingNeeded_[j] = trainingNeeded[j][tFrom][tTo];
+                for (int s = 0; s < symmetryEnhancementFactor; s++) {
+                    trainingNeeded_[j * symmetryEnhancementFactor + s] = trainingNeeded[j][tFrom][tTo];
+                }
+               // trainingNeeded_[j] = trainingNeeded[j][tFrom][tTo];
             }
             NDArray maskBoolean = ndManager.create(trainingNeeded_);
         //   NDArray maskInt = maskBoolean.toType(DataType.INT32, false);

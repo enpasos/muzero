@@ -357,8 +357,8 @@ public class ModelController implements DisposableBean, Runnable {
 
             boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(b_OK);
 
-      //      int u = ZipperFunctions.minUnrollSteps(trainingNeeded);
-            int u = 2; // for testing
+            int u = ZipperFunctions.minUnrollSteps(trainingNeeded);
+         //   int u = 1; // for testing
 
             Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
 
