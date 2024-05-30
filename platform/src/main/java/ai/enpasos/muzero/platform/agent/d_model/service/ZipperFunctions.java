@@ -66,7 +66,7 @@ public class ZipperFunctions {
         return trainingNeeded;
     }
 
-    public static float[][][] trainingNeededFloat(boolean[][][] bOk, float forceReductionOnClosedZipper) {
+    public static float[][][] trainingNeededFloat(boolean[][][] bOk, float forceScaleOnClosedZipper) {
         float[][][] trainingNeeded = new float[bOk.length][][];
         for (int e = 0; e < bOk.length; e++) {
             int n = bOk[e].length;
@@ -75,7 +75,7 @@ public class ZipperFunctions {
                 boolean zipperClosedBefore = true;
                 for (int tau = 0; tau <= to; tau++) {
                     boolean zipperClosed = bOk[e][to - tau][to];
-                    trainingNeeded[e][to - tau][to] =  zipperClosedBefore && zipperClosed  ?  forceReductionOnClosedZipper : (!zipperClosed && zipperClosedBefore ? 1f : 0f);
+                    trainingNeeded[e][to - tau][to] =  zipperClosedBefore && zipperClosed  ?  forceScaleOnClosedZipper : (!zipperClosed && zipperClosedBefore ? 1f : 0f);
                     zipperClosedBefore = zipperClosed;
                 }
             }
