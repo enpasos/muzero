@@ -117,7 +117,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 bOK[j][tFrom][tTo] = okUpdateInfo[j];   // not taking the symmetry into account here, a voting mechanism could be implemented
             }
          }
-        float[][][] trainingNeeded = ZipperFunctions.trainingNeededFloat(bOK, 0.001f);
+        float[][][] trainingNeeded = ZipperFunctions.trainingNeededFloat(bOK, 10f);
 
         List<NDArray> masks = new ArrayList<>();
         NDManager ndManager = legalActionMasks.get(0).getManager();
