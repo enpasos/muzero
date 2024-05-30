@@ -255,6 +255,7 @@ public class DBService {
                      //  timeStepID_AttributeS.put(ts.getId(), (long)ts.getS())
                      if (ts.isSChanged()) {
                          timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS());
+                         ts.setSChanged(false);
                      }
                    //  gameBuffer.putAttributeS_to_timestepId(ts.getId(), ts.getS());
                  }
