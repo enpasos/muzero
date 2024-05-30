@@ -107,6 +107,20 @@ public class ZipperFunctions {
         return min;
     }
 
+    public static int maxUnrollSteps(boolean[][][] trainingNeeded) {
+        int max = Integer.MIN_VALUE;
+        for (int e = 0; e < trainingNeeded.length; e++) {
+            for (int t1 = 0; t1 < trainingNeeded[e].length; t1++) {
+                for (int t2 = t1; t2 < trainingNeeded[e].length; t2++) {
+                    if (trainingNeeded[e][t1][t2]) {
+                        max = Math.max(max, t2 - t1);
+                    }
+                }
+            }
+        }
+        return max;
+    }
+
     public static void transferB_OK_to_Episodes(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
 
         for (int e = 0; e < episodeDOList.size(); e++) {
