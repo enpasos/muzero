@@ -207,7 +207,7 @@ public class ModelController implements DisposableBean, Runnable {
 
 
                   // final int epoch = -1;
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch, true, false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
 
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -290,7 +290,7 @@ public class ModelController implements DisposableBean, Runnable {
                     int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
                     boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
                     epochLocal = getEpochFromModel(model);
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
+                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal,!background, background, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
                     int finalEpoch = epochLocal;
                     djlConfig.getTrainingListeners().stream()
                             .filter(MyEpochTrainingListener.class::isInstance)
@@ -342,9 +342,16 @@ public class ModelController implements DisposableBean, Runnable {
         rulesBuffer.setEpisodeIds(gameBuffer.getShuffledEpisodeIds());
         int w = 0;
 
+
+        Model model = network.getModel();
+        MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
+        muZeroBlock.setRulesModel(true);
+        int epochLocal = getEpochFromModel(model);
+
         System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK");
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
+            boolean save = !iterator.hasNext();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             Collections.shuffle(gameBuffer);
@@ -360,17 +367,15 @@ public class ModelController implements DisposableBean, Runnable {
             int u = ZipperFunctions.minUnrollSteps(trainingNeeded);
          //   int u = 1; // for testing
 
+            muZeroBlock.setNumUnrollSteps(u + 1);
+
             Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
 
 
             try (NDScope nDScope = new NDScope()) {
-                Model model = network.getModel();
-                MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
-                muZeroBlock.setRulesModel(true);
-                muZeroBlock.setNumUnrollSteps(u + 1);
-                int epochLocal = getEpochFromModel(model);
 
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, background, false, true, u + 1);
+
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, false, true, u + 1);
                 int finalEpoch = epochLocal;
                 djlConfig.getTrainingListeners().stream()
                         .filter(MyEpochTrainingListener.class::isInstance)
@@ -608,7 +613,7 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
         } catch (Exception e) {
             e.printStackTrace();
             final int epoch = -1;
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch,  false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch, true, false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
 
             djlConfig.getTrainingListeners().stream()
                 .filter(MyEpochTrainingListener.class::isInstance)

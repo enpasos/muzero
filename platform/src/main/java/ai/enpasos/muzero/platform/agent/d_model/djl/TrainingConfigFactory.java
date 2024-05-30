@@ -30,7 +30,7 @@ public class TrainingConfigFactory {
     MySaveModelTrainingListener mySaveModelTrainingListener;
 
 
-    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean background, boolean isWithConsistencyLoss, boolean isRulesModel, int numUnrollSteps) {
+    public DefaultTrainingConfig setupTrainingConfig(int epoch, boolean saveModel, boolean background, boolean isWithConsistencyLoss, boolean isRulesModel, int numUnrollSteps) {
 
         String outputDir = config.getNetworkBaseDir();
 
@@ -109,7 +109,10 @@ public class TrainingConfigFactory {
         if (!background) {
             c.addTrainingListeners(
                     new MyEpochTrainingListener(),
-                    new MyLoggingTrainingListener(epoch),
+                    new MyLoggingTrainingListener(epoch) );
+        }
+        if (saveModel) {
+            c.addTrainingListeners(
                     mySaveModelTrainingListener);
         }
         return c;
