@@ -149,7 +149,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             if (loss.getName().contains("legal_actions")) {
 
                 NDArray intMask = masks.get(iMap[i]) ;
-                int c = (int)intMask.sum().toLongArray()[0];  // TODO check, why long not int
+                int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
                 statistics.setCount(statistics.getCount() + c);
                 lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
