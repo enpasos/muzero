@@ -81,7 +81,7 @@ class ZipperFunctionsTest {
                 {0f, 1f }
         }
         };
-        float[][][] output = ZipperFunctions.trainingNeededFloat(input, 10);
+        float[][][] output = ZipperFunctions.trainingNeededFloat(input, 0.1f);
         assertArrayEquals(expected[0], output[0]);
         assertArrayEquals(expected[1], output[1]);
     }
