@@ -284,12 +284,11 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         predictionBlock.setWithLegalAction(true);
         predictionBlock.initialize(manager, dataType, predictionInputShape);
 
-
-        Shape actionShape = inputShapes[1];
-        Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
-
-
-        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+        if(inputShapes.length > 1) {
+            Shape actionShape = inputShapes[1];
+            Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
+            dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
+        }
 
     }
 
