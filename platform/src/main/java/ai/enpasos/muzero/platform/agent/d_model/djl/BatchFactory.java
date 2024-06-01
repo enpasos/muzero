@@ -174,7 +174,7 @@ public class BatchFactory {
     }
 
     public Shape @NotNull [] getInputShapesForRules(int batchSize, int s ) {
-        Shape[] shapes = new Shape[s + 2];
+        Shape[] shapes = new Shape[s + 1];
         shapes[0] = new Shape(batchSize, config.getNumObservationLayers(), config.getBoardHeight(), config.getBoardWidth());
         for (int k = 1; k < shapes.length; k++) {
             shapes[k] = new Shape(batchSize, config.getNumActionLayers(), config.getBoardHeight(), config.getBoardWidth());

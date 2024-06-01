@@ -305,38 +305,39 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         }
 
 
-    public Shape[] getOutputShapesRulesModel(Shape[] inputShapes) {
-        Shape[] outputShapes = new Shape[0];
-
-        // initial Inference
-        predictionBlock.setWithReward(false);
-        predictionBlock.setWithValue(false);
-        predictionBlock.setWithLegalAction(true);
-        predictionBlock.setWithPolicy(false);
-        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
-
-        Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-        Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
-
-        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
-        outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
-
-        int k = 1;
-        // recurrent Inference
-        predictionBlock.setWithReward(true);
-
-        Shape stateShape = stateOutputShapes[0];
-        Shape actionShape = inputShapes[k];
-        Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
-
-        stateOutputShapes = dynamicsBlock.getOutputShapes( dynamicInShape );
-
-        stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-
-        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
-
-        return outputShapes;
-    }
+//    public Shape[] getOutputShapesRulesModel(Shape[] inputShapes) {
+//        Shape[] outputShapes = new Shape[0];
+//
+//        // initial Inference
+//        predictionBlock.setWithReward(false);
+//        predictionBlock.setWithValue(false);
+//        predictionBlock.setWithLegalAction(true);
+//        predictionBlock.setWithPolicy(false);
+//        Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
+//
+//        Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+//        Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+//
+//        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
+//        outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
+//
+//        int k = 1;
+//        // recurrent Inference
+//
+//        predictionBlock.setWithReward(true);
+//
+//        Shape stateShape = stateOutputShapes[0];
+//        Shape actionShape = inputShapes[k];
+//        Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
+//
+//        stateOutputShapes = dynamicsBlock.getOutputShapes( dynamicInShape );
+//
+//        stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
+//
+//        outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
+//
+//        return outputShapes;
+//    }
 
 
 
