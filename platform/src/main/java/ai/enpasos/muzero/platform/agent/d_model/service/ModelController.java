@@ -355,17 +355,14 @@ public class ModelController implements DisposableBean, Runnable {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             Collections.shuffle(gameBuffer);
-            // now the game buffer is filled with games from the database
-            // find tmaxmax as the maximum tmax of all games
-            //  int[] tmax = gameBuffer.stream().mapToInt(game -> game.getEpisodeDO().getLastTimeWithAction()).toArray();
-            //  int tmaxmax = Arrays.stream(tmax).max().orElse(0);
+
             int tmaxmax = 0;
             boolean[][][] b_OK = b_OK_From_Games(gameBuffer);
 
             boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(b_OK);
 
-            int u = ZipperFunctions.maxUnrollSteps(trainingNeeded);
-         //   int u = 1; // for testing
+            int u = ZipperFunctions.minUnrollSteps(trainingNeeded);
+
 
             muZeroBlock.setNumUnrollSteps(u);
 
