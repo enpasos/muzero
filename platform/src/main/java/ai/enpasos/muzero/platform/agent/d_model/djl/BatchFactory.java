@@ -93,9 +93,9 @@ public class BatchFactory {
     private RulesBuffer rulesBuffer;
     public Batch getRulesBatchFromBuffer(List<TimeStepDO> batchTimeSteps, NDManager ndManager, boolean withSymmetryEnrichment, int u ) {
 
-        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, u+1)).collect(Collectors.toList());
+        List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, u)).collect(Collectors.toList());
 
-      return getBatch(ndManager, withSymmetryEnrichment, u+1, sampleList, TrainingDatasetType.RULES_BUFFER);
+      return getBatch(ndManager, withSymmetryEnrichment, u, sampleList, TrainingDatasetType.RULES_BUFFER);
 
     }
 

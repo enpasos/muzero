@@ -367,7 +367,7 @@ public class ModelController implements DisposableBean, Runnable {
             int u = ZipperFunctions.maxUnrollSteps(trainingNeeded);
          //   int u = 1; // for testing
 
-            muZeroBlock.setNumUnrollSteps(u + 1);
+            muZeroBlock.setNumUnrollSteps(u);
 
             Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
 
@@ -375,7 +375,7 @@ public class ModelController implements DisposableBean, Runnable {
             try (NDScope nDScope = new NDScope()) {
 
 
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, false, true, u + 1);
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, false, true, u );
                 int finalEpoch = epochLocal;
                 djlConfig.getTrainingListeners().stream()
                         .filter(MyEpochTrainingListener.class::isInstance)

@@ -132,9 +132,9 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
                 stateForPrediction = firstHalfNDList(dynamicsResult);
                 stateForTimeEvolution = secondHalfNDList(dynamicsResult);
 
-                if (k == numUnrollSteps) {
-                    predictionBlock.setWithLegalAction(false);
-                }
+//                if (k == numUnrollSteps) {
+//                    predictionBlock.setWithLegalAction(false);
+//                }
                 predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
                 if (config.isWithConsistencyLoss()) {
@@ -284,17 +284,13 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         predictionBlock.setWithLegalAction(true);
         predictionBlock.initialize(manager, dataType, predictionInputShape);
 
-try {
-    Shape actionShape = inputShapes[1];
-    Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
+
+        Shape actionShape = inputShapes[1];
+        Shape[] dynamicsInputShape = getDynamicsInputShape(stateOutputShapes, actionShape);
 
 
-    dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
-} catch (Exception e) {
+        dynamicsBlock.initialize(manager, dataType, dynamicsInputShape);
 
-    e.printStackTrace();
-    throw e;
-}
     }
 
 

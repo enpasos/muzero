@@ -212,14 +212,14 @@ public class InputOutputConstruction {
 
                         b++;
                     }
-                    if (k != numUnrollSteps) {
+                  //  if (k != numUnrollSteps) {
                         legalActionsOutput2 = nd.create(legalActionsArray).reshape(new Shape(batch.size(), actionSize));
                         if (withSymmetryEnrichment) {
                             outputs.add(symmetryEnhancerPolicy(legalActionsOutput2));
                         } else {
                             outputs.add(legalActionsOutput2);
                         }
-                    }
+                  //  }
                     if (k > 0) {
                         rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
                         if (withSymmetryEnrichment) {

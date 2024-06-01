@@ -67,12 +67,12 @@ public class TrainingConfigFactory {
                 loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
                 k++;
             }
-            if (i != numUnrollSteps) {
+           // if (i != numUnrollSteps) {
                 // legal actions
                 log.trace("k={}: LegalActions BCELoss", k);
                 loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + i, 1f / this.config.getActionSpaceSize() * gradientScale, 1), k));
                 k++;
-            }
+          //  }
 
 
             // reward

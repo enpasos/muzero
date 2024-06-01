@@ -1,7 +1,7 @@
 [versions]
 lombok = "1.18.32"
 djl = "0.29.0-SNAPSHOT"
-pytorch = "2.2.2" # "2.3.0" should work soon
+pytorch = "2.2.2" # do not use 2.3.0! There is a dynamical linkage problem with the native library mkl_intel_thread.1.dll. Will be fixed in 2.3.1 linking MKL statically
 
 slf4j = "2.0.13"
 springboot = "3.3.0"

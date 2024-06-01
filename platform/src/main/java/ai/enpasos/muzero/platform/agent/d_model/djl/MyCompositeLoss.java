@@ -89,7 +89,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 NDArray  mask = lossComponents[i].stopGradient().lte(0.3f);
                 NDArray intArray = mask.toType(DataType.INT32, false);
                  mask = intArray.min(new int[]{1}, true);
-                legalActionMasks.add(mask);
+                legalActionMasks.add(mask.toType(DataType.BOOLEAN, false));
                 iMap[i]  =  legalActionMasks.size() - 1;
                 lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
@@ -105,7 +105,12 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
 
          for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-             NDArray okMask = legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau));
+
+                 NDArray okMask = ( rewardMasks.size() > tau) ?
+                            legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau - 1))
+                         :
+                            legalActionMasks.get(tau);
+
 
              // update BOK
             boolean[] okUpdateInfo = okMask.toBooleanArray();
@@ -122,9 +127,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         List<NDArray> masks = new ArrayList<>();
         NDManager ndManager = legalActionMasks.get(0).getManager();
         for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-         //   NDArray okMask_ = legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau));
-
-          //  boolean[] okUpdateInfo_ = okMask_.toBooleanArray();
             float[] trainingNeeded_ = new float[bOK.length * symmetryEnhancementFactor];
             for (int j = 0; j < trainingNeeded.length; j++) {
                 int n = bOK[j].length;
@@ -134,11 +136,8 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 for (int s = 0; s < symmetryEnhancementFactor; s++) {
                     trainingNeeded_[j * symmetryEnhancementFactor + s] = trainingNeeded[j][tFrom][tTo];
                 }
-               // trainingNeeded_[j] = trainingNeeded[j][tFrom][tTo];
             }
             NDArray floatMask = ndManager.create(trainingNeeded_);
-        //   NDArray maskInt = maskBoolean.toType(DataType.INT32, false);
-         //   NDArray intMask = maskBoolean.toType(DataType.INT32, true);
             masks.add(floatMask);
 
         }
@@ -147,13 +146,12 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss) components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-
                 NDArray intMask = masks.get(iMap[i]) ;
                 int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
                 statistics.setCount(statistics.getCount() + c);
                 lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
-                float v = lossComponents[i].sum().toFloatArray()[0];
+                float v = lossComponents[i].toFloatArray()[0];
                 statistics.setSumLossLegalActions(statistics.getSumLossLegalActions() + v);
             } else if (loss.getName().contains("reward")) {
                 NDArray intMask = masks.get(iMap[i]) ;
@@ -165,8 +163,11 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             }
         }
 
-
-return NDArrays.add(lossComponents);
+        if (lossComponents.length == 1) {
+            return lossComponents[0];
+        } else {
+            return NDArrays.add(lossComponents);
+        }
      //   return new Pair(NDArrays.add(lossComponents), NDArrays.stack(null,1));
     }
 
