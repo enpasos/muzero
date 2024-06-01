@@ -94,20 +94,18 @@ public class ZipperFunctions {
     }
 
     public static int unrollSteps(boolean[][][] b_OK) {
-        int sMax = 0;
-        for (int e = 0; e < b_OK.length; e++) {
-            sMax = Math.max(b_OK.length, sMax);
-            for (int s = 0; s < b_OK[e].length; s++) {
-
-                for (int t1 = 0; t1 < b_OK[e].length && t1 + s >= 0; t1++) {
-                    if (!b_OK[e][t1][t1+s]) {
+        // sMax is the maximum size minus one of any square b_OK[e] with e = 0, ..., b_OK.length - 1
+        int sMax =  IntStream.range(0,b_OK.length).map(e -> b_OK[e].length - 1).max().orElse(0);
+        for (int s = 0; s <= sMax; s++) {
+            for (int e = 0; e < b_OK.length; e++) {
+                for (int t1 = 0; t1 < b_OK[e].length - s   ; t1++) {
+                    if (!b_OK[e][t1][t1 + s]) {
                         return s;
                     }
-
                 }
             }
         }
-        return sMax;
+        return sMax + 1;
     }
 
     public static int maxUnrollSteps(boolean[][][] trainingNeeded) {

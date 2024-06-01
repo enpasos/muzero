@@ -6,6 +6,64 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ZipperFunctionsTest {
 
+
+
+
+
+    @Test
+    void unrollStepsA() {
+        boolean[][][] input = {{
+                {false, false, false},
+                {false, false, false},
+                {false, false, false}
+        }, {
+                {false, false },
+                {false, false }
+        }
+        };
+        assertEquals(0, ZipperFunctions.unrollSteps(input));
+    }
+
+    @Test
+    void unrollStepsB() {
+        boolean[][][] input = {{
+                {true, false, true},
+                {false, true, false},
+                {false, false, true}
+        }, {
+                {false, false },
+                {false, false }
+        }
+        };
+        assertEquals(0, ZipperFunctions.unrollSteps(input));
+    }
+    @Test
+    void unrollStepsC() {
+        boolean[][][] input = {{
+                {true, false, true},
+                {false, true, false},
+                {false, false, true}
+        }, {
+                {true, false },
+                {false, true }
+        }
+        };
+        assertEquals(1, ZipperFunctions.unrollSteps(input));
+    }
+    @Test
+    void unrollStepsD() {
+        boolean[][][] input = {{
+                {true, true, true},
+                {false, true, true},
+                {false, false, true}
+        }, {
+                {true, true },
+                {false, true }
+        }
+        };
+        assertEquals(3, ZipperFunctions.unrollSteps(input));
+    }
+
     @Test
     void determineUnrollSteps() {
 
