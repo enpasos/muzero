@@ -106,7 +106,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
          for (int tau = 0; tau < legalActionMasks.size(); tau++) {
 
-                 NDArray okMask = ( rewardMasks.size() > tau) ?
+                 NDArray okMask = ( rewardMasks.size() > tau && tau > 0) ?
                             legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau - 1))
                          :
                             legalActionMasks.get(tau);

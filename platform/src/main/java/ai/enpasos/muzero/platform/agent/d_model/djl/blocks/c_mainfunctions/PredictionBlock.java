@@ -162,10 +162,8 @@ private boolean withReward;
 
         legalActionsHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
         rewardHead.initialize(manager, dataType, new Shape[]{inputShapes[0] });
-      //  Shape combinedShape = combineShapes(inputShapes[0], inputShapes[1]);
         Shape combinedShape = inputShapes[1];
         policyHead.initialize(manager, dataType, new Shape[]{combinedShape});
-   //     combinedShape = combineShapes(combinedShape, inputShapes[2]);
         combinedShape =  inputShapes[2] ;
         valueHead.initialize(manager, dataType, new Shape[]{combinedShape});
     }
