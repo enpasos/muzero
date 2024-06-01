@@ -93,18 +93,21 @@ public class ZipperFunctions {
         return IntStream.range(0, us.length).boxed().filter(i -> us[i]!=-1).sorted(Comparator.comparingInt(i -> us[i])).mapToInt(i -> i).toArray();
     }
 
-    public static int minUnrollSteps(boolean[][][] trainingNeeded) {
-        int min = Integer.MAX_VALUE;
-        for (int e = 0; e < trainingNeeded.length; e++) {
-            for (int t1 = 0; t1 < trainingNeeded[e].length; t1++) {
-                for (int t2 = t1; t2 < trainingNeeded[e].length; t2++) {
-                    if (trainingNeeded[e][t1][t2]) {
-                         min = Math.min(min, t2 - t1);
+    public static int unrollSteps(boolean[][][] b_OK) {
+        int sMax = 0;
+        for (int e = 0; e < b_OK.length; e++) {
+            sMax = Math.max(b_OK.length, sMax);
+            for (int s = 0; s < b_OK[e].length; s++) {
+
+                for (int t1 = 0; t1 < b_OK[e].length && t1 + s >= 0; t1++) {
+                    if (!b_OK[e][t1][t1+s]) {
+                        return s;
                     }
+
                 }
             }
         }
-        return min;
+        return sMax;
     }
 
     public static int maxUnrollSteps(boolean[][][] trainingNeeded) {
