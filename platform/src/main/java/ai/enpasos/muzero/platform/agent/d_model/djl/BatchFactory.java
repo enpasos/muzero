@@ -107,18 +107,17 @@ public class BatchFactory {
         sample.setGame(game);
         int gamePos = ts.getT() ;
         ObservationModelInput observation = game.getObservationModelInput(gamePos);
-
         sample.getObservations().add(observation);
-        List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
-                .filter(timeStepDO -> timeStepDO.getAction() != null)
-                .map(timeStepDO -> (Integer)timeStepDO.getAction())
-                .collect(Collectors.toList());
+        List<Integer> actions =  game.getEpisodeDO().getActions();
+
 
         sample.setActionsList(new ArrayList<>());
         for (int i = 0; i < s; i++) {
             if (actions.size() > gamePos + i) {
                 int actionIndex = actions.get(gamePos + i);
                 sample.getActionsList().add(actionIndex);
+                observation = game.getObservationModelInput(1 + actionIndex);  // TODO check index
+                sample.getObservations().add(observation);
             }
         }
         sample.setGamePos(gamePos);

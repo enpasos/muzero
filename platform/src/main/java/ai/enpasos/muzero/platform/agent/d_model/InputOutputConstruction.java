@@ -142,7 +142,6 @@ public class InputOutputConstruction {
                 })
                 .collect(Collectors.toList());
 
-        //    inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));
 
             if (withSymmetryEnrichment) {
                 inputs.add(symmetryEnhancerReturnNDArray(NDArrays.stack(new NDList(o))));

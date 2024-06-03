@@ -207,8 +207,14 @@ return true;
         //  - policy
         //  - value
         //
-        int numRolloutSteps = 5;   // TODO make configurable
-        if (labels.size() != 3 + 4 * (numRolloutSteps)) {
+        int numRolloutSteps = (preds.size() - labels.size()) /2 ;
+        if ((preds.size() - labels.size()) % 2 != 0) {
+            throw new MuZeroException("unexpected number of predictions and labels");
+        }
+
+        int c = (labels.size() - (1 + 2 * numRolloutSteps)) / (1 + numRolloutSteps);
+
+        if (! (c == 0 || c == 1 || c == 2)) {
             throw new MuZeroException("unexpected number of labels");
         }
 
@@ -227,18 +233,15 @@ return true;
         //  - legal actions
         //  - policy
         //  - value
-        if (preds.size() != 3 + 6 * (numRolloutSteps)) {
-            throw new MuZeroException("unexpected number of predictions");
-        }
 
 
 
         // move consistency:similarityPredictorResult from predictions to labels
 
 
-        int a = 3;
-        //    int offset = 2;
-        int b = 5;
+        int a = 1 + c;
+
+        int b = 2 + c;
 
         IntStream.range(0, numRolloutSteps).forEach(i ->
                 labels.add(a +  b * i, preds.get(a +  1 + (b + 1) * i))
