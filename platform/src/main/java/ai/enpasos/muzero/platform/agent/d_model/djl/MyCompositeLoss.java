@@ -149,13 +149,13 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 NDArray intMask = masks.get(iMap[i]) ;
                 int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
                 statistics.setCount(statistics.getCount() + c);
-                lossComponents[i] = lossComponents[i].mul(intMask);
+             //   lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
                 float v = lossComponents[i].toFloatArray()[0];
                 statistics.setSumLossLegalActions(statistics.getSumLossLegalActions() + v);
             } else if (loss.getName().contains("reward")) {
                 NDArray intMask = masks.get(iMap[i]) ;
-                lossComponents[i] = lossComponents[i].mul(intMask);
+             //   lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
 
                 float v = lossComponents[i].sum().toFloatArray()[0];
@@ -168,7 +168,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         } else {
             return NDArrays.add(lossComponents);
         }
-     //   return new Pair(NDArrays.add(lossComponents), NDArrays.stack(null,1));
     }
 
 }
