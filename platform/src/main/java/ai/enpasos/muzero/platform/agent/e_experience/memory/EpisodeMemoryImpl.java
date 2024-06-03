@@ -28,8 +28,10 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
            gameList.remove(0);
         }
         gameList.add(game);
-
     }
+
+
+
 
 
     @Override

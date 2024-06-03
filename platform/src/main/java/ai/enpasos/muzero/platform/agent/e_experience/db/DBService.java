@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db;
 
 
+import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
@@ -242,5 +243,27 @@ public class DBService {
         log.info("valueRepo.markArchived() ...");
         valueRepo.markArchived();
         log.info("...markArchived.");
+    }
+
+
+//    @Autowired
+//    GameBuffer gameBuffer;
+
+    public void updateEpisodes_S(List<EpisodeDO> episodes) {
+       // Map<Long,Long> timeStepID_AttributeS = new HashMap<>();
+         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+                     //  timeStepID_AttributeS.put(ts.getId(), (long)ts.getS())
+                     if (ts.isSChanged()) {
+                         timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS());
+                         ts.setSChanged(false);
+                     }
+                   //  gameBuffer.putAttributeS_to_timestepId(ts.getId(), ts.getS());
+                 }
+                 ));
+
+
+
+
+
     }
 }

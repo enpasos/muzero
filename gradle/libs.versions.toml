@@ -1,13 +1,13 @@
 [versions]
 lombok = "1.18.32"
-djl = "0.28.0-SNAPSHOT"
-pytorch = "2.1.2"
+djl = "0.29.0-SNAPSHOT"
+pytorch = "2.2.2" # do not use 2.3.0! There is a dynamical linkage problem with the native library mkl_intel_thread.1.dll. Will be fixed in 2.3.1 linking MKL statically
 
 slf4j = "2.0.13"
-springboot = "3.2.5"
-protobuf = "4.26.1"
+springboot = "3.3.0"
+protobuf = "4.27.0"
 junit = "5.10.2"
-jackson = "2.17.0"
+jackson = "2.17.1"
 postgres = "42.7.3"
 
 [libraries]
@@ -22,7 +22,7 @@ djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", ver
 
 commons-math = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
 commons-csv = { module = "org.apache.commons:commons-csv", version = "1.11.0" }
-commons-cli = { module = "commons-cli:commons-cli", version = "1.7.0" }
+commons-cli = { module = "commons-cli:commons-cli", version = "1.8.0" }
 commons-io = { module = "commons-io:commons-io", version = "2.16.1" }
 commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.14.0" }
 commons-collections = { module = "org.apache.commons:commons-collections4", version = "4.4" }
@@ -44,9 +44,9 @@ javax-annotation-api = { module = "javax.annotation:javax.annotation-api", versi
 
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 
-onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version = "1.17.3" }
+onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version = "1.18.0" }
 
-gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
+gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 jetbrains-annotations = { module = "org.jetbrains:annotations", version = "24.1.0" }

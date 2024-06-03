@@ -538,6 +538,7 @@ public class GameBuffer {
             game.setEpisodeDO(episodeDO);
             games.add(game);
         }
+
         return games;
     }
 
@@ -568,4 +569,10 @@ public class GameBuffer {
 
         return games;
     }
+
+//    private Map<Long, Long> attributeS_to_timestepId = new HashMap<>();
+//
+//    public void putAttributeS_to_timestepId(long id, long s) {
+//        attributeS_to_timestepId.put(id, s);
+//    }
 }
