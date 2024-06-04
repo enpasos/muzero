@@ -135,6 +135,7 @@ public class InputOutputConstruction {
     private void addObservation(int numUnrollSteps, @NotNull NDManager ndManager, @NotNull List<Sample> batch, @NotNull List<NDArray> inputs, boolean isWithConsistencyLoss, boolean withSymmetryEnrichment) {
         for (int k = 0; k < (isWithConsistencyLoss ? numUnrollSteps + 1: 1); k++) {
             final int kFinal = k;
+          //  System.out.println("k = " + kFinal);
             List<NDArray> o = batch.stream()
                 .map(sample -> {
                     ObservationModelInput observation = sample.getObservations().get(kFinal);

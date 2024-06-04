@@ -124,7 +124,7 @@ public class GameBuffer {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 
-            observation = game.getObservationModelInput(gamePos + i);
+            observation = game.getObservationModelInput(gamePos + i + 1);    // TODO: check
 
             sample.getObservations().add(observation);
         }

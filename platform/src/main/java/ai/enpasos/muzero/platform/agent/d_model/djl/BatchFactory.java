@@ -105,22 +105,25 @@ public class BatchFactory {
         Game game = config.newGame(false,false);
         game.setEpisodeDO(ts.getEpisode());
         sample.setGame(game);
-        int gamePos = ts.getT() ;
-        ObservationModelInput observation = game.getObservationModelInput(gamePos);
+        int t = ts.getT() ;
+        ObservationModelInput observation = game.getObservationModelInput(t);
         sample.getObservations().add(observation);
         List<Integer> actions =  game.getEpisodeDO().getActions();
-
+        int originalActionSize = actions.size();
+        if (actions.size() < t + s) {
+            actions.addAll(game.getRandomActionsIndices(t + s - actions.size()));
+        }
 
         sample.setActionsList(new ArrayList<>());
         for (int i = 0; i < s; i++) {
-            if (actions.size() > gamePos + i) {
-                int actionIndex = actions.get(gamePos + i);
+        //    if (actions.size() > t + i) {
+                int actionIndex = actions.get(t + i);
                 sample.getActionsList().add(actionIndex);
-                observation = game.getObservationModelInput(1 + actionIndex);  // TODO check index
+                observation = game.getObservationModelInput(t + i + 1);  // !!!!
                 sample.getObservations().add(observation);
-            }
+         //   }
         }
-        sample.setGamePos(gamePos);
+        sample.setGamePos(t);
         sample.setNumUnrollSteps(s);
 
         sample.makeTarget( );
