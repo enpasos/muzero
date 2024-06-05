@@ -244,10 +244,10 @@ return true;
         int b = 2 + c;
 
         IntStream.range(0, numRolloutSteps).forEach(i ->
-                labels.add(a +  b * i, preds.get(a +  1 + (b + 1) * i))
+                labels.add(a +  (b + 1) * i, preds.get(a +  1 + (b + 2) * i))
         );
         IntStream.range(0, numRolloutSteps).forEach(i ->
-                preds.remove(a + 1 + b * i)
+                preds.remove(a + 1 + (b+1) * i)
         );
 
 
