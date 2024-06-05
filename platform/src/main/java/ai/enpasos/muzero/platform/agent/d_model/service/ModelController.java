@@ -348,7 +348,7 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-        System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK");
+        System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;count");
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             boolean save = !iterator.hasNext();
@@ -407,7 +407,12 @@ public class ModelController implements DisposableBean, Runnable {
 
 
                                 int tau = 0;   // start with tau = 0
-                                int countNOK = countNOKFromB_OK(b_OK_batch, tau);
+                                int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
+                                int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
+                                int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
+                                int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
+                                int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
+                                int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
                                 int count = stats.getCount();
                                 //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
                                 //  rememberOks(batchTimeSteps, oks.getKey(), u);
@@ -416,7 +421,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                                 double sumLossL = stats.getSumLossLegalActions();
                                 double sumMeanLossL = sumLossL / count;
-                                System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK);
+                                System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + count);
                                 trainer.step();
                             }
                         }
