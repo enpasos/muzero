@@ -36,7 +36,8 @@ public class TrainingConfigFactory {
 
         MyCompositeLoss loss = new MyCompositeLoss();
 
-        float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
+       // float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
+        float gradientScale =   1f / numUnrollSteps;
 
         int k = 0;
 
