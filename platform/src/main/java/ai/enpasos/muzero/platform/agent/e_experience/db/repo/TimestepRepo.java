@@ -127,6 +127,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.s = :s where t.id = :id" )
-    void updateAttributeS(Long id, long s);
+    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed where t.id = :id" )
+    void updateAttributeS(Long id, long s, boolean sClosed);
 }

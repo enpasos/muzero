@@ -254,7 +254,7 @@ public class DBService {
          episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
                      //  timeStepID_AttributeS.put(ts.getId(), (long)ts.getS())
                      if (ts.isSChanged()) {
-                         timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS());
+                         timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS(), ts.isSClosed());
                          ts.setSChanged(false);
                      }
                    //  gameBuffer.putAttributeS_to_timestepId(ts.getId(), ts.getS());
