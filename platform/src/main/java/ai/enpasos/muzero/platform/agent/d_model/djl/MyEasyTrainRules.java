@@ -145,10 +145,6 @@ public final class MyEasyTrainRules {
             Trainer trainer, GradientCollector collector, TrainingListener.BatchData batchData, Batch split, boolean[][][] bOK, int[] from, Statistics statistics) {
         NDList data = split.getData();
 
-//        if (data.size() != bOK.length) {
-//            throw new MuZeroException("need to implement split for bOK");
-//        }
-
         NDList labels = split.getLabels();
         NDList preds = trainer.forward(data, labels);
 
@@ -156,8 +152,6 @@ public final class MyEasyTrainRules {
         if (preds.size() != labels.size()) {
             reorganizePredictionsAndLabels(preds, labels);
         }
-
-
 
         long time = System.nanoTime();
         MyCompositeLoss loss = (MyCompositeLoss) trainer.getLoss();

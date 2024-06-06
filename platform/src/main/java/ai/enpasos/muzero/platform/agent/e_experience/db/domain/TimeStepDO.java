@@ -49,6 +49,8 @@ public class TimeStepDO {
     int s; // in-mind training steps before this time step, s-1 is the last in-mind step successfully trained
 
 
+    boolean sClosed;
+
     @Transient
     boolean sChanged;
 

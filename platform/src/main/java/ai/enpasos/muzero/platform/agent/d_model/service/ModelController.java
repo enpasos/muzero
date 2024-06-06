@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.d_model.djl.EpochHelper.getEpochFromModel;
+import static ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions.b_OK_From_Games;
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
@@ -398,7 +399,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                                 int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
 
-                                boolean[][][] b_OK_batch = b_OK_From_Episodes(episodes);
+                                boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_Episodes(episodes);
                                 MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                                 // transfer b_OK back from batch array to the games parameter s
@@ -442,27 +443,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
-    private boolean[][][] b_OK_From_Games(List<Game> games) {
-        List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
-        return b_OK_From_Episodes(episodeDOList);
-    }
 
-    private boolean[][][] b_OK_From_Episodes(List<EpisodeDO> episodeDOList) {
-
-        boolean[][][] b_OK = new boolean[episodeDOList.size() ][][];
-        for (int e = 0; e < episodeDOList.size(); e++) {
-            EpisodeDO episodeDO = episodeDOList.get(e);
-            int tmax = episodeDO.getLastTimeWithAction();
-            b_OK[e] = new boolean[tmax + 1][tmax + 1];
-            for (int to = 0; to <= tmax; to++) {
-               int s = episodeDO.getTimeStep(to).getS();
-               for (int from = 0; from <= to; from++) {
-                   b_OK[e][from][to] = (to-from) < s;
-               }
-            }
-        }
-        return b_OK;
-    }
 
     private int countNOKFromB_OK(boolean[][][] bOkBatch, int tau) {
         int countNOK = 0;
