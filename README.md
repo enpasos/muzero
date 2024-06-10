@@ -42,7 +42,7 @@ However, it needs to have [CUDA 12.1](https://developer.nvidia.com/cuda-12-1-1-d
 ### Build everything
 
 The gradle wrapper automatically downloads the correct gradle version. It is not necessary to install gradle.
-Just run the following command in the root directory of the project:
+Just run the following command in the root directory of the project: 
 
 ```
 gradlew build
