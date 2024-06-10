@@ -365,7 +365,7 @@ public class ModelController implements DisposableBean, Runnable {
 //            int u = ZipperFunctions.unrollSteps(b_OK);
 //            if (u == 0) { u = 1; }
 
-            int u = 5;
+            int u = 9;
 
             muZeroBlock.setNumUnrollSteps(u);
 
@@ -385,7 +385,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainer.setMetrics(new Metrics());
                     trainer.initialize(inputShapes);
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
-                    List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer );
+                    List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer, u );
 
 //                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.1, u);
 //
@@ -478,11 +478,11 @@ public class ModelController implements DisposableBean, Runnable {
 //            }
 //        });
 //    }
-private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
+private List<TimeStepDO> allTimeStepsShuffled(List<Game> games, int unrollSteps ) {
     List<TimeStepDO> timeStepDOList = new ArrayList<>();
     for (Game game : games) {
         EpisodeDO episodeDO = game.getEpisodeDO();
-        for (int t = 0; t <= episodeDO.getLastTimeWithAction(); t++) {
+        for (int t = 0; t <= Math.max(0, episodeDO.getLastTimeWithAction()-unrollSteps); t++) {
             timeStepDOList.add(episodeDO.getTimeStep(t));
         }
     }
