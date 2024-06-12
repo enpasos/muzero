@@ -41,56 +41,75 @@ public class SelfPlayGame {
     public void uOkAnalyseGame(Game game, int unrollSteps) {
         log.trace("uOkAnalyseGame");
         EpisodeDO episode = game.getEpisodeDO();
-        int tMax = episode.getLastTime() ;
-        boolean ok = false;
-        NDArray[] s = null;
+        int tMax = episode.getLastTime();
+        boolean isOk = false;
+        NDArray[] hiddenState = null;
         int tStart = -1;
-        int t = 0;
-        while(t <= tMax) {
-            NetworkIO  networkOutput = null;
-            // TODO only rule state
-            if (ok && t < tMax) {
-                    networkOutput = modelService.recurrentInference(s, episode.getAction(t++)).join();
-            } else if (ok && t == tMax) {
-                game.setObservationInputTime(t++);
-                networkOutput = modelService.initialInference(game).join();
-            } else  {
-                t = Math.max(0, t - unrollSteps);
-                if (t <= tStart) {
-                   t = tStart + 1;
+
+        for (int t = 0; t <= tMax; ) {
+            NetworkIO networkOutput;
+
+            if (isOk) {
+                if (t < tMax) {
+                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t++)).join();
+                } else {
+                    game.setObservationInputTime(t++);
+                    networkOutput = modelService.initialInference(game).join();
                 }
+            } else {
+                t = adjustT(t, tStart, unrollSteps);
                 game.setObservationInputTime(t);
                 networkOutput = modelService.initialInference(game).join();
                 tStart = t;
+            }
 
-            }
             if (t <= tMax) {
-                TimeStepDO timeStep = episode.getTimeStep(t);
-                ok = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
-                log.trace("tStart: {}, t: {}, ok: {}", tStart, t, ok);
-                if (!ok  ) {
-                    for (int i = tStart; i < t; i++) {
-                        int uOK = t - 1 - i;
-                        TimeStepDO ts = episode.getTimeStep(i);
-                        if (ts.getUOk() != uOK) {
-                            ts.setUOk(uOK);
-                            ts.setUOkChanged(true);
-                        }
-                    }
-                } else if (t == tMax) {
-                    for (int i = tStart; i <= t; i++) {
-                        int uOK = t - i;
-                        TimeStepDO ts = episode.getTimeStep(i);
-                        if (ts.getUOk() != uOK) {
-                            ts.setUOk(uOK);
-                            ts.setUOkChanged(true);
-                        }
-                    }
-                }
-                s = networkOutput.getHiddenState();
+                isOk = updateOkStatusAndUpdateUnrolling(game, episode, networkOutput, t, tStart, tMax);
+                hiddenState = networkOutput.getHiddenState();
             } else {
-                log.trace("tStart: {}, t: {} ", tStart, t );
+                log.info("tStart: {}, t: {}", tStart, t);
             }
+        }
+    }
+
+    private int adjustT(int t, int tStart, int unrollSteps) {
+        t = Math.max(0, t - unrollSteps);
+        return t <= tStart ? tStart + 1 : t;
+    }
+
+
+
+    private boolean updateOkStatusAndUpdateUnrolling(Game game, EpisodeDO episode, NetworkIO networkOutput, int t, int tStart, int tMax) {
+        TimeStepDO timeStep = episode.getTimeStep(t);
+        boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
+        log.info("tStart: {}, t: {}, ok: {}", tStart, t, currentIsOk);
+
+        if (!currentIsOk) {
+            rollBackUnrollSteps(episode, tStart, t);
+        } else if (t == tMax) {
+            finalStepUnroll(episode, tStart, t);
+        }
+
+        return currentIsOk;
+    }
+
+    private void rollBackUnrollSteps(EpisodeDO episode, int tStart, int t) {
+        for (int i = tStart; i < t; i++) {
+            updateUOk(episode, i, t - 1 - i);
+        }
+    }
+
+    private void finalStepUnroll(EpisodeDO episode, int tStart, int t) {
+        for (int i = tStart; i <= t; i++) {
+            updateUOk(episode, i, t - i);
+        }
+    }
+
+    private void updateUOk(EpisodeDO episode, int index, int uOK) {
+        TimeStepDO ts = episode.getTimeStep(index);
+        if (ts.getUOk() != uOK) {
+            ts.setUOk(uOK);
+            ts.setUOkChanged(true);
         }
     }
 
