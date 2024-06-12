@@ -12,7 +12,7 @@ class MyBCESquaredLossTest {
 
     @Test
     void evaluateA() {
-        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
+        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0, 0.03);
 
         NDManager manager = NDManager.newBaseManager();
         NDArray label = manager.create(new float[]{0.9f});
@@ -31,7 +31,7 @@ class MyBCESquaredLossTest {
 
     @Test
     void evaluateB() {
-        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
+        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0, 0.03);
 
         NDManager manager = NDManager.newBaseManager();
         NDArray label = manager.create(new float[]{0.3f});
@@ -49,7 +49,7 @@ class MyBCESquaredLossTest {
 
     @Test
     void evaluateC() {
-        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0);
+        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 0, 0.03);
 
         NDManager manager = NDManager.newBaseManager();
         NDArray label = manager.create(new float[]{0.9f, 0.3f});
@@ -63,7 +63,7 @@ class MyBCESquaredLossTest {
     }
     @Test
     void evaluateD() {
-        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 1);
+        MyBCELoss loss = new MyBCELoss("loss_bce_" + 0, 1.0f, 1, 0.03);
 
         NDManager manager = NDManager.newBaseManager();
         NDArray label = manager.create(new float[]{0.9f, 0.3f, 0.9f, 0.3f});

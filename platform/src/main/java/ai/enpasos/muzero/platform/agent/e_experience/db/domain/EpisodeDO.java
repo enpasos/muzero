@@ -262,6 +262,10 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
         return this.getLastTimeStepWithAction().getAction();
     }
 
+    public int getAction(int t) {
+        return this.getTimeStep(t).getAction();
+    }
+
 //    @NotNull
 //    @Override
 //    public Iterator<TimeStepDO> iterator() {

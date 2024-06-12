@@ -32,10 +32,13 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
      * Creates a new empty instance of {@code CompositeLoss} that can combine the given {@link Loss}
      * components.
      */
-    public MyCompositeLoss() {
+    public MyCompositeLoss(double rewardLossThreshold, double legalActionLossMaxThreshold) {
         this("CompositeLoss");
+        this.legalActionLossMaxThreshold = legalActionLossMaxThreshold;
+        this.rewardLossThreshold = rewardLossThreshold;
     }
-
+    double rewardLossThreshold;
+    double legalActionLossMaxThreshold;
 
     /**
      * Creates a new empty instance of {@code CompositeLoss} that can combine the given {@link Loss}
@@ -86,7 +89,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             NDList innerPredictions = ((MyIndexLoss)components.get(i)).getPredictions(predictions);
             if (loss.getName().contains("legal_actions")) {
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartA(innerLabels, innerPredictions);
-                NDArray  mask = lossComponents[i].stopGradient().lte(0.3f);
+                NDArray  mask = lossComponents[i].stopGradient().lte(this.legalActionLossMaxThreshold);
                 NDArray intArray = mask.toType(DataType.INT32, false);
                  mask = intArray.min(new int[]{1}, true);
                 legalActionMasks.add(mask.toType(DataType.BOOLEAN, false));
@@ -94,7 +97,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartA(innerLabels, innerPredictions);
-                NDArray  mask = lossComponents[i].stopGradient().lte(0.01f);
+                NDArray  mask = lossComponents[i].stopGradient().lte(this.rewardLossThreshold);
                 rewardMasks.add(mask);
                 iMap[i]  =  rewardMasks.size() - 1;
             }

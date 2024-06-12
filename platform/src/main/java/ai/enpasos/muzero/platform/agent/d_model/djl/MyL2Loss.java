@@ -27,6 +27,7 @@ public class MyL2Loss extends Loss {
     public static final float NULL_VALUE = 1234567f;
 
     private final float weight;
+    private final double threshold;
 
     /**
      * Calculate L2Loss between the label and prediction, a.k.a. MSE(Mean Square Error).
@@ -41,7 +42,7 @@ public class MyL2Loss extends Loss {
      * @param name the name of the loss
      */
     public MyL2Loss(String name) {
-        this(name, 1.f / 2);
+        this(name, 1.f / 2, 0.01);
     }
 
     /**
@@ -50,9 +51,10 @@ public class MyL2Loss extends Loss {
      * @param name   the name of the loss
      * @param weight the weight to apply on loss value, default 1/2
      */
-    public MyL2Loss(String name, float weight) {
+    public MyL2Loss(String name, float weight, double threshold) {
         super(name);
         this.weight = weight;
+        this.threshold = threshold;
     }
 
     /**
@@ -70,5 +72,11 @@ public class MyL2Loss extends Loss {
     }
     public NDArray evaluatePartB(NDArray preSumLoss) {
         return preSumLoss.mean();
+    }
+
+    public boolean isOk(double label, double pred) {
+        double loss = label - pred;
+        loss = loss * loss * weight;
+        return loss <= threshold;
     }
 }

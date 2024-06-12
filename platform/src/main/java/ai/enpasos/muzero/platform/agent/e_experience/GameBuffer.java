@@ -207,7 +207,7 @@ public class GameBuffer {
         episodeIds = null;
     }
 
-    public List<Long> getShuffledEpisodeIds() {
+    public List<Long> getEpisodeIds( ) {
         int limit = 50000;
         if (episodeIds == null) {
             int offset = 0;
@@ -219,8 +219,15 @@ public class GameBuffer {
                 offset += limit;
             } while (newIds.size() > 0);
         }
+
+        return episodeIds;
+    }
+
+    public List<Long> getShuffledEpisodeIds() {
+        List<Long> episodeIds = getEpisodeIds( )  ;
         Collections.shuffle(episodeIds);
         return episodeIds;
+
     }
 
     private List<Game> getGamesToLearnRules() {

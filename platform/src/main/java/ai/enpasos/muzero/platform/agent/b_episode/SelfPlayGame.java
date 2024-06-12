@@ -1,13 +1,23 @@
 package ai.enpasos.muzero.platform.agent.b_episode;
 
+import ai.djl.ndarray.NDArray;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.PlanAction;
+import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCELoss;
+import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
+import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @Component
 @Slf4j
@@ -21,6 +31,64 @@ public class SelfPlayGame {
 
     @Autowired
     GameBuffer replayBuffer;
+
+    @Autowired
+    ModelService modelService;
+
+    public void uOkAnalyseGame(Game game, int unrollSteps) {
+        log.trace("uOkAnalyseGame");
+
+        EpisodeDO episode = game.getEpisodeDO();
+        int tMax = episode.getLastTimeWithAction();
+
+        boolean ok = false;
+        NDArray[] s = null;
+        int tStart = 0;
+        for(int t = 0; t <= tMax; t++) {
+
+
+
+            NetworkIO  networkOutput = null;
+            TimeStepDO timeStep = episode.getTimeStep(t);
+            // TODO only rule state
+            if (ok && s!=null) {
+                networkOutput = modelService.recurrentInference(s, timeStep.getAction()).join();
+            } else {
+                t = Math.max(0, t - unrollSteps);
+                if (t <= tStart) {
+                   t = tStart + 1;
+                }
+                game.setObservationInputTime(t);
+                networkOutput = modelService.initialInference(game).join();
+                tStart = t;
+            }
+             ok = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
+            if (!ok) {
+                for (int i = tStart; i < t; i++) {
+                    episode.getTimeStep(i).setUOk(i-tStart);  // TODO update DB (later), if changed
+                }
+            }
+             s = networkOutput.getHiddenState() ;
+
+
+
+
+        }
+
+
+
+        // TODO
+      //  playAction.justReplayActionWithInitialInference(game);
+    }
+
+    private boolean isOk(NetworkIO networkOutput, boolean[] pLabel, double rLabel) {
+        double r = networkOutput.getReward();
+        float[] p = networkOutput.getPLegalValues();
+
+        MyBCELoss myBCELoss = new MyBCELoss("MyBCELoss",1f / this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold());
+        MyL2Loss myL2Loss = new MyL2Loss("MyL2Loss", config.getValueLossWeight() , config.getRewardLossThreshold());
+        return  myBCELoss.isOk(b2d(pLabel), f2d(p)) && myL2Loss.isOk(rLabel, r);
+    }
 
 
     public void play(Game game, PlayParameters playParameters) {

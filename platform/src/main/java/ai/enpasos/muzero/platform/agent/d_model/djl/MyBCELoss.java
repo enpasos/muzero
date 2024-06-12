@@ -35,6 +35,7 @@ public class MyBCELoss extends Loss {
 
     private final float weight;
     private final int classAxis;
+    final double threshold;
 
 
     /**
@@ -50,7 +51,7 @@ public class MyBCELoss extends Loss {
      * @param name the name of the loss
      */
     public MyBCELoss(String name) {
-        this(name, 1, -1 );
+        this(name, 1, -1, 0.03 );
     }
 
     /**
@@ -61,10 +62,11 @@ public class MyBCELoss extends Loss {
      * @param classAxis   the axis that represents the class probabilities, default -1
      */
     public MyBCELoss(
-        String name, float weight, int classAxis ) {
+        String name, float weight, int classAxis, double threshold ) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
+        this.threshold = threshold;
     }
 
     /**
@@ -95,6 +97,10 @@ public class MyBCELoss extends Loss {
         return loss.mean();
     }
 
+    public static double lossPerItem(double label, double pred) {
+        return -label * logSigmoid(pred) - (1 - label) * logOneMinusSigmoid(pred);
+    }
+
 
     //   \min (0,x) - \ln( 1+e^{-|x|})
     // naive implementation: sigmoid (x).log();
@@ -103,11 +109,20 @@ public class MyBCELoss extends Loss {
         return x.abs().neg().exp().add(1).log().neg().add(x.minimum(0));
     }
 
+
+    public static double logSigmoid(double x) {
+        return Math.min(0, x) - Math.log(1 + Math.exp(-Math.abs(x)));
+    }
+
     public static NDArray sigmoid (NDArray x) {
         return x.mul(-1).exp().add(1).getNDArrayInternal().rdiv(1);
     }
     public static double sigmoid (double x) {
         return 1d/(1d+Math.exp(-x));
+    }
+
+    public static double logOneMinusSigmoid(double x) {
+        return -(Math.log(1 + Math.exp(- Math.abs(x)))+Math.max(0, x));
     }
 
 
@@ -120,6 +135,9 @@ public class MyBCELoss extends Loss {
        return Arrays.stream(legalActions).map(MyBCELoss::sigmoid).toArray();
     }
 
+
+
+
     public static double entropy(double[] legalActions) {
         double entropy = 0d;
         for (int i = 0; i < legalActions.length; i++) {
@@ -129,7 +147,17 @@ public class MyBCELoss extends Loss {
         }
         return entropy;
     }
+    public boolean isOk(double[] label, double[] pred) {
+        for(int i = 0; i < label.length; i++) {
+            if (!isOk( label[i], pred[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-
-
+    public boolean isOk(double label, double pred) {
+        double loss = lossPerItem(label, pred);
+        return loss <= threshold;
+    }
 }

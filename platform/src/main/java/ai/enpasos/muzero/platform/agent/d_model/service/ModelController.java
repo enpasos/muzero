@@ -365,7 +365,7 @@ public class ModelController implements DisposableBean, Runnable {
 //            int u = ZipperFunctions.unrollSteps(b_OK);
 //            if (u == 0) { u = 1; }
 
-            int u = 5;
+            int u = 1;
 
             muZeroBlock.setNumUnrollSteps(u);
 

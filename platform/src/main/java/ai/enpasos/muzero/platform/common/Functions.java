@@ -128,6 +128,15 @@ public class Functions {
 
         return result;
     }
+
+    public static double[] b2d(boolean[] ps) {
+        double[] result = new double[ps.length];
+        for (int i = 0; i < ps.length; i++) {
+            result[i] = ps[i] ? 1d : 0d;
+        }
+
+        return result;
+    }
     public static double entropy(double[] ps) {
         return Arrays.stream(ps).reduce(0d, (e, p) -> e + singleEntropySummand(p));
     }

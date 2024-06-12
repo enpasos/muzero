@@ -137,7 +137,40 @@ public class PlayService {
         });
     }
 
+    public List<Game> uOkAnalyseGames(List<Game> games, int unrollSteps) {
+        List<Game> gamesReturn = new ArrayList<>();
 
+        modelService.startScope();
+
+        giveOneOfTheGamesADebugFlag(games);
+
+        CompletableFuture<Game>[] futures = games.stream().map(g ->
+                episodeRunner.uOkAnalyseGame(g, unrollSteps)
+        ).toArray(CompletableFuture[]::new);
+
+        // wait for all futures to complete
+        CompletableFuture.allOf(futures).join();
+
+
+        // collect games from futures
+
+        for (CompletableFuture<Game> future : futures) {
+            try {
+                gamesReturn.add(future.get());
+            } catch (InterruptedException e) {
+                log.warn("Interrupted!", e);
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                throw new MuZeroException(e);
+            }
+        }
+
+
+        modelService.endScope();
+
+
+        return gamesReturn;
+    }
 
 
 
