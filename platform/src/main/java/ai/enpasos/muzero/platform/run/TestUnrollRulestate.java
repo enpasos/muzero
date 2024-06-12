@@ -3,6 +3,7 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
+import ai.enpasos.muzero.platform.agent.b_episode.SelfPlayGame;
 import ai.enpasos.muzero.platform.agent.d_model.djl.RulesBuffer;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
@@ -54,8 +55,11 @@ public class TestUnrollRulestate {
     @Autowired
     GameBuffer gameBuffer;
 
+    @Autowired
+    SelfPlayGame selfPlayGame;
+
     public void run( ) {
-        run(5);
+        run(1);
     }
 
 
@@ -74,11 +78,23 @@ public class TestUnrollRulestate {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);
+            dbService.updateEpisodes_uOK(episodeDOList);
 
         }
 
     }
 
 
+    public void runOneGame(long episodeId) {
+        int unrollSteps = 1;
+        int epoch = networkIOService.getLatestNetworkEpoch();
 
+        timestepRepo.resetUOk(  );
+        modelService.loadLatestModel(epoch).join();
+        EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
+        List<Game> gameBuffer = convertEpisodeDOsToGames(List.of(episodeDO), config);
+        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), unrollSteps);
+        dbService.updateEpisodes_uOK(List.of( episodeDO));
+
+    }
 }

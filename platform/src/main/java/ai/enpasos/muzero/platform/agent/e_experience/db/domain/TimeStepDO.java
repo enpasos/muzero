@@ -68,6 +68,10 @@ public class TimeStepDO {
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok
 
+    @Transient
+    boolean uOkChanged;
+
+
     float entropy;
     float[] policyTarget;
     int observationPartSize;

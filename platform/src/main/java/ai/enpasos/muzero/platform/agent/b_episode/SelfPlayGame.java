@@ -9,6 +9,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -35,25 +36,25 @@ public class SelfPlayGame {
     @Autowired
     ModelService modelService;
 
+
+
     public void uOkAnalyseGame(Game game, int unrollSteps) {
         log.trace("uOkAnalyseGame");
-
         EpisodeDO episode = game.getEpisodeDO();
-        int tMax = episode.getLastTimeWithAction();
-
+        int tMax = episode.getLastTime() ;
         boolean ok = false;
         NDArray[] s = null;
-        int tStart = 0;
-        for(int t = 0; t <= tMax; t++) {
-
-
-
+        int tStart = -1;
+        int t = 0;
+        while(t <= tMax) {
             NetworkIO  networkOutput = null;
-            TimeStepDO timeStep = episode.getTimeStep(t);
             // TODO only rule state
-            if (ok && s!=null) {
-                networkOutput = modelService.recurrentInference(s, timeStep.getAction()).join();
-            } else {
+            if (ok && t < tMax) {
+                    networkOutput = modelService.recurrentInference(s, episode.getAction(t++)).join();
+            } else if (ok && t == tMax) {
+                game.setObservationInputTime(t++);
+                networkOutput = modelService.initialInference(game).join();
+            } else  {
                 t = Math.max(0, t - unrollSteps);
                 if (t <= tStart) {
                    t = tStart + 1;
@@ -61,24 +62,36 @@ public class SelfPlayGame {
                 game.setObservationInputTime(t);
                 networkOutput = modelService.initialInference(game).join();
                 tStart = t;
+
             }
-             ok = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
-            if (!ok) {
-                for (int i = tStart; i < t; i++) {
-                    episode.getTimeStep(i).setUOk(i-tStart);  // TODO update DB (later), if changed
+            if (t <= tMax) {
+                TimeStepDO timeStep = episode.getTimeStep(t);
+                ok = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
+                log.trace("tStart: {}, t: {}, ok: {}", tStart, t, ok);
+                if (!ok  ) {
+                    for (int i = tStart; i < t; i++) {
+                        int uOK = t - 1 - i;
+                        TimeStepDO ts = episode.getTimeStep(i);
+                        if (ts.getUOk() != uOK) {
+                            ts.setUOk(uOK);
+                            ts.setUOkChanged(true);
+                        }
+                    }
+                } else if (t == tMax) {
+                    for (int i = tStart; i <= t; i++) {
+                        int uOK = t - i;
+                        TimeStepDO ts = episode.getTimeStep(i);
+                        if (ts.getUOk() != uOK) {
+                            ts.setUOk(uOK);
+                            ts.setUOkChanged(true);
+                        }
+                    }
                 }
+                s = networkOutput.getHiddenState();
+            } else {
+                log.trace("tStart: {}, t: {} ", tStart, t );
             }
-             s = networkOutput.getHiddenState() ;
-
-
-
-
         }
-
-
-
-        // TODO
-      //  playAction.justReplayActionWithInitialInference(game);
     }
 
     private boolean isOk(NetworkIO networkOutput, boolean[] pLabel, double rLabel) {

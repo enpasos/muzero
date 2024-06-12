@@ -250,20 +250,22 @@ public class DBService {
 //    GameBuffer gameBuffer;
 
     public void updateEpisodes_S(List<EpisodeDO> episodes) {
-       // Map<Long,Long> timeStepID_AttributeS = new HashMap<>();
-         episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
-                     //  timeStepID_AttributeS.put(ts.getId(), (long)ts.getS())
-                     if (ts.isSChanged()) {
-                         timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS(), ts.isSClosed());
-                         ts.setSChanged(false);
-                     }
-                   //  gameBuffer.putAttributeS_to_timestepId(ts.getId(), ts.getS());
-                 }
-                 ));
+        episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
+                    if (ts.isSChanged()) {
+                        timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS(), ts.isSClosed());
+                        ts.setSChanged(false);
+                    }
+                }
+        ));
+    }
 
-
-
-
-
+    public void updateEpisodes_uOK(List<EpisodeDO> episodes) {
+        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+                    if (ts.isUOkChanged()) {
+                        timestepRepo.updateAttributeUOk(ts.getId(), (long) ts.getUOk());
+                        ts.setSChanged(false);
+                    }
+                }
+        ));
     }
 }

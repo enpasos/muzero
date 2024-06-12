@@ -97,8 +97,12 @@ public class MyBCELoss extends Loss {
         return loss.mean();
     }
 
+    public static double lossPerItemLogit(double label, double predLogit) {
+        return -label * logSigmoid(predLogit) - (1 - label) * logOneMinusSigmoid(predLogit);
+    }
+
     public static double lossPerItem(double label, double pred) {
-        return -label * logSigmoid(pred) - (1 - label) * logOneMinusSigmoid(pred);
+        return -label * Math.log(pred) - (1 - label) * Math.log(1d-pred);
     }
 
 

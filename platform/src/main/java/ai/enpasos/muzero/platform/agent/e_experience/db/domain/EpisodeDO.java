@@ -238,7 +238,6 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
 
     // TODO faster search ... use map
     public TimeStepDO getTimeStep(int t) {
-
         for (int i = 0; i < timeSteps.size(); i++) {
             TimeStepDO timeStepDO = timeSteps.get(i);
             if (timeStepDO.getT() == t) {
