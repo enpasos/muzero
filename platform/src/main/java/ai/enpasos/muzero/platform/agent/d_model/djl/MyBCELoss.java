@@ -102,7 +102,16 @@ public class MyBCELoss extends Loss {
     }
 
     public static double lossPerItem(double label, double pred) {
-        return -label * Math.log(pred) - (1 - label) * Math.log(1d-pred);
+        double a = 0d;
+        double b = 0d;
+
+        if (label != 0d) {
+            a = -label * Math.log(pred);
+        }
+        if (label != 1d) {
+            b = -(1 - label) * Math.log(1d-pred);
+        }
+        return a + b;
     }
 
 
@@ -159,9 +168,21 @@ public class MyBCELoss extends Loss {
         }
         return true;
     }
+    public boolean isOkLogit(double[] label, double[] pred) {
+        for(int i = 0; i < label.length; i++) {
+            if (!isOkLogit( label[i], pred[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public boolean isOk(double label, double pred) {
         double loss = lossPerItem(label, pred);
+        return loss <= threshold;
+    }
+    public boolean isOkLogit(double label, double pred) {
+        double loss = lossPerItemLogit(label, pred);
         return loss <= threshold;
     }
 }

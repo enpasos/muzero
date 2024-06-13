@@ -33,9 +33,9 @@ class MyBCELossTest {
         MyBCELoss loss = new MyBCELoss();
         NDArray y = loss.evaluatePartA(new NDList(labelND), new NDList(predND));
         Number[] yN = y.toArray();
-        assertEquals(yN[0].doubleValue(), MyBCELoss.lossPerItem(label[0], pred[0]), 0.000001);
-        assertEquals(yN[1].doubleValue(), MyBCELoss.lossPerItem(label[1], pred[1]), 0.000001);
-        assertEquals(yN[2].doubleValue(), MyBCELoss.lossPerItem(label[2], pred[2]), 0.000001);
+        assertEquals(yN[0].doubleValue(), MyBCELoss.lossPerItemLogit(label[0], pred[0]), 0.000001);
+        assertEquals(yN[1].doubleValue(), MyBCELoss.lossPerItemLogit(label[1], pred[1]), 0.000001);
+        assertEquals(yN[2].doubleValue(), MyBCELoss.lossPerItemLogit(label[2], pred[2]), 0.000001);
     }
 
     @Test
@@ -50,11 +50,11 @@ class MyBCELossTest {
         NDArray mask = result.lte(loss.threshold);
         NDArray intArray = mask.toType(DataType.INT32, false);
 
-        assertEquals(loss.isOk(label[0], pred[0]) ? 1f : 0f, intArray.toIntArray()[0] );
-        assertEquals(loss.isOk(label[1], pred[1]) ? 1f : 0f, intArray.toIntArray()[1]);
-        assertEquals(loss.isOk(label[2], pred[2]) ? 1f : 0f, intArray.toIntArray()[2]);
+        assertEquals(loss.isOkLogit(label[0], pred[0]) ? 1f : 0f, intArray.toIntArray()[0] );
+        assertEquals(loss.isOkLogit(label[1], pred[1]) ? 1f : 0f, intArray.toIntArray()[1]);
+        assertEquals(loss.isOkLogit(label[2], pred[2]) ? 1f : 0f, intArray.toIntArray()[2]);
 
-        assertEquals(loss.isOk(f2d(label) , f2d(pred) ) ? 1f : 0f, intArray.min(new int[]{0}, true).toIntArray()[0]);
+        assertEquals(loss.isOkLogit(f2d(label) , f2d(pred) ) ? 1f : 0f, intArray.min(new int[]{0}, true).toIntArray()[0]);
 
     }
 }

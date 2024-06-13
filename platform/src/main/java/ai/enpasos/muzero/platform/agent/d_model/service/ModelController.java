@@ -404,7 +404,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                                 // transfer b_OK back from batch array to the games parameter s
                                 ZipperFunctions.transferB_OK_to_Episodes(b_OK_batch, episodes);
-                                dbService.updateEpisodes_S(episodes);
+                                dbService.updateEpisodes_SandUOk(episodes, u);
 
 
                                 int tau = 0;   // start with tau = 0

@@ -249,6 +249,23 @@ public class DBService {
 //    @Autowired
 //    GameBuffer gameBuffer;
 
+    public void updateEpisodes_SandUOk(List<EpisodeDO> episodes, int targetU) {
+        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+                    if (ts.isSChanged() || ts.isUOkChanged()) {
+
+                        if (ts.isUOkChanged() && ts.getUOk() >= targetU) {
+                            ts.setBox(ts.getBox() + 1);
+                        } else {
+                            ts.setBox(0);
+                        }
+                        timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.getBox());
+                        ts.setSChanged(false);
+                        ts.setUOkChanged(false);
+                    }
+                }
+        ));
+    }
+
     public void updateEpisodes_S(List<EpisodeDO> episodes) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
                     if (ts.isSChanged()) {

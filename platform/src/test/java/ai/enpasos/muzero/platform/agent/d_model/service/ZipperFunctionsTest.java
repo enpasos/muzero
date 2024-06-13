@@ -13,7 +13,47 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ZipperFunctionsTest {
 
+    @Test
+    void testTransferB_OK_to_Episodes() {
+        boolean[][][] bOk = {{
+                {false, false, true},
+                {false, true, true},
+                {false, false, true}
+        }, {
+                {false, false },
+                {false, true }
+        }
+        };
+        boolean[][][] bOk_Expected_From_S = bOk;
 
+        List<EpisodeDO > episodeDOList = new ArrayList<>();
+        List<TimeStepDO > tsList = new ArrayList<>();
+        tsList.add(TimeStepDO.builder().t(0).action(1).build());
+        tsList.add(TimeStepDO.builder().t(1).action(2).build());
+        tsList.add(TimeStepDO.builder().t(2).action(3).build());
+        episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
+
+        tsList = new ArrayList<>();
+        tsList.add(TimeStepDO.builder().t(0).action(3).build());
+        tsList.add(TimeStepDO.builder().t(1).action(4).build());
+        episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
+
+        transferB_OK_to_Episodes(bOk, episodeDOList);
+        assertEquals(0, episodeDOList.get(0).getTimeStep(0).getS());
+        assertEquals(1, episodeDOList.get(0).getTimeStep(1).getS());
+        assertEquals(3, episodeDOList.get(0).getTimeStep(2).getS());
+
+        assertEquals(0, episodeDOList.get(1).getTimeStep(0).getS());
+        assertEquals(1, episodeDOList.get(1).getTimeStep(1).getS());
+
+
+        assertEquals(-1, episodeDOList.get(0).getTimeStep(0).getUOk());
+        assertEquals(1, episodeDOList.get(0).getTimeStep(1).getUOk());
+        assertEquals(0, episodeDOList.get(0).getTimeStep(2).getUOk());
+
+        assertEquals(-1, episodeDOList.get(1).getTimeStep(0).getUOk());
+        assertEquals(0, episodeDOList.get(1).getTimeStep(1).getUOk());
+    }
     @Test
     void bOKRoundtrip2() {
         boolean[][][] bOk = {{
