@@ -81,7 +81,8 @@ public class SelfPlayGame {
 
     private boolean updateOkStatusAndUpdateUnrolling(Game game, EpisodeDO episode, NetworkIO networkOutput, int t, int tStart, int tMax) {
         TimeStepDO timeStep = episode.getTimeStep(t);
-        boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
+        double rewardLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
+        boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), rewardLabel);
         log.trace("tStart: {}, t: {}, ok: {}", tStart, t, currentIsOk);
 
         if (!currentIsOk) {
