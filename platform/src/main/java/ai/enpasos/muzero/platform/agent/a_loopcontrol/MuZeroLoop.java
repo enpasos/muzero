@@ -97,10 +97,14 @@ public class MuZeroLoop {
             play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
         }
 
+
+
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        while (trainingStep < config.getNumberOfTrainingSteps()) {
+        int nBox0 = fillRulesLoss.numBox(0);
+
+        while (nBox0 > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -161,6 +165,7 @@ public class MuZeroLoop {
             System.out.println("epoch;duration[ms];gpuMem[MiB]");
             IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
+            nBox0 = fillRulesLoss.numBox(0);
         }
 
     }
