@@ -485,8 +485,8 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
     List<TimeStepDO> timeStepDOList = new ArrayList<>();
     for (Game game : games) {
         EpisodeDO episodeDO = game.getEpisodeDO();
-        for (int t = 0; t <= episodeDO.getLastTimeWithAction(); t++) {
-            timeStepDOList.add(episodeDO.getTimeStep(t));
+        for (TimeStepDO ts : episodeDO.getTimeSteps()) {
+            timeStepDOList.add(ts);
         }
     }
     Collections.shuffle(timeStepDOList);
