@@ -30,6 +30,7 @@ import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.FillValueTable;
 import ai.enpasos.muzero.platform.run.TemperatureCalculator;
+import ai.enpasos.muzero.platform.run.TestUnrollRulestate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -78,6 +79,9 @@ public class MuZeroLoop {
 
     @Autowired
     FillRulesLoss fillRulesLoss;
+
+    @Autowired
+    TestUnrollRulestate testUnrollRulestate;
 
 
     @SuppressWarnings("java:S106")
@@ -167,6 +171,8 @@ public class MuZeroLoop {
 
             nBox0 = fillRulesLoss.numBox(0);
         }
+
+        testUnrollRulestate.run(1);
 
     }
 
