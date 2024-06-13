@@ -253,7 +253,7 @@ public class DBService {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
                     if (ts.isSChanged() || ts.isUOkChanged()) {
 
-                        if (ts.isUOkChanged() && (ts.getUOk() >= targetU || ts.isUOkClosed())) {
+                        if (ts.getUOk() >= targetU || ts.isUOkClosed()) {
                             ts.setBox(ts.getBox() + 1);
                         } else {
                             ts.setBox(0);
