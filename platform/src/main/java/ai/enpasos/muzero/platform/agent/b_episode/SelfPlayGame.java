@@ -67,7 +67,7 @@ public class SelfPlayGame {
                 isOk = updateOkStatusAndUpdateUnrolling(game, episode, networkOutput, t, tStart, tMax);
                 hiddenState = networkOutput.getHiddenState();
             } else {
-                log.info("tStart: {}, t: {}", tStart, t);
+                log.trace("tStart: {}, t: {}", tStart, t);
             }
         }
     }
@@ -82,7 +82,7 @@ public class SelfPlayGame {
     private boolean updateOkStatusAndUpdateUnrolling(Game game, EpisodeDO episode, NetworkIO networkOutput, int t, int tStart, int tMax) {
         TimeStepDO timeStep = episode.getTimeStep(t);
         boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), timeStep.getReward());
-        log.info("tStart: {}, t: {}, ok: {}", tStart, t, currentIsOk);
+        log.trace("tStart: {}, t: {}, ok: {}", tStart, t, currentIsOk);
 
         if (!currentIsOk) {
             rollBackUnrollSteps(episode, tStart, t);
