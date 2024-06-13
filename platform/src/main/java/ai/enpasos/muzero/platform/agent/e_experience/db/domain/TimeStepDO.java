@@ -71,6 +71,7 @@ public class TimeStepDO {
     @Transient
     boolean uOkChanged;
 
+    boolean uOkClosed;
 
     float entropy;
     float[] policyTarget;

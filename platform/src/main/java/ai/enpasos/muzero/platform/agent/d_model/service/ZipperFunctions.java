@@ -59,7 +59,7 @@ public class ZipperFunctions {
         boolean[][][] b_OK = new boolean[episodeDOList.size() ][][];
         for (int e = 0; e < episodeDOList.size(); e++) {
             EpisodeDO episodeDO = episodeDOList.get(e);
-            int tmax = episodeDO.getLastTimeWithAction();
+            int tmax = episodeDO.getLastTimeWithAction() + 1;
             b_OK[e] = new boolean[tmax + 1][tmax + 1];
             for (int to = 0; to <= tmax; to++) {
                 int s = episodeDO.getTimeStep(to).getS();
@@ -150,7 +150,7 @@ public class ZipperFunctions {
 
         for (int e = 0; e < episodeDOList.size(); e++) {
             EpisodeDO episodeDO = episodeDOList.get(e);
-            for (int t = 0; t <=  episodeDO.getLastTimeWithAction(); t++) {
+            for (int t = 0; t <=  episodeDO.getLastTimeWithAction()+1; t++) {
                 // s
                 int s = 0;
                 for (int i = 0; i <= t; i++) {
@@ -166,7 +166,7 @@ public class ZipperFunctions {
                 ts.setSClosed(s >= t + 1);
                 // uOk
                 int u = -1;
-                for (int i = t; i <= episodeDO.getLastTimeWithAction(); i++) {
+                for (int i = t; i <= episodeDO.getLastTimeWithAction()+1; i++) {
                     if (bOkBatch[e][t][i]) {
                         u = i - t;
                     } else {
@@ -175,6 +175,7 @@ public class ZipperFunctions {
                 }
                 ts.setUOkChanged(ts.getUOk() != u);
                 ts.setUOk(u);
+                ts.setUOkClosed(u >= episodeDO.getLastTimeWithAction() - t + 1);
 
             }
         }
