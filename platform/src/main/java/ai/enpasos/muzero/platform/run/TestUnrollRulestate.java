@@ -1,12 +1,11 @@
 package ai.enpasos.muzero.platform.run;
 
 
-import ai.djl.Model;
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
 import ai.enpasos.muzero.platform.agent.b_episode.SelfPlayGame;
 import ai.enpasos.muzero.platform.agent.d_model.djl.RulesBuffer;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static ai.enpasos.muzero.platform.agent.d_model.djl.EpochHelper.getEpochFromModel;
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
 @Slf4j
@@ -68,6 +66,7 @@ public class TestUnrollRulestate {
     public void run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
         timestepRepo.resetUOk(  );
+
         modelService.loadLatestModel(epoch).join();
 
 
@@ -80,7 +79,12 @@ public class TestUnrollRulestate {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);
-            dbService.updateEpisodes_uOK(episodeDOList);
+
+            boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
+            ZipperFunctions.s_in_Episodes_From_b_OK(bOK, episodeDOList);
+
+            // db update also in uOK and box
+            dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodeDOList, unrollsteps);
 
         }
 

@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.d_model.djl.EpochHelper.getEpochFromModel;
-import static ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions.b_OK_From_Games;
+import static ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions.b_OK_From_S_in_Games;
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
@@ -358,7 +358,7 @@ public class ModelController implements DisposableBean, Runnable {
             Collections.shuffle(gameBuffer);
 
             int tmaxmax = 0;
-            boolean[][][] b_OK = b_OK_From_Games(gameBuffer);
+            boolean[][][] b_OK = b_OK_From_S_in_Games(gameBuffer);
 
         //    boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(b_OK);
 
@@ -411,12 +411,12 @@ public class ModelController implements DisposableBean, Runnable {
 
                                 int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
 
-                                boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_Episodes(episodes);
+                                boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_S_in_Episodes(episodes);
                                 MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                                 // transfer b_OK back from batch array to the games parameter s
-                                ZipperFunctions.transferB_OK_to_Episodes(b_OK_batch, episodes);
-                                dbService.updateEpisodes_SandUOk(episodes, u);
+                                ZipperFunctions.s_in_Episodes_From_b_OK(b_OK_batch, episodes);
+                                dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, u);
 
 
                                 int tau = 0;   // start with tau = 0

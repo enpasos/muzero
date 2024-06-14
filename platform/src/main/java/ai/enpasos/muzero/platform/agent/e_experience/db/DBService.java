@@ -1,7 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db;
 
 
-import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
@@ -249,7 +248,7 @@ public class DBService {
 //    @Autowired
 //    GameBuffer gameBuffer;
 
-    public void updateEpisodes_SandUOk(List<EpisodeDO> episodes, int targetU) {
+    public void updateEpisodes_SandUOk_andAutomaticallyBox(List<EpisodeDO> episodes, int targetU) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
                     if (ts.isSChanged() || ts.isUOkChanged()) {
 

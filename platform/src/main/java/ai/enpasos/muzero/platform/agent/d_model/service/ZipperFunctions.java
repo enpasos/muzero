@@ -42,19 +42,15 @@ public class ZipperFunctions {
         return us;
     }
 
-//    public static boolean zipperClosed(boolean[][] bOk, int from, int to) {
-//        for (int i = from; i < to; i++) {
-//            if (!bOk[i][to]) return false;
-//        }
-//        return true;
-//    }
 
-    public static boolean[][][] b_OK_From_Games(List<Game> games) {
+    public static boolean[][][] b_OK_From_S_in_Games(List<Game> games) {
         List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
-        return b_OK_From_Episodes(episodeDOList);
+        return b_OK_From_S_in_Episodes(episodeDOList);
     }
 
-    public static boolean[][][] b_OK_From_Episodes(List<EpisodeDO> episodeDOList) {
+
+
+    public static boolean[][][] b_OK_From_S_in_Episodes(List<EpisodeDO> episodeDOList) {
 
         boolean[][][] b_OK = new boolean[episodeDOList.size() ][][];
         for (int e = 0; e < episodeDOList.size(); e++) {
@@ -146,7 +142,45 @@ public class ZipperFunctions {
         return max;
     }
 
-    public static void transferB_OK_to_Episodes(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
+    public static boolean[][][] b_OK_From_UOk_in_Episodes(List<EpisodeDO> episodeDOList) {
+        boolean[][][] b_OK = new boolean[episodeDOList.size() ][][];
+
+        for (int e = 0; e < episodeDOList.size(); e++) {
+            EpisodeDO episodeDO = episodeDOList.get(e);
+            int tmax = episodeDO.getLastTime() ;
+            b_OK[e] = new boolean[tmax + 1][tmax + 1];
+            for (int t = 0; t <= tmax; t++) {
+                int u = episodeDO.getTimeStep(t).getUOk();
+                for (int i = t; i <= t + u; i++) {
+                    b_OK[e][t][i] = true;
+                }
+            }
+        }
+        return b_OK;
+    }
+
+    public static void uOK_in_Episodes_From_b_OK(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
+
+        for (int e = 0; e < episodeDOList.size(); e++) {
+            EpisodeDO episodeDO = episodeDOList.get(e);
+            for (int t = 0; t <=  episodeDO.getLastTime(); t++) {
+                int u = -1;
+                for (int i = t; i <= episodeDO.getLastTime(); i++) {
+                    if (bOkBatch[e][t][i]) {
+                        u = i - t;
+                    } else {
+                        break;
+                    }
+                }
+                episodeDO.getTimeStep(t).setUOk(u);
+            }
+        }
+    }
+
+
+
+
+    public static void s_in_Episodes_From_b_OK(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
 
         for (int e = 0; e < episodeDOList.size(); e++) {
             EpisodeDO episodeDO = episodeDOList.get(e);
