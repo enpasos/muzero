@@ -144,7 +144,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE timestep SET u_ok = -2", nativeQuery = true )
+    @Query(value = "UPDATE timestep SET u_ok = -2, u_ok_closed = false", nativeQuery = true )
     void resetUOk();
 
 
@@ -152,5 +152,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query(value = "UPDATE timestep SET box = 0", nativeQuery = true )
     void resetBox();
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE timestep SET s = 0, s_closed = false", nativeQuery = true )
+    void resetS();
 }
 

@@ -111,6 +111,12 @@ public class MuZeroLoop {
         boolean rulesTraining = true;
 
         int unrollSteps = 1;
+
+        timestepRepo.resetBox();
+        timestepRepo.resetUOk();
+        timestepRepo.resetS();
+
+
         int nBox = timestepRepo.numBox(0);
 
      //   while (unrollSteps <= config.getMaxUnrollSteps()) {
