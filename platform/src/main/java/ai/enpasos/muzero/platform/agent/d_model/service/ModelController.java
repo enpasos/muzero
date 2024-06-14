@@ -245,7 +245,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules( task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    trainNetworkRules( task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
                     break;
                     // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -323,7 +323,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
+    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int u) {
 
 
         // background = true;
@@ -365,7 +365,7 @@ public class ModelController implements DisposableBean, Runnable {
 //            int u = ZipperFunctions.unrollSteps(b_OK);
 //            if (u == 0) { u = 1; }
 
-            int u = 1;
+        //     int u = 1;
 
             muZeroBlock.setNumUnrollSteps(u);
 

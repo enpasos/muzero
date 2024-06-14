@@ -23,6 +23,7 @@ import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -73,6 +74,9 @@ public class MuZeroLoop {
     @Autowired
     EpisodeRepo episodeRepo;
 
+    @Autowired
+    TimestepRepo timestepRepo;
+
 
     @Autowired
     TemperatureCalculator temperatureCalculator;
@@ -106,9 +110,12 @@ public class MuZeroLoop {
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        int nBox0 = fillRulesLoss.numBox(0);
+        int unrollSteps = 1;
+        int nBox = timestepRepo.numBox(0);
 
-        while (nBox0 > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
+     //   while (unrollSteps <= config.getMaxUnrollSteps()) {
+        while (unrollSteps <= 9) {
+            while (nBox > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -118,61 +125,69 @@ public class MuZeroLoop {
 //            rulesTraining = !policyValueTraining;
 
 
-            DurAndMem duration = new DurAndMem();
-            duration.on();
+                DurAndMem duration = new DurAndMem();
+                duration.on();
 
-            if (policyValueTraining) {
-                if (epoch != 0) {
-                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                        config.setPlayTypeKey(key);
-                        play.playGames(params.isRender(), trainingStep);
+                if (policyValueTraining) {
+                    if (epoch != 0) {
+                        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                            config.setPlayTypeKey(key);
+                            play.playGames(params.isRender(), trainingStep);
+                        }
+                        config.setPlayTypeKey(originalPlayTypeKey);
                     }
-                    config.setPlayTypeKey(originalPlayTypeKey);
+
+                    log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+                    log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+                    log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
                 }
 
-                log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-                log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-                log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
-            }
-
-            // log.info("Epoch(" + epoch + ")");
-            // if (epoch % 10 == 0) {
+                // log.info("Epoch(" + epoch + ")");
+                // if (epoch % 10 == 0) {
 //                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
-            //   }
+                //   }
 
-            boolean[] freeze = new boolean[]{false, true, true};
+                boolean[] freeze = new boolean[]{false, true, true};
 //            int unknowns = 0;
 //            do {
 //                for (int i = 0; i < 10; i++) {
-            if (rulesTraining) {
-                modelService.trainModelRules(freeze).get();
-             }
-            //     epoch = modelState.getEpoch();
+                if (rulesTraining) {
+                    modelService.trainModelRules(freeze, unrollSteps).get();
+                }
+                //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
 //                unknowns = fillRulesLoss.numBox(0);
 //                log.info("unknowns: " + unknowns);
 //            } while (unknowns > 0);
 
-            if (policyValueTraining) {
-                freeze = new boolean[]{true, false, false};
-                modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+                if (policyValueTraining) {
+                    freeze = new boolean[]{true, false, false};
+                    modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+                }
+
+                epoch = modelState.getEpoch();
+
+                trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+
+                duration.off();
+                durations.add(duration);
+                System.out.println("epoch;duration[ms];gpuMem[MiB]");
+                IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
+                nBox = timestepRepo.numBox(0);
+
             }
-
-            epoch = modelState.getEpoch();
-
-            trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
-
-            duration.off();
-            durations.add(duration);
-            System.out.println("epoch;duration[ms];gpuMem[MiB]");
-            IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
-            nBox0 = fillRulesLoss.numBox(0);
+            while (nBox == 0) {
+                unrollSteps++;
+                log.info("unrollSteps: " + unrollSteps);
+                timestepRepo.resetBox();
+                testUnrollRulestate.run(unrollSteps);
+                nBox = timestepRepo.numBox(0);
+            }
         }
 
-        testUnrollRulestate.run(1);
 
     }
 
