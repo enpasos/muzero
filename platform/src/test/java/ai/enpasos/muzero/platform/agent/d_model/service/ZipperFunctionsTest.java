@@ -85,7 +85,7 @@ class ZipperFunctionsTest {
         tsList.add(TimeStepDO.builder().t(1).build());
         episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
 
-        s_in_Episodes_From_b_OK(bOk, episodeDOList);
+        sandu_in_Episodes_From_b_OK(bOk, episodeDOList);
         assertEquals(0, episodeDOList.get(0).getTimeStep(0).getS());
         assertEquals(1, episodeDOList.get(0).getTimeStep(1).getS());
         assertEquals(3, episodeDOList.get(0).getTimeStep(2).getS());
@@ -134,7 +134,7 @@ class ZipperFunctionsTest {
         tsList.add(TimeStepDO.builder().t(1). build());
         episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
 
-        s_in_Episodes_From_b_OK(bOk, episodeDOList);
+        sandu_in_Episodes_From_b_OK(bOk, episodeDOList);
         assertEquals(0, episodeDOList.get(0).getTimeStep(0).getS());
         assertEquals(1, episodeDOList.get(0).getTimeStep(1).getS());
         assertEquals(3, episodeDOList.get(0).getTimeStep(2).getS());
@@ -189,7 +189,7 @@ class ZipperFunctionsTest {
         tsList.add(TimeStepDO.builder().t(1).build());
         episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
 
-        s_in_Episodes_From_b_OK(bOk, episodeDOList);
+        sandu_in_Episodes_From_b_OK(bOk, episodeDOList);
         assertEquals(0, episodeDOList.get(0).getTimeStep(0).getS());
         assertEquals(1, episodeDOList.get(0).getTimeStep(1).getS());
         assertEquals(1, episodeDOList.get(0).getTimeStep(2).getS());

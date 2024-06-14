@@ -172,7 +172,10 @@ public class ZipperFunctions {
                         break;
                     }
                 }
-                episodeDO.getTimeStep(t).setUOk(u);
+                TimeStepDO ts = episodeDO.getTimeStep(t);
+                ts.setUOkChanged(ts.getUOk() != u);
+                ts.setUOk(u);
+                ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
             }
         }
     }
@@ -180,7 +183,7 @@ public class ZipperFunctions {
 
 
 
-    public static void s_in_Episodes_From_b_OK(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
+    public static void sandu_in_Episodes_From_b_OK(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
 
         for (int e = 0; e < episodeDOList.size(); e++) {
             EpisodeDO episodeDO = episodeDOList.get(e);
@@ -200,7 +203,7 @@ public class ZipperFunctions {
                 ts.setSClosed(s >= t + 1);
                 // uOk
                 int u = -1;
-                for (int i = t; i <= episodeDO.getLastTimeWithAction()+1; i++) {
+                for (int i = t; i <= episodeDO.getLastTime(); i++) {
                     if (bOkBatch[e][t][i]) {
                         u = i - t;
                     } else {
@@ -209,7 +212,7 @@ public class ZipperFunctions {
                 }
                 ts.setUOkChanged(ts.getUOk() != u);
                 ts.setUOk(u);
-                ts.setUOkClosed(u >= episodeDO.getLastTimeWithAction() - t + 1);
+                ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
 
             }
         }

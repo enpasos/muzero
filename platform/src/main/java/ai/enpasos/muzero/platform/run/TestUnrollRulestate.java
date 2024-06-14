@@ -81,7 +81,7 @@ public class TestUnrollRulestate {
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
-            ZipperFunctions.s_in_Episodes_From_b_OK(bOK, episodeDOList);
+            ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodeDOList, unrollsteps);
