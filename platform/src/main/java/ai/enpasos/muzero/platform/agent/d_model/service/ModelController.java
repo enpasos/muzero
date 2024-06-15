@@ -349,6 +349,8 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
+
+
         System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
