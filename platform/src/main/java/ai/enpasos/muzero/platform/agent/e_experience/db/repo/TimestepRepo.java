@@ -157,5 +157,13 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query(value = "UPDATE timestep SET s = 0, s_closed = false", nativeQuery = true )
     void resetS();
+
+
+    @Transactional
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box in :boxesRelevant order by t.id limit :limit OFFSET :offset", nativeQuery = true)
+    List<Long> getRelevantEpisodeIds(List<Integer> boxesRelevant, int limit, int offset);
+
+
+
 }
 

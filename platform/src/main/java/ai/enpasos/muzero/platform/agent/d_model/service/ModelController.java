@@ -13,6 +13,7 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
@@ -25,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -40,7 +42,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -75,6 +80,9 @@ public class ModelController implements DisposableBean, Runnable {
 
     @Autowired
     private DBService dbService;
+
+    @Autowired
+    private TimestepRepo timestepRepo;
 
     private final DurAndMem inferenceDuration = new DurAndMem();
 
@@ -135,18 +143,18 @@ public class ModelController implements DisposableBean, Runnable {
                     break;
                 case SAVE_LATEST_MODEL_PARTS:
                     model = network.getModel();
-                   // modelName = config.getModelName();
+                    // modelName = config.getModelName();
                     try {
 
                         List<String> parts = List.of("A", "B", "C");
-                        modelName =  config.getModelName();
+                        modelName = config.getModelName();
                         for (int p = 0; p < parts.size(); p++) {
                             if (task.getExportFilter()[p]) {
                                 String part = parts.get(p);
                                 boolean[] localExportFilter = new boolean[3];
                                 localExportFilter[p] = true;
-                                ((DCLAware)model.getBlock()).setExportFilter(localExportFilter);
-                                 model.save(Paths.get(config.getNetworkBaseDir()),modelName + "-" + part );
+                                ((DCLAware) model.getBlock()).setExportFilter(localExportFilter);
+                                model.save(Paths.get(config.getNetworkBaseDir()), modelName + "-" + part);
                             }
                         }
                     } catch (IOException e) {
@@ -160,9 +168,9 @@ public class ModelController implements DisposableBean, Runnable {
                         log.info("loadLatestModel for lastest epoch with model name {}", config.getModelName());
                         network = new Network(config, model);
                     } else {
-                        log.info("loadLatestModel for epoch {} with model name {}", task.epoch,  config.getModelName());
+                        log.info("loadLatestModel for epoch {} with model name {}", task.epoch, config.getModelName());
                         network = new Network(config, model, Paths.get(config.getNetworkBaseDir()),
-                            Map.ofEntries(entry("epoch", task.epoch + "")));
+                                Map.ofEntries(entry("epoch", task.epoch + "")));
                     }
                     nDManager = network.getNDManager().newSubManager();
                     network.initActionSpaceOnDevice(nDManager);
@@ -183,13 +191,13 @@ public class ModelController implements DisposableBean, Runnable {
 
 
                     List<String> parts = List.of("A", "B", "C");
-                    modelName =  config.getModelName();
+                    modelName = config.getModelName();
                     for (int p = 0; p < parts.size(); p++) {
                         if (task.getExportFilter()[p]) {
                             String part = parts.get(p);
                             boolean[] localExportFilter = new boolean[3];
                             localExportFilter[p] = true;
-                            ((DCLAware)model.getBlock()).setExportFilter(localExportFilter);
+                            ((DCLAware) model.getBlock()).setExportFilter(localExportFilter);
                             try {
                                 model.load(Paths.get(config.getNetworkBaseDir()), modelName + "-" + part, options);
                             } catch (@NotNull IOException | MalformedModelException e) {
@@ -197,7 +205,7 @@ public class ModelController implements DisposableBean, Runnable {
                             }
                         }
                     }
-                    ((DCLAware)model.getBlock()).setExportFilter(new boolean[]{true, true, true});
+                    ((DCLAware) model.getBlock()).setExportFilter(new boolean[]{true, true, true});
                     network = new Network(config, model);
 
                     nDManager = network.getNDManager().newSubManager();
@@ -207,7 +215,7 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(epoch);
 
 
-                  // final int epoch = -1;
+                    // final int epoch = -1;
                     DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch, true, false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
 
                     djlConfig.getTrainingListeners().stream()
@@ -216,9 +224,8 @@ public class ModelController implements DisposableBean, Runnable {
                     try (Trainer trainer = model.newTrainer(djlConfig)) {
                         Shape[] inputShapes = batchFactory.getInputShapes();
                         trainer.initialize(inputShapes);
-                     //   trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+                        //   trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                     }
-
 
 
                     break;
@@ -242,12 +249,12 @@ public class ModelController implements DisposableBean, Runnable {
                     this.modelState.setEpoch(getEpochFromModel(model));
                     break;
                 case TRAIN_MODEL:
-                    trainNetwork( task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules( task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
+                    trainNetworkRules(task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
                     break;
-                    // TODO: only train rules part of the network
+                // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
 //                    trainNetworkRules(  );
 //                    break;
@@ -281,40 +288,40 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private void trainNetwork( boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
+    private void trainNetwork(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
         Model model = network.getModel();
 
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(false);
-                try (NDScope nDScope = new NDScope()) {
-                    int epochLocal;
-                    int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
-                    boolean withSymmetryEnrichment =  config.isWithSymmetryEnrichment();
-                    epochLocal = getEpochFromModel(model);
-                    DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal,!background, background, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
-                    int finalEpoch = epochLocal;
-                    djlConfig.getTrainingListeners().stream()
-                            .filter(MyEpochTrainingListener.class::isInstance)
-                            .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-                    try (Trainer trainer = model.newTrainer(djlConfig)) {
-                        Shape[] inputShapes = batchFactory.getInputShapes();
-                        trainer.initialize(inputShapes);
-                        trainer.setMetrics(new Metrics());
-                        ((DCLAware) model.getBlock()).freezeParameters(freeze);
-                        for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                            try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
-                                log.debug("trainBatch " + m);
-                                MyEasyTrain.trainBatch(trainer, batch);
-                                trainer.step();
-                            }
-                        }
-
-                        handleMetrics(trainer, model, epochLocal);
-                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+        try (NDScope nDScope = new NDScope()) {
+            int epochLocal;
+            int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
+            boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
+            epochLocal = getEpochFromModel(model);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, !background, background, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
+            int finalEpoch = epochLocal;
+            djlConfig.getTrainingListeners().stream()
+                    .filter(MyEpochTrainingListener.class::isInstance)
+                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
+            try (Trainer trainer = model.newTrainer(djlConfig)) {
+                Shape[] inputShapes = batchFactory.getInputShapes();
+                trainer.initialize(inputShapes);
+                trainer.setMetrics(new Metrics());
+                ((DCLAware) model.getBlock()).freezeParameters(freeze);
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
+                        log.debug("trainBatch " + m);
+                        MyEasyTrain.trainBatch(trainer, batch);
+                        trainer.step();
                     }
                 }
 
-                modelState.setEpoch(getEpochFromModel(model));
+                handleMetrics(trainer, model, epochLocal);
+                trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+            }
+        }
+
+        modelState.setEpoch(getEpochFromModel(model));
 
 
     }
@@ -336,19 +343,21 @@ public class ModelController implements DisposableBean, Runnable {
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
 
-        // start real code
-        // first the buffer loop
-        RulesBuffer rulesBuffer = new RulesBuffer();
-        rulesBuffer.setWindowSize(1000);
-        rulesBuffer.setEpisodeIds(gameBuffer.getShuffledEpisodeIds());
-        int w = 0;
-
-
         Model model = network.getModel();
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
+
+        int maxBox = timestepRepo.maxBox();
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
+
+        // start real code
+        // first the buffer loop
+        RulesBuffer rulesBuffer = new RulesBuffer();
+        rulesBuffer.setWindowSize(1000);
+        rulesBuffer.setEpisodeIds(gameBuffer.getRelevantEpisodeIds(boxesRelevant));
+        int w = 0;
 
 
         System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
@@ -359,15 +368,12 @@ public class ModelController implements DisposableBean, Runnable {
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             Collections.shuffle(gameBuffer);
 
+            List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled(gameBuffer, boxesRelevant);
+
+
             int tmaxmax = 0;
             boolean[][][] b_OK = b_OK_From_S_in_Games(gameBuffer);
 
-        //    boolean[][][] trainingNeeded = ZipperFunctions.trainingNeeded(b_OK);
-
-//            int u = ZipperFunctions.unrollSteps(b_OK);
-//            if (u == 0) { u = 1; }
-
-        //     int u = 1;
 
             muZeroBlock.setNumUnrollSteps(u);
 
@@ -377,7 +383,7 @@ public class ModelController implements DisposableBean, Runnable {
             try (NDScope nDScope = new NDScope()) {
 
 
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, u );
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, u);
                 int finalEpoch = epochLocal;
                 djlConfig.getTrainingListeners().stream()
                         .filter(MyEpochTrainingListener.class::isInstance)
@@ -387,66 +393,49 @@ public class ModelController implements DisposableBean, Runnable {
                     trainer.setMetrics(new Metrics());
                     trainer.initialize(inputShapes);
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
-                    List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer );
 
-                    List<TimeStepDO> allTimeStepsOld = allTimeSteps;
-// filter allTimeSteps: only ts.box == 0.
-                     allTimeSteps = allTimeSteps.stream().filter(ts -> ts.getBox() == 0).collect(Collectors.toList());
+                    for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
+                        List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
+                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {
+                            Statistics stats = new Statistics();
+                            List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
 
-                     if (allTimeSteps.size() < config.getBatchSize()) {
+                            int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
 
-                         Collections.shuffle(allTimeStepsOld);
-                         allTimeSteps.addAll(allTimeStepsOld.subList(0, config.getBatchSize() - allTimeSteps.size()));
+                            boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_S_in_Episodes(episodes);
+                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
-                     }
-
-
-//                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.1, u);
-//
-//                    if (!allTimeSteps.isEmpty()) {
-
-                        for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
-                            List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-                            try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {
-                                Statistics stats = new Statistics();
-                                List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
-
-                                int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
-
-                                boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_S_in_Episodes(episodes);
-                                MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
-
-                                // transfer b_OK back from batch array to the games parameter s
-                                ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                                ZipperFunctions.uOK_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                                dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, u);
+                            // transfer b_OK back from batch array to the games parameter s
+                            ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes);
+                            ZipperFunctions.uOK_in_Episodes_From_b_OK(b_OK_batch, episodes);
+                            dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, u);
 
 
-                                int tau = 0;   // start with tau = 0
-                                int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
-                                int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
-                                int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
-                                int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
-                                int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
-                                int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
-                                int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
-                                int count = stats.getCount();
-                                //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                                //  rememberOks(batchTimeSteps, oks.getKey(), u);
-                                double sumLossR = stats.getSumLossReward();
-                                double sumMeanLossR = sumLossR / count;
+                            int tau = 0;   // start with tau = 0
+                            int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
+                            int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
+                            int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
+                            int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
+                            int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
+                            int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
+                            int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
+                            int count = stats.getCount();
+                            //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
+                            //  rememberOks(batchTimeSteps, oks.getKey(), u);
+                            double sumLossR = stats.getSumLossReward();
+                            double sumMeanLossR = sumLossR / count;
 
-                                double sumLossL = stats.getSumLossLegalActions();
-                                double sumMeanLossL = sumLossL / count;
-                                System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
-                                trainer.step();
-                            }
+                            double sumLossL = stats.getSumLossLegalActions();
+                            double sumMeanLossL = sumLossL / count;
+                            System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
+                            trainer.step();
                         }
-                        if (!background) {
-                            handleMetrics(trainer, model, epochLocal);
-                        }
-                        trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                   // }
+                    }
+                    if (!background) {
+                        handleMetrics(trainer, model, epochLocal);
+                    }
+                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
+
                 }
 
                 modelState.setEpoch(getEpochFromModel(model));
@@ -459,13 +448,9 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-
     private int countNOKFromB_OK(boolean[][][] bOkBatch, int tau) {
         int countNOK = 0;
         for (int e = 0; e < bOkBatch.length; e++) {
-
-
-
 
 
             for (int i = 0; i < bOkBatch[e].length; i++) { // from
@@ -476,14 +461,14 @@ public class ModelController implements DisposableBean, Runnable {
                         countNOK++;
                     }
                 }
-              //  }
+                //  }
             }
         }
         return countNOK;
     }
 
 
-//    private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
+    //    private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
 //        IntStream.range(0, batchTimeSteps.size()).forEach(i -> {
 //            TimeStepDO timeStepDO = batchTimeSteps.get(i);
 //            timeStepDO.setRuleTrainingSuccess(oks.get(i));
@@ -493,17 +478,32 @@ public class ModelController implements DisposableBean, Runnable {
 //            }
 //        });
 //    }
-private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
-    List<TimeStepDO> timeStepDOList = new ArrayList<>();
-    for (Game game : games) {
-        EpisodeDO episodeDO = game.getEpisodeDO();
-        for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-            timeStepDOList.add(ts);
+    private List<TimeStepDO> allTimeStepsShuffled(List<Game> games) {
+        List<TimeStepDO> timeStepDOList = new ArrayList<>();
+        for (Game game : games) {
+            EpisodeDO episodeDO = game.getEpisodeDO();
+            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
+                timeStepDOList.add(ts);
+            }
         }
+        Collections.shuffle(timeStepDOList);
+        return timeStepDOList;
     }
-    Collections.shuffle(timeStepDOList);
-    return timeStepDOList;
-}
+
+
+    private List<TimeStepDO> allRelevantTimeStepsShuffled(List<Game> games, List<Integer> boxesRelevant) {
+        List<TimeStepDO> timeStepDOList = new ArrayList<>();
+        for (Game game : games) {
+            EpisodeDO episodeDO = game.getEpisodeDO();
+            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
+                if (boxesRelevant.contains(ts.getBox())) {
+                    timeStepDOList.add(ts);
+                }
+            }
+        }
+        Collections.shuffle(timeStepDOList);
+        return timeStepDOList;
+    }
 
 //    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int iStart, int iEndExcluded, int[] sortedIndices, int k) {
 //        List<Game> games = new ArrayList<>();
@@ -539,14 +539,14 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
         // mean value
         // loss
         double meanValueLoss = metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0") && !name.contains("entropy_loss_value"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0") && !name.contains("entropy_loss_value"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         gameBuffer.putMeanValueLoss(epoch, meanValueLoss);
         meanValueLoss += metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value") && !name.contains("entropy_loss_value"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value") && !name.contains("entropy_loss_value"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
         log.info("MeanValueLoss: " + meanValueLoss);
 
@@ -556,7 +556,7 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
                 .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_reward_0"))
                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
                 .sum();
-       // gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
+        // gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
         meanRewardLoss += metrics.getMetricNames().stream()
                 .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_reward_0") && name.contains("loss_reward"))
                 .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
@@ -567,26 +567,26 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
         // mean similarity
         // loss
         double meanSimLoss = metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         gameBuffer.putMeanValueLoss(epoch, meanSimLoss);
         meanSimLoss += metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         model.setProperty("MeanSimilarityLoss", Double.toString(meanSimLoss));
         log.info("MeanSimilarityLoss: " + meanSimLoss);
 
         // mean policy loss
         double meanPolicyLoss = metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         meanPolicyLoss += metrics.getMetricNames().stream()
-            .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
-            .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-            .sum();
+                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
+                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
+                .sum();
         model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
         log.info("MeanPolicyLoss: " + meanPolicyLoss);
 
@@ -604,21 +604,22 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
     }
 
     private void loadModelParametersOrCreateIfNotExisting(Model model) {
-        loadModelParametersOrCreateIfNotExisting(model,  null,  null);
+        loadModelParametersOrCreateIfNotExisting(model, null, null);
     }
+
     private void loadModelParametersOrCreateIfNotExisting(Model model, Path modelPath, Map<String, ?> options) {
         try {
             String outputDir = config.getNetworkBaseDir();
             mkDir(outputDir);
-            model.load(modelPath == null ? Paths.get(outputDir) : modelPath,  null,  options);
+            model.load(modelPath == null ? Paths.get(outputDir) : modelPath, null, options);
         } catch (Exception e) {
             e.printStackTrace();
             final int epoch = -1;
             DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch, true, false, config.isWithConsistencyLoss(), false, config.getNumUnrollSteps());
 
             djlConfig.getTrainingListeners().stream()
-                .filter(MyEpochTrainingListener.class::isInstance)
-                .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
+                    .filter(MyEpochTrainingListener.class::isInstance)
+                    .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(epoch));
             try (Trainer trainer = model.newTrainer(djlConfig)) {
                 Shape[] inputShapes = batchFactory.getInputShapes();
                 trainer.initialize(inputShapes);
@@ -635,7 +636,7 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
     private void initialInferences(int numParallelInferences) {
 
         List<InitialInferenceTask> localInitialInferenceTaskList =
-            modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
+                modelQueue.getInitialInferenceTasksNotStarted(numParallelInferences);
 
         if (localInitialInferenceTaskList.isEmpty()) return;
 
@@ -659,7 +660,7 @@ private List<TimeStepDO> allTimeStepsShuffled(List<Game> games ) {
     private void recurrentInferences(int numParallelInferences) {
 
         List<RecurrentInferenceTask> localRecurrentInferenceTaskList =
-            modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
+                modelQueue.getRecurrentInferenceTasksNotStarted(numParallelInferences);
 
         if (localRecurrentInferenceTaskList.isEmpty()) return;
 
