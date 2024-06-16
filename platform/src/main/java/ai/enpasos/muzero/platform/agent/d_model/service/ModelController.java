@@ -397,7 +397,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                             int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
 
-                            boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_S_in_Episodes(episodes);
+                            boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodes);
                             MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                             // transfer b_OK back from batch array to the games parameter s

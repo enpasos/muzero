@@ -43,32 +43,32 @@ public class ZipperFunctions {
     }
 
 
-    public static boolean[][][] b_OK_From_S_in_Games(List<Game> games) {
-        List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
-        return b_OK_From_S_in_Episodes(episodeDOList);
-    }
+//    public static boolean[][][] b_OK_From_S_in_Games(List<Game> games) {
+//        List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
+//        return b_OK_From_S_in_Episodes(episodeDOList);
+//    }
 
 
     public static boolean[][][] b_OK_From_UOk_in_Games(List<Game> games) {
         List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
         return b_OK_From_UOk_in_Episodes(episodeDOList);
     }
-    public static boolean[][][] b_OK_From_S_in_Episodes(List<EpisodeDO> episodeDOList) {
-
-        boolean[][][] b_OK = new boolean[episodeDOList.size() ][][];
-        for (int e = 0; e < episodeDOList.size(); e++) {
-            EpisodeDO episodeDO = episodeDOList.get(e);
-            int tmax = episodeDO.getLastTimeWithAction() + 1;
-            b_OK[e] = new boolean[tmax + 1][tmax + 1];
-            for (int to = 0; to <= tmax; to++) {
-                int s = episodeDO.getTimeStep(to).getS();
-                for (int from = 0; from <= to; from++) {
-                    b_OK[e][from][to] = (to-from) < s;
-                }
-            }
-        }
-        return b_OK;
-    }
+//    public static boolean[][][] b_OK_From_S_in_Episodes(List<EpisodeDO> episodeDOList) {
+//
+//        boolean[][][] b_OK = new boolean[episodeDOList.size() ][][];
+//        for (int e = 0; e < episodeDOList.size(); e++) {
+//            EpisodeDO episodeDO = episodeDOList.get(e);
+//            int tmax = episodeDO.getLastTimeWithAction() + 1;
+//            b_OK[e] = new boolean[tmax + 1][tmax + 1];
+//            for (int to = 0; to <= tmax; to++) {
+//                int s = episodeDO.getTimeStep(to).getS();
+//                for (int from = 0; from <= to; from++) {
+//                    b_OK[e][from][to] = (to-from) < s;
+//                }
+//            }
+//        }
+//        return b_OK;
+//    }
 
 
     public static boolean[][][] trainingNeeded(boolean[][][] bOk) {
