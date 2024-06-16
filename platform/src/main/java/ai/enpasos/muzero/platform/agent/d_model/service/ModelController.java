@@ -401,9 +401,9 @@ public class ModelController implements DisposableBean, Runnable {
                             MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                             // transfer b_OK back from batch array to the games parameter s
-                            ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                            ZipperFunctions.uOK_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                            dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, unrollSteps);
+                            ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(b_OK_batch, episodes, unrollSteps);
+
+                            dbService.updateEpisodes_SandUOkandBox(episodes);
 
 
                             int tau = 0;   // start with tau = 0
