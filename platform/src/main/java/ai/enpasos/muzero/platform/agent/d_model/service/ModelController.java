@@ -364,6 +364,8 @@ public class ModelController implements DisposableBean, Runnable {
             List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled(gameBuffer, boxesRelevant);
 
 
+            log.info("epoch: {}, unrollSteps: {}, allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
+
             int tmaxmax = 0;
             boolean[][][] b_OK = b_OK_From_UOk_in_Games(gameBuffer);
 
