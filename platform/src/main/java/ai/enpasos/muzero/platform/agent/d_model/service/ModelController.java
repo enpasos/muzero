@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.d_model.djl.EpochHelper.getEpochFromModel;
-import static ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions.b_OK_From_S_in_Games;
+import static ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions.*;
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 import static ai.enpasos.muzero.platform.common.Constants.TRAIN_ALL;
 import static ai.enpasos.muzero.platform.common.FileUtils.mkDir;
@@ -330,24 +330,18 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int u) {
-
-
-        // background = true;
+    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
 
-
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
-
 
         Model model = network.getModel();
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
-
 
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
@@ -358,7 +352,6 @@ public class ModelController implements DisposableBean, Runnable {
         rulesBuffer.setWindowSize(1000);
         rulesBuffer.setEpisodeIds(gameBuffer.getRelevantEpisodeIds(boxesRelevant));
         int w = 0;
-
 
         System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
@@ -372,18 +365,18 @@ public class ModelController implements DisposableBean, Runnable {
 
 
             int tmaxmax = 0;
-            boolean[][][] b_OK = b_OK_From_S_in_Games(gameBuffer);
+            boolean[][][] b_OK = b_OK_From_UOk_in_Games(gameBuffer);
 
 
-            muZeroBlock.setNumUnrollSteps(u);
+            muZeroBlock.setNumUnrollSteps(unrollSteps);
 
-            Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
+            Shape[] inputShapes = batchFactory.getInputShapesForRules(unrollSteps);
 
 
             try (NDScope nDScope = new NDScope()) {
 
 
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, u);
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, unrollSteps);
                 int finalEpoch = epochLocal;
                 djlConfig.getTrainingListeners().stream()
                         .filter(MyEpochTrainingListener.class::isInstance)
@@ -396,7 +389,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                     for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                         List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {
+                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
                             Statistics stats = new Statistics();
                             List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
 
@@ -408,7 +401,7 @@ public class ModelController implements DisposableBean, Runnable {
                             // transfer b_OK back from batch array to the games parameter s
                             ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes);
                             ZipperFunctions.uOK_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                            dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, u);
+                            dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, unrollSteps);
 
 
                             int tau = 0;   // start with tau = 0
@@ -421,13 +414,13 @@ public class ModelController implements DisposableBean, Runnable {
                             int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
                             int count = stats.getCount();
                             //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                            //  rememberOks(batchTimeSteps, oks.getKey(), u);
+                            //  rememberOks(batchTimeSteps, oks.getKey(), unrollSteps);
                             double sumLossR = stats.getSumLossReward();
                             double sumMeanLossR = sumLossR / count;
 
                             double sumLossL = stats.getSumLossLegalActions();
                             double sumMeanLossL = sumLossL / count;
-                            System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
+                            System.out.println(epochLocal + ";" + unrollSteps + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
                             trainer.step();
                         }
                     }
