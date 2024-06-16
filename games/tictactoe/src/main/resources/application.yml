@@ -45,6 +45,7 @@ muzero:
       numberOfTrainingStepsPerEpoch: 40
 
       numUnrollSteps: 5
+      maxUnrollSteps: 9
 
       discount: 1.0
       weightDecay: 0.0001

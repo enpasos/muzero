@@ -366,8 +366,8 @@ public class ModelController implements DisposableBean, Runnable {
 
             log.info("epoch: {}, unrollSteps: {}, allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
 
-            int tmaxmax = 0;
-            boolean[][][] b_OK = b_OK_From_UOk_in_Games(gameBuffer);
+           // int tmaxmax = 0;
+          //  boolean[][][] b_OK = b_OK_From_UOk_in_Games(gameBuffer);
 
 
             muZeroBlock.setNumUnrollSteps(unrollSteps);

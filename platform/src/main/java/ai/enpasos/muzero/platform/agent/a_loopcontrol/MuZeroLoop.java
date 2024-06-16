@@ -119,7 +119,7 @@ public class MuZeroLoop {
         int nBox = timestepRepo.numBox(0);
 
      //   while (unrollSteps <= config.getMaxUnrollSteps()) {
-        while (unrollSteps <= 9) {
+        while (unrollSteps <= config.getMaxUnrollSteps()) {
             while (nBox > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
@@ -184,7 +184,7 @@ public class MuZeroLoop {
                 nBox = timestepRepo.numBox(0);
 
             }
-            while (nBox == 0) {
+            while (nBox == 0 && unrollSteps <= config.getMaxUnrollSteps()) {
                 unrollSteps++;
                 log.info("unrollSteps: " + unrollSteps);
 
