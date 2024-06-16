@@ -187,7 +187,7 @@ public class MuZeroLoop {
             while (nBox == 0) {
                 unrollSteps++;
                 log.info("unrollSteps: " + unrollSteps);
-                 timestepRepo.resetBoxAndSAndUOk();
+
                 testUnrollRulestate.run(unrollSteps);
                 nBox = timestepRepo.numBox(0);
             }

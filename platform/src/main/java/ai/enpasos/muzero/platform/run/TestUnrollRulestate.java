@@ -65,8 +65,8 @@ public class TestUnrollRulestate {
 
     public void run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
-        timestepRepo.resetUOk(  );
 
+        timestepRepo.resetBoxAndSAndUOk();
         modelService.loadLatestModel(epoch).join();
 
 

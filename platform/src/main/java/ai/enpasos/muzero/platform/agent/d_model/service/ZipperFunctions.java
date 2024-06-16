@@ -218,12 +218,15 @@ public class ZipperFunctions {
                 ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
 
 
+            }
+
+
+            for(TimeStepDO ts : episodeDO.getTimeSteps()) {
                 if (ts.getUOk() >= targetU || ts.isUOkClosed()) {
                     ts.setBox(ts.getBox() + 1);
                 } else {
                     ts.setBox(0);
                 }
-
             }
         }
     }
