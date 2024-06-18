@@ -245,9 +245,15 @@ public class DBService {
     }
 
 
-    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes) {
+    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
                     if (ts.isSChanged() || ts.isUOkChanged()) {
+
+                        if (ts.getUOk() >= targetU || ts.isUOkClosed()) {
+                            ts.setBox(ts.getBox() + 1);
+                        } else {
+                            ts.setBox(0);
+                        }
                         timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
                         ts.setSChanged(false);
                         ts.setUOkChanged(false);

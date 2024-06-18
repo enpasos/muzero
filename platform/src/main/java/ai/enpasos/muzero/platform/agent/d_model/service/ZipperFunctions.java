@@ -222,13 +222,13 @@ public class ZipperFunctions {
             }
 
 
-            for(TimeStepDO ts : episodeDO.getTimeSteps()) {
-                if (ts.getUOk() >= targetU || ts.isUOkClosed()) {
-                    ts.setBox(ts.getBox() + 1);
-                } else {
-                    ts.setBox(0);
-                }
-            }
+//            for(TimeStepDO ts : episodeDO.getTimeSteps()) {
+//                if (ts.getUOk() >= targetU || ts.isUOkClosed()) {
+//                    ts.setBox(ts.getBox() + 1);
+//                } else {
+//                    ts.setBox(0);
+//                }
+//            }
         }
     }
 

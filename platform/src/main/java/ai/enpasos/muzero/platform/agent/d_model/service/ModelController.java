@@ -423,7 +423,8 @@ public class ModelController implements DisposableBean, Runnable {
                             // transfer b_OK back from batch array to the games parameter s
                             ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(b_OK_batch, episodes, unrollSteps);
 
-                            dbService.updateEpisodes_SandUOkandBox(episodes);
+                            ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(b_OK_batch, episodes, unrollSteps);
+                            dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
 
 
                             int tau = 0;   // start with tau = 0
