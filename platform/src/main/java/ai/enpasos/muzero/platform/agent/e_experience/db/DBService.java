@@ -262,23 +262,23 @@ public class DBService {
         ));
     }
 
-    public void updateEpisodes_S(List<EpisodeDO> episodes) {
-        episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
-                    if (ts.isSChanged()) {
-                        timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS(), ts.isSClosed());
-                        ts.setSChanged(false);
-                    }
-                }
-        ));
-    }
-
-    public void updateEpisodes_uOK(List<EpisodeDO> episodes) {
-        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-                    if (ts.isUOkChanged()) {
-                        timestepRepo.updateAttributeUOk(ts.getId(), (long) ts.getUOk());
-                        ts.setSChanged(false);
-                    }
-                }
-        ));
-    }
+//    public void updateEpisodes_S(List<EpisodeDO> episodes) {
+//        episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
+//                    if (ts.isSChanged()) {
+//                        timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS(), ts.isSClosed());
+//                        ts.setSChanged(false);
+//                    }
+//                }
+//        ));
+//    }
+//
+//    public void updateEpisodes_uOK(List<EpisodeDO> episodes) {
+//        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+//                    if (ts.isUOkChanged()) {
+//                        timestepRepo.updateAttributeUOk(ts.getId(), (long) ts.getUOk());
+//                        ts.setSChanged(false);
+//                    }
+//                }
+//        ));
+//    }
 }
