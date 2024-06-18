@@ -106,7 +106,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
-    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box = :box order by random() limit :n ", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box = :box order by random() limit :n group by t.episode_id ", nativeQuery = true)
 
     List<Long> findRandomNEpisodeIdsFromBox(int n, int box);
 
