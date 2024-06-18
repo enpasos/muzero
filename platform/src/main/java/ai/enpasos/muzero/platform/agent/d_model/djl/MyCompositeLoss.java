@@ -77,6 +77,12 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
 
 
+        SomeSerialization.saveNDList(labels, "labels.dat");
+        SomeSerialization.saveNDList(predictions, "predictions.dat");
+
+        SomeSerialization.saveBooleanArray(bOK, "bOK.dat");
+        SomeSerialization.saveIntArray(from, "from.dat");
+
 
         NDArray[] lossComponents = new NDArray[components.size()];
         int[] iMap = new int[components.size()];

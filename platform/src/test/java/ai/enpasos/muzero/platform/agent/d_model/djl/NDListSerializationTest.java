@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import static ai.enpasos.muzero.platform.agent.d_model.djl.NDListSerialization.loadNDList;
-import static ai.enpasos.muzero.platform.agent.d_model.djl.NDListSerialization.saveNDList;
+import static ai.enpasos.muzero.platform.agent.d_model.djl.SomeSerialization.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Files;
@@ -102,5 +101,33 @@ class NDListSerializationTest {
         assertEquals(singleList.size(), loadedList.size(), "Size of single element NDLists must be the same");
         assertTrue(singleList.get(0).contentEquals(loadedList.get(0)), "Single element NDArrays must be equal");
         logger.log(Level.INFO, "Single element NDList serialization test passed.");
+    }
+
+
+    @Test
+    void testIntArray()  throws IOException {
+
+        int[] expectedData = new int[]{1, 5, 9, 2};
+        Path file = Files.createTempFile("intArray", ".dat");
+         saveIntArray(expectedData, file.toString());
+        int[] loadedData = loadIntArray(file.toString());
+
+        assertArrayEquals(expectedData, loadedData);
+    }
+
+
+    @Test
+    void testBooleanArray() throws IOException  {
+
+        boolean[][][] expectedData = new boolean[][][]{
+                {{true, false}, {false, true}},
+                {{true, true}, {false, false}}
+        };
+
+        Path file = Files.createTempFile("booleanArray", ".dat");
+        saveBooleanArray(expectedData, file.toString());
+        boolean[][][] loadedData = loadBooleanArray(file.toString());
+
+        assertArrayEquals(expectedData, loadedData);
     }
 }

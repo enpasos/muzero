@@ -10,9 +10,9 @@ import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class NDListSerialization {
+public class SomeSerialization {
 
-    private static final Logger logger = Logger.getLogger(NDListSerialization.class.getName());
+    private static final Logger logger = Logger.getLogger(SomeSerialization.class.getName());
     private static final int FILE_VERSION = 1;
 
     /**
@@ -125,5 +125,96 @@ public class NDListSerialization {
             logger.log(Level.SEVERE, "Error while loading NDList", e);
         }
         return list;
+    }
+
+
+    public static void saveIntArray(int[] data, String filename) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.length - 1; i++) {
+            sb.append(data[i]).append(",");
+        }
+        sb.append(data[data.length - 1]);
+        try (FileWriter writer = new FileWriter(filename);) {
+            writer.write(sb.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int[] loadIntArray(String filename)   {
+        StringBuilder sb = new StringBuilder();
+        try (FileReader reader =  new FileReader(filename)) {
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                sb.append((char) ch);
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String[] stringArray = sb.toString().split(",");
+        int[] data = new int[stringArray.length];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = Integer.parseInt(stringArray[i]);
+        }
+        return data;
+    }
+
+
+    public static void saveBooleanArray(boolean[][][] data, String filename)  {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            for (int j = 0; j < data[i].length; j++) {
+                for (int k = 0; k < data[i][j].length; k++) {
+                    sb.append(data[i][j][k] ? "T" : "F").append(",");
+                }
+                sb.deleteCharAt(sb.length() - 1).append("|");
+            }
+            sb.deleteCharAt(sb.length() - 1).append("\n");
+        }
+        try (FileWriter writer = new FileWriter(filename);) {
+            writer.write(sb.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+   public static boolean[][][] loadBooleanArray(String filename)   {
+        try (FileReader reader = new FileReader(filename);) {
+            StringBuilder sb = new StringBuilder();
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                sb.append((char) ch);
+            }
+            reader.close();
+
+            String[] lines = sb.toString().split("\n");
+            int dim1 = lines.length;
+            String[][] dataString = new String[dim1][];
+
+            for (int i = 0; i < dim1; i++) {
+                dataString[i] = lines[i].split("\\|");
+            }
+
+            int dim2 = dataString[0].length;
+            boolean[][][] data = new boolean[dim1][dim2][];
+
+            for (int i = 0; i < dim1; i++) {
+                for (int j = 0; j < dim2; j++) {
+                    String[] row = dataString[i][j].split(",");
+                    data[i][j] = new boolean[row.length];
+                    for (int k = 0; k < row.length; k++) {
+                        data[i][j][k] = row[k].equals("T");
+                    }
+                }
+            }
+
+            return data;
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
