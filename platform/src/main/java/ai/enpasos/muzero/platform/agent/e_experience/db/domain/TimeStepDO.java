@@ -71,6 +71,9 @@ public class TimeStepDO {
     @Transient
     boolean uOkChanged;
 
+    @Transient
+    boolean uOkTested;
+
     boolean uOkClosed;
 
     float entropy;

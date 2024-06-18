@@ -350,7 +350,7 @@ public class ModelController implements DisposableBean, Runnable {
         // first the buffer loop
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
-        rulesBuffer.setEpisodeIds(gameBuffer.getShuffledEpisodeIds());
+        rulesBuffer.setEpisodeIds(gameBuffer.getRelevantEpisodeIds(boxesRelevant));
         int w = 0;
 
         System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
@@ -361,27 +361,10 @@ public class ModelController implements DisposableBean, Runnable {
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             Collections.shuffle(gameBuffer);
 
-            int tmaxmax = 0;
-            boolean[][][] b_OK = b_OK_From_S_in_Games(gameBuffer);
-
-
-            List<TimeStepDO> allTimeSteps = allTimeStepsShuffled(gameBuffer );
-
-            List<TimeStepDO> allTimeStepsOld = allTimeSteps;
-// filter allTimeSteps: only ts.box == 0.
-            allTimeSteps = allTimeSteps.stream().filter(ts -> ts.getBox() == 0).collect(Collectors.toList());
-
-            if (allTimeSteps.size() < config.getBatchSize()) {
-
-                Collections.shuffle(allTimeStepsOld);
-                allTimeSteps.addAll(allTimeStepsOld.subList(0, config.getBatchSize() - allTimeSteps.size()));
-
-            }
+            List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled(gameBuffer, boxesRelevant);
+            allTimeSteps.stream().forEach(ts -> ts.setUOkTested(true));
 
             log.info("epoch: {}, boxes trained: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, boxesRelevant.toString(), unrollSteps, allTimeSteps.size());
-
-           // int tmaxmax = 0;
-          //  boolean[][][] b_OK = b_OK_From_UOk_in_Games(gameBuffer);
 
 
             muZeroBlock.setNumUnrollSteps(unrollSteps);
@@ -403,12 +386,6 @@ public class ModelController implements DisposableBean, Runnable {
                     trainer.initialize(inputShapes);
                     ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
-
-
-//                    allTimeSteps = ZipperFunctions.assureThatAMinimumFractionOfTimeStepsAreInBufferForGivenS(allTimeSteps, 0.1, u);
-//
-//                    if (!allTimeSteps.isEmpty()) {
-
                     for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                         List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
@@ -421,7 +398,7 @@ public class ModelController implements DisposableBean, Runnable {
                             MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                             // transfer b_OK back from batch array to the games parameter s
-                            ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(b_OK_batch, episodes );
+                            ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
 
                             dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
 

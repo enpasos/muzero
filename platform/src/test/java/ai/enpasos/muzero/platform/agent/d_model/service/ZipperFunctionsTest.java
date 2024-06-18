@@ -2,7 +2,6 @@ package ai.enpasos.muzero.platform.agent.d_model.service;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ class ZipperFunctionsTest {
 
 
 
-        ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(bOk, episodeDOList );
+        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOk, episodeDOList );
         assertEquals(-1, episodeDOList.get(0).getTimeStep(0).getUOk());
         assertEquals(1, episodeDOList.get(0).getTimeStep(1).getUOk());
         assertEquals(2, episodeDOList.get(0).getTimeStep(2).getUOk());
@@ -90,7 +89,7 @@ class ZipperFunctionsTest {
         tsList.add(TimeStepDO.builder().t(1). build());
         episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
 
-        ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(bOk, episodeDOList);
+        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOk, episodeDOList);
         assertEquals(-1, episodeDOList.get(0).getTimeStep(0).getUOk());
         assertEquals(1, episodeDOList.get(0).getTimeStep(1).getUOk());
         assertEquals(0, episodeDOList.get(0).getTimeStep(2).getUOk());
@@ -138,7 +137,7 @@ class ZipperFunctionsTest {
         tsList.add(TimeStepDO.builder().t(1).build());
         episodeDOList.add(EpisodeDO.builder().timeSteps(tsList).build());
 
-        sanduandbox_in_Episodes_From_b_OK(bOk, episodeDOList );
+        sandu_in_Episodes_From_b_OK(bOk, episodeDOList );
         assertEquals(0, episodeDOList.get(0).getTimeStep(0).getS());
         assertEquals(1, episodeDOList.get(0).getTimeStep(1).getS());
         assertEquals(3, episodeDOList.get(0).getTimeStep(2).getS());
