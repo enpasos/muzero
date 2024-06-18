@@ -65,8 +65,8 @@ public class TestUnrollRulestate {
 
     public void run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
-        timestepRepo.resetUOk(  );
 
+        timestepRepo.resetBoxAndSAndUOk();
         modelService.loadLatestModel(epoch).join();
 
 
@@ -81,26 +81,31 @@ public class TestUnrollRulestate {
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
-            ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
+            ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(bOK, episodeDOList, unrollsteps);
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodeDOList, unrollsteps);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList);
 
         }
 
     }
 
 
-    public void runOneGame(long episodeId) {
-        int unrollSteps = 1;
+    public void runOneGame(long episodeId, int unrollSteps) {
+
         int epoch = networkIOService.getLatestNetworkEpoch();
 
         timestepRepo.resetUOk(  );
         modelService.loadLatestModel(epoch).join();
         EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
-        List<Game> gameBuffer = convertEpisodeDOsToGames(List.of(episodeDO), config);
+        List<EpisodeDO> episodeDOList = List.of(episodeDO);
+        List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
         selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), unrollSteps);
-        dbService.updateEpisodes_uOK(List.of( episodeDO));
+
+        boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
+        ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(bOK, episodeDOList, unrollSteps);
+
+        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO));
 
     }
 }

@@ -219,8 +219,22 @@ public class GameBuffer {
                 offset += limit;
             } while (newIds.size() > 0);
         }
-
         return episodeIds;
+    }
+
+    public List<Long> getRelevantEpisodeIds( List<Integer> boxesRelevant ) {
+        int limit = 50000;
+
+        int offset = 0;
+        List<Long> relevantEpisodeIds = new ArrayList<>();
+        List newIds;
+        do {
+            newIds = timestepRepo.getRelevantEpisodeIds(boxesRelevant, limit, offset);
+            relevantEpisodeIds.addAll(newIds);
+            offset += limit;
+        } while (newIds.size() > 0);
+        Collections.shuffle(relevantEpisodeIds);
+        return relevantEpisodeIds;
     }
 
     public List<Long> getShuffledEpisodeIds() {

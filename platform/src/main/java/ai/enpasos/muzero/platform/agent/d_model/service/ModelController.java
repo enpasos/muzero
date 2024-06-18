@@ -323,7 +323,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int u) {
+    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
 
         // background = true;
@@ -367,15 +367,15 @@ public class ModelController implements DisposableBean, Runnable {
 
         //     int u = 1;
 
-            muZeroBlock.setNumUnrollSteps(u);
+            muZeroBlock.setNumUnrollSteps(unrollSteps);
 
-            Shape[] inputShapes = batchFactory.getInputShapesForRules(u);
+            Shape[] inputShapes = batchFactory.getInputShapesForRules(unrollSteps);
 
 
             try (NDScope nDScope = new NDScope()) {
 
 
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, u );
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, unrollSteps );
                 int finalEpoch = epochLocal;
                 djlConfig.getTrainingListeners().stream()
                         .filter(MyEpochTrainingListener.class::isInstance)
@@ -405,7 +405,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                         for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                             List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-                            try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, u)) {
+                            try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
                                 Statistics stats = new Statistics();
                                 List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
 
@@ -414,10 +414,10 @@ public class ModelController implements DisposableBean, Runnable {
                                 boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_S_in_Episodes(episodes);
                                 MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
-                                // transfer b_OK back from batch array to the games parameter s
-                                ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                                ZipperFunctions.uOK_in_Episodes_From_b_OK(b_OK_batch, episodes);
-                                dbService.updateEpisodes_SandUOk_andAutomaticallyBox(episodes, u);
+                            // transfer b_OK back from batch array to the games parameter s
+                            ZipperFunctions.sanduandbox_in_Episodes_From_b_OK(b_OK_batch, episodes, unrollSteps);
+
+                            dbService.updateEpisodes_SandUOkandBox(episodes);
 
 
                                 int tau = 0;   // start with tau = 0
@@ -436,7 +436,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                                 double sumLossL = stats.getSumLossLegalActions();
                                 double sumMeanLossL = sumLossL / count;
-                                System.out.println(epochLocal + ";" + u + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
+                                System.out.println(epochLocal + ";" + unrollSteps + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
                                 trainer.step();
                             }
                         }

@@ -232,6 +232,10 @@ public class MuZeroConfig {
         return getConf().numUnrollSteps;
     }
 
+    public int getMaxUnrollSteps() {
+        return getConf().maxUnrollSteps;
+    }
+
 
     public int getTdSteps() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).getTdSteps();
@@ -550,6 +554,7 @@ public class MuZeroConfig {
 
         protected int batchSize;
         protected int numUnrollSteps;
+        protected int maxUnrollSteps;
         protected float discount;
         protected float komi;
         protected float weightDecay;
