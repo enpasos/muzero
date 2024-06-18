@@ -42,6 +42,11 @@ public class ZipperFunctions {
         return us;
     }
 
+    public static boolean[][][] b_OK_From_UOk_in_Games(List<Game> games) {
+        List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
+        return b_OK_From_UOk_in_Episodes(episodeDOList);
+    }
+
 
     public static boolean[][][] b_OK_From_S_in_Games(List<Game> games) {
         List<EpisodeDO> episodeDOList = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
