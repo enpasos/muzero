@@ -87,7 +87,7 @@ public class TestUnrollRulestate {
             }));
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, 1);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
 
         }
 
