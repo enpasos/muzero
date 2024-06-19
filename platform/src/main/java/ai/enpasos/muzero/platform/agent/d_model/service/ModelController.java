@@ -362,7 +362,7 @@ public class ModelController implements DisposableBean, Runnable {
             Collections.shuffle(gameBuffer);
 
             List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled(gameBuffer, boxesRelevant);
-            allTimeSteps.stream().forEach(ts -> ts.setUOkTested(true));
+
 
             log.info("epoch: {}, boxes trained: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, boxesRelevant.toString(), unrollSteps, allTimeSteps.size());
 
@@ -400,6 +400,7 @@ public class ModelController implements DisposableBean, Runnable {
                             // transfer b_OK back from batch array to the games parameter s
                             ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
 
+                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
                             dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
 
 
