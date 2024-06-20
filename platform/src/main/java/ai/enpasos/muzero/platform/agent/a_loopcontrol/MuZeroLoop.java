@@ -180,6 +180,11 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
+
+                if (epoch % 5 == 0) {
+                    testUnrollRulestate.run(unrollSteps);
+                }
+
                 nBox = timestepRepo.numBox(0);
 
             }
@@ -190,7 +195,7 @@ public class MuZeroLoop {
 //                    testUnrollRulestate.run(unrollSteps);
 //                    tested = true;
 //                }
-                unrollSteps = unrollSteps + 1;   //timestepRepo.minUokNotClosed() + 1;
+                unrollSteps++;   //timestepRepo.minUokNotClosed() + 1;
                 log.info("unrollSteps: " + unrollSteps);
                 testUnrollRulestate.run(unrollSteps);
                 nBox = timestepRepo.numBox(0);
