@@ -185,7 +185,7 @@ public class MuZeroLoop {
             }
             if (nBox == 0) {
                 testUnrollRulestate.run(unrollSteps);
-                unrollSteps = timestepRepo.minUokNotClosed();
+                unrollSteps = timestepRepo.minUokNotClosed() + 1;
                 log.info("unrollSteps: " + unrollSteps);
             }
             while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
