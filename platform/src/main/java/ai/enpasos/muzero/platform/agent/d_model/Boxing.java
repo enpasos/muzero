@@ -16,17 +16,18 @@ public class Boxing {
     }
 
     public static List<Integer> boxesRelevant(int epoch, int maxBox) {
-        List<Integer> boxesRelevant = new ArrayList<>();
-        for (int b = 0; b<= maxBox; b++) {
-            if(isUsed(b, epoch)) {
-                boxesRelevant.add(b);
-            }
-        }
-        return boxesRelevant;
+        return List.of(0);
+//        List<Integer> boxesRelevant = new ArrayList<>();
+//        for (int b = 0; b<= maxBox; b++) {
+//            if(isUsed(b, epoch)) {
+//                boxesRelevant.add(b);
+//            }
+//        }
+//        return boxesRelevant;
     }
 
-    public static List<Integer> boxesRelevant2(int epoch, int maxBox, int unrollSteps) {
-        if (unrollSteps == 0) return boxesRelevant(epoch, maxBox);
-        return List.of(0);
-    }
+//    public static List<Integer> boxesRelevant2(int epoch, int maxBox, int unrollSteps) {
+//        if (unrollSteps == 1) return boxesRelevant(epoch, maxBox);
+//        return List.of(0);
+//    }
 }
