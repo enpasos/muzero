@@ -5,7 +5,7 @@ pytorch = "2.2.2" # do not use 2.3.0! There is a dynamical linkage problem with 
 
 slf4j = "2.0.13"
 springboot = "3.3.0"
-protobuf = "4.27.0"
+protobuf = "4.27.1"
 junit = "5.10.2"
 jackson = "2.17.1"
 postgres = "42.7.3"
