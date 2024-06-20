@@ -116,10 +116,17 @@ public class MuZeroLoop {
 
         testUnrollRulestate.run(unrollSteps);
         int nBox = timestepRepo.numBox(0);
+        boolean tested = true;
 
      //   while (unrollSteps <= config.getMaxUnrollSteps()) {
         while (unrollSteps <= config.getMaxUnrollSteps()) {
             while (nBox > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
+
+                if (!tested) {
+                    testUnrollRulestate.run(unrollSteps);
+                    nBox = timestepRepo.numBox(0);
+                    tested = true;
+                }
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -185,11 +192,12 @@ public class MuZeroLoop {
 //                    testUnrollRulestate.run(unrollSteps);
 //                }
 
+               // testUnrollRulestate.run(unrollSteps);
                 nBox = timestepRepo.numBox(0);
 
             }
 
-            boolean tested = false;
+            tested = false;
             while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 if (!tested)  {
                     testUnrollRulestate.run(unrollSteps);
