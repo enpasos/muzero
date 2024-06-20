@@ -173,6 +173,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<Long> getRelevantEpisodeIds(List<Integer> boxesRelevant, int limit, int offset);
 
 
+    @Transactional
+    @Query(value = "SELECT min(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)
+    int minUokNotClosed( );
+
+
 
 }
 
