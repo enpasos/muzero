@@ -181,9 +181,9 @@ public class MuZeroLoop {
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
 
-                if (epoch % 5 == 0) {
-                    testUnrollRulestate.run(unrollSteps);
-                }
+//                if (epoch % 5 == 0) {
+//                    testUnrollRulestate.run(unrollSteps);
+//                }
 
                 nBox = timestepRepo.numBox(0);
 

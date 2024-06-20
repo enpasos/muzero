@@ -8,7 +8,7 @@ public class Boxing {
 
 
     public static int intervall(int box) {
-        return (int)Math.pow(2, box);
+        return (int)Math.pow(3, box);
     }
 
     public static boolean isUsed(int box, int epoch) {

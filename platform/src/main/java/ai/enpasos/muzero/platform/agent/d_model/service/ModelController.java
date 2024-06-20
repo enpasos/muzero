@@ -344,7 +344,7 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
         int maxBox = timestepRepo.maxBox();
-        List<Integer> boxesRelevant = Boxing.boxesRelevant2(epochLocal, maxBox, unrollSteps);
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
         // start real code
         // first the buffer loop
