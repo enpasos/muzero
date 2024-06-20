@@ -112,13 +112,11 @@ public class MuZeroLoop {
 
         int unrollSteps = 1;
 
-        timestepRepo.resetBoxAndSAndUOk();
 
         testUnrollRulestate.run(unrollSteps);
         int nBox = timestepRepo.numBox(0);
-     //   boolean tested = true;
+        log.info("nBox: " + nBox);
 
-     //   while (unrollSteps <= config.getMaxUnrollSteps()) {
         while (unrollSteps <= config.getMaxUnrollSteps()) {
             while (nBox > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
 
@@ -183,39 +181,17 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-
-//                if (epoch % 5 == 0) {
-//                    testUnrollRulestate.run(unrollSteps);
-//                }
-
-               // testUnrollRulestate.run(unrollSteps);
-               // nBox = timestepRepo.numBox(0);
-
-                    testUnrollRulestate.run(unrollSteps);
-                    nBox = timestepRepo.numBox(0); ;
-                  //  tested = true;
-
+                testUnrollRulestate.run(unrollSteps);
+                nBox = timestepRepo.numBox(0);
+                log.info("nBox: " + nBox);
             }
-
-
             while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-//                if (!tested)  {
-//                    testUnrollRulestate.run(unrollSteps);
-//                    tested = true;
-//                }
-                unrollSteps++;   //timestepRepo.minUokNotClosed() + 1;
+                unrollSteps++;
                 log.info("unrollSteps: " + unrollSteps);
                 testUnrollRulestate.run(unrollSteps);
                 nBox = timestepRepo.numBox(0);
+                log.info("nBox: " + nBox);
             }
-//            while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-//
-//                unrollSteps++;
-//                log.info("unrollSteps: " + unrollSteps);
-//
-//                testUnrollRulestate.run(unrollSteps);
-//                nBox = timestepRepo.numBox(0);
-//            }
         }
 
 
