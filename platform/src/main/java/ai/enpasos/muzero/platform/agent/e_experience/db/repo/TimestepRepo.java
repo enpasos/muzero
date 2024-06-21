@@ -195,7 +195,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)
     int minUokNotClosed( );
 
-    @Query(value = "SELECT count(t.id) FROM  timestep t WHERE not t.u_ok_closed and t.u_ok + 1 < :unrollSteps  GROUP BY t.u_ok  ", nativeQuery = true)
+    @Query(value = "SELECT count(t.id) FROM  timestep t WHERE not t.u_ok_closed and t.u_ok + 1 = :unrollSteps  GROUP BY t.u_ok  ", nativeQuery = true)
     Optional<Integer> toBeTrained(int unrollSteps);
 }
 
