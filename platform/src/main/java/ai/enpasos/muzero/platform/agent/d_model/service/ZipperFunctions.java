@@ -215,6 +215,21 @@ public class ZipperFunctions {
                     }
                 }
                 ts.setUOkChanged(ts.getUOk() != u);
+                // box reflects the success history
+                if (u > ts.getUOk()) {
+                    ts.setBox(1); // new success history for the improved situation
+                } else {
+                    if (u == -1) {
+                        ts.setBox(0); // no success situation
+                    }
+                    // else {
+                        // keep the success history ... it is still a success, but on a lower level
+                    // }
+                }
+
+
+
+
                 ts.setUOk(u);
                 ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
 

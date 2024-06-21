@@ -211,7 +211,7 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Void> trainModelRules(boolean[] freeze, int unrollSteps) {
+    public CompletableFuture<Void> trainModelRules(boolean[] freeze, List<Integer> uOkList) {
         ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES);
         TrainingDatasetType trainingDatasetType = TrainingDatasetType.RULES_BUFFER;
         boolean background = false;
@@ -219,7 +219,7 @@ public class ModelService {
         task.setBackground(background);
         task.setTrainingDatasetType(trainingDatasetType);
 
-        task.setNumUnrollSteps(unrollSteps);
+        task.setuOkList(uOkList);
         return handleControllerTask(task);
     }
 

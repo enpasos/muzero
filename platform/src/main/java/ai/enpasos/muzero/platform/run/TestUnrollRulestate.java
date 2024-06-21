@@ -66,7 +66,7 @@ public class TestUnrollRulestate {
     public void run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
-        timestepRepo.resetBoxAndSAndUOk();
+     //   timestepRepo.resetBoxAndSAndUOk();
         modelService.loadLatestModel(epoch).join();
 
 
@@ -82,12 +82,12 @@ public class TestUnrollRulestate {
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-                timeStepDO.setUOkTested(true);
-            }));
+//            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
+//                timeStepDO.setUOkTested(true);
+//            }));
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList);
 
         }
 
@@ -108,7 +108,7 @@ public class TestUnrollRulestate {
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), 1);
+        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO));
 
     }
 }

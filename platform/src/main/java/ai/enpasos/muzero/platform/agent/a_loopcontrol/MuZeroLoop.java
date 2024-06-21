@@ -110,16 +110,16 @@ public class MuZeroLoop {
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        int unrollSteps = 1;
+        int unrollStepsMax = timestepRepo.maxUOk() + 1;
 
+        testUnrollRulestate.run(unrollStepsMax);
+        List<Integer> uOkList = timestepRepo.uOkList();
+        log.info("uOkList: " +  uOkList);
+        unrollStepsMax = uOkList.getLast() +1;
 
-        testUnrollRulestate.run(unrollSteps);
-        int nBox = timestepRepo.numBox(0);
-        log.info("nBox: " + nBox);
+        while (unrollStepsMax <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
-        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-
-            while (nBox > 0) {
+         //   while (nBox > 0) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -158,7 +158,7 @@ public class MuZeroLoop {
 //            do {
 //                for (int i = 0; i < 10; i++) {
                 if (rulesTraining) {
-                    modelService.trainModelRules(freeze, unrollSteps).get();
+                    modelService.trainModelRules(freeze, uOkList).get();
                 }
                 //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
@@ -180,21 +180,28 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-                testUnrollRulestate.run(unrollSteps);
-                nBox = timestepRepo.numBox(0);
-                log.info("nBox: " + nBox);
-            }
-            while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                unrollSteps++;
-                log.info("unrollSteps: " + unrollSteps);
-                testUnrollRulestate.run(unrollSteps);
-                nBox = timestepRepo.numBox(0);
-                log.info("nBox: " + nBox);
-            }
-            log.info("nBox: {}, unrollSteps: {}, maxUnrollSteps: {}", nBox, unrollSteps , config.getMaxUnrollSteps());
-            if (unrollSteps == config.getMaxUnrollSteps()) {
-                break;
-            }
+
+            testUnrollRulestate.run(unrollStepsMax);
+             uOkList = timestepRepo.uOkList();
+            log.info("uOkList: " +  uOkList);
+            unrollStepsMax = uOkList.getLast() +1;
+
+
+//                testUnrollRulestate.run(unrollSteps);
+//                nBox = timestepRepo.numBox(0);
+//                log.info("nBox: " + nBox);
+       //     }
+//            while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+//                unrollSteps++;
+//                log.info("unrollSteps: " + unrollSteps);
+//                testUnrollRulestate.run(unrollSteps);
+//                nBox = timestepRepo.numBox(0);
+//                log.info("nBox: " + nBox);
+//            }
+//            log.info("nBox: {}, unrollSteps: {}, maxUnrollSteps: {}", nBox, unrollSteps , config.getMaxUnrollSteps());
+//            if (unrollSteps == config.getMaxUnrollSteps()) {
+//                break;
+//            }
         }
 
         log.info("done" );
