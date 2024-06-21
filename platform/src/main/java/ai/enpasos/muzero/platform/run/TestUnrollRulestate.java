@@ -15,6 +15,8 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -63,7 +65,17 @@ public class TestUnrollRulestate {
     }
 
 
-    public void run(int unrollsteps) {
+    @Data
+    @AllArgsConstructor
+    public class Result {
+        private List<Integer> uOkList;
+        private int unrollSteps;
+        private int toBeTrained;
+
+    }
+
+
+    public Result run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
         timestepRepo.resetBoxAndSAndUOk();
@@ -75,7 +87,7 @@ public class TestUnrollRulestate {
         rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
-            boolean save = !iterator.hasNext();
+        //    boolean save = !iterator.hasNext();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);
@@ -91,6 +103,13 @@ public class TestUnrollRulestate {
 
         }
 
+
+        List<Integer> uOkList = timestepRepo.uOkList();
+        int unrollSteps = uOkList.getFirst() +1;
+        int toBeTrained =  toBeTrained(unrollSteps);
+
+        log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), toBeTrained);
+        return new Result(uOkList, unrollSteps, toBeTrained);
     }
 
 
@@ -110,5 +129,9 @@ public class TestUnrollRulestate {
 
         dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), 1);
 
+    }
+
+    public int toBeTrained(int unrollSteps) {
+       return timestepRepo.toBeTrained(unrollSteps);
     }
 }

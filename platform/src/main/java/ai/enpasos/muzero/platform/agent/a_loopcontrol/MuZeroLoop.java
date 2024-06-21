@@ -110,16 +110,16 @@ public class MuZeroLoop {
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        int unrollSteps = 1;
+        int unrollStepsMax = timestepRepo.maxUOk() + 1;
 
-
-        testUnrollRulestate.run(unrollSteps);
-        int nBox = timestepRepo.numBox(0);
-        log.info("nBox: " + nBox);
+        TestUnrollRulestate.Result r = testUnrollRulestate.run(unrollStepsMax);
+        List<Integer> uOkList = r.getUOkList();
+        int unrollSteps = r.getUnrollSteps();
+        int toBeTrained = r.getToBeTrained();
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
-            while (nBox > 0) {
+            while (toBeTrained > 0) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -180,18 +180,24 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-                testUnrollRulestate.run(unrollSteps);
-                nBox = timestepRepo.numBox(0);
-                log.info("nBox: " + nBox);
+//                testUnrollRulestate.run(unrollSteps);
+//                nBox = timestepRepo.numBox(0);
+//                log.info("nBox: " + nBox);
             }
-            while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                unrollSteps++;
-                log.info("unrollSteps: " + unrollSteps);
-                testUnrollRulestate.run(unrollSteps);
-                nBox = timestepRepo.numBox(0);
-                log.info("nBox: " + nBox);
-            }
-            log.info("nBox: {}, unrollSteps: {}, maxUnrollSteps: {}", nBox, unrollSteps , config.getMaxUnrollSteps());
+
+             r = testUnrollRulestate.run(unrollStepsMax);
+             uOkList = r.getUOkList();
+            unrollSteps = r.getUnrollSteps();
+             toBeTrained = r.getToBeTrained();
+            while (toBeTrained == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                    unrollSteps++;
+                r = testUnrollRulestate.run(unrollStepsMax);
+                uOkList = r.getUOkList();
+                unrollSteps = r.getUnrollSteps();
+                toBeTrained = r.getToBeTrained();
+                }
+
+
             if (unrollSteps == config.getMaxUnrollSteps()) {
                 break;
             }
