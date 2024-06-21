@@ -66,7 +66,7 @@ public class TestUnrollRulestate {
     public void run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
-     //   timestepRepo.resetBoxAndSAndUOk();
+        timestepRepo.resetBoxAndSAndUOk();
         modelService.loadLatestModel(epoch).join();
 
 
@@ -75,7 +75,7 @@ public class TestUnrollRulestate {
         rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
-            boolean save = !iterator.hasNext();
+        //    boolean save = !iterator.hasNext();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);

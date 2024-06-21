@@ -116,8 +116,9 @@ public class MuZeroLoop {
         List<Integer> uOkList = timestepRepo.uOkList();
         log.info("uOkList: " +  uOkList);
         unrollStepsMax = uOkList.getLast() +1;
+        int unrollStepsMin = uOkList.getFirst() +1;
 
-        while (unrollStepsMax <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+        while (unrollStepsMin <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
          //   while (nBox > 0) {
 
@@ -185,6 +186,7 @@ public class MuZeroLoop {
              uOkList = timestepRepo.uOkList();
             log.info("uOkList: " +  uOkList);
             unrollStepsMax = uOkList.getLast() +1;
+             unrollStepsMin = uOkList.getFirst() +1;
 
 
 //                testUnrollRulestate.run(unrollSteps);
