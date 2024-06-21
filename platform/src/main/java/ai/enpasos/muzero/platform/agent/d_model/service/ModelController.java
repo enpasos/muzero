@@ -367,7 +367,7 @@ public class ModelController implements DisposableBean, Runnable {
                 List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled2(gameBuffer, uOk);
 
 
-                log.info("epoch: {}, boxes trained: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
+                log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
 
 
                 muZeroBlock.setNumUnrollSteps(unrollSteps);
