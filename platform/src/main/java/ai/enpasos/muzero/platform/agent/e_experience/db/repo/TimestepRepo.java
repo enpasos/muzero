@@ -128,13 +128,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t", nativeQuery = true)
     int minUOk( );
 
-    @Transactional
+
     @Query(value = "SELECT max(t.u_ok) FROM  timestep t", nativeQuery = true)
     int maxUOk( );
 
-    @Transactional
-    @Query(value = "SELECT DISTINCT t.u_ok FROM timestep t ORDER BY t.u_ok ASC", nativeQuery = true)
-    List<Integer> uOkList();
+
 
 
 
@@ -183,8 +181,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Transactional
-    @Query(value = "SELECT DISTINCT t.episode_id FROM timestep t WHERE not t.u_ok_closed and t.u_ok = :uok order by t.id limit :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE NOT t.u_ok_closed AND t.u_ok = :uok GROUP BY t.episode_id ORDER BY t.episode_id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<Long> getRelevantEpisodeIds2(int limit, int offset, int uok);
 
 
