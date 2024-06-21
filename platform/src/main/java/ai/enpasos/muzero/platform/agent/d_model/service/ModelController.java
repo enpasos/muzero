@@ -344,10 +344,14 @@ public class ModelController implements DisposableBean, Runnable {
     //    int maxBox = timestepRepo.maxBox();
     //    List<Integer> boxesRelevant = Boxing.boxesRelevant2(epochLocal, maxBox, unrollSteps);
 
-        for( int uOk : uOkList) {
+        log.info("trainNetworkRules: epoch: {}, uOkList: {}", epochLocal, uOkList);
+      //  for( int uOk : uOkList) {
+                for(int k = 0; k < uOkList.size(); k++) {
+                    int uOk = uOkList.get(k);
 
+
+            log.info("uOk: {}", uOk);
             int unrollSteps = uOk + 1;
-            log.info("trainNetworkRules: epoch: {}, unrollSteps: {}", epochLocal, unrollSteps);
 
             // start real code
             // first the buffer loop
@@ -359,7 +363,7 @@ public class ModelController implements DisposableBean, Runnable {
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
             for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
                 List<Long> episodeIdsRulesLearningList = iterator.next();
-                boolean save = !iterator.hasNext();
+                boolean save = !iterator.hasNext() && k == uOkList.size() - 1;
                 List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
                 Collections.shuffle(gameBuffer);
