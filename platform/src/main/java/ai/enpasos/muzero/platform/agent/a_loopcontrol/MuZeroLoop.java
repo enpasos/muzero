@@ -114,7 +114,7 @@ public class MuZeroLoop {
 
 
         TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollStepsMax);
-        List<Integer> uOkList = r.getUOkList();
+      //  List<Integer> uOkList = r.getUOkList();
         int unrollSteps = r.getUnrollSteps();
         int toBeTrained = r.getToBeTrained();
         boolean tested =  true;
@@ -190,14 +190,14 @@ public class MuZeroLoop {
             }
             if (!tested) {
                 r = testUnrollRulestate.run(unrollStepsMax);
-                uOkList = r.getUOkList();
+              //  uOkList = r.getUOkList();
                 unrollSteps = r.getUnrollSteps();
                 toBeTrained = r.getToBeTrained();
             }
             while (toBeTrained == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
                 r = testUnrollRulestate.run(unrollSteps);
-                uOkList = r.getUOkList();
+             //   uOkList = r.getUOkList();
                // unrollSteps = r.getUnrollSteps();
                 toBeTrained = r.getToBeTrained();
             }
