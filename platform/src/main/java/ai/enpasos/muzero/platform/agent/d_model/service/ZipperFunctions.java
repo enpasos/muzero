@@ -227,9 +227,6 @@ public class ZipperFunctions {
                     // }
                 }
 
-
-
-
                 ts.setUOk(u);
                 ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
 

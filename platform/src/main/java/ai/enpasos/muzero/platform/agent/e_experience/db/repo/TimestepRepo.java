@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
@@ -195,6 +196,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     int minUokNotClosed( );
 
     @Query(value = "SELECT count(t.id) FROM  timestep t WHERE not t.u_ok_closed and t.u_ok + 1 < :unrollSteps  GROUP BY t.u_ok  ", nativeQuery = true)
-    int toBeTrained(int unrollSteps);
+    Optional<Integer> toBeTrained(int unrollSteps);
 }
 

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
@@ -94,9 +95,9 @@ public class TestUnrollRulestate {
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-                timeStepDO.setUOkTested(true);
-            }));
+//            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
+//                timeStepDO.setUOkTested(true);
+//            }));
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOkandBox(episodeDOList);
@@ -132,6 +133,6 @@ public class TestUnrollRulestate {
     }
 
     public int toBeTrained(int unrollSteps) {
-       return timestepRepo.toBeTrained(unrollSteps);
+       return timestepRepo.toBeTrained(unrollSteps).orElse(0);
     }
 }
