@@ -245,7 +245,7 @@ public class DBService {
     }
 
 
-    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU) {
+    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
 //                    if (ts.isUOkTested()) {
 //                        if ( ts.getUOk() >= targetU || ts.isUOkClosed())  {

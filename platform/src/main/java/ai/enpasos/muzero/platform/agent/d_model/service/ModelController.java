@@ -401,7 +401,7 @@ public class ModelController implements DisposableBean, Runnable {
                             ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
 
                             batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
-                            dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
+                            dbService.updateEpisodes_SandUOkandBox(episodes);
 
 
                             int tau = 0;   // start with tau = 0

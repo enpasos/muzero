@@ -99,7 +99,7 @@ public class TestUnrollRulestate {
             }));
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList);
 
         }
 
@@ -127,7 +127,7 @@ public class TestUnrollRulestate {
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), 1);
+        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO));
 
     }
 
