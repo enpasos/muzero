@@ -114,7 +114,7 @@ public class MuZeroLoop {
 
 
         TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollStepsMax);
-      //  List<Integer> uOkList = r.getUOkList();
+        List<Integer> uOkList = r.getUOkList();
         int unrollSteps = r.getUnrollSteps();
         int toBeTrained = r.getToBeTrained();
         boolean tested =  true;
