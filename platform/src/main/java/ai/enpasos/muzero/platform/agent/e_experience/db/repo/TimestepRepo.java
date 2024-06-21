@@ -184,7 +184,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
-    @Query(value = "SELECT DISTINCT t.episode_id FROM timestep t WHERE not t.u_ok_closed and t.u_ok == :uok order by t.id limit :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT t.episode_id FROM timestep t WHERE not t.u_ok_closed and t.u_ok = :uok order by t.id limit :limit OFFSET :offset", nativeQuery = true)
     List<Long> getRelevantEpisodeIds2(int limit, int offset, int uok);
 
 
