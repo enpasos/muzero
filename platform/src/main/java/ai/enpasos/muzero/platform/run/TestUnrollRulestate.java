@@ -109,7 +109,7 @@ public class TestUnrollRulestate {
         int unrollSteps = Math.max(1,  uOkList.getFirst() +1);
         int toBeTrained =  toBeTrained(unrollSteps);
 
-        log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), toBeTrained);
+        log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), unrollSteps, toBeTrained);
         return new Result(uOkList, unrollSteps, toBeTrained);
     }
 
