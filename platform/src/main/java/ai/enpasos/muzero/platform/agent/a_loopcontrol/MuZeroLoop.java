@@ -112,14 +112,18 @@ public class MuZeroLoop {
 
         int unrollStepsMax =  timestepRepo.maxUOk() + 1 ;
 
+
         TestUnrollRulestate.Result r = testUnrollRulestate.run(unrollStepsMax);
         List<Integer> uOkList = r.getUOkList();
         int unrollSteps = r.getUnrollSteps();
         int toBeTrained = r.getToBeTrained();
+        boolean tested =  true;
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
             while (toBeTrained > 0) {
+                tested = false;
+
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -184,18 +188,19 @@ public class MuZeroLoop {
 //                nBox = timestepRepo.numBox(0);
 //                log.info("nBox: " + nBox);
             }
-
-             r = testUnrollRulestate.run(unrollStepsMax);
-             uOkList = r.getUOkList();
-            unrollSteps = r.getUnrollSteps();
-             toBeTrained = r.getToBeTrained();
-            while (toBeTrained == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                    unrollSteps++;
+            if (!tested) {
                 r = testUnrollRulestate.run(unrollStepsMax);
                 uOkList = r.getUOkList();
                 unrollSteps = r.getUnrollSteps();
                 toBeTrained = r.getToBeTrained();
-                }
+            }
+            while (toBeTrained == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                unrollSteps++;
+                r = testUnrollRulestate.run(unrollSteps);
+                uOkList = r.getUOkList();
+               // unrollSteps = r.getUnrollSteps();
+                toBeTrained = r.getToBeTrained();
+            }
 
 
             if (unrollSteps == config.getMaxUnrollSteps()) {
