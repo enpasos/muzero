@@ -213,7 +213,7 @@ public class MuZeroLoop {
        rulesTraining = false;
 
 
-        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+        while ( trainingStep < config.getNumberOfTrainingSteps()) {
 
 
 
