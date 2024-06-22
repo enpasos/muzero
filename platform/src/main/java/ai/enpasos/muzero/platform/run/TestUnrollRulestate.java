@@ -106,7 +106,8 @@ public class TestUnrollRulestate {
 
 
         List<Integer> uOkList = timestepRepo.uOkList();
-        int unrollSteps = Math.max(1,  uOkList.getLast() +1);
+        int unrollSteps = uOkList.getFirst() +1;
+        unrollSteps = Math.max(unrollSteps, 1);
         int toBeTrained =  toBeTrained(unrollSteps);
 
         log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), unrollSteps, toBeTrained);
