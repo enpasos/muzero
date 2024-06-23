@@ -346,8 +346,8 @@ public class ModelController implements DisposableBean, Runnable {
 
         log.info("trainNetworkRules: epoch: {}, uOkList: {}", epochLocal, uOkList);
       //  for( int uOk : uOkList) {
-                for(int k = 0; k < uOkList.size(); k++) {
-                    int uOk = uOkList.get(k);
+        for(int k = 0; k < uOkList.size(); k++) {
+             int uOk = uOkList.get(k);
 
 
             log.info("uOk: {}", uOk);
@@ -359,6 +359,7 @@ public class ModelController implements DisposableBean, Runnable {
             rulesBuffer.setWindowSize(1000);
             rulesBuffer.setEpisodeIds(gameBuffer.getRelevantEpisodeIds2(uOk));
             int w = 0;
+            List<TimeStepDO> timestepsDone = new ArrayList<>();
 
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
             for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
@@ -368,7 +369,12 @@ public class ModelController implements DisposableBean, Runnable {
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
                 Collections.shuffle(gameBuffer);
 
+
+                // each timestep once
                 List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled2(gameBuffer, uOk);
+                allTimeSteps.removeAll(timestepsDone);
+                if (allTimeSteps.isEmpty()) continue;
+                timestepsDone.addAll(allTimeSteps);
 
 
                 log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
