@@ -112,11 +112,9 @@ public class MuZeroLoop {
 
         int unrollStepsMax = timestepRepo.maxUOk() + 1;
 
-        testUnrollRulestate.run(unrollStepsMax);
-        List<Integer> uOkList = timestepRepo.uOkList();
-        log.info("uOkList: " +  uOkList);
-        unrollStepsMax = uOkList.getLast() +1;
-        int unrollStepsMin = uOkList.getFirst() +1;
+        TestUnrollRulestate.Result result = testUnrollRulestate.run(unrollStepsMax);
+        unrollStepsMax = result.getUnrollStepsMax();
+        int unrollStepsMin = result.getUnrollStepsMin();
 
         while (unrollStepsMin <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
@@ -159,7 +157,7 @@ public class MuZeroLoop {
 //            do {
 //                for (int i = 0; i < 10; i++) {
                 if (rulesTraining) {
-                    modelService.trainModelRules(freeze, uOkList).get();
+                    modelService.trainModelRules(freeze, result.getUOkList()).get();
                 }
                 //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
@@ -182,11 +180,9 @@ public class MuZeroLoop {
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
 
-            testUnrollRulestate.run(unrollStepsMax);
-             uOkList = timestepRepo.uOkList();
-            log.info("uOkList: " +  uOkList);
-            unrollStepsMax = uOkList.getLast() +1;
-             unrollStepsMin = uOkList.getFirst() +1;
+            TestUnrollRulestate.Result result = testUnrollRulestate.run(unrollStepsMax);
+             unrollStepsMax = result.getUnrollStepsMax();
+             unrollStepsMin = result.getUnrollStepsMin();
 
 
 //                testUnrollRulestate.run(unrollSteps);
