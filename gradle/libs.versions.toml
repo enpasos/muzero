@@ -4,7 +4,7 @@ djl = "0.29.0-SNAPSHOT"
 pytorch = "2.2.2" # do not use 2.3.0! There is a dynamical linkage problem with the native library mkl_intel_thread.1.dll. Will be fixed in 2.3.1 linking MKL statically
 
 slf4j = "2.0.13"
-springboot = "3.3.0"
+springboot = "3.3.1"
 protobuf = "4.27.1"
 junit = "5.10.2"
 jackson = "2.17.1"
