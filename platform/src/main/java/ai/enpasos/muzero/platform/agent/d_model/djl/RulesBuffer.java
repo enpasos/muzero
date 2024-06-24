@@ -11,7 +11,7 @@ public class RulesBuffer {
     int windowSize;
 
 
-    public class EpisodeIdsWindowIterator implements Iterator<List<Long>> {
+    public class IdWindowIterator implements Iterator<List<Long>> {
         private int index = 0;
 
         @Override

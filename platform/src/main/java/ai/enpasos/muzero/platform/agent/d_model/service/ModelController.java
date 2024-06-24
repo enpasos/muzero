@@ -328,7 +328,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, List<Integer> uOkList) {
 
-        long maxTimesteps = 10000;  // TODO configurable
+        long maxTimesteps = 20000;  // TODO configurable
         long timestepCount = 0;
 
         NumberFormat nf = NumberFormat.getNumberInstance();
@@ -350,8 +350,6 @@ public class ModelController implements DisposableBean, Runnable {
         for(int k = 0; k < uOkList.size(); k++) {
              int uOk = uOkList.get(k);
 
-
-
             int unrollSteps = uOk + 1;
 
             List<IdProjection> idProjections = gameBuffer.getRelevantIds(uOk);
@@ -368,8 +366,9 @@ public class ModelController implements DisposableBean, Runnable {
            // List<Long> timestepIdsDone = new ArrayList<>();
 
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
-            for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
+            for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext() && timestepCount < maxTimesteps; ) {
                 List<Long> timestepIdsRulesLearningList = iterator.next();
+                timestepCount += timestepIdsRulesLearningList.size();
 
                 List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
 
@@ -412,10 +411,10 @@ public class ModelController implements DisposableBean, Runnable {
                         trainer.initialize(inputShapes);
                         ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
-                    boolean trainedHere = !allTimeSteps.isEmpty() && timestepCount < maxTimesteps;
-                        for (int ts = 0; ts < allTimeSteps.size() && timestepCount < maxTimesteps; ts += config.getBatchSize()) {
+
+                        for (int ts = 0; ts < allTimeSteps.size() ; ts += config.getBatchSize()) {
                             List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-                            timestepCount += batchTimeSteps.size();
+
 
 
                             try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
@@ -454,7 +453,7 @@ public class ModelController implements DisposableBean, Runnable {
                                 trainer.step();
                             }
                         }
-                        if (!background && trainedHere  ) {
+                        if (!background   ) {
                             handleMetrics(trainer, model, epochLocal);
                         }
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
