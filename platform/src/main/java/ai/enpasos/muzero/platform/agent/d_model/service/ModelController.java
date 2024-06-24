@@ -373,7 +373,7 @@ public class ModelController implements DisposableBean, Runnable {
                 // each timestep once
                 List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled2(gameBuffer, uOk);
                 allTimeSteps.removeAll(timestepsDone);
-                if (allTimeSteps.isEmpty()) continue;
+              //  if (allTimeSteps.isEmpty()) continue;
                 timestepsDone.addAll(allTimeSteps);
 
 
