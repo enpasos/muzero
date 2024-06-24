@@ -373,7 +373,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                 List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
 
-                boolean save = !iterator.hasNext() && k == uOkList.size() - 1;
+                boolean save = !iterator.hasNext(); // && k == uOkList.size() - 1;
                 log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                 List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
@@ -412,9 +412,11 @@ public class ModelController implements DisposableBean, Runnable {
                         trainer.initialize(inputShapes);
                         ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
+                        boolean trainedHere = false;
                         for (int ts = 0; ts < allTimeSteps.size() && timestepCount < maxTimesteps; ts += config.getBatchSize()) {
                             List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
                             timestepCount += batchTimeSteps.size();
+                            if (!batchTimeSteps.isEmpty()) trainedHere = true;
 
                             try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
                                 Statistics stats = new Statistics();
@@ -452,7 +454,7 @@ public class ModelController implements DisposableBean, Runnable {
                                 trainer.step();
                             }
                         }
-                        if (!background &&  !allTimeSteps.isEmpty() ) {
+                        if (!background &&  trainedHere ) {
                             handleMetrics(trainer, model, epochLocal);
                         }
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
