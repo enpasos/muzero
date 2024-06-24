@@ -437,7 +437,7 @@ public class ModelController implements DisposableBean, Runnable {
                                 trainer.step();
                             }
                         }
-                        if (!background) {
+                        if (!background &&  !allTimeSteps.isEmpty()) {
                             handleMetrics(trainer, model, epochLocal);
                         }
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));

@@ -111,8 +111,10 @@ public class MuZeroLoop {
         boolean rulesTraining = true;
 
         int unrollStepsMax = timestepRepo.maxUOk() + 1;
+   //     testUnrollRulestate.run(unrollStepsMax);
 
-        TestUnrollRulestate.Result result = testUnrollRulestate.run(unrollStepsMax);
+
+        TestUnrollRulestate.Result result = testUnrollRulestate.getResult();
         unrollStepsMax = result.getUnrollStepsMax();
         int unrollStepsMin = result.getUnrollStepsMin();
 
@@ -180,7 +182,8 @@ public class MuZeroLoop {
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
 
-             result = testUnrollRulestate.run(unrollStepsMax);
+            testUnrollRulestate.run(unrollStepsMax);
+             result = testUnrollRulestate.getResult();
              unrollStepsMax = result.getUnrollStepsMax();
              unrollStepsMin = result.getUnrollStepsMin();
 
