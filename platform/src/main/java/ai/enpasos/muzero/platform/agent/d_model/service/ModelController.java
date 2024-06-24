@@ -412,11 +412,11 @@ public class ModelController implements DisposableBean, Runnable {
                         trainer.initialize(inputShapes);
                         ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
-                        boolean trainedHere = false;
+                    boolean trainedHere = !allTimeSteps.isEmpty() && timestepCount < maxTimesteps;
                         for (int ts = 0; ts < allTimeSteps.size() && timestepCount < maxTimesteps; ts += config.getBatchSize()) {
                             List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
                             timestepCount += batchTimeSteps.size();
-                            if (!batchTimeSteps.isEmpty()) trainedHere = true;
+
 
                             try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
                                 Statistics stats = new Statistics();
@@ -454,7 +454,7 @@ public class ModelController implements DisposableBean, Runnable {
                                 trainer.step();
                             }
                         }
-                        if (!background &&  trainedHere ) {
+                        if (!background && trainedHere  ) {
                             handleMetrics(trainer, model, epochLocal);
                         }
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
