@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -41,10 +42,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -353,11 +351,15 @@ public class ModelController implements DisposableBean, Runnable {
 
             int unrollSteps = uOk + 1;
 
+            List<IdProjection> idProjections = gameBuffer.getRelevantIds(uOk);
+            List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
+
+
             // start real code
             // first the buffer loop
             RulesBuffer rulesBuffer = new RulesBuffer();
             rulesBuffer.setWindowSize(1000);
-            rulesBuffer.setIds(gameBuffer.getRelevantTimestepIds(uOk));
+            rulesBuffer.setIds(relevantTimestepIds);
             log.info("uOk: {}, timestepIds size: {}", uOk, rulesBuffer.getIds().size());
             int w = 0;
            // List<Long> timestepIdsDone = new ArrayList<>();
@@ -365,8 +367,11 @@ public class ModelController implements DisposableBean, Runnable {
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
             for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
                 List<Long> timestepIdsRulesLearningList = iterator.next();
+
+                List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
+
                 boolean save = !iterator.hasNext() && k == uOkList.size() - 1;
-                List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsTimeStepDOIdDesc(timestepIdsRulesLearningList);
+                List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
                 Collections.shuffle(gameBuffer);
 
@@ -453,6 +458,13 @@ public class ModelController implements DisposableBean, Runnable {
             }
         }
 
+    }
+
+    private List<Long> episodeIdsFromTimestepIds(List<IdProjection> idProjections, List<Long> timestepIdsRulesLearningList) {
+        Set<Long> ids =  idProjections.stream()
+                .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getId()))
+                .map(IdProjection::getEpisodeId).collect(Collectors.toSet());
+        return new ArrayList(ids);
     }
 
 

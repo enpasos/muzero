@@ -193,6 +193,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT t.id FROM timestep t WHERE NOT t.u_ok_closed AND t.u_ok = :uok  ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<Long> getRelevantIds(int limit, int offset, int uok);
 
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE NOT t.u_ok_closed AND t.u_ok = :uok ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<IdProjection> getRelevantIds2(int limit, int offset, int uok);
+
+
+
 
 
     @Transactional

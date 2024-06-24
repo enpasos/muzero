@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -222,20 +223,21 @@ public class GameBuffer {
         return episodeIds;
     }
 
-    public List<Long> getRelevantTimestepIds( int uOk )  {
+    public List<IdProjection> getRelevantIds(int uOk )  {
         int limit = 50000;
 
         int offset = 0;
-        Set<Long> relevantIds = new HashSet<>();
+        List<IdProjection> relevantIds = new ArrayList<>();
         List newIds;
         do {
-            newIds = timestepRepo.getRelevantIds( limit, offset, uOk);
+
+            newIds = timestepRepo.getRelevantIds2( limit, offset, uOk);
             relevantIds.addAll(newIds);
             offset += limit;
         } while (newIds.size() > 0);
-        List<Long> relevantIdsList = new ArrayList<>(relevantIds);
-        Collections.shuffle(relevantIdsList);
-        return relevantIdsList;
+     //   List<Long> relevantIdsList = new ArrayList<>(relevantIds);
+     //   Collections.shuffle(relevantIdsList);
+        return relevantIds;
     }
 
     public List<Long> getRelevantEpisodeIds2( int uOk )  {
