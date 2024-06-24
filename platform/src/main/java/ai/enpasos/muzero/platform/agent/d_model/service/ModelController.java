@@ -460,8 +460,8 @@ public class ModelController implements DisposableBean, Runnable {
                         trainer.notifyListeners(listener -> listener.onEpoch(trainer));
 
                     }
-
-                    modelState.setEpoch(getEpochFromModel(model));
+                    epochLocal = getEpochFromModel(model);
+                    modelState.setEpoch( epochLocal);
 
                 }
                 w++;
