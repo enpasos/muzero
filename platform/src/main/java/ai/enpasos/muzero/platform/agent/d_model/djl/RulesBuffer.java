@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class RulesBuffer {
-    List<Long> episodeIds;
+    List<Long> ids;
     int windowSize;
 
 
@@ -16,13 +16,13 @@ public class RulesBuffer {
 
         @Override
         public boolean hasNext() {
-            return    index < episodeIds.size();
+            return    index < ids.size();
         }
 
         @Override
         public List<Long> next() {
-            int nextIndex = Math.min(index + windowSize, episodeIds.size());
-            List<Long> window = episodeIds.subList(index, nextIndex);
+            int nextIndex = Math.min(index + windowSize, ids.size());
+            List<Long> window = ids.subList(index, nextIndex);
             index = nextIndex;
             return window;
         }

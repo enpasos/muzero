@@ -27,6 +27,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Query(value = "select e from EpisodeDO e JOIN FETCH e.timeSteps t where e.id in :ids ORDER BY e.id DESC, t.t ASC")
     List<EpisodeDO> findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List<Long> ids);
 
+    @Transactional
+    @Query(value = "select e from EpisodeDO e JOIN FETCH e.timeSteps t where t.id in :ids ORDER BY t.id DESC, t.t ASC")
+    List<EpisodeDO> findEpisodeDOswithTimeStepDOsTimeStepDOIdDesc(List<Long> ids);
+
 
     @Transactional
     @Query(value = "select e.id from episode e where e.min_box <= :minBox  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)

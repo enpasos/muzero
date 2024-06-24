@@ -85,7 +85,7 @@ public class TestUnrollRulestate {
 
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
-        rulesBuffer.setEpisodeIds(gameBuffer.getEpisodeIds());
+        rulesBuffer.setIds(gameBuffer.getEpisodeIds());
         for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
         //    boolean save = !iterator.hasNext();

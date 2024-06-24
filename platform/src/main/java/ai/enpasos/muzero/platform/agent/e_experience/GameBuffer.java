@@ -222,6 +222,22 @@ public class GameBuffer {
         return episodeIds;
     }
 
+    public List<Long> getRelevantTimestepIds( int uOk )  {
+        int limit = 50000;
+
+        int offset = 0;
+        Set<Long> relevantIds = new HashSet<>();
+        List newIds;
+        do {
+            newIds = timestepRepo.getRelevantIds( limit, offset, uOk);
+            relevantIds.addAll(newIds);
+            offset += limit;
+        } while (newIds.size() > 0);
+        List<Long> relevantIdsList = new ArrayList<>(relevantIds);
+        Collections.shuffle(relevantIdsList);
+        return relevantIdsList;
+    }
+
     public List<Long> getRelevantEpisodeIds2( int uOk )  {
         int limit = 50000;
 

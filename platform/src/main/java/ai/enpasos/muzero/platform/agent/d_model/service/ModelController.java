@@ -350,31 +350,32 @@ public class ModelController implements DisposableBean, Runnable {
              int uOk = uOkList.get(k);
 
 
-            log.info("uOk: {}", uOk);
+
             int unrollSteps = uOk + 1;
 
             // start real code
             // first the buffer loop
             RulesBuffer rulesBuffer = new RulesBuffer();
             rulesBuffer.setWindowSize(1000);
-            rulesBuffer.setEpisodeIds(gameBuffer.getRelevantEpisodeIds2(uOk));
+            rulesBuffer.setIds(gameBuffer.getRelevantTimestepIds(uOk));
+            log.info("uOk: {}, timestepIds size: {}", uOk, rulesBuffer.getIds().size());
             int w = 0;
-            List<TimeStepDO> timestepsDone = new ArrayList<>();
+           // List<Long> timestepIdsDone = new ArrayList<>();
 
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
             for (RulesBuffer.EpisodeIdsWindowIterator iterator = rulesBuffer.new EpisodeIdsWindowIterator(); iterator.hasNext(); ) {
-                List<Long> episodeIdsRulesLearningList = iterator.next();
+                List<Long> timestepIdsRulesLearningList = iterator.next();
                 boolean save = !iterator.hasNext() && k == uOkList.size() - 1;
-                List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+                List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsTimeStepDOIdDesc(timestepIdsRulesLearningList);
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
                 Collections.shuffle(gameBuffer);
 
 
                 // each timestep once
-                List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled2(gameBuffer, uOk);
-                allTimeSteps.removeAll(timestepsDone);
-              //  if (allTimeSteps.isEmpty()) continue;
-                timestepsDone.addAll(allTimeSteps);
+                List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(gameBuffer, timestepIdsRulesLearningList);
+//                allTimeSteps.removeAll(timestepsDone);
+//              //  if (allTimeSteps.isEmpty()) continue;
+//                timestepsDone.addAll(allTimeSteps);
 
 
                 log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
@@ -518,6 +519,20 @@ public class ModelController implements DisposableBean, Runnable {
             EpisodeDO episodeDO = game.getEpisodeDO();
             for (TimeStepDO ts : episodeDO.getTimeSteps()) {
                 if (!ts.isUOkClosed() && ts.getUOk() == uOk) {
+                    timeStepDOList.add(ts);
+                }
+            }
+        }
+        Collections.shuffle(timeStepDOList);
+        return timeStepDOList;
+    }
+
+    private List<TimeStepDO> allRelevantTimeStepsShuffled3(List<Game> games , List<Long> timestepIds) {
+        List<TimeStepDO> timeStepDOList = new ArrayList<>();
+        for (Game game : games) {
+            EpisodeDO episodeDO = game.getEpisodeDO();
+            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
+                if (timestepIds.contains(ts.getId())) {
                     timeStepDOList.add(ts);
                 }
             }
