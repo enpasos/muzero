@@ -111,7 +111,7 @@ public class MuZeroLoop {
         boolean rulesTraining = true;
 
         int unrollStepsMax = timestepRepo.maxUOk() + 1;
-   //     testUnrollRulestate.run(unrollStepsMax);
+        testUnrollRulestate.run(unrollStepsMax);
 
 
         TestUnrollRulestate.Result result = testUnrollRulestate.getResult();
