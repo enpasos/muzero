@@ -133,7 +133,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     int maxUOk( );
 
 
-    @Query(value = "SELECT DISTINCT t.u_ok FROM timestep t ORDER BY t.u_ok ASC", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT t.u_ok FROM timestep t WHERE not t.u_ok_closed ORDER BY t.u_ok ASC", nativeQuery = true)
     List<Integer> uOkList();
 
 
