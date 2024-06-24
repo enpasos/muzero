@@ -350,7 +350,8 @@ public class ModelController implements DisposableBean, Runnable {
         for(int k = 0; k < uOkList.size(); k++) {
              int uOk = uOkList.get(k);
 
-            int unrollSteps = uOk + 1;
+
+            int unrollSteps = Math.max(1, uOk + 1);
 
             List<IdProjection> idProjections = gameBuffer.getRelevantIds(uOk);
             List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
