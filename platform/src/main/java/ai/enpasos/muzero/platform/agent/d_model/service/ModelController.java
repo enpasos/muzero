@@ -328,7 +328,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, List<Integer> uOkList) {
 
-        long maxTimesteps = 100000;  // TODO configurable
+        long maxTimesteps = 100000000;  // TODO configurable
         long timestepCount = 0;
 
         NumberFormat nf = NumberFormat.getNumberInstance();
