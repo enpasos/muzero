@@ -25,8 +25,8 @@ public class Boxing {
         return boxesRelevant;
     }
 
-    public static List<Integer> boxesRelevant2(int epoch, int maxBox, int unrollSteps) {
-        if (unrollSteps == 1) return boxesRelevant(epoch, maxBox);
-        return List.of(0);
-    }
+//    public static List<Integer> boxesRelevant2(int epoch, int maxBox, int unrollSteps) {
+//        if (unrollSteps == 1) return boxesRelevant(epoch, maxBox);
+//        return List.of(0);
+//    }
 }

@@ -13,6 +13,7 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
@@ -328,7 +329,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, List<Integer> uOkList) {
 
-        long maxTimesteps = 100000000;  // TODO configurable
+       //long maxTimesteps = 100000000;  // TODO configurable
         long timestepCount = 0;
 
         NumberFormat nf = NumberFormat.getNumberInstance();
@@ -342,13 +343,20 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-    //    int maxBox = timestepRepo.maxBox();
-    //    List<Integer> boxesRelevant = Boxing.boxesRelevant2(epochLocal, maxBox, unrollSteps);
 
-        log.info("trainNetworkRules: epoch: {}, uOkList: {}", epochLocal, uOkList);
-      //  for( int uOk : uOkList) {
-        for(int k = 0; k < uOkList.size(); k++) {
-             int uOk = uOkList.get(k);
+        int minUokNotClosed = uOkList.getFirst();
+        int maxUokNotClosed =  uOkList.getLast();
+       log.info("trainNetworkRules:  minUokNotClosed: {}, maxUokNotClosed: {}", minUokNotClosed, maxUokNotClosed);
+
+        int maxBox = timestepRepo.maxBox();
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxUokNotClosed-minUokNotClosed);
+        List<Integer> uOksRelevant = uOkList.stream().map(i -> i + minUokNotClosed).collect(Collectors.toList());
+
+
+        log.info("trainNetworkRules: epoch: {}, uOksRelevant: {}", epochLocal, uOksRelevant);
+
+        for(int k = 0; k < uOksRelevant.size(); k++) {
+             int uOk = uOksRelevant.get(k);
 
 
             int unrollSteps = Math.max(1, uOk + 1);
@@ -367,7 +375,7 @@ public class ModelController implements DisposableBean, Runnable {
            // List<Long> timestepIdsDone = new ArrayList<>();
 
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
-            for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext() && timestepCount < maxTimesteps; ) {
+            for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext() ; ) {
                 List<Long> timestepIdsRulesLearningList = iterator.next();
                 timestepCount += timestepIdsRulesLearningList.size();
 
@@ -428,10 +436,10 @@ public class ModelController implements DisposableBean, Runnable {
                                 MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                                 // transfer b_OK back from batch array to the games parameter s
-                                // ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
+                                ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
 
                                 //   batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
-                                //   dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
+                                dbService.updateEpisodes_SandUOkandBox(episodes);
 
 
                                 int tau = 0;   // start with tau = 0

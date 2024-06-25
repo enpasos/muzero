@@ -102,16 +102,15 @@ public class MuZeroLoop {
         gameBuffer.loadLatestStateIfExists();
 
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
-            play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
+            play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
         }
-
 
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
         int unrollStepsMax = timestepRepo.maxUOk() + 1;
-        testUnrollRulestate.run(unrollStepsMax);
+        //     testUnrollRulestate.run(unrollStepsMax);
 
 
         TestUnrollRulestate.Result result = testUnrollRulestate.getResult();
@@ -120,7 +119,8 @@ public class MuZeroLoop {
 
         while (unrollStepsMin <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
-         //   while (nBox > 0) {
+            //   while (nBox > 0) {
+            for (int n = 0; n < 100; n++) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -180,18 +180,18 @@ public class MuZeroLoop {
                 durations.add(duration);
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
+            }
 
             testUnrollRulestate.run(unrollStepsMax);
-             result = testUnrollRulestate.getResult();
-             unrollStepsMax = result.getUnrollStepsMax();
-             unrollStepsMin = result.getUnrollStepsMin();
+            result = testUnrollRulestate.getResult();
+            unrollStepsMax = result.getUnrollStepsMax();
+            unrollStepsMin = result.getUnrollStepsMin();
 
 
 //                testUnrollRulestate.run(unrollSteps);
 //                nBox = timestepRepo.numBox(0);
 //                log.info("nBox: " + nBox);
-       //     }
+            //     }
 //            while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
 //                unrollSteps++;
 //                log.info("unrollSteps: " + unrollSteps);
@@ -205,7 +205,7 @@ public class MuZeroLoop {
 //            }
         }
 
-        log.info("done" );
+        log.info("done");
     }
 
 
