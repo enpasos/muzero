@@ -117,7 +117,7 @@ public class MuZeroLoop {
           unrollSteps = r.getUnrollSteps();
         int toBeTrained = r.getToBeTrained();
         boolean tested =  true;
-        if (true) return;
+     //   if (true) return;
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
