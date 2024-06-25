@@ -25,7 +25,7 @@ public class MyEpochTrainingListener extends TrainingListenerAdapter {
             metrics.addMetric("epoch", System.nanoTime() - epochTime);
         }
         epochTime = System.nanoTime();
-        numEpochs++;
+      //  numEpochs++;
     }
 
     /**
