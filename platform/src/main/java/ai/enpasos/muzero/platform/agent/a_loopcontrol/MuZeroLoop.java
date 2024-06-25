@@ -120,7 +120,7 @@ public class MuZeroLoop {
         while (unrollStepsMin <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
             //   while (nBox > 0) {
-            for (int n = 0; n < 100; n++) {
+            for (int n = 0; n < 10; n++) {
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
