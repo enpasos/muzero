@@ -88,16 +88,15 @@ public class TestUnrollRulestate {
         rulesBuffer.setIds(gameBuffer.getEpisodeIds());
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
-        //    boolean save = !iterator.hasNext();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollsteps);
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-//            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-//                timeStepDO.setUOkTested(true);
-//            }));
+            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
+                timeStepDO.setUOkTested(true);
+            }));
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
