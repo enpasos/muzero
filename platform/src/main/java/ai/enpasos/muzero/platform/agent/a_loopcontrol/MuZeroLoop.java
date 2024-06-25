@@ -110,8 +110,7 @@ public class MuZeroLoop {
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        int unrollStepsMax =  Math.min(config.getMaxUnrollSteps(), timestepRepo.maxUOk() + 1) ;
-        int unrollSteps = Math.max(1, unrollStepsMax);
+        int unrollSteps = Math.max(1, timestepRepo.minUOk() + 1);
         log.info("unrollSteps: " + unrollSteps);
         TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollSteps);
       //  List<Integer> uOkList = r.getUOkList();
@@ -190,7 +189,7 @@ public class MuZeroLoop {
 //                log.info("nBox: " + nBox);
             }
             if (!tested) {
-                r = testUnrollRulestate.run(unrollStepsMax);
+                r = testUnrollRulestate.run(unrollSteps);
               //  uOkList = r.getUOkList();
                 unrollSteps = r.getUnrollSteps();
                 toBeTrained = r.getToBeTrained();
