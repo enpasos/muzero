@@ -111,7 +111,7 @@ public class TrainingConfigFactory {
                         );
         if (!background) {
             c.addTrainingListeners(
-                    new MyEpochTrainingListener(),
+                  //  new MyEpochTrainingListener(),
                     new MyLoggingTrainingListener(epoch) );
         }
         if (saveModel) {

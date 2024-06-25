@@ -381,7 +381,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                 List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
 
-                boolean save = !iterator.hasNext(); // && k == uOkList.size() - 1;
+                boolean save = !iterator.hasNext() && k == uOksRelevant.size() - 1;
                 log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                 List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
