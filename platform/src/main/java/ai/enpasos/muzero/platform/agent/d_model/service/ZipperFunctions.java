@@ -187,6 +187,51 @@ public class ZipperFunctions {
 
 
 
+
+    public static void sandu_in_Timesteps_From_b_OK(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList, List<TimeStepDO> timeStepDOS) {
+
+        for (int e = 0; e < episodeDOList.size(); e++) {
+            EpisodeDO episodeDO = episodeDOList.get(e);
+            for (int t = 0; t <=  episodeDO.getLastTimeWithAction()+1; t++) {
+                // s
+                int s = 0;
+                for (int i = 0; i <= t; i++) {
+                    if (bOkBatch[e][t - i][t]) {
+                        s = i+1;
+                    } else {
+                        break;
+                    }
+                }
+                TimeStepDO ts = episodeDO.getTimeStep(t);
+                if (timeStepDOS.contains(ts)) {
+
+                    ts.setSChanged(ts.getS() != s);
+                    ts.setS(s);
+                    ts.setSClosed(s >= t + 1);
+                    // uOk
+                    int u = -1;
+                    for (int i = t; i <= episodeDO.getLastTime(); i++) {
+                        if (bOkBatch[e][t][i]) {
+                            u = i - t;
+                        } else {
+                            break;
+                        }
+                    }
+                    ts.setUOkChanged(ts.getUOk() != u);
+
+                    ts.setUOk(u);
+                    ts.setUOkClosed(u >= episodeDO.getLastTime() - t);
+                }
+
+
+            }
+
+        }
+    }
+
+
+
+
     public static void sandu_in_Episodes_From_b_OK(boolean[][][] bOkBatch, List<EpisodeDO> episodeDOList) {
 
         for (int e = 0; e < episodeDOList.size(); e++) {
@@ -215,20 +260,6 @@ public class ZipperFunctions {
                     }
                 }
                 ts.setUOkChanged(ts.getUOk() != u);
-                // box reflects the success history
-//                if (u > ts.getUOk()) {
-//                    ts.setBox(1); // new success history for the improved situation
-//                } else {
-//                    if (u == -1) {
-//                        ts.setBox(0); // no success situation
-//                    }
-//                    // else {
-//                        // keep the success history ... it is still a success, but on a lower level
-//                    // }
-//                }
-
-
-
 
                 ts.setUOk(u);
                 ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
@@ -236,14 +267,6 @@ public class ZipperFunctions {
 
             }
 
-
-//            for(TimeStepDO ts : episodeDO.getTimeSteps()) {
-//                if (ts.getUOk() >= targetU || ts.isUOkClosed()) {
-//                    ts.setBox(ts.getBox() + 1);
-//                } else {
-//                    ts.setBox(0);
-//                }
-//            }
         }
     }
 

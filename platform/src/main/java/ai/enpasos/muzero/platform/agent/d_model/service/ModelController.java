@@ -419,7 +419,8 @@ public class ModelController implements DisposableBean, Runnable {
                                 MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
                                 // transfer b_OK back from batch array to the games parameter s
-                                ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
+                              //  ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
+                                ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch,episodes, batchTimeSteps);
 
                                    batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
                                 dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
