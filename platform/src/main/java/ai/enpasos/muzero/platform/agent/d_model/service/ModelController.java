@@ -350,7 +350,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxUokNotClosed-minUokNotClosed);
-        List<Integer> uOksRelevant = uOkList.stream().map(i -> i + minUokNotClosed).collect(Collectors.toList());
+        List<Integer> uOksRelevant = boxesRelevant.stream().map(i -> i + minUokNotClosed).collect(Collectors.toList());
 
 
         log.info("trainNetworkRules: epoch: {}, uOksRelevant: {}", epochLocal, uOksRelevant);

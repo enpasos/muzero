@@ -2,6 +2,9 @@ package ai.enpasos.muzero.platform.agent.d_model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoxingTest {
@@ -56,4 +59,16 @@ class BoxingTest {
         assertEquals(4, Boxing.intervall(2));
         assertEquals(8, Boxing.intervall(3));
     }
+
+    @Test
+    void boxesRelevantTest() {
+
+        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1, 10).toArray());
+        assertArrayEquals(new Integer[]{0,1,2,3}, Boxing.boxesRelevant(8, 10).toArray());
+
+
+
+    }
+
+
 }
