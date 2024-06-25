@@ -102,25 +102,28 @@ public class MuZeroLoop {
         gameBuffer.loadLatestStateIfExists();
 
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
-            play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
+            play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
         }
+
 
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        int unrollStepsMax = timestepRepo.maxUOk() + 1;
-        testUnrollRulestate.run(unrollStepsMax);
+        int unrollStepsMax =  Math.min(config.getMaxUnrollSteps(), timestepRepo.maxUOk() + 1) ;
 
 
-        TestUnrollRulestate.Result result = testUnrollRulestate.getResult();
-        unrollStepsMax = result.getUnrollStepsMax();
-        int unrollStepsMin = result.getUnrollStepsMin();
+        TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollStepsMax);
+      //  List<Integer> uOkList = r.getUOkList();
+        int unrollSteps = r.getUnrollSteps();
+        int toBeTrained = r.getToBeTrained();
+        boolean tested =  true;
 
-        while (unrollStepsMin <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
-            //   while (nBox > 0) {
-            for (int n = 0; n < 10; n++) {
+            while (toBeTrained > 0) {
+                tested = false;
+
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
 //                fillRulesLoss.run();
@@ -159,7 +162,7 @@ public class MuZeroLoop {
 //            do {
 //                for (int i = 0; i < 10; i++) {
                 if (rulesTraining) {
-                    modelService.trainModelRules(freeze, result.getUOkList()).get();
+                    modelService.trainModelRules(freeze, unrollSteps).get();
                 }
                 //     epoch = modelState.getEpoch();
 //                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
@@ -180,32 +183,78 @@ public class MuZeroLoop {
                 durations.add(duration);
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
+//                testUnrollRulestate.run(unrollSteps);
+//                nBox = timestepRepo.numBox(0);
+//                log.info("nBox: " + nBox);
+            }
+            if (!tested) {
+                r = testUnrollRulestate.run(unrollStepsMax);
+              //  uOkList = r.getUOkList();
+                unrollSteps = r.getUnrollSteps();
+                toBeTrained = r.getToBeTrained();
+            }
+            while (toBeTrained == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                unrollSteps++;
+                r = testUnrollRulestate.run(unrollSteps);
+             //   uOkList = r.getUOkList();
+               // unrollSteps = r.getUnrollSteps();
+                toBeTrained = r.getToBeTrained();
             }
 
-            testUnrollRulestate.run(unrollStepsMax);
-            result = testUnrollRulestate.getResult();
-            unrollStepsMax = result.getUnrollStepsMax();
-            unrollStepsMin = result.getUnrollStepsMin();
 
-
-//                testUnrollRulestate.run(unrollSteps);
-//                nBox = timestepRepo.numBox(0);
-//                log.info("nBox: " + nBox);
-            //     }
-//            while (nBox == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-//                unrollSteps++;
-//                log.info("unrollSteps: " + unrollSteps);
-//                testUnrollRulestate.run(unrollSteps);
-//                nBox = timestepRepo.numBox(0);
-//                log.info("nBox: " + nBox);
-//            }
-//            log.info("nBox: {}, unrollSteps: {}, maxUnrollSteps: {}", nBox, unrollSteps , config.getMaxUnrollSteps());
-//            if (unrollSteps == config.getMaxUnrollSteps()) {
-//                break;
-//            }
+            if (unrollSteps == config.getMaxUnrollSteps()) {
+                break;
+            }
         }
 
-        log.info("done");
+
+       policyValueTraining = true;   // true: policy and value training, false: rules training
+       rulesTraining = false;
+
+
+//        while ( trainingStep < config.getNumberOfTrainingSteps()) {
+//
+//
+//
+//                DurAndMem duration = new DurAndMem();
+//                duration.on();
+//
+//                if (policyValueTraining) {
+//                    if (epoch != 0) {
+//                        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+//                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+//                            config.setPlayTypeKey(key);
+//                            play.playGames(params.isRender(), trainingStep);
+//                        }
+//                        config.setPlayTypeKey(originalPlayTypeKey);
+//                    }
+//
+//                    log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+//                    log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+//                    log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+//                }
+//
+//
+//                boolean[] freeze = null;
+//
+//                if (policyValueTraining) {
+//                    freeze = new boolean[]{true, false, false};
+//                    modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+//                }
+//
+//                epoch = modelState.getEpoch();
+//
+//                trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+//
+//                duration.off();
+//                durations.add(duration);
+//                System.out.println("epoch;duration[ms];gpuMem[MiB]");
+//                IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+//          }
+
+
+        log.info("done" );
     }
 
 

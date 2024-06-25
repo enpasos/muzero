@@ -4,8 +4,6 @@ import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.config.TrainingDatasetType;
 import lombok.ToString;
 
-import java.util.List;
-
 @ToString
 
 public class ControllerTask {
@@ -20,12 +18,14 @@ public class ControllerTask {
     TrainingDatasetType trainingDatasetType;
 
     int epoch = -1;
-    private List<Integer> uOkList;
+    private int numUnrollSteps = -1;
 
 public ControllerTask(ControllerTaskType taskType) {
     this.taskType = taskType;
 }
-
+public synchronized void setNumUnrollSteps(int numUnrollSteps) {
+    this.numUnrollSteps = numUnrollSteps;
+}
 
 
     public synchronized boolean isDone() {
@@ -36,7 +36,9 @@ public ControllerTask(ControllerTaskType taskType) {
         this.done = done;
     }
 
-
+    public synchronized int getNumUnrollSteps() {
+        return numUnrollSteps;
+    }
 
     public ControllerTaskType getTaskType() {
         return taskType;
@@ -71,11 +73,5 @@ public ControllerTask(ControllerTaskType taskType) {
     }
 
 
-    public List<Integer> getuOkList() {
-        return uOkList;
-    }
 
-    public void setuOkList(List<Integer> uOkList) {
-        this.uOkList = uOkList;
-    }
 }

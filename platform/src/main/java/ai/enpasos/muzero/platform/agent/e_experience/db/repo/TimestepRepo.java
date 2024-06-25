@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
@@ -197,14 +198,21 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<IdProjection> getRelevantIds2(int limit, int offset, int uok);
 
 
-
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box in :boxesRelevant ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<IdProjection> getRelevantIds3(int limit, int offset, List<Integer> boxesRelevant);
 
 
     @Transactional
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)
     int minUokNotClosed( );
 
-
-
+    @Query(value = "SELECT sum(count) AS total_count\n" +
+            "FROM (\n" +
+            "    SELECT count(t.id) AS count\n" +
+            "    FROM timestep t \n" +
+            "    WHERE not t.u_ok_closed and t.u_ok + 1 <= :unrollSteps \n" +
+            "    GROUP BY t.u_ok\n" +
+            ") AS subquery;", nativeQuery = true)
+    Optional<Integer> toBeTrained(int unrollSteps);
 }
 

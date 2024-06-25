@@ -249,7 +249,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getuOkList());
+                    trainNetworkRules(task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -327,10 +327,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, List<Integer> uOkList) {
-
-       //long maxTimesteps = 100000000;  // TODO configurable
-        long timestepCount = 0;
+    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -343,26 +340,12 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-
-        int minUokNotClosed = uOkList.getFirst();
-        int maxUokNotClosed =  uOkList.getLast();
-       log.info("trainNetworkRules:  minUokNotClosed: {}, maxUokNotClosed: {}", minUokNotClosed, maxUokNotClosed);
-
         int maxBox = timestepRepo.maxBox();
-        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxUokNotClosed-minUokNotClosed);
-        List<Integer> uOksRelevant = boxesRelevant.stream().map(i -> i + minUokNotClosed).collect(Collectors.toList());
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
 
-        log.info("trainNetworkRules: epoch: {}, uOksRelevant: {}", epochLocal, uOksRelevant);
-
-        for(int k = 0; k < uOksRelevant.size(); k++) {
-             int uOk = uOksRelevant.get(k);
-
-
-            int unrollSteps = Math.max(1, uOk + 1);
-
-            List<IdProjection> idProjections = gameBuffer.getRelevantIds(uOk);
-            List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
+        List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+        List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
 
 
             // start real code
@@ -370,18 +353,18 @@ public class ModelController implements DisposableBean, Runnable {
             RulesBuffer rulesBuffer = new RulesBuffer();
             rulesBuffer.setWindowSize(1000);
             rulesBuffer.setIds(relevantTimestepIds);
-            log.info("uOk: {}, timestepIds size: {}", uOk, rulesBuffer.getIds().size());
+            log.info("unrollSteps: {}, timestepIds size: {}", unrollSteps, rulesBuffer.getIds().size());
             int w = 0;
            // List<Long> timestepIdsDone = new ArrayList<>();
 
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
             for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext() ; ) {
                 List<Long> timestepIdsRulesLearningList = iterator.next();
-                timestepCount += timestepIdsRulesLearningList.size();
+              //  timestepCount += timestepIdsRulesLearningList.size();
 
                 List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
 
-                boolean save = !iterator.hasNext() && k == uOksRelevant.size() - 1;
+                boolean save = !iterator.hasNext()  ;
                 log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                 List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
@@ -439,7 +422,7 @@ public class ModelController implements DisposableBean, Runnable {
                                 ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
 
                                 //   batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
-                                dbService.updateEpisodes_SandUOkandBox(episodes);
+                                dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
 
 
                                 int tau = 0;   // start with tau = 0
@@ -474,7 +457,7 @@ public class ModelController implements DisposableBean, Runnable {
                 }
                 w++;
 
-            }
+
         }
 
     }

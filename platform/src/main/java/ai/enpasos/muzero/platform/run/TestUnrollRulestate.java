@@ -18,11 +18,11 @@ import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
@@ -70,13 +70,13 @@ public class TestUnrollRulestate {
     @AllArgsConstructor
     public class Result {
         private List<Integer> uOkList;
-        private int unrollStepsMin;
-        private int unrollStepsMax;
+        private int unrollSteps;
+        private int toBeTrained;
 
     }
 
 
-    public void run(int unrollsteps) {
+    public Result run(int unrollsteps) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
         timestepRepo.resetBoxAndSAndUOk();
@@ -100,24 +100,17 @@ public class TestUnrollRulestate {
 //            }));
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
 
         }
 
-
-        //return getResult();
-    }
-
-    public @NotNull Result getResult() {
         List<Integer> uOkList = timestepRepo.uOkList();
-        int unrollStepsMin = uOkList.getFirst() +1;
-        unrollStepsMin = Math.max(unrollStepsMin, 1);
+        int unrollSteps = uOkList.getFirst() +1;
+        unrollSteps = Math.max(unrollSteps, 1);
+        int toBeTrained =  toBeTrained(unrollSteps);
 
-        int unrollStepsMax = uOkList.getLast() +1;
-        unrollStepsMax = Math.min(unrollStepsMax, config.getMaxUnrollSteps());
-
-        log.info("uOkList: {}, unrollStepsMin: {}, unrollStepsMax: {}", uOkList, unrollStepsMin, unrollStepsMax);
-        return new Result(uOkList, unrollStepsMin, unrollStepsMax);
+        log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), unrollSteps, toBeTrained);
+        return new Result(uOkList, unrollSteps, toBeTrained);
     }
 
 
@@ -135,7 +128,11 @@ public class TestUnrollRulestate {
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO));
+        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), unrollSteps);
 
+    }
+
+    public int toBeTrained(int unrollSteps) {
+       return timestepRepo.toBeTrained(unrollSteps).orElse(0);
     }
 }

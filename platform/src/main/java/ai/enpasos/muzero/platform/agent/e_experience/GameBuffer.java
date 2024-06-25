@@ -240,6 +240,22 @@ public class GameBuffer {
         return relevantIds;
     }
 
+    public List<IdProjection> getRelevantIds2(List<Integer> boxesRelevant )  {
+        int limit = 50000;
+
+        int offset = 0;
+        List<IdProjection> relevantIds = new ArrayList<>();
+        List newIds;
+        do {
+            newIds = timestepRepo.getRelevantIds3( limit, offset, boxesRelevant);
+            relevantIds.addAll(newIds);
+            offset += limit;
+        } while (newIds.size() > 0);
+        //   List<Long> relevantIdsList = new ArrayList<>(relevantIds);
+        //   Collections.shuffle(relevantIdsList);
+        return relevantIds;
+    }
+
     public List<Long> getRelevantEpisodeIds2( int uOk )  {
         int limit = 50000;
 
