@@ -78,7 +78,9 @@ public class MySaveModelTrainingListener extends TrainingListenerAdapter {
 
     @Override
     public void onEpoch(Trainer trainer) {
+        int epochFrom = epoch;
         epoch++;
+        logger.info("epoch from {} to {}", epochFrom, epoch);
         if (outputDir == null) {
             return;
         }
