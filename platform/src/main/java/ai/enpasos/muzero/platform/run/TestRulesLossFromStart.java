@@ -119,7 +119,7 @@ public class TestRulesLossFromStart {
         return true;
     }
 
-    public int numBox( int n) {
+    public long numBox( int n) {
         return timestepRepo.numBox(n);
     }
 }

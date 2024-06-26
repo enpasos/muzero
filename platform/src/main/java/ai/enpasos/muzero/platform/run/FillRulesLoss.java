@@ -149,7 +149,7 @@ public class FillRulesLoss {
         return true;
     }
 
-    public int numBox( int n) {
+    public long numBox( int n) {
         return timestepRepo.numBox(n);
     }
 }

@@ -72,6 +72,7 @@ public class TestUnrollRulestate {
         private List<Integer> uOkList;
         private int unrollSteps;
         private int toBeTrained;
+        private long box0;
 
     }
 
@@ -109,7 +110,8 @@ public class TestUnrollRulestate {
         int toBeTrained =  toBeTrained(unrollSteps);
 
         log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), unrollSteps, toBeTrained);
-        return new Result(uOkList, unrollSteps, toBeTrained);
+        long box0 = timestepRepo.numBox(0);
+        return new Result(uOkList, unrollSteps, toBeTrained, box0);
     }
 
 
