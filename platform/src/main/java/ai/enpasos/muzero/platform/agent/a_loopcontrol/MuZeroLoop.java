@@ -197,6 +197,7 @@ public class MuZeroLoop {
             }
             while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
+                timestepRepo.resetBoxAndSAndUOk();
                 r = testUnrollRulestate.run(unrollSteps);
              //   uOkList = r.getUOkList();
                // unrollSteps = r.getUnrollSteps();
