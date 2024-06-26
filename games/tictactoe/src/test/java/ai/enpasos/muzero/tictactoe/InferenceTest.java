@@ -53,7 +53,6 @@ class InferenceTest {
     GameBuffer replayBuffer;
 
 
-
     @Autowired
     BatchFactory batchFactory;
 
