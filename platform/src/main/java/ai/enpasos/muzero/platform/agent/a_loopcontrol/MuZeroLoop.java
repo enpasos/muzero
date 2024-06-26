@@ -188,13 +188,13 @@ public class MuZeroLoop {
                 numBox0 = timestepRepo.numBox(0);
                 log.info("nBox: " + numBox0);
             }
-            if (!tested) {
-                r = testUnrollRulestate.run(unrollSteps);
-              //  uOkList = r.getUOkList();
-                unrollSteps = r.getUnrollSteps();
-                numBox0 = r.getBox0();
-                log.info("nBox: " + numBox0);
-            }
+//            if (!tested) {
+//                r = testUnrollRulestate.run(unrollSteps);
+//              //  uOkList = r.getUOkList();
+//                unrollSteps = r.getUnrollSteps();
+//                numBox0 = r.getBox0();
+//                log.info("nBox: " + numBox0);
+//            }
             while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
                 timestepRepo.resetBoxAndSAndUOk();
@@ -205,7 +205,7 @@ public class MuZeroLoop {
             }
 
 
-            if (unrollSteps == config.getMaxUnrollSteps()) {
+            if (unrollSteps == config.getMaxUnrollSteps() && numBox0 == 0) {
                 break;
             }
         }
