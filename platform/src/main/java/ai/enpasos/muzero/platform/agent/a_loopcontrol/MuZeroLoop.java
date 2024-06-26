@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
@@ -86,6 +87,9 @@ public class MuZeroLoop {
 
     @Autowired
     TestUnrollRulestate testUnrollRulestate;
+
+    @Autowired
+    DBService dbService;
 
 
     @SuppressWarnings("java:S106")
@@ -197,6 +201,7 @@ public class MuZeroLoop {
 //            }
             while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
+
              //   timestepRepo.resetBoxAndSAndUOk();
                 r = testUnrollRulestate.run(unrollSteps);
              //   uOkList = r.getUOkList();

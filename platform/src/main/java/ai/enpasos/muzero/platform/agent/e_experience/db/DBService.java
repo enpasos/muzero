@@ -245,10 +245,22 @@ public class DBService {
     }
 
 
+
+    public void onTargetUChange(List<EpisodeDO> episodes, int targetU) {
+        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+                        if ( ts.getUOk() < targetU && !ts.isUOkClosed())  {
+                            ts.setBox(0);
+                            timestepRepo.updateAttributeBox(ts.getId(),  ts.getBox());
+                        }
+                }
+        ));
+    }
+
+
     // assumption: all timesteps have been tested
     public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-                    if (ts.isUOkTested() || ts.isUOkChanged()) {   // UOkChanged is like tested
+                    if (ts.isUOkTested() ) {   // UOkChanged is like tested
                         if ( ts.getUOk() >= targetU || ts.isUOkClosed())  {
                             ts.setBox(ts.getBox() + 1);
                         } else {
