@@ -62,7 +62,7 @@ public class TestUnrollRulestate {
 
 
     public void run( ) {
-        run(1);
+        run(1, false);
     }
 
 
