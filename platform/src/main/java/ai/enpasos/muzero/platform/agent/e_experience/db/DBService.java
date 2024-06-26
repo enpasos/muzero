@@ -257,6 +257,14 @@ public class DBService {
                     }
 
                     if (ts.isSChanged() || ts.isUOkChanged()) {
+                        if (ts.isUOkChanged()) {
+                            if ( ts.getUOk() >= targetU || ts.isUOkClosed())  {
+                                ts.setBox(ts.getBox() + 1);
+                            } else {
+                                ts.setBox(0);
+                            }
+                        }
+
                         timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
                         ts.setSChanged(false);
                         ts.setUOkChanged(false);
