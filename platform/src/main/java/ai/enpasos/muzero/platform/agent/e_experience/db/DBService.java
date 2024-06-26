@@ -266,6 +266,10 @@ public class DBService {
                         } else {
                             ts.setBox(0);
                         }
+                    } else if ( ts.isUOkChanged()) {
+                        if ( ts.getUOk() < targetU && !ts.isUOkClosed())  {
+                            ts.setBox(0);
+                        }
                     }
 
                     if (ts.isSChanged() || ts.isUOkChanged()) {

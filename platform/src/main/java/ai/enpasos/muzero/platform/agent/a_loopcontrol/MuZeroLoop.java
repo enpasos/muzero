@@ -105,11 +105,13 @@ public class MuZeroLoop {
 
         gameBuffer.loadLatestStateIfExists();
 
+
+
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
             play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
         }
 
-
+        timestepRepo.resetBoxAndSAndUOk();
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
