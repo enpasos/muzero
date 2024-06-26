@@ -255,7 +255,7 @@ public class DBService {
                             ts.setBox(0);
                         }
                     }
-                    ts.setUOkTested(false);
+
                     if (ts.isSChanged() || ts.isUOkChanged()) {
                         timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
                         ts.setSChanged(false);
