@@ -272,7 +272,7 @@ public class DBService {
                             }
                         }
                     }
-                    if (ts.isSChanged() || ts.isUOkChanged() || boxBefore == ts.getBox()) {
+                    if (ts.isSChanged() || ts.isUOkChanged() || boxBefore != ts.getBox()) {
                         timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
                         ts.setSChanged(false);
                         ts.setUOkChanged(false);
