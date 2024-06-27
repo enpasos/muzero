@@ -116,11 +116,11 @@ public class MuZeroLoop {
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-        int unrollSteps = Math.max(1, timestepRepo.minUOk() + 1);
-        log.info("unrollSteps: " + unrollSteps);
-        TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollSteps );
+//        int unrollSteps = Math.max(1, timestepRepo.minUOk() + 1);
+//        log.info("unrollSteps: " + unrollSteps);
+        TestUnrollRulestate.Result r = testUnrollRulestate.run( config.getMaxUnrollSteps());
       //  List<Integer> uOkList = r.getUOkList();
-          unrollSteps = r.getUnrollSteps();
+        int  unrollSteps = r.getUnrollSteps();
         long numBox0 = r.getBox0();
         boolean tested =  true;
       //  if (true) return;
@@ -190,24 +190,18 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-//                testUnrollRulestate.run(unrollSteps);
                 numBox0 = timestepRepo.numBox(0);
                 log.info("nBox: " + numBox0);
             }
-//            if (!tested) {
-//                r = testUnrollRulestate.run(unrollSteps);
-//              //  uOkList = r.getUOkList();
-//                unrollSteps = r.getUnrollSteps();
-//                numBox0 = r.getBox0();
-//                log.info("nBox: " + numBox0);
-//            }
+
+
+            if (numBox0 == 0) {
+                r = testUnrollRulestate.run(unrollSteps );
+                numBox0 = r.getBox0();
+            }
             while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
-
-             //   timestepRepo.resetBoxAndSAndUOk();
                 r = testUnrollRulestate.run(unrollSteps );
-             //   uOkList = r.getUOkList();
-               // unrollSteps = r.getUnrollSteps();
                 numBox0 = r.getBox0();
             }
 
