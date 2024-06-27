@@ -213,7 +213,10 @@ public class MuZeroLoop {
 
 
             if (unrollSteps == config.getMaxUnrollSteps() && numBox0 == 0) {
-                break;
+                r = testUnrollRulestate.run(unrollSteps );
+                numBox0 = r.getBox0();
+                if (numBox0 == 0)
+                    break;
             }
         }
 
