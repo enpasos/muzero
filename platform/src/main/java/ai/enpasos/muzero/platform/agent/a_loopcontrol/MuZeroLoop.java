@@ -118,7 +118,7 @@ public class MuZeroLoop {
 
         int unrollSteps = Math.max(1, timestepRepo.minUOk() + 1);
         log.info("unrollSteps: " + unrollSteps);
-        TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollSteps, false);
+        TestUnrollRulestate.Result r = testUnrollRulestate.run( unrollSteps );
       //  List<Integer> uOkList = r.getUOkList();
           unrollSteps = r.getUnrollSteps();
         long numBox0 = r.getBox0();
@@ -205,7 +205,7 @@ public class MuZeroLoop {
                 unrollSteps++;
 
              //   timestepRepo.resetBoxAndSAndUOk();
-                r = testUnrollRulestate.run(unrollSteps, true);
+                r = testUnrollRulestate.run(unrollSteps );
              //   uOkList = r.getUOkList();
                // unrollSteps = r.getUnrollSteps();
                 numBox0 = r.getBox0();

@@ -62,7 +62,7 @@ public class TestUnrollRulestate {
 
 
     public void run( ) {
-        run(1, false);
+        run(1 );
     }
 
 
@@ -77,7 +77,7 @@ public class TestUnrollRulestate {
     }
 
 
-    public Result run(int unrollsteps, boolean targetUChange) {
+    public Result run(int unrollsteps ) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
        // timestepRepo.resetBoxAndSAndUOk();  // just for testing
@@ -101,9 +101,7 @@ public class TestUnrollRulestate {
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
-            if (targetUChange) {
-                dbService.onTargetUChange(episodeDOList, unrollsteps);
-            }
+
         }
 
         List<Integer> uOkList = timestepRepo.uOkList();

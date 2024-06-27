@@ -246,38 +246,37 @@ public class DBService {
 
 
 
-    public void onTargetUChange(List<EpisodeDO> episodes, int targetU) {
-        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-                        if ( ts.getUOk() < targetU && !ts.isUOkClosed())  {
-                            ts.setBox(0);
-                            timestepRepo.updateAttributeBox(ts.getId(),  ts.getBox());
-                        }
-                }
-        ));
-    }
+//    public void onTargetUChange(List<EpisodeDO> episodes, int targetU) {
+//        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+//                        if ( ts.getUOk() < targetU && !ts.isUOkClosed())  {
+//                            ts.setBox(0);
+//                            timestepRepo.updateAttributeBox(ts.getId(),  ts.getBox());
+//                        }
+//                }
+//        ));
+//    }
 
 
     // assumption: all timesteps have been tested
     public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-                    if (ts.isUOkTested() ) {   // UOkChanged is like tested
-                        if ( ts.getUOk() >= targetU || ts.isUOkClosed())  {
+                    boolean boxChange = false;
+                    if ( ts.getUOk() < targetU && !ts.isUOkClosed())  { // not ok
+                        ts.setBox(0);
+                        boxChange = true;
+                    } else { // ok
+                        if (ts.isUOkTested() ) {
                             ts.setBox(ts.getBox() + 1);
+                            boxChange = true;
                         } else {
-                            ts.setBox(0);
-                        }
-                    } else if ( ts.isUOkChanged()) {
-                        if ( ts.getUOk() < targetU && !ts.isUOkClosed())  {
-                            ts.setBox(0);
+                            ts.setBox(1);
+                            boxChange = true;
                         }
                     }
-
-                    if (ts.isSChanged() || ts.isUOkChanged()) {
+                    if (ts.isSChanged() || ts.isUOkChanged() || boxChange) {
                         timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
                         ts.setSChanged(false);
                         ts.setUOkChanged(false);
-                    } else if (ts.isUOkTested()) {
-                        timestepRepo.updateAttributeBox(ts.getId(),  ts.getBox());
                     }
                     ts.setUOkTested(false);
                 }
