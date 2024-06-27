@@ -260,20 +260,17 @@ public class DBService {
     // assumption: all timesteps have been tested
     public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-                    boolean boxChange = false;
+                    int boxBefore =ts.getBox();
                     if ( ts.getUOk() < targetU && !ts.isUOkClosed())  { // not ok
                         ts.setBox(0);
-                        boxChange = true;
                     } else { // ok
                         if (ts.isUOkTested() ) {
                             ts.setBox(ts.getBox() + 1);
-                            boxChange = true;
                         } else {
                             ts.setBox(1);
-                            boxChange = true;
                         }
                     }
-                    if (ts.isSChanged() || ts.isUOkChanged() || boxChange) {
+                    if (ts.isSChanged() || ts.isUOkChanged() || boxBefore == ts.getBox()) {
                         timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
                         ts.setSChanged(false);
                         ts.setUOkChanged(false);
