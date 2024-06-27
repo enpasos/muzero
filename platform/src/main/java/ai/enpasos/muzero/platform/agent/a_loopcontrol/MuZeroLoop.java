@@ -111,7 +111,7 @@ public class MuZeroLoop {
             play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
         }
 
-        timestepRepo.resetBoxAndSAndUOk();
+    //    timestepRepo.resetBoxAndSAndUOk();
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
