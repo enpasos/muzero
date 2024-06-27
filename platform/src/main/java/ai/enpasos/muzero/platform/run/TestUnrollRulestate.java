@@ -95,9 +95,9 @@ public class TestUnrollRulestate {
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-                timeStepDO.setUOkTested(true);
-            }));
+//            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
+//                timeStepDO.setUOkTested(true);
+//            }));
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
