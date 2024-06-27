@@ -267,7 +267,9 @@ public class DBService {
                         if (ts.isUOkTested() ) {
                             ts.setBox(ts.getBox() + 1);
                         } else {
-                            ts.setBox(1);
+                            if (ts.getBox() == 0) {
+                                ts.setBox(1);
+                            }
                         }
                     }
                     if (ts.isSChanged() || ts.isUOkChanged() || boxBefore == ts.getBox()) {
