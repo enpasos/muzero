@@ -196,21 +196,27 @@ public class MuZeroLoop {
 
 
             if (numBox0 == 0) {
+                log.info("numBox0 == 0; testUnrollRulestate.run({})", unrollSteps);
                 r = testUnrollRulestate.run(unrollSteps );
                 numBox0 = r.getBox0();
             }
             while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                log.info("numBox0 == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
                 unrollSteps++;
+                log.info("numBox0 == 0; testUnrollRulestate.run({})", unrollSteps);
                 r = testUnrollRulestate.run(unrollSteps );
                 numBox0 = r.getBox0();
             }
 
 
             if (unrollSteps == config.getMaxUnrollSteps() && numBox0 == 0) {
+                log.info("numBox0 == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
                 r = testUnrollRulestate.run(unrollSteps );
                 numBox0 = r.getBox0();
-                if (numBox0 == 0)
+                if (numBox0 == 0) {
+                    log.info("numBox0 == 0; break;");
                     break;
+                }
             }
         }
 
