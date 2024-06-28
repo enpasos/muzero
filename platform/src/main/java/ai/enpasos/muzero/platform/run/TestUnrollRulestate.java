@@ -62,7 +62,7 @@ public class TestUnrollRulestate {
 
 
     public void run( ) {
-        run(1 );
+        run(1 , true);
     }
 
 
@@ -77,7 +77,7 @@ public class TestUnrollRulestate {
     }
 
 
-    public Result run(int unrollsteps ) {
+    public Result run(int unrollsteps, boolean withBoxSetting ) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
        // timestepRepo.resetBoxAndSAndUOk();  // just for testing
@@ -97,12 +97,12 @@ public class TestUnrollRulestate {
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
             // check if and why touching timesteps is necessary (jpa transaction boundaries?)
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-                timeStepDO.setUOkTested(false);
-            }));
+//            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
+//                timeStepDO.setUOkTested(false);
+//            }));
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps, withBoxSetting);
 
         }
 
@@ -131,7 +131,7 @@ public class TestUnrollRulestate {
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), unrollSteps);
+        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), unrollSteps, true);
 
     }
 

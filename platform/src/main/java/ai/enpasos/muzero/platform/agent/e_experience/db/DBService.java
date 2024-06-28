@@ -258,14 +258,16 @@ public class DBService {
 
 
     // assumption: all timesteps have been tested
-    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU) {
+    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU, boolean withBoxSetting) {
         episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-                    int boxBefore =ts.getBox();
-                    if ( ts.getUOk() < targetU && !ts.isUOkClosed())  { // not ok
-                        ts.setBox(0);
-                    } else { // ok
-                        if (ts.isUOkTested() || ts.getBox() == 0 ) {
-                            ts.setBox(ts.getBox() + 1);
+                    int boxBefore = ts.getBox();
+                    if (withBoxSetting) {
+                        if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
+                            ts.setBox(0);
+                        } else { // ok
+                            if (ts.isUOkTested() || ts.getBox() == 0) {
+                                ts.setBox(ts.getBox() + 1);
+                            }
                         }
                     }
                     if (ts.isSChanged() || ts.isUOkChanged() || boxBefore != ts.getBox()) {
