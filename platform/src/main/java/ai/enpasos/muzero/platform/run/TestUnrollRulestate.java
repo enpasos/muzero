@@ -71,7 +71,6 @@ public class TestUnrollRulestate {
     public class Result {
         private List<Integer> uOkList;
         private int unrollSteps;
-        private int toBeTrained;
         private long box0;
 
     }
@@ -107,13 +106,16 @@ public class TestUnrollRulestate {
         }
 
         List<Integer> uOkList = timestepRepo.uOkList();
-        int unrollSteps = uOkList.getFirst() +1;
-        unrollSteps = Math.max(unrollSteps, 1);
-        int toBeTrained =  toBeTrained(unrollSteps);
+        int unrollSteps = config.getMaxUnrollSteps();
+        if (!uOkList.isEmpty()) {
+            unrollSteps = uOkList.getFirst() + 1;
+            unrollSteps = Math.max(unrollSteps, 1);
+        }
+      //  int toBeTrained =  toBeTrained(unrollSteps);
 
-        log.info("uOkList: {}, unrollSteps = {}, toBeTrained: {}", uOkList.toString(), unrollSteps, toBeTrained);
+        log.info("uOkList: {}, unrollSteps = {}", uOkList.toString(), unrollSteps);
         long box0 = timestepRepo.numBox(0);
-        return new Result(uOkList, unrollSteps, toBeTrained, box0);
+        return new Result(uOkList, unrollSteps, box0);
     }
 
 
@@ -135,7 +137,7 @@ public class TestUnrollRulestate {
 
     }
 
-    public int toBeTrained(int unrollSteps) {
-       return timestepRepo.toBeTrained(unrollSteps).orElse(0);
-    }
+//    public int toBeTrained(int unrollSteps) {
+//       return timestepRepo.toBeTrained(unrollSteps).orElse(0);
+//    }
 }
