@@ -120,9 +120,10 @@ public class MuZeroLoop {
 
         int unrollSteps = config.getMaxUnrollSteps() ;
         log.info("testUnrollRulestate.run({})", unrollSteps);
-        TestUnrollRulestate.Result r = testUnrollRulestate.run(  unrollSteps, false);
+        TestUnrollRulestate.Result r = testUnrollRulestate.run(  unrollSteps, true);
         currentTest = true;
         if (unrollSteps != r.getUnrollSteps()) {
+            log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
             unrollSteps = r.getUnrollSteps();
             log.info("testUnrollRulestate.run({})", unrollSteps);
             r = testUnrollRulestate.run(unrollSteps, true);
