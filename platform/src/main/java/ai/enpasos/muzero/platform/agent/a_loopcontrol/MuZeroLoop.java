@@ -120,6 +120,8 @@ public class MuZeroLoop {
         log.info("testUnrollRulestate.run({})", unrollSteps);
         TestUnrollRulestate.Result r = testUnrollRulestate.run(  unrollSteps, false);
         unrollSteps = r.getUnrollSteps();
+
+        log.info("testUnrollRulestate.run({})", unrollSteps);
         r = testUnrollRulestate.run( unrollSteps, true);
 
         long numBox0 = r.getBox0();
