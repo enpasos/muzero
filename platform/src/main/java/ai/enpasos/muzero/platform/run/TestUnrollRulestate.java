@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
@@ -92,7 +91,7 @@ public class TestUnrollRulestate {
 
 
             episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream()
-                    .filter(timeStepDO -> idProjections.stream().anyMatch(idProjection -> idProjection.getTimeStepId().equals(timeStepDO.getId())))
+                    .filter(timeStepDO -> idProjections.stream().anyMatch(idProjection -> idProjection.getId().equals(timeStepDO.getId())))
                             .forEach(timeStepDO -> {
                         timeStepDO.setUOkTested(true);
                     }));

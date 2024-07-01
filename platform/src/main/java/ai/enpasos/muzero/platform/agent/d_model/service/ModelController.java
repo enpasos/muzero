@@ -12,10 +12,7 @@ import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
-import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
-import ai.enpasos.muzero.platform.agent.b_episode.EpisodeRunner;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
-import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
@@ -34,7 +31,6 @@ import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.TrainingDatasetType;
-import ai.enpasos.muzero.platform.run.TestUnrollRulestate;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
@@ -354,7 +350,7 @@ public class ModelController implements DisposableBean, Runnable {
 
 
 
-        List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getTimeStepId).toList();
+        List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
 
 
             // start real code
@@ -476,7 +472,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private List<Long> episodeIdsFromTimestepIds(List<IdProjection> idProjections, List<Long> timestepIdsRulesLearningList) {
         Set<Long> ids =  idProjections.stream()
-                .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getTimeStepId()))
+                .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getId()))
                 .map(IdProjection::getEpisodeId).collect(Collectors.toSet());
         return new ArrayList(ids);
     }
