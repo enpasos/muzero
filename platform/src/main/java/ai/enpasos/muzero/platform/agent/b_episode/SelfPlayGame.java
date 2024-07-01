@@ -53,10 +53,10 @@ public class SelfPlayGame {
 
             for (int u = 0; u <= unrollSteps && t + u <= tMax; u++) {
                 if (u == 0) {
-                    game.setObservationInputTime(t);
+                    game.setObservationInputTime(t + u);
                     networkOutput = modelService.initialInference(game).join();
                 } else {
-                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t - 1)).join();
+                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t + u - 1)).join();
                 }
                 boolean ok = checkOkStatus(episode, networkOutput, t + u);
                 if (ok) updateUOk(episode, t + u, u);
