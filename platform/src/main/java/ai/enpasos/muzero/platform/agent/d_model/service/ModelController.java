@@ -348,10 +348,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     //    idProjections = analyseFilter(idProjections, unrollSteps);
 
-
-
         List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
-
 
             // start real code
             // first the buffer loop
@@ -375,11 +372,8 @@ public class ModelController implements DisposableBean, Runnable {
                 List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
                 Collections.shuffle(gameBuffer);
 
-
                 // each timestep once
                 List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(gameBuffer, timestepIdsRulesLearningList);
-
-
 
 //                allTimeSteps.removeAll(timestepsDone);
 //              //  if (allTimeSteps.isEmpty()) continue;

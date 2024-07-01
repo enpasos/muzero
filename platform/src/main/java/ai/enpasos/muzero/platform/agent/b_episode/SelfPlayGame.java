@@ -51,7 +51,7 @@ public class SelfPlayGame {
             NetworkIO networkOutput;
             TimeStepDO ts = episode.getTimeStep(t);
 
-            for (int u = 0; u < unrollSteps && t + u <= tMax; u++) {
+            for (int u = 0; u <= unrollSteps && t + u <= tMax; u++) {
                 if (u == 0) {
                     game.setObservationInputTime(t);
                     networkOutput = modelService.initialInference(game).join();
