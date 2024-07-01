@@ -73,7 +73,7 @@ public class TestUnrollRulestate {
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
         gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
-        log.info("identifyRelevantTimestepsAndTestThem inprojections = {}", idProjections.size());
+        log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
 
      //   modelService.loadLatestModel(epoch).join();   // check
 
@@ -81,9 +81,13 @@ public class TestUnrollRulestate {
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
         List<Long> episodeIds = idProjections.stream().map(IdProjection::getEpisodeId).toList();
+        log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
         rulesBuffer.setIds(episodeIds);
+        int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
+            count += episodeIdsRulesLearningList.size();
+            log.info( "identifyRelevantTimestepsAndTestThem count = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollSteps);  // TODO: optimize in analysing only relevant timesteps
@@ -91,13 +95,14 @@ public class TestUnrollRulestate {
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-
+            log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... starting");
             episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream()
                     .filter(timeStepDO -> idProjections.stream().anyMatch(idProjection -> idProjection.getId().equals(timeStepDO.getId())))
                             .forEach(timeStepDO -> {
                         timeStepDO.setUOkTested(true);
                     }));
 
+            log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... ending");
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollSteps );
