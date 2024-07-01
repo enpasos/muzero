@@ -58,7 +58,8 @@ public class SelfPlayGame {
                 } else {
                     networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t - 1)).join();
                 }
-                updateOkStatus(episode, networkOutput, t + u);
+                boolean ok = checkOkStatus(episode, networkOutput, t + u);
+                if (ok) updateUOk(episode, t + u, u);
                 hiddenState = networkOutput.getHiddenState();
             }
         }
@@ -108,7 +109,7 @@ public class SelfPlayGame {
 
 
     private boolean updateOkStatusAndUpdateUnrolling(Game game, EpisodeDO episode, NetworkIO networkOutput, int t, int tStart, int tMax) {
-        boolean currentIsOk = updateOkStatus(episode, networkOutput, t);
+        boolean currentIsOk = checkOkStatus(episode, networkOutput, t);
 
         if (!currentIsOk) {
             rollBackUnrollSteps(episode, tStart, t);
@@ -119,7 +120,7 @@ public class SelfPlayGame {
         return currentIsOk;
     }
 
-    private boolean updateOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t) {
+    private boolean checkOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t) {
         TimeStepDO timeStep = episode.getTimeStep(t);
         double rewardLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
         boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), rewardLabel);
@@ -139,8 +140,8 @@ public class SelfPlayGame {
         }
     }
 
-    private void updateUOk(EpisodeDO episode, int index, int uOK) {
-        TimeStepDO ts = episode.getTimeStep(index);
+    private void updateUOk(EpisodeDO episode, int t, int uOK) {
+        TimeStepDO ts = episode.getTimeStep(t);
         if (ts.getUOk() != uOK) {
             ts.setUOk(uOK);
             ts.setUOkChanged(true);
