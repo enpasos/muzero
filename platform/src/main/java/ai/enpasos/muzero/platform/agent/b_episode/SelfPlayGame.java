@@ -59,7 +59,7 @@ public class SelfPlayGame {
                     networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t + u - 1)).join();
                 }
                 boolean ok = checkOkStatus(episode, networkOutput, t + u);
-                if (ok) updateUOk(episode, t + u, u);
+                if (ok) updateUOk(episode, t, u);
                 hiddenState = networkOutput.getHiddenState();
             }
         }
