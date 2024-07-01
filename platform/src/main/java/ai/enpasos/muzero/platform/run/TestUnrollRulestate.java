@@ -74,6 +74,13 @@ public class TestUnrollRulestate {
         log.info("identifyRelevantTimestepsAndTestThem epoch {}, unrollSteps = {} ... starting", epoch, unrollSteps);
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+
+        if (boxesRelevant.size() > 0 && boxesRelevant.getLast() <= 1) {
+            log.info("identifyRelevantTimestepsAndTestThem no relevant boxes found ... finished");
+            return;
+        }
+
+
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.size());
         gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
