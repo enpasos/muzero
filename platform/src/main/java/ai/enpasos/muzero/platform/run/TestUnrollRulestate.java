@@ -3,6 +3,7 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
 import ai.enpasos.muzero.platform.agent.b_episode.SelfPlayGame;
+import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.RulesBuffer;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions;
@@ -12,6 +13,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -62,7 +64,46 @@ public class TestUnrollRulestate {
 
 
     public void run( ) {
-        run(1 , true);
+        run(1  );
+    }
+
+    public void identifyRelevantTimestepsAndTestThem(  int unrollSteps) {
+        int epoch = networkIOService.getLatestNetworkEpoch();
+        int maxBox = timestepRepo.maxBox();
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+        gameBuffer.resetRelevantIds();
+        List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+
+     //   modelService.loadLatestModel(epoch).join();   // check
+
+
+        RulesBuffer rulesBuffer = new RulesBuffer();
+        rulesBuffer.setWindowSize(1000);
+        List<Long> episodeIds = idProjections.stream().map(IdProjection::getEpisodeId).toList();
+        rulesBuffer.setIds(episodeIds);
+        for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
+            List<Long> episodeIdsRulesLearningList = iterator.next();
+            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
+            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+            playService.uOkAnalyseGames(gameBuffer, unrollSteps);  // TODO: optimize in analysing only relevant timesteps
+
+            boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
+            ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
+
+
+            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream()
+                    .filter(timeStepDO -> idProjections.stream().anyMatch(idProjection -> idProjection.getTimeStepId().equals(timeStepDO.getId())))
+                            .forEach(timeStepDO -> {
+                        timeStepDO.setUOkTested(true);
+                    }));
+
+
+            // db update also in uOK and box
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollSteps );
+
+        }
+
+
     }
 
 
@@ -76,7 +117,9 @@ public class TestUnrollRulestate {
     }
 
 
-    public Result run(int unrollsteps, boolean withBoxSetting ) {
+
+
+    public Result run(int unrollsteps  ) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
        // timestepRepo.resetBoxAndSAndUOk();  // just for testing
@@ -96,12 +139,12 @@ public class TestUnrollRulestate {
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
             // check if and why touching timesteps is necessary (jpa transaction boundaries?)
-//            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-//                timeStepDO.setUOkTested(false);
-//            }));
+            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
+                timeStepDO.setUOkTested(false);
+            }));
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps, withBoxSetting);
+            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps );
 
         }
 
@@ -133,7 +176,7 @@ public class TestUnrollRulestate {
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), unrollSteps, true);
+        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), unrollSteps );
 
     }
 

@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @Component
@@ -35,6 +37,41 @@ public class SelfPlayGame {
 
     @Autowired
     ModelService modelService;
+
+//
+//    public void uOkAnalyseGame(Game game, List<Long> timestepIds, int unrollSteps) {
+//        log.trace("uOkAnalyseGame");
+//        EpisodeDO episode = game.getEpisodeDO();
+//        int tMax = episode.getLastTime();
+//        boolean isOk = false;
+//        NDArray[] hiddenState = null;
+//        int tStart = -1;
+//
+//        for (int t = 0; t <= tMax; ) {
+//            NetworkIO networkOutput;
+//
+//            if (isOk) {
+//                if (t < tMax) {
+//                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t++)).join();
+//                } else {
+//                    game.setObservationInputTime(t++);
+//                    networkOutput = modelService.initialInference(game).join();
+//                }
+//            } else {
+//                t = adjustT(t, tStart, unrollSteps);
+//                game.setObservationInputTime(t);
+//                networkOutput = modelService.initialInference(game).join();
+//                tStart = t;
+//            }
+//
+//            if (t <= tMax) {
+//                isOk = updateOkStatusAndUpdateUnrolling(game, episode, networkOutput, t, tStart, tMax);
+//                hiddenState = networkOutput.getHiddenState();
+//            } else {
+//                log.trace("tStart: {}, t: {}", tStart, t);
+//            }
+//        }
+//    }
 
 
 

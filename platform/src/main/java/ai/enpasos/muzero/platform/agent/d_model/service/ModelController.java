@@ -12,6 +12,8 @@ import ai.djl.nn.Block;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
+import ai.enpasos.muzero.platform.agent.b_episode.EpisodeRunner;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
@@ -32,6 +34,7 @@ import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.TrainingDatasetType;
+import ai.enpasos.muzero.platform.run.TestUnrollRulestate;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
@@ -344,7 +347,12 @@ public class ModelController implements DisposableBean, Runnable {
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
         List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
-        List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
+
+    //    idProjections = analyseFilter(idProjections, unrollSteps);
+
+
+
+        List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getTimeStepId).toList();
 
 
             // start real code
@@ -422,7 +430,7 @@ public class ModelController implements DisposableBean, Runnable {
                                 ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch,episodes, batchTimeSteps);
 
                                    batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
-                                dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps, true);
+                                dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps );
 
 
                                 int tau = 0;   // start with tau = 0
@@ -462,9 +470,11 @@ public class ModelController implements DisposableBean, Runnable {
 
     }
 
+
+
     private List<Long> episodeIdsFromTimestepIds(List<IdProjection> idProjections, List<Long> timestepIdsRulesLearningList) {
         Set<Long> ids =  idProjections.stream()
-                .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getId()))
+                .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getTimeStepId()))
                 .map(IdProjection::getEpisodeId).collect(Collectors.toSet());
         return new ArrayList(ids);
     }
@@ -540,6 +550,7 @@ public class ModelController implements DisposableBean, Runnable {
         Collections.shuffle(timeStepDOList);
         return timeStepDOList;
     }
+
 
     private List<TimeStepDO> allRelevantTimeStepsShuffled3(List<Game> games , List<Long> timestepIds) {
         List<TimeStepDO> timeStepDOList = new ArrayList<>();

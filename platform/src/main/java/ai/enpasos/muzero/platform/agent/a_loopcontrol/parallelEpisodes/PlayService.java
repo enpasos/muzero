@@ -5,6 +5,7 @@ import ai.enpasos.muzero.platform.agent.b_episode.PlayParameters;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.config.PlayTypeKey.HYBRID;
 
@@ -137,23 +139,46 @@ public class PlayService {
         });
     }
 
+//    public List<Game> uOkAnalyseGames(List<Game> games, List<IdProjection> idProjections, int unrollSteps) {
+//        List<Game> gamesReturn = new ArrayList<>();
+//        modelService.startScope();
+//        giveOneOfTheGamesADebugFlag(games);
+//
+//
+//        CompletableFuture<Game>[] futures = games.stream().map(g -> {
+//            long episodeId = g.getEpisodeDO().getId();
+//            List<Long> timestepIds = idProjections.stream()
+//                    .filter(idProjection -> idProjection.getEpisodeId().equals(episodeId))
+//                    .mapToLong(IdProjection::getTimeStepId)
+//                    .boxed()
+//                    .collect(Collectors.toList());
+//                    return episodeRunner.uOkAnalyseGame(g, timestepIds, unrollSteps);
+//                }
+//        ).toArray(CompletableFuture[]::new);
+//        CompletableFuture.allOf(futures).join();
+//        for (CompletableFuture<Game> future : futures) {
+//            try {
+//                gamesReturn.add(future.get());
+//            } catch (InterruptedException e) {
+//                log.warn("Interrupted!", e);
+//                Thread.currentThread().interrupt();
+//            } catch (ExecutionException e) {
+//                throw new MuZeroException(e);
+//            }
+//        }
+//        modelService.endScope();
+//        return gamesReturn;
+//    }
+
+
     public List<Game> uOkAnalyseGames(List<Game> games, int unrollSteps) {
         List<Game> gamesReturn = new ArrayList<>();
-
         modelService.startScope();
-
         giveOneOfTheGamesADebugFlag(games);
-
         CompletableFuture<Game>[] futures = games.stream().map(g ->
                 episodeRunner.uOkAnalyseGame(g, unrollSteps)
         ).toArray(CompletableFuture[]::new);
-
-        // wait for all futures to complete
         CompletableFuture.allOf(futures).join();
-
-
-        // collect games from futures
-
         for (CompletableFuture<Game> future : futures) {
             try {
                 gamesReturn.add(future.get());
@@ -164,11 +189,7 @@ public class PlayService {
                 throw new MuZeroException(e);
             }
         }
-
-
         modelService.endScope();
-
-
         return gamesReturn;
     }
 

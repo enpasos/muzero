@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -39,7 +40,13 @@ public class EpisodeRunner {
         log.trace("uOkAnalyseGame, unrollSteps: " + unrollSteps);
         selfPlayer.uOkAnalyseGame(game, unrollSteps);
         return CompletableFuture.completedFuture(game);
-
     }
+
+//    @Async()
+//    public CompletableFuture<Game> uOkAnalyseGame(Game game, List<Long> timestepIds, int unrollSteps) {
+//        log.trace("uOkAnalyseGame, unrollSteps: {}, timestepIds: {}", unrollSteps, timestepIds);
+//        selfPlayer.uOkAnalyseGame(game,timestepIds, unrollSteps);
+//        return CompletableFuture.completedFuture(game);
+//    }
 
 }

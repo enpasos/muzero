@@ -120,13 +120,13 @@ public class MuZeroLoop {
 
         int unrollSteps = config.getMaxUnrollSteps() ;
         log.info("testUnrollRulestate.run({})", unrollSteps);
-        TestUnrollRulestate.Result r = testUnrollRulestate.run(  unrollSteps, true);
+        TestUnrollRulestate.Result r = testUnrollRulestate.run(  unrollSteps );
         currentTest = true;
         if (unrollSteps != r.getUnrollSteps()) {
             log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
             unrollSteps = r.getUnrollSteps();
             log.info("testUnrollRulestate.run({})", unrollSteps);
-            r = testUnrollRulestate.run(unrollSteps, true);
+            r = testUnrollRulestate.run(unrollSteps);
         }
 
         long numBox0 = r.getBox0();
@@ -139,6 +139,10 @@ public class MuZeroLoop {
             log.info("numBox0: " + numBox0);
             while (numBox0 > 0) {
                 tested = false;
+
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
+
+
 
 
 //            if ( epoch > 0 && epoch % 100 == 0) {
@@ -208,7 +212,7 @@ public class MuZeroLoop {
 
             if (numBox0 == 0 && !currentTest) {
                 log.info("numBox0 == 0; testUnrollRulestate.run({})", unrollSteps);
-                r = testUnrollRulestate.run(unrollSteps, true );
+                r = testUnrollRulestate.run(unrollSteps  );
                 currentTest = true;
                 numBox0 = r.getBox0();
             }
@@ -217,7 +221,7 @@ public class MuZeroLoop {
                 unrollSteps++;
                 currentTest = false;
                 log.info("testUnrollRulestate.run({})", unrollSteps);
-                r = testUnrollRulestate.run(unrollSteps, true );
+                r = testUnrollRulestate.run(unrollSteps  );
                 currentTest = true;
                 numBox0 = r.getBox0();
             }
@@ -227,7 +231,7 @@ public class MuZeroLoop {
             if (unrollSteps == config.getMaxUnrollSteps() && numBox0 == 0) {
                 log.info("numBox0 == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
                 if (!currentTest) {
-                    r = testUnrollRulestate.run(unrollSteps, true);
+                    r = testUnrollRulestate.run(unrollSteps );
                 }
                 numBox0 = r.getBox0();
                 if (numBox0 == 0) {
