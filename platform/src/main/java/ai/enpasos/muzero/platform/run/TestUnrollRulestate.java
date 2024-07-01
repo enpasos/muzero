@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
@@ -83,6 +85,7 @@ public class TestUnrollRulestate {
         List<Long> episodeIds = idProjections.stream().map(IdProjection::getEpisodeId).toList();
         log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
         rulesBuffer.setIds(episodeIds);
+        Set<Long> timeStepIds = idProjections.stream().map(IdProjection::getId).collect(Collectors.toSet());
         int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
@@ -97,7 +100,7 @@ public class TestUnrollRulestate {
 
             log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... starting");
             episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream()
-                    .filter(timeStepDO -> idProjections.stream().anyMatch(idProjection -> idProjection.getId().equals(timeStepDO.getId())))
+                    .filter(timeStepDO -> timeStepIds.contains(timeStepDO.getId()))
                             .forEach(timeStepDO -> {
                         timeStepDO.setUOkTested(true);
                     }));
