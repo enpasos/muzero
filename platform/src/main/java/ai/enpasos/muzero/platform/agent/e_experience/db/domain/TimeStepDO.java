@@ -55,6 +55,8 @@ public class TimeStepDO {
     boolean sChanged;
 
 
+    @Transient
+    boolean toBeAnalysed;
 
 //    @Transient
 //    @Builder.Default

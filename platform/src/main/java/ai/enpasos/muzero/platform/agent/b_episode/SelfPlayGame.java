@@ -38,40 +38,31 @@ public class SelfPlayGame {
     @Autowired
     ModelService modelService;
 
-//
-//    public void uOkAnalyseGame(Game game, List<Long> timestepIds, int unrollSteps) {
-//        log.trace("uOkAnalyseGame");
-//        EpisodeDO episode = game.getEpisodeDO();
-//        int tMax = episode.getLastTime();
-//        boolean isOk = false;
-//        NDArray[] hiddenState = null;
-//        int tStart = -1;
-//
-//        for (int t = 0; t <= tMax; ) {
-//            NetworkIO networkOutput;
-//
-//            if (isOk) {
-//                if (t < tMax) {
-//                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t++)).join();
-//                } else {
-//                    game.setObservationInputTime(t++);
-//                    networkOutput = modelService.initialInference(game).join();
-//                }
-//            } else {
-//                t = adjustT(t, tStart, unrollSteps);
-//                game.setObservationInputTime(t);
-//                networkOutput = modelService.initialInference(game).join();
-//                tStart = t;
-//            }
-//
-//            if (t <= tMax) {
-//                isOk = updateOkStatusAndUpdateUnrolling(game, episode, networkOutput, t, tStart, tMax);
-//                hiddenState = networkOutput.getHiddenState();
-//            } else {
-//                log.trace("tStart: {}, t: {}", tStart, t);
-//            }
-//        }
-//    }
+
+    public void uOkAnalyseGame(Game game, List<Long> timestepIds, int unrollSteps) {
+        log.trace("uOkAnalyseGame");
+        EpisodeDO episode = game.getEpisodeDO();
+        int tMax = episode.getLastTime();
+        NDArray[] hiddenState = null;
+        episode.getTimeSteps().forEach(ts -> {
+            ts.setToBeAnalysed(timestepIds.contains(ts.getId()));
+        });
+        for (int t = 0; t <= tMax; t++) {
+            NetworkIO networkOutput;
+            TimeStepDO ts = episode.getTimeStep(t);
+
+            for (int u = 0; u < unrollSteps && t + u <= tMax; u++) {
+                if (u == 0) {
+                    game.setObservationInputTime(t);
+                    networkOutput = modelService.initialInference(game).join();
+                } else {
+                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t - 1)).join();
+                }
+                updateOkStatus(episode, networkOutput, t + u);
+                hiddenState = networkOutput.getHiddenState();
+            }
+        }
+    }
 
 
 
@@ -117,10 +108,7 @@ public class SelfPlayGame {
 
 
     private boolean updateOkStatusAndUpdateUnrolling(Game game, EpisodeDO episode, NetworkIO networkOutput, int t, int tStart, int tMax) {
-        TimeStepDO timeStep = episode.getTimeStep(t);
-        double rewardLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
-        boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), rewardLabel);
-        log.trace("tStart: {}, t: {}, ok: {}", tStart, t, currentIsOk);
+        boolean currentIsOk = updateOkStatus(episode, networkOutput, t);
 
         if (!currentIsOk) {
             rollBackUnrollSteps(episode, tStart, t);
@@ -128,6 +116,14 @@ public class SelfPlayGame {
             finalStepUnroll(episode, tStart, t);
         }
 
+        return currentIsOk;
+    }
+
+    private boolean updateOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t) {
+        TimeStepDO timeStep = episode.getTimeStep(t);
+        double rewardLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
+        boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), rewardLabel);
+        log.trace("t: {}, ok: {}",   t, currentIsOk);
         return currentIsOk;
     }
 
