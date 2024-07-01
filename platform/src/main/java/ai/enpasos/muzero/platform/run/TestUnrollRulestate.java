@@ -67,11 +67,13 @@ public class TestUnrollRulestate {
     }
 
     public void identifyRelevantTimestepsAndTestThem(  int unrollSteps) {
+        log.info("identifyRelevantTimestepsAndTestThem unrollSteps = {} ... starting", unrollSteps);
         int epoch = networkIOService.getLatestNetworkEpoch();
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
         gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+        log.info("identifyRelevantTimestepsAndTestThem inprojections = {}", idProjections.size());
 
      //   modelService.loadLatestModel(epoch).join();   // check
 
@@ -102,7 +104,7 @@ public class TestUnrollRulestate {
 
         }
 
-
+        log.info("identifyRelevantTimestepsAndTestThem unrollSteps = {} ... finished", unrollSteps);
     }
 
 
