@@ -39,32 +39,6 @@ public class SelfPlayGame {
     ModelService modelService;
 
 
-    public void uOkAnalyseGame(Game game, List<Long> timestepIds, int unrollSteps) {
-        log.trace("uOkAnalyseGame");
-        EpisodeDO episode = game.getEpisodeDO();
-        int tMax = episode.getLastTime();
-        NDArray[] hiddenState = null;
-        episode.getTimeSteps().forEach(ts -> {
-            ts.setToBeAnalysed(timestepIds.contains(ts.getId()));
-        });
-        for (int t = 0; t <= tMax; t++) {
-            NetworkIO networkOutput;
-            TimeStepDO ts = episode.getTimeStep(t);
-
-            for (int u = 0; u <= unrollSteps && t + u <= tMax; u++) {
-                if (u == 0) {
-                    game.setObservationInputTime(t + u);
-                    networkOutput = modelService.initialInference(game).join();
-                } else {
-                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t + u - 1)).join();
-                }
-                boolean ok = checkOkStatus(episode, networkOutput, t + u);
-                if (ok) updateUOk(episode, t, u);
-                hiddenState = networkOutput.getHiddenState();
-            }
-        }
-    }
-
 
 
     public void uOkAnalyseGame(Game game, int unrollSteps) {

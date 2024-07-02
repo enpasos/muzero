@@ -139,36 +139,6 @@ public class PlayService {
         });
     }
 
-    public List<Game> uOkAnalyseGames(List<Game> games, List<IdProjection> idProjections, int unrollSteps) {
-        List<Game> gamesReturn = new ArrayList<>();
-        modelService.startScope();
-        giveOneOfTheGamesADebugFlag(games);
-
-
-        CompletableFuture<Game>[] futures = games.stream().map(g -> {
-            long episodeId = g.getEpisodeDO().getId();
-            List<Long> timestepIds = idProjections.stream()
-                    .filter(idProjection -> idProjection.getEpisodeId().equals(episodeId))
-                    .mapToLong(IdProjection::getId)
-                    .boxed()
-                    .collect(Collectors.toList());
-                    return episodeRunner.uOkAnalyseGame(g, timestepIds, unrollSteps);
-                }
-        ).toArray(CompletableFuture[]::new);
-        CompletableFuture.allOf(futures).join();
-        for (CompletableFuture<Game> future : futures) {
-            try {
-                gamesReturn.add(future.get());
-            } catch (InterruptedException e) {
-                log.warn("Interrupted!", e);
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                throw new MuZeroException(e);
-            }
-        }
-        modelService.endScope();
-        return gamesReturn;
-    }
 
 
     public List<Game> uOkAnalyseGames(List<Game> games, int unrollSteps) {
