@@ -121,7 +121,7 @@ class NDListSerializationTest {
 
         boolean[][][] expectedData = new boolean[][][]{
                 {{true, false}, {false, true}},
-                {{true, true}, {false, false}}
+                {{true, true, true}, {false, false, false}, {true, true, true}}
         };
 
         Path file = Files.createTempFile("booleanArray", ".dat");
