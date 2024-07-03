@@ -52,5 +52,7 @@ int unrollSteps = 3;
 
         NDArray result = myCompositeLoss.evaluateWhatToTrain(labels, predictions, bOK, from, new Statistics());
 
+        int i = 42;
+
     }
 }

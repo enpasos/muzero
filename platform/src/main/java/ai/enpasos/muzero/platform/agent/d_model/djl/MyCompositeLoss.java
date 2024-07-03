@@ -142,7 +142,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 int tTo = tFrom + tau;
                 if (tTo >= n) continue;
                 for (int s = 0; s < symmetryEnhancementFactor; s++) {
-                    trainingNeeded_[j * symmetryEnhancementFactor + s] = trainingNeeded[j][tFrom][tTo];
+                    trainingNeeded_[s * trainingNeeded.length + j] = trainingNeeded[j][tFrom][tTo];
                 }
             }
             NDArray floatMask = ndManager.create(trainingNeeded_);
@@ -158,13 +158,13 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
 
                 statistics.setCount(statistics.getCount() + c);
-           //     lossComponents[i] = lossComponents[i].mul(intMask);
+                lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
                 float v = lossComponents[i].toFloatArray()[0];
                 statistics.setSumLossLegalActions(statistics.getSumLossLegalActions() + v);
             } else if (loss.getName().contains("reward")) {
                 NDArray intMask = masks.get(iMap[i]) ;
-             //   lossComponents[i] = lossComponents[i].mul(intMask);
+                lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
 
                 float v = lossComponents[i].sum().toFloatArray()[0];
