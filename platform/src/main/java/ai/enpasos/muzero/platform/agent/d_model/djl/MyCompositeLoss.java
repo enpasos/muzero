@@ -79,7 +79,6 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
 //        SomeSerialization.saveNDList(labels, "labels.dat");
 //        SomeSerialization.saveNDList(predictions, "predictions.dat");
-//
 //        SomeSerialization.saveBooleanArray(bOK, "bOK.dat");
 //        SomeSerialization.saveIntArray(from, "from.dat");
 
@@ -115,7 +114,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
          for (int tau = 0; tau < legalActionMasks.size(); tau++) {
 
-                 NDArray okMask = ( rewardMasks.size() > tau && tau > 0) ?
+                 NDArray okMask = ( rewardMasks.size() >= tau && tau > 0) ?
                             legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau - 1))
                          :
                             legalActionMasks.get(tau);
@@ -157,6 +156,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             if (loss.getName().contains("legal_actions")) {
                 NDArray intMask = masks.get(iMap[i]) ;
                 int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
+
                 statistics.setCount(statistics.getCount() + c);
            //     lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);

@@ -197,13 +197,14 @@ public class SomeSerialization {
                 dataString[i] = lines[i].split("\\|");
             }
 
-            int dim2 = dataString[0].length;
-            boolean[][][] data = new boolean[dim1][dim2][];
+          //
+            boolean[][][] data = new boolean[dim1][][];
 
             for (int i = 0; i < dim1; i++) {
+                int dim2 = dataString[i].length;
+                data[i]  = new boolean[dim2][dim2];
                 for (int j = 0; j < dim2; j++) {
                     String[] row = dataString[i][j].split(",");
-                    data[i][j] = new boolean[row.length];
                     for (int k = 0; k < row.length; k++) {
                         data[i][j][k] = row[k].equals("T");
                     }
