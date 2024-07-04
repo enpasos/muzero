@@ -170,7 +170,7 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 float v = lossComponents[i].sum().toFloatArray()[0];
                 statistics.setSumLossReward(statistics.getSumLossReward() + v);
             }
-//        }
+        }
 
         if (lossComponents.length == 1) {
             return lossComponents[0];
