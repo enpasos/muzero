@@ -344,27 +344,33 @@ public class ModelController implements DisposableBean, Runnable {
 
         List<Integer> boxesRelevant =List.of(0);  // other boxes relevant have been just tested
                 gameBuffer.resetRelevantIds();
-        List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+        List<IdProjection> allIdProjections = gameBuffer.getRelevantIds2(boxesRelevant);
 
     //    idProjections = analyseFilter(idProjections, unrollSteps);
 
-        List<Long> relevantTimestepIds =  idProjections.stream().map(IdProjection::getId).toList();
+        List<Long> allRelevantTimestepIds =  allIdProjections.stream().map(IdProjection::getId).toList();
+        List<Long> allRelatedEpisodeIds = episodeIdsFromTimestepIds(allIdProjections, allRelevantTimestepIds);
 
             // start real code
             // first the buffer loop
             RulesBuffer rulesBuffer = new RulesBuffer();
             rulesBuffer.setWindowSize(1000);
-            rulesBuffer.setIds(relevantTimestepIds);
-            log.info("boxesRelevant: {}, unrollSteps: {}, timestepIds size: {}", boxesRelevant, unrollSteps, rulesBuffer.getIds().size());
+            rulesBuffer.setIds(allRelatedEpisodeIds);
+            log.info("boxesRelevant: {}, unrollSteps: {}, relatedEpisodeIds size: {}", boxesRelevant, unrollSteps, rulesBuffer.getIds().size());
             int w = 0;
            // List<Long> timestepIdsDone = new ArrayList<>();
 
             System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
             for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext() ; ) {
-                List<Long> timestepIdsRulesLearningList = iterator.next();
+                List<Long> relatedEpisodeIds = iterator.next();
               //  timestepCount += timestepIdsRulesLearningList.size();
 
-                List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
+                List<Long> relatedTimeStepIds = allIdProjections.stream()
+                        .filter(idProjection -> relatedEpisodeIds.contains(idProjection.getEpisodeId()))
+                        .map(IdProjection::getId).collect(Collectors.toList());
+
+
+                //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
 
                 boolean save = !iterator.hasNext()  ;
                 log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
@@ -373,7 +379,9 @@ public class ModelController implements DisposableBean, Runnable {
                 Collections.shuffle(gameBuffer);
 
                 // each timestep once
-                List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(gameBuffer, timestepIdsRulesLearningList);
+
+
+                List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(gameBuffer, relatedTimeStepIds);
 
 //                allTimeSteps.removeAll(timestepsDone);
 //              //  if (allTimeSteps.isEmpty()) continue;
