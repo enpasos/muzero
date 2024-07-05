@@ -351,7 +351,7 @@ public class ModelController implements DisposableBean, Runnable {
         List<Long> allRelevantTimestepIds =  allIdProjections.stream().map(IdProjection::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromTimestepIds(allIdProjections, allRelevantTimestepIds);
 
-        log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}",  allRelevantTimestepIds.size(), allRelatedEpisodeIds.size();
+        log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}",  allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
 
             // start real code
             // first the buffer loop
