@@ -342,7 +342,7 @@ public class ModelController implements DisposableBean, Runnable {
         int maxBox = timestepRepo.maxBox();
        // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
-        List<Integer> boxesRelevant =List.of(0, 1);  // other boxes relevant have been just tested
+        List<Integer> boxesRelevant =List.of(0);  // other boxes relevant have been just tested
                 gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
 
