@@ -80,12 +80,11 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>0) found ... finished");
             return;
         }
-        if (boxesRelevant.get(0) == 0) {   // not necessary to test the 0
-            boxesRelevant.remove(0);
-        }
+         boxesRelevant.remove(0);
 
 
-        log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.size());
+
+        log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
