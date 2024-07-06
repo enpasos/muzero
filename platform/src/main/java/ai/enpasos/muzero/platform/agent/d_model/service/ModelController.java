@@ -475,9 +475,11 @@ public class ModelController implements DisposableBean, Runnable {
 
 
     private List<Long> episodeIdsFromTimestepIds(List<IdProjection> idProjections, List<Long> timestepIdsRulesLearningList) {
+       log.info("S8");
         Set<Long> ids =  idProjections.stream()
                 .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getId()))
                 .map(IdProjection::getEpisodeId).collect(Collectors.toSet());
+        log.info("S8");
         return new ArrayList(ids);
     }
 
