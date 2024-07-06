@@ -120,23 +120,24 @@ public class MuZeroLoop {
 
 
 
-        int unrollSteps = config.getMaxUnrollSteps() ;
-        log.info("testUnrollRulestate.run({})", unrollSteps);
-        TestUnrollRulestate.Result r = testUnrollRulestate.run(  unrollSteps );
-        currentTest = true;
-        if (unrollSteps != r.getUnrollSteps()) {
-            log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
-            unrollSteps = r.getUnrollSteps();
+        TestUnrollRulestate.Result r = null;
+        int unrollSteps = 1;
+        long numBox0 = timestepRepo.numBox(0);
+
+        boolean testInitially = false;
+        if (testInitially) {
+             unrollSteps = config.getMaxUnrollSteps();
             log.info("testUnrollRulestate.run({})", unrollSteps);
-            r = testUnrollRulestate.run(unrollSteps);
+             r = testUnrollRulestate.run(unrollSteps);
+            currentTest = true;
+            if (unrollSteps != r.getUnrollSteps()) {
+                log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
+                unrollSteps = r.getUnrollSteps();
+                log.info("testUnrollRulestate.run({})", unrollSteps);
+                r = testUnrollRulestate.run(unrollSteps);
+            }
+            numBox0 = r.getBox0();
         }
-
-        long numBox0 = r.getBox0();
-
-//        TestUnrollRulestate.Result r = null;
-//        int unrollSteps = 1;
-//        long numBox0 = timestepRepo.numBox(0);
-
 
 
         log.info("numBox0: " + numBox0);
@@ -151,19 +152,9 @@ public class MuZeroLoop {
 
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
 
-
-
-
-//            if ( epoch > 0 && epoch % 100 == 0) {
-//                fillRulesLoss.run();
-//                int n0 = fillRulesLoss.numBox(0);
-//                policyValueTraining = n0 == 0;
-//            }
-//            rulesTraining = !policyValueTraining;
-
-
                 DurAndMem duration = new DurAndMem();
                 duration.on();
+                log.info("S1");
 
                 if (policyValueTraining) {
                     if (epoch != 0) {
@@ -180,30 +171,20 @@ public class MuZeroLoop {
                     log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
                 }
 
-                // log.info("Epoch(" + epoch + ")");
-                // if (epoch % 10 == 0) {
-//                log.info("fillRewardLoss.fillRewardLossForNetworkOfEpoch(" + epoch + ")");
-//                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpoch(epoch );
-                //   }
 
+                log.info("S2");
                 boolean[] freeze = new boolean[]{false, true, true};
-//            int unknowns = 0;
-//            do {
-//                for (int i = 0; i < 10; i++) {
                 if (rulesTraining) {
                     modelService.trainModelRules(freeze, unrollSteps).get();
                 }
-                //     epoch = modelState.getEpoch();
-//                fillRulesLoss.evaluatedRulesLearningForNetworkOfEpochForBox0(epoch);
-//                unknowns = fillRulesLoss.numBox(0);
-//                log.info("unknowns: " + unknowns);
-//            } while (unknowns > 0);
 
+                log.info("S3");
                 if (policyValueTraining) {
                     freeze = new boolean[]{true, false, false};
                     modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
                 }
 
+                log.info("S4");
                 epoch = modelState.getEpoch();
 
                 trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();

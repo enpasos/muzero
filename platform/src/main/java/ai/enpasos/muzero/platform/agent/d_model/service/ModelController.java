@@ -328,6 +328,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
+        log.info("S5");
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
@@ -339,12 +340,17 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
+
+        log.info("S6");
         int maxBox = timestepRepo.maxBox();
         // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
         List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
         gameBuffer.resetRelevantIds();
         List<IdProjection> allIdProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+
+
+        log.info("S7");
 
         //    idProjections = analyseFilter(idProjections, unrollSteps);
 
