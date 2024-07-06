@@ -154,7 +154,7 @@ public class MuZeroLoop {
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
-                log.info("S1");
+
 
                 if (policyValueTraining) {
                     if (epoch != 0) {
@@ -172,19 +172,16 @@ public class MuZeroLoop {
                 }
 
 
-                log.info("S2");
                 boolean[] freeze = new boolean[]{false, true, true};
                 if (rulesTraining) {
                     modelService.trainModelRules(freeze, unrollSteps).get();
                 }
 
-                log.info("S3");
                 if (policyValueTraining) {
                     freeze = new boolean[]{true, false, false};
                     modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
                 }
 
-                log.info("S4");
                 epoch = modelState.getEpoch();
 
                 trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();

@@ -328,7 +328,6 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
-        log.info("S5");
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
@@ -340,8 +339,6 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-
-        log.info("S6");
         int maxBox = timestepRepo.maxBox();
         // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
@@ -350,12 +347,10 @@ public class ModelController implements DisposableBean, Runnable {
         List<IdProjection> allIdProjections = gameBuffer.getRelevantIds2(boxesRelevant);
 
 
-        log.info("S7");
-
         //    idProjections = analyseFilter(idProjections, unrollSteps);
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
-        List<Long> allRelatedEpisodeIds = episodeIdsFromTimestepIds(allIdProjections, allRelevantTimestepIds);
+        List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
 
         log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
 
@@ -372,11 +367,12 @@ public class ModelController implements DisposableBean, Runnable {
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> relatedEpisodeIds = iterator.next();
             //  timestepCount += timestepIdsRulesLearningList.size();
-
-            List<Long> relatedTimeStepIds = allIdProjections.stream()
-                    .filter(idProjection -> relatedEpisodeIds.contains(idProjection.getEpisodeId()))
-                    .map(IdProjection::getId).collect(Collectors.toList());
-
+            Set<Long> relatedEpisodeIdsSet = new HashSet<>(relatedEpisodeIds);
+            log.info("timestep before relatedTimeStepIds filtering");
+            Set<Long> relatedTimeStepIds = allIdProjections.stream()
+                    .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
+                    .map(IdProjection::getId).collect(Collectors.toSet());
+            log.info("timestep after relatedTimeStepIds filtering");
 
             //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
 
@@ -472,30 +468,16 @@ public class ModelController implements DisposableBean, Runnable {
         }
     }
 
-
-
-    private List<Long> episodeIdsFromTimestepIds(List<IdProjection> idProjections, List<Long> timestepIdsRulesLearningList) {
-       log.info("S8");
-       Map<Long, Long> timestepIdToEpisodeId = idProjections.stream().collect(Collectors.toMap(IdProjection::getId, IdProjection::getEpisodeId));
-
-        Set<Long> ids =  timestepIdsRulesLearningList.stream().mapToLong(timestepId -> timestepIdToEpisodeId.get(timestepId))
+    private List<Long> episodeIdsFromIdProjections(  List<IdProjection> allIdProjections) {
+        Set<Long> ids =  allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
                 .boxed().collect(Collectors.toSet());
-
-
-//        Set<Long> episodeIdsSet = idProjections.stream().map(IdProjection::getEpisodeId).collect(Collectors.toSet());
-//        List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
-//        log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
-//        rulesBuffer.setIds(episodeIds);
-//        Set<Long> timeStepIds = idProjections.stream().map(IdProjection::getId).collect(Collectors.toSet());
-
-
-
-//
-//        Set<Long> ids =  idProjections.stream()
-//                .filter(idProjection -> timestepIdsRulesLearningList.contains(idProjection.getId()))
-//                .map(IdProjection::getEpisodeId).collect(Collectors.toSet());
-        log.info("S9");
         return new ArrayList(ids);
+    }
+
+    private List<Long> episodeIdsFromTimestepIds(Map<Long, Long> timestepIdToEpisodeId,   List<Long> timestepIdsRulesLearningList) {
+         Set<Long> ids =  timestepIdsRulesLearningList.stream().mapToLong(timestepId -> timestepIdToEpisodeId.get(timestepId))
+                .boxed().collect(Collectors.toSet());
+         return new ArrayList(ids);
     }
 
 
@@ -571,7 +553,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private List<TimeStepDO> allRelevantTimeStepsShuffled3(List<Game> games , List<Long> timestepIds) {
+    private List<TimeStepDO> allRelevantTimeStepsShuffled3(List<Game> games , Set<Long> timestepIds) {
         List<TimeStepDO> timeStepDOList = new ArrayList<>();
         for (Game game : games) {
             EpisodeDO episodeDO = game.getEpisodeDO();

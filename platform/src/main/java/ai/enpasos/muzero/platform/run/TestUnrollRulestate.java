@@ -80,7 +80,9 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>0) found ... finished");
             return;
         }
-         boxesRelevant.remove(0);
+        if (boxesRelevant.get(0) == 0) {
+            boxesRelevant.remove(0);
+        }
 
 
 
@@ -103,7 +105,7 @@ public class TestUnrollRulestate {
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             count += episodeIdsRulesLearningList.size();
-            log.info( "identifyRelevantTimestepsAndTestThem count = {} of {}", count, episodeIds.size());
+            log.info( "identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, unrollSteps);  // TODO: optimize in analysing only relevant timesteps
