@@ -342,9 +342,9 @@ public class ModelController implements DisposableBean, Runnable {
         int maxBox = timestepRepo.maxBox();
         // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
-        List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
+     //   List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
         gameBuffer.resetRelevantIds();
-        List<IdProjection> allIdProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+        List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0();
 
 
         //    idProjections = analyseFilter(idProjections, unrollSteps);
@@ -359,7 +359,7 @@ public class ModelController implements DisposableBean, Runnable {
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
         rulesBuffer.setIds(allRelatedEpisodeIds);
-        log.info("boxesRelevant: {}, unrollSteps: {}, relatedEpisodeIds size: {}", boxesRelevant, unrollSteps, rulesBuffer.getIds().size());
+        log.info("unrollSteps: {}, relatedEpisodeIds size: {}", unrollSteps, rulesBuffer.getIds().size());
         int w = 0;
         // List<Long> timestepIdsDone = new ArrayList<>();
 
