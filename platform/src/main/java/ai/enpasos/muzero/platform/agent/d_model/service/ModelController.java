@@ -363,7 +363,7 @@ public class ModelController implements DisposableBean, Runnable {
             for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext() ; ) {
                 List<Long> timestepIdsRulesLearningList = iterator.next();
               //  timestepCount += timestepIdsRulesLearningList.size();
-
+// int i = 43;
                 List<Long> relatedEpisodeIds = episodeIdsFromTimestepIds(idProjections, timestepIdsRulesLearningList);
 
                 boolean save = !iterator.hasNext()  ;
