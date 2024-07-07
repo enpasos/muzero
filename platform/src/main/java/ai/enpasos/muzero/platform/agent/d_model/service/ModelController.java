@@ -339,7 +339,7 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-        int maxBox = timestepRepo.maxBox();
+        //int maxBox = timestepRepo.maxBox();
         // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
 
      //   List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested

@@ -114,14 +114,13 @@ public class TestUnrollRulestate {
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-         //   log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... starting");
+            log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... starting");
             episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream()
                     .filter(timeStepDO -> timeStepIds.contains(timeStepDO.getId()))
                             .forEach(timeStepDO -> {
                         timeStepDO.setUOkTested(true);
                     }));
-
-       //     log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... ending");
+            log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... ending");
 
             // db update also in uOK and box
             dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollSteps );
