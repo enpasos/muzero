@@ -251,18 +251,17 @@ public class GameBuffer {
         if (relevantIds == null) {
             int limit = 50000;
 
-            List<Integer> uOKList = new ArrayList<>();
-            uOKList.add(uOK);
-            if (uOK == 0) {
-                uOKList.add(-1);
-                uOKList.add(-2);
+            int uOKMax = uOK;
+            int uOKMin = -3;
+            if (uOKMax > 0) {
+                uOKMin = uOKMax - 1;
             }
 
             int offset = 0;
             relevantIds = new ArrayList<>();
             List newIds;
             do {
-                newIds = timestepRepo.getRelevantIds2(limit, offset, uOKList);
+                newIds = timestepRepo.getRelevantIds2(limit, offset, uOKMin, uOKMax);
                 relevantIds.addAll(newIds);
 
                 offset += limit;
