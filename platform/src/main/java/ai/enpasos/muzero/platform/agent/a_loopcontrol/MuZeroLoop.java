@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
 
 @Slf4j
 @Component
@@ -140,7 +139,7 @@ public class MuZeroLoop {
 //        }
 
 
-        unrollSteps = getUnrollSteps();
+        unrollSteps = getMinUnrollSteps();
 
 
         log.info("numBox0: " + numBox0);
@@ -153,8 +152,8 @@ public class MuZeroLoop {
             while (numBox0 > 0) {
                 tested = false;
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
-                unrollSteps = getUnrollSteps();
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(getMaxUnrollSteps(config.getMaxUnrollSteps()));
+                unrollSteps = getMinUnrollSteps();
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -281,12 +280,17 @@ public class MuZeroLoop {
         log.info("done" );
     }
 
-    private int getUnrollSteps() {
+    private int getMinUnrollSteps() {
         int unrollSteps;
         unrollSteps = timestepRepo.minUokNotClosed() + 1;
         unrollSteps = Math.max(1, unrollSteps);
         return unrollSteps;
     }
 
-
+    private int getMaxUnrollSteps(int maxUnrollSteps) {
+        int unrollSteps;
+        unrollSteps = timestepRepo.maxUokNotClosed() + 1;
+        unrollSteps = Math.min(maxUnrollSteps, unrollSteps);
+        return unrollSteps;
+    }
 }

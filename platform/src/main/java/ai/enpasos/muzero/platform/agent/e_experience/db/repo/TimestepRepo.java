@@ -215,6 +215,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)
     int minUokNotClosed( );
 
+    @Transactional
+    @Query(value = "SELECT max(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)
+    int maxUokNotClosed( );
+
 //    @Query(value = "SELECT sum(count) AS total_count\n" +
 //            "FROM (\n" +
 //            "    SELECT count(t.id) AS count\n" +
