@@ -119,7 +119,7 @@ public class MuZeroLoop {
 
 
 
-        TestUnrollRulestate.Result r = null;
+      // TestUnrollRulestate.Result r = null;
      //   int unrollSteps = 1;
      //   long numBox0 = timestepRepo.numBox(0);
 
@@ -191,7 +191,7 @@ public class MuZeroLoop {
                 log.info("testUnrollRulestate.run({})", unrollSteps);
                 testUnrollRulestate.run(unrollSteps);
                 currentTest = true;
-                numBox0 = r.getBox0();
+                numBox0 = timestepRepo.numBox(0);
             }
 
             log.info("numBox0: " + numBox0);
