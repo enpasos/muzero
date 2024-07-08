@@ -124,68 +124,36 @@ public class MuZeroLoop {
      //   long numBox0 = timestepRepo.numBox(0);
 
 
-        int    unrollSteps = config.getMaxUnrollSteps();
+        int unrollSteps = config.getMaxUnrollSteps();
 
-        boolean testInitially = false;
+        boolean testInitially = true;
         if (testInitially) {
-
-//            log.info("testUnrollRulestate.run({})", unrollSteps);
-             testUnrollRulestate.run(unrollSteps);
-//            currentTest = true;
-//            if (unrollSteps != r.getUnrollSteps()) {
-//                log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
-//                unrollSteps = r.getUnrollSteps();
-//                log.info("testUnrollRulestate.run({})", unrollSteps);
-//                r = testUnrollRulestate.run(unrollSteps);
-//            }
-
-       }
-        long numBox0 =timestepRepo.numBox(0);
+            testUnrollRulestate.run(unrollSteps);
+        }
+        long numBox0 = timestepRepo.numBox(0);
 
         unrollSteps = getMinUnrollSteps();
 
 
         log.info("numBox0: " + numBox0);
-        boolean tested =  true;
+        boolean tested = true;
 
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-
-            log.info("numBox0: " + numBox0);
             while (numBox0 > 0) {
+                //  for (int u = 1; u <= config.getMaxUnrollSteps(); u++) {
+                log.info("numBox0: {}", numBox0);
+
                 tested = false;
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(getMaxUnrollSteps(config.getMaxUnrollSteps()));
-                unrollSteps = getMinUnrollSteps();
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
 
-
-                if (policyValueTraining) {
-                    if (epoch != 0) {
-                        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                            config.setPlayTypeKey(key);
-                            play.playGames(params.isRender(), trainingStep);
-                        }
-                        config.setPlayTypeKey(originalPlayTypeKey);
-                    }
-
-                    log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-                    log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-                    log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
-                }
-
-
                 boolean[] freeze = new boolean[]{false, true, true};
                 if (rulesTraining) {
                     modelService.trainModelRules(freeze, unrollSteps).get();
-                }
-
-                if (policyValueTraining) {
-                    freeze = new boolean[]{true, false, false};
-                    modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
                 }
 
                 epoch = modelState.getEpoch();
@@ -203,20 +171,20 @@ public class MuZeroLoop {
             }
 
 
-//            if (numBox0 == 0 && !currentTest) {
-//                log.info("numBox0 == 0; testUnrollRulestate.run({})", unrollSteps);
-//                r = testUnrollRulestate.run(unrollSteps  );
-//                currentTest = true;
-//                numBox0 = r.getBox0();
-//            }
-            if (numBox0 == 0 ) {
+            //            if (numBox0 == 0 && !currentTest) {
+            //                log.info("numBox0 == 0; testUnrollRulestate.run({})", unrollSteps);
+            //                r = testUnrollRulestate.run(unrollSteps  );
+            //                currentTest = true;
+            //                numBox0 = r.getBox0();
+            //            }
+
+            // }
+            while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 log.info("numBox0 == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-
-
-                     testUnrollRulestate.run(config.getMaxUnrollSteps());
-                    unrollSteps = getMinUnrollSteps();
-               // log.info("testUnrollRulestate.run({})", unrollSteps);
-              //  r = testUnrollRulestate.run(unrollSteps  );
+                unrollSteps++;
+                currentTest = false;
+                log.info("testUnrollRulestate.run({})", unrollSteps);
+                testUnrollRulestate.run(unrollSteps);
                 currentTest = true;
                 numBox0 = r.getBox0();
             }
@@ -226,7 +194,7 @@ public class MuZeroLoop {
             if (unrollSteps == config.getMaxUnrollSteps() && numBox0 == 0) {
                 log.info("numBox0 == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
                 if (!currentTest) {
-                     testUnrollRulestate.run(unrollSteps );
+                    testUnrollRulestate.run(unrollSteps);
                 }
                 numBox0 = timestepRepo.numBox(0);
                 if (numBox0 == 0) {
@@ -237,22 +205,21 @@ public class MuZeroLoop {
         }
 
 
-       policyValueTraining = true;   // true: policy and value training, false: rules training
-       rulesTraining = false;
+        policyValueTraining = true;   // true: policy and value training, false: rules training
+        rulesTraining = false;
 
 
-        while ( trainingStep < config.getNumberOfTrainingSteps()) {
+        while (trainingStep < config.getNumberOfTrainingSteps()) {
 
 
+            DurAndMem duration = new DurAndMem();
+            duration.on();
 
-                DurAndMem duration = new DurAndMem();
-                duration.on();
-
-                if (policyValueTraining) {
-                    if (epoch != 0) {
-                        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                            config.setPlayTypeKey(key);
+            if (policyValueTraining) {
+                if (epoch != 0) {
+                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey(key);
                             play.playGames(params.isRender(), trainingStep);
                         }
                         config.setPlayTypeKey(originalPlayTypeKey);

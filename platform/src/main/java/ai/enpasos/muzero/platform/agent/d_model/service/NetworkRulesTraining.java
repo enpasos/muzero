@@ -71,16 +71,21 @@ public class NetworkRulesTraining {
     private TimestepRepo timestepRepo;
 
 
-//    public void trainNetworkRules(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int maxUnrollSteps) {
-////        List<Integer> uOKList = timestepRepo.uOkList();
-////        for (int unrollSteps = 1; unrollSteps <= maxUnrollSteps; unrollSteps++) {
-////            if (uOKList.contains(unrollSteps-1)) {
-//                trainNetworkRulesOneUnrollStep(network, freeze, background, trainingDatasetType, unrollSteps);
-//            }
-//        }
-//    }
+    public void trainNetworkRules(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int maxUnrollSteps) {
+        List<Integer> uOKList = timestepRepo.uOkList();
+        List<Integer> unrollStepsList = new ArrayList<>();
+        for (int unrollSteps = 1; unrollSteps <= maxUnrollSteps; unrollSteps++) {
+            if (uOKList.contains(unrollSteps-1)) {
+                unrollStepsList.add(unrollSteps);
+            }
+        }
+        for (int i = 0; i < unrollStepsList.size(); i++) {
+            int unrollSteps = unrollStepsList.get(i);
+            trainNetworkRulesOneUnrollStep(network, freeze, background, trainingDatasetType, unrollSteps, i != unrollStepsList.size() -1 );
+        }
+    }
 
-    public void trainNetworkRules(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
+    public void trainNetworkRulesOneUnrollStep(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps, boolean saveVeto) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -121,7 +126,7 @@ public class NetworkRulesTraining {
                     .map(IdProjection::getId).collect(Collectors.toSet());
             log.info("timestep after relatedTimeStepIds filtering");
 
-            boolean save = !iterator.hasNext();
+            boolean save = !iterator.hasNext() && !saveVeto;
             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
