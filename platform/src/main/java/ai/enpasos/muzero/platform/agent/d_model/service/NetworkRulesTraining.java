@@ -71,16 +71,16 @@ public class NetworkRulesTraining {
     private TimestepRepo timestepRepo;
 
 
-    public void trainNetworkRules(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int maxUnrollSteps) {
-        List<Integer> uOKList = timestepRepo.uOkList();
-        for (int unrollSteps = 1; unrollSteps <= maxUnrollSteps; unrollSteps++) {
-            if (uOKList.contains(unrollSteps-1)) {
-                trainNetworkRulesOneUnrollStep(network, freeze, background, trainingDatasetType, unrollSteps);
-            }
-        }
-    }
+//    public void trainNetworkRules(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int maxUnrollSteps) {
+////        List<Integer> uOKList = timestepRepo.uOkList();
+////        for (int unrollSteps = 1; unrollSteps <= maxUnrollSteps; unrollSteps++) {
+////            if (uOKList.contains(unrollSteps-1)) {
+//                trainNetworkRulesOneUnrollStep(network, freeze, background, trainingDatasetType, unrollSteps);
+//            }
+//        }
+//    }
 
-    public void trainNetworkRulesOneUnrollStep(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
+    public void trainNetworkRules(Network network, boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);

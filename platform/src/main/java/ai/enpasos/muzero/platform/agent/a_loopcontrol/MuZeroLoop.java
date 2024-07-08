@@ -121,23 +121,26 @@ public class MuZeroLoop {
 
 
         TestUnrollRulestate.Result r = null;
-        int unrollSteps = 1;
-        long numBox0 = timestepRepo.numBox(0);
+     //   int unrollSteps = 1;
+     //   long numBox0 = timestepRepo.numBox(0);
 
-        boolean testInitially = false;
-        if (testInitially) {
-             unrollSteps = config.getMaxUnrollSteps();
-            log.info("testUnrollRulestate.run({})", unrollSteps);
+//        boolean testInitially = false;
+//        if (testInitially) {
+         int    unrollSteps = config.getMaxUnrollSteps();
+//            log.info("testUnrollRulestate.run({})", unrollSteps);
              r = testUnrollRulestate.run(unrollSteps);
-            currentTest = true;
-            if (unrollSteps != r.getUnrollSteps()) {
-                log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
-                unrollSteps = r.getUnrollSteps();
-                log.info("testUnrollRulestate.run({})", unrollSteps);
-                r = testUnrollRulestate.run(unrollSteps);
-            }
-            numBox0 = r.getBox0();
-        }
+//            currentTest = true;
+//            if (unrollSteps != r.getUnrollSteps()) {
+//                log.info("unrollSteps != r.getUnrollSteps(); unrollSteps: {}; r.getUnrollSteps(): {}", unrollSteps, r.getUnrollSteps());
+//                unrollSteps = r.getUnrollSteps();
+//                log.info("testUnrollRulestate.run({})", unrollSteps);
+//                r = testUnrollRulestate.run(unrollSteps);
+//            }
+        long numBox0 = r.getBox0();
+//        }
+
+
+        unrollSteps = getUnrollSteps();
 
 
         log.info("numBox0: " + numBox0);
@@ -151,6 +154,7 @@ public class MuZeroLoop {
                 tested = false;
 
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
+                unrollSteps = getUnrollSteps();
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -275,6 +279,13 @@ public class MuZeroLoop {
 
 
         log.info("done" );
+    }
+
+    private int getUnrollSteps() {
+        int unrollSteps;
+        unrollSteps = timestepRepo.minUokNotClosed() + 1;
+        unrollSteps = Math.max(1, unrollSteps);
+        return unrollSteps;
     }
 
 
