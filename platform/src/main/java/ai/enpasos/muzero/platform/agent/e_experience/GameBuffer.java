@@ -247,6 +247,22 @@ public class GameBuffer {
         relevantIds = null;
     }
 
+    public List<IdProjection> getRelevantIdsUOk(int uOK )  {
+        if (relevantIds == null) {
+            int limit = 50000;
+
+            int offset = 0;
+            relevantIds = new ArrayList<>();
+            List newIds;
+            do {
+                newIds = timestepRepo.getRelevantIds2(limit, offset, uOK);
+                relevantIds.addAll(newIds);
+                offset += limit;
+            } while (newIds.size() > 0);
+        }
+        return relevantIds;
+    }
+
     public List<IdProjection> getRelevantIdsBox0( )  {
         if (relevantIds == null) {
             int limit = 50000;

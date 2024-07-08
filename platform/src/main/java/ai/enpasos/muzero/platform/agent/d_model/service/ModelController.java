@@ -80,6 +80,9 @@ public class ModelController implements DisposableBean, Runnable {
     @Autowired
     private TimestepRepo timestepRepo;
 
+    @Autowired
+    private NetworkRulesTraining networkRulesTraining;
+
     private final DurAndMem inferenceDuration = new DurAndMem();
 
     private NDScope ndScope;
@@ -248,7 +251,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
+                    networkRulesTraining.trainNetworkRules(network, task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -283,6 +286,9 @@ public class ModelController implements DisposableBean, Runnable {
         }
     }
 
+    @Autowired
+    Helper helper;
+
 
     private void trainNetwork(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
         Model model = network.getModel();
@@ -312,7 +318,7 @@ public class ModelController implements DisposableBean, Runnable {
                     }
                 }
 
-                handleMetrics(trainer, model, epochLocal);
+                helper.handleMetrics(trainer, model, epochLocal);
                 trainer.notifyListeners(listener -> listener.onEpoch(trainer));
             }
         }
@@ -326,179 +332,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
-        NumberFormat nf = NumberFormat.getNumberInstance();
-        nf.setMaximumFractionDigits(8);
-        nf.setMinimumFractionDigits(8);
-
-        boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
-
-        Model model = network.getModel();
-        MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
-        muZeroBlock.setRulesModel(true);
-        int epochLocal = getEpochFromModel(model);
-
-        //int maxBox = timestepRepo.maxBox();
-        // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
-
-     //   List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
-        gameBuffer.resetRelevantIds();
-        List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0();
-
-
-        //    idProjections = analyseFilter(idProjections, unrollSteps);
-
-        List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
-        List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
-
-        log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
-
-        // start real code
-        // first the buffer loop
-        RulesBuffer rulesBuffer = new RulesBuffer();
-        rulesBuffer.setWindowSize(1000);
-        rulesBuffer.setIds(allRelatedEpisodeIds);
-        log.info("unrollSteps: {}, relatedEpisodeIds size: {}", unrollSteps, rulesBuffer.getIds().size());
-        int w = 0;
-        // List<Long> timestepIdsDone = new ArrayList<>();
-
-        System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
-        for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
-            List<Long> relatedEpisodeIds = iterator.next();
-            //  timestepCount += timestepIdsRulesLearningList.size();
-            Set<Long> relatedEpisodeIdsSet = new HashSet<>(relatedEpisodeIds);
-            log.info("timestep before relatedTimeStepIds filtering");
-            Set<Long> relatedTimeStepIds = allIdProjections.stream()
-                    .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
-                    .map(IdProjection::getId).collect(Collectors.toSet());
-            log.info("timestep after relatedTimeStepIds filtering");
-
-            //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
-
-            boolean save = !iterator.hasNext();
-            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
-            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
-            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            Collections.shuffle(gameBuffer);
-
-            // each timestep once
-
-
-            List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(gameBuffer, relatedTimeStepIds);
-
-//                allTimeSteps.removeAll(timestepsDone);
-//              //  if (allTimeSteps.isEmpty()) continue;
-//                timestepsDone.addAll(allTimeSteps);
-
-
-            log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
-
-
-            muZeroBlock.setNumUnrollSteps(unrollSteps);
-
-            Shape[] inputShapes = batchFactory.getInputShapesForRules(unrollSteps);
-
-
-            try (NDScope nDScope = new NDScope()) {
-
-
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, unrollSteps);
-                int finalEpoch = epochLocal;
-                djlConfig.getTrainingListeners().stream()
-                        .filter(MyEpochTrainingListener.class::isInstance)
-                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-
-                try (Trainer trainer = model.newTrainer(djlConfig)) {
-                    trainer.setMetrics(new Metrics());
-                    trainer.initialize(inputShapes);
-                    ((DCLAware) model.getBlock()).freezeParameters(freeze);
-
-
-                    for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
-                        List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-
-
-                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
-                            Statistics stats = new Statistics();
-                            List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
-
-                            int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
-
-                            boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodes);
-                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
-
-                            // transfer b_OK back from batch array to the games parameter s
-                            //  ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
-                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
-
-                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
-                            dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
-
-
-                            int tau = 0;   // start with tau = 0
-                            int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
-                            int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
-                            int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
-                            int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
-                            int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
-                            int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
-                            int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
-                            int count = stats.getCount();
-                            //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                            //  rememberOks(batchTimeSteps, oks.getKey(), unrollSteps);
-                            double sumLossR = stats.getSumLossReward();
-                            double sumMeanLossR = sumLossR / count;
-
-                            double sumLossL = stats.getSumLossLegalActions();
-                            double sumMeanLossL = sumLossL / count;
-                            System.out.println(epochLocal + ";" + unrollSteps + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
-                            trainer.step();
-                        }
-                    }
-                    if (!background) {
-                        handleMetrics(trainer, model, epochLocal);
-                    }
-                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-                }
-                epochLocal = getEpochFromModel(model);
-                modelState.setEpoch(epochLocal);
-            }
-            w++;
-        }
-    }
-
-    private List<Long> episodeIdsFromIdProjections(  List<IdProjection> allIdProjections) {
-        Set<Long> ids =  allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
-                .boxed().collect(Collectors.toSet());
-        return new ArrayList(ids);
-    }
-
-    private List<Long> episodeIdsFromTimestepIds(Map<Long, Long> timestepIdToEpisodeId,   List<Long> timestepIdsRulesLearningList) {
-         Set<Long> ids =  timestepIdsRulesLearningList.stream().mapToLong(timestepId -> timestepIdToEpisodeId.get(timestepId))
-                .boxed().collect(Collectors.toSet());
-         return new ArrayList(ids);
-    }
-
-
-    private int countNOKFromB_OK(boolean[][][] bOkBatch, int tau) {
-        int countNOK = 0;
-        for (int e = 0; e < bOkBatch.length; e++) {
-
-
-            for (int i = 0; i < bOkBatch[e].length; i++) { // from
-                int j = i + tau;
-                if (j < bOkBatch[e][i].length) {
-                    // for (int j = i; j < bOkBatch[e][i].length; j++) { // to
-                    if (!bOkBatch[e][i][j]) {
-                        countNOK++;
-                    }
-                }
-                //  }
-            }
-        }
-        return countNOK;
-    }
 
 
     //    private void rememberOks(List<TimeStepDO> batchTimeSteps,  List<Boolean>  oks, int s) {
@@ -511,61 +345,6 @@ public class ModelController implements DisposableBean, Runnable {
 //            }
 //        });
 //    }
-    private List<TimeStepDO> allTimeStepsShuffled(List<Game> games) {
-        List<TimeStepDO> timeStepDOList = new ArrayList<>();
-        for (Game game : games) {
-            EpisodeDO episodeDO = game.getEpisodeDO();
-            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-                timeStepDOList.add(ts);
-            }
-        }
-        Collections.shuffle(timeStepDOList);
-        return timeStepDOList;
-    }
-
-
-    private List<TimeStepDO> allRelevantTimeStepsShuffled(List<Game> games, List<Integer> boxesRelevant) {
-        List<TimeStepDO> timeStepDOList = new ArrayList<>();
-        for (Game game : games) {
-            EpisodeDO episodeDO = game.getEpisodeDO();
-            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-                if (boxesRelevant.contains(ts.getBox())) {
-                    timeStepDOList.add(ts);
-                }
-            }
-        }
-        Collections.shuffle(timeStepDOList);
-        return timeStepDOList;
-    }
-
-    private List<TimeStepDO> allRelevantTimeStepsShuffled2(List<Game> games , int uOk) {
-        List<TimeStepDO> timeStepDOList = new ArrayList<>();
-        for (Game game : games) {
-            EpisodeDO episodeDO = game.getEpisodeDO();
-            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-                if (!ts.isUOkClosed() && ts.getUOk() == uOk) {
-                    timeStepDOList.add(ts);
-                }
-            }
-        }
-        Collections.shuffle(timeStepDOList);
-        return timeStepDOList;
-    }
-
-
-    private List<TimeStepDO> allRelevantTimeStepsShuffled3(List<Game> games , Set<Long> timestepIds) {
-        List<TimeStepDO> timeStepDOList = new ArrayList<>();
-        for (Game game : games) {
-            EpisodeDO episodeDO = game.getEpisodeDO();
-            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-                if (timestepIds.contains(ts.getId())) {
-                    timeStepDOList.add(ts);
-                }
-            }
-        }
-        Collections.shuffle(timeStepDOList);
-        return timeStepDOList;
-    }
 
 //    private List<TimeStepDO> extractTimeSteps(List<Game> gameBuffer, int iStart, int iEndExcluded, int[] sortedIndices, int k) {
 //        List<Game> games = new ArrayList<>();
@@ -586,83 +365,6 @@ public class ModelController implements DisposableBean, Runnable {
         double pRatioMax = games.stream().mapToDouble(Game::getPRatioMax).max().orElse(1.0);
         games.stream().forEach(game -> game.setPRatioMax(pRatioMax));
         return pRatioMax;
-    }
-
-    private void handleMetrics(Trainer trainer, Model model, int epoch) {
-        Metrics metrics = trainer.getMetrics();
-
-
-        // mean loss
-        List<Metric> ms = metrics.getMetric("train_all_CompositeLoss");
-        double meanLoss = ms.stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new);
-        model.setProperty("MeanLoss", Double.toString(meanLoss));
-        log.info("MeanLoss: " + meanLoss);
-
-        // mean value
-        // loss
-        double meanValueLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("value_0") && !name.contains("entropy_loss_value"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        gameBuffer.putMeanValueLoss(epoch, meanValueLoss);
-        meanValueLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("value_0") && name.contains("value") && !name.contains("entropy_loss_value"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        model.setProperty("MeanValueLoss", Double.toString(meanValueLoss));
-        log.info("MeanValueLoss: " + meanValueLoss);
-
-        // mean reward
-        // loss
-        double meanRewardLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_reward_0"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        // gameBuffer.putMeanEntropyValueLoss(epoch, meanEntropyValueLoss);
-        meanRewardLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_reward_0") && name.contains("loss_reward"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        model.setProperty("MeanRewardLoss", Double.toString(meanRewardLoss));
-        log.info("MeanRewardLoss: " + meanRewardLoss);
-
-        // mean similarity
-        // loss
-        double meanSimLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_similarity_0"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        gameBuffer.putMeanValueLoss(epoch, meanSimLoss);
-        meanSimLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_similarity_0") && name.contains("loss_similarity"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        model.setProperty("MeanSimilarityLoss", Double.toString(meanSimLoss));
-        log.info("MeanSimilarityLoss: " + meanSimLoss);
-
-        // mean policy loss
-        double meanPolicyLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("policy_0"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        meanPolicyLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("policy_0") && name.contains("policy"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        model.setProperty("MeanPolicyLoss", Double.toString(meanPolicyLoss));
-        log.info("MeanPolicyLoss: " + meanPolicyLoss);
-
-        // mean legal action loss
-        double meanLegalActionLoss = metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && name.contains("loss_legal_actions_0"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        meanLegalActionLoss += metrics.getMetricNames().stream()
-                .filter(name -> name.startsWith(TRAIN_ALL) && !name.contains("loss_legal_actions_0") && name.contains("loss_legal_actions"))
-                .mapToDouble(name -> metrics.getMetric(name).stream().mapToDouble(Metric::getValue).average().orElseThrow(MuZeroException::new))
-                .sum();
-        model.setProperty("MeanLegalActionLoss", Double.toString(meanLegalActionLoss));
-        log.info("MeanLegalActionLoss: " + meanLegalActionLoss);
     }
 
     private void loadModelParametersOrCreateIfNotExisting(Model model) {
