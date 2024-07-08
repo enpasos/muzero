@@ -75,7 +75,7 @@ public class NetworkRulesTraining {
         List<Integer> uOKList = timestepRepo.uOkList();
         List<Integer> unrollStepsList = new ArrayList<>();
         for (int unrollSteps = 1; unrollSteps <= maxUnrollSteps; unrollSteps++) {
-            if (uOKList.contains(unrollSteps-1)) {
+            if ((unrollSteps == 1 && (uOKList.contains(-2) || uOKList.contains(-1)|| uOKList.contains(0))) || unrollSteps > 1) {
                 unrollStepsList.add(unrollSteps);
             }
         }

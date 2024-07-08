@@ -203,10 +203,10 @@ public class GameBuffer {
    // Set<Long> episodeIdsLegalActionLossLearning;
     private List<Long> episodeIds;
 
-
-    public void clearEpisodeIds() {
-        episodeIds = null;
-    }
+//
+//    public void clearEpisodeIds() {
+//        episodeIds = null;
+//    }
 
     public List<Long> getEpisodeIds( ) {
         int limit = 50000;
@@ -223,22 +223,22 @@ public class GameBuffer {
         return episodeIds;
     }
 
-    public List<IdProjection> getRelevantIds(int uOk )  {
-        int limit = 50000;
-
-        int offset = 0;
-        List<IdProjection> relevantIds = new ArrayList<>();
-        List newIds;
-        do {
-
-            newIds = timestepRepo.getRelevantIds2( limit, offset, uOk);
-            relevantIds.addAll(newIds);
-            offset += limit;
-        } while (newIds.size() > 0);
-     //   List<Long> relevantIdsList = new ArrayList<>(relevantIds);
-     //   Collections.shuffle(relevantIdsList);
-        return relevantIds;
-    }
+//    public List<IdProjection> getRelevantIds(int uOk )  {
+//        int limit = 50000;
+//
+//        int offset = 0;
+//        List<IdProjection> relevantIds = new ArrayList<>();
+//        List newIds;
+//        do {
+//
+//            newIds = timestepRepo.getRelevantIds( limit, offset, uOk);
+//            relevantIds.addAll(newIds);
+//            offset += limit;
+//        } while (newIds.size() > 0);
+//     //   List<Long> relevantIdsList = new ArrayList<>(relevantIds);
+//     //   Collections.shuffle(relevantIdsList);
+//        return relevantIds;
+//    }
 
 
     private List<IdProjection> relevantIds;
@@ -251,33 +251,41 @@ public class GameBuffer {
         if (relevantIds == null) {
             int limit = 50000;
 
+            List<Integer> uOKList = new ArrayList<>();
+            uOKList.add(uOK);
+            if (uOK == 0) {
+                uOKList.add(-1);
+                uOKList.add(-2);
+            }
+
             int offset = 0;
             relevantIds = new ArrayList<>();
             List newIds;
             do {
-                newIds = timestepRepo.getRelevantIds2(limit, offset, uOK);
+                newIds = timestepRepo.getRelevantIds2(limit, offset, uOKList);
                 relevantIds.addAll(newIds);
+
                 offset += limit;
             } while (newIds.size() > 0);
         }
         return relevantIds;
     }
 
-    public List<IdProjection> getRelevantIdsBox0( )  {
-        if (relevantIds == null) {
-            int limit = 50000;
-
-            int offset = 0;
-            relevantIds = new ArrayList<>();
-            List newIds;
-            do {
-                newIds = timestepRepo.getRelevantIds4(limit, offset);
-                relevantIds.addAll(newIds);
-                offset += limit;
-            } while (newIds.size() > 0);
-        }
-        return relevantIds;
-    }
+//    public List<IdProjection> getRelevantIdsBox0( )  {
+//        if (relevantIds == null) {
+//            int limit = 50000;
+//
+//            int offset = 0;
+//            relevantIds = new ArrayList<>();
+//            List newIds;
+//            do {
+//                newIds = timestepRepo.getRelevantIds4(limit, offset);
+//                relevantIds.addAll(newIds);
+//                offset += limit;
+//            } while (newIds.size() > 0);
+//        }
+//        return relevantIds;
+//    }
 
     public List<IdProjection> getRelevantIds2(List<Integer> boxesRelevant )  {
         if (relevantIds == null) {
@@ -295,37 +303,37 @@ public class GameBuffer {
         return relevantIds;
     }
 
-    public List<Long> getRelevantEpisodeIds2( int uOk )  {
-        int limit = 50000;
+//    public List<Long> getRelevantEpisodeIds2( int uOk )  {
+//        int limit = 50000;
+//
+//        int offset = 0;
+//        Set<Long> relevantEpisodeIds = new HashSet<>();
+//        List newIds;
+//        do {
+//            newIds = timestepRepo.getRelevantEpisodeIds2( limit, offset, uOk);
+//            relevantEpisodeIds.addAll(newIds);
+//            offset += limit;
+//        } while (newIds.size() > 0);
+//        List<Long> relevantEpisodeIdsList = new ArrayList<>(relevantEpisodeIds);
+//        Collections.shuffle(relevantEpisodeIdsList);
+//        return relevantEpisodeIdsList;
+//    }
 
-        int offset = 0;
-        Set<Long> relevantEpisodeIds = new HashSet<>();
-        List newIds;
-        do {
-            newIds = timestepRepo.getRelevantEpisodeIds2( limit, offset, uOk);
-            relevantEpisodeIds.addAll(newIds);
-            offset += limit;
-        } while (newIds.size() > 0);
-        List<Long> relevantEpisodeIdsList = new ArrayList<>(relevantEpisodeIds);
-        Collections.shuffle(relevantEpisodeIdsList);
-        return relevantEpisodeIdsList;
-    }
-
-    public List<Long> getRelevantEpisodeIds( List<Integer> boxesRelevant ) {
-        int limit = 50000;
-
-        int offset = 0;
-        Set<Long> relevantEpisodeIds = new HashSet<>();
-        List newIds;
-        do {
-            newIds = timestepRepo.getRelevantEpisodeIds(boxesRelevant, limit, offset);
-            relevantEpisodeIds.addAll(newIds);
-            offset += limit;
-        } while (newIds.size() > 0);
-        List<Long> relevantEpisodeIdsList = new ArrayList<>(relevantEpisodeIds);
-        Collections.shuffle(relevantEpisodeIdsList);
-        return relevantEpisodeIdsList;
-    }
+//    public List<Long> getRelevantEpisodeIds( List<Integer> boxesRelevant ) {
+//        int limit = 50000;
+//
+//        int offset = 0;
+//        Set<Long> relevantEpisodeIds = new HashSet<>();
+//        List newIds;
+//        do {
+//            newIds = timestepRepo.getRelevantEpisodeIds(boxesRelevant, limit, offset);
+//            relevantEpisodeIds.addAll(newIds);
+//            offset += limit;
+//        } while (newIds.size() > 0);
+//        List<Long> relevantEpisodeIdsList = new ArrayList<>(relevantEpisodeIds);
+//        Collections.shuffle(relevantEpisodeIdsList);
+//        return relevantEpisodeIdsList;
+//    }
 
     public List<Long> getShuffledEpisodeIds() {
         List<Long> episodeIds = getEpisodeIds( )  ;
