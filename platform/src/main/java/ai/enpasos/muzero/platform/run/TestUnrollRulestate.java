@@ -134,21 +134,22 @@ public class TestUnrollRulestate {
         log.info("identifyRelevantTimestepsAndTestThem unrollSteps = {} ... finished", unrollSteps);
     }
 
-
-    @Data
-    @AllArgsConstructor
-    public class Result {
-        private List<Integer> uOkList;
-        private int unrollSteps;
-        private long box0;
-
-    }
+//
+//    @Data
+//    @AllArgsConstructor
+//    public class Result {
+//        private List<Integer> uOkList;
+//        private int unrollSteps;
+//        private long box0;
+//
+//    }
 
 
 
 
     public void run(int unrollsteps  ) {
         int epoch = networkIOService.getLatestNetworkEpoch();
+        log.info("testUnrollRulestate.run({}), epoch: ", unrollsteps, epoch);
 
        // timestepRepo.resetBoxAndSAndUOk();  // just for testing
         modelService.loadLatestModel(epoch).join();
@@ -182,11 +183,8 @@ public class TestUnrollRulestate {
             unrollSteps = uOkList.getFirst() + 1;
             unrollSteps = Math.max(unrollSteps, 1);
         }
-      //  int toBeTrained =  toBeTrained(unrollSteps);
 
         log.info("uOkList: {}, unrollSteps = {}", uOkList.toString(), unrollSteps);
-     //   long box0 = timestepRepo.numBox(0);
-     //   return new Result(uOkList, unrollSteps, box0);
     }
 
 
