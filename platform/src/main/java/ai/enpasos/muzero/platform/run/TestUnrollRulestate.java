@@ -147,7 +147,7 @@ public class TestUnrollRulestate {
 
 
 
-    public Result run(int unrollsteps  ) {
+    public void run(int unrollsteps  ) {
         int epoch = networkIOService.getLatestNetworkEpoch();
 
        // timestepRepo.resetBoxAndSAndUOk();  // just for testing
@@ -185,8 +185,8 @@ public class TestUnrollRulestate {
       //  int toBeTrained =  toBeTrained(unrollSteps);
 
         log.info("uOkList: {}, unrollSteps = {}", uOkList.toString(), unrollSteps);
-        long box0 = timestepRepo.numBox(0);
-        return new Result(uOkList, unrollSteps, box0);
+     //   long box0 = timestepRepo.numBox(0);
+     //   return new Result(uOkList, unrollSteps, box0);
     }
 
 
