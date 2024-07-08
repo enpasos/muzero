@@ -129,10 +129,15 @@ public class MuZeroLoop {
         boolean testInitially = true;
         if (testInitially) {
             testUnrollRulestate.run(unrollSteps);
+            int unrollSteps2 = getMinUnrollSteps();
+            if (unrollSteps2 != unrollSteps) {
+                unrollSteps = unrollSteps2;
+                testUnrollRulestate.run(unrollSteps);
+            }
         }
         long numBox0 = timestepRepo.numBox(0);
 
-        unrollSteps = getMinUnrollSteps();
+
 
 
         log.info("numBox0: " + numBox0);
