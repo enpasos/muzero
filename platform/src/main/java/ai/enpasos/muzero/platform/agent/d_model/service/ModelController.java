@@ -417,7 +417,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                     for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                         List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-
+//log.info("ts: {}, batchTimeSteps.size(): {}", ts, batchTimeSteps.size());
 
                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
                             Statistics stats = new Statistics();
@@ -433,7 +433,12 @@ public class ModelController implements DisposableBean, Runnable {
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
 
                             batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
-                            dbService.updateEpisodes_SandUOkandBox(episodes, unrollSteps);
+
+
+//                           List<TimeStepDO> strangeTSList = batchTimeSteps.stream().filter(ts2 -> !ts2.isUOkChanged() ).collect(Collectors.toList());
+//                            log.info("strangeTSList.size() = {}", strangeTSList.size());
+
+                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps);
 
 
                             int tau = 0;   // start with tau = 0

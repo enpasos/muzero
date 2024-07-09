@@ -16,7 +16,7 @@ public class TicTacToeLossExtractor {
 
 
     public void run() {
-        lossExtractor.listLossesForTrainedNetworks(1);
+        lossExtractor.listLossesForTrainedNetworks(3700);
     }
 
 }

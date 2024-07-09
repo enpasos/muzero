@@ -12,6 +12,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.NetworkIOService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
@@ -114,21 +115,18 @@ public class TestUnrollRulestate {
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-            // the following should not be necessary
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-                timeStepDO.setUOkTested(false);
-            }));
-            // the following is fast enough, no need to optimize
-        //    log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... starting");
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream()
-                    .filter(timeStepDO -> timeStepIds.contains(timeStepDO.getId()))
-                            .forEach(timeStepDO -> {
+
+            List<TimeStepDO> relevantTimeSteps =  episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()
+                            .filter(timeStepDO -> timeStepIds.contains(timeStepDO.getId())))
+                    .collect(Collectors.toList());
+
+
+            relevantTimeSteps.forEach(timeStepDO -> {
                         timeStepDO.setUOkTested(true);
-                    }));
-         //   log.info("identifyRelevantTimestepsAndTestThem setUOkTested(true)  ... ending");
+                    }) ;
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollSteps );
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
 
         }
 
@@ -168,12 +166,13 @@ public class TestUnrollRulestate {
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
 
-            episodeDOList.stream().forEach(episodeDO -> episodeDO.getTimeSteps().stream().forEach(timeStepDO -> {
-                timeStepDO.setUOkTested(false);
-            }));
+            List<TimeStepDO> relevantTimeSteps =  episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()  )
+                    .collect(Collectors.toList());
+
+
 
             // db update also in uOK and box
-            dbService.updateEpisodes_SandUOkandBox(episodeDOList, unrollsteps );
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollsteps );
 
         }
 
@@ -205,7 +204,13 @@ public class TestUnrollRulestate {
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
-        dbService.updateEpisodes_SandUOkandBox(List.of( episodeDO), unrollSteps );
+        List<TimeStepDO> relevantTimeSteps =  episodeDOList.stream().flatMap(episodeDO2 -> episodeDO2.getTimeSteps().stream()  )
+                .collect(Collectors.toList());
+
+
+
+        // db update also in uOK and box
+        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
 
     }
 

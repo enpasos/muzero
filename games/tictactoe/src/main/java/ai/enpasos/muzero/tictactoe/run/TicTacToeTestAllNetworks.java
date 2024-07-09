@@ -43,8 +43,8 @@ public class TicTacToeTestAllNetworks {
     public void run() {
 
 
-        int start  = 137;
-        int stop =  137;
+        int start  = 3800;
+        int stop = 4003;
 
         boolean onOptimalPathOnly = false;
 

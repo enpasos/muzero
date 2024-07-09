@@ -178,7 +178,9 @@ public class ZipperFunctions {
                     }
                 }
                 TimeStepDO ts = episodeDO.getTimeStep(t);
-                ts.setUOkChanged(ts.getUOk() != u);
+                if (ts.getUOk() != u) {  // be careful not to set UOkChanged to false if the change has been recognized before
+                    ts.setUOkChanged(true);
+                }
                 ts.setUOk(u);
                 ts.setUOkClosed(u >= episodeDO.getLastTime() - t );
             }
@@ -204,8 +206,9 @@ public class ZipperFunctions {
                 }
                 TimeStepDO ts = episodeDO.getTimeStep(t);
                 if (timeStepDOS.contains(ts)) {
-
-                    ts.setSChanged(ts.getS() != s);
+                    if(ts.getS() != s) {
+                        ts.setSChanged(true);
+                    }
                     ts.setS(s);
                     ts.setSClosed(s >= t + 1);
                     // uOk
@@ -217,7 +220,9 @@ public class ZipperFunctions {
                             break;
                         }
                     }
-                    ts.setUOkChanged(ts.getUOk() != u);
+                    if (ts.getUOk() != u) {
+                        ts.setUOkChanged(true);
+                    }
 
                     ts.setUOk(u);
                     ts.setUOkClosed(u >= episodeDO.getLastTime() - t);
@@ -247,7 +252,9 @@ public class ZipperFunctions {
                     }
                 }
                 TimeStepDO ts = episodeDO.getTimeStep(t);
-                ts.setSChanged(ts.getS() != s);
+                if(ts.getS() != s) {
+                    ts.setSChanged(true);
+                }
                 ts.setS(s);
                 ts.setSClosed(s >= t + 1);
                 // uOk
@@ -259,8 +266,9 @@ public class ZipperFunctions {
                         break;
                     }
                 }
-
-                ts.setUOkChanged(ts.isUOkChanged() || ts.getUOk() != u);
+if(ts.getUOk() != u) {
+    ts.setUOkChanged(true);
+}
 
                 ts.setUOk(u);
                 ts.setUOkClosed(u >= episodeDO.getLastTime() - t );

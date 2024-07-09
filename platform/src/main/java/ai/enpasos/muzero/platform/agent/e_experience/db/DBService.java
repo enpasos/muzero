@@ -258,8 +258,30 @@ public class DBService {
 
 
     // assumption: all timesteps have been tested
-    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU ) {
-        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+//    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU ) {
+//        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
+//                    int boxBefore = ts.getBox();
+//
+//                    if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
+//                        ts.setBox(0);
+//                    } else { // ok
+//                        if (ts.isUOkTested() || ts.getBox() == 0) {
+//                            ts.setBox(ts.getBox() + 1);
+//                        }
+//                    }
+//
+//                    if (ts.isSChanged() || ts.isUOkChanged() || boxBefore != ts.getBox()) {
+//                        timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
+//                        ts.setSChanged(false);
+//                        ts.setUOkChanged(false);
+//                    }
+//                    ts.setUOkTested(false);
+//                }
+//        ));
+//    }
+
+    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int targetU ) {
+        timesteps.stream().forEach(ts -> {
                     int boxBefore = ts.getBox();
 
                     if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
@@ -277,8 +299,18 @@ public class DBService {
                     }
                     ts.setUOkTested(false);
                 }
-        ));
+        );
     }
+
+
+
+
+
+
+
+
+
+
 
 //    public void updateEpisodes_S(List<EpisodeDO> episodes) {
 //        episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {

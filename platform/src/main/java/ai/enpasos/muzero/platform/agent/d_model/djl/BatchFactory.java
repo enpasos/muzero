@@ -95,7 +95,10 @@ public class BatchFactory {
 
         List<Sample> sampleList =  batchTimeSteps.stream().map( ts -> rulesSampleFromTimeStep(ts, u)).collect(Collectors.toList());
 
-      return getBatch(ndManager, withSymmetryEnrichment, u, sampleList, TrainingDatasetType.RULES_BUFFER);
+
+      Batch batch =  getBatch(ndManager, withSymmetryEnrichment, u, sampleList, TrainingDatasetType.RULES_BUFFER);
+   //     log.info("batch.base.size: {}, batchTimeSteps.size(): {}, sampleList.size() {}", batch.getData().get(0).getShape().get(0)/8, batchTimeSteps.size(), sampleList.size() );
+      return batch;
 
     }
 
