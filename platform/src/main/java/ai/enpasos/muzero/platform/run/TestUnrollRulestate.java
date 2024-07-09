@@ -81,10 +81,13 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>0) found ... finished");
             return;
         }
-        if (boxesRelevant.get(0) == 0) {
+        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
             boxesRelevant.remove(0);
         }
-        if (boxesRelevant.get(0) == 1) {
+        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 1) {
+            boxesRelevant.remove(0);
+        }
+        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 2) {
             boxesRelevant.remove(0);
         }
 

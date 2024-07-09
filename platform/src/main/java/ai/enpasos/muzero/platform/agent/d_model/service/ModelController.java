@@ -13,6 +13,7 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
+import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
@@ -340,12 +341,12 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
         //int maxBox = timestepRepo.maxBox();
-        // List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, maxBox);
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, 2);
 
      //   List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
         gameBuffer.resetRelevantIds();
       //  List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0();
-        List<IdProjection> allIdProjections = gameBuffer.getIdsFromBoxesRelevant(List.of(0, 1));
+        List<IdProjection> allIdProjections = gameBuffer.getIdsFromBoxesRelevant(boxesRelevant);
 
 
         //    idProjections = analyseFilter(idProjections, unrollSteps);
