@@ -274,6 +274,9 @@ public class MuZeroConfig {
     public float getLr(int step) {
         return (float)( getConf().lrInit * (1d + Math.cos(Math.PI * step /  getNumberOfTrainingSteps())) / 2d);
     }
+    public float getLrRules() {
+        return (float)( getConf().lrInit / 10d);
+    }
 
 
     public int getSize() {

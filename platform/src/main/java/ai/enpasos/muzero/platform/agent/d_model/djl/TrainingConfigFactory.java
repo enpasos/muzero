@@ -102,7 +102,7 @@ public class TrainingConfigFactory {
 
         DefaultTrainingConfig c =  new DefaultTrainingConfig(loss)
                 .optDevices(Engine.getInstance().getDevices(1))
-                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
+                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch(), isRulesModel))
                 .addTrainingListeners(
                         new MemoryTrainingListener(outputDir),
                         new MyEvaluatorTrainingListener(),
@@ -215,8 +215,11 @@ public class TrainingConfigFactory {
                 .build();
 
     }
-    private Optimizer setupAdamOptimizer(int trainingStep) {
+    private Optimizer setupAdamOptimizer(int trainingStep, boolean isRulesModel) {
         float lr = config.getLr(trainingStep)  ;
+        if (isRulesModel) {
+            lr = config.getLrRules();
+        }
         log.trace("trainingStep = {}, lr = {}", trainingStep, lr);
         Tracker learningRateTracker = Tracker.fixed(lr);
 
