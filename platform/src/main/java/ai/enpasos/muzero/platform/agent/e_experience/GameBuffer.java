@@ -286,7 +286,7 @@ public class GameBuffer {
         return relevantIds;
     }
 
-    public List<IdProjection> getRelevantIds2(List<Integer> boxesRelevant )  {
+    public List<IdProjection> getIdsFromBoxesRelevant(List<Integer> boxesRelevant )  {
         if (relevantIds == null) {
             int limit = 50000;
 

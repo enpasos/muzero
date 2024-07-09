@@ -344,8 +344,8 @@ public class ModelController implements DisposableBean, Runnable {
 
      //   List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
         gameBuffer.resetRelevantIds();
-        List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0();
-  //      List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsUOk(unrollSteps-1);
+      //  List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0();
+        List<IdProjection> allIdProjections = gameBuffer.getIdsFromBoxesRelevant(List.of(0, 1));
 
 
         //    idProjections = analyseFilter(idProjections, unrollSteps);

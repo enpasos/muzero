@@ -84,12 +84,14 @@ public class TestUnrollRulestate {
         if (boxesRelevant.get(0) == 0) {
             boxesRelevant.remove(0);
         }
-
+        if (boxesRelevant.get(0) == 1) {
+            boxesRelevant.remove(0);
+        }
 
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
-        List<IdProjection> idProjections = gameBuffer.getRelevantIds2(boxesRelevant);
+        List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevant(boxesRelevant);
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
 
      //   modelService.loadLatestModel(epoch).join();   // check
