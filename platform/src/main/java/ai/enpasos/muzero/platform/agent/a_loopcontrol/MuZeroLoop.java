@@ -122,7 +122,7 @@ public class MuZeroLoop {
 
 
         int unrollSteps = 1;
-        long numBox0 = timestepRepo.numBox(0);
+        long firstBoxes = firstBoxes();
 
         boolean testInitially = true;
         if (testInitially) {
@@ -135,19 +135,15 @@ public class MuZeroLoop {
         } else {
             unrollSteps = getMinUnrollSteps();
         }
-        numBox0 = timestepRepo.numBox(0);
+        firstBoxes = firstBoxes();
 
-
-
-
-        log.info("numBox0: " + numBox0);
         boolean tested =  true;
 
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
 
-            log.info("numBox0: " + numBox0);
-            while (numBox0 > 0) {
+
+            while (firstBoxes > 0) {
                 tested = false;
 
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
@@ -191,37 +187,35 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-                numBox0 = timestepRepo.numBox(0);
-                log.info("nBox: " + numBox0);
+                firstBoxes = firstBoxes();
                 currentTest = false;
 
-                if (numBox0 == 0 && !currentTest) {
-                    log.info("numBox0 == 0; testUnrollRulestate.run({})", unrollSteps);
+                if (firstBoxes == 0 && !currentTest) {
+
                     testUnrollRulestate.run(unrollSteps);
                     currentTest = true;
-                    numBox0 = timestepRepo.numBox(0);
+                    firstBoxes =   firstBoxes();
+
                 }
             }
-            while (numBox0 == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                log.info("numBox0 == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+            while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
                 unrollSteps++;
                 currentTest = false;
-                log.info("testUnrollRulestate.run({})", unrollSteps);
                 testUnrollRulestate.run(unrollSteps);
                 currentTest = true;
-                numBox0 = timestepRepo.numBox(0);
+                firstBoxes = firstBoxes();
             }
 
-            log.info("numBox0: " + numBox0);
-
-            if (unrollSteps == config.getMaxUnrollSteps() && numBox0 == 0) {
-                log.info("numBox0 == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
+            if (unrollSteps == config.getMaxUnrollSteps() && firstBoxes == 0) {
+                log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
                 if (!currentTest) {
                     testUnrollRulestate.run(unrollSteps);
                 }
-                numBox0 = timestepRepo.numBox(0);
-                if (numBox0 == 0) {
-                    log.info("numBox0 == 0; break;");
+                firstBoxes = firstBoxes();
+
+                if (firstBoxes == 0) {
+                    log.info("firstBoxes == 0; break;");
                     break;
                 }
             }
@@ -274,6 +268,12 @@ public class MuZeroLoop {
 
 
         log.info("done" );
+    }
+
+    private long firstBoxes() {
+        long firstBoxes = timestepRepo.numBoxUpTo(1);
+        log.info("num in first boxes (0, 1): {}", firstBoxes);
+        return firstBoxes;
     }
 
     private int getMinUnrollSteps() {

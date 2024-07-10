@@ -119,6 +119,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.box = :box")
     long numBox(int box);
 
+    @Transactional
+    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.box <= :box")
+    long numBoxUpTo(int box);
+
 
 
     @Transactional
