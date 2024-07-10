@@ -190,13 +190,11 @@ public class MuZeroLoop {
                 firstBoxes = firstBoxes();
                 currentTest = false;
 
-                if (firstBoxes == 0 && !currentTest) {
-
-                    testUnrollRulestate.run(unrollSteps);
-                    currentTest = true;
-                    firstBoxes =   firstBoxes();
-
-                }
+//                if (firstBoxes == 0 && !currentTest) {
+//                    testUnrollRulestate.run(unrollSteps);
+//                    currentTest = true;
+//                    firstBoxes =   firstBoxes();
+//                }
             }
             while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
