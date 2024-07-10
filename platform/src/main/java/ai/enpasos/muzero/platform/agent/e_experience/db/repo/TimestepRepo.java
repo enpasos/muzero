@@ -141,7 +141,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT DISTINCT t.u_ok FROM timestep t WHERE not t.u_ok_closed ORDER BY t.u_ok ASC", nativeQuery = true)
     List<Integer> uOkList();
 
-
+    @Query(value = "SELECT DISTINCT t.box FROM timestep t  ORDER BY t.box ASC", nativeQuery = true)
+    List<Integer> boxList();
 
 
 

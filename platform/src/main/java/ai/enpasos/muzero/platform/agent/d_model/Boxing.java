@@ -15,11 +15,25 @@ public class Boxing {
         return epoch % intervall(box) == 0;
     }
 
+
     public static List<Integer> boxesRelevant(int epoch, int maxBox) {
         List<Integer> boxesRelevant = new ArrayList<>();
         for (int b = 0; b <= maxBox; b++) {
             if(isUsed(b, epoch)) {
                 boxesRelevant.add(b);
+            }
+        }
+        return boxesRelevant;
+    }
+    public static List<Integer> boxesRelevantAndOccupied(List<Integer> occupiedBoxes, int epoch, int maxBox) {
+        List<Integer> boxesRelevant = new ArrayList<>();
+        int localEpoch = epoch - 1;
+        while (occupiedBoxes.isEmpty()) {
+            localEpoch++;
+            for (int b = 0; b <= maxBox; b++) {
+                if (isUsed(b,  localEpoch) && occupiedBoxes.contains(b)) {
+                    boxesRelevant.add(b);
+                }
             }
         }
         return boxesRelevant;

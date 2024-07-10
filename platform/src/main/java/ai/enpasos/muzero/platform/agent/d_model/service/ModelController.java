@@ -340,9 +340,12 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
+
+        List<Integer> occupiedBoxes =timestepRepo.boxList();
+        log.info("occupiedBoxes: {}", occupiedBoxes.toString());
         //int maxBox = timestepRepo.maxBox();
-        List<Integer> boxesRelevant = Boxing.boxesRelevant(epochLocal, 2);
-        log.info("boxesRelevant: {}", boxesRelevant.toString());
+        List<Integer> boxesRelevant = Boxing.boxesRelevantAndOccupied(occupiedBoxes, epochLocal, 2);
+        log.info("boxesRelevantAndOccupied: {}", boxesRelevant.toString());
 
      //   List<Integer> boxesRelevant = List.of(0);  // other boxes relevant have been just tested
         gameBuffer.resetRelevantIds();
