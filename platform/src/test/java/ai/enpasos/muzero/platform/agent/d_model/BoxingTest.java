@@ -71,4 +71,8 @@ class BoxingTest {
     }
 
 
+    @Test
+    void boxesRelevantAndOccupied() {
+        assertArrayEquals(new Integer[]{0,1,2,3}, Boxing.boxesRelevantAndOccupied(List.of(0, 2, 3, 4, 5, 6, 7, 8, 9, 10),1358, 2).toArray());
+    }
 }

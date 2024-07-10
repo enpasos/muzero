@@ -31,7 +31,7 @@ public class Boxing {
             return boxesRelevant;
         }
         int localEpoch = epoch - 1;
-        while (occupiedBoxes.isEmpty()) {
+        while (boxesRelevant.isEmpty()) {
             localEpoch++;
             for (int b = 0; b <= maxBox; b++) {
                 if (isUsed(b,  localEpoch) && occupiedBoxes.contains(b)) {
