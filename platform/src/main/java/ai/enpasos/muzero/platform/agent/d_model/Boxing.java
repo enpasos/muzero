@@ -27,6 +27,9 @@ public class Boxing {
     }
     public static List<Integer> boxesRelevantAndOccupied(List<Integer> occupiedBoxes, int epoch, int maxBox) {
         List<Integer> boxesRelevant = new ArrayList<>();
+        if (occupiedBoxes.isEmpty() || occupiedBoxes.getFirst() > maxBox) {
+            return boxesRelevant;
+        }
         int localEpoch = epoch - 1;
         while (occupiedBoxes.isEmpty()) {
             localEpoch++;
