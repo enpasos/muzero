@@ -17,7 +17,7 @@ public class Boxing {
 
     public static List<Integer> boxesRelevant(int epoch, int maxBox) {
         List<Integer> boxesRelevant = new ArrayList<>();
-        for (int b = 0; b<= maxBox; b++) {
+        for (int b = 0; b <= maxBox; b++) {
             if(isUsed(b, epoch)) {
                 boxesRelevant.add(b);
             }

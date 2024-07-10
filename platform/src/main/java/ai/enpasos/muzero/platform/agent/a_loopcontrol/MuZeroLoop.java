@@ -146,7 +146,7 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
                 tested = false;
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, 2);
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();

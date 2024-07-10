@@ -70,7 +70,7 @@ public class TestUnrollRulestate {
         run(1  );
     }
 
-    public void identifyRelevantTimestepsAndTestThem(  int unrollSteps) {
+    public void identifyRelevantTimestepsAndTestThem(  int unrollSteps, int learnUntilMaxBox) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("identifyRelevantTimestepsAndTestThem epoch {}, unrollSteps = {} ... starting", epoch, unrollSteps);
@@ -81,15 +81,12 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>0) found ... finished");
             return;
         }
-        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
-            boxesRelevant.remove(0);
+        for (int i = 0; i <= learnUntilMaxBox; i++) {
+            if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == learnUntilMaxBox) {
+                boxesRelevant.remove(0);
+            }
         }
-        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 1) {
-            boxesRelevant.remove(0);
-        }
-        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 2) {
-            boxesRelevant.remove(0);
-        }
+
 
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
