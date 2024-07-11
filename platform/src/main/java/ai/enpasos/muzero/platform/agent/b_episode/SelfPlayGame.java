@@ -52,7 +52,7 @@ public class SelfPlayGame {
 
     private int analyseFromOneTime(Game game, int unrollSteps, int tFrom) {
         EpisodeDO episode = game.getEpisodeDO();
-        int tMax = episode.getLastTime();
+        int tMax = Math.min(episode.getLastTime(), tFrom+unrollSteps);
         NDArray[] hiddenState = null;
         NetworkIO networkOutput;
         int t = tFrom;
