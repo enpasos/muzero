@@ -8,12 +8,10 @@ public class Boxing {
 
 
     public static int intervall(int box) {
-
-        return (int)Math.pow(2, box);
+        return (int)Math.pow(2, Math.max(box, 0));
     }
 
     public static boolean isUsed(int box, int epoch) {
-        if (box == -1) return true;
         return epoch % intervall(box) == 0;
     }
 
