@@ -66,10 +66,10 @@ public class SelfPlayGame {
             hiddenState = networkOutput.getHiddenState();
             boolean currentIsOk = checkOkStatus(episode, networkOutput, t);
             if (!currentIsOk) {
-                break;
+                return t-tFrom;
             }
         }
-        return t-tFrom;
+        return  tMax-tFrom;
     }
 
 

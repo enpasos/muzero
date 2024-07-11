@@ -20,6 +20,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -51,16 +52,25 @@ class UOKAnalyseTest {
 
     @Test
     void analyseTest() throws ExecutionException, InterruptedException {
+        testAGame( 3, 4,0,3,5,2,6,7,1,8);
+        testAGame(3, 3,0,4,1,5);
+        testAGame( 9, 4,0,3,5,2,6,7,1,8);
+        testAGame(5, 3,0,4,1,5);
+    }
+
+    private void testAGame(int unrollSteps, int... a) throws ExecutionException, InterruptedException {
         init();
 
         Game game = config.newGame(true, true);
-        game.apply(4,0,3,5,2,6,7,1,8);
+        game.apply(a);
 
-        selfPlayGame.uOkAnalyseGame(game, 3);
+        selfPlayGame.uOkAnalyseGame(game, unrollSteps);
         List<Integer> uOks = game.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.getUOk()).boxed().collect(Collectors.toList());
         log.info("uOks: " + uOks);
-        assertEquals(10, uOks.size());
-        assertArrayEquals(new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, uOks.toArray(new Integer[0]));
+        Integer[] uOKExpected = new Integer[a.length + 1];
+        Arrays.fill(uOKExpected, 0);
+        assertEquals(uOKExpected.length  , uOks.size());
+        assertArrayEquals( uOKExpected, uOks.toArray(new Integer[0]));
     }
 
     private void init() throws InterruptedException, ExecutionException {
