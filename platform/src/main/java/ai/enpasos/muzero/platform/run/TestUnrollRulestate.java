@@ -153,9 +153,7 @@ public class TestUnrollRulestate {
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("testUnrollRulestate.run(unrollsteps = {}), epoch = {}", unrollsteps, epoch);
 
-       // timestepRepo.resetBoxAndSAndUOk();  // just for testing
         modelService.loadLatestModel(epoch).join();
-
 
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);

@@ -43,56 +43,36 @@ public class SelfPlayGame {
 
     public void uOkAnalyseGame(Game game, int unrollSteps) {
         log.trace("uOkAnalyseGame");
+        int tMax = game.getEpisodeDO().getLastTime();
+        for (int tFrom = 0; tFrom <= tMax; tFrom++) {
+            int uOk = analyseFromOneTime(game, unrollSteps, tFrom);
+            updateUOk(game.getEpisodeDO(), tFrom, uOk);
+        }
+    }
+
+    private int analyseFromOneTime(Game game, int unrollSteps, int tFrom) {
         EpisodeDO episode = game.getEpisodeDO();
         int tMax = episode.getLastTime();
-        boolean isOk = false;
         NDArray[] hiddenState = null;
-        int tStart = -1;
-
-        for (int t = 0; t <= tMax; ) {
-            NetworkIO networkOutput;
-
-            if (isOk) {
-                if (t < tMax) {
-                    networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t++)).join();
-                } else {
-                    game.setObservationInputTime(t++);
-                    networkOutput = modelService.initialInference(game).join();
-                }
-            } else {
-                t = adjustT(t, tStart, unrollSteps);
-                game.setObservationInputTime(t);
+        NetworkIO networkOutput;
+        int t = tFrom;
+        for (; t <= tMax; t++) {
+            game.setObservationInputTime(t);
+            if (t == tFrom) {
                 networkOutput = modelService.initialInference(game).join();
-                tStart = t;
-            }
-
-            if (t <= tMax) {
-                isOk = updateOkStatusAndUpdateUnrolling(game, episode, networkOutput, t, tStart, tMax);
-                hiddenState = networkOutput.getHiddenState();
             } else {
-                log.trace("tStart: {}, t: {}", tStart, t);
+                networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t-1)).join();
+            }
+            hiddenState = networkOutput.getHiddenState();
+            boolean currentIsOk = checkOkStatus(episode, networkOutput, t);
+            if (!currentIsOk) {
+                break;
             }
         }
-    }
-
-    private int adjustT(int t, int tStart, int unrollSteps) {
-        t = Math.max(0, t - unrollSteps);
-        return t <= tStart ? tStart + 1 : t;
+        return t-tFrom;
     }
 
 
-
-    private boolean updateOkStatusAndUpdateUnrolling(Game game, EpisodeDO episode, NetworkIO networkOutput, int t, int tStart, int tMax) {
-        boolean currentIsOk = checkOkStatus(episode, networkOutput, t);
-
-        if (!currentIsOk) {
-            rollBackUnrollSteps(episode, tStart, t);
-        } else if (t == tMax) {
-            finalStepUnroll(episode, tStart, t);
-        }
-
-        return currentIsOk;
-    }
 
     private boolean checkOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t) {
         TimeStepDO timeStep = episode.getTimeStep(t);
@@ -102,17 +82,7 @@ public class SelfPlayGame {
         return currentIsOk;
     }
 
-    private void rollBackUnrollSteps(EpisodeDO episode, int tStart, int t) {
-        for (int i = tStart; i < t; i++) {
-            updateUOk(episode, i, t - 1 - i);
-        }
-    }
 
-    private void finalStepUnroll(EpisodeDO episode, int tStart, int t) {
-        for (int i = tStart; i <= t; i++) {
-            updateUOk(episode, i, t - i);
-        }
-    }
 
     private void updateUOk(EpisodeDO episode, int t, int uOK) {
         TimeStepDO ts = episode.getTimeStep(t);
