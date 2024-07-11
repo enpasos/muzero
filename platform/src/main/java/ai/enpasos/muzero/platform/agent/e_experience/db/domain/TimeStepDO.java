@@ -65,7 +65,7 @@ public class TimeStepDO {
 //    boolean ruleTrainingSuccess ;  // if trained, was it successful?
 
     @Builder.Default
-    int box = 3; // if not known it drops to 0, trained from box 0,1,2. From box 3 on only for testing.
+    int box = -1; // -1 initially. if not known it drops to 0, trained from box 0,1,2. From box 3 on only for testing.
 
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok
