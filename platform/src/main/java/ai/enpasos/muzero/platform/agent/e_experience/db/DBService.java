@@ -287,7 +287,9 @@ public class DBService {
                     if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
                         ts.setBox(0);
                     } else { // ok
-                        if (ts.isUOkTested() || ts.getBox() == -1) {
+                        if (ts.getUOk() == -1) {
+                            ts.setBox(3);
+                        } else if (ts.isUOkTested() ) {
                             ts.setBox(ts.getBox() + 1);
                         }
                     }
