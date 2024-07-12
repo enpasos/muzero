@@ -1,7 +1,7 @@
 logging:
   file:
     name: logs/muzero-tictactoe.log
-    max-size: 100 MB
+    size: 100MB
   pattern:
     console: "%d %-5level [%thread] %logger{0} : %msg%n"
     file: "%d %-5level [%thread] %logger : %msg%n"
