@@ -130,45 +130,45 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
                 bOK[j][tFrom][tTo] = okUpdateInfo[j];   // not taking the symmetry into account here, a voting mechanism could be implemented
             }
          }
-        float[][][] trainingNeeded = ZipperFunctions.trainingNeededFloat(bOK, 1f, true);
-
-        List<NDArray> masks = new ArrayList<>();
-        NDManager ndManager = legalActionMasks.get(0).getManager();
-        for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-            float[] trainingNeeded_ = new float[bOK.length * symmetryEnhancementFactor];
-            for (int j = 0; j < trainingNeeded.length; j++) {
-                int n = bOK[j].length;
-                int tFrom =  from[j]  ;
-                int tTo = tFrom + tau;
-                if (tTo >= n) continue;
-                for (int s = 0; s < symmetryEnhancementFactor; s++) {
-                    trainingNeeded_[s * trainingNeeded.length + j] = trainingNeeded[j][tFrom][tTo];
-                }
-            }
-            NDArray floatMask = ndManager.create(trainingNeeded_);
-            masks.add(floatMask);
-
-        }
+//       float[][][] trainingNeeded = ZipperFunctions.trainingNeededFloat(bOK, 1f, true);
+//
+//        List<NDArray> masks = new ArrayList<>();
+//        NDManager ndManager = legalActionMasks.get(0).getManager();
+//        for (int tau = 0; tau < legalActionMasks.size(); tau++) {
+//            float[] trainingNeeded_ = new float[bOK.length * symmetryEnhancementFactor];
+//            for (int j = 0; j < trainingNeeded.length; j++) {
+//                int n = bOK[j].length;
+//                int tFrom =  from[j]  ;
+//                int tTo = tFrom + tau;
+//                if (tTo >= n) continue;
+//                for (int s = 0; s < symmetryEnhancementFactor; s++) {
+//                    trainingNeeded_[s * trainingNeeded.length + j] = trainingNeeded[j][tFrom][tTo];
+//                }
+//            }
+//            NDArray floatMask = ndManager.create(trainingNeeded_);
+//            masks.add(floatMask);
+//
+//        }
 
         // now the actual masking should happen according to the trainingNeeded
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss) components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-                NDArray intMask = masks.get(iMap[i]) ;
-                int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
+           //     NDArray intMask = masks.get(iMap[i]) ;
+            //    int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
 
-                statistics.setCount(statistics.getCount() + c);
+           //     statistics.setCount(statistics.getCount() + c);
           //      lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
-                float v = lossComponents[i].toFloatArray()[0];
-                statistics.setSumLossLegalActions(statistics.getSumLossLegalActions() + v);
+            //    float v = lossComponents[i].toFloatArray()[0];
+            //    statistics.setSumLossLegalActions(statistics.getSumLossLegalActions() + v);
             } else if (loss.getName().contains("reward")) {
-                NDArray intMask = masks.get(iMap[i]) ;
+             //   NDArray intMask = masks.get(iMap[i]) ;
              //   lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
 
-                float v = lossComponents[i].sum().toFloatArray()[0];
-                statistics.setSumLossReward(statistics.getSumLossReward() + v);
+              //  float v = lossComponents[i].sum().toFloatArray()[0];
+             //   statistics.setSumLossReward(statistics.getSumLossReward() + v);
             }
         }
 

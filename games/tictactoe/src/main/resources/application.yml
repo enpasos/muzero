@@ -68,8 +68,8 @@ muzero:
       # batchSize: 2048
 
       # using the square symmetry of the board
-      symmetryType: SQUARE
-      batchSize: 256
+      symmetryType: NONE
+      batchSize: 2048
 
       # Gumbel MuZero parameters
       initialGumbelM: 4

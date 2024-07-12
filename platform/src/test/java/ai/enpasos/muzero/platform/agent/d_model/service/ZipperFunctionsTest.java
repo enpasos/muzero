@@ -349,134 +349,134 @@ class ZipperFunctionsTest {
         assertArrayEquals(expected, actual);
     }
 
-
-    @Test
-    void trainingNeededTest() {
-        boolean[][][] input = {{
-                {true, false, true},
-                {false, true, false},
-                {false, false, true}
-        }, {
-                {false, false },
-                {false, false }
-        }
-        };
-        boolean[][][] expected = {{
-                {true, true, false},
-                {false, true, true},
-                {false, false, true}
-        }, {
-                {true, false },
-                {false, true }
-        }
-        };
-        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
-        assertArrayEquals(expected[0], output[0]);
-        assertArrayEquals(expected[1], output[1]);
-    }
-
-    @Test
-    void trainingNeededFloatTest() {
-        boolean[][][] input = {{
-                {true, false, true},
-                {false, true, false},
-                {false, false, true}
-        }, {
-                {false, false },
-                {false, false }
-        }
-        };
-        float[][][] expected = {{
-                {0.1f, 1f, 0f},
-                {0f, 0.1f, 1f},
-                {0f, 0f, 0.1f}
-        }, {
-                {1f, 0f },
-                {0f, 1f }
-        }
-        };
-        float[][][] output = ZipperFunctions.trainingNeededFloat(input, 0.1f, false);
-        assertArrayEquals(expected[0], output[0]);
-        assertArrayEquals(expected[1], output[1]);
-    }
-    @Test
-    void trainingNeededTestA() {
-        boolean[][][] input = {{
-                {true, true, true},
-                {false, true, true},
-                {false, false, true}
-        }};
-        boolean[][][] expected = {{
-                {true, true, true},
-                {false, true, true},
-                {false, false, true}
-        }};
-        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
-        assertArrayEquals(expected[0], output[0]);
-    }
-
-    @Test
-    void trainingNeededTestB() {
-        boolean[][][] input = {{
-                {false, false, false},
-                {false, false, false},
-                {false, false, false}
-        }};
-        boolean[][][] expected = {{
-                {true, false, false},
-                {false, true, false},
-                {false, false, true}
-        }};
-        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
-        assertArrayEquals(expected[0], output[0]);
-    }
-    @Test
-    void trainingNeededTestC() {
-        boolean[][][] input = {{
-                {false, false, false},
-                {false, false, false},
-                {false, false, true}
-        }};
-        boolean[][][] expected = {{
-                {true, false, false},
-                {false, true, true},
-                {false, false, true}
-        }};
-        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
-        assertArrayEquals(expected[0], output[0]);
-    }
-
-    @Test
-    void trainingNeededTestD() {
-        boolean[][][] input = {{
-                {false, false, true},
-                {false, false, false},
-                {false, false, true}
-        }};
-        boolean[][][] expected = {{
-                {true, false, false},
-                {false, true, true},
-                {false, false, true}
-        }};
-        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
-        assertArrayEquals(expected[0], output[0]);
-    }
-
-    @Test
-    void trainingNeededTestE() {
-        boolean[][][] input = {{
-                {false, true, true},
-                {false, true, false},
-                {false, false, true}
-        }};
-        boolean[][][] expected = {{
-                {true, true, false},
-                {false, true, true},
-                {false, false, true}
-        }};
-        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
-        assertArrayEquals(expected[0], output[0]);
-    }
+//
+//    @Test
+//    void trainingNeededTest() {
+//        boolean[][][] input = {{
+//                {true, false, true},
+//                {false, true, false},
+//                {false, false, true}
+//        }, {
+//                {false, false },
+//                {false, false }
+//        }
+//        };
+//        boolean[][][] expected = {{
+//                {true, true, false},
+//                {false, true, true},
+//                {false, false, true}
+//        }, {
+//                {true, false },
+//                {false, true }
+//        }
+//        };
+//        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
+//        assertArrayEquals(expected[0], output[0]);
+//        assertArrayEquals(expected[1], output[1]);
+//    }
+//
+//    @Test
+//    void trainingNeededFloatTest() {
+//        boolean[][][] input = {{
+//                {true, false, true},
+//                {false, true, false},
+//                {false, false, true}
+//        }, {
+//                {false, false },
+//                {false, false }
+//        }
+//        };
+//        float[][][] expected = {{
+//                {0.1f, 1f, 0f},
+//                {0f, 0.1f, 1f},
+//                {0f, 0f, 0.1f}
+//        }, {
+//                {1f, 0f },
+//                {0f, 1f }
+//        }
+//        };
+//        float[][][] output = ZipperFunctions.trainingNeededFloat(input, 0.1f, false);
+//        assertArrayEquals(expected[0], output[0]);
+//        assertArrayEquals(expected[1], output[1]);
+//    }
+//    @Test
+//    void trainingNeededTestA() {
+//        boolean[][][] input = {{
+//                {true, true, true},
+//                {false, true, true},
+//                {false, false, true}
+//        }};
+//        boolean[][][] expected = {{
+//                {true, true, true},
+//                {false, true, true},
+//                {false, false, true}
+//        }};
+//        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
+//        assertArrayEquals(expected[0], output[0]);
+//    }
+//
+//    @Test
+//    void trainingNeededTestB() {
+//        boolean[][][] input = {{
+//                {false, false, false},
+//                {false, false, false},
+//                {false, false, false}
+//        }};
+//        boolean[][][] expected = {{
+//                {true, false, false},
+//                {false, true, false},
+//                {false, false, true}
+//        }};
+//        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
+//        assertArrayEquals(expected[0], output[0]);
+//    }
+//    @Test
+//    void trainingNeededTestC() {
+//        boolean[][][] input = {{
+//                {false, false, false},
+//                {false, false, false},
+//                {false, false, true}
+//        }};
+//        boolean[][][] expected = {{
+//                {true, false, false},
+//                {false, true, true},
+//                {false, false, true}
+//        }};
+//        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
+//        assertArrayEquals(expected[0], output[0]);
+//    }
+//
+//    @Test
+//    void trainingNeededTestD() {
+//        boolean[][][] input = {{
+//                {false, false, true},
+//                {false, false, false},
+//                {false, false, true}
+//        }};
+//        boolean[][][] expected = {{
+//                {true, false, false},
+//                {false, true, true},
+//                {false, false, true}
+//        }};
+//        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
+//        assertArrayEquals(expected[0], output[0]);
+//    }
+//
+//    @Test
+//    void trainingNeededTestE() {
+//        boolean[][][] input = {{
+//                {false, true, true},
+//                {false, true, false},
+//                {false, false, true}
+//        }};
+//        boolean[][][] expected = {{
+//                {true, true, false},
+//                {false, true, true},
+//                {false, false, true}
+//        }};
+//        boolean[][][] output = ZipperFunctions.trainingNeeded(input);
+//        assertArrayEquals(expected[0], output[0]);
+//    }
 
     @Test
     void sortedAndFilteredIndicesA() {

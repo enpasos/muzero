@@ -73,41 +73,41 @@ public class ZipperFunctions {
     }
 
 
-    public static boolean[][][] trainingNeeded(boolean[][][] bOk) {
-        boolean[][][] trainingNeeded = new boolean[bOk.length][][];
-        for (int e = 0; e < bOk.length; e++) {
-            int n = bOk[e].length;
-            trainingNeeded[e] = new boolean[n][n];
-            for (int to = 0; to < n; to++) {
-                boolean zipperClosed = true;
-                for (int tau = 0; tau <= to; tau++) {
-                    trainingNeeded[e][to - tau][to] = zipperClosed;
-                    zipperClosed = bOk[e][to - tau][to];
-                }
-            }
-        }
+//    public static boolean[][][] trainingNeeded(boolean[][][] bOk) {
+//        boolean[][][] trainingNeeded = new boolean[bOk.length][][];
+//        for (int e = 0; e < bOk.length; e++) {
+//            int n = bOk[e].length;
+//            trainingNeeded[e] = new boolean[n][n];
+//            for (int to = 0; to < n; to++) {
+//                boolean zipperClosed = true;
+//                for (int tau = 0; tau <= to; tau++) {
+//                    trainingNeeded[e][to - tau][to] = zipperClosed;
+//                    zipperClosed = bOk[e][to - tau][to];
+//                }
+//            }
+//        }
+//
+//        return trainingNeeded;
+//    }
 
-        return trainingNeeded;
-    }
-
-    public static float[][][] trainingNeededFloat(boolean[][][] bOk, float forceScaleOnClosedZipper, boolean alwaysTrainTau1) {
-        float[][][] trainingNeeded = new float[bOk.length][][];
-        for (int e = 0; e < bOk.length; e++) {
-            int n = bOk[e].length;
-            trainingNeeded[e] = new float[n][n];
-            for (int to = 0; to < n; to++) {
-                boolean zipperClosedBefore = true;
-                for (int tau = 0; tau <= to; tau++) {
-                    boolean zipperClosed = bOk[e][to - tau][to];
-                    trainingNeeded[e][to - tau][to] =  zipperClosedBefore && zipperClosed  ?  forceScaleOnClosedZipper : (!zipperClosed && zipperClosedBefore ? 1f : 0f);
-                    if (alwaysTrainTau1 && tau == 1) trainingNeeded[e][to - tau][to] = zipperClosed  ?  forceScaleOnClosedZipper : 1f;
-                    zipperClosedBefore = zipperClosed;
-                }
-            }
-        }
-
-        return trainingNeeded;
-    }
+//    public static float[][][] trainingNeededFloat(boolean[][][] bOk, float forceScaleOnClosedZipper, boolean alwaysTrainTau1) {
+//        float[][][] trainingNeeded = new float[bOk.length][][];
+//        for (int e = 0; e < bOk.length; e++) {
+//            int n = bOk[e].length;
+//            trainingNeeded[e] = new float[n][n];
+//            for (int to = 0; to < n; to++) {
+//                boolean zipperClosedBefore = true;
+//                for (int tau = 0; tau <= to; tau++) {
+//                    boolean zipperClosed = bOk[e][to - tau][to];
+//                    trainingNeeded[e][to - tau][to] =  zipperClosedBefore && zipperClosed  ?  forceScaleOnClosedZipper : (!zipperClosed && zipperClosedBefore ? 1f : 0f);
+//                    if (alwaysTrainTau1 && tau == 1) trainingNeeded[e][to - tau][to] = zipperClosed  ?  forceScaleOnClosedZipper : 1f;
+//                    zipperClosedBefore = zipperClosed;
+//                }
+//            }
+//        }
+//
+//        return trainingNeeded;
+//    }
 
     /**
      * Sort the indices of the games by the unroll steps, but omit the games with unroll steps -1
