@@ -369,7 +369,7 @@ public class ModelController implements DisposableBean, Runnable {
         int w = 0;
         // List<Long> timestepIdsDone = new ArrayList<>();
 
-        System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
+ //       System.out.println("epoch;unrollSteps;w;sumMeanLossL;sumMeanLossR;countNOK_0;countNOK_1;countNOK_2;countNOK_3;countNOK_4;countNOK_5;countNOK_6;count");
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> relatedEpisodeIds = iterator.next();
             //  timestepCount += timestepIdsRulesLearningList.size();
@@ -447,23 +447,24 @@ public class ModelController implements DisposableBean, Runnable {
                             dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps);
 
 
-                            int tau = 0;   // start with tau = 0
-                            int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
-                            int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
-                            int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
-                            int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
-                            int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
-                            int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
-                            int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
-                            int count = stats.getCount();
+//                            int tau = 0;   // start with tau = 0
+//                            int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
+//                            int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
+//                            int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
+//                            int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
+//                            int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
+//                            int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
+//                            int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
+//                            int count = stats.getCount();
                             //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
                             //  rememberOks(batchTimeSteps, oks.getKey(), unrollSteps);
-                            double sumLossR = stats.getSumLossReward();
-                            double sumMeanLossR = sumLossR / count;
-
-                            double sumLossL = stats.getSumLossLegalActions();
-                            double sumMeanLossL = sumLossL / count;
-                            System.out.println(epochLocal + ";" + unrollSteps + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
+//                            double sumLossR = stats.getSumLossReward();
+//                            double sumMeanLossR = sumLossR / count;
+//
+//                            double sumLossL = stats.getSumLossLegalActions();
+//                            double sumMeanLossL = sumLossL / count;
+ //                           System.out.println(epochLocal + ";" + unrollSteps + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
+                            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();
                         }
                     }
