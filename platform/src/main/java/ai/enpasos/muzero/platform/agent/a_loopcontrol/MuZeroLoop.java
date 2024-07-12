@@ -121,32 +121,35 @@ public class MuZeroLoop {
 
 
 
-        int unrollSteps = 1;
-        long firstBoxes = firstBoxes();
+      //  int unrollSteps = 1;
+//        long firstBoxes = firstBoxes();
 
-        boolean testInitially = true;
-        if (testInitially) {
-            testUnrollRulestate.run(unrollSteps);
-            int unrollSteps2 = getMinUnrollSteps();
-            if (unrollSteps2 != unrollSteps) {
-                unrollSteps = unrollSteps2;
-                testUnrollRulestate.run(unrollSteps);
-            }
-        } else {
-            unrollSteps = getMinUnrollSteps();
-        }
-        firstBoxes = firstBoxes();
+//        boolean testInitially = true;
+//        if (testInitially) {
+            testUnrollRulestate.run(true);
+//            int unrollSteps2 = getMinUnrollSteps();
+//            if (unrollSteps2 != unrollSteps) {
+//                unrollSteps = unrollSteps2;
+//                testUnrollRulestate.run(unrollSteps);
+//            }
+ //       }
+//        else {
+//            unrollSteps = getMinUnrollSteps();
+//        }
+ long  firstBoxes = firstBoxes();
 
-        boolean tested =  true;
+   //  boolean tested =  true;
 
 
-        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-
+        while (getMinUnrollSteps() <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", getMinUnrollSteps(), config.getMaxUnrollSteps());
 
             while (firstBoxes > 0) {
-                tested = false;
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, 2);
+
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem();
+
+              //  tested = false;
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -170,7 +173,7 @@ public class MuZeroLoop {
 
                 boolean[] freeze = new boolean[]{false, true, true};
                 if (rulesTraining) {
-                    modelService.trainModelRules(freeze, unrollSteps).get();
+                    modelService.trainModelRules(freeze).get();
                 }
 
                 if (policyValueTraining) {
@@ -196,24 +199,16 @@ public class MuZeroLoop {
 //                    firstBoxes =   firstBoxes();
 //                }
             }
-            while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-                unrollSteps++;
+            if (firstBoxes == 0  ) {
+                log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", getMinUnrollSteps(), config.getMaxUnrollSteps());
                 currentTest = false;
-                testUnrollRulestate.run(unrollSteps);
+                testUnrollRulestate.run(true);
                 currentTest = true;
                 firstBoxes = firstBoxes();
-            }
 
-            if (unrollSteps == config.getMaxUnrollSteps() && firstBoxes == 0) {
-                log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
-                if (!currentTest) {
-                    testUnrollRulestate.run(unrollSteps);
-                }
-                firstBoxes = firstBoxes();
 
-                if (firstBoxes == 0) {
-                    log.info("firstBoxes == 0; break;");
+                if (getMinUnrollSteps() == config.getMaxUnrollSteps() && firstBoxes == 0) {
+                    log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
                     break;
                 }
             }
@@ -269,22 +264,15 @@ public class MuZeroLoop {
     }
 
     private long firstBoxes() {
-        long firstBoxes = timestepRepo.numBoxUpTo(2);
-        log.info("num in first boxes (0, 1, 2): {}", firstBoxes);
+        long firstBoxes = timestepRepo.numBoxUpTo(0);
+        log.info("num in first boxes (0): {}", firstBoxes);
         return firstBoxes;
     }
 
     private int getMinUnrollSteps() {
-        int unrollSteps;
-        unrollSteps = timestepRepo.minUokNotClosed() + 1;
-        unrollSteps = Math.max(1, unrollSteps);
-        return unrollSteps;
+        return episodeRepo.minUnrollSteps();
+
     }
 
-    private int getMaxUnrollSteps(int maxUnrollSteps) {
-        int unrollSteps;
-        unrollSteps = timestepRepo.maxUokNotClosed() + 1;
-        unrollSteps = Math.min(maxUnrollSteps, unrollSteps);
-        return unrollSteps;
-    }
+
 }

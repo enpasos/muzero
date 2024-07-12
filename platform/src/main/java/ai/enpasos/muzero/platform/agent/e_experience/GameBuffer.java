@@ -24,9 +24,7 @@ import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -243,9 +241,45 @@ public class GameBuffer {
 
     private List<IdProjection> relevantIds;
 
+    private List<IdProjection2> relevantIds2;
+
     public void resetRelevantIds() {
+        relevantIds2 = null;
         relevantIds = null;
     }
+
+    public List<IdProjection2> getIdsRelevantForTraining(List<BoxOccupation> occupiedBoxes, int nTrain) {
+        if (relevantIds2 == null && !occupiedBoxes.isEmpty()) {
+             relevantIds2 = new ArrayList<>();
+             int nLeft = nTrain;
+
+             // The timesteps are drawn from the box with the lowest number,
+             // and within the box to the timesteps with the lowest unrollsteps.
+            for (int i = 0; i < occupiedBoxes.size(); i++) {
+                BoxOccupation boxOccupation = occupiedBoxes.get(i);
+                int box = boxOccupation.getBox();
+                long n = boxOccupation.getCount();
+                int nDraw = (int)Math.min(n, nLeft);
+                nLeft -= nDraw;
+                int limit = Math.min(50000, nDraw);
+                int offset = 0;
+                List<IdProjection2> newIds;
+                do {
+                    newIds = timestepRepo.getRelevantIds5(limit, offset, box);
+                    relevantIds2.addAll(newIds);
+                    offset += limit;
+                } while (relevantIds2.size() < nTrain && newIds.size() > 0);
+            }
+
+        }
+        return relevantIds2;
+    }
+
+    private List<Integer> getDrawingPlan(List<BoxOccupation> occupiedBoxes, int nTrain) {
+        List<Integer> result = new ArrayList<>();
+        return result;
+    }
+
 
     public List<IdProjection> getRelevantIdsBox0( )  {
         if (relevantIds == null) {
@@ -648,6 +682,8 @@ public class GameBuffer {
 
         return games;
     }
+
+
 
 //    private Map<Long, Long> attributeS_to_timestepId = new HashMap<>();
 //

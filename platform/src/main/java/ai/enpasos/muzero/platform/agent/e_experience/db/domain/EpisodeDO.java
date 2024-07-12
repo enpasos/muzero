@@ -36,9 +36,6 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     @Builder.Default
     long tStartNormal = -1;
 
-
-
-
     boolean archived;
 
 
@@ -60,6 +57,9 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     private double maxValueVariance;
     private int tOfMaxValueVariance;
     private int valueCount;
+
+    @Builder.Default
+    private int unrollSteps = 1;
 
     @Transient
     Game game;

@@ -44,6 +44,8 @@ muzero:
 
       numberOfTrainingStepsPerEpoch: 40
 
+      numberOfTimeStepsPerRuleTrainingEpoch: 2048
+
       numUnrollSteps: 5
       maxUnrollSteps: 9
 

@@ -14,7 +14,7 @@ public class TicTacToeTestUnrollRulestate {
     TestUnrollRulestate testUnrollRulestate;
 
     public void run() {
-        testUnrollRulestate.run();
+        testUnrollRulestate.run(true);
 
     //    testUnrollRulestate.runOneGame(999);
     }

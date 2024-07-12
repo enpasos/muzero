@@ -280,8 +280,12 @@ public class DBService {
 //        ));
 //    }
 
-    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int targetU ) {
+    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps) {
+
         timesteps.stream().forEach(ts -> {
+
+                    int targetU = ts.getEpisode().getUnrollSteps();
+
                     int boxBefore = ts.getBox();
 
                     if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
@@ -302,14 +306,13 @@ public class DBService {
         );
     }
 
-
-
-
-
-
-
-
-
+    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {
+        episodeDOList.stream().forEach(episodeDO -> {
+            // find minimum of uOK on all timesteps
+            int minUOK = episodeDO.getTimeSteps().stream().mapToInt(ts -> ts.getUOk()).min().orElse(0);
+            episodeRepo.updateUnrollSteps(episodeDO.getId(), minUOK + 1);
+        });
+    }
 
 
 //    public void updateEpisodes_S(List<EpisodeDO> episodes) {

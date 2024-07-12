@@ -139,8 +139,15 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     List<Long> findRandomNEpisodeIdsFromBoxZeroOrOne(int n );
 
+    @Transactional
+    @Modifying
+    @Query(value = "update EpisodeDO t set  t.unrollSteps = :unrollSteps where t.id = :id" )
+    void updateUnrollSteps(long id, int unrollSteps);
 
 
-
-
+    @Transactional
+    @Query(value = "SELECT min(e.unrollSteps) FROM EpisodeDO e")
+    default int minUnrollSteps() {
+        return 1;
+    }
 }

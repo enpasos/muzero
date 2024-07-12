@@ -60,8 +60,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void dropSequence();
 
 
-
-
     @Transactional
     @Query(value = "SELECT t.episode_id FROM timestep t where t.reward_loss > :minLoss GROUP BY t.episode_id ORDER BY MAX(t.reward_loss) DESC LIMIT :n", nativeQuery = true)
     List<Long> findNEpisodeIdsWithHighestRewardLoss(int n, double minLoss);
@@ -144,7 +142,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT DISTINCT t.box FROM timestep t  ORDER BY t.box ASC", nativeQuery = true)
     List<Integer> boxList();
 
-
+    @Query("SELECT t.box as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.box ORDER BY t.box ASC")
+    List<BoxOccupation> boxOccupation();
 
 
     @Transactional
@@ -214,6 +213,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = 0 ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getRelevantIds4(int limit, int offset);
+
+    @Query(value = "SELECT t.u_ok AS uOk, t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = :box ORDER BY t.uOK LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<IdProjection2> getRelevantIds5(int limit, int offset, int box);
 
 
     @Transactional
