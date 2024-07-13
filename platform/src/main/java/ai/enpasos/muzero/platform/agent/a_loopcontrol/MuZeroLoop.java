@@ -108,37 +108,21 @@ public class MuZeroLoop {
         gameBuffer.loadLatestStateIfExists();
 
 
-
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
-            play.randomEpisodes(config.getInitialRandomEpisodes()-(int)episodeRepo.count());
+            play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
         }
 
-    //    timestepRepo.resetBoxAndSAndUOk();
+        //    timestepRepo.resetBoxAndSAndUOk();
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
 
+        testUnrollRulestate.run(true);
 
+        long firstBoxes = firstBoxes();
 
-      //  int unrollSteps = 1;
-//        long firstBoxes = firstBoxes();
-
-//        boolean testInitially = true;
-//        if (testInitially) {
-            testUnrollRulestate.run(true);
-//            int unrollSteps2 = getMinUnrollSteps();
-//            if (unrollSteps2 != unrollSteps) {
-//                unrollSteps = unrollSteps2;
-//                testUnrollRulestate.run(unrollSteps);
-//            }
- //       }
-//        else {
-//            unrollSteps = getMinUnrollSteps();
-//        }
- long  firstBoxes = firstBoxes();
-
-   //  boolean tested =  true;
+        //  boolean tested =  true;
 
 
         while (getMinUnrollSteps() <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
@@ -149,7 +133,7 @@ public class MuZeroLoop {
 
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem();
 
-              //  tested = false;
+                //  tested = false;
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -199,7 +183,7 @@ public class MuZeroLoop {
 //                    firstBoxes =   firstBoxes();
 //                }
             }
-            if (firstBoxes == 0  ) {
+            if (firstBoxes == 0) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", getMinUnrollSteps(), config.getMaxUnrollSteps());
                 currentTest = false;
                 testUnrollRulestate.run(true);
@@ -215,52 +199,51 @@ public class MuZeroLoop {
         }
 
 
-       policyValueTraining = true;   // true: policy and value training, false: rules training
-       rulesTraining = false;
+        policyValueTraining = true;   // true: policy and value training, false: rules training
+        rulesTraining = false;
 
 
-        while ( trainingStep < config.getNumberOfTrainingSteps()) {
+        while (trainingStep < config.getNumberOfTrainingSteps()) {
 
 
+            DurAndMem duration = new DurAndMem();
+            duration.on();
 
-                DurAndMem duration = new DurAndMem();
-                duration.on();
-
-                if (policyValueTraining) {
-                    if (epoch != 0) {
-                        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-                            config.setPlayTypeKey(key);
-                            play.playGames(params.isRender(), trainingStep);
-                        }
-                        config.setPlayTypeKey(originalPlayTypeKey);
+            if (policyValueTraining) {
+                if (epoch != 0) {
+                    PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
+                    for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
+                        config.setPlayTypeKey(key);
+                        play.playGames(params.isRender(), trainingStep);
                     }
-
-                    log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-                    log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-                    log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+                    config.setPlayTypeKey(originalPlayTypeKey);
                 }
 
-
-                boolean[] freeze = null;
-
-                if (policyValueTraining) {
-                    freeze = new boolean[]{true, false, false};
-                    modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
-                }
-
-                epoch = modelState.getEpoch();
-
-                trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
-
-                duration.off();
-                durations.add(duration);
-                System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-          }
+                log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
+                log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
+                log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
+            }
 
 
-        log.info("done" );
+            boolean[] freeze = null;
+
+            if (policyValueTraining) {
+                freeze = new boolean[]{true, false, false};
+                modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+            }
+
+            epoch = modelState.getEpoch();
+
+            trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+
+            duration.off();
+            durations.add(duration);
+            System.out.println("epoch;duration[ms];gpuMem[MiB]");
+            IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+        }
+
+
+        log.info("done");
     }
 
     private long firstBoxes() {

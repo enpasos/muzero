@@ -310,7 +310,7 @@ public class DBService {
         episodeDOList.stream().forEach(episodeDO -> {
             // find minimum of uOK on all timesteps
             int minUOK = episodeDO.getTimeSteps().stream().mapToInt(ts -> ts.getUOk()).min().orElse(0);
-            episodeRepo.updateUnrollSteps(episodeDO.getId(), minUOK + 1);
+            episodeRepo.updateUnrollSteps(episodeDO.getId(), Math.max(1, minUOK + 1));
         });
     }
 

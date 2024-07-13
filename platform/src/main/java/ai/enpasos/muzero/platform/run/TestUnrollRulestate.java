@@ -154,7 +154,7 @@ public class TestUnrollRulestate {
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("testUnrollRulestate.run(), epoch = {}",  epoch);
 
-        modelService.loadLatestModel(epoch).join();
+        modelService.loadLatestModel(epoch).join();  // TODO: check if this is necessary
 
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
