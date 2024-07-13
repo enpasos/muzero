@@ -202,9 +202,9 @@ public class GameBuffer {
     private List<Long> episodeIds;
 
 //
-//    public void clearEpisodeIds() {
-//        episodeIds = null;
-//    }
+    public void clearEpisodeIds() {
+        episodeIds = null;
+    }
 
     public List<Long> getEpisodeIds( ) {
         int limit = 50000;
@@ -259,9 +259,9 @@ public class GameBuffer {
                 BoxOccupation boxOccupation = occupiedBoxes.get(i);
                 int box = boxOccupation.getBox();
                 long n = boxOccupation.getCount();
-                int nDraw = (int)Math.min(n, nLeft);
+                long nDraw = (box == -1) ? n : Math.min(n, nLeft);
                 nLeft -= nDraw;
-                int limit = Math.min(50000, nDraw);
+                int limit = (int)Math.min(50000, nDraw);
                 int offset = 0;
                 List<IdProjection2> newIds;
                 do {

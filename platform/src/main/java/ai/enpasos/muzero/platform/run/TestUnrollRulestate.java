@@ -82,12 +82,12 @@ public class TestUnrollRulestate {
             return;
         }
 
-        // TODO: do something similar
-//        for (int i = 0; i <= learnUntilMaxBox; i++) {
-//            if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == learnUntilMaxBox) {
-//                boxesRelevant.remove(0);
-//            }
-//        }
+
+        for (int i = -1; i <= 0; i++) {
+            if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == i) {
+                boxesRelevant.remove(0);
+            }
+        }
 
 
 

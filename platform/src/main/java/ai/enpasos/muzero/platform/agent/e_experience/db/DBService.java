@@ -289,9 +289,13 @@ public class DBService {
                     int boxBefore = ts.getBox();
 
                     if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
-                        ts.setBox(0);
+                        if (targetU == 1) {
+                            ts.setBox(-1);
+                        } else {
+                            ts.setBox(0);
+                        }
                     } else { // ok
-                        if (ts.isUOkTested() || ts.getBox() == 0) {
+                        if (ts.isUOkTested() || ts.getBox() <= 0 ) {
                             ts.setBox(ts.getBox() + 1);
                         }
                     }

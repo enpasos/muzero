@@ -117,7 +117,7 @@ public class MuZeroLoop {
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
 
-
+        gameBuffer.clearEpisodeIds();
         testUnrollRulestate.run(true);
 
         long firstBoxes = firstBoxes();
