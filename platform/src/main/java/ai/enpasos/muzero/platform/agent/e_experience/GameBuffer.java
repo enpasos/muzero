@@ -259,6 +259,10 @@ public class GameBuffer {
                 BoxOccupation boxOccupation = occupiedBoxes.get(i);
                 int box = boxOccupation.getBox();
                 long n = boxOccupation.getCount();
+                if (box == -1) {
+                    nTrain += n;  // die aus box=-1 kommen dazu
+                    nLeft = nTrain;
+                }
                 long nDraw = (box == -1) ? n : Math.min(n, nLeft);
                 nLeft -= nDraw;
                 int limit = (int)Math.min(50000, nDraw);
