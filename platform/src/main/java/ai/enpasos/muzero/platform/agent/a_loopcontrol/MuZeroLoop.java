@@ -118,20 +118,27 @@ public class MuZeroLoop {
         boolean rulesTraining = true;
 
         gameBuffer.clearEpisodeIds();
-        testUnrollRulestate.run(true);
+
+        int unrollSteps = testUnrollRulestate.getMinUnrollSteps();   // a global target for the unroll steps
+
+        testUnrollRulestate.run(true, unrollSteps);
+
+        unrollSteps = testUnrollRulestate.getMinUnrollSteps();
+        log.info("unrollSteps: {}", unrollSteps);
+
 
         long firstBoxes = firstBoxes();
 
         //  boolean tested =  true;
 
 
-        while (getMinUnrollSteps() <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", getMinUnrollSteps(), config.getMaxUnrollSteps());
+        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
             while (firstBoxes > 0) {
 
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem();
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
 
                 //  tested = false;
 
@@ -177,21 +184,27 @@ public class MuZeroLoop {
                 firstBoxes = firstBoxes();
                 currentTest = false;
 
-//                if (firstBoxes == 0 && !currentTest) {
-//                    testUnrollRulestate.run(unrollSteps);
-//                    currentTest = true;
-//                    firstBoxes =   firstBoxes();
-//                }
+                if (firstBoxes == 0 ) {
+                    testUnrollRulestate.run(true, unrollSteps);
+                    firstBoxes = firstBoxes();
+                }
             }
+
+            while (firstBoxes == 0) {
+                unrollSteps++;
+                testUnrollRulestate.run(true, unrollSteps);
+                firstBoxes = firstBoxes();
+            }
+
             if (firstBoxes == 0) {
-                log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", getMinUnrollSteps(), config.getMaxUnrollSteps());
+                log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
                 currentTest = false;
-                testUnrollRulestate.run(true);
+                testUnrollRulestate.run(true, unrollSteps);
                 currentTest = true;
                 firstBoxes = firstBoxes();
 
 
-                if (getMinUnrollSteps() == config.getMaxUnrollSteps() && firstBoxes == 0) {
+                if (unrollSteps == config.getMaxUnrollSteps() && firstBoxes == 0) {
                     log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
                     break;
                 }
@@ -248,14 +261,11 @@ public class MuZeroLoop {
 
     private long firstBoxes() {
         long firstBoxes = timestepRepo.numBoxUpTo(0);
-        log.info("num in first boxes (0): {}", firstBoxes);
+        log.info("num in first global boxes (0): {}", firstBoxes);
         return firstBoxes;
     }
 
-    private int getMinUnrollSteps() {
-        return episodeRepo.minUnrollSteps();
 
-    }
 
 
 }

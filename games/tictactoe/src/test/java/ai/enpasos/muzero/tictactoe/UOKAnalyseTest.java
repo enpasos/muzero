@@ -68,7 +68,7 @@ class UOKAnalyseTest {
         List<Integer> uOks = game.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.getUOk()).boxed().collect(Collectors.toList());
         log.info("uOks: " + uOks);
         Integer[] uOKExpected = new Integer[a.length + 1];
-        Arrays.fill(uOKExpected, 0);
+        Arrays.fill(uOKExpected, -1);
         assertEquals(uOKExpected.length  , uOks.size());
         assertArrayEquals( uOKExpected, uOks.toArray(new Integer[0]));
     }

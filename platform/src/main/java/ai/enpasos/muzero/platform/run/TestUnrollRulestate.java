@@ -70,7 +70,7 @@ public class TestUnrollRulestate {
 //        run(1  );
 //    }
 
-    public void identifyRelevantTimestepsAndTestThem(    ) {
+    public void identifyRelevantTimestepsAndTestThem(  int unrollStepsGlobally    ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("identifyRelevantTimestepsAndTestThem epoch {} ... starting", epoch );
@@ -129,11 +129,11 @@ public class TestUnrollRulestate {
                     }) ;
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollStepsGlobally, true );
 
         }
 
-        log.info("identifyRelevantTimestepsAndTestThem unrollSteps = {} ... finished" );
+        log.info("identifyRelevantTimestepsAndTestThem unrollStepsGlobally = {} ... finished" );
     }
 
 //
@@ -147,12 +147,16 @@ public class TestUnrollRulestate {
 //    }
 
 
+    public int getMinUnrollSteps() {
+        return episodeRepo.minUnrollSteps();
+    }
+
+    public void run( boolean allTimeStepsWhichMeansLocally, int unrollStepsGlobally ) {
 
 
-    public void run( boolean allTimeSteps ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
-        log.info("testUnrollRulestate.run(), epoch = {}",  epoch);
+        log.info("testUnrollRulestate.run(), epoch = {}, unrollStepsGlobally = {}",  epoch, unrollStepsGlobally);
 
         modelService.loadLatestModel(epoch).join();  // TODO: check if this is necessary
 
@@ -163,7 +167,7 @@ public class TestUnrollRulestate {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(gameBuffer, allTimeSteps );
+            playService.uOkAnalyseGames(gameBuffer, allTimeStepsWhichMeansLocally );
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
@@ -172,36 +176,33 @@ public class TestUnrollRulestate {
             List<TimeStepDO> relevantTimeSteps =  episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()  )
                     .collect(Collectors.toList());
 
-            if (allTimeSteps) {
+            if (allTimeStepsWhichMeansLocally) {
                 dbService.updateUnrollStepsOnEpisode(episodeDOList);
             }
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollStepsGlobally, allTimeStepsWhichMeansLocally );
 
         }
 
         List<Integer> uOkList = timestepRepo.uOkList();
-        int unrollSteps = config.getMaxUnrollSteps();
-        if (!uOkList.isEmpty()) {
-            unrollSteps = uOkList.getFirst() + 1;
-            unrollSteps = Math.max(unrollSteps, 1);
-        }
 
-        log.info("uOkList: {}, unrollSteps = {}", uOkList.toString(), unrollSteps);
+
+        log.info("uOkList: {} ", uOkList.toString() );
     }
 
 
-    public void runOneGame(long episodeId ) {
+    public void runOneGame(long episodeId,  int unrollSteps ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
+        boolean allTimeStepsWhichMeansLocally = true;
 
         timestepRepo.resetUOk(  );
         modelService.loadLatestModel(epoch).join();
         EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
         List<EpisodeDO> episodeDOList = List.of(episodeDO);
         List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), true);
+        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0),  allTimeStepsWhichMeansLocally );
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
@@ -211,7 +212,7 @@ public class TestUnrollRulestate {
 
 
         // db update also in uOK and box
-        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
+        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps , unrollSteps,  allTimeStepsWhichMeansLocally  );
 
     }
 

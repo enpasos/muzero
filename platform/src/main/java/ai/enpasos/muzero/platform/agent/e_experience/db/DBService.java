@@ -280,34 +280,29 @@ public class DBService {
 //        ));
 //    }
 
-    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps) {
+    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int targetUGlobally, boolean updateLocally) {
 
         timesteps.stream().forEach(ts -> {
 
-                    int targetU = ts.getEpisode().getUnrollSteps();
+            // always update globally
+            boolean boxChangedGlobally = ts.updateBox(false, targetUGlobally);
 
-                    int boxBefore = ts.getBox();
+            // conditionally update locally (if the testing was done on local goal level)
+            boolean boxChangedLocally = false;
+            if (updateLocally) {
+                int targetULocally = ts.getEpisode().getUnrollSteps();
+                boxChangedLocally = ts.updateBox(updateLocally, targetULocally);
+            }
 
-                    if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
-                        if (targetU == 1) {
-                            ts.setBox(-1);
-                        } else {
-                            ts.setBox(0);
-                        }
-                    } else { // ok
-                        if (ts.isUOkTested() || ts.getBox() <= 0 ) {
-                            ts.setBox(ts.getBox() + 1);
-                        }
-                    }
 
-                    if (ts.isSChanged() || ts.isUOkChanged() || boxBefore != ts.getBox()) {
-                        timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
-                        ts.setSChanged(false);
-                        ts.setUOkChanged(false);
-                    }
-                    ts.setUOkTested(false);
-                }
-        );
+            if (ts.isSChanged() || ts.isUOkChanged() || boxChangedGlobally ||  boxChangedLocally) {
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ));
+                ts.setSChanged(false);
+                ts.setUOkChanged(false);
+            }
+            ts.setUOkTested(false);
+
+        });
     }
 
     public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {

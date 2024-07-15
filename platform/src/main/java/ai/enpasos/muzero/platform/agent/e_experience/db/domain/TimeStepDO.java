@@ -65,7 +65,42 @@ public class TimeStepDO {
 //    boolean ruleTrainingSuccess ;  // if trained, was it successful?
 
     @Builder.Default
-    int box = -1;
+    int box = 0;
+
+    @Builder.Default
+    int localBox = 0;
+
+
+    public boolean updateBox(boolean isLocally, int targetU) {
+        int boxBefore = getBox(isLocally);
+        int boxAfter = boxBefore;
+        if (getUOk() < targetU && !isUOkClosed()) { // not ok
+            boxAfter = 0;
+        } else { // ok
+            if (isUOkTested() || boxBefore <= 0 ) {
+                boxAfter = boxBefore + 1;
+            }
+        }
+        setBox(boxAfter, isLocally);
+        return boxAfter != boxBefore;
+    }
+
+    public void setBox(int box, boolean isLocally) {
+        if (isLocally) {
+            this.localBox = box;
+        } else {
+            this.box = box;
+        }
+    }
+
+    public  int getBox(boolean isLocally) {
+        if (isLocally) {
+            return this.localBox;
+        } else {
+            return this.box;
+        }
+    }
+
 
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok

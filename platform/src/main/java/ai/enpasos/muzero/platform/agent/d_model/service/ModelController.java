@@ -247,7 +247,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground(), task.getTrainingDatasetType());
+                    trainNetworkRules(task.freeze, task.isBackground(), task.getTrainingDatasetType(), task.getNumUnrollSteps());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -325,7 +325,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType) {
+    private void trainNetworkRules(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -344,24 +344,25 @@ public class ModelController implements DisposableBean, Runnable {
         List<BoxOccupation> occupiedBoxes = timestepRepo.boxOccupation();
 
         gameBuffer.resetRelevantIds();
-        List<IdProjection2> allIdProjections = gameBuffer.getIdsRelevantForTraining(occupiedBoxes, nTrain);
+        List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0( );
+                //gameBuffer.getIdsRelevantForTraining(occupiedBoxes, nTrain);
 
-        Map<Integer, List<IdProjection2>> allIdProjectionsByUnrollNumber = mapByUnrollNumber(allIdProjections);
+  //      Map<Integer, List<IdProjection2>> allIdProjectionsByUnrollNumber = mapByUnrollNumber(allIdProjections);
 
         // iterate over all unroll numbers
-        for (int unrollSteps = 1; unrollSteps <= config.getNumUnrollSteps(); unrollSteps++) {
-            List<IdProjection2> allIdProjectionsForUnrollNumber = allIdProjectionsByUnrollNumber.get(unrollSteps);
-            if (allIdProjectionsForUnrollNumber == null) {
-                continue;
-            }
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, allIdProjectionsForUnrollNumber, freeze, background, withSymmetryEnrichment, unrollSteps);
-        }
+//        for (int unrollSteps = 1; unrollSteps <= config.getNumUnrollSteps(); unrollSteps++) {
+//            List<IdProjection2> allIdProjectionsForUnrollNumber = allIdProjectionsByUnrollNumber.get(unrollSteps);
+//            if (allIdProjectionsForUnrollNumber == null) {
+//                continue;
+//            }
+            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, allIdProjections, freeze, background, withSymmetryEnrichment, unrollSteps);
+       // }
     }
 
-    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, List<IdProjection2> allIdProjections, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps) {
+    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, List<IdProjection> allIdProjections, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps) {
 
 
-        List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection2::getId).toList();
+        List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
 
         log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
@@ -381,7 +382,7 @@ public class ModelController implements DisposableBean, Runnable {
             log.info("timestep before relatedTimeStepIds filtering");
             Set<Long> relatedTimeStepIds = allIdProjections.stream()
                     .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
-                    .map(IdProjection2::getId).collect(Collectors.toSet());
+                    .map(IdProjection::getId).collect(Collectors.toSet());
             log.info("timestep after relatedTimeStepIds filtering");
 
             //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
@@ -448,7 +449,7 @@ public class ModelController implements DisposableBean, Runnable {
 //                           List<TimeStepDO> strangeTSList = batchTimeSteps.stream().filter(ts2 -> !ts2.isUOkChanged() ).collect(Collectors.toList());
 //                            log.info("strangeTSList.size() = {}", strangeTSList.size());
 
-                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps);
+                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps, false);
 
 
 //                            int tau = 0;   // start with tau = 0
@@ -493,7 +494,7 @@ public class ModelController implements DisposableBean, Runnable {
        }));
     }
 
-    private List<Long> episodeIdsFromIdProjections(  List<IdProjection2> allIdProjections) {
+    private List<Long> episodeIdsFromIdProjections(  List<IdProjection> allIdProjections) {
         Set<Long> ids =  allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
                 .boxed().collect(Collectors.toSet());
         return new ArrayList(ids);
