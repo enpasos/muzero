@@ -98,7 +98,7 @@ public class MuZeroLoop {
         int trainingStep = 0;
         int epoch = 0;
 
-        boolean currentTest = false;
+
 
         List<DurAndMem> durations = new ArrayList<>();
 
@@ -122,14 +122,13 @@ public class MuZeroLoop {
         int unrollSteps = testUnrollRulestate.getMinUnrollSteps();   // a global target for the unroll steps
 
         testUnrollRulestate.run(true, unrollSteps);
+        boolean tested = true;
 
         unrollSteps = testUnrollRulestate.getMinUnrollSteps();
         log.info("unrollSteps: {}", unrollSteps);
 
 
         long firstBoxes = firstBoxes();
-
-        //  boolean tested =  true;
 
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
@@ -138,9 +137,9 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps);
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, tested);
 
-                //  tested = false;
+                tested = false;
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -182,10 +181,11 @@ public class MuZeroLoop {
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
                 firstBoxes = firstBoxes();
-                currentTest = false;
+
 
                 if (firstBoxes == 0 ) {
                     testUnrollRulestate.run(true, unrollSteps);
+                     tested = true;
                     firstBoxes = firstBoxes();
                 }
             }
@@ -194,13 +194,15 @@ public class MuZeroLoop {
                 unrollSteps++;
                 testUnrollRulestate.run(true, unrollSteps);
                 firstBoxes = firstBoxes();
+                tested = true;
             }
 
             if (firstBoxes == 0) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-                currentTest = false;
+
                 testUnrollRulestate.run(true, unrollSteps);
-                currentTest = true;
+
+                tested = true;
                 firstBoxes = firstBoxes();
 
 

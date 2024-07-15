@@ -70,7 +70,7 @@ public class TestUnrollRulestate {
 //        run(1  );
 //    }
 
-    public void identifyRelevantTimestepsAndTestThem(  int unrollStepsGlobally    ) {
+    public void identifyRelevantTimestepsAndTestThem(  int unrollStepsGlobally , boolean tested   ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("identifyRelevantTimestepsAndTestThem epoch {} ... starting", epoch );
@@ -83,11 +83,11 @@ public class TestUnrollRulestate {
         }
 
 
-        for (int i = -1; i <= 0; i++) {
-            if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == i) {
+
+            if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
                 boxesRelevant.remove(0);
             }
-        }
+
 
 
 
@@ -113,7 +113,9 @@ public class TestUnrollRulestate {
             log.info( "identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(gameBuffer, false );
+            if (!tested) {
+                playService.uOkAnalyseGames(gameBuffer, false);
+            }
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
