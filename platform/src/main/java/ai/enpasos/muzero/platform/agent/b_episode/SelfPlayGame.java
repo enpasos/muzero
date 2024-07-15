@@ -68,7 +68,7 @@ public class SelfPlayGame {
                 networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t-1)).join();
             }
             hiddenState = networkOutput.getHiddenState();
-            boolean currentIsOk = checkOkStatus(episode, networkOutput, t);
+            boolean currentIsOk = checkOkStatus(episode, networkOutput, t, t != tFrom);
             if (!currentIsOk) {
                 return t-tFrom-1;
             }
@@ -78,12 +78,23 @@ public class SelfPlayGame {
 
 
 
-    private boolean checkOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t) {
+    private boolean checkOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t, boolean withReward) {
         TimeStepDO timeStep = episode.getTimeStep(t);
-        double rewardLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
-        boolean currentIsOk = isOk(networkOutput, timeStep.getLegalact().getLegalActions(), rewardLabel);
-        log.trace("t: {}, ok: {}",   t, currentIsOk);
-        return currentIsOk;
+
+        float[] p = networkOutput.getPLegalValues();
+        var pLabel = timeStep.getLegalact().getLegalActions();
+        MyBCELoss myBCELoss = new MyBCELoss("MyBCELoss",1f / this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold());
+        boolean ok = myBCELoss.isOk(b2d(pLabel), f2d(p));
+
+        if (withReward) {
+            var rLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
+            double r = networkOutput.getReward();
+            MyL2Loss myL2Loss = new MyL2Loss("MyL2Loss", config.getValueLossWeight() , config.getRewardLossThreshold());
+            ok = ok && myL2Loss.isOk(rLabel, r);
+        }
+
+        log.trace("t: {}, ok: {}",   t, ok);
+        return ok;
     }
 
 
@@ -96,14 +107,7 @@ public class SelfPlayGame {
         }
     }
 
-    private boolean isOk(NetworkIO networkOutput, boolean[] pLabel, double rLabel) {
-        double r = networkOutput.getReward();
-        float[] p = networkOutput.getPLegalValues();
 
-        MyBCELoss myBCELoss = new MyBCELoss("MyBCELoss",1f / this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold());
-        MyL2Loss myL2Loss = new MyL2Loss("MyL2Loss", config.getValueLossWeight() , config.getRewardLossThreshold());
-        return  myBCELoss.isOk(b2d(pLabel), f2d(p)) && myL2Loss.isOk(rLabel, r);
-    }
 
 
     public void play(Game game, PlayParameters playParameters) {
