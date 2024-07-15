@@ -164,7 +164,7 @@ public class MuZeroLoop {
 
                 boolean[] freeze = new boolean[]{false, true, true};
                 if (rulesTraining) {
-                    modelService.trainModelRules(freeze).get();
+                    modelService.trainModelRules(freeze, unrollSteps).get();
                 }
 
                 if (policyValueTraining) {
