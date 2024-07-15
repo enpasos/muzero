@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
-import static ai.enpasos.muzero.platform.config.TrainingDatasetType.RULES_BUFFER;
 
 @Slf4j
 @Component
@@ -121,7 +120,7 @@ public class MuZeroLoop {
 
         int unrollSteps = testUnrollRulestate.getMinUnrollSteps();   // a global target for the unroll steps
 
-        testUnrollRulestate.run(true, unrollSteps);
+        testUnrollRulestate.test(true, unrollSteps);
         boolean tested = true;
 
         unrollSteps = testUnrollRulestate.getMinUnrollSteps();
@@ -184,7 +183,7 @@ public class MuZeroLoop {
 
 
                 if (firstBoxes == 0 ) {
-                    testUnrollRulestate.run(true, unrollSteps);
+                    testUnrollRulestate.test(false, unrollSteps);
                      tested = true;
                     firstBoxes = firstBoxes();
                 }
@@ -192,15 +191,15 @@ public class MuZeroLoop {
 
             while (firstBoxes == 0) {
                 unrollSteps++;
-                testUnrollRulestate.run(true, unrollSteps);
+                testUnrollRulestate.test(true, unrollSteps);
                 firstBoxes = firstBoxes();
                 tested = true;
             }
 
-            if (firstBoxes == 0) {
+            if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-                testUnrollRulestate.run(true, unrollSteps);
+                testUnrollRulestate.test(false, unrollSteps);
 
                 tested = true;
                 firstBoxes = firstBoxes();
