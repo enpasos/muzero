@@ -192,6 +192,7 @@ public class MuZeroLoop {
 
             while (firstBoxes == 0) {
                 unrollSteps++;
+                testUnrollRulestate.handleUnrollStepsIncrease(unrollSteps);
                 testUnrollRulestate.test(true, unrollSteps);
                 firstBoxes = firstBoxes();
                 tested = true;

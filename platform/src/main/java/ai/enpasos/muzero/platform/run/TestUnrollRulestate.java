@@ -201,4 +201,11 @@ public class TestUnrollRulestate {
     }
 
 
+    public void handleUnrollStepsIncrease(int unrollSteps) {
+        // 1. setBox to 0 for all timesteps
+        timestepRepo.resetBox();
+
+        // 2. if parameter unrollSteps >= unroll_steps on table episode then box to local_box value
+        timestepRepo.updateBoxBasedOnUnrollSteps(unrollSteps);
+    }
 }
