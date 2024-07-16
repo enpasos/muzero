@@ -102,7 +102,7 @@ public class TestUnrollRulestate {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             //if (!tested) {
-                playService.uOkAnalyseGames(gameBuffer, false);
+                playService.uOkAnalyseGames(gameBuffer, false, unrollStepsGlobally);
             //}
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
@@ -151,7 +151,7 @@ public class TestUnrollRulestate {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(gameBuffer, allTimeStepsWhichMeansLocally);
+            playService.uOkAnalyseGames(gameBuffer, allTimeStepsWhichMeansLocally, unrollStepsGlobally);
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
@@ -186,7 +186,7 @@ public class TestUnrollRulestate {
         EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
         List<EpisodeDO> episodeDOList = List.of(episodeDO);
         List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), allTimeStepsWhichMeansLocally);
+        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), allTimeStepsWhichMeansLocally, unrollSteps);
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
