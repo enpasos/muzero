@@ -162,6 +162,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "update TimeStepDO t set  t.box = :box where t.id = :id" )
     void updateAttributeBox(Long id,  long box);
 
+
+
     @Transactional
     @Modifying
     @Query(value = "update TimeStepDO t set t.uOk = :u where t.id = :id" )
@@ -175,10 +177,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void resetUOk();
 
 
-//    @Transactional
-//    @Modifying
-//    @Query(value = "UPDATE timestep SET box = 0", nativeQuery = true )
-//    void resetBox();
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE timestep SET box = 0", nativeQuery = true )
+    void resetBox();
 //
 //    @Transactional
 //    @Modifying
@@ -234,5 +236,14 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 //            "    GROUP BY t.u_ok\n" +
 //            ") AS subquery;", nativeQuery = true)
 //    Optional<Integer> toBeTrained(int unrollSteps);
+
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE timestep SET box = local_box FROM episode WHERE timestep.episode_id = episode.id AND episode.unroll_steps <= :unrollSteps", nativeQuery = true)
+    void updateBoxBasedOnUnrollSteps(int unrollSteps);
+
+
 }
 
