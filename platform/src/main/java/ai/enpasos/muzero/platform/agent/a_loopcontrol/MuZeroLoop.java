@@ -183,7 +183,8 @@ public class MuZeroLoop {
 
 
                 if (firstBoxes == 0 ) {
-                    testUnrollRulestate.test(false, unrollSteps);
+                    testUnrollRulestate.test(true, unrollSteps);
+                 //   testUnrollRulestate.test(false, unrollSteps);  TODO check
                      tested = true;
                     firstBoxes = firstBoxes();
                 }
@@ -199,7 +200,8 @@ public class MuZeroLoop {
             if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-                testUnrollRulestate.test(false, unrollSteps);
+                testUnrollRulestate.test(true, unrollSteps);
+                //   testUnrollRulestate.test(false, unrollSteps);  TODO check
 
                 tested = true;
                 firstBoxes = firstBoxes();
