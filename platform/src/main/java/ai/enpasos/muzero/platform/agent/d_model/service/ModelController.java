@@ -439,37 +439,12 @@ public class ModelController implements DisposableBean, Runnable {
                             boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodes);
                             MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
-                            // transfer b_OK back from batch array to the games parameter s
-                            //  ZipperFunctions.sandu_in_Episodes_From_b_OK(b_OK_batch, episodes );
-                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
 
-                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
+//                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
+//                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
+//                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps, false);
 
-
-//                           List<TimeStepDO> strangeTSList = batchTimeSteps.stream().filter(ts2 -> !ts2.isUOkChanged() ).collect(Collectors.toList());
-//                            log.info("strangeTSList.size() = {}", strangeTSList.size());
-
-                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps, false);
-
-
-//                            int tau = 0;   // start with tau = 0
-//                            int countNOK_0 = countNOKFromB_OK(b_OK_batch, 0);
-//                            int countNOK_1 = countNOKFromB_OK(b_OK_batch, 1);
-//                            int countNOK_2 = countNOKFromB_OK(b_OK_batch, 2);
-//                            int countNOK_3 = countNOKFromB_OK(b_OK_batch, 3);
-//                            int countNOK_4 = countNOKFromB_OK(b_OK_batch, 4);
-//                            int countNOK_5 = countNOKFromB_OK(b_OK_batch, 5);
-//                            int countNOK_6 = countNOKFromB_OK(b_OK_batch, 6);
-//                            int count = stats.getCount();
-                            //   int countNOK = (int) oks.getKey().stream().filter(b -> !b).count();
-                            //  rememberOks(batchTimeSteps, oks.getKey(), unrollSteps);
-//                            double sumLossR = stats.getSumLossReward();
-//                            double sumMeanLossR = sumLossR / count;
-//
-//                            double sumLossL = stats.getSumLossLegalActions();
-//                            double sumMeanLossL = sumLossL / count;
-                            //                           System.out.println(epochLocal + ";" + unrollSteps + ";" + w + ";" + nf.format(sumMeanLossL) + ";" + nf.format(sumMeanLossR) + ";" + countNOK_0 + ";" + countNOK_1 + ";" + countNOK_2 + ";" + countNOK_3 + ";" + countNOK_4 + ";" + countNOK_5 + ";" + countNOK_6 + ";" + count);
-                            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
+                             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();
                         }
                     }

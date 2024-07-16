@@ -136,7 +136,7 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, tested);
+
 
                 tested = false;
 
@@ -179,6 +179,9 @@ public class MuZeroLoop {
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
+
+
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, tested);
                 firstBoxes = firstBoxes();
 
 

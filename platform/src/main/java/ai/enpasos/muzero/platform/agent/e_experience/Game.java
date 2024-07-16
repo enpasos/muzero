@@ -215,6 +215,7 @@ public abstract class Game {
 
         int tmax = this.getEpisodeDO().getLastTime();
 
+
         int   tdSteps = getTdSteps( currentIndex);
         double   value = calculateValue(tdSteps, currentIndex);
         float reward = getReward(currentIndex);

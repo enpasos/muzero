@@ -75,9 +75,9 @@ public class TestUnrollRulestate {
             return;
         }
 
-        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
-            boxesRelevant.remove(0);
-        }
+//        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
+//            boxesRelevant.remove(0);
+//        }
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
@@ -102,7 +102,7 @@ public class TestUnrollRulestate {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             //if (!tested) {
-                playService.uOkAnalyseGames(gameBuffer, false, unrollStepsGlobally);
+                playService.uOkAnalyseGames(gameBuffer, true, unrollStepsGlobally);
             //}
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
