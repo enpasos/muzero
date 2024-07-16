@@ -341,7 +341,7 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-        List<BoxOccupation> occupiedBoxes = timestepRepo.boxOccupation();
+       // List<BoxOccupation> occupiedBoxes = timestepRepo.boxOccupation();
 
         gameBuffer.resetRelevantIds();
         List<IdProjection> allIdProjections = gameBuffer.getRelevantIdsBox0( );
