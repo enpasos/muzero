@@ -120,7 +120,7 @@ public class MuZeroLoop {
 
         int unrollSteps = testUnrollRulestate.getMinUnrollSteps();   // a global target for the unroll steps
 
-        testUnrollRulestate.test(true, unrollSteps);
+    //    testUnrollRulestate.test(true, unrollSteps);
         boolean tested = true;
 
         unrollSteps = testUnrollRulestate.getMinUnrollSteps();

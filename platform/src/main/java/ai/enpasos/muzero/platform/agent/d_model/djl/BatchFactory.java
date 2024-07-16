@@ -104,38 +104,11 @@ public class BatchFactory {
 
 
     public  Sample rulesSampleFromTimeStep(TimeStepDO ts, int s) {
-        Sample sample = new Sample();
+      //  Sample sample = new Sample();
         Game game = config.newGame(false,false);
-
+        game.setEpisodeDO(ts.getEpisode());
        return gameBuffer.sampleFromGame(s, game, ts.getT()  );
 
-
-
-//        game.setEpisodeDO(ts.getEpisode());
-//        sample.setGame(game);
-//        int t = ts.getT() ;
-//        ObservationModelInput observation = game.getObservationModelInput(t);
-//        sample.getObservations().add(observation);
-//        List<Integer> actions =  game.getEpisodeDO().getActions();
-//        int originalActionSize = actions.size();
-//        if (actions.size() < t + s) {
-//            actions.addAll(game.getRandomActionsIndices(t + s - actions.size()));
-//        }
-//
-//        sample.setActionsList(new ArrayList<>());
-//        for (int i = 0; i < s; i++) {
-//        //    if (actions.size() > t + i) {
-//                int actionIndex = actions.get(t + i);
-//                sample.getActionsList().add(actionIndex);
-//                observation = game.getObservationModelInput(t + i + 1);  // !!!!
-//                sample.getObservations().add(observation);
-//         //   }
-//        }
-//        sample.setGamePos(t);
-//        sample.setNumUnrollSteps(s);
-//
-//        sample.makeTarget( );
-//        return sample;
     }
 
     public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType) {

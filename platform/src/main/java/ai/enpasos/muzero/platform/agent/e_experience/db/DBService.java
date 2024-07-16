@@ -291,7 +291,7 @@ public class DBService {
             boolean boxChangedLocally = false;
             if (updateLocally) {
                 int targetULocally = ts.getEpisode().getUnrollSteps();
-                boxChangedLocally = ts.updateBox(updateLocally, targetULocally);
+                boxChangedLocally = ts.updateBox(true, targetULocally);
             }
 
 

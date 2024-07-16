@@ -101,9 +101,9 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            if (!tested) {
+            //if (!tested) {
                 playService.uOkAnalyseGames(gameBuffer, false);
-            }
+            //}
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);

@@ -109,10 +109,7 @@ public class GameBuffer {
         ObservationModelInput     observation = game.getObservationModelInput(gamePos);
 
         sample.getObservations().add(observation);
-        List<Integer> actions =  game.getEpisodeDO().getTimeSteps().stream()
-                .filter(timeStepDO -> timeStepDO.getAction() != null)
-                .map(timeStepDO -> (Integer)timeStepDO.getAction())
-                .collect(Collectors.toList());
+        List<Integer> actions =   game.getEpisodeDO().getActions();
 
         int originalActionSize = actions.size();
         if (actions.size() < gamePos + numUnrollSteps) {
