@@ -350,7 +350,11 @@ public class ModelController implements DisposableBean, Runnable {
 
         Set<IdProjection> allIdSet = new HashSet<>();
         allIdSet.addAll(gameBuffer.getRelevantIdsBox0( ));
-        allIdSet.addAll(gameBuffer.getRandomIdsFromBoxesNot0(10000));
+        int n = allIdSet.size();
+        long N = timestepRepo.count();
+        // m equals n*10 but not more than (N-n)/10 and not more than 10000
+        int m = Math.min((int) Math.min(n * 10, (N - n) / 10), 10000);
+        allIdSet.addAll(gameBuffer.getRandomIdsFromBoxesNot0(m));
 
         List<IdProjection> allIdProjections = new ArrayList<>(allIdSet);
         Collections.shuffle(allIdProjections);

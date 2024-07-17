@@ -145,6 +145,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query("SELECT t.box as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.box ORDER BY t.box ASC")
     List<BoxOccupation> boxOccupation();
 
+//    @Query("SELECT  COUNT(t) as count FROM TimeStepDO t")
+//    long count();
+
 
     @Transactional
     @Modifying
