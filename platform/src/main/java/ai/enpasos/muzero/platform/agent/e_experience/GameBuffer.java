@@ -256,11 +256,11 @@ public class GameBuffer {
                 BoxOccupation boxOccupation = occupiedBoxes.get(i);
                 int box = boxOccupation.getBox();
                 long n = boxOccupation.getCount();
-                if (box == -1) {
-                    nTrain += n;  // die aus box=-1 kommen dazu
-                    nLeft = nTrain;
-                }
-                long nDraw = (box == -1) ? n : Math.min(n, nLeft);
+//                if (box == -1) {
+//                    nTrain += n;  // die aus box=-1 kommen dazu
+//                    nLeft = nTrain;
+//                }
+                long nDraw = Math.min(n, nLeft);
                 nLeft -= nDraw;
                 int limit = (int)Math.min(50000, nDraw);
                 int offset = 0;
@@ -269,7 +269,7 @@ public class GameBuffer {
                     newIds = timestepRepo.getRelevantIds5(limit, offset, box);
                     relevantIds2.addAll(newIds);
                     offset += limit;
-                } while (relevantIds2.size() < nTrain && newIds.size() > 0);
+                } while (relevantIds2.size() < nTrain && !newIds.isEmpty());
             }
 
         }
