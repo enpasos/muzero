@@ -252,7 +252,7 @@ public class GameBuffer {
 
              // The timesteps are drawn from the box with the lowest number,
              // and within the box to the timesteps with the lowest unrollsteps.
-            for (int i = 0; i < occupiedBoxes.size(); i++) {
+            for (int i = 0; i < occupiedBoxes.size() && relevantIds2.size() < nTrain; i++) {
                 BoxOccupation boxOccupation = occupiedBoxes.get(i);
                 int box = boxOccupation.getBox();
                 long n = boxOccupation.getCount();
@@ -279,6 +279,22 @@ public class GameBuffer {
     private List<Integer> getDrawingPlan(List<BoxOccupation> occupiedBoxes, int nTrain) {
         List<Integer> result = new ArrayList<>();
         return result;
+    }
+
+    public List<IdProjection> getRandomIdsNotInBox0( int n )  {
+        if (relevantIds == null) {
+            int limit = 50000;
+
+            int offset = 0;
+            relevantIds = new ArrayList<>();
+            List newIds;
+            do {
+                newIds = timestepRepo.getRelevantIds4(limit, offset);
+                relevantIds.addAll(newIds);
+                offset += limit;
+            } while (newIds.size() > 0);
+        }
+        return relevantIds;
     }
 
 
@@ -684,6 +700,9 @@ public class GameBuffer {
         return games;
     }
 
+    public List<IdProjection> getRandomIdsFromBoxesNot0(int n) {
+        return timestepRepo.getRandomIdsNotInBox0(n);
+    }
 
 
 //    private Map<Long, Long> attributeS_to_timestepId = new HashMap<>();
