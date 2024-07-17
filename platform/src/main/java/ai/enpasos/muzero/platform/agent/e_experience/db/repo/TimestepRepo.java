@@ -248,7 +248,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE timestep SET box = local_box FROM episode WHERE timestep.episode_id = episode.id AND episode.unroll_steps <= :unrollSteps", nativeQuery = true)
+    @Query(value = "UPDATE timestep SET box = local_box FROM episode WHERE timestep.episode_id = episode.id AND episode.unroll_steps >= :unrollSteps", nativeQuery = true)
     void updateBoxBasedOnUnrollSteps(int unrollSteps);
 
 

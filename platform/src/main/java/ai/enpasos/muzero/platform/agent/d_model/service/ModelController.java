@@ -351,7 +351,9 @@ public class ModelController implements DisposableBean, Runnable {
         Set<IdProjection> allIdSet = new HashSet<>();
         allIdSet.addAll(gameBuffer.getRelevantIdsBox0( ));
         allIdSet.addAll(gameBuffer.getRandomIdsFromBoxesNot0(10000));
+
         List<IdProjection> allIdProjections = new ArrayList<>(allIdSet);
+        Collections.shuffle(allIdProjections);
 
       //  List<IdProjection2> allIdProjections = gameBuffer.getIdsRelevantForTraining(occupiedBoxes, nTrain);
 
