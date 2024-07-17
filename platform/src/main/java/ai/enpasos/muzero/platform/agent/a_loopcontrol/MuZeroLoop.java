@@ -136,7 +136,8 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
-
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, tested);
+                firstBoxes = firstBoxes();
 
                 tested = false;
 
@@ -181,8 +182,7 @@ public class MuZeroLoop {
 
 
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, tested);
-                firstBoxes = firstBoxes();
+
 
 
                 if (firstBoxes == 0 ) {
