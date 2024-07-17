@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss.NULL_VALUE;
 import static ai.enpasos.muzero.platform.common.Functions.b2f;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 
@@ -228,10 +229,16 @@ public abstract class Game {
             float[] policy = timeStepDO.getPolicyTarget();
             target.setPolicy(policy);
         } else {
-            target.setValue(0f);
+            // NULL_VALUE means no force here
+            target.setValue(NULL_VALUE);
+
             target.setReward(reward);
+
+            // 0f means not force to the policy (property of SoftmaxCrossEntropyLoss)
             target.setPolicy(new float[this.actionSpaceSize]);
             Arrays.fill(target.getPolicy(), 0f);
+
+            // 0f means a force here
             float[]legalActions = new float[this.actionSpaceSize];
             Arrays.fill(legalActions, 0f);
             target.setLegalActions(legalActions);
