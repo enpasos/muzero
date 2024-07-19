@@ -69,14 +69,11 @@ public class TestUnrollRulestate {
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
 
-        if (boxesRelevant.size() == 0 || (boxesRelevant.size() > 0 && boxesRelevant.getLast() < 1)) {
-            log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>0) found ... finished");
+        if (boxesRelevant.size() == 0 ) {
+            log.info("identifyRelevantTimestepsAndTestThem no relevant boxes found ... finished");
             return;
         }
 
-//        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
-//            boxesRelevant.remove(0);
-//        }
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
