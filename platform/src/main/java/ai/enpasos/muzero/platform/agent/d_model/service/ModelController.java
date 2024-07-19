@@ -339,7 +339,7 @@ public class ModelController implements DisposableBean, Runnable {
             sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) (unrollStepsCount.getCount() / nEpisodes * nTrain));
         }
 
-
+        log.info("sampleNumberMap: {}", sampleNumberMap);
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
         Model model = network.getModel();
