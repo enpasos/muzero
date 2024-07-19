@@ -350,35 +350,6 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-//       List<BoxOccupation> occupiedBoxes = timestepRepo.boxOccupation();
-//        log.info("occupiedBoxes: {}",
-//                occupiedBoxes.stream().map(bo -> "box: " + bo.getBox() + ", count: " + bo.getCount())
-//                        .collect(Collectors.joining(", ")));
-//        gameBuffer.resetRelevantIds();
-//
-//
-//        Set<IdProjection> allIdSet = new HashSet<>();
-//        allIdSet.addAll(gameBuffer.getRelevantIdsBox0( ));
-//        int n = allIdSet.size();
-//        long N = timestepRepo.count();
-//        // m equals n*10 but not more than (N-n)/10 and not more than 10000
-//        int m = Math.min((int) Math.min(n * 10, (N - n) / 10), 10000);
-//        allIdSet.addAll(gameBuffer.getRandomIdsFromBoxesNot0(m));
-//
-//        List<IdProjection> allIdProjections = new ArrayList<>(allIdSet);
-//        Collections.shuffle(allIdProjections);
-
-      //  List<IdProjection2> allIdProjections = gameBuffer.getIdsRelevantForTraining(occupiedBoxes, nTrain);
-
-  //      Map<Integer, List<IdProjection2>> allIdProjectionsByUnrollNumber = mapByUnrollNumber(allIdProjections);
-
-        // iterate over all unroll numbers
-//        for (int unrollSteps = 1; unrollSteps <= config.getNumUnrollSteps(); unrollSteps++) {
-//            List<IdProjection2> allIdProjectionsForUnrollNumber = allIdProjectionsByUnrollNumber.get(unrollSteps);
-//            if (allIdProjectionsForUnrollNumber == null) {
-//                continue;
-//            }
-
         for(Map.Entry<Integer,Integer> e : sampleNumberMap.entrySet()) {
             trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, e.getValue(), freeze, background, withSymmetryEnrichment, e.getKey());
        }
