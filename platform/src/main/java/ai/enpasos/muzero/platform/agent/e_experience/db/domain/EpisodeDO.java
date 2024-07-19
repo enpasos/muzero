@@ -58,8 +58,7 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     private int tOfMaxValueVariance;
     private int valueCount;
 
-    @Builder.Default
-    private int unrollSteps = 1;
+
 
     @Transient
     Game game;

@@ -157,8 +157,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed, t.uOk = :uOk, t.uOkClosed = :uOkClosed, t.localBox = :boxLocally, t.box = :boxGlobally where t.id = :id" )
-    void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long boxLocally, long boxGlobally);
+    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed, t.uOk = :uOk, t.uOkClosed = :uOkClosed, t.localBox = :boxLocally, t.box = :boxGlobally, t.unrollSteps = :unrollSteps where t.id = :id" )
+    void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long boxLocally, long boxGlobally, int unrollSteps);
 
 
     @Transactional
@@ -270,5 +270,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
                 List<Integer> boxesRelevant,
                 int limit,
                 int offset);
+
+
+
+    @Query(value = "SELECT min(ts.unrollSteps) FROM TimeStepDO ts")
+    default int minUnrollSteps() {
+        return 1;
+    }
+
+
+    @Query("SELECT ts.unrollSteps as unrollSteps, COUNT(ts.id) as count FROM TimeStepDO ts GROUP BY ts.unrollSteps ORDER BY ts.unrollSteps ASC")
+    List<UnrollStepsCount> countTimeStepsByUnrollSteps();
+
 }
 

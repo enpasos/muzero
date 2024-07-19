@@ -105,6 +105,13 @@ public class TimeStepDO {
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok
 
+
+    int unrollSteps;
+
+    @Transient
+    boolean unrollStepsChanged;
+
+
     @Transient
     boolean uOkChanged;
 
@@ -127,6 +134,9 @@ public class TimeStepDO {
     float rootValueFromInitialInference;
 
     boolean exploring;
+
+
+
 
 
     boolean archived;

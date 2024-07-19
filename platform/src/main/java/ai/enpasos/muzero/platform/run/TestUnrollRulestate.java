@@ -106,6 +106,7 @@ public class TestUnrollRulestate {
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
+            ZipperFunctions.calculateUnrollSteps(episodeDOList);
 
 
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()
@@ -117,7 +118,7 @@ public class TestUnrollRulestate {
                 timeStepDO.setUOkTested(true);
             });
 
-            dbService.updateUnrollStepsOnEpisode(episodeDOList);
+         //   dbService.updateUnrollStepsOnEpisode(episodeDOList);
 
 
             // db update also in uOK and box
@@ -130,7 +131,7 @@ public class TestUnrollRulestate {
 
 
     public int getMinUnrollSteps() {
-        return episodeRepo.minUnrollSteps();
+        return timestepRepo.minUnrollSteps();
     }
 
 //    public void testBoxesUntilFail( int unrollStepsGlobally) {
@@ -157,13 +158,13 @@ public class TestUnrollRulestate {
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-
+            ZipperFunctions.calculateUnrollSteps(episodeDOList);
 
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
 
 
-                dbService.updateUnrollStepsOnEpisode(episodeDOList);
+        //        dbService.updateUnrollStepsOnEpisode(episodeDOList);
 
 
             // db update also in uOK and box
@@ -192,6 +193,7 @@ public class TestUnrollRulestate {
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
+        ZipperFunctions.calculateUnrollSteps(episodeDOList);
 
         List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO2 -> episodeDO2.getTimeSteps().stream())
                 .collect(Collectors.toList());

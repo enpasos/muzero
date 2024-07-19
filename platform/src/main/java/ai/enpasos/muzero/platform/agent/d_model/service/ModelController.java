@@ -332,17 +332,16 @@ public class ModelController implements DisposableBean, Runnable {
 
         int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
-        long nEpisodes  = episodeRepo.count();
-        List<UnrollStepsCount> unrollStepsCountList =  episodeRepo.countEpisodesByUnrollSteps();
-
-
-
+        long n  = timestepRepo.count();
+        List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
 
 
         Map<Integer, Integer> sampleNumberMap = new HashMap<>();
         for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
             if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
-                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) ((double) (unrollStepsCount.getCount() * nTrain) / nEpisodes));
+                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) ((double) (unrollStepsCount.getCount() * nTrain) / n));
+            } else {
+                throw new MuZeroException("Check!");
             }
         }
 

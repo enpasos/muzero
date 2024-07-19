@@ -290,13 +290,13 @@ public class DBService {
             // conditionally update locally (if the testing was done on local goal level)
             boolean boxChangedLocally = false;
 
-                int targetULocally = ts.getEpisode().getUnrollSteps();
+                int targetULocally = ts.getUnrollSteps();
                 boxChangedLocally = ts.updateBox(true, targetULocally);
 
 
 
-            if (ts.isSChanged() || ts.isUOkChanged() ||    boxChangedLocally) {
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ));
+            if (ts.isSChanged() || ts.isUOkChanged() ||    boxChangedLocally || ts.isUnrollStepsChanged()) {
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ), ts.getUnrollSteps());
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
             }
@@ -305,13 +305,13 @@ public class DBService {
         });
     }
 
-    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {
-        episodeDOList.stream().forEach(episodeDO -> {
-            // find minimum of uOK on all timesteps
-            int minUOK = episodeDO.getTimeSteps().stream().filter(ts -> !ts.isUOkClosed()).mapToInt(ts -> ts.getUOk()).min().orElse(config.getMaxUnrollSteps());
-            episodeRepo.updateUnrollSteps(episodeDO.getId(), Math.max(1, minUOK + 1));
-        });
-    }
+//    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {
+//        episodeDOList.stream().forEach(episodeDO -> {
+//            // find minimum of uOK on all timesteps
+//            int minUOK = episodeDO.getTimeSteps().stream().filter(ts -> !ts.isUOkClosed()).mapToInt(ts -> ts.getUOk()).min().orElse(config.getMaxUnrollSteps());
+//            episodeRepo.updateUnrollSteps(episodeDO.getId(), Math.max(1, minUOK + 1));
+//        });
+//    }
 
 
 //    public void updateEpisodes_S(List<EpisodeDO> episodes) {

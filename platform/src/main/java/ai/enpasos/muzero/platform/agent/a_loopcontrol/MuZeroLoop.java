@@ -119,47 +119,20 @@ public class MuZeroLoop {
 
         testUnrollRulestate.test( );
 
-        int unrollSteps = testUnrollRulestate.getMinUnrollSteps();   // a global target for the unroll steps
+        int unrollSteps = testUnrollRulestate.getMinUnrollSteps();
         log.info("unrollSteps: {}", unrollSteps);
-
-
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-
-
-
                 DurAndMem duration = new DurAndMem();
                 duration.on();
-
-
-//                if (policyValueTraining) {
-//                    if (epoch != 0) {
-//                        PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
-//                        for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
-//                            config.setPlayTypeKey(key);
-//                            play.playGames(params.isRender(), trainingStep);
-//                        }
-//                        config.setPlayTypeKey(originalPlayTypeKey);
-//                    }
-//
-//                    log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
-//                    log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
-//                    log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
-//                }
-
 
                 boolean[] freeze = new boolean[]{false, true, true};
                 if (rulesTraining) {
                     modelService.trainModelRules(freeze, unrollSteps).get();
                     testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch);
                 }
-
-//                if (policyValueTraining) {
-//                    freeze = new boolean[]{true, false, false};
-//                    modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
-//                }
 
                 epoch = modelState.getEpoch();
 

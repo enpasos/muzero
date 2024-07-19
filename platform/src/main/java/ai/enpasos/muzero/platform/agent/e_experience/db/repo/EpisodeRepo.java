@@ -32,8 +32,7 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     List<EpisodeDO> findEpisodeDOswithTimeStepDOsTimeStepDOIdDesc(List<Long> ids);
 
 
-    @Query("SELECT e.unrollSteps as unrollSteps, COUNT(e.id) as count FROM EpisodeDO e GROUP BY e.unrollSteps ORDER BY e.unrollSteps ASC")
-    List<UnrollStepsCount> countEpisodesByUnrollSteps();
+
 
     @Transactional
     @Query(value = "select e.id from episode e where e.min_box <= :minBox  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
@@ -142,15 +141,6 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
     List<Long> findRandomNEpisodeIdsFromBoxZeroOrOne(int n );
 
-    @Transactional
-    @Modifying
-    @Query(value = "update EpisodeDO t set  t.unrollSteps = :unrollSteps where t.id = :id" )
-    void updateUnrollSteps(long id, int unrollSteps);
 
 
-    @Transactional
-    @Query(value = "SELECT min(e.unrollSteps) FROM EpisodeDO e")
-    default int minUnrollSteps() {
-        return 1;
-    }
 }
