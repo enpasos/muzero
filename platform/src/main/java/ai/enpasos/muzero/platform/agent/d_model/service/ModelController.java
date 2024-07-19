@@ -334,6 +334,11 @@ public class ModelController implements DisposableBean, Runnable {
 
         long nEpisodes  = episodeRepo.count();
         List<UnrollStepsCount> unrollStepsCountList =  episodeRepo.countEpisodesByUnrollSteps();
+
+
+
+
+
         Map<Integer, Integer> sampleNumberMap = new HashMap<>();
         for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
             if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
