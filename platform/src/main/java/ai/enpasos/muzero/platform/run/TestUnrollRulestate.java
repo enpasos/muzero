@@ -63,10 +63,9 @@ public class TestUnrollRulestate {
     SelfPlayGame selfPlayGame;
 
 
-    public void identifyRelevantTimestepsAndTestThem( ) {
+    public void identifyRelevantTimestepsAndTestThem(int epoch ) {
 
-        int epoch = networkIOService.getLatestNetworkEpoch();
-        log.info("identifyRelevantTimestepsAndTestThem epoch {} ... starting", epoch);
+
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
 
@@ -117,6 +116,9 @@ public class TestUnrollRulestate {
             relevantTimeSteps.forEach(timeStepDO -> {
                 timeStepDO.setUOkTested(true);
             });
+
+            dbService.updateUnrollStepsOnEpisode(episodeDOList);
+
 
             // db update also in uOK and box
             dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
