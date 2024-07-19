@@ -13,7 +13,6 @@ import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.dataset.Batch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
-import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.Network;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
@@ -331,7 +330,15 @@ public class ModelController implements DisposableBean, Runnable {
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
 
-        int nTrain = config.getNumberOfTimeStepsPerRuleTrainingEpoch();
+        int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
+
+        long nEpisodes  = episodeRepo.count();
+        List<UnrollStepsCount> unrollStepsCountList =  episodeRepo.countEpisodesByUnrollSteps();
+        Map<Integer, Integer> sampleNumberMap = new HashMap<>();
+        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
+            sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) (unrollStepsCount.getCount() / nEpisodes * nTrain));
+        }
+
 
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
@@ -341,23 +348,23 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-       List<BoxOccupation> occupiedBoxes = timestepRepo.boxOccupation();
-        log.info("occupiedBoxes: {}",
-                occupiedBoxes.stream().map(bo -> "box: " + bo.getBox() + ", count: " + bo.getCount())
-                        .collect(Collectors.joining(", ")));
-        gameBuffer.resetRelevantIds();
-
-
-        Set<IdProjection> allIdSet = new HashSet<>();
-        allIdSet.addAll(gameBuffer.getRelevantIdsBox0( ));
-        int n = allIdSet.size();
-        long N = timestepRepo.count();
-        // m equals n*10 but not more than (N-n)/10 and not more than 10000
-        int m = Math.min((int) Math.min(n * 10, (N - n) / 10), 10000);
-        allIdSet.addAll(gameBuffer.getRandomIdsFromBoxesNot0(m));
-
-        List<IdProjection> allIdProjections = new ArrayList<>(allIdSet);
-        Collections.shuffle(allIdProjections);
+//       List<BoxOccupation> occupiedBoxes = timestepRepo.boxOccupation();
+//        log.info("occupiedBoxes: {}",
+//                occupiedBoxes.stream().map(bo -> "box: " + bo.getBox() + ", count: " + bo.getCount())
+//                        .collect(Collectors.joining(", ")));
+//        gameBuffer.resetRelevantIds();
+//
+//
+//        Set<IdProjection> allIdSet = new HashSet<>();
+//        allIdSet.addAll(gameBuffer.getRelevantIdsBox0( ));
+//        int n = allIdSet.size();
+//        long N = timestepRepo.count();
+//        // m equals n*10 but not more than (N-n)/10 and not more than 10000
+//        int m = Math.min((int) Math.min(n * 10, (N - n) / 10), 10000);
+//        allIdSet.addAll(gameBuffer.getRandomIdsFromBoxesNot0(m));
+//
+//        List<IdProjection> allIdProjections = new ArrayList<>(allIdSet);
+//        Collections.shuffle(allIdProjections);
 
       //  List<IdProjection2> allIdProjections = gameBuffer.getIdsRelevantForTraining(occupiedBoxes, nTrain);
 
@@ -369,12 +376,17 @@ public class ModelController implements DisposableBean, Runnable {
 //            if (allIdProjectionsForUnrollNumber == null) {
 //                continue;
 //            }
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, allIdProjections, freeze, background, withSymmetryEnrichment, unrollSteps);
-       // }
+
+        for(Map.Entry<Integer,Integer> e : sampleNumberMap.entrySet()) {
+            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, e.getValue(), freeze, background, withSymmetryEnrichment, e.getKey());
+       }
     }
 
-    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, List<IdProjection> allIdProjections, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps) {
+    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps) {
+        log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
+      //  gameBuffer.resetRelevantIds();
+        List<IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining(unrollSteps, sampleNumber, epochLocal);
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
@@ -454,9 +466,9 @@ public class ModelController implements DisposableBean, Runnable {
                             MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
 
-                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
-                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
-                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps, false);
+//                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
+//                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
+//                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps, false);
 
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();

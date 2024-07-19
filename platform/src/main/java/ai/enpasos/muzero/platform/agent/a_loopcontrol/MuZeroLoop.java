@@ -111,7 +111,6 @@ public class MuZeroLoop {
             play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
         }
 
-        //    timestepRepo.resetBoxAndSAndUOk();
 
         boolean policyValueTraining = false;   // true: policy and value training, false: rules training
         boolean rulesTraining = true;
@@ -121,12 +120,10 @@ public class MuZeroLoop {
         int unrollSteps = testUnrollRulestate.getMinUnrollSteps();   // a global target for the unroll steps
 
 
-   //     testUnrollRulestate.handleUnrollStepsIncrease( unrollSteps);
 
-        testUnrollRulestate.test(true, unrollSteps);
-        boolean tested = true;
+        testUnrollRulestate.test( );
 
-  //      unrollSteps = testUnrollRulestate.getMinUnrollSteps();
+
         log.info("unrollSteps: {}", unrollSteps);
 
 
@@ -139,10 +136,9 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, tested);
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem( );
                 firstBoxes = firstBoxes();
 
-                tested = false;
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -189,9 +185,8 @@ public class MuZeroLoop {
 
 
                 if (firstBoxes == 0 ) {
-                    testUnrollRulestate.test(true, unrollSteps);
-                 //   testUnrollRulestate.test(false, unrollSteps);  TODO check
-                     tested = true;
+                    testUnrollRulestate.test( );
+
                     firstBoxes = firstBoxes();
                 }
             }
@@ -199,18 +194,17 @@ public class MuZeroLoop {
             while (firstBoxes == 0) {
                 unrollSteps++;
                 testUnrollRulestate.handleUnrollStepsIncrease(unrollSteps);
-                testUnrollRulestate.test(true, unrollSteps);
+                testUnrollRulestate.test( );
                 firstBoxes = firstBoxes();
-                tested = true;
             }
 
             if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-                testUnrollRulestate.test(true, unrollSteps);
+                testUnrollRulestate.test( );
                 //   testUnrollRulestate.test(false, unrollSteps);  TODO check
 
-                tested = true;
+
                 firstBoxes = firstBoxes();
 
 

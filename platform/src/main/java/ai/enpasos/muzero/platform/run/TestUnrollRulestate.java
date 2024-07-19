@@ -63,7 +63,7 @@ public class TestUnrollRulestate {
     SelfPlayGame selfPlayGame;
 
 
-    public void identifyRelevantTimestepsAndTestThem(int unrollStepsGlobally, boolean tested) {
+    public void identifyRelevantTimestepsAndTestThem( ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("identifyRelevantTimestepsAndTestThem epoch {} ... starting", epoch);
@@ -102,7 +102,7 @@ public class TestUnrollRulestate {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             //if (!tested) {
-                playService.uOkAnalyseGames(gameBuffer, true, unrollStepsGlobally);
+                playService.uOkAnalyseGames(gameBuffer );
             //}
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
@@ -119,7 +119,7 @@ public class TestUnrollRulestate {
             });
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollStepsGlobally, true);
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
 
         }
 
@@ -136,11 +136,11 @@ public class TestUnrollRulestate {
 //        test(allTimeStepsWhichMeansLocally, unrollStepsGlobally, false);
 //    }
 
-    public void test(boolean allTimeStepsWhichMeansLocally, int unrollStepsGlobally) {
+    public void test( ) {
 
 
         int epoch = networkIOService.getLatestNetworkEpoch();
-        log.info("testUnrollRulestate.run(), epoch = {}, unrollStepsGlobally = {}", epoch, unrollStepsGlobally);
+        log.info("testUnrollRulestate.run(), epoch = {} ", epoch );
 
         modelService.loadLatestModel(epoch).join();  // TODO: check if this is necessary
 
@@ -151,7 +151,7 @@ public class TestUnrollRulestate {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(gameBuffer, allTimeStepsWhichMeansLocally, unrollStepsGlobally);
+            playService.uOkAnalyseGames(gameBuffer  );
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
@@ -160,12 +160,12 @@ public class TestUnrollRulestate {
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
 
-            if (allTimeStepsWhichMeansLocally) {
+
                 dbService.updateUnrollStepsOnEpisode(episodeDOList);
-            }
+
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollStepsGlobally, allTimeStepsWhichMeansLocally);
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
 
         }
 
@@ -186,7 +186,7 @@ public class TestUnrollRulestate {
         EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
         List<EpisodeDO> episodeDOList = List.of(episodeDO);
         List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), allTimeStepsWhichMeansLocally, unrollSteps);
+        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0) );
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
@@ -196,7 +196,7 @@ public class TestUnrollRulestate {
 
 
         // db update also in uOK and box
-        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps, allTimeStepsWhichMeansLocally);
+        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
 
     }
 

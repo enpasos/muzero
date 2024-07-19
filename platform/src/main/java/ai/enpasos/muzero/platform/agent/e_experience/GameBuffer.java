@@ -19,6 +19,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
+import ai.enpasos.muzero.platform.agent.d_model.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
@@ -702,6 +703,27 @@ public class GameBuffer {
 
     public List<IdProjection> getRandomIdsFromBoxesNot0(int n) {
         return timestepRepo.getRandomIdsNotInBox0(n);
+    }
+
+    public List<IdProjection> getIdsRelevantForTraining(int unrollSteps, int sampleNumber, int epoch) {
+
+
+        int maxBox = timestepRepo.maxLocalBox();
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+
+        int limit = 50000;
+
+        int offset = 0;
+        List<IdProjection> relevantEpisodeIds = new ArrayList<>();
+        List newIds;
+        do {
+            newIds = timestepRepo.getTimeStepIdsByUnrollStepsAndBoxesRelevant( unrollSteps,  boxesRelevant, limit,  offset);
+            relevantEpisodeIds.addAll(newIds);
+            offset += limit;
+        } while (newIds.size() > 0);
+        Collections.shuffle(relevantEpisodeIds );
+        return relevantEpisodeIds.subList(0, Math.min(sampleNumber, relevantEpisodeIds.size()));
+
     }
 
 

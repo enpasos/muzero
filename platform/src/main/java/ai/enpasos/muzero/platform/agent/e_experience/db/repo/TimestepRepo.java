@@ -128,6 +128,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     int maxBox( );
 
     @Transactional
+    @Query(value = "SELECT max(t.local_box) FROM  timestep t", nativeQuery = true)
+    int maxLocalBox( );
+
+    @Transactional
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t", nativeQuery = true)
     int minUOk( );
 
@@ -213,6 +217,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box in :boxesRelevant ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getRelevantIds3(int limit, int offset, List<Integer> boxesRelevant);
 
+
+
+
     @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = 0 ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getRelevantIds4(int limit, int offset);
 
@@ -252,5 +259,16 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void updateBoxBasedOnUnrollSteps(int unrollSteps);
 
 
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id  FROM time_steps t JOIN episodes e ON t.episode_id = e.id WHERE e.unroll_steps = :unrollSteps ORDER BY RANDOM() LIMIT :limit OFFSET :offset", nativeQuery = true)
+    List<IdProjection> findTimeStepIdsByUnrollSteps(int unrollSteps, int limit, int offset);
+
+
+
+        @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM time_steps t JOIN episodes e ON t.episode_id = e.id WHERE e.unroll_steps = :unrollSteps AND t.local_box IN :boxesRelevant ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+        List<IdProjection> getTimeStepIdsByUnrollStepsAndBoxesRelevant(
+                  int unrollSteps,
+                List<Integer> boxesRelevant,
+                int limit,
+                int offset);
 }
 

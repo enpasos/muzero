@@ -280,22 +280,22 @@ public class DBService {
 //        ));
 //    }
 
-    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int targetUGlobally, boolean updateLocally) {
+    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps ) {
 
         timesteps.stream().forEach(ts -> {
 
             // always update globally
-            boolean boxChangedGlobally = ts.updateBox(false, targetUGlobally);
+        //    boolean boxChangedGlobally = ts.updateBox(false, targetUGlobally);
 
             // conditionally update locally (if the testing was done on local goal level)
             boolean boxChangedLocally = false;
-            if (updateLocally) {
+
                 int targetULocally = ts.getEpisode().getUnrollSteps();
                 boxChangedLocally = ts.updateBox(true, targetULocally);
-            }
 
 
-            if (ts.isSChanged() || ts.isUOkChanged() || boxChangedGlobally ||  boxChangedLocally) {
+
+            if (ts.isSChanged() || ts.isUOkChanged() ||    boxChangedLocally) {
                 timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ));
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);

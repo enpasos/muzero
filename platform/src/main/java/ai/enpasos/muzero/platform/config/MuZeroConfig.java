@@ -228,8 +228,8 @@ public class MuZeroConfig {
         return getConf().batchSize;
     }
 
-    public int getNumberOfTimeStepsPerRuleTrainingEpoch() {
-        return getConf().numberOfTimeStepsPerRuleTrainingEpoch;
+    public int getNumberOfTrainingSamplesPerRuleTrainingEpoch() {
+        return getConf().numberOfTrainingSamplesPerRuleTrainingEpoch;
     }
 
     public int getNumUnrollSteps() {
@@ -560,7 +560,7 @@ public class MuZeroConfig {
         protected double fractionOfAlternativeActionGames;
 
 
-        protected int numberOfTimeStepsPerRuleTrainingEpoch;
+        protected int numberOfTrainingSamplesPerRuleTrainingEpoch;
 
         protected int batchSize;
         protected int numUnrollSteps;
