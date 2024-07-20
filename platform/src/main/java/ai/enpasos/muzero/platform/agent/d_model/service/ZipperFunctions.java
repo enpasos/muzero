@@ -305,18 +305,13 @@ if(ts.getUOk() != u) {
             for (int t = 0; t <= tmax; t++) {
                 TimeStepDO ts = episodeDO.getTimeStep(t);
                 int unrollStepsBefore = ts.getUnrollSteps();
-                int unrollSteps =  (t == tmax) ? 0 : 1;  // starting point
+                int unrollSteps =  1;  // starting point
                 if (ts.getUOk() > unrollSteps) {
                     unrollSteps = ts.getUOk();
                 }
                 if (t + unrollSteps < tmax && episodeDO.getTimeStep(t + unrollSteps).getS() >=  unrollSteps) {
                     unrollSteps++;
                 }
-
-                // intermediate can be removed later
-//                if (unrollSteps > tmax - t  ) {
-//                    unrollSteps = tmax - t;
-//                }
 
                 if (unrollStepsBefore != unrollSteps) {
                     ts.setUnrollStepsChanged(true);

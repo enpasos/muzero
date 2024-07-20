@@ -342,7 +342,7 @@ public class ModelController implements DisposableBean, Runnable {
 
             if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
                 // factor 1/(1 + unrollSteps) gives less weight to longer unroll steps giving attribute to the fact that they are more effort to train
-                double value = (double) (unrollStepsCount.getCount() * 1/(1+ unrollStepsCount.getUnrollSteps()) );
+                double value = (unrollStepsCount.getCount() * 1.0/(1.0 + unrollStepsCount.getUnrollSteps()) );
                 sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
                 valueSum += value;
             } else {
@@ -351,7 +351,7 @@ public class ModelController implements DisposableBean, Runnable {
         }
         for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
             double value = sampleNumberMap.get(unrollStepsCount.getUnrollSteps());
-            value = value / valueSum * nTrain;
+            value = Math.ceil(value / valueSum * nTrain);
             sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
         }
         log.info("sampleNumberMap: {}", sampleNumberMap);
@@ -365,7 +365,7 @@ public class ModelController implements DisposableBean, Runnable {
         int c = 0;
         for(Map.Entry<Integer,Double> e : sampleNumberMap.entrySet()) {
             boolean save = (c == sampleNumberMap.size()-1);
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, (int)Math.ceil(e.getValue()), freeze, background, withSymmetryEnrichment, e.getKey(), save);
+            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, (int) ((double)e.getValue()), freeze, background, withSymmetryEnrichment, e.getKey(), save);
             c++;
        }
     }
