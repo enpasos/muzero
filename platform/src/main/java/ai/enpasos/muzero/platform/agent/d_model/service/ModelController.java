@@ -334,17 +334,26 @@ public class ModelController implements DisposableBean, Runnable {
 
 
         List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
-        long n = unrollStepsCountList.stream().mapToLong(UnrollStepsCount::getCount).sum();
+        //long n = unrollStepsCountList.stream().mapToLong(UnrollStepsCount::getCount).sum();
 
-        Map<Integer, Integer> sampleNumberMap = new HashMap<>();
+        Map<Integer, Double> sampleNumberMap = new HashMap<>();
+        double valueSum = 0d;
         for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
+
             if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
-                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) ((double) (unrollStepsCount.getCount() * nTrain) / n));
+                // factor 1/(1 + unrollSteps) gives less weight to longer unroll steps giving attribute to the fact that they are more effort to train
+                double value = (double) (unrollStepsCount.getCount() * 1/(1+ unrollStepsCount.getUnrollSteps()) );
+                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
+                valueSum += value;
             } else {
                  throw new MuZeroException("Check!");  // TODO this again and remove next line
             }
         }
-
+        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
+            double value = sampleNumberMap.get(unrollStepsCount.getUnrollSteps());
+            value = value / valueSum * nTrain;
+            sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
+        }
         log.info("sampleNumberMap: {}", sampleNumberMap);
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
@@ -354,9 +363,9 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
         int c = 0;
-        for(Map.Entry<Integer,Integer> e : sampleNumberMap.entrySet()) {
+        for(Map.Entry<Integer,Double> e : sampleNumberMap.entrySet()) {
             boolean save = (c == sampleNumberMap.size()-1);
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, e.getValue(), freeze, background, withSymmetryEnrichment, e.getKey(), save);
+            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, (int)Math.ceil(e.getValue()), freeze, background, withSymmetryEnrichment, e.getKey(), save);
             c++;
        }
     }
