@@ -309,7 +309,7 @@ if(ts.getUOk() != u) {
                 if (ts.getUOk() > unrollSteps) {
                     unrollSteps = ts.getUOk();
                 }
-                if (t + unrollSteps <= tmax && episodeDO.getTimeStep(t + unrollSteps).getS() >=  unrollSteps) {
+                if (t + unrollSteps < tmax && episodeDO.getTimeStep(t + unrollSteps).getS() >=  unrollSteps) {
                     unrollSteps++;
                 }
 
