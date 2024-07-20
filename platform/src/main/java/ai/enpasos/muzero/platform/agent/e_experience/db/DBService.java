@@ -290,14 +290,13 @@ public class DBService {
         //    boolean boxChangedGlobally = ts.updateBox(false, targetUGlobally);
 
             // conditionally update locally (if the testing was done on local goal level)
-            boolean boxChangedLocally = false;
+            boolean boxChanged = false;
 
-                int targetULocally = ts.getUnrollSteps();
-                boxChangedLocally = ts.updateBox(true, targetULocally);
+            int targetULocally = ts.getUnrollSteps();
+            boxChanged = ts.updateBox(targetULocally);
 
 
-
-            if (ts.isSChanged() || ts.isUOkChanged() ||    boxChangedLocally || ts.isUnrollStepsChanged()) {
+            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChanged || ts.isUnrollStepsChanged()) {
                 timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ), ts.getUnrollSteps());
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);

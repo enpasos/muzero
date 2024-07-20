@@ -279,7 +279,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     }
 
 
-    @Query("SELECT ts.unrollSteps as unrollSteps, COUNT(ts.id) as count FROM TimeStepDO ts GROUP BY ts.unrollSteps ORDER BY ts.unrollSteps ASC")
+    @Query("SELECT ts.unrollSteps as unrollSteps, COUNT(ts.id) as count FROM TimeStepDO ts WHERE Not ts.uOkClosed GROUP BY ts.unrollSteps ORDER BY ts.unrollSteps ASC")
     List<UnrollStepsCount> countTimeStepsByUnrollSteps();
 
 }

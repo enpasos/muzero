@@ -160,10 +160,6 @@ public class TestUnrollRulestate {
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
 
-
-        //        dbService.updateUnrollStepsOnEpisode(episodeDOList);
-
-
             // db update also in uOK and box
             dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
 

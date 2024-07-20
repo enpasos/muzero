@@ -332,9 +332,9 @@ public class ModelController implements DisposableBean, Runnable {
 
         int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
-        long n  = timestepRepo.count();
-        List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
 
+        List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
+        long n = unrollStepsCountList.stream().mapToLong(UnrollStepsCount::getCount).sum();
 
         Map<Integer, Integer> sampleNumberMap = new HashMap<>();
         for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
@@ -342,7 +342,6 @@ public class ModelController implements DisposableBean, Runnable {
                 sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) ((double) (unrollStepsCount.getCount() * nTrain) / n));
             } else {
                  throw new MuZeroException("Check!");  // TODO this again and remove next line
-          //      sampleNumberMap.remove(unrollStepsCount.getUnrollSteps());
             }
         }
 

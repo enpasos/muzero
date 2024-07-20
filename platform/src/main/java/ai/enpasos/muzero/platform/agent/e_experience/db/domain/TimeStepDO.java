@@ -71,7 +71,8 @@ public class TimeStepDO {
     int localBox = 0;
 
 
-    public boolean updateBox(boolean isLocally, int targetU) {
+    public boolean updateBox(int targetU) {
+        boolean isLocally = true;
         int boxBefore = getBox(isLocally);
         int boxAfter = boxBefore;
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
