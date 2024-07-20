@@ -314,9 +314,9 @@ if(ts.getUOk() != u) {
                 }
 
                 // intermediate can be removed later
-                if (unrollSteps > tmax - t  ) {
-                    unrollSteps = tmax - t;
-                }
+//                if (unrollSteps > tmax - t  ) {
+//                    unrollSteps = tmax - t;
+//                }
 
                 if (unrollStepsBefore != unrollSteps) {
                     ts.setUnrollStepsChanged(true);
