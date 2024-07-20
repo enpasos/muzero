@@ -341,7 +341,8 @@ public class ModelController implements DisposableBean, Runnable {
             if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
                 sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), (int) ((double) (unrollStepsCount.getCount() * nTrain) / n));
             } else {
-                throw new MuZeroException("Check!");
+              //  throw new MuZeroException("Check!");  // TODO this again and remove next line
+                sampleNumberMap.remove(unrollStepsCount.getUnrollSteps());
             }
         }
 
