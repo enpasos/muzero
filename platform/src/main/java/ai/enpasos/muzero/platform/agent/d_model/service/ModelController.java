@@ -354,13 +354,15 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-
+        int c = 0;
         for(Map.Entry<Integer,Integer> e : sampleNumberMap.entrySet()) {
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, e.getValue(), freeze, background, withSymmetryEnrichment, e.getKey());
+            boolean save = (c == sampleNumberMap.size()-1);
+            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, e.getValue(), freeze, background, withSymmetryEnrichment, e.getKey(), save);
+            c++;
        }
     }
 
-    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps) {
+    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
       //  gameBuffer.resetRelevantIds();
@@ -391,7 +393,7 @@ public class ModelController implements DisposableBean, Runnable {
 
             //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
 
-            boolean save = !iterator.hasNext();
+            boolean save = saveHere & !iterator.hasNext();
             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
