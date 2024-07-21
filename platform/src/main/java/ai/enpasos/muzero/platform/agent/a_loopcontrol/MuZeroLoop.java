@@ -148,13 +148,13 @@ public class MuZeroLoop {
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
 
-                    firstBoxes = firstBoxes();
+                firstBoxes = firstBoxes();
 
             }
 
             while (firstBoxes == 0) {
                 unrollSteps++;
-                timestepRepo.resetBox();
+               // timestepRepo.resetBox();
                // testUnrollRulestate.handleUnrollStepsIncrease(unrollSteps);
                 testUnrollRulestate.test(false, unrollSteps);
                 firstBoxes = firstBoxes();
