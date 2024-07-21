@@ -125,13 +125,16 @@ public class MuZeroLoop {
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-                DurAndMem duration = new DurAndMem();
+            testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+
+
+
+            DurAndMem duration = new DurAndMem();
                 duration.on();
 
                 boolean[] freeze = new boolean[]{false, true, true};
                 if (rulesTraining) {
                     modelService.trainModelRules(freeze, unrollSteps).get();
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch);
                 }
 
                 epoch = modelState.getEpoch();

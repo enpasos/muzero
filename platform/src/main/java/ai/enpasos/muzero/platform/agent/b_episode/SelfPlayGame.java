@@ -41,20 +41,23 @@ public class SelfPlayGame {
 
 
 
-    public void uOkAnalyseGame(Game game ) {
+    public void uOkAnalyseGame(Game game, boolean allTimesteps, int unrollSteps ) {
         log.trace("uOkAnalyseGame");
         int tMax = game.getEpisodeDO().getLastTime();
         for (int tFrom = 0; tFrom <= tMax; tFrom++) {
-            int uOk = analyseFromOneTime(game, tFrom );
+            int uOk = analyseFromOneTime(game, tFrom, allTimesteps, unrollSteps);
             updateUOk(game.getEpisodeDO(), tFrom, uOk);
         }
     }
 
-    private int analyseFromOneTime(Game game,   int tFrom ) {
+    // unrollSteps only relevant if allTimesteps is false
+    private int analyseFromOneTime(Game game,   int tFrom, boolean allTimesteps, int unrollSteps) {
         EpisodeDO episode = game.getEpisodeDO();
 
         int tMax =  episode.getLastTime();
-
+        if (!allTimesteps) {
+            tMax = Math.min(episode.getLastTime(), tFrom + unrollSteps);
+        }
         NDArray[] hiddenState = null;
         NetworkIO networkOutput;
         int t = tFrom;

@@ -141,12 +141,12 @@ public class PlayService {
 
 
 
-    public List<Game> uOkAnalyseGames(List<Game> games  ) {
+    public List<Game> uOkAnalyseGames(List<Game> games, boolean allTimesteps, int unrollSteps  ) {
         List<Game> gamesReturn = new ArrayList<>();
         modelService.startScope();
         giveOneOfTheGamesADebugFlag(games);
         CompletableFuture<Game>[] futures = games.stream().map(g ->
-                episodeRunner.uOkAnalyseGame(g )
+                episodeRunner.uOkAnalyseGame(g, allTimesteps, unrollSteps)
         ).toArray(CompletableFuture[]::new);
         CompletableFuture.allOf(futures).join();
         for (CompletableFuture<Game> future : futures) {
