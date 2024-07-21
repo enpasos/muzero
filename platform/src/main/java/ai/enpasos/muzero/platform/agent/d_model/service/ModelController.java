@@ -246,7 +246,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground());
+                    trainNetworkRules(task.freeze, task.isBackground(), task.getNumUnrollSteps());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -324,7 +324,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background) {
+    private void trainNetworkRules(boolean[] freeze, boolean background, int unrollSteps) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -333,28 +333,28 @@ public class ModelController implements DisposableBean, Runnable {
         int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
 
-        List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
-        //long n = unrollStepsCountList.stream().mapToLong(UnrollStepsCount::getCount).sum();
-
-        Map<Integer, Double> sampleNumberMap = new HashMap<>();
-        double valueSum = 0d;
-        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
-
-            if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
-                // factor 1/(1 + unrollSteps) gives less weight to longer unroll steps giving attribute to the fact that they are more effort to train
-                double value = (unrollStepsCount.getCount() * 1.0/(1.0 + unrollStepsCount.getUnrollSteps()) );
-                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
-                valueSum += value;
-            } else {
-                 throw new MuZeroException("Check!");  // TODO this again and remove next line
-            }
-        }
-        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
-            double value = sampleNumberMap.get(unrollStepsCount.getUnrollSteps());
-            value = Math.ceil(value / valueSum * nTrain);
-            sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
-        }
-        log.info("sampleNumberMap: {}", sampleNumberMap);
+//        List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
+//        //long n = unrollStepsCountList.stream().mapToLong(UnrollStepsCount::getCount).sum();
+//
+//        Map<Integer, Double> sampleNumberMap = new HashMap<>();
+//        double valueSum = 0d;
+//        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
+//
+//            if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
+//                // factor 1/(1 + unrollSteps) gives less weight to longer unroll steps giving attribute to the fact that they are more effort to train
+//                double value = (unrollStepsCount.getCount() * 1.0/(1.0 + unrollStepsCount.getUnrollSteps()) );
+//                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
+//                valueSum += value;
+//            } else {
+//                 throw new MuZeroException("Check!");  // TODO this again and remove next line
+//            }
+//        }
+//        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
+//            double value = sampleNumberMap.get(unrollStepsCount.getUnrollSteps());
+//            value = Math.ceil(value / valueSum * nTrain);
+//            sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
+//        }
+//        log.info("sampleNumberMap: {}", sampleNumberMap);
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
         Model model = network.getModel();
@@ -363,11 +363,11 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
         int c = 0;
-        for(Map.Entry<Integer,Double> e : sampleNumberMap.entrySet()) {
-            boolean save = (c == sampleNumberMap.size()-1);
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, (int) ((double)e.getValue()), freeze, background, withSymmetryEnrichment, e.getKey(), save);
+       // for(Map.Entry<Integer,Double> e : sampleNumberMap.entrySet()) {
+        //    boolean save = (c == sampleNumberMap.size()-1);
+            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment, unrollSteps, true);
             c++;
-       }
+     //  }
     }
 
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {

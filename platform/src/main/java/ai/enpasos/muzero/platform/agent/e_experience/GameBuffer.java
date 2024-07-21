@@ -717,7 +717,7 @@ public class GameBuffer {
         List<IdProjection> relevantEpisodeIds = new ArrayList<>();
         List newIds;
         do {
-            newIds = timestepRepo.getTimeStepIdsByUnrollStepsAndBoxesRelevant( unrollSteps,  boxesRelevant, limit,  offset);
+            newIds = timestepRepo.getTimeStepIdsByBoxesRelevant(boxesRelevant, limit,  offset);
             relevantEpisodeIds.addAll(newIds);
             offset += limit;
         } while (newIds.size() > 0);

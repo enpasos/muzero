@@ -119,7 +119,7 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
 
         }
 
@@ -136,7 +136,7 @@ public class TestUnrollRulestate {
 //        test(allTimeStepsWhichMeansLocally, unrollStepsGlobally, false);
 //    }
 
-    public void test( ) {
+    public void test(boolean allTimeSteps, int unrollSteps ) {
 
 
         int epoch = networkIOService.getLatestNetworkEpoch();
@@ -151,17 +151,19 @@ public class TestUnrollRulestate {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(gameBuffer, true, -1  );
+            playService.uOkAnalyseGames(gameBuffer, allTimeSteps, unrollSteps  );
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-            ZipperFunctions.calculateUnrollSteps(episodeDOList);
+            if (allTimeSteps) {
+                ZipperFunctions.calculateUnrollSteps(episodeDOList);
+            }
 
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
+            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
 
         }
 
@@ -172,7 +174,7 @@ public class TestUnrollRulestate {
     }
 
 
-    public void testOneGame(long episodeId ) {
+    public void testOneGame(long episodeId , int unrollSteps ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
         boolean allTimeStepsWhichMeansLocally = true;
@@ -193,7 +195,7 @@ public class TestUnrollRulestate {
 
 
         // db update also in uOK and box
-        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps );
+        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
 
     }
 

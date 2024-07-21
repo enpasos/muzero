@@ -64,7 +64,7 @@ class UOKAnalyseTest {
         Game game = config.newGame(true, true);
         game.apply(a);
 
-        selfPlayGame.uOkAnalyseGame(game );
+        selfPlayGame.uOkAnalyseGame(game, true, 1 );
         List<Integer> uOks = game.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.getUOk()).boxed().collect(Collectors.toList());
         log.info("uOks: " + uOks);
         Integer[] uOKExpected = new Integer[a.length + 1];
