@@ -2,11 +2,7 @@
 lombok = "1.18.34"
 djl = "0.29.0"
 
-# do not use 2.3.0! There is a dynamical linkage problem with the native library mkl_intel_thread.1.dll. Will be fixed in 2.3.1 linking MKL statically
-# 21.07.2024: Tried with 2.3.1. Still the same problem. I reopened the issue:
-# https://github.com/deepjavalibrary/djl/issues/3232
-pytorch = "2.2.2"
-#pytorchjni = "2.3.1-0.29.0"
+pytorch = "2.3.1"
 
 slf4j = "2.0.13"
 springboot = "3.3.2"
