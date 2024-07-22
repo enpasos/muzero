@@ -144,7 +144,7 @@ public class TestUnrollRulestate {
 
 
         int epoch = networkIOService.getLatestNetworkEpoch();
-        log.info("testUnrollRulestate.run(), epoch = {} ", epoch );
+        log.info("testUnrollRulestate.run(), epoch = {}, unrollSteps = {}, allTimeSteps = {} ", epoch, unrollSteps, allTimeSteps );
 
         modelService.loadLatestModel(epoch).join();  // TODO: check if this is necessary
 

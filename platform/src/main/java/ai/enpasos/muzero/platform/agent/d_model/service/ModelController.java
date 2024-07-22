@@ -362,12 +362,9 @@ public class ModelController implements DisposableBean, Runnable {
         muZeroBlock.setRulesModel(true);
         int epochLocal = getEpochFromModel(model);
 
-        int c = 0;
-       // for(Map.Entry<Integer,Double> e : sampleNumberMap.entrySet()) {
-        //    boolean save = (c == sampleNumberMap.size()-1);
-            trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment, unrollSteps, true);
-            c++;
-     //  }
+
+         trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment, unrollSteps, true);
+
     }
 
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
