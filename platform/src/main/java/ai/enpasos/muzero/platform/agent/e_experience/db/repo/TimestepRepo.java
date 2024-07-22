@@ -310,6 +310,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void updateNextUOk(long id, int nextUOk);
 
 
+    @Transactional
     @Modifying
     @Query("UPDATE TimeStepDO t SET t.nextuoktarget = LEAST(:unrollSteps - 1, (SELECT e.tmax FROM EpisodeDO e WHERE e.id = t.episode.id) - t.t)")
     void updateNextUOkTarget(int unrollSteps);
