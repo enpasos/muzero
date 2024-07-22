@@ -708,19 +708,23 @@ public class GameBuffer {
     public List<IdProjection> getIdsRelevantForTraining(int unrollSteps, int sampleNumber, int epoch) {
 
 
-        int maxBox = timestepRepo.maxLocalBox();
-        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+      //  int maxBox = timestepRepo.maxLocalBox();
+       // List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
 
         int limit = 50000;
 
         int offset = 0;
         List<IdProjection> relevantEpisodeIds = new ArrayList<>();
         List newIds;
+        int box = 0;
         do {
-            newIds = timestepRepo.getTimeStepIdsByBoxesRelevant(boxesRelevant, limit,  offset);
-            relevantEpisodeIds.addAll(newIds);
-            offset += limit;
-        } while (newIds.size() > 0);
+            do {
+                newIds = timestepRepo.getTimeStepIdsInBox(box, limit, offset);
+                relevantEpisodeIds.addAll(newIds);
+                offset += limit;
+            } while (newIds.size() > 0);
+            box++;
+        }   while (relevantEpisodeIds.size() < sampleNumber);
         Collections.shuffle(relevantEpisodeIds );
         return relevantEpisodeIds.subList(0, Math.min(sampleNumber, relevantEpisodeIds.size()));
 

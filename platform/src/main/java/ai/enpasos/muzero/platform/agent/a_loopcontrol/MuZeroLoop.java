@@ -130,13 +130,14 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+
                 DurAndMem duration = new DurAndMem();
                 duration.on();
 
                 boolean[] freeze = new boolean[]{false, true, true};
               //  if (rulesTraining) {
                     modelService.trainModelRules(freeze, unrollSteps).get();
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
              //   }
 
                 epoch = modelState.getEpoch();
