@@ -719,7 +719,11 @@ public class GameBuffer {
       //  int box = 0;
         //   do {
             do {
-                newIds = timestepRepo.getTimeStepIdsByBoxesRelevant(unrollSteps, boxesRelevant, limit, offset);
+
+                newIds = (unrollSteps == 1) ?
+                          timestepRepo.getTimeStepIdsByBoxesRelevant0(boxesRelevant, limit, offset)
+                        : timestepRepo.getTimeStepIdsByBoxesRelevant(unrollSteps, boxesRelevant, limit, offset);
+
                 relevantEpisodeIds.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
