@@ -110,7 +110,9 @@ public class TimeStepDO {
     int nextUOk = 100000;   // a large number will not hinder
 
 
-    int unrollSteps;
+    int nextuoktarget;
+
+
 
     @Transient
     boolean unrollStepsChanged;

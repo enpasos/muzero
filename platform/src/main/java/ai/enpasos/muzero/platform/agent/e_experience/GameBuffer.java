@@ -722,7 +722,7 @@ public class GameBuffer {
 
                 newIds = (unrollSteps == 1) ?
                           timestepRepo.getTimeStepIdsByBoxesRelevant0(boxesRelevant, limit, offset)
-                        : timestepRepo.getTimeStepIdsByBoxesRelevant(unrollSteps, boxesRelevant, limit, offset);
+                        : timestepRepo.getTimeStepIdsByBoxesRelevant( boxesRelevant, limit, offset);
 
                 relevantEpisodeIds.addAll(newIds);
                 offset += limit;

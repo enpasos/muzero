@@ -289,8 +289,8 @@ public class DBService {
             boolean boxChanged  = ts.updateBox( unrollSteps);
 
             if (ts.isSChanged() || ts.isUOkChanged() ||  boxChanged || ts.isUnrollStepsChanged()) {
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ), ts.getUnrollSteps());
-                if ( ts.getT() > 0) {
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ) );
+                if ( ts.getT() > 0) {  // TODO merge with update above
                     timestepRepo.updateNextUOk(ts.getEpisode().getTimeStep((ts.getT() - 1)).getId(), ts.getUOk());
                 }
                 ts.setSChanged(false);
@@ -299,6 +299,14 @@ public class DBService {
             ts.setUOkTested(false);
 
         });
+    }
+
+    public void setNextuoktarget(int unrollSteps) {
+        // min(unrollSteps – 1, tmax-t)
+
+        episodeRepo.updateTmax();
+        timestepRepo.updateNextUOkTarget(unrollSteps);
+
     }
 
 //    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {

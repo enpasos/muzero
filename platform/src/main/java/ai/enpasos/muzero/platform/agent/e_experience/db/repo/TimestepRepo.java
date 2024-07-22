@@ -157,8 +157,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed, t.uOk = :uOk, t.uOkClosed = :uOkClosed, t.localBox = :boxLocally, t.box = :boxGlobally, t.unrollSteps = :unrollSteps where t.id = :id" )
-    void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long boxLocally, long boxGlobally, int unrollSteps);
+    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed, t.uOk = :uOk, t.uOkClosed = :uOkClosed, t.localBox = :boxLocally, t.box = :boxGlobally where t.id = :id" )
+    void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long boxLocally, long boxGlobally );
 
 
     @Transactional
@@ -272,9 +272,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
                 int offset);
 
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box IN :boxesRelevant and t.nextuok > :unrollSteps-1 ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box IN :boxesRelevant and t.nextuok >= t.nextuoktarget ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getTimeStepIdsByBoxesRelevant(
-            int unrollSteps,
             List<Integer> boxesRelevant,
             int limit,
             int offset);
@@ -295,19 +294,24 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Query(value = "SELECT min(ts.unrollSteps) FROM TimeStepDO ts")
-    default int minUnrollSteps() {
-        return 1;
-    }
-
-
-    @Query("SELECT ts.unrollSteps as unrollSteps, COUNT(ts.id) as count FROM TimeStepDO ts WHERE Not ts.uOkClosed GROUP BY ts.unrollSteps ORDER BY ts.unrollSteps ASC")
-    List<UnrollStepsCount> countTimeStepsByUnrollSteps();
+//    @Query(value = "SELECT min(ts.unrollSteps) FROM TimeStepDO ts")
+//    default int minUnrollSteps() {
+//        return 1;
+//    }
+//
+//
+//    @Query("SELECT ts.unrollSteps as unrollSteps, COUNT(ts.id) as count FROM TimeStepDO ts WHERE Not ts.uOkClosed GROUP BY ts.unrollSteps ORDER BY ts.unrollSteps ASC")
+//    List<UnrollStepsCount> countTimeStepsByUnrollSteps();
 
 
     @Transactional
     @Modifying
     @Query(value = "update TimeStepDO t set t.nextUOk = :nextUOk where t.id = :id" )
     void updateNextUOk(long id, int nextUOk);
+
+
+    @Modifying
+    @Query("UPDATE TimeStepDO t SET t.nextuoktarget = LEAST(:unrollSteps - 1, (SELECT e.tmax FROM EpisodeDO e WHERE e.id = t.episode.id) - t.t)")
+    void updateNextUOkTarget(int unrollSteps);
 }
 

@@ -298,26 +298,26 @@ if(ts.getUOk() != u) {
 
     }
 
-    public static void calculateUnrollSteps(List<EpisodeDO> episodeDOList) {
-
-        for (EpisodeDO episodeDO : episodeDOList) {
-            int tmax = episodeDO.getLastTime();
-            for (int t = 0; t <= tmax; t++) {
-                TimeStepDO ts = episodeDO.getTimeStep(t);
-                int unrollStepsBefore = ts.getUnrollSteps();
-                int unrollSteps =  1;  // starting point
-                if (ts.getUOk() > unrollSteps) {
-                    unrollSteps = ts.getUOk();
-                }
-                if (t + unrollSteps < tmax && episodeDO.getTimeStep(t + unrollSteps).getS() >=  unrollSteps) {
-                    unrollSteps++;
-                }
-
-                if (unrollStepsBefore != unrollSteps) {
-                    ts.setUnrollStepsChanged(true);
-                }
-                ts.setUnrollSteps(unrollSteps);
-            }
-        }
-    }
+//    public static void calculateUnrollSteps(List<EpisodeDO> episodeDOList) {
+//
+//        for (EpisodeDO episodeDO : episodeDOList) {
+//            int tmax = episodeDO.getLastTime();
+//            for (int t = 0; t <= tmax; t++) {
+//                TimeStepDO ts = episodeDO.getTimeStep(t);
+//                int unrollStepsBefore = ts.getUnrollSteps();
+//                int unrollSteps =  1;  // starting point
+//                if (ts.getUOk() > unrollSteps) {
+//                    unrollSteps = ts.getUOk();
+//                }
+//                if (t + unrollSteps < tmax && episodeDO.getTimeStep(t + unrollSteps).getS() >=  unrollSteps) {
+//                    unrollSteps++;
+//                }
+//
+//                if (unrollStepsBefore != unrollSteps) {
+//                    ts.setUnrollStepsChanged(true);
+//                }
+//                ts.setUnrollSteps(unrollSteps);
+//            }
+//        }
+//    }
 }

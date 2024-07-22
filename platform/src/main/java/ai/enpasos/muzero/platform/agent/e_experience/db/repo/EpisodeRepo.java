@@ -143,4 +143,11 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
 
+
+    @Modifying
+    @Query("UPDATE EpisodeDO e SET e.tmax = (SELECT MAX(t.t) FROM TimeStepDO t WHERE t.episode.id = e.id)")
+    void updateTmax();
+
+
+
 }
