@@ -708,7 +708,7 @@ public class GameBuffer {
     public List<IdProjection> getIdsRelevantForTraining(int unrollSteps, int sampleNumber, int epoch) {
 
 
-        int maxBox = timestepRepo.maxLocalBox();
+        int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
 
         int limit = 50000;
