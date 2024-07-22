@@ -272,7 +272,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
                 int offset);
 
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box IN :boxesRelevant and t.next_u_ok > :unrollSteps-1 ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box IN :boxesRelevant and t.nextuok > :unrollSteps-1 ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getTimeStepIdsByBoxesRelevant(
             int unrollSteps,
             List<Integer> boxesRelevant,
