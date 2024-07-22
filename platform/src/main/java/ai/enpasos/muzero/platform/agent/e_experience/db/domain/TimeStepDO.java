@@ -106,6 +106,9 @@ public class TimeStepDO {
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok
 
+    @Builder.Default
+    int nextUOk = 100000;   // a large number will not hinder
+
 
     int unrollSteps;
 

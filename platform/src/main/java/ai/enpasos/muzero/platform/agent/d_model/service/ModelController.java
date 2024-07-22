@@ -332,29 +332,6 @@ public class ModelController implements DisposableBean, Runnable {
 
         int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
-
-//        List<UnrollStepsCount> unrollStepsCountList =  timestepRepo.countTimeStepsByUnrollSteps();
-//        //long n = unrollStepsCountList.stream().mapToLong(UnrollStepsCount::getCount).sum();
-//
-//        Map<Integer, Double> sampleNumberMap = new HashMap<>();
-//        double valueSum = 0d;
-//        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
-//
-//            if (unrollStepsCount.getUnrollSteps() <= config.getMaxUnrollSteps()) {
-//                // factor 1/(1 + unrollSteps) gives less weight to longer unroll steps giving attribute to the fact that they are more effort to train
-//                double value = (unrollStepsCount.getCount() * 1.0/(1.0 + unrollStepsCount.getUnrollSteps()) );
-//                sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
-//                valueSum += value;
-//            } else {
-//                 throw new MuZeroException("Check!");  // TODO this again and remove next line
-//            }
-//        }
-//        for (UnrollStepsCount unrollStepsCount : unrollStepsCountList) {
-//            double value = sampleNumberMap.get(unrollStepsCount.getUnrollSteps());
-//            value = Math.ceil(value / valueSum * nTrain);
-//            sampleNumberMap.put(unrollStepsCount.getUnrollSteps(), value);
-//        }
-//        log.info("sampleNumberMap: {}", sampleNumberMap);
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
         Model model = network.getModel();
@@ -370,7 +347,6 @@ public class ModelController implements DisposableBean, Runnable {
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
-      //  gameBuffer.resetRelevantIds();
         List<IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining(unrollSteps, sampleNumber, epochLocal);
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();

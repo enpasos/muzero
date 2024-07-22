@@ -286,18 +286,17 @@ public class DBService {
 
         timesteps.stream().forEach(ts -> {
 
-            // always update globally
             boolean boxChanged  = ts.updateBox( unrollSteps);
-
-            // conditionally update locally (if the testing was done on local goal level)
-       //     boolean boxChanged = false;
-
-     //       int targetULocally = ts.getUnrollSteps();
-       //     boxChanged = ts.updateBox(targetULocally);
-
 
             if (ts.isSChanged() || ts.isUOkChanged() ||  boxChanged || ts.isUnrollStepsChanged()) {
                 timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ), ts.getUnrollSteps());
+                if ( ts.getT() > 0) {
+                    int nextUOK = 100000; // a large number will not hinder
+                    if (unrollSteps > 1  ) {
+                        nextUOK = ts.getUOk();
+                    }
+                    timestepRepo.updateNextUOk(ts.getEpisode().getTimeStep((ts.getT() - 1)).getId(), nextUOK);
+                }
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
             }
