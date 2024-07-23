@@ -302,7 +302,7 @@ public class DBService {
     }
 
     public void setNextuoktarget(int unrollSteps) {
-        // min(unrollSteps – 1, tmax-t)
+        // min(unrollSteps – 1, tmax-(t+1))
 
         episodeRepo.updateTmax();
         timestepRepo.updateNextUOkTarget(unrollSteps);

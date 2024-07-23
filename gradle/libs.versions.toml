@@ -18,7 +18,6 @@ djl-basicdataset = { module = "ai.djl:basicdataset", version.ref = "djl" }
 djl-pytorch-engine = { module = "ai.djl.pytorch:pytorch-engine", version.ref = "djl" }
 djl-pytorch-model-zoo = { module = "ai.djl.pytorch:pytorch-model-zoo", version.ref = "djl" }
 djl-pytorch-native-cu121 = { module = "ai.djl.pytorch:pytorch-native-cu121", version.ref = "pytorch" }
-#djl-pytorch-jni = { module = "ai.djl.pytorch:pytorch-jni", version.ref = "pytorchjni" }
 
 djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", version.ref = "djl" }
 
@@ -59,7 +58,7 @@ h2database = { module = "com.h2database:h2", version = "2.3.230" }
 
 
 [bundles]
-djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu121"] #, "djl-pytorch-jni"]
+djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu121"]
 commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-lang", "commons-collections" ]
 
 

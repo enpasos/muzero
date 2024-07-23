@@ -84,10 +84,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<Long> findNRandomEpisodeIdsWeightedA(int groupClass, int n );
 
 
-    @Transactional
-    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box < :box order by t.id limit :limit OFFSET :offset", nativeQuery = true)
-
-    List<Long> findNEpisodeIdsRelevantForRuleLearning(int box, int limit, int offset);
+//    @Transactional
+//    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box < :box order by t.id limit :limit OFFSET :offset", nativeQuery = true)
+//
+//    List<Long> findNEpisodeIdsRelevantForRuleLearning(int box, int limit, int offset);
 
 
 
@@ -127,9 +127,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT max(t.box) FROM  timestep t", nativeQuery = true)
     int maxBox( );
 
-    @Transactional
-    @Query(value = "SELECT max(t.local_box) FROM  timestep t", nativeQuery = true)
-    int maxLocalBox( );
+//    @Transactional
+//    @Query(value = "SELECT max(t.local_box) FROM  timestep t", nativeQuery = true)
+//    int maxLocalBox( );
 
     @Transactional
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t", nativeQuery = true)
@@ -143,17 +143,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT DISTINCT t.u_ok FROM timestep t WHERE not t.u_ok_closed ORDER BY t.u_ok ASC", nativeQuery = true)
     List<Integer> uOkList();
 
-    @Query(value = "SELECT DISTINCT t.box FROM timestep t  ORDER BY t.box ASC", nativeQuery = true)
-    List<Integer> boxList();
-
-    @Query("SELECT t.box as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.box ORDER BY t.box ASC")
-    List<BoxOccupation> boxOccupation();
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed where t.id = :id" )
-    void updateAttributeS(Long id, long s, boolean sClosed);
+//    @Query(value = "SELECT DISTINCT t.box FROM timestep t  ORDER BY t.box ASC", nativeQuery = true)
+//    List<Integer> boxList();
+//
+//    @Query("SELECT t.box as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.box ORDER BY t.box ASC")
+//    List<BoxOccupation> boxOccupation();
+//
+//
+//    @Transactional
+//    @Modifying
+//    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed where t.id = :id" )
+//    void updateAttributeS(Long id, long s, boolean sClosed);
 
     @Transactional
     @Modifying
@@ -161,17 +161,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long boxLocally, long boxGlobally );
 
 
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set  t.box = :box where t.id = :id" )
-    void updateAttributeBox(Long id,  long box);
-
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.uOk = :u where t.id = :id" )
-    void updateAttributeUOk(Long id, long u);
+//    @Transactional
+//    @Modifying
+//    @Query(value = "update TimeStepDO t set  t.box = :box where t.id = :id" )
+//    void updateAttributeBox(Long id,  long box);
+//
+//
+//
+//    @Transactional
+//    @Modifying
+//    @Query(value = "update TimeStepDO t set t.uOk = :u where t.id = :id" )
+//    void updateAttributeUOk(Long id, long u);
 
 
 
@@ -312,7 +312,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE TimeStepDO t SET t.nextuoktarget = LEAST(:unrollSteps - 1, (SELECT e.tmax FROM EpisodeDO e WHERE e.id = t.episode.id) - t.t)")
+    @Query("UPDATE TimeStepDO t SET t.nextuoktarget = LEAST(:unrollSteps - 1, (SELECT e.tmax FROM EpisodeDO e WHERE e.id = t.episode.id) - t.t - 1)")
     void updateNextUOkTarget(int unrollSteps);
 }
 
