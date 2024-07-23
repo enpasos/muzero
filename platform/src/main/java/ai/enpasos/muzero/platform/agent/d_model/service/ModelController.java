@@ -428,7 +428,7 @@ public class ModelController implements DisposableBean, Runnable {
 
 
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
-                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
+                            batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
                             dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps);
 
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
