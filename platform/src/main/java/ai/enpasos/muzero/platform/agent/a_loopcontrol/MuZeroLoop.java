@@ -154,7 +154,7 @@ public class MuZeroLoop {
 
             }
 
-            while (firstBoxes == 0) {
+            while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
                 dbService.setNextuoktarget(unrollSteps);
                // timestepRepo.resetBox();
