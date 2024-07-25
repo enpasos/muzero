@@ -709,10 +709,12 @@ public class GameBuffer {
 
 
         int maxBox = timestepRepo.maxBox();
-        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
-        while(boxesRelevant.stream().mapToLong(i -> i).sum() == 0) {  // virtual epoch increase to get some data
+
+
+        List<BoxOccupation> occupations = timestepRepo.boxOccupation();
+
+        while(relevantBoxesAreOccupied(epoch, occupations, maxBox )) {  // virtual epoch increase to get some data
             epoch++;
-            boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
         }
 
         int limit = 50000;
@@ -722,11 +724,12 @@ public class GameBuffer {
         List newIds;
       //  int box = 0;
         //   do {
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
             do {
 
                 newIds = (unrollSteps == 1) ?
                           timestepRepo.getTimeStepIdsByBoxesRelevant0(boxesRelevant, limit, offset)
-                        : timestepRepo.getTimeStepIdsByBoxesRelevant( boxesRelevant, limit, offset);
+                        : timestepRepo.getTimeStepIdsByBoxesRelevant(boxesRelevant, limit, offset);
 
                 relevantEpisodeIds.addAll(newIds);
                 offset += limit;
@@ -736,6 +739,16 @@ public class GameBuffer {
         Collections.shuffle(relevantEpisodeIds );
         return relevantEpisodeIds.subList(0, Math.min(sampleNumber, relevantEpisodeIds.size()));
 
+    }
+
+    private boolean relevantBoxesAreOccupied(int epoch, List<BoxOccupation> occupations, int maxBox) {
+        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+        for (int box : boxesRelevant) {
+            if (occupations.stream().anyMatch(occupation -> occupation.getBox() == box && occupation.getCount() > 0)){
+                return true;
+            }
+        }
+        return false;
     }
 
 
