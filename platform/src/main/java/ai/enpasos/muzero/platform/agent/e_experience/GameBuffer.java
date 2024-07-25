@@ -713,7 +713,7 @@ public class GameBuffer {
 
         List<BoxOccupation> occupations = timestepRepo.boxOccupation();
 
-        while(relevantBoxesAreOccupied(epoch, occupations, maxBox )) {  // virtual epoch increase to get some data
+        while(!relevantBoxesAreOccupied(epoch, occupations, maxBox )) {  // virtual epoch increase to get some data
             epoch++;
         }
 
