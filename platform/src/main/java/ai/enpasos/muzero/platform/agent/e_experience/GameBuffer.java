@@ -710,6 +710,10 @@ public class GameBuffer {
 
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+        while(boxesRelevant.stream().mapToLong(i -> i).sum() == 0) {  // virtual epoch increase to get some data
+            epoch++;
+            boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+        }
 
         int limit = 50000;
 
