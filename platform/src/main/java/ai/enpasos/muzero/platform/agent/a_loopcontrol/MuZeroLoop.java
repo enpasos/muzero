@@ -227,8 +227,8 @@ public class MuZeroLoop {
     }
 
     private long firstBoxes() {
-        long firstBoxes = timestepRepo.numBoxUpTo(0);
-        log.info("num in first global boxes (0): {}", firstBoxes);
+        long firstBoxes = timestepRepo.numBoxUpTo(1);
+        log.info("num in first global boxes (0, 1): {}", firstBoxes);
         return firstBoxes;
     }
 
