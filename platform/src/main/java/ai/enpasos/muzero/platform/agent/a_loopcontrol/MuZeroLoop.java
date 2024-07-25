@@ -120,7 +120,7 @@ public class MuZeroLoop {
 
         int unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
         log.info("unrollSteps: {}", unrollSteps);
-
+        dbService.setNextuoktarget(unrollSteps);
 
         long firstBoxes = firstBoxes();
 
