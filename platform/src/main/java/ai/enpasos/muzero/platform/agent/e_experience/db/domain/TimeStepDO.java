@@ -65,7 +65,7 @@ public class TimeStepDO {
 //    boolean ruleTrainingSuccess ;  // if trained, was it successful?
 
     @Builder.Default
-    int box = 0;
+    int box = -1;
 
     @Builder.Default
     int localBox = 0;
@@ -78,7 +78,9 @@ public class TimeStepDO {
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
             boxAfter = 0;
         } else { // ok
-            if (isUOkTested() || boxBefore <= 0 ) {
+            if (  boxBefore == -1 ) {
+                boxAfter = 2;
+            } else if (isUOkTested() || boxBefore <= 0 ) {
                 boxAfter = boxBefore + 1;
             }
         }
