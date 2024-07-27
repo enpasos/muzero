@@ -14,7 +14,7 @@ public class TicTacToeTestUnrollRulestate {
     TestUnrollRulestate testUnrollRulestate;
 
     public void run() {
-        testUnrollRulestate.test(true, 1);
+        testUnrollRulestate.test();
 
     }
 }
