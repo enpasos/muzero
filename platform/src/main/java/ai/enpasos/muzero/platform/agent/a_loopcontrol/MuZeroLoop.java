@@ -116,7 +116,7 @@ public class MuZeroLoop {
 
         gameBuffer.clearEpisodeIds();
 
-        testUnrollRulestate.test(true, 1);
+        testUnrollRulestate.test( );
 
         int unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
         log.info("unrollSteps: {}", unrollSteps);
@@ -130,7 +130,7 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
-             //   testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
@@ -159,7 +159,7 @@ public class MuZeroLoop {
                 dbService.setNextuoktarget(unrollSteps);
                // timestepRepo.resetBox();
                // testUnrollRulestate.handleUnrollStepsIncrease(unrollSteps);
-                testUnrollRulestate.test(false, unrollSteps);
+                testUnrollRulestate.test(  unrollSteps);
                 firstBoxes = firstBoxes();
               //  tested = true;
             }
@@ -167,7 +167,7 @@ public class MuZeroLoop {
             if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-                testUnrollRulestate.test(true, unrollSteps);
+                testUnrollRulestate.test( unrollSteps);
                 //   testUnrollRulestate.test(false, unrollSteps);  TODO check
 
            //     tested = true;
@@ -227,8 +227,8 @@ public class MuZeroLoop {
     }
 
     private long firstBoxes() {
-        long firstBoxes = timestepRepo.numBoxUpTo(1);
-        log.info("num in first global boxes (0, 1): {}", firstBoxes);
+        long firstBoxes = timestepRepo.numBoxUpTo(config.getNumberTrainingBoxes());
+        log.info("num in first global boxes (0, ..., {}): {}", config.getNumberTrainingBoxes(),  firstBoxes);
         return firstBoxes;
     }
 

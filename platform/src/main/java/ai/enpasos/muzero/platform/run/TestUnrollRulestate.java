@@ -69,15 +69,15 @@ public class TestUnrollRulestate {
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
 
-        if (boxesRelevant.size() == 0 || (boxesRelevant.size() > 0 && boxesRelevant.getLast() < 1)) {
-            log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>0) found ... finished");
-            return;
-        }
 
-        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
+
+        while (boxesRelevant.size() > 0 && boxesRelevant.get(0) <= config.getNumberTrainingBoxes()) {
             boxesRelevant.remove(0);
         }
-
+if (boxesRelevant.size() == 0) {
+    log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>config.getNumberTrainingBoxes()) found ... finished");
+    return;
+}
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
@@ -140,7 +140,15 @@ public class TestUnrollRulestate {
 //        test(allTimeStepsWhichMeansLocally, unrollStepsGlobally, false);
 //    }
 
-    public void test(boolean allTimeSteps, int unrollSteps ) {
+    public void test( ) {
+      test(true, 1);
+    }
+
+    public void test(int unrollSteps ) {
+        test(false, unrollSteps);
+    }
+
+    private void test(boolean allTimeSteps, int unrollSteps ) {
 
 
         int epoch = networkIOService.getLatestNetworkEpoch();

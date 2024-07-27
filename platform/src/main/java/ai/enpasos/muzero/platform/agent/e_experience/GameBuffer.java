@@ -708,7 +708,7 @@ public class GameBuffer {
     public List<IdProjection> getIdsRelevantForTraining(int unrollSteps, int sampleNumber, int epoch) {
 
 
-        int maxBox = timestepRepo.maxBox();
+        int maxBox = Math.max(timestepRepo.maxBox(), config.getMaxUnrollSteps());
 
 
         List<BoxOccupation> occupations = timestepRepo.boxOccupation();

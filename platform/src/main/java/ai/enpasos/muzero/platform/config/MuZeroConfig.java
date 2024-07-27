@@ -307,6 +307,10 @@ public class MuZeroConfig {
         return getConf().numberTrainingStepsOnStart;
     }
 
+    public int getNumberTrainingBoxes() {
+        return getConf().numberTrainingBoxes;
+    }
+
 
     public double getRootDirichletAlpha() {
         return getConf().getPlayTypes().get(getConf().getPlayTypeKey()).rootDirichletAlpha;
@@ -578,6 +582,7 @@ public class MuZeroConfig {
         protected int boardWidth;
         protected int actionSpaceSize;
         protected int numberTrainingStepsOnStart;
+        protected int numberTrainingBoxes = 5;  // default value
 
         protected KnownBoundsType knownBoundsType;
 
