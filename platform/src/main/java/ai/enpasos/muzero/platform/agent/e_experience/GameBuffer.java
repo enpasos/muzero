@@ -712,6 +712,13 @@ public class GameBuffer {
 
 
         List<BoxOccupation> occupations = timestepRepo.boxOccupation();
+        // remove occupied boxes with box > maxBox
+        occupations = occupations.stream().filter(boxOccupation -> boxOccupation.getBox() <= maxBox).collect(Collectors.toList());
+        long sum = occupations.stream().mapToLong(BoxOccupation::getCount).sum();
+        if (sum == 0) {
+            return new ArrayList<>();
+        }
+
 
         while(!relevantBoxesAreOccupied(epoch, occupations, maxBox )) {  // virtual epoch increase to get some data
             epoch++;
