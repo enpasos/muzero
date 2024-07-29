@@ -98,7 +98,7 @@ public class TimeStepDO {
 
     int nextuoktarget;
 
-
+    boolean trainable;
 
     @Transient
     boolean unrollStepsChanged;

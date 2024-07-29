@@ -4,9 +4,10 @@ public interface IdProjection3 extends IdProjection {
     Long getEpisodeId();
     Long getId();
     Integer getUOk();
+    Boolean getTrainable();
     Integer getBox();
-    Integer getNextUOk();
-    Integer getNextUOkTarget();
+ //   Integer getNextUOk();
+ //   Integer getNextUOkTarget();
     Integer getT();
 
 }

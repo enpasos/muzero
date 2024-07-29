@@ -279,7 +279,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
             int limit,
             int offset);
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId, t.box AS box, t.u_ok as uOk, t.nextuok AS nextUOk, t.nextuoktarget AS nextUOkTarget, t.t AS t FROM timestep t  ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId, t.box AS box, t.u_ok as uOk, t.trainable AS trainable, t.t AS t FROM timestep t  ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection3> getTimeStepIds3(
             int limit,
             int offset);
@@ -306,5 +306,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query("UPDATE TimeStepDO t SET t.nextuoktarget = LEAST(:unrollSteps - 1, (SELECT e.tmax FROM EpisodeDO e WHERE e.id = t.episode.id) - t.t - 1)")
     void updateNextUOkTarget(int unrollSteps);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE TimeStepDO t SET t.trainable = (t.nextUOk >= t.nextuoktarget) ")
+    void updateTrainable( );
 }
 

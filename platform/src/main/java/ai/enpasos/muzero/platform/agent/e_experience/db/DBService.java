@@ -306,6 +306,7 @@ public class DBService {
 
         episodeRepo.updateTmax();
         timestepRepo.updateNextUOkTarget(unrollSteps);
+        timestepRepo.updateTrainable( );
 
     }
 
