@@ -307,9 +307,7 @@ public class MuZeroConfig {
         return getConf().numberTrainingStepsOnStart;
     }
 
-    public int getNumberTrainingBoxes() {
-        return getConf().numberTrainingBoxes;
-    }
+
 
 
     public double getRootDirichletAlpha() {
