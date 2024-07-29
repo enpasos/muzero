@@ -76,9 +76,7 @@ public class TimeStepDO {
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
             boxAfter = 0;
         } else { // ok
-            if (  boxBefore == -1 ) {
-                boxAfter = 2;
-            } else if (isUOkTested() || boxBefore <= 0 ) {
+            if (isUOkTested() || boxBefore <= 0 ) {
                 boxAfter = boxBefore + 1;
             }
         }
