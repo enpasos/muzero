@@ -289,8 +289,8 @@ public class DBService {
             boolean boxChanged  = ts.updateBox( unrollSteps);
 
             if (ts.isSChanged() || ts.isUOkChanged() ||  boxChanged || ts.isUnrollStepsChanged()) {
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox(true), ts.getBox(false ) );
-                if ( ts.getT() > 0) {  // TODO merge with update above
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox( ) );
+                if ( ts.getT() > 0) {
                     timestepRepo.updateNextUOk(ts.getEpisode().getTimeStep((ts.getT() - 1)).getId(), ts.getUOk());
                 }
                 ts.setSChanged(false);

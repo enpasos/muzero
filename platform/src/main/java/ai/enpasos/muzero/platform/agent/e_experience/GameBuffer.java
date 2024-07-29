@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
+import ai.enpasos.muzero.platform.common.AliasMethod;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -240,10 +241,12 @@ public class GameBuffer {
     private List<IdProjection> relevantIds;
 
     private List<IdProjection2> relevantIds2;
+    private List<IdProjection3> idProjection3List;
 
     public void resetRelevantIds() {
         relevantIds2 = null;
         relevantIds = null;
+        idProjection3List = null;
     }
 
     public List<IdProjection2> getIdsRelevantForTraining(List<BoxOccupation> occupiedBoxes, int nTrain) {
@@ -705,47 +708,61 @@ public class GameBuffer {
         return timestepRepo.getRandomIdsNotInBox0(n);
     }
 
-    public List<IdProjection> getIdsRelevantForTraining(int unrollSteps, int sampleNumber, int epoch) {
 
 
-        int maxBox = Math.max(timestepRepo.maxBox(), config.getNumberTrainingBoxes());
+    public List<IdProjection3> getIdProjection3List( )  {
+        if (idProjection3List == null) {
+            int limit = 50000;
 
-
-        List<BoxOccupation> occupations = timestepRepo.boxOccupation();
-        // remove occupied boxes with box > maxBox
-        occupations = occupations.stream().filter(boxOccupation -> boxOccupation.getBox() <= maxBox).collect(Collectors.toList());
-        long sum = occupations.stream().mapToLong(BoxOccupation::getCount).sum();
-        if (sum == 0) {
-            return new ArrayList<>();
-        }
-
-
-        while(!relevantBoxesAreOccupied(epoch, occupations, maxBox )) {  // virtual epoch increase to get some data
-            epoch++;
-        }
-
-        int limit = 50000;
-
-        int offset = 0;
-        List<IdProjection> relevantEpisodeIds = new ArrayList<>();
-        List newIds;
-      //  int box = 0;
-        //   do {
-        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
-        log.info("getIdsRelevantForTraining boxesRelevant = {}", boxesRelevant.toString());
+            int offset = 0;
+            idProjection3List = new ArrayList<>();
+            List newIds;
             do {
-
-                newIds = (unrollSteps == 1) ?
-                          timestepRepo.getTimeStepIdsByBoxesRelevant0(boxesRelevant, limit, offset)
-                        : timestepRepo.getTimeStepIdsByBoxesRelevant(boxesRelevant, limit, offset);
-
-                relevantEpisodeIds.addAll(newIds);
+                newIds = timestepRepo.getTimeStepIds3(limit, offset );
+                idProjection3List.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
-       //     box++;
-     //   }   while (relevantEpisodeIds.size() < sampleNumber);
-        Collections.shuffle(relevantEpisodeIds );
-        return relevantEpisodeIds.subList(0, Math.min(sampleNumber, relevantEpisodeIds.size()));
+        }
+        return idProjection3List;
+    }
+
+    public List<? extends IdProjection> getIdsRelevantForTraining(int unrollSteps, int n, int epoch) {
+
+
+
+        List<IdProjection3> idProjections = getIdProjection3List( );
+
+        List<IdProjection3> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
+        List<IdProjection3> idProjectionsKnown = new ArrayList<>();
+        idProjectionsKnown.addAll(idProjections);
+        idProjectionsKnown.removeAll(idProjectionsUnknown);
+        List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsKnown.stream().filter(p -> p.getNextUOk() >= p.getNextUOkTarget()).collect(Collectors.toList());
+
+
+        double k = 0.2; // TODO: configurable
+        int nUnknown = Math.min((int)(n * k),idProjectionsUnknownAndTrainable.size()) ;
+        int nKnown = Math.min(n - nUnknown, idProjectionsKnown.size());
+        int nMissing = n - nUnknown - nKnown;
+        if (nMissing > 0) {
+            nUnknown = Math.min(nUnknown + nMissing, idProjectionsUnknownAndTrainable.size());
+        }
+
+        Collections.shuffle(idProjectionsUnknownAndTrainable);
+        List<  IdProjection3> resultUnknown = idProjectionsUnknownAndTrainable.subList(0, nUnknown);
+
+        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBox() - 1)).toArray();
+        AliasMethod aliasMethod = new AliasMethod(g);
+
+        int[] samples = aliasMethod.sample(nKnown);
+        // stream of samples
+        List< IdProjection3> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+
+        List< IdProjection3> result = new ArrayList<>();
+        result.addAll(resultUnknown);
+        result.addAll(resultKnown);
+
+        return result;
 
     }
 

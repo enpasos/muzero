@@ -65,15 +65,13 @@ public class TimeStepDO {
 //    boolean ruleTrainingSuccess ;  // if trained, was it successful?
 
     @Builder.Default
-    int box = -1;
+    int box = 0;
 
-    @Builder.Default
-    int localBox = 0;
 
 
     public boolean updateBox(int targetU) {
         boolean isLocally = false;
-        int boxBefore = getBox(isLocally);
+        int boxBefore = getBox( );
         int boxAfter = boxBefore;
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
             boxAfter = 0;
@@ -84,25 +82,11 @@ public class TimeStepDO {
                 boxAfter = boxBefore + 1;
             }
         }
-        setBox(boxAfter, isLocally);
+        setBox(boxAfter );
         return boxAfter != boxBefore;
     }
 
-    public void setBox(int box, boolean isLocally) {
-        if (isLocally) {
-            this.localBox = box;
-        } else {
-            this.box = box;
-        }
-    }
 
-    public  int getBox(boolean isLocally) {
-        if (isLocally) {
-            return this.localBox;
-        } else {
-            return this.box;
-        }
-    }
 
 
     @Builder.Default

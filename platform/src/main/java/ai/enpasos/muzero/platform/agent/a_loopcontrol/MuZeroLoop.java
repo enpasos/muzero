@@ -136,9 +136,9 @@ public class MuZeroLoop {
                 duration.on();
 
                 boolean[] freeze = new boolean[]{false, true, true};
-              //  if (rulesTraining) {
-                    modelService.trainModelRules(freeze, unrollSteps).get();
-             //   }
+
+                modelService.trainModelRules(freeze, unrollSteps).get();
+
 
                 epoch = modelState.getEpoch();
 
@@ -157,20 +157,15 @@ public class MuZeroLoop {
             while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
                 dbService.setNextuoktarget(unrollSteps);
-               // timestepRepo.resetBox();
-               // testUnrollRulestate.handleUnrollStepsIncrease(unrollSteps);
                 testUnrollRulestate.test(  unrollSteps);
                 firstBoxes = firstBoxes();
-              //  tested = true;
             }
 
             if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
                 testUnrollRulestate.test( unrollSteps);
-                //   testUnrollRulestate.test(false, unrollSteps);  TODO check
 
-           //     tested = true;
                 firstBoxes = firstBoxes();
 
 

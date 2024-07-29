@@ -68,14 +68,14 @@ public class TestUnrollRulestate {
 
         int maxBox = timestepRepo.maxBox();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
+        log.info("boxesRelevant = {}", boxesRelevant.toString());
 
 
-
-        while (boxesRelevant.size() > 0 && boxesRelevant.get(0) <= config.getNumberTrainingBoxes()) {
-            boxesRelevant.remove(0);
-        }
+//        while (boxesRelevant.size() > 0 && boxesRelevant.get(0) <= config.getNumberTrainingBoxes()) {
+//            boxesRelevant.remove(0);
+//        }
 if (boxesRelevant.size() == 0) {
-    log.info("identifyRelevantTimestepsAndTestThem no relevant boxes (>config.getNumberTrainingBoxes()) found ... finished");
+    log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
     return;
 }
 
@@ -212,11 +212,5 @@ if (boxesRelevant.size() == 0) {
     }
 
 
-    public void handleUnrollStepsIncrease(int unrollSteps) {
-        // 1. setBox to 0 for all timesteps
-        timestepRepo.resetBox();
 
-        // 2. if parameter unrollSteps >= unroll_steps on table episode then box to local_box value
-        timestepRepo.updateBoxBasedOnUnrollSteps(unrollSteps);
-    }
 }

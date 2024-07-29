@@ -347,7 +347,8 @@ public class ModelController implements DisposableBean, Runnable {
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
-        List<IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining(unrollSteps, sampleNumber, epochLocal);
+        gameBuffer.resetRelevantIds();  // TODO improve
+        List<? extends IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining(unrollSteps, sampleNumber, epochLocal);
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
@@ -456,7 +457,7 @@ public class ModelController implements DisposableBean, Runnable {
        }));
     }
 
-    private List<Long> episodeIdsFromIdProjections(  List<IdProjection> allIdProjections) {
+    private List<Long> episodeIdsFromIdProjections(  List<? extends IdProjection> allIdProjections) {
         Set<Long> ids =  allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
                 .boxed().collect(Collectors.toSet());
         return new ArrayList(ids);
