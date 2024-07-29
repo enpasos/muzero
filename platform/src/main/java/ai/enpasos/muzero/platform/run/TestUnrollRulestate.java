@@ -71,9 +71,7 @@ public class TestUnrollRulestate {
         log.info("boxesRelevant = {}", boxesRelevant.toString());
 
 
-//        while (boxesRelevant.size() > 0 && boxesRelevant.get(0) <= config.getNumberTrainingBoxes()) {
-//            boxesRelevant.remove(0);
-//        }
+
 if (boxesRelevant.size() == 0) {
     log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
     return;
