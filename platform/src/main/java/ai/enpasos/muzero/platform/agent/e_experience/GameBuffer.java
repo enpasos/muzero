@@ -736,7 +736,7 @@ public class GameBuffer {
         List<IdProjection3> idProjectionsKnown = new ArrayList<>();
         idProjectionsKnown.addAll(idProjections);
         idProjectionsKnown.removeAll(idProjectionsUnknown);
-        List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsKnown.stream().filter(p -> p.getNextUOk() >= p.getNextUOkTarget()).collect(Collectors.toList());
+        List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p -> p.getNextUOk() >= p.getNextUOkTarget()).collect(Collectors.toList());
 
 
         double k = 0.2; // TODO: configurable
