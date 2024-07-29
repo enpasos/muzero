@@ -44,7 +44,7 @@ muzero:
 
       numberOfTrainingStepsPerEpoch: 40
 
-      numberOfTrainingSamplesPerRuleTrainingEpoch: 2000
+      numberOfTrainingSamplesPerRuleTrainingEpoch: 20000
       numberTrainingBoxes: 5
 
       numUnrollSteps: 5
