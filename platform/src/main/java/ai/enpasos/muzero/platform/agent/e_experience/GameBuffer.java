@@ -740,7 +740,7 @@ public class GameBuffer {
         List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p -> unrollSteps == 1 || p.getTrainable()).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 2");
 
-        double k = 0.2; // TODO: configurable
+        double k = 0.5; // TODO: configurable
         int nUnknown = Math.min((int)(n * k),idProjectionsUnknownAndTrainable.size()) ;
         int nKnown = Math.min(n - nUnknown, idProjectionsKnown.size());
         int nMissing = n - nUnknown - nKnown;
