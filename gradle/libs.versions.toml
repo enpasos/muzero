@@ -1,8 +1,8 @@
 [versions]
 lombok = "1.18.34"
-djl = "0.29.0"
+djl = "0.30.0-SNAPSHOT"
 
-pytorch = "2.3.1"
+pytorch = "2.4.0"
 
 slf4j = "2.0.13"
 springboot = "3.3.2"
@@ -17,7 +17,7 @@ djl-model-zoo = { module = "ai.djl:model-zoo", version.ref = "djl" }
 djl-basicdataset = { module = "ai.djl:basicdataset", version.ref = "djl" }
 djl-pytorch-engine = { module = "ai.djl.pytorch:pytorch-engine", version.ref = "djl" }
 djl-pytorch-model-zoo = { module = "ai.djl.pytorch:pytorch-model-zoo", version.ref = "djl" }
-djl-pytorch-native-cu121 = { module = "ai.djl.pytorch:pytorch-native-cu121", version.ref = "pytorch" }
+djl-pytorch-native-cu124 = { module = "ai.djl.pytorch:pytorch-native-cu124", version.ref = "pytorch" }
 
 djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", version.ref = "djl" }
 
@@ -58,7 +58,7 @@ h2database = { module = "com.h2database:h2", version = "2.3.230" }
 
 
 [bundles]
-djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu121"]
+djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu124"]
 commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-lang", "commons-collections" ]
 
 
