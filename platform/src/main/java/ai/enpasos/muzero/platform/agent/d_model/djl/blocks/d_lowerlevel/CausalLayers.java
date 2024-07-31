@@ -85,9 +85,9 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, DCLAware {
 
             NDList resultList = layer.forward(parameterStore, layerInput, training, params);
             combinedResultA.add(resultList.get(0));  // for prediction
-            if (rescale) {
-                combinedResultB.add(resultList.get(1));  // for time evolution
-            }
+//            if (rescale) {
+//                combinedResultB.add(resultList.get(1));  // for time evolution
+//            }
         }
         return combinedResultA.addAll(combinedResultB);
     }
@@ -96,13 +96,14 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, DCLAware {
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        Shape[] outputShapes = new Shape[rescale ? 2*layers.size() : layers.size()];
+      //  Shape[] outputShapes = new Shape[rescale ? 2*layers.size() : layers.size()];
+        Shape[] outputShapes = new Shape[  layers.size()];
         for (int i = 0; i < layers.size(); i++) {
             Shape[] outputShapesHere = layers.get(i).getOutputShapes(new Shape[] {inputShapes[i]});
             outputShapes[i] = outputShapesHere[0];
-            if (rescale) {
-                outputShapes[i + layers.size()] = outputShapesHere[1];
-            }
+//            if (rescale) {
+//                outputShapes[i + layers.size()] = outputShapesHere[1];
+//            }
         }
         return outputShapes;
     }
@@ -170,15 +171,15 @@ public class CausalLayers extends AbstractBlock implements OnnxIO, DCLAware {
             onnxBlock.addChild(child);
             childOutputA = child.getOutput().get(0);
             outputsA.add(childOutputA);
-            if (rescale) {
-                childOutputB = child.getOutput().get(1);
-                outputsB.add(childOutputB);
-            }
+//            if (rescale) {
+//                childOutputB = child.getOutput().get(1);
+//                outputsB.add(childOutputB);
+//            }
             c++;
         }
-        if (rescale) {
-            outputsA.addAll(outputsB);
-        }
+//        if (rescale) {
+//            outputsA.addAll(outputsB);
+//        }
         onnxBlock.setOutput(outputsA);
 
         return onnxBlock;

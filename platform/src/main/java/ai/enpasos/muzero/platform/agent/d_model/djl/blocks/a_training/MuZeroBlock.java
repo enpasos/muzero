@@ -44,7 +44,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     private final RepresentationBlock representationBlock;
-    private final PredictionBlock predictionBlock;
+    private final PredictionHeads predictionHeads;
     private final DynamicsBlock dynamicsBlock;
 
     private final MuZeroConfig config;
@@ -60,7 +60,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
 
         representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
-        predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
+        predictionHeads = this.addChildBlock("Prediction", new PredictionHeads(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
         if (config.isWithConsistencyLoss()) {
@@ -102,24 +102,24 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
             // - value layer:  value
 
             // initial Inference
-            predictionBlock.setWithReward(false);
+            predictionHeads.setWithReward(false);
 
-            predictionBlock.setWithValue(isRulesModel() ? false : true);
-            predictionBlock.setWithPolicy(isRulesModel() ? false : true);
-            predictionBlock.setWithLegalAction(true);
+            predictionHeads.setWithValue(isRulesModel() ? false : true);
+            predictionHeads.setWithPolicy(isRulesModel() ? false : true);
+            predictionHeads.setWithLegalAction(true);
 
             NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
             NDList stateForPrediction = firstHalfNDList(representationResult);
             NDList stateForTimeEvolution = secondHalfNDList(representationResult);
 
-            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+            NDList predictionResult = predictionHeads.forward(parameterStore, stateForPrediction, training, params);
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
             }
 
             for (int k = 1; k <= numUnrollSteps; k++) {
                 // recurrent Inference
-                predictionBlock.setWithReward(true);
+                predictionHeads.setWithReward(true);
 
                 NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k);
 
@@ -135,7 +135,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 //                if (k == numUnrollSteps) {
 //                    predictionBlock.setWithLegalAction(false);
 //                }
-                predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
+                predictionResult = predictionHeads.forward(parameterStore, stateForPrediction, training, params);
 
                 if (config.isWithConsistencyLoss()) {
 
@@ -217,18 +217,18 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
-        predictionBlock.setWithReward(false);
+        predictionHeads.setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
         Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
         Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
-        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
+        Shape[] predictionBlockOutputShapes = predictionHeads.getOutputShapes(stateOutputShapesForPrediction);
         outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
 
         for (int k = 1; k <= numUnrollSteps; k++) {
             // recurrent Inference
-            predictionBlock.setWithReward(true);
+            predictionHeads.setWithReward(true);
             Shape stateShape = stateOutputShapes[0];
             Shape actionShape = inputShapes[k];
             Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
@@ -239,7 +239,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
                 stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
                 stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
 
-            outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
+            outputShapes = ArrayUtils.addAll(outputShapes, predictionHeads.getOutputShapes(stateOutputShapesForPrediction));
 
         }
         return outputShapes;
@@ -278,11 +278,11 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         predictionInputShape[2] = stateOutputShapes[2];
 
 
-        predictionBlock.setWithReward(true);
-        predictionBlock.setWithValue(true);
-        predictionBlock.setWithPolicy(true);
-        predictionBlock.setWithLegalAction(true);
-        predictionBlock.initialize(manager, dataType, predictionInputShape);
+        predictionHeads.setWithReward(true);
+        predictionHeads.setWithValue(true);
+        predictionHeads.setWithPolicy(true);
+        predictionHeads.setWithLegalAction(true);
+        predictionHeads.initialize(manager, dataType, predictionInputShape);
 
         if(inputShapes.length > 1) {
             Shape actionShape = inputShapes[1];
@@ -308,7 +308,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @Override
     public void freezeParameters(boolean[] freeze) {
-        this.predictionBlock.freezeParameters(freeze);
+        this.predictionHeads.freezeParameters(freeze);
         this.dynamicsBlock.freezeParameters(freeze);
         if (this.similarityPredictorBlock != null && this.similarityProjectorBlock != null) {
             this.similarityPredictorBlock.freezeParameters(freeze[0]);
@@ -319,7 +319,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
 
     @Override
     public void setExportFilter(boolean[] exportFilter) {
-        this.predictionBlock.setExportFilter(exportFilter);
+        this.predictionHeads.setExportFilter(exportFilter);
         this.dynamicsBlock.setExportFilter(exportFilter);
         if (this.similarityPredictorBlock != null && this.similarityProjectorBlock != null) {
             this.similarityPredictorBlock.setExportFilter(exportFilter);

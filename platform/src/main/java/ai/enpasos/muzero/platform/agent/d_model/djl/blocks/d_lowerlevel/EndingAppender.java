@@ -45,12 +45,12 @@ private EndingAppender() {
     public static EndingAppender newEndingAppender(Block wrappedBlock, int numCompressedChannels) {
         return (EndingAppender) new EndingAppender()
                 .add(wrappedBlock)
-                .add(new ParallelBlockWithCollectChannelJoinExt(
-                        Arrays.asList(
-                                BlocksExt.identityBlock(),
-                                (SequentialBlockExt) new SequentialBlockExt()
+//                .add(new ParallelBlockWithCollectChannelJoinExt(
+//                        Arrays.asList(
+//                                BlocksExt.identityBlock(),
+//                                (SequentialBlockExt) new SequentialBlockExt()
                                         .add(newConv1x1(numCompressedChannels))
-                                        .add(new RescaleBlockExt()))));
+                                        .add(new RescaleBlockExt());
     }
 
 

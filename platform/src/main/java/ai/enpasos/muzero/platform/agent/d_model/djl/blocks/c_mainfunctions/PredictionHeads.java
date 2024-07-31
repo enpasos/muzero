@@ -18,14 +18,11 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions;
 
 import ai.djl.MalformedModelException;
-import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
 import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
-import ai.djl.nn.Block;
-import ai.djl.nn.Parameter;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
@@ -52,9 +49,9 @@ import java.util.List;
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
 
 @SuppressWarnings("java:S110")
-public class PredictionBlock extends AbstractBlock implements OnnxIO, DCLAware {
+public class PredictionHeads extends AbstractBlock implements OnnxIO, DCLAware {
 
-    public PredictionBlock(@NotNull MuZeroConfig config ) {
+    public PredictionHeads(@NotNull MuZeroConfig config ) {
         this(
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
                 config.getActionSpaceSize() );
@@ -82,7 +79,7 @@ private boolean withReward;
     private boolean withPolicy;
 
 
-    public PredictionBlock( boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
+    public PredictionHeads(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
 
 
         valueHead = new SequentialBlockExt();

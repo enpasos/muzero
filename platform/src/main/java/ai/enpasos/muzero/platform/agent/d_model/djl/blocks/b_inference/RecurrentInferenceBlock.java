@@ -30,7 +30,7 @@ import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionHeads;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -49,19 +49,19 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     private final DynamicsBlock g;
-    private final PredictionBlock f;
+    private final PredictionHeads f;
 
-    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionBlock predictionBlock ) {
+    public RecurrentInferenceBlock(DynamicsBlock dynamicsBlock, PredictionHeads predictionHeads) {
         super(MYVERSION);
         g = this.addChildBlock("Dynamics", dynamicsBlock);
-        f = this.addChildBlock("Prediction", predictionBlock);
+        f = this.addChildBlock("Prediction", predictionHeads);
     }
 
     public DynamicsBlock getG() {
         return g;
     }
 
-    public PredictionBlock getF() {
+    public PredictionHeads getF() {
         return f;
     }
 

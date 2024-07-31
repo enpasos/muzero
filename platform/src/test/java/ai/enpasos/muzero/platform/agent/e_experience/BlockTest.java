@@ -3,7 +3,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 import ai.djl.ndarray.types.Shape;
 import ai.enpasos.mnist.blocks.BroadcastBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionHeads;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationStart;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.*;
@@ -224,7 +224,7 @@ class BlockTest {
 
     @Test
     void predictionZERO() throws Exception {
-        PredictionBlock block = new PredictionBlock( true, 9);
+        PredictionHeads block = new PredictionHeads( true, 9);
         block.setWithPolicy(true);
         block.setWithValue(true);
         block.setWithLegalAction(true);
@@ -241,7 +241,7 @@ class BlockTest {
 
     @Test
     void predictionRANDOM() throws Exception {
-        PredictionBlock block = new PredictionBlock( true, 9);
+        PredictionHeads block = new PredictionHeads( true, 9);
         block.setWithPolicy(true);
         block.setWithValue(true);
         block.setWithLegalAction(true);
@@ -256,14 +256,14 @@ class BlockTest {
 
     @Test
     void predictionWithRewardRANDOM() throws Exception {
-        PredictionBlock predictionBlock = new PredictionBlock( true, 9);
-predictionBlock.setWithReward(true);
-        predictionBlock.setWithValue(true);
-        predictionBlock.setWithPolicy(true);
-        predictionBlock.setWithLegalAction(true);
+        PredictionHeads predictionHeads = new PredictionHeads( true, 9);
+predictionHeads.setWithReward(true);
+        predictionHeads.setWithValue(true);
+        predictionHeads.setWithPolicy(true);
+        predictionHeads.setWithLegalAction(true);
         boolean check = compareOnnxWithDJL(
                 "./build/PredictionBlockWithReward.onnx",
-                predictionBlock,
+                predictionHeads,
                 List.of(new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3), new Shape(1, 5, 3, 3)),
                 RANDOM);
         Assertions.assertTrue(check);

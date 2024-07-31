@@ -72,10 +72,10 @@ public class TestUnrollRulestate {
 
 
 
-if (boxesRelevant.size() == 0) {
-    log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
-    return;
-}
+        if (boxesRelevant.size() == 0) {
+            log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
+            return;
+        }
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();

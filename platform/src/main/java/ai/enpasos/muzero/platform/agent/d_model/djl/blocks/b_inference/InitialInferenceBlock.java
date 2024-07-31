@@ -29,7 +29,7 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionHeads;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
@@ -49,20 +49,20 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     private final RepresentationBlock h;
-    private final PredictionBlock f;
+    private final PredictionHeads f;
 
-    public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
+    public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionHeads predictionHeads) {
         super(MYVERSION);
 
         h = this.addChildBlock("Representation", representationBlock);
-        f = this.addChildBlock("Prediction", predictionBlock);
+        f = this.addChildBlock("Prediction", predictionHeads);
     }
 
     public RepresentationBlock getH() {
         return h;
     }
 
-    public PredictionBlock getF() {
+    public PredictionHeads getF() {
         return f;
     }
 
