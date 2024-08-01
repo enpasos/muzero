@@ -25,6 +25,9 @@ import ai.djl.ndarray.NDManager;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import ai.djl.util.Pair;
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
+import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.d_model.NetworkIO;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.djl.MyBCELoss;
@@ -42,7 +45,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class InitialInferenceListTranslator implements Translator<List<Game>, List<NetworkIO>> {
+
+public class InitialInferenceListTranslator implements Translator<Pair<List<Game>, List<NDArray>>, List<NetworkIO>> {
     public static List<NetworkIO> getNetworkIOS(@NotNull NDList list, TranslatorContext ctx, boolean isRecurrent) {
 
         // hiddenstate 0, 1, 2
@@ -176,16 +180,26 @@ public class InitialInferenceListTranslator implements Translator<List<Game>, Li
     }
 
     @Override
-    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull List<Game> gameList) {
+    public @NotNull NDList processInput(@NotNull TranslatorContext ctx, @NotNull Pair<List<Game>, List<NDArray>> input0) {
+        List<Game> gameList = input0.getKey();
+        List<NDArray> actionList = input0.getValue();
+
 
 
         List<ObservationModelInput> observations = gameList.stream()
             .map(Game::getObservationModelInput)
             .collect(Collectors.toList());
 
-        return new NDList(NDArrays.stack(new NDList(
-            observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
-        )));
+
+        NDArray ndArrayObservationStack = NDArrays.stack(new NDList(
+             observations.stream().map(input -> input.getNDArray(ctx.getNDManager())).collect(Collectors.toList())
+         ));
+
+
+        NDArray ndArrayActionStack = NDArrays.stack(new NDList(actionList));  // on gpu
+
+
+        return new NDList(ndArrayObservationStack, ndArrayActionStack);
     }
 
 

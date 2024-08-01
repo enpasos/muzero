@@ -117,7 +117,14 @@ public class GameBuffer {
         if (actions.size() < gamePos + numUnrollSteps) {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
         }
+
         sample.setActionsList(new ArrayList<>());
+        // add the action just before gamePos
+        if (gamePos == 0) {
+            sample.getActionsList().addAll(game.getRandomActionsIndices(1));
+        } else {
+            sample.getActionsList().add(actions.get(gamePos - 1));
+        }
         for (int i = 0; i <  (config.isWithConsistencyLoss() ? numUnrollSteps : 0); i++) {   // TODO: without consistency loss actions are still needed
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);

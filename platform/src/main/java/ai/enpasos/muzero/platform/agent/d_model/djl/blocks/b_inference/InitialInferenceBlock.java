@@ -29,6 +29,7 @@ import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
+import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.PredictionHeads;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock;
 
@@ -47,50 +48,48 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLAware {
 
     private final RepresentationBlock h;
-    private final PredictionHeads f;
+    private final PredictionBlock f;
 
-    public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionHeads predictionHeads) {
+    public InitialInferenceBlock(RepresentationBlock representationBlock, PredictionBlock predictionBlock) {
         super(MYVERSION);
 
         h = this.addChildBlock("Representation", representationBlock);
-        f = this.addChildBlock("Prediction", predictionHeads);
+        f = this.addChildBlock("Prediction", predictionBlock);
     }
 
     public RepresentationBlock getH() {
         return h;
     }
 
-    public PredictionHeads getF() {
+    public PredictionBlock getF() {
         return f;
     }
 
     @Override
     protected NDList forwardInternal(@NotNull ParameterStore parameterStore, NDList inputs, boolean training, PairList<String, Object> params) {
-        f.setWithReward(false);
+        f.getPredictionHeads().setWithReward(false);
 
-        f.setWithValue(true);
-        f.setWithPolicy(true);
-        f.setWithLegalAction(true);
-        NDList hResult = h.forward(parameterStore, inputs, training, params);
+        f.getPredictionHeads().setWithValue(true);
+        f.getPredictionHeads().setWithPolicy(true);
+        f.getPredictionHeads().setWithLegalAction(true);
+
+
+
+        NDList hResult = h.forward(parameterStore, new NDList(inputs.get(0)), training, params);
         // hResult ist the output from the three causal layers
         // the first half should go to the representation block
         // the second half should go to the prediction block
-        NDList fResult = f.forward(parameterStore, hResult , training, params);
-        NDList result =   hResult ;
-        return result.addAll(fResult);
+        NDList predictionInput = new NDList(hResult.get(0), hResult.get(1), hResult.get(2), inputs.get(1));
+        NDList fResult = f.forward(parameterStore,  predictionInput , training, params);
+        return hResult.addAll(fResult);
     }
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
-        f.setWithReward(false);
+        f.getPredictionHeads().setWithReward(false);
         Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
-
-
-        Shape[] hOutputShapesForPrediction =  hOutputShapes ;
-        Shape[] hOutputShapesForTimeEvolution =  hOutputShapes ;
-
-        Shape[] fOutputShapes = f.getOutputShapes(hOutputShapesForPrediction);
-        return ArrayUtils.addAll(hOutputShapesForTimeEvolution, fOutputShapes);
+        Shape[] fOutputShapes = f.getOutputShapes(hOutputShapes);
+        return ArrayUtils.addAll(hOutputShapes, fOutputShapes);
     }
 
 
@@ -113,14 +112,6 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
     }
 
 
-    public static List<OnnxTensor> firstHalfList(List<OnnxTensor> list) {
-        return list.subList(0, list.size()/2);
-    }
-    public static List<OnnxTensor> secondHalfList(List<OnnxTensor> list) {
-        return list.subList(list.size()/2, list.size());
-    }
-
-
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
 
@@ -133,8 +124,8 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
 
-        List<OnnxTensor> gOutputForF =  firstHalfList(gOutput);
-        List<OnnxTensor> gOutputForG =  secondHalfList(gOutput);
+        List<OnnxTensor> gOutputForF =   gOutput;
+        List<OnnxTensor> gOutputForG =   gOutput;
 
 
 

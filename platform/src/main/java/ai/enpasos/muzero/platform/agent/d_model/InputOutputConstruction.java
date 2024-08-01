@@ -154,7 +154,7 @@ public class InputOutputConstruction {
 
     public void addActionInput(int numUnrollSteps, @NotNull List<Sample> batch, @NotNull NDManager nd, @NotNull List<NDArray> inputs, boolean withSymmetryEnrichment ) {
 
-        for (int k = 0; k <    numUnrollSteps ; k++) {
+        for (int k = 0; k <=    numUnrollSteps ; k++) {
 
             List<NDArray> list = new ArrayList<>();
             for (Sample s : batch) {
@@ -220,14 +220,14 @@ public class InputOutputConstruction {
                             outputs.add(legalActionsOutput2);
                         }
                   //  }
-                    if (k > 0) {
+                 //   if (k > 0) {
                         rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
                         if (withSymmetryEnrichment) {
                             outputs.add(symmetryEnhancerValue(rewardOutput2));
                         } else {
                             outputs.add(rewardOutput2);
                         }
-                    }
+                  //  }
 
                 }
                 return outputs;
@@ -276,14 +276,14 @@ public class InputOutputConstruction {
                         outputs.add(legalActionsOutput2);
                     }
 
-                    if (k > 0) {
+                   // if (k > 0) {
                         rewardOutput2 = nd.create(rewardArray).reshape(new Shape(batch.size(), 1));
                         if (withSymmetryEnrichment) {
                             outputs.add(symmetryEnhancerValue(rewardOutput2));
                         } else {
                             outputs.add(rewardOutput2);
                         }
-                    }
+                  //  }
 
 
                     NDArray policyOutput2 = nd.create(policyArray).reshape(new Shape(batch.size(), actionSize));

@@ -205,7 +205,7 @@ public abstract class Game {
         if (currentIndex > 0 && currentIndex <= this.episodeDO.getLastTime()) {
             reward = episodeDO.getTimeStep(currentIndex - 1).getReward();
         } else {
-            reward = 0f;
+            reward = 0;   // Check if this learning is necessary of if it is better to have a NULL force at least for currentIndex == 0
         }
         return reward;
     }
@@ -397,6 +397,17 @@ public abstract class Game {
             t = this.getEpisodeDO().getLastTimeWithAction() + 1;
         }
         return this.getObservationModelInput(t);
+    }
+
+    public Action getAction() {
+        int t = observationInputTime - 1;
+        if (this.getEpisodeDO().getActions().size() == 0)   {
+            return null;
+        }
+        if (t < 0 ) {
+            t = this.getEpisodeDO().getLastTimeWithAction();
+        }
+        return config.newAction(this.getEpisodeDO().getTimeStep(t).getAction());
     }
 
     public void addObservationFromEnvironment() {

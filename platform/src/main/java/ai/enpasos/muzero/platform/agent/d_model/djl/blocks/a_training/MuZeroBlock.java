@@ -42,7 +42,7 @@ import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     private final RepresentationBlock representationBlock;
-    private final PredictionHeads predictionHeads;
+    private final PredictionBlock predictionBlock;
     private final DynamicsBlock dynamicsBlock;
 
     private final MuZeroConfig config;
@@ -58,7 +58,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
 
         representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
-        predictionHeads = this.addChildBlock("Prediction", new PredictionHeads(config));
+        predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
         dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
 
         if (config.isWithConsistencyLoss()) {
@@ -100,24 +100,24 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
             // - value layer:  value
 
             // initial Inference
-            predictionHeads.setWithReward(false);
+            predictionBlock.getPredictionHeads().setWithReward(false);
 
-            predictionHeads.setWithValue(isRulesModel() ? false : true);
-            predictionHeads.setWithPolicy(isRulesModel() ? false : true);
-            predictionHeads.setWithLegalAction(true);
+            predictionBlock.getPredictionHeads().setWithValue(isRulesModel() ? false : true);
+            predictionBlock.getPredictionHeads().setWithPolicy(isRulesModel() ? false : true);
+            predictionBlock.getPredictionHeads().setWithLegalAction(true);
 
             NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
             NDList stateForPrediction =  representationResult ;
             NDList stateForTimeEvolution =  representationResult ;
 
-            NDList predictionResult = predictionHeads.forward(parameterStore, stateForPrediction, training, params);
+            NDList predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
                 combinedResult.add(prediction);
             }
 
             for (int k = 1; k <= numUnrollSteps; k++) {
                 // recurrent Inference
-                predictionHeads.setWithReward(true);
+                predictionBlock.getPredictionHeads().setWithReward(true);
 
                 NDArray action = inputs.get(config.isWithConsistencyLoss() ? 2 * k - 1 : k);
 
@@ -131,7 +131,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
                 stateForTimeEvolution =  dynamicsResult ;
 
 
-                predictionResult = predictionHeads.forward(parameterStore, stateForPrediction, training, params);
+                predictionResult = predictionBlock.forward(parameterStore, stateForPrediction, training, params);
 
                 if (config.isWithConsistencyLoss()) {
 
@@ -198,18 +198,18 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
         Shape[] outputShapes = new Shape[0];
 
         // initial Inference
-        predictionHeads.setWithReward(false);
+        predictionBlock.getPredictionHeads().setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
         Shape[] stateOutputShapesForPrediction =  stateOutputShapes ;
         Shape[] stateOutputShapesForTimeEvolution =  stateOutputShapes ;
 
-        Shape[] predictionBlockOutputShapes = predictionHeads.getOutputShapes(stateOutputShapesForPrediction);
+        Shape[] predictionBlockOutputShapes = predictionBlock.getOutputShapes(stateOutputShapesForPrediction);
         outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
 
         for (int k = 1; k <= numUnrollSteps; k++) {
             // recurrent Inference
-            predictionHeads.setWithReward(true);
+            predictionBlock.getPredictionHeads().setWithReward(true);
             Shape stateShape = stateOutputShapes[0];
             Shape actionShape = inputShapes[k];
             Shape[] dynamicInShape = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, actionShape);
@@ -220,7 +220,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
                 stateOutputShapesForPrediction =  stateOutputShapes ;
                 stateOutputShapesForTimeEvolution =  stateOutputShapes ;
 
-            outputShapes = ArrayUtils.addAll(outputShapes, predictionHeads.getOutputShapes(stateOutputShapesForPrediction));
+            outputShapes = ArrayUtils.addAll(outputShapes, predictionBlock.getOutputShapes(stateOutputShapesForPrediction));
 
         }
         return outputShapes;
@@ -253,17 +253,23 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
         }
 
-        Shape[] predictionInputShape = new Shape[3];
+
+
+        Shape[] predictionInputShape = new Shape[inputShapes.length > 1 ? 4 : 3];
         predictionInputShape[0] = stateOutputShapes[0];
         predictionInputShape[1] = stateOutputShapes[1];
         predictionInputShape[2] = stateOutputShapes[2];
+        if (inputShapes.length > 1) {
+            Shape actionShape = inputShapes[1];
+            predictionInputShape[3] = actionShape;
+        }
 
 
-        predictionHeads.setWithReward(true);
-        predictionHeads.setWithValue(true);
-        predictionHeads.setWithPolicy(true);
-        predictionHeads.setWithLegalAction(true);
-        predictionHeads.initialize(manager, dataType, predictionInputShape);
+        predictionBlock.getPredictionHeads().setWithReward(true);
+        predictionBlock.getPredictionHeads().setWithValue(true);
+        predictionBlock.getPredictionHeads().setWithPolicy(true);
+        predictionBlock.getPredictionHeads().setWithLegalAction(true);
+        predictionBlock.initialize(manager, dataType, predictionInputShape);
 
         if(inputShapes.length > 1) {
             Shape actionShape = inputShapes[1];
@@ -289,7 +295,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     @Override
     public void freezeParameters(boolean[] freeze) {
-        this.predictionHeads.freezeParameters(freeze);
+        this.predictionBlock.freezeParameters(freeze);
         this.dynamicsBlock.freezeParameters(freeze);
         if (this.similarityPredictorBlock != null && this.similarityProjectorBlock != null) {
             this.similarityPredictorBlock.freezeParameters(freeze[0]);
@@ -300,7 +306,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
     @Override
     public void setExportFilter(boolean[] exportFilter) {
-        this.predictionHeads.setExportFilter(exportFilter);
+        this.predictionBlock.setExportFilter(exportFilter);
         this.dynamicsBlock.setExportFilter(exportFilter);
         if (this.similarityPredictorBlock != null && this.similarityProjectorBlock != null) {
             this.similarityPredictorBlock.setExportFilter(exportFilter);
