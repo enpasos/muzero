@@ -116,7 +116,7 @@ public class MuZeroLoop {
 
         gameBuffer.clearEpisodeIds();
 
-        testUnrollRulestate.test( );
+     //   testUnrollRulestate.test( );
 
         int unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
         log.info("unrollSteps: {}", unrollSteps);
@@ -130,7 +130,7 @@ public class MuZeroLoop {
             while (firstBoxes > 0) {
 
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+                // testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
 
                 DurAndMem duration = new DurAndMem();
                 duration.on();
