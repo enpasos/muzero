@@ -112,12 +112,6 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
         return sb.toString().replace("\t", "  ");
     }
 
-    public static NDList firstHalfNDList(NDList list) {
-        return list.subNDList(0, list.size()/2);
-    }
-    public static NDList secondHalfNDList(NDList list) {
-        return list.subNDList(list.size()/2, list.size());
-    }
 
     public static List<OnnxTensor> firstHalfList(List<OnnxTensor> list) {
         return list.subList(0, list.size()/2);
