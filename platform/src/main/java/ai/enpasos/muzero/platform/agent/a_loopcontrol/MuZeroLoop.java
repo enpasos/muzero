@@ -118,7 +118,7 @@ public class MuZeroLoop {
 
         testUnrollRulestate.test( );
 
-        int unrollSteps = Math.max(0, timestepRepo.minUokNotClosed() + 1);
+        int unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
         log.info("unrollSteps: {}", unrollSteps);
         dbService.setNextuoktarget(unrollSteps);
 
