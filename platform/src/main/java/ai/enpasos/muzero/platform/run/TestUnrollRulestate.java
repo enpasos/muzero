@@ -139,7 +139,7 @@ public class TestUnrollRulestate {
 //    }
 
     public void test( ) {
-      test(true, 1);
+      test(true, 0);
     }
 
     public void test(int unrollSteps ) {
