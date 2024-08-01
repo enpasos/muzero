@@ -40,8 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
-import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.firstHalf;
-import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.secondHalf;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.*;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
@@ -86,8 +84,8 @@ public class RecurrentInferenceBlock extends AbstractBlock implements OnnxIO, DC
         f.setWithReward(true);
         Shape[] gOutputShapes = g.getOutputShapes(inputShapes);
 
-        Shape[] gOutputShapesForPrediction = firstHalf(gOutputShapes);
-        Shape[] gOutputShapesForTimeEvolution = secondHalf(gOutputShapes);
+        Shape[] gOutputShapesForPrediction =  gOutputShapes ;
+        Shape[] gOutputShapesForTimeEvolution = gOutputShapes ;
 
 
 

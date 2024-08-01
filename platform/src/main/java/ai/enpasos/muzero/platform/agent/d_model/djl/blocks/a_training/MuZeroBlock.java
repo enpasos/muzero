@@ -34,8 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.firstHalfNDList;
-import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.b_inference.InitialInferenceBlock.secondHalfNDList;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.DynamicsBlock.newDynamicsBlock;
 import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.c_mainfunctions.RepresentationBlock.newRepresentationBlock;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
@@ -109,8 +107,8 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
             predictionHeads.setWithLegalAction(true);
 
             NDList representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(0)), training, params);
-            NDList stateForPrediction = firstHalfNDList(representationResult);
-            NDList stateForTimeEvolution = secondHalfNDList(representationResult);
+            NDList stateForPrediction =  representationResult ;
+            NDList stateForTimeEvolution =  representationResult ;
 
             NDList predictionResult = predictionHeads.forward(parameterStore, stateForPrediction, training, params);
             for (NDArray prediction : predictionResult.getResourceNDArrays()) {
@@ -129,8 +127,8 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
                 NDList dynamicsResult = dynamicsBlock.forward(parameterStore, dynamicIn, training, params);
 
-                stateForPrediction = firstHalfNDList(dynamicsResult);
-                stateForTimeEvolution = secondHalfNDList(dynamicsResult);
+                stateForPrediction =  dynamicsResult ;
+                stateForTimeEvolution =  dynamicsResult ;
 
 //                if (k == numUnrollSteps) {
 //                    predictionBlock.setWithLegalAction(false);
@@ -188,22 +186,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
 
 
-public static Shape[] firstHalf(Shape[] inputShapes) {
-        int half = inputShapes.length / 2;
-        Shape[] outputShapes = new Shape[half];
-        for (int i = 0; i < half; i++) {
-            outputShapes[i] = inputShapes[i];
-        }
-        return outputShapes;
-    }
-    public static Shape[] secondHalf(Shape[] inputShapes) {
-        int half = inputShapes.length / 2;
-        Shape[] outputShapes = new Shape[half];
-        for (int i = 0; i < half; i++) {
-            outputShapes[i] = inputShapes[half + i];
-        }
-        return outputShapes;
-    }
+
 
     @Override
     public Shape[] getOutputShapes(Shape[] inputShapes) {
@@ -220,8 +203,8 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
         predictionHeads.setWithReward(false);
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
 
-        Shape[] stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-        Shape[] stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+        Shape[] stateOutputShapesForPrediction =  stateOutputShapes ;
+        Shape[] stateOutputShapesForTimeEvolution =  stateOutputShapes ;
 
         Shape[] predictionBlockOutputShapes = predictionHeads.getOutputShapes(stateOutputShapesForPrediction);
         outputShapes = ArrayUtils.addAll(stateOutputShapesForTimeEvolution, predictionBlockOutputShapes);
@@ -236,8 +219,8 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
             stateOutputShapes = dynamicsBlock.getOutputShapes( dynamicInShape );
 
 
-                stateOutputShapesForPrediction = firstHalf(stateOutputShapes);
-                stateOutputShapesForTimeEvolution = secondHalf(stateOutputShapes);
+                stateOutputShapesForPrediction =  stateOutputShapes ;
+                stateOutputShapesForTimeEvolution =  stateOutputShapes ;
 
             outputShapes = ArrayUtils.addAll(outputShapes, predictionHeads.getOutputShapes(stateOutputShapesForPrediction));
 
@@ -296,7 +279,7 @@ public static Shape[] firstHalf(Shape[] inputShapes) {
     @NotNull
     private Shape[] getDynamicsInputShape(Shape[] stateOutputShapes, Shape actionShape) {
             Shape[] dynamicsInputShape;
-            Shape[] dynamicsInputShapeWithoutAction = secondHalf(stateOutputShapes);
+            Shape[] dynamicsInputShapeWithoutAction =  stateOutputShapes ;
             dynamicsInputShape = new Shape[dynamicsInputShapeWithoutAction.length + 1];
             System.arraycopy(dynamicsInputShapeWithoutAction, 0, dynamicsInputShape, 0, dynamicsInputShapeWithoutAction.length);
             dynamicsInputShape[dynamicsInputShapeWithoutAction.length] = actionShape;

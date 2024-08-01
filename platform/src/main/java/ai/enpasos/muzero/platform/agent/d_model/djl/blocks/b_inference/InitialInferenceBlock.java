@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.mnist.blocks.OnnxHelper.createValueInfoProto;
-import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.firstHalf;
-import static ai.enpasos.muzero.platform.agent.d_model.djl.blocks.a_training.MuZeroBlock.secondHalf;
 import static ai.enpasos.muzero.platform.common.Constants.MYVERSION;
 
 
@@ -77,8 +75,8 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
         // hResult ist the output from the three causal layers
         // the first half should go to the representation block
         // the second half should go to the prediction block
-        NDList fResult = f.forward(parameterStore, firstHalfNDList(hResult), training, params);
-        NDList result =  secondHalfNDList(hResult);
+        NDList fResult = f.forward(parameterStore, hResult , training, params);
+        NDList result =   hResult ;
         return result.addAll(fResult);
     }
 
@@ -88,8 +86,8 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
         Shape[] hOutputShapes = h.getOutputShapes(inputShapes);
 
 
-        Shape[] hOutputShapesForPrediction = firstHalf(hOutputShapes);
-        Shape[] hOutputShapesForTimeEvolution = secondHalf(hOutputShapes);
+        Shape[] hOutputShapesForPrediction =  hOutputShapes ;
+        Shape[] hOutputShapesForTimeEvolution =  hOutputShapes ;
 
         Shape[] fOutputShapes = f.getOutputShapes(hOutputShapesForPrediction);
         return ArrayUtils.addAll(hOutputShapesForTimeEvolution, fOutputShapes);
