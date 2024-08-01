@@ -185,7 +185,7 @@ public final class MyEasyTrain {
         // move consistency:similarityPredictorResult from predictions to labels
 
 
-        int a = 3;
+        int a = 4;
     //    int offset = 2;
         int b = 5;
 

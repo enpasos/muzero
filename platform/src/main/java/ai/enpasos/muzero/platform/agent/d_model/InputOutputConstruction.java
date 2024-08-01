@@ -76,8 +76,8 @@ public class InputOutputConstruction {
                 inputs.add(inputsH.get(0));
                 IntStream.range(0, inputsA.size()).forEach(i -> {
                     inputs.add(inputsA.get(i));
-                    if (isWithConsistencyLoss) {
-                        inputs.add(inputsH.get(1 + i));
+                    if (isWithConsistencyLoss && inputsH.size() > i+1) {
+                        inputs.add(inputsH.get(i+1));
                     }
                 });
                 return inputs;

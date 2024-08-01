@@ -233,7 +233,7 @@ return true;
         // move consistency:similarityPredictorResult from predictions to labels
 
 
-        int a = 1 + c;
+        int a = 2 + c;
 
         int b = 2 + c;
 

@@ -44,7 +44,7 @@ muzero:
 
       numberOfTrainingStepsPerEpoch: 40
 
-      numberOfTrainingSamplesPerRuleTrainingEpoch: 20000
+      numberOfTrainingSamplesPerRuleTrainingEpoch: 10000
       numberTrainingBoxes: 5
 
       numUnrollSteps: 5
@@ -79,7 +79,7 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 12
+      numResiduals: 6
       broadcastEveryN: 14  # out of range here
 
 
