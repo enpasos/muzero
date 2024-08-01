@@ -130,9 +130,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
                 stateForPrediction =  dynamicsResult ;
                 stateForTimeEvolution =  dynamicsResult ;
 
-//                if (k == numUnrollSteps) {
-//                    predictionBlock.setWithLegalAction(false);
-//                }
+
                 predictionResult = predictionHeads.forward(parameterStore, stateForPrediction, training, params);
 
                 if (config.isWithConsistencyLoss()) {
@@ -141,7 +139,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
                     NDArray similarityPredictorResult = this.similarityPredictorBlock.forward(parameterStore, similarityProjectorResultList, training, params).get(0);
 
                     representationResult = representationBlock.forward(parameterStore, new NDList(inputs.get(2 * k)), training, params);
-                    NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(3)), training, params).get(0);
+                    NDArray similarityProjectorResultLabel = this.similarityProjectorBlock.forward(parameterStore, new NDList(representationResult.get(0)), training, params).get(0);
                     similarityProjectorResultLabel = similarityProjectorResultLabel.stopGradient();
 
                     combinedResult.add(similarityPredictorResult);
@@ -248,8 +246,8 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
         Shape[] stateOutputShapes = representationBlock.getOutputShapes(new Shape[]{inputShapes[0]});
         if (similarityProjectorBlock != null && this.similarityPredictorBlock != null) {
-            similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[3]);
-            Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[3]});
+            similarityProjectorBlock.initialize(manager, dataType, stateOutputShapes[0]);
+            Shape[] projectorOutputShapes = similarityProjectorBlock.getOutputShapes(new Shape[]{stateOutputShapes[0]});
 
                 this.similarityPredictorBlock.initialize(manager, dataType, projectorOutputShapes[0]);
 
