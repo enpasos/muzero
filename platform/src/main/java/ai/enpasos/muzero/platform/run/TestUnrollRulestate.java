@@ -77,6 +77,15 @@ public class TestUnrollRulestate {
             return;
         }
 
+        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
+            boxesRelevant.remove(0);
+        }
+        if (boxesRelevant.size() == 0) {
+            log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
+            return;
+        }
+
+
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevant(boxesRelevant);
