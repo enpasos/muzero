@@ -32,6 +32,7 @@ import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.StoringOnOff;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -48,8 +49,14 @@ public class CausalBottleneckResidualBlock extends AbstractBlock implements Onnx
 private Block block;
 
 
-    public CausalBottleneckResidualBlock(int numChannels, int numBottleneckChannels, int numCompressedChannels, boolean rescale) {
+    public CausalBottleneckResidualBlock(MuZeroConfig.Conf.FunctionConfig.DependencyLayerConfig dependencyLayerConfig, double bottleneckCompression, boolean rescale) {
         super(MYVERSION);
+
+
+        int numChannels = dependencyLayerConfig.getNumChannels();
+
+        int numBottleneckChannels = Math.max(1, (int) (numChannels * bottleneckCompression));
+        int numCompressedChannels = dependencyLayerConfig.getNumChannelsState();
 
         SequentialBlockExt b1;
         SequentialBlockExt identity;

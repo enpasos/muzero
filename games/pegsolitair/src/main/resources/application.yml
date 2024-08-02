@@ -47,7 +47,46 @@ muzero:
       # network sizing
       numObservationLayers: 1
       numActionLayers: 4   # one for each direction
-      numResiduals: 16
+
+
+      bottleneckCompression: 0.75  # out of range here
+
+      representation:
+        numResiduals: 2
+        rules:
+          numChannels: 100
+          numChannelsState: 3
+        policy:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
+        value:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
+
+      generation:
+        numResiduals: 2
+        rules:
+          numChannels: 100
+          numChannelsState: 3
+        policy:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
+        value:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
+
+      prediction:
+        numResiduals: 8
+        rules:
+          numChannels: 100
+          numChannelsState: 100
+        policy:
+          numChannels: 100
+          numChannelsState: 100
+        value:
+          numChannels: 100
+          numChannelsState: 100
+
 
       # network training
       # symmetryType: NONE

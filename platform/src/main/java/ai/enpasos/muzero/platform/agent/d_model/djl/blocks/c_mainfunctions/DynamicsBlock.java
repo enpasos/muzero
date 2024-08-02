@@ -34,10 +34,10 @@ public class DynamicsBlock extends MySequentialBlock implements OnnxIO, DCLAware
 
 
     @Builder()
-    public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config) {
+    public static @NotNull DynamicsBlock newDynamicsBlock(MuZeroConfig config, MuZeroConfig.Conf.FunctionConfig functionConfig) {
         DynamicsBlock block = new DynamicsBlock();
         block.add(new DynamicsStart(config));
-        block.add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
+        block.add(new MainRepresentationOrDynamicsBlock(config, functionConfig ));
 
         return block;
     }

@@ -29,6 +29,7 @@ import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -42,12 +43,14 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
 
 
 
-    public CausalBroadcastResidualLayersBlock(int height, int width, int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy, int numCompressedChannelsValue, boolean rescale) {
-        super(MYVERSION);
 
-         CausalBroadcastResidualBlock ruleBlock = new CausalBroadcastResidualBlock(height, width, numChannelsRules, numCompressedChannelsRules,rescale);
-         CausalBroadcastResidualBlock policyBlock = new CausalBroadcastResidualBlock(height, width, numChannelsPolicy, numCompressedChannelsPolicy,  rescale);
-         CausalBroadcastResidualBlock valueBlock = new CausalBroadcastResidualBlock(height, width,  numChannelsValue, numCompressedChannelsValue,  rescale);
+ //   public CausalBroadcastResidualLayersBlock(int height, int width, int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy, int numCompressedChannelsValue, boolean rescale) {
+   public CausalBroadcastResidualLayersBlock(int height, int width, MuZeroConfig.Conf.FunctionConfig functionConfig, boolean rescale) {
+            super(MYVERSION);
+
+         CausalBroadcastResidualBlock ruleBlock = new CausalBroadcastResidualBlock(height, width, functionConfig.getRules(),rescale);
+         CausalBroadcastResidualBlock policyBlock = new CausalBroadcastResidualBlock(height, width, functionConfig.getPolicy(),  rescale);
+         CausalBroadcastResidualBlock valueBlock = new CausalBroadcastResidualBlock(height, width,  functionConfig.getValue(),  rescale);
 
 
         block = addChildBlock("cbrl", new CausalLayers(

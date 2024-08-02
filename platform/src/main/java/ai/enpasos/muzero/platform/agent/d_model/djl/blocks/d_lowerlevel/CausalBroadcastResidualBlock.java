@@ -29,6 +29,7 @@ import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.*;
 import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.StoringOnOff;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -45,8 +46,11 @@ public class CausalBroadcastResidualBlock extends AbstractBlock implements OnnxI
 
     public final AbstractBlock block;
 
-    public CausalBroadcastResidualBlock(int height, int width, int numChannels, int numCompressedChannels, boolean rescale) {
+    public CausalBroadcastResidualBlock(int height, int width, MuZeroConfig.Conf.FunctionConfig.DependencyLayerConfig dependencyLayerConfig, boolean rescale) {
         super(MYVERSION);
+
+        int numChannels = dependencyLayerConfig.getNumChannels();
+        int numCompressedChannels = dependencyLayerConfig.getNumChannelsState();
 
         SequentialBlockExt b1;
         SequentialBlockExt identity;

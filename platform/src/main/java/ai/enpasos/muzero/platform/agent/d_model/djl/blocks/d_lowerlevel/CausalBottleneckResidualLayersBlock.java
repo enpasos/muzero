@@ -29,6 +29,7 @@ import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -42,12 +43,12 @@ public class CausalBottleneckResidualLayersBlock extends AbstractBlock implement
 
 
 
-    public CausalBottleneckResidualLayersBlock(int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int  numCompressedChannelsRules,  int numCompressedChannelsPolicy, int  numCompressedChannelsValue, boolean rescale) {
+    public CausalBottleneckResidualLayersBlock(MuZeroConfig.Conf.FunctionConfig functionConfig, double bottleneckCompression,  boolean rescale) {
         super(MYVERSION);
 
-         CausalBottleneckResidualBlock ruleBlock = new CausalBottleneckResidualBlock(numChannelsRules, numChannelsRules/4*3, numCompressedChannelsRules, rescale);
-         CausalBottleneckResidualBlock policyBlock = new CausalBottleneckResidualBlock(numChannelsPolicy, numChannelsPolicy/4*3, numCompressedChannelsPolicy, rescale);
-         CausalBottleneckResidualBlock valueBlock = new CausalBottleneckResidualBlock(numChannelsValue, numChannelsValue/4*3, numCompressedChannelsValue, rescale);
+         CausalBottleneckResidualBlock ruleBlock = new CausalBottleneckResidualBlock(functionConfig.getRules(), bottleneckCompression, rescale);
+         CausalBottleneckResidualBlock policyBlock = new CausalBottleneckResidualBlock(functionConfig.getPolicy(), bottleneckCompression, rescale);
+         CausalBottleneckResidualBlock valueBlock = new CausalBottleneckResidualBlock(functionConfig.getValue(), bottleneckCompression, rescale);
 
 
         block = addChildBlock("cbrl", new CausalLayers(

@@ -40,7 +40,7 @@ public class PredictionBlock extends MySequentialBlock implements OnnxIO, DCLAwa
         this();
         predictionHeads = new PredictionHeads(config);
         this
-                .add(DynamicsBlock.newDynamicsBlock(config))
+                .add(DynamicsBlock.newDynamicsBlock(config, config.getPrediction()))
                 .add(getPredictionHeads());
 
     }

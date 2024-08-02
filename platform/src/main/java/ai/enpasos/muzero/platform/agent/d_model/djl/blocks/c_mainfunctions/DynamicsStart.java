@@ -35,9 +35,9 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, DCLAware {
  public DynamicsStart(MuZeroConfig config) {
             super(MYVERSION);
 
-     rulesBlock =  addChildBlock("R", Conv3x3.builder().channels(config.getNumChannelsRules()).build());
-     policyBlock = addChildBlock("P", Conv3x3.builder().channels(config.getNumChannelsPolicy()).build());
-     valueBlock = addChildBlock("V", Conv3x3.builder().channels(config.getNumChannelsValue()).build());
+     rulesBlock =  addChildBlock("R", Conv3x3.builder().channels(config.getGeneration().getRules().getNumChannels() ).build());
+     policyBlock = addChildBlock("P", Conv3x3.builder().channels(config.getGeneration().getPolicy().getNumChannels() ).build());
+     valueBlock = addChildBlock("V", Conv3x3.builder().channels(config.getGeneration().getValue().getNumChannels() ).build());
 
     }
 

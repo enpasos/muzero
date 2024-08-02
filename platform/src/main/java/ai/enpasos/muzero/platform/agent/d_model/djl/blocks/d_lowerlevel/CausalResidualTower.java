@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel;
 
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,16 +29,17 @@ import org.jetbrains.annotations.NotNull;
     }
 
     @Builder()
-    public static @NotNull CausalResidualTower newCausalResidualTower(int height, int width, int numResiduals,  int numChannelsRules, int numChannelsPolicy, int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy, int numCompressedChannelsValue,  int broadcastEveryN ) {
+    public static @NotNull CausalResidualTower newCausalResidualTower(int height, int width, MuZeroConfig.Conf.FunctionConfig functionConfig, double   bottleneckCompression, int broadcastEveryN ) {
         CausalResidualTower instance = new CausalResidualTower();
+        int numResiduals = functionConfig.getNumResiduals();
         for (int i = 0; i < numResiduals; i++) {
             boolean rescale = false;
             if (i == numResiduals - 1  ) rescale = true;
 
             if (i % broadcastEveryN == broadcastEveryN - 1) {
-                instance.add(new CausalBroadcastResidualLayersBlock(height, width, numChannelsRules, numChannelsPolicy,  numChannelsValue,   numCompressedChannelsRules,   numCompressedChannelsPolicy,   numCompressedChannelsValue, rescale));
+                instance.add(new CausalBroadcastResidualLayersBlock(height, width, functionConfig, rescale));
             } else {
-                instance.add(new CausalBottleneckResidualLayersBlock( numChannelsRules, numChannelsPolicy,  numChannelsValue,   numCompressedChannelsRules,   numCompressedChannelsPolicy,   numCompressedChannelsValue, rescale));
+                instance.add(new CausalBottleneckResidualLayersBlock(functionConfig, bottleneckCompression, rescale));
             }
         }
         return instance;

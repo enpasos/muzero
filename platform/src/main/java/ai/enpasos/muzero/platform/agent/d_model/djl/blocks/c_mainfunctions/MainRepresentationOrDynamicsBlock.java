@@ -34,20 +34,29 @@ public class MainRepresentationOrDynamicsBlock extends MySequentialBlock impleme
      */
 
 
-    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config, int numResiduals, int broadcastEveryN) {
-        this(config.getBoardHeight(), config.getBoardWidth(), numResiduals, config.getNumChannelsRules(),  config.getNumChannelsPolicy(), config.getNumChannelsValue(), config.getNumCompressedChannelsRules(),  config.getNumCompressedChannelsPolicy(), config.getNumCompressedChannelsValue(), broadcastEveryN);
-    }
+    public MainRepresentationOrDynamicsBlock(@NotNull MuZeroConfig config , MuZeroConfig.Conf.FunctionConfig functionConfig) {
+        this(
+                config.getBoardHeight(),
+                config.getBoardWidth(),
+
+                functionConfig ,
+                config.getBottleneckCompression(),
+                config.getBroadcastEveryN());
+      }
 
     @java.lang.SuppressWarnings("java:S107")
-    public MainRepresentationOrDynamicsBlock(int height, int width, int numResiduals, int numChannelsRules, int numChannelsPolicy,  int numChannelsValue, int numCompressedChannelsRules, int numCompressedChannelsPolicy,  int numCompressedChannelsValue, int broadcastEveryN) {
+    public MainRepresentationOrDynamicsBlock(int height, int width, MuZeroConfig.Conf.FunctionConfig functionConfig, double bottleneckCompression, int broadcastEveryN) {
         this.add(CausalResidualTower.builder()
-                .numResiduals(numResiduals)
-                .numChannelsRules(numChannelsRules)
-                .numChannelsPolicy(numChannelsPolicy)
-                .numChannelsValue(numChannelsValue)
-                                .numCompressedChannelsRules(numCompressedChannelsRules)
-                                .numCompressedChannelsPolicy(numCompressedChannelsPolicy)
-                                .numCompressedChannelsValue(numCompressedChannelsValue)
+                        .functionConfig(functionConfig)
+                                .bottleneckCompression(bottleneckCompression)
+//                .numResiduals(numResiduals)
+//
+//                .numChannelsRules(numChannelsRules)
+//                .numChannelsPolicy(numChannelsPolicy)
+//                .numChannelsValue(numChannelsValue)
+//                                .numCompressedChannelsRules(numCompressedChannelsRules)
+//                                .numCompressedChannelsPolicy(numCompressedChannelsPolicy)
+//                                .numCompressedChannelsValue(numCompressedChannelsValue)
               //  .numBottleneckChannels(numBottleneckChannels)
                 .broadcastEveryN(broadcastEveryN)
                 .height(height)

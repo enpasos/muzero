@@ -171,32 +171,17 @@ public class MuZeroConfig {
     }
 
 
-    public int getNumChannelsPolicy() {
-        return getConf().numChannelsPolicy;
+    public Conf.FunctionConfig getRepresentation() {
+        return getConf().representation;
     }
-    public int getNumChannelsRules() {
-        return getConf().numChannelsRules;
+    public Conf.FunctionConfig getGeneration() {
+        return getConf().generation;
     }
-    public int getNumChannelsValue() {
-        return getConf().numChannelsValue;
-    }
-
-
-    public int getNumCompressedChannelsPolicy() {
-        return getConf().numCompressedChannelsPolicy;
-    }
-    public int getNumCompressedChannelsRules() {
-        return getConf().numCompressedChannelsRules;
-    }
-    public int getNumCompressedChannelsValue() {
-        return getConf().numCompressedChannelsValue;
+    public Conf.FunctionConfig getPrediction() {
+        return getConf().prediction;
     }
 
 
-
-    public int getNumResiduals() {
-        return getConf().numResiduals;
-    }
 
 
 
@@ -424,6 +409,10 @@ public class MuZeroConfig {
         return getConf().broadcastEveryN;
     }
 
+    public double getBottleneckCompression() {
+        return getConf().bottleneckCompression;
+    }
+
 
     public PlayTypeKey getPlayTypeKey() {
         return getConf().getPlayTypeKey();
@@ -537,17 +526,29 @@ public class MuZeroConfig {
         protected int numObservationLayers;
         protected int numActionLayers;
 
-        protected int numChannelsRules;
-        protected int numChannelsPolicy;
-        protected int numChannelsValue;
-
-        protected int numCompressedChannelsRules;
-        protected int numCompressedChannelsPolicy;
-        protected int numCompressedChannelsValue;
-
         protected int broadcastEveryN;
+        protected double bottleneckCompression;
 
-        protected int numResiduals;
+
+        @Data
+        public static class FunctionConfig {
+
+            protected int numResiduals;
+
+            @Data
+            public static class DependencyLayerConfig {
+                protected int numChannels;
+                protected int numChannelsState;
+            }
+            protected DependencyLayerConfig rules;
+            protected DependencyLayerConfig policy;
+            protected DependencyLayerConfig value;
+        }
+
+
+        protected FunctionConfig representation;
+        protected FunctionConfig generation;
+        protected FunctionConfig prediction;
 
         protected int numberOfTrainingSteps;
         protected int numberOfTrainingStepsPerEpoch;

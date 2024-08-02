@@ -37,7 +37,7 @@ public class RepresentationBlock extends MySequentialBlock implements OnnxIO, DC
 
         block
             .add(new RepresentationStart(config))
-            .add(new MainRepresentationOrDynamicsBlock(config, config.getNumResiduals(), config.getBroadcastEveryN()));
+            .add(new MainRepresentationOrDynamicsBlock(config, config.getRepresentation()));
 
         return block;
 

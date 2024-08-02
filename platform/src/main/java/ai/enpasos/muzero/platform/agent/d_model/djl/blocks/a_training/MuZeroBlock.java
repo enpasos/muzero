@@ -59,7 +59,7 @@ public class MuZeroBlock extends AbstractBlock implements DCLAware {
 
         representationBlock = this.addChildBlock("Representation", newRepresentationBlock(config));
         predictionBlock = this.addChildBlock("Prediction", new PredictionBlock(config));
-        dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config));
+        dynamicsBlock = this.addChildBlock("Dynamics", newDynamicsBlock(config, config.getGeneration()));
 
         if (config.isWithConsistencyLoss()) {
             similarityProjectorBlock = this.addChildBlock("Projector", SimilarityProjectorBlock.newProjectorBlock(

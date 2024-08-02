@@ -42,10 +42,9 @@ public class RepresentationStart extends  AbstractBlock implements OnnxIO, DCLAw
 
  public RepresentationStart(MuZeroConfig config) {
             super(MYVERSION);
-
-     rulesBlock = Conv3x3.builder().channels(config.getNumChannelsRules()).build();
-     policyBlock = Conv3x3.builder().channels(config.getNumChannelsPolicy()).build();
-     valueBlock = Conv3x3.builder().channels(config.getNumChannelsValue()).build();
+     rulesBlock = Conv3x3.builder().channels(config.getRepresentation().getRules().getNumChannels()).build();
+     policyBlock = Conv3x3.builder().channels(config.getRepresentation().getPolicy().getNumChannels()).build();
+     valueBlock = Conv3x3.builder().channels(config.getRepresentation().getValue().getNumChannels()).build();
 
 
         block = addChildBlock("rS", new ParallelBlockWithCollectChannelJoinExt(

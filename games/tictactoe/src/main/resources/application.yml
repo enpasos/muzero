@@ -79,17 +79,44 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 6
       broadcastEveryN: 14  # out of range here
+      bottleneckCompression: 0.75  # out of range here
 
+      representation:
+        numResiduals: 2
+        rules:
+          numChannels: 100
+          numChannelsState: 3
+        policy:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
+        value:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
 
-      numChannelsRules: 150
-      numChannelsPolicy: 30
-      numChannelsValue: 30
+      generation:
+        numResiduals: 2
+        rules:
+          numChannels: 100
+          numChannelsState: 3
+        policy:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
+        value:
+          numChannels: 1        # later 0
+          numChannelsState: 1   # later 0
 
-      numCompressedChannelsRules: 50
-      numCompressedChannelsPolicy: 20
-      numCompressedChannelsValue: 20
+      prediction:
+        numResiduals: 8
+        rules:
+          numChannels: 100
+          numChannelsState: 100
+        policy:
+          numChannels: 100
+          numChannelsState: 100
+        value:
+          numChannels: 100
+          numChannelsState: 100
 
 
       valueLossWeight: 1
