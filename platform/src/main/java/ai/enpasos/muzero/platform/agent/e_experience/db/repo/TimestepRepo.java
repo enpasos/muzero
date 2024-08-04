@@ -298,7 +298,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.nextUOk = :nextUOk, t.trainable = (:nextUOk >= t.nextuoktarget) where t.id = :id" )
+    @Query(value = "update TimeStepDO t set t.nextUOk = :nextUOk, t.trainable = (:nextUOk >= t.nextuoktarget or t.uOk < 1) where t.id = :id" )
     void updateNextUOk(long id, int nextUOk);
 
 
@@ -310,7 +310,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE TimeStepDO t SET t.trainable = (t.nextUOk >= t.nextuoktarget) ")
+    @Query("UPDATE TimeStepDO t SET t.trainable = (t.nextUOk >= t.nextuoktarget or t.uOk < 1)  ")
     void updateTrainable( );
 }
 
