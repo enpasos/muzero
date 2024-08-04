@@ -95,7 +95,7 @@ muzero:
           numChannelsState: 1   # later 0
 
       generation:
-        numResiduals: 2
+        numResiduals: 6
         rules:
           numChannels: 100
           numChannelsState: 3
@@ -128,7 +128,7 @@ muzero:
       numberOfTrainingSteps: 1000000
 
       windowSize: 10000
-      initialRandomEpisodes: 20000
+      initialRandomEpisodes: 100000
 
       numChannelsHiddenLayerSimilarityProjector: 50
       numChannelsOutputLayerSimilarityProjector: 50
