@@ -88,9 +88,9 @@ public class DynamicsStart extends  AbstractBlock implements OnnxIO, DCLAware {
 
         int concatDim = 1;
         List<OnnxTensor> outputsA = new ArrayList<>();
-        List<OnnxTensor> outputsB = new ArrayList<>();
+    //    List<OnnxTensor> outputsB = new ArrayList<>();
         OnnxTensor childOutputA = null;
-        OnnxTensor childOutputB = null;
+     //   OnnxTensor childOutputB = null;
         int c = 0;
         for (Pair<String, Block> p : this.getChildren()) {
             OnnxIO onnxIO = (OnnxIO) p.getValue();

@@ -124,8 +124,10 @@ throw new MuZeroException("implemented in MuZeroBlock");
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
 
-        List<OnnxTensor> gOutputForF =  gOutput ;
-        List<OnnxTensor> gOutputForG =  gOutput ;
+        List<OnnxTensor> gOutputForF =   new ArrayList<>(gOutput);
+        List<OnnxTensor> gOutputForG =   new ArrayList<>(gOutput);
+
+        gOutputForF.add(input.get(1));
 
         OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);
         onnxBlock.addChild(fOnnx);
@@ -141,6 +143,37 @@ throw new MuZeroException("implemented in MuZeroBlock");
 
         return onnxBlock;
     }
+
+//    public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
+//
+//        OnnxBlock onnxBlock = OnnxBlock.builder()
+//                .input(input)
+//                .build();
+//
+//
+//        OnnxBlock gOnnx = h.getOnnxBlock(counter, List.of(input.get(0)));
+//        onnxBlock.addChild(gOnnx);
+//        List<OnnxTensor> gOutput = gOnnx.getOutput();
+//
+//        List<OnnxTensor> gOutputForF =   new ArrayList<>(gOutput);
+//        List<OnnxTensor> gOutputForG =   new ArrayList<>(gOutput);
+//
+//        gOutputForF.add(input.get(1));
+//
+//        OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);
+//        onnxBlock.addChild(fOnnx);
+//        List<OnnxTensor> fOutput = fOnnx.getOutput();
+//
+//        onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
+//
+//        List<OnnxTensor> totalOutput = new ArrayList<>();
+//        totalOutput.addAll(gOutputForG);
+//        totalOutput.addAll(fOutput);
+//
+//        onnxBlock.setOutput(totalOutput);
+//
+//        return onnxBlock;
+//    }
 
     @Override
     public void freezeParameters(boolean[] freeze) {

@@ -28,11 +28,19 @@ public class TicTacToeOnnx {
 
 
         List<Shape> inputRepresentation = List.of(new Shape(1L, o, w, h));
-        List<Shape> inputPrediction = List.of(new Shape(1L, config.getPrediction().getRules().getNumChannels(), w, h));
-        List<Shape> inputSimilarityProjection = List.of(new Shape(1L, config.getPrediction().getRules().getNumChannels(), w, h));
+        List<Shape> inputPrediction = List.of(new Shape(1L, config.getRepresentation().getRules().getNumChannelsState(), w, h), new Shape(1L, a, w, h));
+        List<Shape> inputSimilarityProjection = List.of(new Shape(1L, config.getPrediction().getRules().getNumChannelsState(), w, h));
         List<Shape> inputSimilarityPrediction = List.of(new Shape(1L, s));
-        List<Shape> inputGeneration = List.of(new Shape(1L, config.getGeneration().getRules().getNumChannels(), w, h), new Shape(1L, a, w, h));
-        onnxExport.run(inputRepresentation, inputPrediction, inputGeneration, inputSimilarityPrediction, inputSimilarityProjection, -1);
+        List<Shape> inputGeneration = List.of(
+                new Shape(1L, config.getRepresentation().getRules().getNumChannelsState(), w, h),
+                new Shape(1L, config.getRepresentation().getPolicy().getNumChannelsState(), w, h),
+                new Shape(1L, config.getRepresentation().getValue().getNumChannelsState(), w, h),
+                new Shape(1L, a, w, h)
+        );
+
+        List<Shape> inputInitialInterence = List.of(new Shape(1L, o, w, h), new Shape(1L, a, w, h));
+
+        onnxExport.run(inputInitialInterence, inputRepresentation, inputPrediction, inputGeneration, inputSimilarityPrediction, inputSimilarityProjection, -1);
     }
 
 }

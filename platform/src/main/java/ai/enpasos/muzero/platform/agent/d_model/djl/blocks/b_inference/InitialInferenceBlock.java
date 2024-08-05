@@ -124,10 +124,10 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
         onnxBlock.addChild(gOnnx);
         List<OnnxTensor> gOutput = gOnnx.getOutput();
 
-        List<OnnxTensor> gOutputForF =   gOutput;
-        List<OnnxTensor> gOutputForG =   gOutput;
+        List<OnnxTensor> gOutputForF =   new ArrayList<>(gOutput);
+        List<OnnxTensor> gOutputForG =   new ArrayList<>(gOutput);
 
-
+        gOutputForF.add(input.get(1));
 
         OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);
         onnxBlock.addChild(fOnnx);

@@ -40,7 +40,7 @@ public class OnnxExport {
     }
 
     @SuppressWarnings("squid:S106")
-    public void run(List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration, List<Shape> inputSimilarityPredictor, List<Shape> inputSimilarityProjector, int epoch) {
+    public void run(List<Shape> inputInitialInference, List<Shape> inputRepresentation, List<Shape> inputPrediction, List<Shape> inputGeneration, List<Shape> inputSimilarityPredictor, List<Shape> inputSimilarityProjector, int epoch) {
 
         try {
             FileUtils.forceMkdir(new File(config.getOutputDir() + "onnx"));
@@ -58,7 +58,7 @@ public class OnnxExport {
              //   RewardBlock rewardBlock = (RewardBlock) network.getReward().getBlock();
 
 
-                onnxExport(initialInferenceBlock, inputRepresentation, config.getOutputDir() + ONNX + config.getModelName() + "-InitialInference.onnx", "I_");
+                onnxExport(initialInferenceBlock, inputInitialInference, config.getOutputDir() + ONNX + config.getModelName() + "-InitialInference.onnx", "I_");
 
                 onnxExport(recurrentInferenceBlock, inputGeneration, config.getOutputDir() + ONNX + config.getModelName() + "-RecurrentInference.onnx", "R_");
 //
