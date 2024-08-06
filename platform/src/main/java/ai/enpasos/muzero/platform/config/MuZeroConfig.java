@@ -288,6 +288,10 @@ public class MuZeroConfig {
         return getConf().actionSpaceSize;
     }
 
+    public int getNumPredictionHeadChannels() {
+        return getConf().numPredictionHeadChannels;
+    }
+
     public int getNumberTrainingStepsOnStart() {
         return getConf().numberTrainingStepsOnStart;
     }
@@ -507,6 +511,7 @@ public class MuZeroConfig {
     @Data
     public static class Conf {
         public Map<PlayTypeKey, PlayType> playTypes;
+        protected int numPredictionHeadChannels = 255;
 
         protected double numSimThreshold;
 

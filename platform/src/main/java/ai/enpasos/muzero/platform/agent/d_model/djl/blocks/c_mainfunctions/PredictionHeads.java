@@ -54,7 +54,8 @@ public class PredictionHeads extends AbstractBlock implements OnnxIO, DCLAware {
     public PredictionHeads(@NotNull MuZeroConfig config ) {
         this(
                 config.getPlayerMode() == PlayerMode.TWO_PLAYERS,
-                config.getActionSpaceSize() );
+                config.getActionSpaceSize(),
+        config.getNumPredictionHeadChannels());
     }
 
 
@@ -79,14 +80,14 @@ private boolean withReward;
     private boolean withPolicy;
 
 
-    public PredictionHeads(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize ) {
+    public PredictionHeads(boolean isPlayerModeTWOPLAYERS, int actionSpaceSize, int predictionChannels ) {
 
 
         valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
-                        .setUnits(256) // config.getNumChannels())  // originally 256
+                        .setUnits(predictionChannels) // config.getNumChannels())  // originally 256
                         .build())
                 .add(ActivationExt.reluBlock())
                 .add(LinearExt.builder()
@@ -123,7 +124,7 @@ private boolean withReward;
         rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
                 .add(LinearExt.builder()
-                        .setUnits(256) // config.getNumChannels())  // originally 256
+                        .setUnits(predictionChannels) // config.getNumChannels())  // originally 256
                         .build())
                 .add(ActivationExt.reluBlock())
                 .add(LinearExt.builder()
