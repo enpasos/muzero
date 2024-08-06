@@ -748,27 +748,27 @@ public class GameBuffer {
         log.debug("getIdsRelevantForTraining: 2");
 
 
-        int nKnown = 0;
-        int nUnknown = idProjectionsUnknownAndTrainable.size();
-
-        if (nUnknown > n) {
-            nUnknown = n;
-        } else {
-            nKnown = Math.min(Math.min(n - nUnknown, nUnknown), idProjectionsKnown.size());
-        }
-
-
-//        Math.min(n, idProjectionsUnknownAndTrainable.size()) ;
-//        double k = Math.max(0.5, ((double)idProjectionsUnknown.size())/idProjections.size()); // TODO: configurable
-//        int nUnknown = Math.min((int)(n * k), idProjectionsUnknownAndTrainable.size()) ;
+//        int nKnown = 0;
+//        int nUnknown = idProjectionsUnknownAndTrainable.size();
 //
-//
-//
-//        int nKnown = Math.min((int)(nUnknown * (1-k) / k), idProjectionsKnown.size());
-//        int nMissing = n - nUnknown - nKnown;
-//        if (nMissing > 0) {
-//            nUnknown = Math.min(nUnknown + nMissing, idProjectionsUnknownAndTrainable.size());
+//        if (nUnknown > n) {
+//            nUnknown = n;
+//        } else {
+//            nKnown = Math.min(Math.min(n - nUnknown, nUnknown), idProjectionsKnown.size());
 //        }
+
+
+        Math.min(n, idProjectionsUnknownAndTrainable.size()) ;
+        double k = Math.max(0.5, ((double)idProjectionsUnknown.size())/idProjections.size()); // TODO: configurable
+        int nUnknown = Math.min((int)(n * k), idProjectionsUnknownAndTrainable.size()) ;
+
+
+
+        int nKnown = Math.min((int)(nUnknown * (1-k) / k), idProjectionsKnown.size());
+        int nMissing = n - nUnknown - nKnown;
+        if (nMissing > 0) {
+            nUnknown = Math.min(nUnknown + nMissing, idProjectionsUnknownAndTrainable.size());
+        }
         log.info("nUnknown: {}, nKnown: {}", nUnknown, nKnown);
         log.debug("getIdsRelevantForTraining: 3");
         Collections.shuffle(idProjectionsUnknownAndTrainable);
