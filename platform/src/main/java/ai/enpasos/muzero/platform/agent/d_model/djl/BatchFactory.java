@@ -73,7 +73,6 @@ public class BatchFactory {
     private Batch getBatch(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, List<Sample> sampleList, TrainingDatasetType trainingDatasetType) {
         NDManager nd = ndManager.newSubManager();
 
-
         List<NDArray> inputs = inputOutputConstruction.constructInput(nd, numUnrollSteps, sampleList, withSymmetryEnrichment, config.isWithConsistencyLoss(), trainingDatasetType);
         List<NDArray> outputs = inputOutputConstruction.constructOutput(nd, numUnrollSteps, sampleList, trainingDatasetType, withSymmetryEnrichment);
 

@@ -36,8 +36,8 @@ public class TrainingConfigFactory {
 
         MyCompositeLoss loss = new MyCompositeLoss(config.getRewardLossThreshold(), config.getLegalActionLossMaxThreshold());
 
-        float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
-   //     float gradientScale =   1f / numUnrollSteps;
+ //       float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
+        float gradientScale =   1f / numUnrollSteps;
 
         int k = 0;
 
@@ -68,15 +68,13 @@ public class TrainingConfigFactory {
                 loss.addLoss(new MyIndexLoss(new MySimilarityLoss(LOSS_SIMILARITY + i, config.getConsistencyLossWeight() * gradientScale), k));
                 k++;
             }
-           // if (i != numUnrollSteps) {
-                // legal actions
-                log.trace("k={}: LegalActions BCELoss", k);
-                loss.addLoss(new MyIndexLoss(new MyBCELoss(
-                        LEGAL_ACTIONS_LOSS_VALUE + i, 1f / this.config.getActionSpaceSize() * gradientScale, 1, config.getLegalActionLossMaxThreshold()
-                ), k));
-                k++;
-          //  }
 
+            // legal actions
+            log.trace("k={}: LegalActions BCELoss", k);
+            loss.addLoss(new MyIndexLoss(new MyBCELoss(
+                    LEGAL_ACTIONS_LOSS_VALUE + i, 1f / this.config.getActionSpaceSize() * gradientScale, 1, config.getLegalActionLossMaxThreshold()
+            ), k));
+            k++;
 
             // reward
             log.trace("k={}: Reward L2Loss", k);
@@ -121,86 +119,7 @@ public class TrainingConfigFactory {
         return c;
     }
 
-//    public DefaultTrainingConfig setupTrainingConfigRules(int epoch, boolean background) {
-//
-//        String outputDir = config.getNetworkBaseDir();
-//
-//        MyCompositeLoss loss = new MyCompositeLoss();
-//
-//        int k = 0;
-//
-//        //  legal actions
-//        log.trace("k={}: LegalActions BCELoss", k);
-//        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f / this.config.getActionSpaceSize(), 1), k));
-//        k++;
-//
-//        // reward
-//        log.trace("k={}: Reward L2Loss", k);
-//        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + 1, config.getValueLossWeight()), k));
-//
-//        mySaveModelTrainingListener.setOutputDir(outputDir);
-//        mySaveModelTrainingListener.setEpoch(epoch);
-//
-//        DefaultTrainingConfig c = new DefaultTrainingConfig(loss)
-//                .optDevices(Engine.getInstance().getDevices(1))
-//                .optOptimizer(setupAdamOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
-//                .addTrainingListeners(
-//                        new MemoryTrainingListener(outputDir),
-//                        new MyEvaluatorTrainingListener(),
-//                        new DivergenceCheckTrainingListener(),
-//                        new TimeMeasureTrainingListener(outputDir)
-//                );
-//        if (!background) {
-//            c.addTrainingListeners(
-//                    new MyEpochTrainingListener(),
-//                    new MyLoggingTrainingListener(epoch),
-//                    mySaveModelTrainingListener);
-//        }
-//        return c;
-//    }
 
-//    public DefaultTrainingConfig setupTrainingConfigForRulesInitial(int epoch) {
-//
-//        String outputDir = config.getNetworkBaseDir();
-//
-//        SimpleCompositeLoss loss = new SimpleCompositeLoss();
-//
-//
-//        float gradientScale = 1f / config.getNumUnrollSteps();
-//
-//        int k = 0;
-//
-//        //  legal actions
-//        log.trace("k={}: LegalActions BCELoss", k);
-//        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + k, 1f/this.config.getActionSpaceSize(), 1), k));
-//        k++;
-//
-//
-//
-//        // reward
-//        log.trace("k={}: Reward L2Loss", k);
-//        loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + k, config.getValueLossWeight() * gradientScale), k));
-//
-//        mySaveModelTrainingListener.setOutputDir(outputDir);
-//        mySaveModelTrainingListener.setEpoch(epoch);
-//
-//        DefaultTrainingConfig c =  new DefaultTrainingConfig(loss)
-//            .optDevices(Engine.getInstance().getDevices(1))
-//            .optOptimizer(setupOptimizer(epoch * config.getNumberOfTrainingStepsPerEpoch()))
-//            .addTrainingListeners(
-//                    new MemoryTrainingListener(outputDir),
-//                    new MyEvaluatorTrainingListener(),
-//                    new DivergenceCheckTrainingListener(),
-//                    new TimeMeasureTrainingListener(outputDir)
-//            );
-//
-//            c.addTrainingListeners(
-//                    new MyEpochTrainingListener(),
-//                    new MyLoggingTrainingListener(epoch),
-//                    mySaveModelTrainingListener);
-//
-//        return c;
-//    }
 
     private Optimizer setupSGDOptimizer(int trainingStep) {
         float lr = config.getLr(trainingStep);

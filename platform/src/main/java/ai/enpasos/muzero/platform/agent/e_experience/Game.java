@@ -399,6 +399,17 @@ public abstract class Game {
         return this.getObservationModelInput(t);
     }
 
+    public Action getAction() {
+        int t = observationInputTime - 1;
+        if (this.getEpisodeDO().getActions().size() == 0)   {
+            return null;
+        }
+        if (t < 0 ) {
+            t = this.getEpisodeDO().getLastTimeWithAction();
+        }
+        return config.newAction(this.getEpisodeDO().getTimeStep(t).getAction());
+    }
+
     public void addObservationFromEnvironment() {
         this.getEpisodeDO().getLastTimeStep().setObservation(environment.getObservation());
     }
