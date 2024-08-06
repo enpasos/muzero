@@ -6,8 +6,6 @@ public interface IdProjection3 extends IdProjection {
     Integer getUOk();
     Boolean getTrainable();
     Integer getBox();
- //   Integer getNextUOk();
- //   Integer getNextUOkTarget();
     Integer getT();
 
 }

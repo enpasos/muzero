@@ -737,9 +737,21 @@ public class GameBuffer {
         List<IdProjection3> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() > 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 1c");
 
-        List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p -> unrollSteps == 1 || p.getTrainable()).collect(Collectors.toList());
+        List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.getTrainable()).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 2");
 
+
+//        int nKnown = 0;
+//        int nUnknown = idProjectionsUnknownAndTrainable.size();
+//
+//        if (nUnknown > n) {
+//            nUnknown = n;
+//        } else {
+//            nKnown = Math.min(Math.min(n - nUnknown, nUnknown), idProjectionsKnown.size());
+//        }
+
+
+        Math.min(n, idProjectionsUnknownAndTrainable.size()) ;
         double k = Math.max(0.5, ((double)idProjectionsUnknown.size())/idProjections.size()); // TODO: configurable
         int nUnknown = Math.min((int)(n * k), idProjectionsUnknownAndTrainable.size()) ;
 
