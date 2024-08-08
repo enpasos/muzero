@@ -348,7 +348,7 @@ public class ModelController implements DisposableBean, Runnable {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
         gameBuffer.resetRelevantIds();  // TODO improve
-        List<? extends IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining(unrollSteps, sampleNumber, epochLocal);
+        List<? extends IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining( sampleNumber );
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
