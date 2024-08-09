@@ -63,7 +63,7 @@ public class AliasMethod {
         }
     }
 
-    public int sampleWithoutReplacement() {
+    public int sample() {
         int column = random.nextInt(n);
         boolean coinToss = random.nextDouble() < prob[column];
         return coinToss ? column : alias[column];
@@ -82,7 +82,7 @@ public class AliasMethod {
         int[] result = new int[n];
         TreeSet<Integer> set = new TreeSet<>();
         while(set.size() < n) {
-            set.add(sampleWithoutReplacement());
+            set.add(sample());
         }
         return set.stream().mapToInt(i -> i).toArray();
     }
