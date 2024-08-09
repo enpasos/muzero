@@ -63,7 +63,7 @@ public class AliasMethod {
         }
     }
 
-    public int sample() {
+    public int sampleWithoutReplacement() {
         int column = random.nextInt(n);
         boolean coinToss = random.nextDouble() < prob[column];
         return coinToss ? column : alias[column];
@@ -74,15 +74,15 @@ public class AliasMethod {
         AliasMethod aliasMethod = new AliasMethod(weights);
         int draws = 10;
         for (int i = 0; i < draws; i++) {
-            System.out.println(aliasMethod.sample());
+            System.out.println(aliasMethod.sampleWithoutReplacement());
         }
     }
 
-    public int[] sample(int n) {
+    public int[] sampleWithoutReplacement(int n) {
         int[] result = new int[n];
         TreeSet<Integer> set = new TreeSet<>();
         while(set.size() < n) {
-            set.add(sample());
+            set.add(sampleWithoutReplacement());
         }
         return set.stream().mapToInt(i -> i).toArray();
     }
