@@ -86,13 +86,4 @@ public class AliasMethod {
         }
         return set.stream().mapToInt(i -> i).toArray();
     }
-
-    public int[] sampleWithoutReplacementAndRetry(int n) {
-        int[] result = new int[n];
-        TreeSet<Integer> set = new TreeSet<>();
-        for(int i = 0; i < n; i++) {
-            set.add(sample());
-        }
-        return set.stream().mapToInt(i -> i).toArray();
-    }
 }

@@ -734,66 +734,43 @@ public class GameBuffer {
 
         List<IdProjection3> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 2");
-        List<IdProjection3> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() > 0).collect(Collectors.toList());
-        log.debug("getIdsRelevantForTraining: 3");
+
 
         List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.getTrainable()).collect(Collectors.toList());
+        log.debug("getIdsRelevantForTraining: 3");
+
+        if (idProjectionsUnknownAndTrainable.size() >= n) {
+            Collections.shuffle(idProjectionsUnknownAndTrainable);
+            log.info("nUnknown: {}, nKnown: {}", n, 0);
+            return idProjectionsUnknownAndTrainable.subList(0, n);
+        }
+        List<IdProjection3> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() > 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 4");
 
-
-        List<IdProjection3> idProjectionsTrainable = new ArrayList<>();
-        idProjectionsTrainable.addAll(idProjectionsUnknownAndTrainable);
-        idProjectionsTrainable.addAll(idProjectionsKnown);
-        Collections.shuffle(idProjectionsTrainable);
+        double k = 2.0;
+        int nKnown = Math.min(Math.min(n - idProjectionsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*idProjectionsUnknownAndTrainable.size()));
 
 
-        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box))
-        double[] g = new double[10];
-        int count = 0;
-        for (IdProjection3 idProjection3 : idProjectionsTrainable) {
-            double v = 1.0 / Math.pow(2, idProjection3.getBox());
-            if (g.length == count) g = Arrays.copyOf(g, count * 2);
-            g[count++] = v;
-        }
-        g = Arrays.copyOfRange(g, 0, count);
-        AliasMethod aliasMethod = new AliasMethod(g);
-
-//
-//
-//        Math.min(n, idProjectionsUnknownAndTrainable.size()) ;
-//        double k = Math.max(0.5, ((double)idProjectionsUnknown.size())/idProjections.size()); // TODO: configurable
-//        int nUnknown = Math.min((int)(n * k), idProjectionsUnknownAndTrainable.size()) ;
-//
-//
-//
-//        int nKnown = Math.min((int)(nUnknown * (1-k) / k), idProjectionsKnown.size());
-//        int nMissing = n - nUnknown - nKnown;
-//        if (nMissing > 0) {
-//            nUnknown = Math.min(nUnknown + nMissing, idProjectionsUnknownAndTrainable.size());
-//        }
-//        log.info("nUnknown: {}, nKnown: {}", nUnknown, nKnown);
-//        log.debug("getIdsRelevantForTraining: 3");
-//        Collections.shuffle(idProjectionsUnknownAndTrainable);
-//        List<  IdProjection3> resultUnknown = idProjectionsUnknownAndTrainable.subList(0, nUnknown);
-//
-//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
-//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBox() - 1)).toArray();
-//        AliasMethod aliasMethod = new AliasMethod(g);
-//        log.debug("getIdsRelevantForTraining: 4");
-
-        int[] samples = aliasMethod.sampleWithoutReplacementAndRetry(n);
-        // stream of samples
-        List< IdProjection3> toBeTrained = Arrays.stream(samples).mapToObj(idProjectionsTrainable::get).collect(Collectors.toList());
-
-//        log.debug("getIdsRelevantForTraining: 5");
-//
-//        List< IdProjection3> result = new ArrayList<>();
-//        result.addAll(resultUnknown);
-//        result.addAll(resultKnown);
-//
-//        log.debug("getIdsRelevantForTraining: 6");
         log.debug("getIdsRelevantForTraining: 5");
-        return toBeTrained;
+
+        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBox() - 1)).toArray();
+        AliasMethod aliasMethod = new AliasMethod(g);
+        log.debug("getIdsRelevantForTraining: 6");
+
+        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
+        // stream of samples
+        List< IdProjection3> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+
+        log.debug("getIdsRelevantForTraining: 7");
+
+        List< IdProjection3> result = new ArrayList<>();
+        result.addAll(idProjectionsUnknownAndTrainable);
+        result.addAll(resultKnown);
+        log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());
+        Collections.shuffle(result);
+        log.debug("getIdsRelevantForTraining: 8");
+        return result;
 
     }
 
