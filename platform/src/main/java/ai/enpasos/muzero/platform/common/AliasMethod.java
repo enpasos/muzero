@@ -74,7 +74,7 @@ public class AliasMethod {
         AliasMethod aliasMethod = new AliasMethod(weights);
         int draws = 10;
         for (int i = 0; i < draws; i++) {
-            System.out.println(aliasMethod.sampleWithoutReplacement());
+            System.out.println(aliasMethod.sample());
         }
     }
 
@@ -82,6 +82,15 @@ public class AliasMethod {
         int[] result = new int[n];
         TreeSet<Integer> set = new TreeSet<>();
         while(set.size() < n) {
+            set.add(sample());
+        }
+        return set.stream().mapToInt(i -> i).toArray();
+    }
+
+    public int[] sampleWithoutReplacementAndRetry(int n) {
+        int[] result = new int[n];
+        TreeSet<Integer> set = new TreeSet<>();
+        for(int i = 0; i < n; i++) {
             set.add(sample());
         }
         return set.stream().mapToInt(i -> i).toArray();

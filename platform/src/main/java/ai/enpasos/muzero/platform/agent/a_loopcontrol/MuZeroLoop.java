@@ -129,7 +129,6 @@ public class MuZeroLoop {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
             while (firstBoxes > 0) {
 
-
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
 
                 DurAndMem duration = new DurAndMem();
@@ -139,7 +138,6 @@ public class MuZeroLoop {
 
                 modelService.trainModelRules(freeze, unrollSteps).get();
 
-
                 epoch = modelState.getEpoch();
 
                 trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
@@ -148,7 +146,6 @@ public class MuZeroLoop {
                 durations.add(duration);
                 System.out.println("epoch;duration[ms];gpuMem[MiB]");
                 IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
 
                 firstBoxes = firstBoxes();
 

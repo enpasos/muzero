@@ -781,7 +781,7 @@ public class GameBuffer {
 //        AliasMethod aliasMethod = new AliasMethod(g);
 //        log.debug("getIdsRelevantForTraining: 4");
 
-        int[] samples = aliasMethod.sampleWithoutReplacement(n);
+        int[] samples = aliasMethod.sampleWithoutReplacementAndRetry(n);
         // stream of samples
         List< IdProjection3> toBeTrained = Arrays.stream(samples).mapToObj(idProjectionsTrainable::get).collect(Collectors.toList());
 
