@@ -118,13 +118,14 @@ public class GameBuffer {
             actions.addAll(game.getRandomActionsIndices(gamePos + numUnrollSteps - actions.size()));
         }
         sample.setActionsList(new ArrayList<>());
-        for (int i = 0; i <  (config.isWithConsistencyLoss() ? numUnrollSteps : 0); i++) {   // TODO: without consistency loss actions are still needed
+        for (int i = 0; i <  numUnrollSteps ; i++) {
             int actionIndex = actions.get(gamePos + i);
             sample.getActionsList().add(actionIndex);
 
-            observation = game.getObservationModelInput(gamePos + i + 1);    // TODO: check
-
-            sample.getObservations().add(observation);
+            if (config.isWithConsistencyLoss()) {
+                observation = game.getObservationModelInput(gamePos + i + 1);    // TODO: check
+                sample.getObservations().add(observation);
+            }
         }
         sample.setGamePos(gamePos);
         sample.setNumUnrollSteps(numUnrollSteps);
