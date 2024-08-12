@@ -173,21 +173,21 @@ public class TestUnrollRulestate {
             log.info("testUnrollRulestate.run(), count episodes = {} of {}", count, rulesBuffer.getIds().size());
          //   System.out.print("\r");
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-            log.info("step 1");
+          //  log.info("step 1");
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            log.info("step 2");
+          //  log.info("step 2");
             playService.uOkAnalyseGames(gameBuffer, allTimeSteps, unrollSteps  );
-            log.info("step 3");
+         //   log.info("step 3");
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
-            log.info("step 4");
+       //    log.info("step 4");
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-            log.info("step 5");
+       //     log.info("step 5");
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
-            log.info("step 6");
+         //   log.info("step 6");
             // db update also in uOK and box
             dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
-            log.info("step 7");
+         //   log.info("step 7");
 
         }
 
