@@ -28,7 +28,7 @@ import static ai.enpasos.muzero.platform.config.VTargetType.V_INFERENCE;
 @Slf4j
 @SuppressWarnings({"squid:S1104", "unchecked"})
 public class MuZeroConfig {
-    public static final boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
+    public static boolean HIDDEN_STATE_REMAIN_ON_GPU = false;
     public Map<GameType, Conf> games;
     Action[] actions;
     private RunType run = RunType.NONE;

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Functions.*;
@@ -60,6 +61,7 @@ public class SelfPlayGame {
         }
         NDArray[] hiddenState = null;
         NetworkIO networkOutput;
+      //  List< NDArray[]> hiddenStateCache = new ArrayList<>();
         int t = tFrom;
         for (; t <= tMax; t++) {
             game.setObservationInputTime(t);
@@ -67,14 +69,24 @@ public class SelfPlayGame {
                 networkOutput = modelService.initialInference(game).join();
             } else {
                 networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t-1)).join();
+                clearHiddenState(hiddenState);
             }
             hiddenState = networkOutput.getHiddenState();
+         //   hiddenStateCache.add(hiddenState);
             boolean currentIsOk = checkOkStatus(episode, networkOutput, t, t != tFrom);
             if (!currentIsOk) {
+             //   clearHiddenStateCache(hiddenStateCache);
                 return t-tFrom-1;
             }
         }
+        clearHiddenState(hiddenState);
         return  tMax-tFrom;
+    }
+
+    private void clearHiddenState( NDArray[] hiddenState) {
+        for(NDArray ndArray : hiddenState) {
+            ndArray.close();
+        }
     }
 
 

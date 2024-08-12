@@ -731,6 +731,7 @@ public class GameBuffer {
 
         log.debug("getIdsRelevantForTraining: 1");
 
+        // TODO: improve this long running method
         List<IdProjection3> idProjections = getIdProjection3List( );
 
         List<IdProjection3> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
