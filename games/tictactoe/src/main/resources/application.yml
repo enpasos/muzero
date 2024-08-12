@@ -72,7 +72,7 @@ muzero:
 
       # using the square symmetry of the board
       symmetryType: SQUARE
-      batchSize: 256
+      batchSize: 512
 
       # Gumbel MuZero parameters
       initialGumbelM: 4
@@ -113,7 +113,7 @@ muzero:
       allOrNothingOn: true
       offPolicyRatioLimit: 1.0
 
-      numParallelInferences: 1000
+      numParallelInferences: 2000
 
 
       rewardLossThreshold: 0.01

@@ -164,20 +164,20 @@ public class TestUnrollRulestate {
         modelService.loadLatestModel(epoch).join();  // TODO: check if this is necessary
 
         RulesBuffer rulesBuffer = new RulesBuffer();
-        rulesBuffer.setWindowSize(1000);
+        rulesBuffer.setWindowSize(2000);
         rulesBuffer.setIds(gameBuffer.getEpisodeIds());
+        int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
+            count += episodeIdsRulesLearningList.size();
+            log.info("testUnrollRulestate.run(), count episodes = {} of {}", count, rulesBuffer.getIds().size());
+         //   System.out.print("\r");
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
             playService.uOkAnalyseGames(gameBuffer, allTimeSteps, unrollSteps  );
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-//            if (allTimeSteps) {
-//                ZipperFunctions.calculateUnrollSteps(episodeDOList);
-//            }
-
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
 
