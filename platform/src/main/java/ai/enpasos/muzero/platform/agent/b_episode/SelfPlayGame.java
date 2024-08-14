@@ -9,17 +9,12 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
-import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
@@ -57,33 +52,32 @@ public class SelfPlayGame {
 
         int tMax =  episode.getLastTime();
         if (!allTimesteps) {
-            tMax = Math.min(episode.getLastTime(), tFrom + unrollSteps);
+            tMax = Math.min(tMax, tFrom + unrollSteps);
         }
         NDArray[] hiddenState = null;
         NetworkIO networkOutput;
-      //  List< NDArray[]> hiddenStateCache = new ArrayList<>();
-        int t = tFrom;
-        for (; t <= tMax; t++) {
+
+
+        for (int t = tFrom; t <= tMax; t++) {
             game.setObservationInputTime(t);
             if (t == tFrom) {
                 networkOutput = modelService.initialInference(game).join();
             } else {
                 networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t-1)).join();
-                clearHiddenState(hiddenState);
+                closeHiddenState(hiddenState);
             }
             hiddenState = networkOutput.getHiddenState();
-         //   hiddenStateCache.add(hiddenState);
             boolean currentIsOk = checkOkStatus(episode, networkOutput, t, t != tFrom);
             if (!currentIsOk) {
-             //   clearHiddenStateCache(hiddenStateCache);
+                closeHiddenState(hiddenState);
                 return t-tFrom-1;
             }
         }
-        clearHiddenState(hiddenState);
+        closeHiddenState(hiddenState);
         return  tMax-tFrom;
     }
 
-    private void clearHiddenState( NDArray[] hiddenState) {
+    private void closeHiddenState(NDArray[] hiddenState) {
         for(NDArray ndArray : hiddenState) {
             ndArray.close();
         }
