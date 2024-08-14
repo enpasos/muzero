@@ -129,55 +129,55 @@ public class MuZeroLoop {
 
         long firstBoxes = firstBoxes();
 
+        if (firstBoxes != 0 && unrollSteps < config.getMaxUnrollSteps()) {
+            while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+                log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+                while (firstBoxes > 0) {
 
-        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            while (firstBoxes > 0) {
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
 
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+                    DurAndMem duration = new DurAndMem();
+                    duration.on();
 
-                DurAndMem duration = new DurAndMem();
-                duration.on();
+                    boolean[] freeze = new boolean[]{false, true, true};
 
-                boolean[] freeze = new boolean[]{false, true, true};
+                    modelService.trainModelRules(freeze, unrollSteps).get();
 
-                modelService.trainModelRules(freeze, unrollSteps).get();
+                    epoch = modelState.getEpoch();
 
-                epoch = modelState.getEpoch();
+                    trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
-                trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+                    duration.off();
+                    durations.add(duration);
+                    System.out.println("epoch;duration[ms];gpuMem[MiB]");
+                    IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
 
-                duration.off();
-                durations.add(duration);
-                System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+                    firstBoxes = firstBoxes();
 
-                firstBoxes = firstBoxes();
+                }
 
-            }
+                while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                    unrollSteps++;
+                    dbService.setNextuoktarget(unrollSteps);
+                    testUnrollRulestate.test(unrollSteps);
+                    firstBoxes = firstBoxes();
+                }
 
-            while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                unrollSteps++;
-                dbService.setNextuoktarget(unrollSteps);
-                testUnrollRulestate.test(  unrollSteps);
-                firstBoxes = firstBoxes();
-            }
+                if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
+                    log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-            if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
-                log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+                    testUnrollRulestate.test(unrollSteps);
 
-                testUnrollRulestate.test( unrollSteps);
-
-                firstBoxes = firstBoxes();
+                    firstBoxes = firstBoxes();
 
 
-                if (unrollSteps == config.getMaxUnrollSteps() && firstBoxes == 0) {
-                    log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
-                    break;
+                    if (unrollSteps == config.getMaxUnrollSteps() && firstBoxes == 0) {
+                        log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
+                        break;
+                    }
                 }
             }
         }
-
 
         policyValueTraining = true;   // true: policy and value training, false: rules training
         rulesTraining = false;
