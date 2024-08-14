@@ -210,6 +210,7 @@ public class GameBuffer {
         int limit = 50000;
         List<Long> newEpisodeIds = new ArrayList<>();
             int offset = 0;
+        episodeRepo.updateMinBox(  );
 
             List newIds;
             do {
