@@ -148,14 +148,18 @@ public class TestUnrollRulestate {
 //    }
 
     public void test( ) {
-      test(true, 1);
+      test(true, 1, false);
+    }
+
+    public void testNewEpisodes( ) {
+        test(true, 1, true);
     }
 
     public void test(int unrollSteps ) {
-        test(false, unrollSteps);
+        test(false, unrollSteps, false);
     }
 
-    private void test(boolean allTimeSteps, int unrollSteps ) {
+    private void test(boolean allTimeSteps, int unrollSteps, boolean newEpisodesOnly ) {
 
 
         int epoch = networkIOService.getLatestNetworkEpoch();
@@ -165,7 +169,14 @@ public class TestUnrollRulestate {
 
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
-        rulesBuffer.setIds(gameBuffer.getEpisodeIds());
+        List<Long> episodeIds = null;
+        if (newEpisodesOnly) {
+            episodeIds = gameBuffer.getNewEpisodeIds( );
+        } else {
+            episodeIds =  gameBuffer.getEpisodeIds();
+        }
+
+        rulesBuffer.setIds(episodeIds);
         int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
