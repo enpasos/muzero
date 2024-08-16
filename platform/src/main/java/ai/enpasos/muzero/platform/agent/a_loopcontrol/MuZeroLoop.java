@@ -116,7 +116,7 @@ public class MuZeroLoop {
 
         gameBuffer.clearEpisodeIds();
 
-        testUnrollRulestate.testNewEpisodes( );  //test( );
+        testUnrollRulestate.test(); //NewEpisodes( );  //test( );
 
         int unrollSteps = 1;
         try {
