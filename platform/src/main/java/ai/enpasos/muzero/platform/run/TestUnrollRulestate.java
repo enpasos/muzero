@@ -171,7 +171,7 @@ public class TestUnrollRulestate {
         rulesBuffer.setWindowSize(1000);
         List<Long> episodeIds = null;
         if (newEpisodesOnly) {
-            episodeIds = gameBuffer.getNewEpisodeIds( );
+            episodeIds = dbService.getNewEpisodeIds( );
         } else {
             episodeIds =  gameBuffer.getEpisodeIds();
         }

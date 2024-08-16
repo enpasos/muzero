@@ -206,21 +206,7 @@ public class GameBuffer {
         episodeIds = null;
     }
 
-    public List<Long> getNewEpisodeIds( ) {
-        int limit = 50000;
-        List<Long> newEpisodeIds = new ArrayList<>();
-            int offset = 0;
-        episodeRepo.updateMinBox(  );
 
-            List newIds;
-            do {
-                newIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox( limit, offset, -2);
-                newEpisodeIds.addAll(newIds);
-                offset += limit;
-            } while (newIds.size() > 0);
-
-        return newEpisodeIds;
-    }
 
     public List<Long> getEpisodeIds( ) {
         int limit = 50000;

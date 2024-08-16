@@ -97,6 +97,21 @@ public class DBService {
     }
 
     @Transactional
+    public List<Long> getNewEpisodeIds() {
+        int limit = 50000;
+        List<Long> newEpisodeIds = new ArrayList<>();
+        int offset = 0;
+        episodeRepo.updateMinBox();
+        List newIds;
+        do {
+            newIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(limit, offset, -2);
+            newEpisodeIds.addAll(newIds);
+            offset += limit;
+        } while (newIds.size() > 0);
+        return newEpisodeIds;
+    }
+
+    @Transactional
     public Pair<List<EpisodeDO>, Integer> findAll(int pageNumber, int pageSize) {
         Page<EpisodeDO> result = episodeRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("id")));
         int totalPages = result.getTotalPages();
