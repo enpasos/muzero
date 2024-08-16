@@ -101,7 +101,7 @@ public class DBService {
         int limit = 50000;
         List<Long> newEpisodeIds = new ArrayList<>();
         int offset = 0;
-        episodeRepo.updateMinBox();
+        episodeRepo.updateMinUOK();
         List newIds;
         do {
             newIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(limit, offset, -2);

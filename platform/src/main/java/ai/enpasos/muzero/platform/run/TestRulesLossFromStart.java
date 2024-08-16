@@ -115,7 +115,7 @@ public class TestRulesLossFromStart {
                 )
         );
     //    log.info("changeCount: " + changeCount[0] + " for " + episodeIds.size() + " episodes");
-        episodeRepo.updateMinBox(  );
+      //  episodeRepo.updateMinBox(  );
         return true;
     }
 

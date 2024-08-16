@@ -123,17 +123,32 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 //    void initRuleLoss();
 
 
+//    @Transactional
+//    @Modifying
+//    @Query(value = "UPDATE episode e \n" +
+//            "SET min_box = t.min_box\n" +
+//            "FROM (\n" +
+//            "    SELECT episode_id, MIN(u_ok) as min_box\n" +
+//            "    FROM timestep\n" +
+//            "    GROUP BY episode_id\n" +
+//            ") t\n" +
+//            "WHERE e.id = t.episode_id", nativeQuery = true )
+//    void updateMinBox(  );
+
+
+
+    // TODO rename field min_box to min_uok
     @Transactional
     @Modifying
     @Query(value = "UPDATE episode e \n" +
             "SET min_box = t.min_box\n" +
             "FROM (\n" +
-            "    SELECT episode_id, MIN(box) as min_box\n" +
+            "    SELECT episode_id, MIN(u_ok) as min_box\n" +
             "    FROM timestep\n" +
             "    GROUP BY episode_id\n" +
             ") t\n" +
             "WHERE e.id = t.episode_id", nativeQuery = true )
-    void updateMinBox(  );
+    void updateMinUOK(  );
 
 
     @Transactional

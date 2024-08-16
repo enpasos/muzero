@@ -48,7 +48,7 @@ public class FillRulesLoss {
 
     public void run(int box) {
          int epoch = networkIOService.getLatestNetworkEpoch();
-        episodeRepo.updateMinBox(  );
+     //   episodeRepo.updateMinBox(  );
         evaluatedRulesLearningForNetworkOfEpoch( epoch, box );
      }
 
@@ -145,7 +145,7 @@ public class FillRulesLoss {
                 )
         );
         log.info("changeCount: " + changeCount[0] + " for " + episodeIds.size() + " episodes");
-        episodeRepo.updateMinBox(  );
+    //    episodeRepo.updateMinBox(  );
         return true;
     }
 
