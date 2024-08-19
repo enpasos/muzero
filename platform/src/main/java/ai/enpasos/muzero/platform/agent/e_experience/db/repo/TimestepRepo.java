@@ -312,5 +312,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Modifying
     @Query("UPDATE TimeStepDO t SET t.trainable = (t.nextUOk >= t.nextuoktarget or t.uOk < 1)  ")
     void updateTrainable( );
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE TimeStepDO t SET t.box = 0 WHERE t.uOk < :unrollSteps AND NOT t.uOkClosed")
+    void updateBox0(int unrollSteps);
 }
 

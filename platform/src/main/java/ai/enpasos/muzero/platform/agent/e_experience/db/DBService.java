@@ -323,6 +323,10 @@ public class DBService {
 
     }
 
+    public void updateBox0(int unrollSteps) {
+        timestepRepo.updateBox0(unrollSteps);
+    }
+
 //    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {
 //        episodeDOList.stream().forEach(episodeDO -> {
 //            // find minimum of uOK on all timesteps

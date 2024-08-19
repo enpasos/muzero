@@ -124,6 +124,7 @@ public class MuZeroLoop {
         } catch (Exception e) {
             unrollSteps = config.getMaxUnrollSteps();
         }
+        dbService.updateBox0(unrollSteps);
         log.info("unrollSteps: {}", unrollSteps);
         dbService.setNextuoktarget(unrollSteps);
 
@@ -181,6 +182,10 @@ public class MuZeroLoop {
 
         policyValueTraining = true;   // true: policy and value training, false: rules training
         rulesTraining = false;
+
+
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
+        epoch = modelState.getEpoch();
 
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {

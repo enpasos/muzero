@@ -20,7 +20,7 @@ spring:
   jpa:
     properties.hibernate:
       #jdbc.lob.non_contextual_creation: true
-      dialect: org.hibernate.dialect.PostgreSQLDialect
+      #dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
       ddl-auto: update
       jdbc:
