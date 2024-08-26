@@ -63,7 +63,7 @@ java -jar games/tictactoe/build/libs/tictactoe-0.8.0-SNAPSHOT-exec.jar
 This project is licensed under the [Apache-2.0 License](platform/LICENSE).
 
 
-## Database
+## Database![img.png](img.png)
 
 postgres 16.2
 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads

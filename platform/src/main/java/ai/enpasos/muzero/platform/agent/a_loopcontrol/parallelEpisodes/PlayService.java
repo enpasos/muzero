@@ -145,8 +145,8 @@ public class PlayService {
         List<Game> gamesReturn = new ArrayList<>();
 
         // TODO: improve setting this config
-        boolean hiddenStateRemainOnGpuOld = MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
-        MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = true;
+        // boolean hiddenStateRemainOnGpuOld = MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
+        //  MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = true;
 
         modelService.startScope();
         giveOneOfTheGamesADebugFlag(games);
@@ -165,7 +165,7 @@ public class PlayService {
             }
         }
         modelService.endScope();
-        MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = hiddenStateRemainOnGpuOld;
+       // MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = hiddenStateRemainOnGpuOld;
         return gamesReturn;
     }
 
