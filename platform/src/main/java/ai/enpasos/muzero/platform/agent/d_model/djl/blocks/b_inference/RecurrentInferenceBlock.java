@@ -128,7 +128,11 @@ throw new MuZeroException("implemented in MuZeroBlock");
         List<OnnxTensor> gOutputForF = firstHalfList(gOutput);
         List<OnnxTensor> gOutputForG = secondHalfList(gOutput);
 
+        f.setWithReward(true);
 
+        f.setWithValue(true);
+        f.setWithPolicy(true);
+        f.setWithLegalAction(true);
 
 
         OnnxBlock fOnnx = f.getOnnxBlock(counter, gOutputForF);

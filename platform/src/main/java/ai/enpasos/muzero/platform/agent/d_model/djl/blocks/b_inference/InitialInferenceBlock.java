@@ -131,10 +131,16 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
 
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
+        f.setWithReward(false);
+
+        f.setWithValue(true);
+        f.setWithPolicy(true);
+        f.setWithLegalAction(true);
 
         OnnxBlock onnxBlock = OnnxBlock.builder()
-            .input(input)
-            .build();
+                .input(input)
+                .valueInfos(createValueInfoProto(input))
+                .build();
 
 
         OnnxBlock gOnnx = h.getOnnxBlock(counter, List.of(input.get(0)));
@@ -150,7 +156,7 @@ public class InitialInferenceBlock extends AbstractBlock implements OnnxIO, DCLA
         onnxBlock.addChild(fOnnx);
         List<OnnxTensor> fOutput = fOnnx.getOutput();
 
-        onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
+      //  onnxBlock.getValueInfos().addAll(createValueInfoProto(input));
 
         List<OnnxTensor> totalOutput = new ArrayList<>();
         totalOutput.addAll(gOutputForG);
