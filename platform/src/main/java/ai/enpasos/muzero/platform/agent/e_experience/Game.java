@@ -229,8 +229,8 @@ public abstract class Game {
             float[] policy = timeStepDO.getPolicyTarget();
             target.setPolicy(policy);
         } else {
-            // NULL_VALUE means no force here
-            target.setValue(NULL_VALUE);
+
+            target.setValue(0);
 
             target.setReward(reward);
 
