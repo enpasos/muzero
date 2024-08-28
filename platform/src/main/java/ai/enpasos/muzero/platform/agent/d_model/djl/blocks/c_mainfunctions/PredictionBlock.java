@@ -237,7 +237,6 @@ private boolean withReward;
  }
 
 
-
     @Override
     public OnnxBlock getOnnxBlock(OnnxCounter counter, List<OnnxTensor> input) {
         OnnxBlock onnxBlock = OnnxBlock.builder()
@@ -249,31 +248,41 @@ private boolean withReward;
         OnnxTensor childOutput = null;
 
 
-
-            List<OnnxTensor> myInput = new ArrayList<>();
-            OnnxBlock child = null;
-            if (withLegalAction) {
-                child = this.legalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
-                onnxBlock.addChild(child);
-                childOutput = child.getOutput().get(0);
-                outputs.add(childOutput);
-            }
-            if (withReward) {
-                child = this.rewardHead.getOnnxBlock(counter,  List.of(input.get(0)));
-                onnxBlock.addChild(child);
-                childOutput = child.getOutput().get(0);
-                outputs.add(childOutput);
-            }
+        List<OnnxTensor> myInput = new ArrayList<>();
+        OnnxBlock child = null;
+        if (withLegalAction) {
+            child = this.legalActionsHead.getOnnxBlock(counter, List.of(input.get(0)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+        }
+        if (withReward) {
+            child = this.rewardHead.getOnnxBlock(counter, List.of(input.get(0)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+            outputs.add(childOutput);
+        }
 
         if (withPolicy) {
-            child = this.policyHead.getOnnxBlock(counter, List.of(input.get(1)));
+
+            child = this.concatPolicyInputBlock.getOnnxBlock(counter, List.of(input.get(0), input.get(1)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+          //  outputs.add(childOutput);
+
+            child = this.policyHead.getOnnxBlock(counter, List.of(childOutput));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
         }
         if (withValue) {
 
-            child = this.valueHead.getOnnxBlock(counter, List.of(input.get(2)));
+            child = this.concatValueInputBlock.getOnnxBlock(counter, List.of(input.get(0), input.get(1), input.get(2)));
+            onnxBlock.addChild(child);
+            childOutput = child.getOutput().get(0);
+       //     outputs.add(childOutput);
+
+            child = this.valueHead.getOnnxBlock(counter, List.of(childOutput));
             onnxBlock.addChild(child);
             childOutput = child.getOutput().get(0);
             outputs.add(childOutput);
