@@ -662,7 +662,7 @@ public class GameBuffer {
     }
 
 
-    private List<ShortTimestep> shortTimestepList;
+    private Set<ShortTimestep> shortTimestepList;
 
     public void refreshCache(List<Long> idsTsChanged) {
       List<ShortTimestep> shortTimesteps =  timestepRepo.getShortTimestepList(idsTsChanged);
@@ -670,12 +670,13 @@ public class GameBuffer {
         shortTimestepList.addAll(shortTimesteps);
     }
 
-    public List<ShortTimestep> getShortTimestepList( )  {
+
+    public Set<ShortTimestep> getShortTimestepSet( )  {
         if (shortTimestepList == null || shortTimestepList.isEmpty()) {
             int limit = 50000;
 
             int offset = 0;
-            shortTimestepList = new ArrayList<>();
+            shortTimestepList = new HashSet<>();
             List<Object[]> resultList;
             do {
                 // comment: no list of proxies for performance reasons
@@ -698,19 +699,19 @@ public class GameBuffer {
         return shortTimestepList;
     }
 
-    public List<? extends IdProjection> getIdsRelevantForTraining( int n ) {
+    public List<ShortTimestep> getIdsRelevantForTraining( int n ) {
 
         log.debug("getIdsRelevantForTraining: 1");
 
         // TODO: improve this long running method
-        List<ShortTimestep> shortTimesteps = getShortTimestepList( );
-        List<IdProjection3> idProjections = getIdProjection3List( );
+        Set<ShortTimestep> idProjections = getShortTimestepSet( );
+      //  List<IdProjection3> idProjections = getIdProjection3List( );
 
-        List<IdProjection3> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
+        List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 2");
 
 
-        List<IdProjection3> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.getTrainable()).collect(Collectors.toList());
+        List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.isTrainable()).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 3");
 
         if (idProjectionsUnknownAndTrainable.size() >= n) {
@@ -718,7 +719,7 @@ public class GameBuffer {
             log.info("nUnknown: {}, nKnown: {}", n, 0);
             return idProjectionsUnknownAndTrainable.subList(0, n);
         }
-        List<IdProjection3> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() > 0).collect(Collectors.toList());
+        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() > 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 4");
 
         double k = 2.0;
@@ -734,11 +735,11 @@ public class GameBuffer {
 
         int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
         // stream of samples
-        List< IdProjection3> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
 
         log.debug("getIdsRelevantForTraining: 7");
 
-        List< IdProjection3> result = new ArrayList<>();
+        List< ShortTimestep> result = new ArrayList<>();
         result.addAll(idProjectionsUnknownAndTrainable);
         result.addAll(resultKnown);
         log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());

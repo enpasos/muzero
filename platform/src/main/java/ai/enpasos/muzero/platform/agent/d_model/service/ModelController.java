@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -348,9 +349,9 @@ public class ModelController implements DisposableBean, Runnable {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
       //  gameBuffer.resetRelevantIds();  // TODO improve
-        List<? extends IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining( sampleNumber );
+        List<ShortTimestep> allIdProjections = gameBuffer.getIdsRelevantForTraining( sampleNumber );
 
-        List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
+        List<Long> allRelevantTimestepIds = allIdProjections.stream().map(ShortTimestep::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
 
         log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
@@ -370,7 +371,7 @@ public class ModelController implements DisposableBean, Runnable {
             log.info("timestep before relatedTimeStepIds filtering");
             Set<Long> relatedTimeStepIds = allIdProjections.stream()
                     .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
-                    .map(IdProjection::getId).collect(Collectors.toSet());
+                    .map(ShortTimestep::getId).collect(Collectors.toSet());
             log.info("timestep after relatedTimeStepIds filtering");
 
             //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
@@ -457,7 +458,7 @@ public class ModelController implements DisposableBean, Runnable {
        }));
     }
 
-    private List<Long> episodeIdsFromIdProjections(  List<? extends IdProjection> allIdProjections) {
+    private List<Long> episodeIdsFromIdProjections(  List<ShortTimestep> allIdProjections) {
         Set<Long> ids =  allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
                 .boxed().collect(Collectors.toSet());
         return new ArrayList(ids);
