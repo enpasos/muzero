@@ -662,21 +662,22 @@ public class GameBuffer {
     }
 
 
-    private Set<ShortTimestep> shortTimestepList;
+    private Set<ShortTimestep> shortTimesteps;
 
     public void refreshCache(List<Long> idsTsChanged) {
-      List<ShortTimestep> shortTimesteps =  timestepRepo.getShortTimestepList(idsTsChanged);
-        shortTimestepList.removeAll(shortTimesteps);
-        shortTimestepList.addAll(shortTimesteps);
+        Set<ShortTimestep>  shortTimesteps = getShortTimestepSet();
+      List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
+         shortTimesteps.removeAll(shortTimestepsNew );
+         shortTimesteps.addAll(shortTimestepsNew );
     }
 
 
     public Set<ShortTimestep> getShortTimestepSet( )  {
-        if (shortTimestepList == null || shortTimestepList.isEmpty()) {
+        if (shortTimesteps == null || shortTimesteps.isEmpty()) {
             int limit = 50000;
 
             int offset = 0;
-            shortTimestepList = new HashSet<>();
+            shortTimesteps = new HashSet<>();
             List<Object[]> resultList;
             do {
                 // comment: no list of proxies for performance reasons
@@ -692,11 +693,11 @@ public class GameBuffer {
                                 .t(result[6] != null ? (Integer) result[6] : null)
                                 .build())
                         .collect(Collectors.toList());
-                shortTimestepList.addAll(shortTimesteps);
+                this.shortTimesteps.addAll(shortTimesteps);
                 offset += limit;
             } while (resultList.size() > 0);
         }
-        return shortTimestepList;
+        return shortTimesteps;
     }
 
     public List<ShortTimestep> getIdsRelevantForTraining( int n ) {
