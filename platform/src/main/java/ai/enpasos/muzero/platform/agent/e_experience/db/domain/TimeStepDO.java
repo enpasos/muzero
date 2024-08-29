@@ -3,6 +3,7 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,6 +11,24 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+
+
+
+//@SqlResultSetMapping(
+//        name = "ShortTimestepMapping",
+//        classes = @ConstructorResult(
+//                targetClass = ShortTimestep.class,
+//                columns = {
+//                        @ColumnResult(name = "id", type = Long.class),
+//                        @ColumnResult(name = "t", type = Integer.class),
+//                        @ColumnResult(name = "box", type = Integer.class),
+//                        @ColumnResult(name = "episodeId", type = Long.class),
+//                        @ColumnResult(name = "nextUOk", type = Integer.class),
+//                        @ColumnResult(name = "nextUOkTarget", type = Integer.class),
+//                        @ColumnResult(name = "uOk", type = Integer.class)
+//                }
+//        )
+//)
 
 @Entity
 @Table(name = "timestep",

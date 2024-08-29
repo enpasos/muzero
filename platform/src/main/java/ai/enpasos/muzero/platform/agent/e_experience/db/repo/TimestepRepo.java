@@ -2,6 +2,7 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
+import jakarta.persistence.SqlResultSetMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -303,8 +304,10 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Query(value = "SELECT ts.id AS id, ts.episode.id AS episodeId,  ts.box AS box,  ts.uOk as uOk,  ts.nextUOk as nextUOk,  ts.nextuoktarget as nextUOkTarget,  ts.t AS t  FROM TimeStepDO ts where ts.id in :ids ")
+    @Query(value = "SELECT new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep( ts.id  , ts.episode.id  ,  ts.box  ,  ts.uOk  ,  ts.nextUOk  ,  ts.nextuoktarget  ,  ts.t  )  FROM TimeStepDO ts where ts.id in :ids ")
+   // @SqlResultSetMapping(name = "ShortTimestepMapping")
     List<ShortTimestep> getShortTimestepList(List<Long> ids) ;
+
 
 
 //    @Query(value = "SELECT min(ts.unrollSteps) FROM TimeStepDO ts")
