@@ -26,13 +26,13 @@ import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.common.AliasMethod;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import jakarta.persistence.Tuple;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -46,7 +46,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-@Data
+
 @Slf4j
 @Component
 public class GameBuffer {
@@ -360,37 +360,7 @@ public class GameBuffer {
         return relevantIds;
     }
 
-//    public List<Long> getRelevantEpisodeIds2( int uOk )  {
-//        int limit = 50000;
-//
-//        int offset = 0;
-//        Set<Long> relevantEpisodeIds = new HashSet<>();
-//        List newIds;
-//        do {
-//            newIds = timestepRepo.getRelevantEpisodeIds2( limit, offset, uOk);
-//            relevantEpisodeIds.addAll(newIds);
-//            offset += limit;
-//        } while (newIds.size() > 0);
-//        List<Long> relevantEpisodeIdsList = new ArrayList<>(relevantEpisodeIds);
-//        Collections.shuffle(relevantEpisodeIdsList);
-//        return relevantEpisodeIdsList;
-//    }
 
-//    public List<Long> getRelevantEpisodeIds( List<Integer> boxesRelevant ) {
-//        int limit = 50000;
-//
-//        int offset = 0;
-//        Set<Long> relevantEpisodeIds = new HashSet<>();
-//        List newIds;
-//        do {
-//            newIds = timestepRepo.getRelevantEpisodeIds(boxesRelevant, limit, offset);
-//            relevantEpisodeIds.addAll(newIds);
-//            offset += limit;
-//        } while (newIds.size() > 0);
-//        List<Long> relevantEpisodeIdsList = new ArrayList<>(relevantEpisodeIds);
-//        Collections.shuffle(relevantEpisodeIdsList);
-//        return relevantEpisodeIdsList;
-//    }
 
     public List<Long> getShuffledEpisodeIds() {
         List<Long> episodeIds = getEpisodeIds( )  ;
@@ -401,7 +371,7 @@ public class GameBuffer {
 
     private List<Game> getGamesToLearnRules() {
 
-        int n = this.getConfig().getWindowSize();
+        int n =  config.getWindowSize();
 
         List<Long> episodeIdsRulesLearningList = this.getShuffledEpisodeIds();
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
@@ -503,7 +473,7 @@ public class GameBuffer {
         } else {
             this.timestamps.put(games.get(0).getEpisodeDO().getTrainingEpoch(), System.currentTimeMillis());
             logEntropyInfo();
-            int epoch = this.getModelState().getEpoch();
+            int epoch = modelState.getEpoch();
 
 
            List<Game> gamesToSave = this.getPlanningBuffer().getEpisodeMemory().getGameList().stream()
@@ -513,7 +483,7 @@ public class GameBuffer {
                     .collect(Collectors.toList());
 
 
-           gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch()));
+           gamesToSave.forEach(g -> g.getEpisodeDO().setNetworkName(modelState.getCurrentNetworkNameWithEpoch()));
 
             List<EpisodeDO> episodes  = games.stream().map(Game::getEpisodeDO).collect(Collectors.toList());
 
@@ -528,8 +498,8 @@ public class GameBuffer {
 
        //  memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
         if (!game.isReanalyse()) {
-            game.getEpisodeDO().setNetworkName(this.getModelState().getCurrentNetworkNameWithEpoch());
-            game.getEpisodeDO().setTrainingEpoch(this.getModelState().getEpoch());
+            game.getEpisodeDO().setNetworkName(modelState.getCurrentNetworkNameWithEpoch());
+            game.getEpisodeDO().setTrainingEpoch(modelState.getEpoch());
             planningBuffer.addGame(game );
         } else {
             this.reanalyseBuffer.addGame(game );
@@ -538,32 +508,6 @@ public class GameBuffer {
     }
 
 
-//    private void addGame(Game game, boolean atBeginning) {
-//        memorizeEntropyInfo(game, game.getEpisodeDO().getTrainingEpoch());
-//        getBuffer().addGame(game, atBeginning);
-//    }
-
-//    private void memorizeEntropyInfo(Game game, int epoch) {
-//        this.entropyBestEffortSum.putIfAbsent(epoch, 0.0);
-//     //   this.maxEntropyBestEffortSum.putIfAbsent(epoch, 0.0);
-//        this.entropyExplorationSum.putIfAbsent(epoch, 0.0);
-//        this.maxEntropyExplorationSum.putIfAbsent(epoch, 0.0);
-//        this.entropyBestEffortCount.putIfAbsent(epoch, 0);
-//        this.maxEntropyBestEffortCount.putIfAbsent(epoch, 0);
-//        this.entropyExplorationCount.putIfAbsent(epoch, 0);
-//        this.maxEntropyExplorationCount.putIfAbsent(epoch, 0);
-//        if (game.getEpisodeDO().hasExploration()) {
-//            this.entropyExplorationSum.put(epoch, this.entropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
-//            this.entropyExplorationCount.put(epoch, this.entropyExplorationCount.get(epoch) + 1);
-//        //    this.maxEntropyExplorationSum.put(epoch, this.maxEntropyExplorationSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
-//        //    this.maxEntropyExplorationCount.put(epoch, this.maxEntropyExplorationCount.get(epoch) + 1);
-//        } else {
-//            this.entropyBestEffortSum.put(epoch, this.entropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageEntropy());
-//            this.entropyBestEffortCount.put(epoch, this.entropyBestEffortCount.get(epoch) + 1);
-//        //    this.maxEntropyBestEffortSum.put(epoch, this.maxEntropyBestEffortSum.get(epoch) + game.getEpisodeDO().getAverageActionMaxEntropy());
-//        //    this.maxEntropyBestEffortCount.put(epoch, this.maxEntropyBestEffortCount.get(epoch) + 1);
-//        }
-//    }
 
 
     @SuppressWarnings({"java:S106"})
@@ -603,10 +547,7 @@ public class GameBuffer {
         return getNRandomSelectedGames(n);
     }
 
-//    public List<Game> getGamesToLearnRules() {
-//        int n = config.getNumParallelGamesPlayed();
-//        return getNGamesWithHighestRewardLoss(n);
-//    }
+
 
     public List<Game> getNGamesWithHighestRewardLoss(int n) {
         List<EpisodeDO> episodeDOList = this.dbService.findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
@@ -650,11 +591,6 @@ public class GameBuffer {
     public Pair<List<Game>, Integer> getGamesByPage( int pageNumber, int pageSize) {
         Pair<List<EpisodeDO>, Integer> pair = this.dbService.findAll(pageNumber, pageSize);
         List<EpisodeDO> episodeDOList = pair.getKey();
-//        for(EpisodeDO episodeDO: episodeDOList) {
-//            episodeDO.sortTimeSteps();
-//        }
-//
-//
 
            List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
         return new ImmutablePair<>(games, pair.getRight());
@@ -663,10 +599,6 @@ public class GameBuffer {
 
 
     public static List<Game> convertEpisodeDOsToGames(List<EpisodeDO> episodeDOList, MuZeroConfig config) {
-     //  GameBufferDTO buffer = new GameBufferDTO();
-     //   buffer.setInitialEpisodeDOList(episodeDOList);
-    //    episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().
-    //    buffer.rebuildGames(config);
 
         List<Game> games = new ArrayList<>();
         for (EpisodeDO episodeDO : episodeDOList) {
@@ -729,11 +661,49 @@ public class GameBuffer {
         return idProjection3List;
     }
 
+
+    private List<ShortTimestep> shortTimestepList;
+
+    public void refreshCache(List<Long> idsTsChanged) {
+      List<ShortTimestep> shortTimesteps =  timestepRepo.getShortTimestepList(idsTsChanged);
+        shortTimestepList.removeAll(shortTimesteps);
+        shortTimestepList.addAll(shortTimesteps);
+    }
+
+    public List<ShortTimestep> getShortTimestepList( )  {
+        if (shortTimestepList == null || shortTimestepList.isEmpty()) {
+            int limit = 50000;
+
+            int offset = 0;
+            shortTimestepList = new ArrayList<>();
+            List<Object[]> resultList;
+            do {
+                // comment: no list of proxies for performance reasons
+                resultList = timestepRepo.getShortTimestepList(limit, offset );
+                List<ShortTimestep> shortTimesteps = resultList.stream()
+                        .map(result -> ShortTimestep.builder()
+                                .id(result[0] != null ? ((Number) result[0]).longValue() : null)
+                                .episodeId(result[1] != null ? ((Number) result[1]).longValue() : null)
+                                .box(result[2] != null ? (Integer) result[2] : null)
+                                .uOk(result[3] != null ? (Integer) result[3] : null)
+                                .nextUOk(result[4] != null ? (Integer) result[4] : null)
+                                .nextUOkTarget(result[5] != null ? (Integer) result[5] : null)
+                                .t(result[6] != null ? (Integer) result[6] : null)
+                                .build())
+                        .collect(Collectors.toList());
+                shortTimestepList.addAll(shortTimesteps);
+                offset += limit;
+            } while (resultList.size() > 0);
+        }
+        return shortTimestepList;
+    }
+
     public List<? extends IdProjection> getIdsRelevantForTraining( int n ) {
 
         log.debug("getIdsRelevantForTraining: 1");
 
         // TODO: improve this long running method
+        List<ShortTimestep> shortTimesteps = getShortTimestepList( );
         List<IdProjection3> idProjections = getIdProjection3List( );
 
         List<IdProjection3> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
@@ -789,9 +759,5 @@ public class GameBuffer {
     }
 
 
-//    private Map<Long, Long> attributeS_to_timestepId = new HashMap<>();
-//
-//    public void putAttributeS_to_timestepId(long id, long s) {
-//        attributeS_to_timestepId.put(id, s);
-//    }
+
 }

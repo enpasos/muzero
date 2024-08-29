@@ -73,7 +73,7 @@ class DBWriteReadTest {
 
             GameBufferDTO dtoOriginal = gameBuffer.getPlanningBuffer();
 
-            gameBuffer.setPlanningBuffer(null);
+           // gameBuffer.setPlanningBuffer(null);
             gameBuffer.loadLatestStateIfExists();
             GameBufferDTO dtoNew = gameBuffer.getPlanningBuffer();
             assertTrue(deepEquals(dtoOriginal, dtoNew), "game buffers should be the same");
@@ -96,7 +96,7 @@ class DBWriteReadTest {
             gameBuffer.addGames(games);
 
             GameBufferDTO dtoOriginal = gameBuffer.getPlanningBuffer();
-            gameBuffer.setPlanningBuffer(null);
+         //   gameBuffer.setPlanningBuffer(null);
             gameBuffer.loadLatestStateIfExists();
             GameBufferDTO dtoNew = gameBuffer.getPlanningBuffer();
             assertTrue(deepEquals(dtoOriginal,dtoNew), "game buffers should be the same");

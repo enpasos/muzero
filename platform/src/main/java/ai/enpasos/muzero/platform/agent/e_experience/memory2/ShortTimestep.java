@@ -1,0 +1,32 @@
+package ai.enpasos.muzero.platform.agent.e_experience.memory2;
+
+import lombok.*;
+
+@Data
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@AllArgsConstructor
+@NoArgsConstructor
+public class ShortTimestep {
+   @EqualsAndHashCode.Include
+   private Long id;
+
+   private Long episodeId;
+
+   private Integer box;
+
+   private Integer uOk;
+   private Integer nextUOk;
+   private Integer nextUOkTarget;
+
+
+
+   private Integer t;
+
+
+
+
+   public boolean isTrainable() {
+      return (nextUOk >= nextUOkTarget || uOk < 1);
+   }
+}

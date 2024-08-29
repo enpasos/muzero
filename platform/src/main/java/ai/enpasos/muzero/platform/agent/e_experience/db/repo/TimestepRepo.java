@@ -1,14 +1,13 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 
 public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
@@ -284,6 +283,28 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
             int limit,
             int offset);
 
+
+
+//    @Query(value = """
+//        SELECT
+//            t.id AS id,
+//            t.episode_id AS episodeId,
+//            t.box AS box,
+//            t.u_ok as uOk,
+//            t.nextuok as nextUOk,
+//            t.nextuoktarget as nextUOkTarget,
+//            t.t AS t
+//        FROM timestep t
+//        ORDER BY t.id
+//        LIMIT :limit OFFSET :offset
+//        """,
+        @Query(value = "SELECT t.id AS id,  t.episode_id AS episodeId,  t.box AS box,  t.u_ok as uOk,  t.nextuok as nextUOk,  t.nextuoktarget as nextUOkTarget,  t.t AS t  FROM timestep t ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+        List<Object[]> getShortTimestepList(int limit, int offset);
+
+
+
+    @Query(value = "SELECT ts.id AS id, ts.episode.id AS episodeId,  ts.box AS box,  ts.uOk as uOk,  ts.nextUOk as nextUOk,  ts.nextuoktarget as nextUOkTarget,  ts.t AS t  FROM TimeStepDO ts where ts.id in :ids ")
+    List<ShortTimestep> getShortTimestepList(List<Long> ids) ;
 
 
 //    @Query(value = "SELECT min(ts.unrollSteps) FROM TimeStepDO ts")

@@ -6,7 +6,7 @@ public interface IdProjection3 extends IdProjection {
     Integer getT();
 
     // state info
-    Integer getUOk();
+  //  Integer getUOk();
     Boolean getTrainable();
     Integer getBox();
 

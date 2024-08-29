@@ -295,16 +295,19 @@ public class DBService {
 //        ));
 //    }
 
-    public void updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int unrollSteps  ) {
-
+    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int unrollSteps  ) {
+        List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
             boolean boxChanged  = ts.updateBox( unrollSteps);
 
             if (ts.isSChanged() || ts.isUOkChanged() ||  boxChanged || ts.isUnrollStepsChanged()) {
+                ids.add(ts.getId()) ;
                 timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox( ) );
                 if ( ts.getT() > 0) {
-                    timestepRepo.updateNextUOk(ts.getEpisode().getTimeStep((ts.getT() - 1)).getId(), ts.getUOk());
+                    long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
+                    ids.add(id);
+                    timestepRepo.updateNextUOk(id, ts.getUOk());
                 }
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
@@ -312,6 +315,7 @@ public class DBService {
             ts.setUOkTested(false);
 
         });
+        return ids;
     }
 
     public void setNextuoktarget(int unrollSteps) {

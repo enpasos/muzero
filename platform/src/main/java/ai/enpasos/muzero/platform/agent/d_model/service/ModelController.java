@@ -347,7 +347,7 @@ public class ModelController implements DisposableBean, Runnable {
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
-        gameBuffer.resetRelevantIds();  // TODO improve
+      //  gameBuffer.resetRelevantIds();  // TODO improve
         List<? extends IdProjection> allIdProjections = gameBuffer.getIdsRelevantForTraining( sampleNumber );
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(IdProjection::getId).toList();
@@ -378,13 +378,13 @@ public class ModelController implements DisposableBean, Runnable {
             boolean save = saveHere & !iterator.hasNext();
             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
-            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-            Collections.shuffle(gameBuffer);
+            List<Game> games= convertEpisodeDOsToGames(episodeDOList, config);
+            Collections.shuffle(games);
 
             // each timestep once
 
 
-            List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(gameBuffer, relatedTimeStepIds);
+            List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(games, relatedTimeStepIds);
 
 //                allTimeSteps.removeAll(timestepsDone);
 //              //  if (allTimeSteps.isEmpty()) continue;
@@ -430,8 +430,8 @@ public class ModelController implements DisposableBean, Runnable {
 
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
                             batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
-                            dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps);
-
+                            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps);
+                            gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();
                         }

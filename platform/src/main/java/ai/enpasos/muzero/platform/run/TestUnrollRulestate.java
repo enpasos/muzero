@@ -107,9 +107,9 @@ public class TestUnrollRulestate {
             count += episodeIdsRulesLearningList.size();
             log.info("identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+            List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
             //if (!tested) {
-                playService.uOkAnalyseGames(gameBuffer, false, unrollSteps);
+                playService.uOkAnalyseGames(games, false, unrollSteps);
             //}
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
@@ -130,8 +130,8 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
-
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
+            gameBuffer.refreshCache(idsTsChanged);
         }
 
         log.info("identifyRelevantTimestepsAndTestThem unrollStepsGlobally = {} ... finished");
@@ -185,9 +185,9 @@ public class TestUnrollRulestate {
          //   System.out.print("\r");
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
           //  log.info("step 1");
-            List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
+            List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
           //  log.info("step 2");
-            playService.uOkAnalyseGames(gameBuffer, allTimeSteps, unrollSteps  );
+            playService.uOkAnalyseGames(games, allTimeSteps, unrollSteps  );
          //   log.info("step 3");
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
        //    log.info("step 4");
@@ -197,7 +197,8 @@ public class TestUnrollRulestate {
                     .collect(Collectors.toList());
          //   log.info("step 6");
             // db update also in uOK and box
-            dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
+            gameBuffer.refreshCache(idsTsChanged);
          //   log.info("step 7");
 
         }
@@ -218,8 +219,8 @@ public class TestUnrollRulestate {
         modelService.loadLatestModel(epoch).join();
         EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
         List<EpisodeDO> episodeDOList = List.of(episodeDO);
-        List<Game> gameBuffer = convertEpisodeDOsToGames(episodeDOList, config);
-        selfPlayGame.uOkAnalyseGame(gameBuffer.get(0), allTimeStepsWhichMeansLocally, -1);
+        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
+        selfPlayGame.uOkAnalyseGame(games.get(0), allTimeStepsWhichMeansLocally, -1);
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
@@ -230,7 +231,9 @@ public class TestUnrollRulestate {
 
 
         // db update also in uOK and box
-        dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps );
+
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
+        gameBuffer.refreshCache(idsTsChanged);
 
     }
 
