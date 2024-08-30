@@ -140,34 +140,34 @@ public class PlayService {
         });
     }
 
-
-    public List<Game> uOkAnalyseGames(Set<Long> startingTimeStepIds, List<Game> games, boolean allTimesteps, int unrollSteps  ) {
-        List<Game> gamesReturn = new ArrayList<>();
-
-        // TODO: improve setting this config
-        // boolean hiddenStateRemainOnGpuOld = MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
-        //  MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = true;
-
-        modelService.startScope();
-        giveOneOfTheGamesADebugFlag(games);
-        CompletableFuture<Game>[] futures = games.stream().map(g ->
-                episodeRunner.uOkAnalyseGame(startingTimeStepIds, g, allTimesteps, unrollSteps)
-        ).toArray(CompletableFuture[]::new);
-        CompletableFuture.allOf(futures).join();
-        for (CompletableFuture<Game> future : futures) {
-            try {
-                gamesReturn.add(future.get());
-            } catch (InterruptedException e) {
-                log.warn("Interrupted!", e);
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                throw new MuZeroException(e);
-            }
-        }
-        modelService.endScope();
-        // MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = hiddenStateRemainOnGpuOld;
-        return gamesReturn;
-    }
+//
+//    public List<Game> uOkAnalyseGames(Set<Long> startingTimeStepIds, List<Game> games, boolean allTimesteps, int unrollSteps  ) {
+//        List<Game> gamesReturn = new ArrayList<>();
+//
+//        // TODO: improve setting this config
+//        // boolean hiddenStateRemainOnGpuOld = MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
+//        //  MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = true;
+//
+//        modelService.startScope();
+//        giveOneOfTheGamesADebugFlag(games);
+//        CompletableFuture<Game>[] futures = games.stream().map(g ->
+//                episodeRunner.uOkAnalyseGame(startingTimeStepIds, g, allTimesteps, unrollSteps)
+//        ).toArray(CompletableFuture[]::new);
+//        CompletableFuture.allOf(futures).join();
+//        for (CompletableFuture<Game> future : futures) {
+//            try {
+//                gamesReturn.add(future.get());
+//            } catch (InterruptedException e) {
+//                log.warn("Interrupted!", e);
+//                Thread.currentThread().interrupt();
+//            } catch (ExecutionException e) {
+//                throw new MuZeroException(e);
+//            }
+//        }
+//        modelService.endScope();
+//        // MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = hiddenStateRemainOnGpuOld;
+//        return gamesReturn;
+//    }
 
 
 

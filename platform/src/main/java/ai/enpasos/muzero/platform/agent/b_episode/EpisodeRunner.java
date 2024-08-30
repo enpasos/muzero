@@ -42,11 +42,6 @@ public class EpisodeRunner {
         return CompletableFuture.completedFuture(game);
     }
 
-    @Async()
-    public CompletableFuture<Game> uOkAnalyseGame(Set<Long> startingTimeStepIds, Game game, boolean allTimesteps, int unrollSteps  ) {
-        selfPlayer.uOkAnalyseGame(startingTimeStepIds, game, allTimesteps, unrollSteps);
-        return CompletableFuture.completedFuture(game);
-    }
 
 
 

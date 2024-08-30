@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,7 +102,7 @@ public class TestUnrollRulestate {
         List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
         log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
         rulesBuffer.setIds(episodeIds);
-        Set<Long> timeStepIds = idProjections.stream().map(IdProjection::getId).collect(Collectors.toSet());
+        Set<Long> timeStepIds = new HashSet<>(idProjections.stream().map(IdProjection::getId).collect(Collectors.toSet()));
         int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();
@@ -109,7 +110,13 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(timeStepIds, games, false, unrollSteps);
+            games.stream().forEach(game -> game.getEpisodeDO().getTimeSteps().stream().forEach(timeStepDO
+                                    -> timeStepDO.setToBeAnalysed(timeStepIds.contains(timeStepDO.getId())
+                            )
+                    )
+            );
+
+            playService.uOkAnalyseGames( games, false, unrollSteps);
 
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
@@ -184,6 +191,10 @@ public class TestUnrollRulestate {
           //  log.info("step 1");
             List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
           //  log.info("step 2");
+            games.stream().forEach(game -> game.getEpisodeDO().getTimeSteps().stream().forEach(timeStepDO
+                                    -> timeStepDO.setToBeAnalysed(true)
+                            )
+            );
             playService.uOkAnalyseGames(games, allTimeSteps, unrollSteps  );
          //   log.info("step 3");
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
