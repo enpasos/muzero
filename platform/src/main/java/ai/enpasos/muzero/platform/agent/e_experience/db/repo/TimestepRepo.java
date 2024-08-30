@@ -230,7 +230,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box != 0 ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
     List<IdProjection> getRandomIdsNotInBox0(int n);
 
-
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = 0 ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
+    List<IdProjection> getRandomIdsInBox0(int n);
 
     @Transactional
     @Query(value = "SELECT min(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)

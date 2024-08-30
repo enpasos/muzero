@@ -71,6 +71,10 @@ public class TestUnrollRulestate {
         log.info("boxesRelevant = {}", boxesRelevant.toString());
 
 
+   //     List<IdProjection> idBox0 = gameBuffer.getRandomIdsBox0(100);
+
+
+
 
         if (boxesRelevant.size() == 0) {
             log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
@@ -85,13 +89,10 @@ public class TestUnrollRulestate {
             return;
         }
 
-
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
         List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevant(boxesRelevant);
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
-
-        //   modelService.loadLatestModel(epoch).join();   // check
 
 
         RulesBuffer rulesBuffer = new RulesBuffer();
@@ -108,13 +109,11 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-            //if (!tested) {
-                playService.uOkAnalyseGames(games, false, unrollSteps);
-            //}
+            playService.uOkAnalyseGames(games, false, unrollSteps);
+
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
             ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-           // ZipperFunctions.calculateUnrollSteps(episodeDOList);
 
 
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()
@@ -125,8 +124,6 @@ public class TestUnrollRulestate {
             relevantTimeSteps.forEach(timeStepDO -> {
                 timeStepDO.setUOkTested(true);
             });
-
-         //   dbService.updateUnrollStepsOnEpisode(episodeDOList);
 
 
             // db update also in uOK and box

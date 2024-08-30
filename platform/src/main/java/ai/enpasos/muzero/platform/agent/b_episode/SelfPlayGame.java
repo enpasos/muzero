@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @Component
@@ -35,7 +37,15 @@ public class SelfPlayGame {
     ModelService modelService;
 
 
-
+    public void uOkAnalyseGame(Set<Long> startingTimeStepIds, Game game, boolean allTimesteps, int unrollSteps ) {
+        log.trace("uOkAnalyseGame");
+        int tMax = game.getEpisodeDO().getLastTime();
+        for (int tFrom = 0; tFrom <= tMax; tFrom++) {
+            if ( ! startingTimeStepIds.contains(game.getEpisodeDO().getTimeStep(tFrom).getId())) continue;
+            int uOk = analyseFromOneTime(game, tFrom, allTimesteps, unrollSteps);
+            updateUOk(game.getEpisodeDO(), tFrom, uOk);
+        }
+    }
 
     public void uOkAnalyseGame(Game game, boolean allTimesteps, int unrollSteps ) {
         log.trace("uOkAnalyseGame");

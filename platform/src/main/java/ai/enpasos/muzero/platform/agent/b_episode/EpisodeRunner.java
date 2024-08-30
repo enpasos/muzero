@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -40,6 +41,16 @@ public class EpisodeRunner {
         selfPlayer.uOkAnalyseGame(game, allTimesteps, unrollSteps);
         return CompletableFuture.completedFuture(game);
     }
+
+    @Async()
+    public CompletableFuture<Game> uOkAnalyseGame(Set<Long> startingTimeStepIds, Game game, boolean allTimesteps, int unrollSteps  ) {
+        selfPlayer.uOkAnalyseGame(startingTimeStepIds, game, allTimesteps, unrollSteps);
+        return CompletableFuture.completedFuture(game);
+    }
+
+
+
+
 
 
 }
