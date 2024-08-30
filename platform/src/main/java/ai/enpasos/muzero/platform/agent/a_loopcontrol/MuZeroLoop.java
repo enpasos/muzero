@@ -157,6 +157,8 @@ public class MuZeroLoop {
 
      //   try (NDScope nDScope = new NDScope()) {
 
+        int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
+
 
             List<DurAndMem> durations = new ArrayList<>();
 
@@ -194,8 +196,9 @@ public class MuZeroLoop {
                 while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
                     log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
                     while (firstBoxes > 0) {
-
-                        testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+                        if (firstBoxes < nTrain) {
+                            testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+                        }
 
                         DurAndMem duration = new DurAndMem();
                         duration.on();
