@@ -109,7 +109,7 @@ public class TestUnrollRulestate {
             log.info("identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
             List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-            playService.uOkAnalyseGames(games, false, unrollSteps);
+            playService.uOkAnalyseGames(timeStepIds, games, false, unrollSteps);
 
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
