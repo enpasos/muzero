@@ -247,7 +247,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 //        ORDER BY t.id
 //        LIMIT :limit OFFSET :offset
 //        """,
-        @Query(value = "SELECT t.id AS id,  t.episode_id AS episodeId,  t.boxa AS box,  t.u_ok as uOk,  t.nextuok as nextUOk,  t.nextuoktarget as nextUOkTarget,  t.t AS t  FROM timestep t ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+        @Query(value = "SELECT t.id AS id,  t.episode_id AS episodeId,  t.boxa AS boxA, t.boxb AS boxB,  t.u_ok as uOk,  t.nextuok as nextUOk,  t.nextuoktarget as nextUOkTarget,  t.t AS t  FROM timestep t ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
         List<Object[]> getShortTimestepList(int limit, int offset);
 
 
