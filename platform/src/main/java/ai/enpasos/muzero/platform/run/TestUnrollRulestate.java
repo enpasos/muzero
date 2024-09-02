@@ -59,18 +59,12 @@ public class TestUnrollRulestate {
     SelfPlayGame selfPlayGame;
 
 
-    public void identifyRelevantTimestepsAndTestThem(int unrollSteps, int epoch ) {
+    public void identifyRelevantTimestepsAndTestThemA(int unrollSteps, int epoch ) {
 
 
-        int maxBox = timestepRepo.maxBox();
+        int maxBox = timestepRepo.maxBoxA();
         List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
         log.info("boxesRelevant = {}", boxesRelevant.toString());
-
-
-   //     List<IdProjection> idBox0 = gameBuffer.getRandomIdsBox0(100);
-
-
-
 
         if (boxesRelevant.size() == 0) {
             log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
@@ -87,7 +81,7 @@ public class TestUnrollRulestate {
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
-        List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevant(boxesRelevant);
+        List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevantA(boxesRelevant);
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
 
 
@@ -129,11 +123,11 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBoxA(relevantTimeSteps);
             gameBuffer.refreshCache(idsTsChanged);
         }
 
-        log.info("identifyRelevantTimestepsAndTestThem unrollStepsGlobally = {} ... finished");
+        log.info("identifyRelevantTimestepsAndTestThem A unrollStepsGlobally = {} ... finished");
     }
 
 

@@ -2,7 +2,6 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
-import jakarta.persistence.SqlResultSetMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -115,8 +114,12 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     long numBoxB0();
 
     @Transactional
-    @Query(value = "SELECT max(t.box) FROM  timestep t", nativeQuery = true)
-    int maxBox( );
+    @Query(value = "SELECT max(t.boxA) FROM  timestep t", nativeQuery = true)
+    int maxBoxA( );
+
+    @Transactional
+    @Query(value = "SELECT max(t.boxA) FROM  timestep t", nativeQuery = true)
+    int maxBoxB( );
 
 
 
@@ -162,7 +165,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.boxa in :boxesRelevant ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
-    List<IdProjection> getRelevantIds3(int limit, int offset, List<Integer> boxesRelevant);
+    List<IdProjection> getRelevantIdsA3(int limit, int offset, List<Integer> boxesRelevant);
 
 
 

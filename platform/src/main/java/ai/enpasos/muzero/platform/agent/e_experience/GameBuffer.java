@@ -241,14 +241,14 @@ public class GameBuffer {
 //    }
 
 
-    private List<IdProjection> relevantIds;
+    private List<IdProjection> relevantIdsA;
 
     private List<IdProjection2> relevantIds2;
     private List<IdProjection3> idProjection3List;
 
     public void resetRelevantIds() {
         relevantIds2 = null;
-        relevantIds = null;
+        relevantIdsA = null;
         idProjection3List = null;
     }
 
@@ -289,19 +289,19 @@ public class GameBuffer {
     }
 
     public List<IdProjection> getRandomIdsNotInBox0( int n )  {
-        if (relevantIds == null) {
+        if (relevantIdsA == null) {
             int limit = 50000;
 
             int offset = 0;
-            relevantIds = new ArrayList<>();
+            relevantIdsA = new ArrayList<>();
             List newIds;
             do {
                 newIds = timestepRepo.getRelevantIds4(limit, offset);
-                relevantIds.addAll(newIds);
+                relevantIdsA.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
         }
-        return relevantIds;
+        return relevantIdsA;
     }
 
 
@@ -310,7 +310,7 @@ public class GameBuffer {
     }
 
     public List<IdProjection> getRelevantIdsUOk(int uOK )  {
-        if (relevantIds == null) {
+        if (relevantIdsA == null) {
             int limit = 50000;
 
             int uOKMax = uOK;
@@ -320,32 +320,32 @@ public class GameBuffer {
             }
 
             int offset = 0;
-            relevantIds = new ArrayList<>();
+            relevantIdsA = new ArrayList<>();
             List newIds;
             do {
                 newIds = timestepRepo.getRelevantIds2(limit, offset, uOKMin, uOKMax);
-                relevantIds.addAll(newIds);
+                relevantIdsA.addAll(newIds);
 
                 offset += limit;
             } while (newIds.size() > 0);
         }
-        return relevantIds;
+        return relevantIdsA;
     }
 
-    public List<IdProjection> getIdsFromBoxesRelevant(List<Integer> boxesRelevant )  {
-        if (relevantIds == null) {
+    public List<IdProjection> getIdsFromBoxesRelevantA(List<Integer> boxesRelevant )  {
+        if (relevantIdsA == null) {
             int limit = 50000;
 
             int offset = 0;
-            relevantIds = new ArrayList<>();
+            relevantIdsA = new ArrayList<>();
             List newIds;
             do {
-                newIds = timestepRepo.getRelevantIds3(limit, offset, boxesRelevant);
-                relevantIds.addAll(newIds);
+                newIds = timestepRepo.getRelevantIdsA3(limit, offset, boxesRelevant);
+                relevantIdsA.addAll(newIds);
                 offset += limit;
             } while (newIds.size() > 0);
         }
-        return relevantIds;
+        return relevantIdsA;
     }
 
 
