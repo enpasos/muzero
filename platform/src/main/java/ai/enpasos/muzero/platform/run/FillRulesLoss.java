@@ -101,7 +101,7 @@ public class FillRulesLoss {
 //    }
 
     private boolean evaluateRulesLearning( int offset, int limit, int[] changeCount, int maxBox) {
-        List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(limit, offset, maxBox);
+        List<Long> episodeIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinUOk(limit, offset, maxBox);
         return evaluateRulesLearning(changeCount, episodeIds);
     }
 

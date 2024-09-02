@@ -97,7 +97,7 @@ public class DBService {
         episodeRepo.updateMinUOK();
         List newIds;
         do {
-            newIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(limit, offset, -2);
+            newIds = episodeRepo.findAllEpisodeIdsWithBoxSmallerOrEqualsMinUOk(limit, offset, -2);
             newEpisodeIds.addAll(newIds);
             offset += limit;
         } while (newIds.size() > 0);

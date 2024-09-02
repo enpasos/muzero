@@ -35,8 +35,8 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
     @Transactional
-    @Query(value = "select e.id from episode e where e.min_box <= :minBox  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
-    List<Long> findAllEpisodeIdsWithBoxSmallerOrEqualsMinBox(int limit, int offset, int minBox);
+    @Query(value = "select e.id from episode e where e.minuok <= :minuok  order by e.id LIMIT :limit  OFFSET :offset", nativeQuery = true)
+    List<Long> findAllEpisodeIdsWithBoxSmallerOrEqualsMinUOk(int limit, int offset, int minuok);
 
 
     @Transactional
@@ -137,13 +137,13 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
 
-    // TODO rename field min_box to min_uok
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE episode e \n" +
-            "SET min_box = t.min_box\n" +
+            "SET minuok = t.minuok\n" +
             "FROM (\n" +
-            "    SELECT episode_id, MIN(u_ok) as min_box\n" +
+            "    SELECT episode_id, MIN(u_ok) as minuok\n" +
             "    FROM timestep\n" +
             "    GROUP BY episode_id\n" +
             ") t\n" +
