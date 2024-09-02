@@ -43,8 +43,6 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeCritical critical;
 
-    @Autowired
-    private TicTacToeTemperature temperature;
 
     @Autowired
     private TicTacToeTestAllNetworks testAllNetworks;
@@ -81,8 +79,6 @@ public class TicTacToe implements CommandLineRunner {
     @Autowired
     private TicTacToeImportExport importExport;
 
-    @Autowired
-    private TicTacToeFillValueTable fillValueTable;
 
     @Autowired
     private TicTacToeFindNetworksDoingABadMove badAction;
@@ -117,9 +113,7 @@ public class TicTacToe implements CommandLineRunner {
             case ACTIONS:
                 actionExtractor.run();
                 break;
-            case FILLVALUETABLE:
-                fillValueTable.run();
-                break;
+
             case IMPORTEXPORT:
                 importExport.run();
                 break;
@@ -132,9 +126,7 @@ public class TicTacToe implements CommandLineRunner {
             case FILLRULESLOSS:
                 fillRulesLoss.run();
                 break;
-            case TEMPERATURE:
-                temperature.run();
-                break;
+
             case INMIND:
                 inMindValues.run();
                 break;

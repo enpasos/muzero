@@ -18,7 +18,6 @@
 package ai.enpasos.muzero.platform.agent.a_loopcontrol;
 
 
-import ai.djl.ndarray.NDScope;
 import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
@@ -26,13 +25,10 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
 import ai.enpasos.muzero.platform.run.FillRulesLoss;
-import ai.enpasos.muzero.platform.run.FillValueTable;
-import ai.enpasos.muzero.platform.run.TemperatureCalculator;
 import ai.enpasos.muzero.platform.run.TestUnrollRulestate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,12 +61,6 @@ public class MuZeroLoop {
     ModelState modelState;
 
 
-    @Autowired
-    ValueRepo valueRepo;
-
-
-    @Autowired
-    FillValueTable fillValueTable;
 
     @Autowired
     EpisodeRepo episodeRepo;
@@ -79,8 +69,6 @@ public class MuZeroLoop {
     TimestepRepo timestepRepo;
 
 
-    @Autowired
-    TemperatureCalculator temperatureCalculator;
 
     @Autowired
     FillRulesLoss fillRulesLoss;

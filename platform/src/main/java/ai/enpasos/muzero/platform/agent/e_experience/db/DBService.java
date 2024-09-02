@@ -4,11 +4,9 @@ package ai.enpasos.muzero.platform.agent.e_experience.db;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.domain.ValueDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.LegalActionsRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +31,6 @@ public class DBService {
     EpisodeRepo episodeRepo;
 
 
-    @Autowired
-    ValueRepo valueRepo;
 
 
     @Autowired
@@ -52,8 +48,6 @@ public class DBService {
         episodeRepo.dropSequence();
         timestepRepo.dropTable();
         timestepRepo.dropSequence();
-        valueRepo.dropTable();
-        valueRepo.dropSequence();
         legalActionsRepo.dropTable();
         legalActionsRepo.dropSequence();
 
@@ -192,15 +186,15 @@ public class DBService {
 
 
     @Transactional
-    public List<EpisodeDO> findEpisodeDOswithTimeStepDOsAndValues(List<Long> episodeIds) {
+    public List<EpisodeDO> findEpisodeDOswithTimeStepDOs(List<Long> episodeIds) {
 
         List<TimeStepDO> timeStepDOs = timestepRepo.findTimeStepDOswithEpisodeIds(episodeIds);
-        timeStepDOs.stream().forEach(t -> t.getValues().size());
+     //   timeStepDOs.stream().forEach(t -> t.getNextTimeStep());
 
         List<EpisodeDO> episodeDOs = timeStepDOs.stream().map(t -> t.getEpisode()).distinct().collect(Collectors.toList());
         episodeDOs.forEach(e -> e.setTimeSteps(new ArrayList<>()));
         timeStepDOs.stream().forEach(t -> t.getEpisode().getTimeSteps().add(t));
-        timeStepDOs.stream().forEach(t -> t.getValues().size());
+     //   timeStepDOs.stream().forEach(t -> t.getValues().size());
 
         return episodeDOs;
     }
@@ -208,38 +202,6 @@ public class DBService {
 
 
 
-
-
-    @Transactional
-    public void setValueHatSquaredMeanForTimeStep (TimeStepDO timeStepDO,  int n) {
-        //int trainingEpoch = timeStepDO.getEpisode().getTrainingEpoch();
-
-        List<ValueDO> valueDOs = valueRepo.findNonArchivedValuesForTimeStepId(timeStepDO.getId());
-
-        double sum = 0d;
-        long count = 0;
-        for (ValueDO valueDO : valueDOs) {
-            sum += valueDO.getValuedo();
-            count++;
-        }
-
-        double valueMean = sum / count;
-        sum = 0d;
-        for (ValueDO valueDO : valueDOs) {
-            double vHat = valueMean - valueDO.getValuedo();
-            sum += vHat * vHat;
-        }
-        double vHatSquaredMean = sum / count;
-
-
-        ValueDO valueDO = ValueRepo.extractValueDOMaxEpoch(valueDOs).orElseThrow(MuZeroException::new);
-
-//        valueDO.setValueMean(valueMean);
-//        valueDO.setCount(count);
-//        valueDO.setValueHatSquaredMean(vHatSquaredMean);
-
-
-    }
 
     //@Transactional
     public void markArchived(int epoch) {
@@ -254,8 +216,6 @@ public class DBService {
         episodeRepo.markArchived(quantile);
         log.info("timestepRepo.markArchived() ...");
         timestepRepo.markArchived();
-        log.info("valueRepo.markArchived() ...");
-        valueRepo.markArchived();
         log.info("...markArchived.");
     }
 

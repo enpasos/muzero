@@ -16,7 +16,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +37,6 @@ public class TestUnrollRulestate {
     @Autowired
     ModelService modelService;
     @Autowired
-    ValueRepo valueRepo;
-    @Autowired
     EpisodeRepo episodeRepo;
     @Autowired
     TimestepRepo timestepRepo;
@@ -51,8 +48,6 @@ public class TestUnrollRulestate {
     @Autowired
     GameProvider gameProvider;
 
-    @Autowired
-    TemperatureCalculator temperatureCalculator;
 
     @Autowired
     PlayService playService;

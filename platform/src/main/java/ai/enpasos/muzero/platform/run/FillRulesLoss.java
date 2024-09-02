@@ -8,7 +8,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.ValueRepo;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,6 @@ public class FillRulesLoss {
     @Autowired
     ModelService modelService;
     @Autowired
-    ValueRepo valueRepo;
-    @Autowired
     EpisodeRepo episodeRepo;
     @Autowired
     TimestepRepo timestepRepo;
@@ -39,8 +36,6 @@ public class FillRulesLoss {
     @Autowired
     GameProvider gameProvider;
 
-    @Autowired
-    TemperatureCalculator temperatureCalculator;
 
     public void run( ) {
         run(-1);
@@ -118,7 +113,7 @@ public class FillRulesLoss {
     private boolean evaluateRulesLearning(int[] changeCount, List<Long> episodeIds) {
         if (episodeIds.isEmpty()) return false;
 
-        List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOsAndValues(episodeIds);
+        List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOs(episodeIds);
 
         List<Game> games = convertEpisodeDOsToGames(episodeDOS, config);
 

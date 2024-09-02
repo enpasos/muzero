@@ -52,8 +52,7 @@ public class TimeStepDO {
     @ManyToOne
     LegalActionsDO legalact;
 
-    @OneToMany(cascade = {CascadeType.REMOVE}, mappedBy = "timestep")
-    private List<ValueDO> values;
+
 
     int t;
 

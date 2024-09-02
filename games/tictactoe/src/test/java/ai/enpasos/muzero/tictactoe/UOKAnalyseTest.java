@@ -63,7 +63,7 @@ class UOKAnalyseTest {
 
         Game game = config.newGame(true, true);
         game.apply(a);
-
+game.getEpisodeDO().getTimeSteps().stream().forEach(ts -> ts.setToBeAnalysed(true));
         selfPlayGame.uOkAnalyseGame(game, true, 1 );
         List<Integer> uOks = game.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.getUOk()).boxed().collect(Collectors.toList());
         log.info("uOks: " + uOks);
