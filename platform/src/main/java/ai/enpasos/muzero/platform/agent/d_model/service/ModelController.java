@@ -355,9 +355,9 @@ public class ModelController implements DisposableBean, Runnable {
 
         List<ShortTimestep> allIdProjections = null;
         if (unrollSteps == 1) {
-            gameBuffer.getIdsRelevantForTrainingBoxA( sampleNumber );
+            allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxA( sampleNumber );
         } else {
-            gameBuffer.getIdsRelevantForTrainingBoxB( sampleNumber );
+            allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxB( sampleNumber );
         }
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(ShortTimestep::getId).toList();
