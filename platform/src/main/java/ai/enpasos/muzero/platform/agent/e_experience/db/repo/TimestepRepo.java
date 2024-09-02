@@ -74,7 +74,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss, t.box = :newBox where t.id = :id")
+    @Query(value = "update TimeStepDO t set t.rewardLoss = :rewardLoss, t.legalActionLossMax = :legalActionLoss, t.boxA = :newBox where t.id = :id")
     void updateRewardLoss(long id, float rewardLoss, float legalActionLoss, int newBox);
 
 
@@ -114,12 +114,16 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
-    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.box = :box")
-    long numBox(int box);
+    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxA = 0")
+    long numBoxA0();
 
     @Transactional
-    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.box <= :box")
-    long numBoxUpTo(int box);
+    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxB = 0")
+    long numBoxB0();
+
+//    @Transactional
+//    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxA <= :box")
+//    long numBoxUpTo(int box);
 
 
 
@@ -144,7 +148,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 //    @Query(value = "SELECT DISTINCT t.box FROM timestep t  ORDER BY t.box ASC", nativeQuery = true)
 //    List<Integer> boxList();
 //
-    @Query("SELECT t.box as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.box ORDER BY t.box ASC")
+    @Query("SELECT t.boxA as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.boxA ORDER BY t.boxA ASC")
    List<BoxOccupation> boxOccupation();
 //
 //
@@ -155,7 +159,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed, t.uOk = :uOk, t.uOkClosed = :uOkClosed,   t.box = :box, t.trainable = (t.nextUOk >= t.nextuoktarget)  where t.id = :id" )
+    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed, t.uOk = :uOk, t.uOkClosed = :uOkClosed,   t.boxA = :box, t.trainable = (t.nextUOk >= t.nextuoktarget)  where t.id = :id" )
     void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long box  );
 
 
@@ -305,7 +309,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Query(value = "SELECT new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep( ts.id  , ts.episode.id  ,  ts.box  ,  ts.uOk  ,  ts.nextUOk  ,  ts.nextuoktarget  ,  ts.t  )  FROM TimeStepDO ts where ts.id in :ids ")
+    @Query(value = "SELECT new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep( ts.id  , ts.episode.id  ,  ts.boxA,  ts.boxB  ,  ts.uOk  ,  ts.nextUOk  ,  ts.nextuoktarget  ,  ts.t  )  FROM TimeStepDO ts where ts.id in :ids ")
    // @SqlResultSetMapping(name = "ShortTimestepMapping")
     List<ShortTimestep> getShortTimestepList(List<Long> ids) ;
 
@@ -333,15 +337,15 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void updateNextUOkTarget(int unrollSteps);
 
 
-    @Transactional
-    @Modifying
-    @Query("UPDATE TimeStepDO t SET t.trainable = (t.nextUOk >= t.nextuoktarget or t.uOk < 1)  ")
-    void updateTrainable( );
+//    @Transactional
+//    @Modifying
+//    @Query("UPDATE TimeStepDO t SET t.trainable = (t.nextUOk >= t.nextuoktarget or t.uOk < 1)  ")
+//    void updateTrainable( );
 
 
     @Transactional
     @Modifying
-    @Query("UPDATE TimeStepDO t SET t.box = 0 WHERE t.uOk < :unrollSteps AND NOT t.uOkClosed")
+    @Query("UPDATE TimeStepDO t SET t.boxA = 0 WHERE t.uOk < :unrollSteps AND NOT t.uOkClosed")
     void updateBox0(int unrollSteps);
 }
 

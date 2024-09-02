@@ -3,15 +3,11 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
-import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.List;
-
-
 
 
 //@SqlResultSetMapping(
@@ -76,20 +72,32 @@ public class TimeStepDO {
     @Transient
     boolean toBeAnalysed;
 
-//    @Transient
-//    @Builder.Default
-//    int ruleTrained = -1;  // -1 means not trained, s>=0 means trained with in-mind steps s before
-//    @Transient
-//    boolean ruleTrainingSuccess ;  // if trained, was it successful?
 
     @Builder.Default
-    int box = 0;
+    int boxA = 0;
 
+    @Builder.Default
+    int boxB = 0;
 
+//    public boolean updateBox(int targetU) {
+//        boolean isLocally = false;
+//        int boxBefore = getBoxA( );
+//        int boxAfter = boxBefore;
+//        if (getUOk() < targetU && !isUOkClosed()) { // not ok
+//            boxAfter = 0;
+//        } else { // ok
+//            if (isUOkTested() || boxBefore <= 0 ) {
+//                boxAfter = boxBefore + 1;
+//            }
+//        }
+//        setBoxA(boxAfter );
+//        return boxAfter != boxBefore;
+//    }
 
-    public boolean updateBox(int targetU) {
+    public boolean updateBoxA() {
+        int targetU = 1;
         boolean isLocally = false;
-        int boxBefore = getBox( );
+        int boxBefore = getBoxA( );
         int boxAfter = boxBefore;
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
             boxAfter = 0;
@@ -98,11 +106,24 @@ public class TimeStepDO {
                 boxAfter = boxBefore + 1;
             }
         }
-        setBox(boxAfter );
+        setBoxA(boxAfter );
         return boxAfter != boxBefore;
     }
 
-
+    public boolean updateBoxB(int targetU) {
+        boolean isLocally = false;
+        int boxBefore = getBoxB( );
+        int boxAfter = boxBefore;
+        if (getUOk() < targetU && !isUOkClosed()) { // not ok
+            boxAfter = 0;
+        } else { // ok
+            if (isUOkTested() || boxBefore <= 0 ) {
+                boxAfter = boxBefore + 1;
+            }
+        }
+        setBoxB(boxAfter );
+        return boxAfter != boxBefore;
+    }
 
 
     @Builder.Default

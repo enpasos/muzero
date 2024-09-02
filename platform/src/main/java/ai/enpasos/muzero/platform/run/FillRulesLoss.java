@@ -129,7 +129,7 @@ public class FillRulesLoss {
                         timestep -> {
                             boolean known = timestep.getRewardLoss() < thresholdR && timestep.getLegalActionLossMax() < thresholdA;
                             // box 0, ...: box for learning
-                            int box = timestep.getBox();
+                            int box = timestep.getBoxA();
                             int oldBox = box;
                             box = known ? box + 1 : 0;
                             if (oldBox != box) {
@@ -144,7 +144,7 @@ public class FillRulesLoss {
         return true;
     }
 
-    public long numBox( int n) {
-        return timestepRepo.numBox(n);
-    }
+//    public long numBox( int n) {
+//        return timestepRepo.numBox(n);
+//    }
 }

@@ -83,15 +83,16 @@ public class MuZeroLoop {
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
 
-
-        int trainingStep = 0;
-        int epoch;
-
-
         trainRules();
 
+        trainPolicyAndValue(params);
 
+        log.info("done");
+    }
 
+    private void trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
+        int epoch;
+        int trainingStep;
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
         boolean  rulesTraining = false;
         List<DurAndMem> durations = new ArrayList<>();
@@ -99,6 +100,8 @@ public class MuZeroLoop {
         modelService.loadLatestModelOrCreateIfNotExisting().get();
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+
+        gameBuffer.loadLatestStateIfExists();
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
@@ -135,113 +138,110 @@ public class MuZeroLoop {
             System.out.println("epoch;duration[ms];gpuMem[MiB]");
             IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
         }
-
-        log.info("done");
     }
 
     private void trainRules() throws InterruptedException, ExecutionException {
         int trainingStep = 0;
         int epoch = 0;
-
-     //   try (NDScope nDScope = new NDScope()) {
-
         int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
+        List<DurAndMem> durations = new ArrayList<>();
 
-            List<DurAndMem> durations = new ArrayList<>();
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
+        epoch = modelState.getEpoch();
 
-            modelService.loadLatestModelOrCreateIfNotExisting().get();
-            epoch = modelState.getEpoch();
+        if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
+            play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
+        }
 
-            gameBuffer.loadLatestStateIfExists();
+        gameBuffer.clearEpisodeIds();
 
+        testUnrollRulestate.test(); //NewEpisodes( );  //test( );
 
-            if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
-                play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
+//        int unrollSteps = 1;
+//        try {
+//            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
+//        } catch (Exception e) {
+//            unrollSteps = config.getMaxUnrollSteps();
+//        }
+        //      dbService.updateBox0(unrollSteps);
+        //     log.info("unrollSteps: {}", unrollSteps);
+        dbService.setNextuoktarget(config.getMaxUnrollSteps());
+
+        long numBoxA0 = numBoxA0();
+        long numBoxB0 = numBoxB0();
+
+        while (numBoxA0 != 0 || numBoxB0 != 0) {
+            // while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+            // log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+            while (numBoxA0 > 0) {
+                int unrollSteps = 1;
+                log.info("numBoxA0: {}", numBoxA0);
+                if (numBoxA0 < nTrain) {
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
+                }
+                epoch = ruleTrain(unrollSteps, durations);
+                numBoxA0 = numBoxA0();
+                numBoxB0 = numBoxB0();
             }
-
-
-            boolean policyValueTraining = false;   // true: policy and value training, false: rules training
-            boolean rulesTraining = true;
-
-            gameBuffer.clearEpisodeIds();
-
-            testUnrollRulestate.test(); //NewEpisodes( );  //test( );
-
-            int unrollSteps = 1;
-            try {
-                unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
-            } catch (Exception e) {
-                unrollSteps = config.getMaxUnrollSteps();
+            log.info("numBoxB0: {}", numBoxB0);
+            int unrollSteps = config.getMaxUnrollSteps();
+            if (numBoxA0 < nTrain) {
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
             }
-            dbService.updateBox0(unrollSteps);
-            log.info("unrollSteps: {}", unrollSteps);
-            dbService.setNextuoktarget(unrollSteps);
+            epoch = ruleTrain(unrollSteps, durations);
+            numBoxA0 = numBoxA0();
+            numBoxB0 = numBoxB0();
 
-            long firstBoxes = firstBoxes();
+            if (numBoxA0 == 0 && numBoxB0 == 0) {
+                log.info("numBoxA0 == 0 && numBoxB0 == 0");
+                // log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-            if (firstBoxes != 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-                    log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-                    while (firstBoxes > 0) {
-                        if (firstBoxes < nTrain) {
-                            testUnrollRulestate.identifyRelevantTimestepsAndTestThem(unrollSteps, epoch);
-                        }
-
-                        DurAndMem duration = new DurAndMem();
-                        duration.on();
-
-                        boolean[] freeze = new boolean[]{false, true, true};
-
-                        modelService.trainModelRules(freeze, unrollSteps).get();
-
-                        epoch = modelState.getEpoch();
-                        trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
-
-                        duration.off();
-                        durations.add(duration);
-                        System.out.println("epoch;duration[ms];gpuMem[MiB]");
-                        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
-                        firstBoxes = firstBoxes();
-
-                    }
-
-                    while (firstBoxes == 0 && unrollSteps < config.getMaxUnrollSteps()) {
-                        unrollSteps++;
-                        dbService.setNextuoktarget(unrollSteps);
-                        testUnrollRulestate.test(unrollSteps);
-                        firstBoxes = firstBoxes();
-                    }
-
-                    if (firstBoxes == 0 && unrollSteps == config.getMaxUnrollSteps()) {
-                        log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-
-                        testUnrollRulestate.test(unrollSteps);
-
-                        firstBoxes = firstBoxes();
+                testUnrollRulestate.test(config.getMaxUnrollSteps());
+                numBoxA0 = numBoxA0();
+                numBoxB0 = numBoxB0();
 
 
-                        if (unrollSteps == config.getMaxUnrollSteps() && firstBoxes == 0) {
-                            log.info("firstBoxes == 0; unrollSteps == maxUnrollSteps: {}", config.getMaxUnrollSteps());
-                            break;
-                        }
-                    }
+                if (numBoxA0 == 0 && numBoxB0 == 0) {
+                    log.info("after testing: numBoxA0 == 0 && numBoxB0 == 0  ->  break");
+                    break;
                 }
             }
-
-            gameBuffer.resetRelevantIds();
-            gameBuffer.clearEpisodeIds();
-      //  }
-       // return trainingStep;
+        }
     }
 
-    private long firstBoxes() {
-        long firstBoxes = timestepRepo.numBoxUpTo(0);
-        log.info("num in first global boxes (0): {}",  firstBoxes);
+
+    private int ruleTrain(int unrollSteps, List<DurAndMem> durations) throws InterruptedException, ExecutionException {
+        int epoch;
+        DurAndMem duration = new DurAndMem();
+        duration.on();
+        boolean[] freeze = new boolean[]{false, true, true};
+        modelService.trainModelRules(freeze, unrollSteps).get();
+
+        epoch = modelState.getEpoch();
+        //  trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+        duration.off();
+        durations.add(duration);
+        System.out.println("epoch;duration[ms];gpuMem[MiB]");
+        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+        return epoch;
+    }
+
+//        gameBuffer.resetRelevantIds();
+//        gameBuffer.clearEpisodeIds();
+//
+//    }
+
+    private long numBoxA0() {
+        long firstBoxes = timestepRepo.numBoxA0();
+        log.info("num in boxA=0: {}",  firstBoxes);
         return firstBoxes;
     }
-
+    private long numBoxB0() {
+        long firstBoxes = timestepRepo.numBoxB0();
+        log.info("num in boxB=0: {}",  firstBoxes);
+        return firstBoxes;
+    }
 
 
 

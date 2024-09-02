@@ -348,8 +348,17 @@ public class ModelController implements DisposableBean, Runnable {
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
         log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
 
-      //  gameBuffer.resetRelevantIds();  // TODO improve
-        List<ShortTimestep> allIdProjections = gameBuffer.getIdsRelevantForTraining( sampleNumber );
+        // we should have two cases here:
+        // 1. unrollSteps == 1
+        // 2. unrollSteps == config.getMaxUnrollSteps()
+
+
+        List<ShortTimestep> allIdProjections = null;
+        if (unrollSteps == 1) {
+            gameBuffer.getIdsRelevantForTrainingBoxA( sampleNumber );
+        } else {
+            gameBuffer.getIdsRelevantForTrainingBoxB( sampleNumber );
+        }
 
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(ShortTimestep::getId).toList();
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
@@ -366,7 +375,6 @@ public class ModelController implements DisposableBean, Runnable {
 
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> relatedEpisodeIds = iterator.next();
-            //  timestepCount += timestepIdsRulesLearningList.size();
             Set<Long> relatedEpisodeIdsSet = new HashSet<>(relatedEpisodeIds);
             log.info("timestep before relatedTimeStepIds filtering");
             Set<Long> relatedTimeStepIds = allIdProjections.stream()
@@ -374,7 +382,6 @@ public class ModelController implements DisposableBean, Runnable {
                     .map(ShortTimestep::getId).collect(Collectors.toSet());
             log.info("timestep after relatedTimeStepIds filtering");
 
-            //  List<Long> relatedTimeStepIds = allRelevantTimestepIds.stream().filter(id -> allRelatedEpisodeIds.contains(id)).toList();
 
             boolean save = saveHere & !iterator.hasNext();
             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
@@ -386,10 +393,6 @@ public class ModelController implements DisposableBean, Runnable {
 
 
             List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(games, relatedTimeStepIds);
-
-//                allTimeSteps.removeAll(timestepsDone);
-//              //  if (allTimeSteps.isEmpty()) continue;
-//                timestepsDone.addAll(allTimeSteps);
 
 
             log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
@@ -431,7 +434,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
                             batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
-                            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, unrollSteps);
+                            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(batchTimeSteps);
                             gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();
@@ -519,7 +522,7 @@ public class ModelController implements DisposableBean, Runnable {
         for (Game game : games) {
             EpisodeDO episodeDO = game.getEpisodeDO();
             for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-                if (boxesRelevant.contains(ts.getBox())) {
+                if (boxesRelevant.contains(ts.getBoxA())) {
                     timeStepDOList.add(ts);
                 }
             }

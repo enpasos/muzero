@@ -129,7 +129,7 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
             gameBuffer.refreshCache(idsTsChanged);
         }
 
@@ -200,7 +200,7 @@ public class TestUnrollRulestate {
                     .collect(Collectors.toList());
          //   log.info("step 6");
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
             gameBuffer.refreshCache(idsTsChanged);
          //   log.info("step 7");
 
@@ -235,7 +235,7 @@ public class TestUnrollRulestate {
 
         // db update also in uOK and box
 
-        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, unrollSteps);
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
         gameBuffer.refreshCache(idsTsChanged);
 
     }

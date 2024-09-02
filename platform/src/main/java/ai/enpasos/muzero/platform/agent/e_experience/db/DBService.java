@@ -7,7 +7,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.LegalActionsRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
-import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -255,15 +254,16 @@ public class DBService {
 //        ));
 //    }
 
-    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, int unrollSteps  ) {
+    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps  ) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxChanged  = ts.updateBox( unrollSteps);
+            boolean boxChangedA  = ts.updateBoxA(  );
+            boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
 
-            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChanged || ts.isUnrollStepsChanged()) {
+            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChangedA || boxChangedB || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId()) ;
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox( ) );
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) );
                 if ( ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
@@ -283,13 +283,13 @@ public class DBService {
 
         episodeRepo.updateTmax();
         timestepRepo.updateNextUOkTarget(unrollSteps);
-        timestepRepo.updateTrainable( );
+       // timestepRepo.updateTrainable( );
 
     }
 
-    public void updateBox0(int unrollSteps) {
-        timestepRepo.updateBox0(unrollSteps);
-    }
+//    public void updateBox0(int unrollSteps) {
+//        timestepRepo.updateBox0(unrollSteps);
+//    }
 
 //    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {
 //        episodeDOList.stream().forEach(episodeDO -> {

@@ -252,7 +252,7 @@ public class GameBuffer {
         idProjection3List = null;
     }
 
-    public List<IdProjection2> getIdsRelevantForTraining(List<BoxOccupation> occupiedBoxes, int nTrain) {
+    public List<IdProjection2> getIdsRelevantForTrainingBoxB(List<BoxOccupation> occupiedBoxes, int nTrain) {
         if (relevantIds2 == null && !occupiedBoxes.isEmpty()) {
              relevantIds2 = new ArrayList<>();
              int nLeft = nTrain;
@@ -674,11 +674,12 @@ public class GameBuffer {
                         .map(result -> ShortTimestep.builder()
                                 .id(result[0] != null ? ((Number) result[0]).longValue() : null)
                                 .episodeId(result[1] != null ? ((Number) result[1]).longValue() : null)
-                                .box(result[2] != null ? (Integer) result[2] : null)
-                                .uOk(result[3] != null ? (Integer) result[3] : null)
-                                .nextUOk(result[4] != null ? (Integer) result[4] : null)
-                                .nextUOkTarget(result[5] != null ? (Integer) result[5] : null)
-                                .t(result[6] != null ? (Integer) result[6] : null)
+                                .boxA(result[2] != null ? (Integer) result[2] : null)
+                                .boxB(result[3] != null ? (Integer) result[3] : null)
+                                .uOk(result[4] != null ? (Integer) result[4] : null)
+                                .nextUOk(result[5] != null ? (Integer) result[5] : null)
+                                .nextUOkTarget(result[6] != null ? (Integer) result[6] : null)
+                                .t(result[7] != null ? (Integer) result[7] : null)
                                 .build())
                         .collect(Collectors.toList());
                 this.shortTimesteps.addAll(shortTimesteps);
@@ -687,16 +688,53 @@ public class GameBuffer {
         }
         return shortTimesteps;
     }
+    public List<ShortTimestep> getIdsRelevantForTrainingBoxA(int n ) {
 
-    public List<ShortTimestep> getIdsRelevantForTraining( int n ) {
+        Set<ShortTimestep> idProjections = getShortTimestepSet( );
+        List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxA() == 0).collect(Collectors.toList());
+
+        List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown; // no filter here
+
+
+        if (idProjectionsUnknownAndTrainable.size() >= n) {
+            Collections.shuffle(idProjectionsUnknownAndTrainable);
+            log.info("nUnknown: {}, nKnown: {}", n, 0);
+            return idProjectionsUnknownAndTrainable.subList(0, n);
+        }
+        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxA() > 0).collect(Collectors.toList());
+
+
+        double k = 2.0;
+        int nKnown = Math.min(Math.min(n - idProjectionsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*idProjectionsUnknownAndTrainable.size()));
+
+
+        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxA() - 1)).toArray();
+        AliasMethod aliasMethod = new AliasMethod(g);
+
+
+        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
+        // stream of samples
+        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+
+
+        List< ShortTimestep> result = new ArrayList<>();
+        result.addAll(idProjectionsUnknownAndTrainable);
+        result.addAll(resultKnown);
+        log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());
+        Collections.shuffle(result);
+
+        return result;
+
+    }
+    public List<ShortTimestep> getIdsRelevantForTrainingBoxB(int n ) {
 
         log.debug("getIdsRelevantForTraining: 1");
 
         // TODO: improve this long running method
         Set<ShortTimestep> idProjections = getShortTimestepSet( );
-      //  List<IdProjection3> idProjections = getIdProjection3List( );
 
-        List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() == 0).collect(Collectors.toList());
+        List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxB() == 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 2");
 
 
@@ -708,7 +746,7 @@ public class GameBuffer {
             log.info("nUnknown: {}, nKnown: {}", n, 0);
             return idProjectionsUnknownAndTrainable.subList(0, n);
         }
-        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBox() > 0).collect(Collectors.toList());
+        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxB() > 0).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 4");
 
         double k = 2.0;
@@ -718,7 +756,7 @@ public class GameBuffer {
         log.debug("getIdsRelevantForTraining: 5");
 
         // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
-        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBox() - 1)).toArray();
+        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxB() - 1)).toArray();
         AliasMethod aliasMethod = new AliasMethod(g);
         log.debug("getIdsRelevantForTraining: 6");
 
