@@ -84,13 +84,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<Long> findNRandomEpisodeIdsWeightedA(int groupClass, int n );
 
 
-//    @Transactional
-//    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box < :box order by t.id limit :limit OFFSET :offset", nativeQuery = true)
-//
-//    List<Long> findNEpisodeIdsRelevantForRuleLearning(int box, int limit, int offset);
-
-
-
 
     @Transactional
     @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.reward_loss > :rewardLossThreshold order by random() limit :limit OFFSET :offset", nativeQuery = true)
@@ -105,7 +98,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
     @Transactional
-    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box = :box order by random() limit :n group by t.episode_id ", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.boxa = :box order by random() limit :n group by t.episode_id ", nativeQuery = true)
 
     List<Long> findRandomNEpisodeIdsFromBox(int n, int box);
 
@@ -120,12 +113,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Transactional
     @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxB = 0")
     long numBoxB0();
-
-//    @Transactional
-//    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxA <= :box")
-//    long numBoxUpTo(int box);
-
-
 
     @Transactional
     @Query(value = "SELECT max(t.box) FROM  timestep t", nativeQuery = true)
@@ -145,17 +132,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     @Query(value = "SELECT DISTINCT t.u_ok FROM timestep t WHERE not t.u_ok_closed ORDER BY t.u_ok ASC", nativeQuery = true)
     List<Integer> uOkList();
 
-//    @Query(value = "SELECT DISTINCT t.box FROM timestep t  ORDER BY t.box ASC", nativeQuery = true)
-//    List<Integer> boxList();
-//
+
     @Query("SELECT t.boxA as box, COUNT(t) as count FROM TimeStepDO t GROUP BY t.boxA ORDER BY t.boxA ASC")
    List<BoxOccupation> boxOccupation();
-//
-//
-//    @Transactional
-//    @Modifying
-//    @Query(value = "update TimeStepDO t set t.s = :s, t.sClosed = :sClosed where t.id = :id" )
-//    void updateAttributeS(Long id, long s, boolean sClosed);
 
     @Transactional
     @Modifying
@@ -163,45 +142,11 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     void updateAttributeSAndU(Long id, long s, boolean sClosed, long uOk, boolean uOkClosed, long box  );
 
 
-//    @Transactional
-//    @Modifying
-//    @Query(value = "update TimeStepDO t set  t.box = :box where t.id = :id" )
-//    void updateAttributeBox(Long id,  long box);
-//
-//
-//
-//    @Transactional
-//    @Modifying
-//    @Query(value = "update TimeStepDO t set t.uOk = :u where t.id = :id" )
-//    void updateAttributeUOk(Long id, long u);
-
-
 
     @Transactional
     @Modifying
     @Query(value = "UPDATE timestep SET u_ok = -2, u_ok_closed = false", nativeQuery = true )
     void resetUOk();
-
-
-    @Transactional
-    @Modifying
-    @Query(value = "UPDATE timestep SET box = 0", nativeQuery = true )
-    void resetBox();
-//
-//    @Transactional
-//    @Modifying
-//    @Query(value = "UPDATE timestep SET s = 0, s_closed = false", nativeQuery = true )
-//    void resetS();
-//
-//    @Transactional
-//    @Modifying
-//    @Query(value = "UPDATE timestep SET box = 0, s = 0, s_closed = false, u_ok = -2, u_ok_closed = false", nativeQuery = true )
-//    void resetBoxAndSAndUOk();
-
-
-//    @Transactional
-//    @Query(value = "SELECT t.episode_id FROM timestep t WHERE t.box in :boxesRelevant order by t.id limit :limit OFFSET :offset", nativeQuery = true)
-//    List<Long> getRelevantEpisodeIds(List<Integer> boxesRelevant, int limit, int offset);
 
 
 
@@ -216,25 +161,23 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
     List<IdProjection> getRelevantIds2(int limit, int offset,  int uOKMin, int uOKMax);
 
 
-    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box in :boxesRelevant ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.boxa in :boxesRelevant ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getRelevantIds3(int limit, int offset, List<Integer> boxesRelevant);
 
 
 
 
-    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = 0 ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.boxa = 0 ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getRelevantIds4(int limit, int offset);
 
-    @Query(value = "SELECT t.u_ok AS uOk, t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = :box ORDER BY t.u_ok LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.u_ok AS uOk, t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.boxa = :box ORDER BY t.u_ok LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection2> getRelevantIds5(int limit, int offset, int box);
 
-//    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box in :boxesRelevant ORDER BY t.episode_id, t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
-//    List<IdProjection> getRelevantIds6(int limit, int offset, int maxBox);
 
-    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box != 0 ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.boxa != 0 ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
     List<IdProjection> getRandomIdsNotInBox0(int n);
 
-    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.box = 0 ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
+    @Query(value = "SELECT t.episode_id AS episodeId, t.id AS id FROM timestep t WHERE t.boxa = 0 ORDER BY RANDOM() LIMIT :n", nativeQuery = true)
     List<IdProjection> getRandomIdsInBox0(int n);
 
     @Transactional
@@ -264,27 +207,27 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box IN :boxesRelevant and t.nextuok >= t.nextuoktarget ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.boxa IN :boxesRelevant and t.nextuok >= t.nextuoktarget ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getTimeStepIdsByBoxesRelevant(
             List<Integer> boxesRelevant,
             int limit,
             int offset);
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box IN :boxesRelevant   ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.boxa IN :boxesRelevant   ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getTimeStepIdsByBoxesRelevant0(
 
             List<Integer> boxesRelevant,
             int limit,
             int offset);
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.box = :box  ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId FROM timestep t JOIN episode e ON t.episode_id = e.id WHERE t.boxa = :box  ORDER BY e.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection> getTimeStepIdsInBox(
 
             int box,
             int limit,
             int offset);
 
-    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId, t.box AS box, t.u_ok as uOk, t.trainable AS trainable, t.t AS t FROM timestep t  ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+    @Query(value = "SELECT t.id AS id, t.episode_id AS episodeId, t.boxa AS box, t.u_ok as uOk, t.trainable AS trainable, t.t AS t FROM timestep t  ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
     List<IdProjection3> getTimeStepIds3(
             int limit,
             int offset);
@@ -304,7 +247,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 //        ORDER BY t.id
 //        LIMIT :limit OFFSET :offset
 //        """,
-        @Query(value = "SELECT t.id AS id,  t.episode_id AS episodeId,  t.box AS box,  t.u_ok as uOk,  t.nextuok as nextUOk,  t.nextuoktarget as nextUOkTarget,  t.t AS t  FROM timestep t ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
+        @Query(value = "SELECT t.id AS id,  t.episode_id AS episodeId,  t.boxa AS box,  t.u_ok as uOk,  t.nextuok as nextUOk,  t.nextuoktarget as nextUOkTarget,  t.t AS t  FROM timestep t ORDER BY t.id LIMIT :limit OFFSET :offset", nativeQuery = true)
         List<Object[]> getShortTimestepList(int limit, int offset);
 
 
