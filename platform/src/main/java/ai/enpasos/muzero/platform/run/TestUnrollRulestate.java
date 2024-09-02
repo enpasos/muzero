@@ -16,6 +16,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,17 +82,24 @@ public class TestUnrollRulestate {
 
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         gameBuffer.resetRelevantIds();
-        List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevantA(boxesRelevant);
+      //  List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevantA(boxesRelevant);
+
+
+        Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
+        List<ShortTimestep> idProjections = shortTimesteps.stream().filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxA())).collect(Collectors.toList());
+     //   List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxA() == 0).collect(Collectors.toList());
+
+
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
 
 
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
-        Set<Long> episodeIdsSet = idProjections.stream().map(IdProjection::getEpisodeId).collect(Collectors.toSet());
+        Set<Long> episodeIdsSet = idProjections.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet());
         List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
         log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
         rulesBuffer.setIds(episodeIds);
-        Set<Long> timeStepIds = new HashSet<>(idProjections.stream().map(IdProjection::getId).collect(Collectors.toSet()));
+        Set<Long> timeStepIds = new HashSet<>(idProjections.stream().map(ShortTimestep::getId).collect(Collectors.toSet()));
         int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
             List<Long> episodeIdsRulesLearningList = iterator.next();

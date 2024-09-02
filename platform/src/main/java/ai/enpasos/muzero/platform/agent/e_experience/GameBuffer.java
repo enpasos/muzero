@@ -283,54 +283,54 @@ public class GameBuffer {
         return relevantIds2;
     }
 
-    private List<Integer> getDrawingPlan(List<BoxOccupation> occupiedBoxes, int nTrain) {
-        List<Integer> result = new ArrayList<>();
-        return result;
-    }
+//    private List<Integer> getDrawingPlan(List<BoxOccupation> occupiedBoxes, int nTrain) {
+//        List<Integer> result = new ArrayList<>();
+//        return result;
+//    }
+//
+//    public List<IdProjection> getRandomIdsNotInBox0( int n )  {
+//        if (relevantIdsA == null) {
+//            int limit = 50000;
+//
+//            int offset = 0;
+//            relevantIdsA = new ArrayList<>();
+//            List newIds;
+//            do {
+//                newIds = timestepRepo.getRelevantIds4(limit, offset);
+//                relevantIdsA.addAll(newIds);
+//                offset += limit;
+//            } while (newIds.size() > 0);
+//        }
+//        return relevantIdsA;
+//    }
 
-    public List<IdProjection> getRandomIdsNotInBox0( int n )  {
-        if (relevantIdsA == null) {
-            int limit = 50000;
 
-            int offset = 0;
-            relevantIdsA = new ArrayList<>();
-            List newIds;
-            do {
-                newIds = timestepRepo.getRelevantIds4(limit, offset);
-                relevantIdsA.addAll(newIds);
-                offset += limit;
-            } while (newIds.size() > 0);
-        }
-        return relevantIdsA;
-    }
-
-
-    public List<IdProjection> getRandomIdsBox0(int n )  {
-        return timestepRepo.getRandomIdsInBox0( n);
-    }
-
-    public List<IdProjection> getRelevantIdsUOk(int uOK )  {
-        if (relevantIdsA == null) {
-            int limit = 50000;
-
-            int uOKMax = uOK;
-            int uOKMin = -3;
-            if (uOKMax > 0) {
-                uOKMin = uOKMax - 1;
-            }
-
-            int offset = 0;
-            relevantIdsA = new ArrayList<>();
-            List newIds;
-            do {
-                newIds = timestepRepo.getRelevantIds2(limit, offset, uOKMin, uOKMax);
-                relevantIdsA.addAll(newIds);
-
-                offset += limit;
-            } while (newIds.size() > 0);
-        }
-        return relevantIdsA;
-    }
+//    public List<IdProjection> getRandomIdsBox0(int n )  {
+//        return timestepRepo.getRandomIdsInBox0( n);
+//    }
+//
+//    public List<IdProjection> getRelevantIdsUOk(int uOK )  {
+//        if (relevantIdsA == null) {
+//            int limit = 50000;
+//
+//            int uOKMax = uOK;
+//            int uOKMin = -3;
+//            if (uOKMax > 0) {
+//                uOKMin = uOKMax - 1;
+//            }
+//
+//            int offset = 0;
+//            relevantIdsA = new ArrayList<>();
+//            List newIds;
+//            do {
+//                newIds = timestepRepo.getRelevantIds2(limit, offset, uOKMin, uOKMax);
+//                relevantIdsA.addAll(newIds);
+//
+//                offset += limit;
+//            } while (newIds.size() > 0);
+//        }
+//        return relevantIdsA;
+//    }
 
     public List<IdProjection> getIdsFromBoxesRelevantA(List<Integer> boxesRelevant )  {
         if (relevantIdsA == null) {
