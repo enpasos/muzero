@@ -262,7 +262,7 @@ public class DBService {
 
             if (ts.isSChanged() || ts.isUOkChanged() ||  boxChangedA || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId()) ;
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) );
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) , ts.getBoxB( ));
                 if ( ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
@@ -276,16 +276,16 @@ public class DBService {
         });
         return ids;
     }
-    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps  ) {
+    public List<Long> updateTimesteps_SandUOkandBoxB(List<TimeStepDO> timesteps  ) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxChangedA  = ts.updateBoxA(  );
+       //     boolean boxChangedA  = ts.updateBoxA(  );
             boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
 
-            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChangedA || boxChangedB || ts.isUnrollStepsChanged()) {
+            if (ts.isSChanged() || ts.isUOkChanged() ||    boxChangedB || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId()) ;
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) );
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ), ts.getBoxB( ) );
                 if ( ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);

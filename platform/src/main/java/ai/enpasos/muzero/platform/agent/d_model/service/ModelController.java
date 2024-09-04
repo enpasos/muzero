@@ -346,21 +346,40 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
     private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
-        log.info("trainNetworkRulesForUnrollNumber ... unrollSteps: {}, sampleNumber: {}", unrollSteps, sampleNumber);
+        log.info("trainNetworkRulesForUnrollNumber ... sampleNumber: {}",  sampleNumber);
 
         // we should have two cases here:
         // 1. unrollSteps == 1
         // 2. unrollSteps == config.getMaxUnrollSteps()
 
+        boolean isGoal1 = unrollSteps == 1;
+
 
         List<ShortTimestep> allIdProjections = null;
-        if (unrollSteps == 1) {
+
+        if (isGoal1) {
+            log.info("isGoal1");
             allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxA( sampleNumber );
+            trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, 1, saveHere, allIdProjections, true);
         } else {
-            allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxB( sampleNumber );
+            Set<ShortTimestep> allIdProjectionsForAllUnrollSteps = new HashSet<>();
+            for (unrollSteps = config.getMaxUnrollSteps(); unrollSteps >= 2; unrollSteps--) {
+                log.info("isGoal2, unrollSteps: {}", unrollSteps);
+                allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxB(unrollSteps, sampleNumber, allIdProjectionsForAllUnrollSteps);
+                allIdProjectionsForAllUnrollSteps.addAll(allIdProjections);
+                log.info("allIdProjections.size(): {}", allIdProjections.size());
+                if (!allIdProjections.isEmpty()) {
+                    trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, allIdProjections, false);
+                }
+            }
         }
 
+
+    }
+
+    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> allIdProjections, boolean isGoal1) {
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(ShortTimestep::getId).toList();
+
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
 
         log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
@@ -434,7 +453,12 @@ public class ModelController implements DisposableBean, Runnable {
 
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
                             batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
-                            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(batchTimeSteps);
+                            List<Long> idsTsChanged = null;
+                            if (isGoal1) {
+                                dbService.updateTimesteps_SandUOkandBoxA(batchTimeSteps);
+                            } else {
+                                dbService.updateTimesteps_SandUOkandBoxB(batchTimeSteps);
+                            }
                             gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();

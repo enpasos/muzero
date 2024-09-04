@@ -182,12 +182,13 @@ public class MuZeroLoop {
                 }
                 epoch = ruleTrain(unrollSteps, durations);
                 numBoxA0 = numBoxA0();
-                numBoxB0 = numBoxB0();
+
             }
+            numBoxB0 = numBoxB0();
             log.info("numBoxB0: {}", numBoxB0);
             int unrollSteps = config.getMaxUnrollSteps();
-            if (numBoxA0 < nTrain) {
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThemA(unrollSteps, epoch);
+            if (numBoxB0 < nTrain) {
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThemB(unrollSteps, epoch);
             }
             epoch = ruleTrain(unrollSteps, durations);
             numBoxA0 = numBoxA0();
