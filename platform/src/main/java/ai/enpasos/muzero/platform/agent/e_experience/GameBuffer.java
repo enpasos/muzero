@@ -654,7 +654,7 @@ public class GameBuffer {
 
     public void refreshCache(List<Long> idsTsChanged) {
         Set<ShortTimestep>  shortTimesteps = getShortTimestepSet();
-      List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
+        List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
          shortTimesteps.removeAll(shortTimestepsNew );
          shortTimesteps.addAll(shortTimestepsNew );
     }
