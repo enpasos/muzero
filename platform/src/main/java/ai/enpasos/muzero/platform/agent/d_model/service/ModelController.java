@@ -454,11 +454,9 @@ public class ModelController implements DisposableBean, Runnable {
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
                             batchTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(false));
                             List<Long> idsTsChanged = null;
-                            if (isGoal1) {
-                                dbService.updateTimesteps_SandUOkandBoxA(batchTimeSteps);
-                            } else {
-                                dbService.updateTimesteps_SandUOkandBoxB(batchTimeSteps);
-                            }
+
+                                dbService.updateTimesteps_SandUOkandBox(batchTimeSteps);
+
                             gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();
