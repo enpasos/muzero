@@ -17,6 +17,8 @@ public class ModelState {
     @Autowired
     MuZeroConfig config;
 
+  //  int hyperepoch;
+
     @Getter(onMethod_={@Synchronized}) @Setter(onMethod_={@Synchronized})
     int epoch;
 

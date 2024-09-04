@@ -363,13 +363,14 @@ public class ModelController implements DisposableBean, Runnable {
             trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, 1, saveHere, allIdProjections, true);
         } else {
             Set<ShortTimestep> allIdProjectionsForAllUnrollSteps = new HashSet<>();
+
             for (unrollSteps = config.getMaxUnrollSteps(); unrollSteps >= 2; unrollSteps--) {
                 log.info("isGoal2, unrollSteps: {}", unrollSteps);
                 allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxB(unrollSteps, sampleNumber, allIdProjectionsForAllUnrollSteps);
                 allIdProjectionsForAllUnrollSteps.addAll(allIdProjections);
                 log.info("allIdProjections.size(): {}", allIdProjections.size());
                 if (!allIdProjections.isEmpty()) {
-                    trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, allIdProjections, false);
+                    trainNetworkRules(model, muZeroBlock,epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, allIdProjections, false);
                 }
             }
         }
@@ -379,6 +380,7 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> allIdProjections, boolean isGoal1) {
         List<Long> allRelevantTimestepIds = allIdProjections.stream().map(ShortTimestep::getId).toList();
+       // int hyperEpoch = modelState.getHyperepoch();
 
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
 
