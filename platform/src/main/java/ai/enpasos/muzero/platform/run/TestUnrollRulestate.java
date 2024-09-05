@@ -205,11 +205,11 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBoxA(relevantTimeSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
             gameBuffer.refreshCache(idsTsChanged);
         }
 
-        log.info("identifyRelevantTimestepsAndTestThem A unrollStepsGlobally = {} ... finished");
+        log.info("identifyRelevantTimestepsAndTestThem B unrollStepsGlobally = {} ... finished");
     }
 
 
