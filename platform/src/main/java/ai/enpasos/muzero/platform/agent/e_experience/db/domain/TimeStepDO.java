@@ -102,7 +102,7 @@ public class TimeStepDO {
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
             boxAfter = 0;
         } else { // ok
-            if (isUOkTested() || boxBefore <= 0 ) {
+            if (isUOkTestedA() || boxBefore <= 0 ) {
                 boxAfter = boxBefore + 1;
             }
         }
@@ -117,7 +117,7 @@ public class TimeStepDO {
         if (getUOk() < targetU && !isUOkClosed()) { // not ok
             boxAfter = 0;
         } else { // ok
-            if (isUOkTested() || boxBefore <= 0 ) {
+            if (isUOkTestedB() || boxBefore <= 0 ) {
                 boxAfter = boxBefore + 1;
             }
         }
@@ -145,7 +145,10 @@ public class TimeStepDO {
     boolean uOkChanged;
 
     @Transient
-    boolean uOkTested;
+    boolean uOkTestedA;
+
+    @Transient
+    boolean uOkTestedB;
 
     boolean uOkClosed;
 

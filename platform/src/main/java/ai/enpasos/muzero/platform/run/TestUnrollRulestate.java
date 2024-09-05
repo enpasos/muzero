@@ -150,6 +150,19 @@ public class TestUnrollRulestate {
         List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
                 .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxA()) || boxesRelevant.contains(shortTimestep.getBoxB()))
                 .collect(Collectors.toList());
+
+
+        List<Long> relevantIdsA = shortTimesteps.stream()
+                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxA())  )
+                .mapToLong(shortTimestep -> shortTimestep.getId())
+                .boxed().toList();
+
+        List<Long> relevantIdsB = shortTimesteps.stream()
+                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxB())  )
+                .mapToLong(shortTimestep -> shortTimestep.getId())
+                .boxed().toList();
+
+       // List<ShortTimestep> relevantShortTimesteps
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", relevantShortTimesteps.size());
 
 
@@ -184,8 +197,10 @@ public class TestUnrollRulestate {
                     .collect(Collectors.toList());
 
 
-            relevantTimeSteps.forEach(timeStepDO ->
-                timeStepDO.setUOkTested(true)
+            relevantTimeSteps.forEach(timeStepDO -> {
+                if (relevantIdsA.contains(timeStepDO.getId())) timeStepDO.setUOkTestedA(true);
+                if (relevantIdsB.contains(timeStepDO.getId())) timeStepDO.setUOkTestedB(true);
+                    }
              );
 
 
