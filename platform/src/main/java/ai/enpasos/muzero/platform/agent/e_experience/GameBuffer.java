@@ -744,38 +744,42 @@ public class GameBuffer {
         List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.isTrainable()).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 3");
 
-        if (idProjectionsUnknownAndTrainable.size() >= n) {
+    //    if (idProjectionsUnknownAndTrainable.size() >= n) {
             Collections.shuffle(idProjectionsUnknownAndTrainable);
             log.info("nUnknown: {}, nKnown: {}", n, 0);
+        if (idProjectionsUnknownAndTrainable.size() >= n) {
             return idProjectionsUnknownAndTrainable.subList(0, n);
+        } else {
+            return idProjectionsUnknownAndTrainable;
         }
-        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxB() > 0).collect(Collectors.toList());
-        log.debug("getIdsRelevantForTraining: 4");
-
-        double k = 2.0;
-        int nKnown = Math.min(Math.min(n - idProjectionsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*idProjectionsUnknownAndTrainable.size()));
-
-
-        log.debug("getIdsRelevantForTraining: 5");
-
-        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
-        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxB() - 1)).toArray();
-        AliasMethod aliasMethod = new AliasMethod(g);
-        log.debug("getIdsRelevantForTraining: 6");
-
-        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
-        // stream of samples
-        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
-
-        log.debug("getIdsRelevantForTraining: 7");
-
-        List< ShortTimestep> result = new ArrayList<>();
-        result.addAll(idProjectionsUnknownAndTrainable);
-        result.addAll(resultKnown);
-        log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());
-        Collections.shuffle(result);
-        log.debug("getIdsRelevantForTraining: 8");
-        return result;
+//        }
+//        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxB() > 0).collect(Collectors.toList());
+//        log.debug("getIdsRelevantForTraining: 4");
+//
+//        double k = 2.0;
+//        int nKnown = Math.min(Math.min(n - idProjectionsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*idProjectionsUnknownAndTrainable.size()));
+//
+//
+//        log.debug("getIdsRelevantForTraining: 5");
+//
+//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxB() - 1)).toArray();
+//        AliasMethod aliasMethod = new AliasMethod(g);
+//        log.debug("getIdsRelevantForTraining: 6");
+//
+//        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
+//        // stream of samples
+//        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+//
+//        log.debug("getIdsRelevantForTraining: 7");
+//
+//        List< ShortTimestep> result = new ArrayList<>();
+//        result.addAll(idProjectionsUnknownAndTrainable);
+//        result.addAll(resultKnown);
+//        log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());
+//        Collections.shuffle(result);
+//        log.debug("getIdsRelevantForTraining: 8");
+//        return result;
 
     }
 
