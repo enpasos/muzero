@@ -688,43 +688,73 @@ public class GameBuffer {
         }
         return shortTimesteps;
     }
-    public List<ShortTimestep> getIdsRelevantForTrainingBoxA(int n ) {
+    public List<ShortTimestep> getIdsRelevantForTrainingBox(int n ) {
 
-        Set<ShortTimestep> idProjections = getShortTimestepSet( );
-        List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxA() == 0).collect(Collectors.toList());
+        Set<ShortTimestep> tsSet = getShortTimestepSet( );
 
-        List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown; // no filter here
+        List<ShortTimestep> tsTrainList = new ArrayList<>();
 
+        List<ShortTimestep> tsBoxA0 = tsSet.stream()
+                .filter(ts -> ts.getBoxA() == 0  )
+                .collect(Collectors.toList());
 
-        if (idProjectionsUnknownAndTrainable.size() >= n) {
-            Collections.shuffle(idProjectionsUnknownAndTrainable);
-            log.info("nUnknown: {}, nKnown: {}", n, 0);
-            return idProjectionsUnknownAndTrainable.subList(0, n);
+        if (tsBoxA0.size() < n) {
+            tsTrainList.addAll(tsBoxA0);
+        } else {
+            tsTrainList.addAll(tsBoxA0.subList(0, n));
+            Collections.shuffle(tsTrainList);
+            return tsTrainList;
         }
-        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxA() > 0).collect(Collectors.toList());
 
+        List<ShortTimestep> tsBoxB0 = tsSet.stream()
+                .filter(ts -> ts.getBoxB() == 0 && ts.getBoxA() > 0)
+                .sorted(Comparator.comparing(ShortTimestep::getUOk))  // start training with the easiest ones
+                .collect(Collectors.toList());
 
-        double k = 2.0;
-        int nKnown = Math.min(Math.min(n - idProjectionsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*idProjectionsUnknownAndTrainable.size()));
+        int nRemaining = n - tsTrainList.size();
 
+        if (tsBoxB0.size() < nRemaining) {
+            tsTrainList.addAll(tsBoxB0);
+        } else {
+            tsTrainList.addAll(tsBoxB0.subList(0, nRemaining));
 
-        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
-        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxA() - 1)).toArray();
-        AliasMethod aliasMethod = new AliasMethod(g);
+        }
+        Collections.shuffle(tsTrainList);
+        return tsTrainList;
 
-
-        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
-        // stream of samples
-        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
-
-
-        List< ShortTimestep> result = new ArrayList<>();
-        result.addAll(idProjectionsUnknownAndTrainable);
-        result.addAll(resultKnown);
-        log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());
-        Collections.shuffle(result);
-
-        return result;
+//
+//        List<ShortTimestep> tsUnknownAndTrainable = tsUnknownList; // no filter here
+//
+//
+//        if (tsUnknownAndTrainable.size() >= n) {
+//            Collections.shuffle(tsUnknownAndTrainable);
+//            log.info("nUnknown: {}, nKnown: {}", n, 0);
+//            return tsUnknownAndTrainable.subList(0, n);
+//        }
+//        List<ShortTimestep> idProjectionsKnown = tsSet.stream().filter(idProjection3 -> idProjection3.getBoxA() > 0).collect(Collectors.toList());
+//
+//
+//        double k = 2.0;
+//        int nKnown = Math.min(Math.min(n - tsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*tsUnknownAndTrainable.size()));
+//
+//
+//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxA() - 1)).toArray();
+//        AliasMethod aliasMethod = new AliasMethod(g);
+//
+//
+//        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
+//        // stream of samples
+//        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+//
+//
+//        List< ShortTimestep> result = new ArrayList<>();
+//        result.addAll(tsUnknownAndTrainable);
+//        result.addAll(resultKnown);
+//        log.info("nUnknown: {}, nKnown: {}", tsUnknownAndTrainable.size(), resultKnown.size());
+//        Collections.shuffle(result);
+//
+//        return result;
 
     }
     public List<ShortTimestep> getIdsRelevantForTrainingBoxB(int unrollsteps, int n, Set<ShortTimestep> allIdProjectionsUsedSoFar ) {

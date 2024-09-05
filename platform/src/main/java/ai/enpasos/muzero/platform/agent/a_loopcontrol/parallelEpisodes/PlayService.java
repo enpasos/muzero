@@ -169,7 +169,9 @@ public class PlayService {
 //        return gamesReturn;
 //    }
 
-
+    public List<Game> uOkAnalyseGamesAllTimesteps(List<Game> games  ) {
+        return uOkAnalyseGames(games, true, 0);
+    }
 
     public List<Game> uOkAnalyseGames(List<Game> games, boolean allTimesteps, int unrollSteps  ) {
         List<Game> gamesReturn = new ArrayList<>();

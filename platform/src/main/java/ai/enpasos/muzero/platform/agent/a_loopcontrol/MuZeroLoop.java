@@ -156,54 +156,29 @@ public class MuZeroLoop {
 
         gameBuffer.clearEpisodeIds();
 
-        testUnrollRulestate.testNewEpisodes( );  //test( );
+        testUnrollRulestate.testNewEpisodes( );
 
-//        int unrollSteps = 1;
-//        try {
-//            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
-//        } catch (Exception e) {
-//            unrollSteps = config.getMaxUnrollSteps();
-//        }
-        //      dbService.updateBox0(unrollSteps);
-        //     log.info("unrollSteps: {}", unrollSteps);
         dbService.setNextuoktarget(config.getMaxUnrollSteps());
 
         long numBoxA0 = numBoxA0();
         long numBoxB0 = numBoxB0();
 
-        int hyperEpoch = 0;
+        while (numBoxA0 > 0 || numBoxB0 > 0) {
 
-        while (numBoxA0 != 0 || numBoxB0 != 0) {
-            // while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-            // log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            while (numBoxA0 > 0) {
-                int unrollSteps = 1;
-                log.info("numBoxA0: {}", numBoxA0);
+                log.info("numBoxA0: {}, numBoxB0: {}", numBoxA0, numBoxB0);
                 if (numBoxA0 < nTrain) {
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThemA(unrollSteps, epoch);
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch);
                 }
-                epoch = ruleTrain(unrollSteps, durations);
+                epoch = ruleTrain(durations);
                 numBoxA0 = numBoxA0();
+                numBoxB0 = numBoxB0();
 
-            }
-            numBoxB0 = numBoxB0();
-            hyperEpoch++;
-            log.info("numBoxB0: {}, hyperEpoch: {}", numBoxB0, hyperEpoch);
-            int unrollSteps = config.getMaxUnrollSteps();
-           // if (numBoxB0 < nTrain) {
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThemB(unrollSteps, hyperEpoch);
-           // }
-         //   modelState.setHyperepoch(hyperEpoch);
-            epoch = ruleTrain(unrollSteps, durations);
 
-            numBoxA0 = numBoxA0();
-            numBoxB0 = numBoxB0();
 
             if (numBoxA0 == 0 && numBoxB0 == 0) {
                 log.info("numBoxA0 == 0 && numBoxB0 == 0");
-                // log.info("firstBoxes == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
 
-                testUnrollRulestate.test(config.getMaxUnrollSteps());
+                testUnrollRulestate.test();
                 numBoxA0 = numBoxA0();
                 numBoxB0 = numBoxB0();
 
@@ -217,12 +192,12 @@ public class MuZeroLoop {
     }
 
 
-    private int ruleTrain(int unrollSteps, List<DurAndMem> durations) throws InterruptedException, ExecutionException {
+    private int ruleTrain(  List<DurAndMem> durations) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.trainModelRules(freeze, unrollSteps).get();
+        modelService.trainModelRules(freeze ).get();
 
         epoch = modelState.getEpoch();
         //  trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();

@@ -253,29 +253,29 @@ public class DBService {
 //                }
 //        ));
 //    }
-    public List<Long> updateTimesteps_SandUOkandBoxA(List<TimeStepDO> timesteps  ) {
-        List<Long> ids = new ArrayList<>();
-        timesteps.stream().forEach(ts -> {
-
-            boolean boxChangedA  = ts.updateBoxA(  );
-          //  boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
-
-            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChangedA || ts.isUnrollStepsChanged()) {
-                ids.add(ts.getId()) ;
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) , ts.getBoxB( ));
-                if ( ts.getT() > 0) {
-                    long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
-                    ids.add(id);
-                    timestepRepo.updateNextUOk(id, ts.getUOk());
-                }
-                ts.setSChanged(false);
-                ts.setUOkChanged(false);
-            }
-            ts.setUOkTested(false);
-
-        });
-        return ids;
-    }
+//    public List<Long> updateTimesteps_SandUOkandBoxA(List<TimeStepDO> timesteps  ) {
+//        List<Long> ids = new ArrayList<>();
+//        timesteps.stream().forEach(ts -> {
+//
+//            boolean boxChangedA  = ts.updateBoxA(  );
+//          //  boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
+//
+//            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChangedA || ts.isUnrollStepsChanged()) {
+//                ids.add(ts.getId()) ;
+//                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) , ts.getBoxB( ));
+//                if ( ts.getT() > 0) {
+//                    long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
+//                    ids.add(id);
+//                    timestepRepo.updateNextUOk(id, ts.getUOk());
+//                }
+//                ts.setSChanged(false);
+//                ts.setUOkChanged(false);
+//            }
+//            ts.setUOkTested(false);
+//
+//        });
+//        return ids;
+//    }
     public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps  ) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {

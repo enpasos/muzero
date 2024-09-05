@@ -247,7 +247,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground(), task.getNumUnrollSteps());
+                    trainNetworkRules(task.freeze, task.isBackground());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -325,7 +325,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, int unrollSteps) {
+    private void trainNetworkRules(boolean[] freeze, boolean background) {
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(8);
@@ -341,48 +341,32 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-         trainNetworkRulesForUnrollNumber(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment, unrollSteps, true);
+         trainNetworkRules(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment, true);
 
     }
 
-    private void trainNetworkRulesForUnrollNumber(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere) {
-        log.info("trainNetworkRulesForUnrollNumber ... sampleNumber: {}",  sampleNumber);
-
-        // we should have two cases here:
-        // 1. unrollSteps == 1
-        // 2. unrollSteps == config.getMaxUnrollSteps()
-
-        boolean isGoal1 = unrollSteps == 1;
+    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, boolean saveHere) {
+        log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
 
 
-        List<ShortTimestep> allIdProjections = null;
 
-        if (isGoal1) {
-            log.info("isGoal1");
-            allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxA( sampleNumber );
-            trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, 1, saveHere, allIdProjections, true);
-        } else {
-            Set<ShortTimestep> allIdProjectionsForAllUnrollSteps = new HashSet<>();
+        List<ShortTimestep> tsList = gameBuffer.getIdsRelevantForTrainingBox( sampleNumber );
 
-            for (unrollSteps = 2; unrollSteps <= config.getMaxUnrollSteps() && allIdProjectionsForAllUnrollSteps.size() <= sampleNumber;   unrollSteps++) {
-                log.info("isGoal2, unrollSteps: {}", unrollSteps);
-                allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxB(unrollSteps, sampleNumber, allIdProjectionsForAllUnrollSteps);
-                allIdProjectionsForAllUnrollSteps.addAll(allIdProjections);
-                log.info("allIdProjections.size(): {}", allIdProjections.size());
-                if (!allIdProjections.isEmpty()) {
-                    trainNetworkRules(model, muZeroBlock,epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, allIdProjections, false);
-                }
-            }
+        Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
+
+        // iterate over unroll numbers
+        for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollNumber.entrySet()) {
+            int unrollsteps = entry.getKey();
+            List<ShortTimestep> tsListUnroll = entry.getValue();
+            trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollsteps, saveHere, tsListUnroll );
         }
 
-
     }
 
-    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> allIdProjections, boolean isGoal1) {
-        List<Long> allRelevantTimestepIds = allIdProjections.stream().map(ShortTimestep::getId).toList();
-       // int hyperEpoch = modelState.getHyperepoch();
+    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> tsListUnroll ) {
+        List<Long> allRelevantTimestepIds = tsListUnroll.stream().map(ShortTimestep::getId).toList();
 
-        List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(allIdProjections);
+        List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(tsListUnroll);
 
         log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
 
@@ -398,7 +382,7 @@ public class ModelController implements DisposableBean, Runnable {
             List<Long> relatedEpisodeIds = iterator.next();
             Set<Long> relatedEpisodeIdsSet = new HashSet<>(relatedEpisodeIds);
             log.info("timestep before relatedTimeStepIds filtering");
-            Set<Long> relatedTimeStepIds = allIdProjections.stream()
+            Set<Long> relatedTimeStepIds = tsListUnroll.stream()
                     .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
                     .map(ShortTimestep::getId).collect(Collectors.toSet());
             log.info("timestep after relatedTimeStepIds filtering");
@@ -409,8 +393,6 @@ public class ModelController implements DisposableBean, Runnable {
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
             List<Game> games= convertEpisodeDOsToGames(episodeDOList, config);
             Collections.shuffle(games);
-
-            // each timestep once
 
 
             List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(games, relatedTimeStepIds);
@@ -441,7 +423,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                     for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
                         List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-//log.info("ts: {}, batchTimeSteps.size(): {}", ts, batchTimeSteps.size());
+
 
                         try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
                             Statistics stats = new Statistics();
@@ -477,7 +459,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private Map<Integer, List<IdProjection2>> mapByUnrollNumber(List<IdProjection2> allIdProjections) {
+    private Map<Integer, List<ShortTimestep>> mapByUnrollNumber(List<ShortTimestep> allIdProjections) {
        return allIdProjections.stream().collect(Collectors.groupingBy(p -> {
            int uOK = p.getUOk();
            int unrollNumber = Math.max(1, uOK + 1);
