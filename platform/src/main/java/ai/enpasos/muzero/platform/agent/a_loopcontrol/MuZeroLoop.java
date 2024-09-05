@@ -171,7 +171,7 @@ public class MuZeroLoop {
         long numBoxA0 = numBoxA0();
         long numBoxB0 = numBoxB0();
 
-        int hyperEpoch = 1;
+        int hyperEpoch = 0;
 
         while (numBoxA0 != 0 || numBoxB0 != 0) {
             // while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
@@ -187,14 +187,15 @@ public class MuZeroLoop {
 
             }
             numBoxB0 = numBoxB0();
-            log.info("numBoxB0: {}", numBoxB0);
+            hyperEpoch++;
+            log.info("numBoxB0: {}, hyperEpoch: {}", numBoxB0, hyperEpoch);
             int unrollSteps = config.getMaxUnrollSteps();
             if (numBoxB0 < nTrain) {
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThemB(unrollSteps, hyperEpoch);
             }
          //   modelState.setHyperepoch(hyperEpoch);
             epoch = ruleTrain(unrollSteps, durations);
-            hyperEpoch++;
+
             numBoxA0 = numBoxA0();
             numBoxB0 = numBoxB0();
 
