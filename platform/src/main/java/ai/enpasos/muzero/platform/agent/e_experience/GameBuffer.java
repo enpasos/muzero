@@ -735,9 +735,11 @@ public class GameBuffer {
         Set<ShortTimestep> idProjections = getShortTimestepSet( );
 
         List<ShortTimestep> idProjectionsUnknown = idProjections.stream()
-                .filter(idProjection3 -> !allIdProjectionsUsedSoFar.contains(idProjection3))
-                .filter(idProjection3 -> idProjection3.getUOk() >= unrollsteps - 1)
-                .filter(idProjection3 -> idProjection3.getBoxB() == 0).collect(Collectors.toList());
+                .filter(idProjection3 -> !allIdProjectionsUsedSoFar.contains(idProjection3)
+                                            && idProjection3.getUOk() < unrollsteps
+                                            && idProjection3.getUOk() >= unrollsteps - 1
+                                            && idProjection3.getBoxB() == 0
+                ).collect(Collectors.toList());
         log.debug("getIdsRelevantForTraining: 2");
 
 

@@ -364,7 +364,7 @@ public class ModelController implements DisposableBean, Runnable {
         } else {
             Set<ShortTimestep> allIdProjectionsForAllUnrollSteps = new HashSet<>();
 
-            for (unrollSteps = config.getMaxUnrollSteps(); unrollSteps >= 2; unrollSteps--) {
+            for (unrollSteps = 2; unrollSteps <= config.getMaxUnrollSteps() && allIdProjectionsForAllUnrollSteps.size() <= sampleNumber;   unrollSteps++) {
                 log.info("isGoal2, unrollSteps: {}", unrollSteps);
                 allIdProjections = gameBuffer.getIdsRelevantForTrainingBoxB(unrollSteps, sampleNumber, allIdProjectionsForAllUnrollSteps);
                 allIdProjectionsForAllUnrollSteps.addAll(allIdProjections);
