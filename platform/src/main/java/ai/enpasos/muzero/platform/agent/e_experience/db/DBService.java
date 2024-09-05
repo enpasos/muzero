@@ -294,7 +294,8 @@ public class DBService {
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
             }
-            ts.setUOkTested(false);
+            ts.setUOkTestedA(false);
+            ts.setUOkTestedB(false);
 
         });
         return ids;
