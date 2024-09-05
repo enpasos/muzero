@@ -190,9 +190,9 @@ public class MuZeroLoop {
             hyperEpoch++;
             log.info("numBoxB0: {}, hyperEpoch: {}", numBoxB0, hyperEpoch);
             int unrollSteps = config.getMaxUnrollSteps();
-            if (numBoxB0 < nTrain) {
+           // if (numBoxB0 < nTrain) {
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThemB(unrollSteps, hyperEpoch);
-            }
+           // }
          //   modelState.setHyperepoch(hyperEpoch);
             epoch = ruleTrain(unrollSteps, durations);
 
