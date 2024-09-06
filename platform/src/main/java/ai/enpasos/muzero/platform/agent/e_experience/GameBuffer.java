@@ -706,19 +706,28 @@ public class GameBuffer {
             return tsTrainList;
         }
 
-        List<ShortTimestep> tsBoxB0 = tsSet.stream()
-                .filter(ts -> ts.getBoxB() == 0 && ts.getBoxA() > 0)
-                .sorted(Comparator.comparing(ShortTimestep::getUOk))  // start training with the easiest ones
-                .collect(Collectors.toList());
+       for( int unrollsteps = 2; unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
+            final int unrollstepsFinal = unrollsteps;
+            List<ShortTimestep> tsBoxB0 = tsSet.stream()
+                   .filter(ts -> ts.getBoxB() == 0 && ts.getBoxA() > 0
+                            && ts.getUOk() == unrollstepsFinal - 1
+                           && ts.getT() < config.getMaxUnrollSteps() - unrollstepsFinal     // TODO: maxT or closedUOK
+                     )
+                   .sorted(Comparator.comparing(ShortTimestep::getUOk))  // start training with the easiest ones
+                   .collect(Collectors.toList());
 
-        int nRemaining = n - tsTrainList.size();
+           int nRemaining = n - tsTrainList.size();
 
-        if (tsBoxB0.size() < nRemaining) {
-            tsTrainList.addAll(tsBoxB0);
-        } else {
-            tsTrainList.addAll(tsBoxB0.subList(0, nRemaining));
+           if (tsBoxB0.size() < nRemaining) {
+               tsTrainList.addAll(tsBoxB0);
+           } else {
+               tsTrainList.addAll(tsBoxB0.subList(0, nRemaining));
 
-        }
+           }
+       }
+
+
+
         Collections.shuffle(tsTrainList);
         return tsTrainList;
 
