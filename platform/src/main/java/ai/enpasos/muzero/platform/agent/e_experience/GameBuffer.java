@@ -706,7 +706,7 @@ public class GameBuffer {
             return tsTrainList;
         }
 
-       for( int unrollsteps = 2; unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
+       for( int unrollsteps = 2;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
             final int unrollstepsFinal = unrollsteps;
             List<ShortTimestep> tsBoxB0 = tsSet.stream()
                    .filter(ts -> ts.getBoxB() == 0 && ts.getBoxA() > 0
