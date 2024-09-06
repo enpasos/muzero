@@ -680,6 +680,7 @@ public class GameBuffer {
                                 .nextUOk(result[5] != null ? (Integer) result[5] : null)
                                 .nextUOkTarget(result[6] != null ? (Integer) result[6] : null)
                                 .t(result[7] != null ? (Integer) result[7] : null)
+                                .uOkClosed(result[8] != null ? (Boolean) result[8]: false)
                                 .build())
                         .collect(Collectors.toList());
                 this.shortTimesteps.addAll(shortTimesteps);
@@ -711,7 +712,7 @@ public class GameBuffer {
             List<ShortTimestep> tsBoxB0 = tsSet.stream()
                    .filter(ts -> ts.getBoxB() == 0 && ts.getBoxA() > 0
                             && ts.getUOk() == unrollstepsFinal - 1
-                           && ts.getT() < config.getMaxUnrollSteps() - unrollstepsFinal     // TODO: maxT or closedUOK
+                           && !ts.isUOkClosed()
                      )
                    .sorted(Comparator.comparing(ShortTimestep::getUOk))  // start training with the easiest ones
                    .collect(Collectors.toList());

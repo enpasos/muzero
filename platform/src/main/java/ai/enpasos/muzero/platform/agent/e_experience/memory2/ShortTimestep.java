@@ -25,6 +25,8 @@ public class ShortTimestep {
    private Integer t;
 
 
+   private boolean uOkClosed;
+
 
 
    public boolean isTrainable() {

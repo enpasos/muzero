@@ -220,62 +220,6 @@ public class DBService {
 
 
 
-//    public void onTargetUChange(List<EpisodeDO> episodes, int targetU) {
-//        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-//                        if ( ts.getUOk() < targetU && !ts.isUOkClosed())  {
-//                            ts.setBox(0);
-//                            timestepRepo.updateAttributeBox(ts.getId(),  ts.getBox());
-//                        }
-//                }
-//        ));
-//    }
-
-
-    // assumption: all timesteps have been tested
-//    public void updateEpisodes_SandUOkandBox(List<EpisodeDO> episodes, int targetU ) {
-//        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-//                    int boxBefore = ts.getBox();
-//
-//                    if (ts.getUOk() < targetU && !ts.isUOkClosed()) { // not ok
-//                        ts.setBox(0);
-//                    } else { // ok
-//                        if (ts.isUOkTested() || ts.getBox() == 0) {
-//                            ts.setBox(ts.getBox() + 1);
-//                        }
-//                    }
-//
-//                    if (ts.isSChanged() || ts.isUOkChanged() || boxBefore != ts.getBox()) {
-//                        timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBox());
-//                        ts.setSChanged(false);
-//                        ts.setUOkChanged(false);
-//                    }
-//                    ts.setUOkTested(false);
-//                }
-//        ));
-//    }
-//    public List<Long> updateTimesteps_SandUOkandBoxA(List<TimeStepDO> timesteps  ) {
-//        List<Long> ids = new ArrayList<>();
-//        timesteps.stream().forEach(ts -> {
-//
-//            boolean boxChangedA  = ts.updateBoxA(  );
-//          //  boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
-//
-//            if (ts.isSChanged() || ts.isUOkChanged() ||  boxChangedA || ts.isUnrollStepsChanged()) {
-//                ids.add(ts.getId()) ;
-//                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ) , ts.getBoxB( ));
-//                if ( ts.getT() > 0) {
-//                    long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
-//                    ids.add(id);
-//                    timestepRepo.updateNextUOk(id, ts.getUOk());
-//                }
-//                ts.setSChanged(false);
-//                ts.setUOkChanged(false);
-//            }
-//            ts.setUOkTested(false);
-//
-//        });
-//        return ids;
-//    }
     public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps  ) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {

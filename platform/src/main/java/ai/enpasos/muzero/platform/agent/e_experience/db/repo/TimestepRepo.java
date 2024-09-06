@@ -255,7 +255,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO,Long> {
 
 
 
-    @Query(value = "SELECT new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep( ts.id  , ts.episode.id  ,  ts.boxA,  ts.boxB  ,  ts.uOk  ,  ts.nextUOk  ,  ts.nextuoktarget  ,  ts.t  )  FROM TimeStepDO ts where ts.id in :ids ")
+    @Query(value = "SELECT new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep( ts.id  , ts.episode.id  ,  ts.boxA,  ts.boxB  ,  ts.uOk  ,  ts.nextUOk  ,  ts.nextuoktarget  ,  ts.t, ts.uOkClosed  )  FROM TimeStepDO ts where ts.id in :ids ")
    // @SqlResultSetMapping(name = "ShortTimestepMapping")
     List<ShortTimestep> getShortTimestepList(List<Long> ids) ;
 
