@@ -42,13 +42,16 @@ public class Boxes {
         int boxIndex = targetUOK - 1;
         boolean changed = false;
         for(int b = 0; b < boxes.length; b++) {
+            if (boxes[b] == null ) {
+                boxes[b] = 0;
+            }
             if (b >= boxIndex && !uOkClosed) {
                 if (boxes[b] != 0) {
                     boxes[b] = 0;
                     changed = true;
                 }
-
             } else {
+
                 if (uOkTested || boxes[b] <= 0 ) {
                     boxes[b]++;
                     changed = true;
