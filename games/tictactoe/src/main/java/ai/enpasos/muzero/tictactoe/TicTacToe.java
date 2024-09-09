@@ -6,7 +6,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.run.ActionExtractor;
-import ai.enpasos.muzero.platform.run.TestUnrollRulestate;
 import ai.enpasos.muzero.tictactoe.run.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +47,6 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeTestAllNetworks testAllNetworks;
 
 
-    @Autowired
-    private TicTacToeTestRulesLossFromStart testRulesLossFromStart;
 
 
 
@@ -69,11 +66,6 @@ public class TicTacToe implements CommandLineRunner {
     private TicTacToeValueExtractor valueExtractor;
     @Autowired
     private TicTacToeRewardExtractor rewardExtractor;
-
-
-    @Autowired
-    private TicTacToeFillRulesLoss fillRulesLoss;
-
 
 
     @Autowired
@@ -117,15 +109,11 @@ public class TicTacToe implements CommandLineRunner {
             case IMPORTEXPORT:
                 importExport.run();
                 break;
-            case TESTRULESLOSSFROMSTART:
-                testRulesLossFromStart.run();
-                break;
+
             case TESTUNROLLRULESTATE:
                 testUnrollRulestate.run();
                 break;
-            case FILLRULESLOSS:
-                fillRulesLoss.run();
-                break;
+
 
             case INMIND:
                 inMindValues.run();

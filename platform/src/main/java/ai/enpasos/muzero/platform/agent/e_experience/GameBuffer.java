@@ -19,7 +19,7 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.d_model.Boxing;
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
@@ -27,7 +27,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
-import ai.enpasos.muzero.platform.common.AliasMethod;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -223,130 +222,20 @@ public class GameBuffer {
         return episodeIds;
     }
 
-//    public List<IdProjection> getRelevantIds(int uOk )  {
-//        int limit = 50000;
-//
-//        int offset = 0;
-//        List<IdProjection> relevantIds = new ArrayList<>();
-//        List newIds;
-//        do {
-//
-//            newIds = timestepRepo.getRelevantIds( limit, offset, uOk);
-//            relevantIds.addAll(newIds);
-//            offset += limit;
-//        } while (newIds.size() > 0);
-//     //   List<Long> relevantIdsList = new ArrayList<>(relevantIds);
-//     //   Collections.shuffle(relevantIdsList);
-//        return relevantIds;
-//    }
 
 
-    private List<IdProjection> relevantIdsA;
+ //   private List<IdProjection> relevantIdsA;
 
-    private List<IdProjection2> relevantIds2;
+//    private List<IdProjection2> relevantIds2;
     private List<IdProjection3> idProjection3List;
 
     public void resetRelevantIds() {
-        relevantIds2 = null;
-        relevantIdsA = null;
+    //    relevantIds2 = null;
+  //      relevantIdsA = null;
         idProjection3List = null;
     }
 
-    public List<IdProjection2> getIdsRelevantForTrainingBoxB(List<BoxOccupation> occupiedBoxes, int nTrain) {
-        if (relevantIds2 == null && !occupiedBoxes.isEmpty()) {
-             relevantIds2 = new ArrayList<>();
-             int nLeft = nTrain;
 
-             // The timesteps are drawn from the box with the lowest number,
-             // and within the box to the timesteps with the lowest unrollsteps.
-            for (int i = 0; i < occupiedBoxes.size() && relevantIds2.size() < nTrain; i++) {
-                BoxOccupation boxOccupation = occupiedBoxes.get(i);
-                int box = boxOccupation.getBox();
-                long n = boxOccupation.getCount();
-//                if (box == -1) {
-//                    nTrain += n;  // die aus box=-1 kommen dazu
-//                    nLeft = nTrain;
-//                }
-                long nDraw = Math.min(n, nLeft);
-                nLeft -= nDraw;
-                int limit = (int)Math.min(50000, nDraw);
-                int offset = 0;
-                List<IdProjection2> newIds;
-                do {
-                    newIds = timestepRepo.getRelevantIds5(limit, offset, box);
-                    relevantIds2.addAll(newIds);
-                    offset += limit;
-                } while (relevantIds2.size() < nTrain && !newIds.isEmpty());
-            }
-
-        }
-        return relevantIds2;
-    }
-
-//    private List<Integer> getDrawingPlan(List<BoxOccupation> occupiedBoxes, int nTrain) {
-//        List<Integer> result = new ArrayList<>();
-//        return result;
-//    }
-//
-//    public List<IdProjection> getRandomIdsNotInBox0( int n )  {
-//        if (relevantIdsA == null) {
-//            int limit = 50000;
-//
-//            int offset = 0;
-//            relevantIdsA = new ArrayList<>();
-//            List newIds;
-//            do {
-//                newIds = timestepRepo.getRelevantIds4(limit, offset);
-//                relevantIdsA.addAll(newIds);
-//                offset += limit;
-//            } while (newIds.size() > 0);
-//        }
-//        return relevantIdsA;
-//    }
-
-
-//    public List<IdProjection> getRandomIdsBox0(int n )  {
-//        return timestepRepo.getRandomIdsInBox0( n);
-//    }
-//
-//    public List<IdProjection> getRelevantIdsUOk(int uOK )  {
-//        if (relevantIdsA == null) {
-//            int limit = 50000;
-//
-//            int uOKMax = uOK;
-//            int uOKMin = -3;
-//            if (uOKMax > 0) {
-//                uOKMin = uOKMax - 1;
-//            }
-//
-//            int offset = 0;
-//            relevantIdsA = new ArrayList<>();
-//            List newIds;
-//            do {
-//                newIds = timestepRepo.getRelevantIds2(limit, offset, uOKMin, uOKMax);
-//                relevantIdsA.addAll(newIds);
-//
-//                offset += limit;
-//            } while (newIds.size() > 0);
-//        }
-//        return relevantIdsA;
-//    }
-
-    public List<IdProjection> getIdsFromBoxesRelevantA(List<Integer> boxesRelevant )  {
-        if (relevantIdsA == null) {
-            int limit = 50000;
-
-            int offset = 0;
-            relevantIdsA = new ArrayList<>();
-            List newIds;
-            do {
-                newIds = timestepRepo.getRelevantIdsA3(limit, offset, boxesRelevant);
-                relevantIdsA.addAll(newIds);
-                offset += limit;
-            } while (newIds.size() > 0);
-        }
-        return relevantIdsA;
-    }
 
 
 
@@ -357,15 +246,7 @@ public class GameBuffer {
 
     }
 
-    private List<Game> getGamesToLearnRules() {
 
-        int n =  config.getWindowSize();
-
-        List<Long> episodeIdsRulesLearningList = this.getShuffledEpisodeIds();
-        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-        return   convertEpisodeDOsToGames(episodeDOList, config);
-
-    }
 
     public List<Sample> sampleBatchFromReanalyseBuffer(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
@@ -398,16 +279,6 @@ public class GameBuffer {
         return games;
     }
 
-//    public List<Game> getGamesFromRulesBuffer() {
-//        List<Game> games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
-//        if (games.isEmpty()) {
-//            List<Game> gamesForBuffer = getNGamesWithHighestRewardLoss(2000);
-//            gamesForBuffer.forEach(game -> this.rulesBuffer.addGame(game));
-//            games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
-//        }
-//        log.trace("Games from rules buffer: {}",  games.size() );
-//        return games;
-//    }
 
     public List<Game> getGamesFromReanalyseBuffer() {
         List<Game> games = new ArrayList<>(this.reanalyseBuffer.getEpisodeMemory().getGameList());
@@ -518,14 +389,7 @@ public class GameBuffer {
     public void putMeanValueLoss(int epoch, double meanValueLoss) {
         meanValuesLosses.put(epoch, meanValueLoss);
     }
-    public void putMeanEntropyValueLoss(int epoch, double meanValueLoss) {
-        meanEntropyValuesLosses.put(epoch, meanValueLoss);
-    }
 
-    public Double getMaxMeanValueLoss() {
-        // get max of meanValueLosses values
-        return meanValuesLosses.values().stream().max(Double::compare).orElse(0.0);
-    }
 
 
 
@@ -537,11 +401,6 @@ public class GameBuffer {
 
 
 
-    public List<Game> getNGamesWithHighestRewardLoss(int n) {
-        List<EpisodeDO> episodeDOList = this.dbService.findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        return games;
-    }
 
     public List<Game> getNRandomSelectedGames(int n) {
         List<EpisodeDO> episodeDOList = this.dbService.findRandomNByOrderByIdDescAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
@@ -550,39 +409,6 @@ public class GameBuffer {
         return games;
     }
 
-    public List<Game> getNRandomSelectedGamesForRewardLearning(int n) {
-        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantForRewardLearningAndConvertToGameDTOList(n); // gameBufferIO.loadGamesForReplay(n );   // TODO
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-
-        return games;
-    }
-
-    public List<Game> getNRandomSelectedGamesFromBox(int n, int box) {
-        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantFromBoxAndConvertToGameDTOList(n, box);
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        return games;
-    }
-
-    public List<Game> getNRandomSelectedGamesFromBoxZeroOrOne(int n) {
-        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantFromBoxZeroOrOneAndConvertToGameDTOList(n);
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        return games;
-    }
-
-    public List<Game> getNRandomSelectedGamesForLegalActionsLearning(int n) {
-        List<EpisodeDO> episodeDOList = this.dbService.findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(n);// gameBufferIO.loadGamesForReplay(n );   // TODO
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-
-        return games;
-    }
-
-    public Pair<List<Game>, Integer> getGamesByPage( int pageNumber, int pageSize) {
-        Pair<List<EpisodeDO>, Integer> pair = this.dbService.findAll(pageNumber, pageSize);
-        List<EpisodeDO> episodeDOList = pair.getKey();
-
-           List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        return new ImmutablePair<>(games, pair.getRight());
-    }
 
 
 
@@ -600,54 +426,7 @@ public class GameBuffer {
     }
 
 
-    public List<Game> getGamesWithHighestTemperatureTimesteps() {
-        int nGamesNeeded = config.getNumParallelGamesPlayed();
-       // int nWindow = config.getWindowSize();
-        List<Tuple> result = episodeRepo.findEpisodeIdsWithHighValueVariance(nGamesNeeded); // TODO nWindow
 
-
-        List<Long> ids = result.stream().map(tuple -> tuple.get(0, Long.class)).collect(Collectors.toList());
-        List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids );
-
-        episodeDOList.stream().forEach(episodeDO -> {if (episodeDO.getId() == 678) {
-            log.info("found episodeDO.getId() == 678");
-        }});
-
-
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        Map<Long, Game> idGameMap =
-                games.stream().collect(Collectors.toMap(game -> game.getEpisodeDO().getId(), game -> game));
-            for (int i = 0; i < games.size(); i++) {
-                int t = result.get(i).get(1, Integer.class);
-                long id = ids.get(i);
-                Game game = idGameMap.get(id);
-                game.getEpisodeDO().setTStartNormal(t);
-            }
-
-        return games;
-    }
-
-    public List<IdProjection> getRandomIdsFromBoxesNot0(int n) {
-        return timestepRepo.getRandomIdsNotInBox0(n);
-    }
-
-
-
-    public List<IdProjection3> getIdProjection3List( )  {
-        if (idProjection3List == null) {
-            int limit = 50000;
-
-            int offset = 0;
-            idProjection3List = new ArrayList<>();
-            List newIds;
-            do {
-                newIds = timestepRepo.getTimeStepIds3(limit, offset );
-                idProjection3List.addAll(newIds);
-                offset += limit;
-            } while (newIds.size() > 0);
-        }
-        return idProjection3List;
-    }
 
 
     private Set<ShortTimestep> shortTimesteps;
@@ -674,13 +453,12 @@ public class GameBuffer {
                         .map(result -> ShortTimestep.builder()
                                 .id(result[0] != null ? ((Number) result[0]).longValue() : null)
                                 .episodeId(result[1] != null ? ((Number) result[1]).longValue() : null)
-                                .boxA(result[2] != null ? (Integer) result[2] : null)
-                                .boxB(result[3] != null ? (Integer) result[3] : null)
-                                .uOk(result[4] != null ? (Integer) result[4] : null)
-                                .nextUOk(result[5] != null ? (Integer) result[5] : null)
-                                .nextUOkTarget(result[6] != null ? (Integer) result[6] : null)
-                                .t(result[7] != null ? (Integer) result[7] : null)
-                                .uOkClosed(result[8] != null ? (Boolean) result[8]: false)
+                                .boxes(result[2] != null ? (Integer[]) result[2] : null)
+                                .uOk((result[3] != null) ? (Integer) result[3] : null)
+                                .nextUOk(result[4] != null ? (Integer) result[4] : null)
+                                .nextUOkTarget(result[5] != null ? (Integer) result[5] : null)
+                                .t(result[6] != null ? (Integer) result[6] : null)
+                                .uOkClosed(result[7] != null ? (Boolean) result[7]: false)
                                 .build())
                         .collect(Collectors.toList());
                 this.shortTimesteps.addAll(shortTimesteps);
@@ -695,144 +473,27 @@ public class GameBuffer {
 
         List<ShortTimestep> tsTrainList = new ArrayList<>();
 
-        List<ShortTimestep> tsBoxA0 = tsSet.stream()
-                .filter(ts -> ts.getBoxA() == 0  )
-                .collect(Collectors.toList());
 
-        if (tsBoxA0.size() < n) {
-            tsTrainList.addAll(tsBoxA0);
-        } else {
-            tsTrainList.addAll(tsBoxA0.subList(0, n));
-            Collections.shuffle(tsTrainList);
-            return tsTrainList;
-        }
-
-       for( int unrollsteps = 2;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
+       for( int unrollsteps = 1;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
             final int unrollstepsFinal = unrollsteps;
-            List<ShortTimestep> tsBoxB0 = tsSet.stream()
-                   .filter(ts -> ts.getBoxB() == 0 && ts.getBoxA() > 0
-                            && ts.getUOk() == unrollstepsFinal - 1
-                           && !ts.isUOkClosed()
-                     )
-                   .sorted(Comparator.comparing(ShortTimestep::getUOk))  // start training with the easiest ones
+           List<ShortTimestep> tsBox0 = tsSet.stream()
+                   .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1)
+                   .sorted(Comparator.comparing(ShortTimestep::getUOk))
                    .collect(Collectors.toList());
 
            int nRemaining = n - tsTrainList.size();
 
-           if (tsBoxB0.size() < nRemaining) {
-               tsTrainList.addAll(tsBoxB0);
+           if (tsBox0.size() < nRemaining) {
+               tsTrainList.addAll(tsBox0);
            } else {
-               tsTrainList.addAll(tsBoxB0.subList(0, nRemaining));
-
+               tsTrainList.addAll(tsBox0.subList(0, nRemaining));
            }
        }
-
-
 
         Collections.shuffle(tsTrainList);
         return tsTrainList;
 
-//
-//        List<ShortTimestep> tsUnknownAndTrainable = tsUnknownList; // no filter here
-//
-//
-//        if (tsUnknownAndTrainable.size() >= n) {
-//            Collections.shuffle(tsUnknownAndTrainable);
-//            log.info("nUnknown: {}, nKnown: {}", n, 0);
-//            return tsUnknownAndTrainable.subList(0, n);
-//        }
-//        List<ShortTimestep> idProjectionsKnown = tsSet.stream().filter(idProjection3 -> idProjection3.getBoxA() > 0).collect(Collectors.toList());
-//
-//
-//        double k = 2.0;
-//        int nKnown = Math.min(Math.min(n - tsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*tsUnknownAndTrainable.size()));
-//
-//
-//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
-//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxA() - 1)).toArray();
-//        AliasMethod aliasMethod = new AliasMethod(g);
-//
-//
-//        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
-//        // stream of samples
-//        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
-//
-//
-//        List< ShortTimestep> result = new ArrayList<>();
-//        result.addAll(tsUnknownAndTrainable);
-//        result.addAll(resultKnown);
-//        log.info("nUnknown: {}, nKnown: {}", tsUnknownAndTrainable.size(), resultKnown.size());
-//        Collections.shuffle(result);
-//
-//        return result;
 
-    }
-    public List<ShortTimestep> getIdsRelevantForTrainingBoxB(int unrollsteps, int n, Set<ShortTimestep> allIdProjectionsUsedSoFar ) {
-
-        log.debug("getIdsRelevantForTraining: 1");
-
-        // TODO: improve this long running method
-        Set<ShortTimestep> idProjections = getShortTimestepSet( );
-
-        List<ShortTimestep> idProjectionsUnknown = idProjections.stream()
-                .filter(idProjection3 -> !allIdProjectionsUsedSoFar.contains(idProjection3)
-                                            && idProjection3.getUOk() < unrollsteps
-                                            && idProjection3.getUOk() >= unrollsteps - 1
-                                            && idProjection3.getBoxB() == 0
-                ).collect(Collectors.toList());
-        log.debug("getIdsRelevantForTraining: 2");
-
-
-        List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.isTrainable()).collect(Collectors.toList());
-        log.debug("getIdsRelevantForTraining: 3");
-
-    //    if (idProjectionsUnknownAndTrainable.size() >= n) {
-            Collections.shuffle(idProjectionsUnknownAndTrainable);
-            log.info("nUnknown: {}, nKnown: {}", n, 0);
-        if (idProjectionsUnknownAndTrainable.size() >= n) {
-            return idProjectionsUnknownAndTrainable.subList(0, n);
-        } else {
-            return idProjectionsUnknownAndTrainable;
-        }
-//        }
-//        List<ShortTimestep> idProjectionsKnown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxB() > 0).collect(Collectors.toList());
-//        log.debug("getIdsRelevantForTraining: 4");
-//
-//        double k = 2.0;
-//        int nKnown = Math.min(Math.min(n - idProjectionsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*idProjectionsUnknownAndTrainable.size()));
-//
-//
-//        log.debug("getIdsRelevantForTraining: 5");
-//
-//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
-//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxB() - 1)).toArray();
-//        AliasMethod aliasMethod = new AliasMethod(g);
-//        log.debug("getIdsRelevantForTraining: 6");
-//
-//        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
-//        // stream of samples
-//        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
-//
-//        log.debug("getIdsRelevantForTraining: 7");
-//
-//        List< ShortTimestep> result = new ArrayList<>();
-//        result.addAll(idProjectionsUnknownAndTrainable);
-//        result.addAll(resultKnown);
-//        log.info("nUnknown: {}, nKnown: {}", idProjectionsUnknownAndTrainable.size(), resultKnown.size());
-//        Collections.shuffle(result);
-//        log.debug("getIdsRelevantForTraining: 8");
-//        return result;
-
-    }
-
-    private boolean relevantBoxesAreOccupied(int epoch, List<BoxOccupation> occupations, int maxBox) {
-        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
-        for (int box : boxesRelevant) {
-            if (occupations.stream().anyMatch(occupation -> occupation.getBox() == box && occupation.getCount() > 0)){
-                return true;
-            }
-        }
-        return false;
     }
 
 

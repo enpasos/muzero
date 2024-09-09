@@ -35,8 +35,8 @@ public class DBService {
     @Autowired
     TimestepRepo timestepRepo;
 
-    @Autowired
-    MuZeroConfig config;
+//    @Autowired
+//    MuZeroConfig config;
 
 
     @Autowired
@@ -104,13 +104,13 @@ public class DBService {
         return newEpisodeIds;
     }
 
-    @Transactional
-    public Pair<List<EpisodeDO>, Integer> findAll(int pageNumber, int pageSize) {
-        Page<EpisodeDO> result = episodeRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("id")));
-        int totalPages = result.getTotalPages();
-        Pair<List<EpisodeDO>, Integer> pair = new ImmutablePair<>(result.stream().map(e -> e.copy()).collect(Collectors.toList()), totalPages );
-        return pair;
-    }
+//    @Transactional
+//    public Pair<List<EpisodeDO>, Integer> findAll(int pageNumber, int pageSize) {
+//        Page<EpisodeDO> result = episodeRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("id")));
+//        int totalPages = result.getTotalPages();
+//        Pair<List<EpisodeDO>, Integer> pair = new ImmutablePair<>(result.stream().map(e -> e.copy()).collect(Collectors.toList()), totalPages );
+//        return pair;
+//    }
 
     @Transactional
     public List<EpisodeDO> findTopNByOrderByIdDescAndConvertToGameDTOList(int n) {
@@ -125,53 +125,53 @@ public class DBService {
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
-
-    @Transactional
-    public List<EpisodeDO> findRandomNRelevantForRewardLearningAndConvertToGameDTOList(int n) {
-        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), n, 0);
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-        return result;
-    }
-
-    @Transactional
-    public List<EpisodeDO> findRandomNRelevantFromBoxAndConvertToGameDTOList(int n, int box) {
-        List<Long> ids = timestepRepo.findRandomNEpisodeIdsFromBox(n, box);
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-        return result;
-    }
-
-    @Transactional
-    public List<EpisodeDO> findRandomNRelevantFromBoxZeroOrOneAndConvertToGameDTOList(int n) {
-        List<Long> ids = episodeRepo.findRandomNEpisodeIdsFromBoxZeroOrOne(n );
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-        return result;
-    }
-
-    @Transactional
-    public List<EpisodeDO> findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(int n) {
-        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), n, 0);
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-        return result;
-    }
-
-    @Transactional
-    public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
-        int classN = 5;
-        List<Long> ids = new ArrayList<>();
-        for (int i = 1; i <= classN; i++) {
-            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n/classN));
-        }
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-        return result;
-    }
-
-    @Transactional
-    public List<EpisodeDO> findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(int n) {
-        double minLoss = 0.001d; // everything else is good enough
-        List<Long> ids = timestepRepo.findNEpisodeIdsWithHighestRewardLoss(n, minLoss);
-        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-        return result;
-    }
+//
+//    @Transactional
+//    public List<EpisodeDO> findRandomNRelevantForRewardLearningAndConvertToGameDTOList(int n) {
+//        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), n, 0);
+//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+//        return result;
+//    }
+//
+//    @Transactional
+//    public List<EpisodeDO> findRandomNRelevantFromBoxAndConvertToGameDTOList(int n, int box) {
+//        List<Long> ids = timestepRepo.findRandomNEpisodeIdsFromBox(n, box);
+//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+//        return result;
+//    }
+//
+//    @Transactional
+//    public List<EpisodeDO> findRandomNRelevantFromBoxZeroOrOneAndConvertToGameDTOList(int n) {
+//        List<Long> ids = episodeRepo.findRandomNEpisodeIdsFromBoxZeroOrOne(n );
+//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+//        return result;
+//    }
+//
+//    @Transactional
+//    public List<EpisodeDO> findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(int n) {
+//        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), n, 0);
+//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+//        return result;
+//    }
+//
+//    @Transactional
+//    public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
+//        int classN = 5;
+//        List<Long> ids = new ArrayList<>();
+//        for (int i = 1; i <= classN; i++) {
+//            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n/classN));
+//        }
+//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+//        return result;
+//    }
+//
+//    @Transactional
+//    public List<EpisodeDO> findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(int n) {
+//        double minLoss = 0.001d; // everything else is good enough
+//        List<Long> ids = timestepRepo.findNEpisodeIdsWithHighestRewardLoss(n, minLoss);
+//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
+//        return result;
+//    }
 
 
 
@@ -202,21 +202,21 @@ public class DBService {
 
 
 
-    //@Transactional
-    public void markArchived(int epoch) {
-        int n = 10000; // todo
-        int n2 = 10;
-       // int nCandidate = episodeRepo.countNotArchivedWithValueCount(n2);
-       // if (nCandidate < n) return;
-        Double quantile = episodeRepo.findTopQuantileWithHighestVariance(n, n2);
-        log.info("quantile: {}", quantile);
-        if (quantile == null) return;
-        log.info("episodeRepo.markArchived(quantile) ...");
-        episodeRepo.markArchived(quantile);
-        log.info("timestepRepo.markArchived() ...");
-        timestepRepo.markArchived();
-        log.info("...markArchived.");
-    }
+//    //@Transactional
+//    public void markArchived(int epoch) {
+//        int n = 10000; // todo
+//        int n2 = 10;
+//       // int nCandidate = episodeRepo.countNotArchivedWithValueCount(n2);
+//       // if (nCandidate < n) return;
+//        Double quantile = episodeRepo.findTopQuantileWithHighestVariance(n, n2);
+//        log.info("quantile: {}", quantile);
+//        if (quantile == null) return;
+//        log.info("episodeRepo.markArchived(quantile) ...");
+//        episodeRepo.markArchived(quantile);
+//        log.info("timestepRepo.markArchived() ...");
+//        timestepRepo.markArchived();
+//        log.info("...markArchived.");
+//    }
 
 
 
@@ -224,12 +224,16 @@ public class DBService {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxChangedA  = ts.updateBoxA(  );
-            boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
+          //  int[] boxesBefore = ts.getBoxes();
 
-            if (ts.isSChanged() || ts.isUOkChanged() ||    boxChangedA ||    boxChangedB || ts.isUnrollStepsChanged()) {
+            boolean boxesChanged = ts.changeBoxesBasesOnUOk();
+
+     //       boolean boxChangedA  = ts.updateBoxA(  );
+     //       boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
+
+            if (ts.isSChanged() || ts.isUOkChanged() ||    boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId()) ;
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxA( ), ts.getBoxB( ) );
+                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes( ) );
                 if ( ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
@@ -238,8 +242,8 @@ public class DBService {
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
             }
-            ts.setUOkTestedA(false);
-            ts.setUOkTestedB(false);
+            ts.setUOkTested(false);
+           // ts.setUOkTestedB(false);
 
         });
         return ids;

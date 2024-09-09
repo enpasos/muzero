@@ -3,7 +3,8 @@ package ai.enpasos.muzero.platform.run;
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
 import ai.enpasos.muzero.platform.agent.b_episode.SelfPlayGame;
-import ai.enpasos.muzero.platform.agent.d_model.Boxing;
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxes;
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.djl.RulesBuffer;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions;
@@ -14,7 +15,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -148,19 +148,21 @@ public class TestUnrollRulestate {
 
         Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
         List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
-                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxA()) || boxesRelevant.contains(shortTimestep.getBoxB()))
+                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes()) )
                 .collect(Collectors.toList());
-
-
-        List<Long> relevantIdsA = shortTimesteps.stream()
-                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxA())  )
+        List<Long> relevantIds = relevantShortTimesteps.stream()
                 .mapToLong(shortTimestep -> shortTimestep.getId())
                 .boxed().toList();
 
-        List<Long> relevantIdsB = shortTimesteps.stream()
-                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxB())  )
-                .mapToLong(shortTimestep -> shortTimestep.getId())
-                .boxed().toList();
+//        List<Long> relevantIdsA = shortTimesteps.stream()
+//                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBox())  )
+//                .mapToLong(shortTimestep -> shortTimestep.getId())
+//                .boxed().toList();
+//
+////        List<Long> relevantIdsB = shortTimesteps.stream()
+////                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxB())  )
+////                .mapToLong(shortTimestep -> shortTimestep.getId())
+////                .boxed().toList();
 
        // List<ShortTimestep> relevantShortTimesteps
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", relevantShortTimesteps.size());
@@ -198,8 +200,7 @@ public class TestUnrollRulestate {
 
 
             relevantTimeSteps.forEach(timeStepDO -> {
-                if (relevantIdsA.contains(timeStepDO.getId())) timeStepDO.setUOkTestedA(true);
-                if (relevantIdsB.contains(timeStepDO.getId())) timeStepDO.setUOkTestedB(true);
+                if (relevantIds.contains(timeStepDO.getId())) timeStepDO.setUOkTested(true);
                     }
              );
 
@@ -214,7 +215,7 @@ public class TestUnrollRulestate {
 
     private @NotNull List<Integer> getBoxesRelevant(int epoch) {
         List<Integer> boxesRelevant;
-        int maxBox = Math.max(timestepRepo.maxBoxB(), timestepRepo.maxBoxA());
+        int maxBox =  timestepRepo.maxBox();
         boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
         log.info("boxesRelevant = {}", boxesRelevant.toString());
 

@@ -266,69 +266,12 @@ public abstract class Game {
         return tdSteps;
     }
 
-//    public int getTdSteps(int currentIndex, int tMaxHorizon) {
-//        if (!config.offPolicyCorrectionOn()) return 0;
-//        if (this.getGameDTO().getPlayoutPolicy() == null) return 0;
-//        double b = ThreadLocalRandom.current().nextDouble(0, 1);
-//        return getTdSteps(b, currentIndex, tMaxHorizon);
-//    }
-//
-//    public int getTdSteps(double b, int currentIndex, int tMaxHorizon) {
-//        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
-//
-//        int tdSteps;
-//
-//        if (currentIndex >= tMaxHorizon) return 0;
-//
-//        for (int t = tMaxHorizon; t >= currentIndex; t--) {
-//
-//            double pBase = 1;
-//            for (int i = currentIndex; i < t; i++) {
-//                pBase *= this.getGameDTO().getPlayoutPolicy().get(i)[this.getGameDTO().getActions().get(i)];
-//            }
-//            double p = 1;
-//            for (int i = currentIndex; i < t; i++) {
-//                p *= this.getGameDTO().getPolicyTargets().get(i)[this.getGameDTO().getActions().get(i)];
-//            }
-//            double pRatio = p / pBase;
-//            if (pRatio > b * localPRatioMax) {
-//                tdSteps = t - currentIndex;
-//                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
-//                    tdSteps = 0;   // if not all then nothing
-//                }
-//                if (tdSteps > 0)
-//                    log.trace("tdSteps (>0): " + tdSteps);
-//                return tdSteps;
-//            }
-//        }
-//        throw new MuZeroNoSampleMatch();
-//    }
-
-
-//    private float getReward(int currentIndex) {
-//        float reward;
-//        if (currentIndex > 0 && currentIndex <= (this.getEpisodeDO().getLastTimeStep().getT() + 1) ) {
-//            reward = this.getEpisodeDO().getTimeSteps().get(currentIndex - 1).getReward();
-//        } else {
-//            if (gameDTO.isHybrid() && isItExplorationTime(currentIndex)) {
-//                tdSteps = 0;
-//            } else {
-//                tdSteps = this.getGameDTO().getTdSteps();
-//            }
-//        }
-////        return tdSteps;
-//    }
 
     private double calculateValue(int tdSteps, int currentIndex) {
         double value = getBootstrapValue(currentIndex, tdSteps);
         value = addValueFromReward(currentIndex, tdSteps, value);
         return value;
     }
-
-
-
-
-
 
     private double addValueFromReward(int currentIndex, int tdSteps, double value) {
         int bootstrapIndex = currentIndex + tdSteps;
@@ -496,36 +439,7 @@ public abstract class Game {
         return getEpisodeDO().deepEquals(game.getEpisodeDO());
     }
 
-//    public int findNewTReanalyseMin() {
-//
-//        this.tReanalyseMin = (int)Math.max(getEpisodeDO().getTHybrid(), this.tReanalyseMin);
-//
-//        int tMaxHorizon = getEpisodeDO().getLastTime();
-//
-//        double localPRatioMax = 1;
-//
-//        for (int t = tMaxHorizon; t >= this.tReanalyseMin; t--) {
-//
-//            double pBase = 1;
-//            for (int i = this.tReanalyseMin; i < t; i++) {
-//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
-//                pBase *= timeStepDO.getPlayoutPolicy()[timeStepDO.getAction()];
-//            }
-//            double p = 1;
-//            for (int i = this.tReanalyseMin; i < t; i++) {
-//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
-//                p *= timeStepDO.getPolicyTarget() [timeStepDO.getAction()];
-//            }
-//            double pRatio = p / pBase;
-//            log.info("pRatio = %", pRatio);
-//            if (pRatio < this.config.getKMinLimit() * localPRatioMax) {
-//                this.tReanalyseMin = t+1;
-//                break;
-//            }
-//        }
-//        log.info("newTReanalyseMin = %", this.tReanalyseMin);
-//        return this.tReanalyseMin;
-//    }
+
 
 
     public  float getReward() {
@@ -567,43 +481,7 @@ public abstract class Game {
         double pRatio = p / pBase;
         TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(t0);
         timeStepDO.setK(pRatio / config.getOffPolicyRatioLimit());
-        //  int k = 42;
 
-
-
-
-
-//        double localPRatioMax = Math.min(this.pRatioMax, config.getOffPolicyRatioLimit());
-//
-//        int tdSteps;
-//
-//
-//
-//        for (int t = tMaxHorizon; t >= currentIndex; t--) {
-//
-//            double pBase = 1;
-//            for (int i = currentIndex; i < t; i++) {
-//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
-//                pBase *= timeStepDO.getPlayoutPolicy()[timeStepDO.getAction()];
-//            }
-//            double p = 1;
-//            for (int i = currentIndex; i < t; i++) {
-//                TimeStepDO timeStepDO = this.getEpisodeDO().getTimeSteps().get(i);
-//                p *= timeStepDO.getPolicyTarget()[timeStepDO.getAction()];
-//            }
-//            double pRatio = p / pBase;
-//            if (pRatio > b * localPRatioMax) {
-//                tdSteps = t - currentIndex;
-//                if (config.allOrNothingOn() && tdSteps != tMaxHorizon - currentIndex) {
-//                    tdSteps = 0;   // if not all then nothing
-//                }
-//                if (tdSteps > 0)
-//                    log.trace("tdSteps (>0): " + tdSteps);
-//                return tdSteps;
-//            }
-//        }
-//        throw new MuZeroNoSampleMatch();
-//    }
     }
 
     public int getFirstSamplePosition() {

@@ -3,6 +3,7 @@ package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxes;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,29 +11,9 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 
-//@SqlResultSetMapping(
-//        name = "ShortTimestepMapping",
-//        classes = @ConstructorResult(
-//                targetClass = ShortTimestep.class,
-//                columns = {
-//                        @ColumnResult(name = "id", type = Long.class),
-//                        @ColumnResult(name = "t", type = Integer.class),
-//                        @ColumnResult(name = "box", type = Integer.class),
-//                        @ColumnResult(name = "episodeId", type = Long.class),
-//                        @ColumnResult(name = "nextUOk", type = Integer.class),
-//                        @ColumnResult(name = "nextUOkTarget", type = Integer.class),
-//                        @ColumnResult(name = "uOk", type = Integer.class)
-//                }
-//        )
-//)
 
 @Entity
 @Table(name = "timestep",
-//        indexes = {
-//                @Index(name = "episode_id_index", columnList = "episode_id"),
-//                @Index(name = "a_weight_cumulative_index", columnList = "a_weight_cumulative"),
-//                @Index(name = "a_weight_cumulative_prev_index", columnList = "a_weight_cumulative_prev")
-//        },
         uniqueConstraints =
 @UniqueConstraint(name = "UniqueEpisodeIDandTime", columnNames = {"episode_id", "t"}))
 @Data
@@ -73,58 +54,25 @@ public class TimeStepDO {
     boolean toBeAnalysed;
 
 
-    @Builder.Default
-    int boxA = 0;
+//    @Builder.Default
+//    int boxA = 0;
+//
+//    @Builder.Default
+//    int boxB = 0;
 
-    @Builder.Default
-    int boxB = 0;
 
-//    public boolean updateBox(int targetU) {
-//        boolean isLocally = false;
-//        int boxBefore = getBoxA( );
-//        int boxAfter = boxBefore;
-//        if (getUOk() < targetU && !isUOkClosed()) { // not ok
-//            boxAfter = 0;
-//        } else { // ok
-//            if (isUOkTested() || boxBefore <= 0 ) {
-//                boxAfter = boxBefore + 1;
-//            }
-//        }
-//        setBoxA(boxAfter );
-//        return boxAfter != boxBefore;
-//    }
+    @Column(name = "boxes", columnDefinition = "integer[]")
+    Integer[] boxes;
 
-    public boolean updateBoxA() {
-        int targetU = 1;
-        boolean isLocally = false;
-        int boxBefore = getBoxA( );
-        int boxAfter = boxBefore;
-        if (getUOk() < targetU && !isUOkClosed()) { // not ok
-            boxAfter = 0;
-        } else { // ok
-            if (isUOkTestedA() || boxBefore <= 0 ) {
-                boxAfter = boxBefore + 1;
-            }
+
+    public boolean changeBoxesBasesOnUOk() {
+        //this.uOk = uok;
+        if (boxes == null) {
+            boxes = new Integer[Math.max(this.uOk, 1)];
+            boxes[0] = 0;
         }
-        setBoxA(boxAfter );
-        return boxAfter != boxBefore;
+        return Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
     }
-
-    public boolean updateBoxB(int targetU) {
-        boolean isLocally = false;
-        int boxBefore = getBoxB( );
-        int boxAfter = boxBefore;
-        if (getUOk() < targetU && !isUOkClosed()) { // not ok
-            boxAfter = 0;
-        } else { // ok
-            if (isUOkTestedB() || boxBefore <= 0 ) {
-                boxAfter = boxBefore + 1;
-            }
-        }
-        setBoxB(boxAfter );
-        return boxAfter != boxBefore;
-    }
-
 
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok
@@ -145,10 +93,9 @@ public class TimeStepDO {
     boolean uOkChanged;
 
     @Transient
-    boolean uOkTestedA;
+    boolean uOkTested;
 
-    @Transient
-    boolean uOkTestedB;
+
 
     boolean uOkClosed;
 
@@ -217,7 +164,8 @@ public class TimeStepDO {
                         Arrays.equals(policyTarget, timeStepDO.policyTarget) &&
                          legalact.equals(timeStepDO.legalact) &&
                         Arrays.equals(playoutPolicy, timeStepDO.playoutPolicy) &&
-                        this.getObservation().equals(timeStepDO.getObservation())
+                        this.getObservation().equals(timeStepDO.getObservation()) &&
+                        Arrays.equals(boxes, timeStepDO.boxes)
                 ;
     }
 
@@ -239,6 +187,7 @@ public class TimeStepDO {
                 .rootEntropyValueTarget(rootEntropyValueTarget)
                 .rootValueFromInitialInference(rootValueFromInitialInference)
                 .rootValueTarget(rootValueTarget)
+                .boxes(boxes)
                 .build();
     }
 

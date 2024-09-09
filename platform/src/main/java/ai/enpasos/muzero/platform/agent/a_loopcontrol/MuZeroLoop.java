@@ -71,9 +71,6 @@ public class MuZeroLoop {
 
 
     @Autowired
-    FillRulesLoss fillRulesLoss;
-
-    @Autowired
     TestUnrollRulestate testUnrollRulestate;
 
     @Autowired
@@ -160,31 +157,28 @@ public class MuZeroLoop {
 
         dbService.setNextuoktarget(config.getMaxUnrollSteps());
 
-        long numBoxA0 = numBoxA0();
-        long numBoxB0 = numBoxB0();
+        long numNotClosed = numNotClosed();
 
-        while (numBoxA0 > 0 || numBoxB0 > 0) {
+        while (numNotClosed > 0) {
 
-                log.info("numBoxA0: {}, numBoxB0: {}", numBoxA0, numBoxB0);
-                if (numBoxA0 < nTrain) {
+                log.info("numNotClosed: {}", numNotClosed);
+               // if (numBoxA0 < nTrain) {
                     testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch);
-                }
+            //    }
                 epoch = ruleTrain(durations);
-                numBoxA0 = numBoxA0();
-                numBoxB0 = numBoxB0();
+                numNotClosed = numNotClosed();
 
 
 
-            if (numBoxA0 == 0 && numBoxB0 == 0) {
-                log.info("numBoxA0 == 0 && numBoxB0 == 0");
+            if (numNotClosed == 0) {
+                log.info("numNotClosed == 0");
 
                 testUnrollRulestate.test();
-                numBoxA0 = numBoxA0();
-                numBoxB0 = numBoxB0();
+                numNotClosed = numNotClosed();
 
 
-                if (numBoxA0 == 0 && numBoxB0 == 0) {
-                    log.info("after testing: numBoxA0 == 0 && numBoxB0 == 0  ->  break");
+                if (numNotClosed == 0) {
+                    log.info("after testing: numNotClosed == 0  ->  break");
                     break;
                 }
             }
@@ -213,16 +207,12 @@ public class MuZeroLoop {
 //
 //    }
 
-    private long numBoxA0() {
-        long firstBoxes = timestepRepo.numBoxA0();
+    private long numNotClosed() {
+        long firstBoxes = timestepRepo.numNotClosed();
         log.info("num in boxA=0: {}",  firstBoxes);
         return firstBoxes;
     }
-    private long numBoxB0() {
-        long firstBoxes = timestepRepo.numBoxB0();
-        log.info("num in boxB=0: {}",  firstBoxes);
-        return firstBoxes;
-    }
+
 
 
 

@@ -437,8 +437,8 @@ public class ModelController implements DisposableBean, Runnable {
 
                             ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
                             batchTimeSteps.stream().forEach(timeStepDO -> {
-                                timeStepDO.setUOkTestedA(false);
-                                timeStepDO.setUOkTestedB(false);
+                                timeStepDO.setUOkTested(false);
+                              //  timeStepDO.setUOkTestedB(false);
                             });
 
 
@@ -526,19 +526,19 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private List<TimeStepDO> allRelevantTimeStepsShuffled(List<Game> games, List<Integer> boxesRelevant) {
-        List<TimeStepDO> timeStepDOList = new ArrayList<>();
-        for (Game game : games) {
-            EpisodeDO episodeDO = game.getEpisodeDO();
-            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
-                if (boxesRelevant.contains(ts.getBoxA())) {
-                    timeStepDOList.add(ts);
-                }
-            }
-        }
-        Collections.shuffle(timeStepDOList);
-        return timeStepDOList;
-    }
+//    private List<TimeStepDO> allRelevantTimeStepsShuffled(List<Game> games, List<Integer> boxesRelevant) {
+//        List<TimeStepDO> timeStepDOList = new ArrayList<>();
+//        for (Game game : games) {
+//            EpisodeDO episodeDO = game.getEpisodeDO();
+//            for (TimeStepDO ts : episodeDO.getTimeSteps()) {
+//                if (boxesRelevant.contains(ts.getBoxA())) {
+//                    timeStepDOList.add(ts);
+//                }
+//            }
+//        }
+//        Collections.shuffle(timeStepDOList);
+//        return timeStepDOList;
+//    }
 
     private List<TimeStepDO> allRelevantTimeStepsShuffled2(List<Game> games , int uOk) {
         List<TimeStepDO> timeStepDOList = new ArrayList<>();

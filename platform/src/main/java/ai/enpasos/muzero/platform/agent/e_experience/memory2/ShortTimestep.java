@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.memory2;
 
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxes;
 import lombok.*;
 
 @Data
@@ -13,8 +14,7 @@ public class ShortTimestep {
 
    private Long episodeId;
 
-   private Integer boxA;
-   private Integer boxB;
+   private Integer[] boxes;
 
    private Integer uOk;
    private Integer nextUOk;
@@ -29,7 +29,13 @@ public class ShortTimestep {
 
 
 
+
+
    public boolean isTrainable() {
       return (nextUOk >= nextUOkTarget || uOk < 1);
+   }
+
+   public int getSmallestEmptyBox() {
+        return Boxes.getSmallestEmptyBox(boxes);
    }
 }

@@ -18,11 +18,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     List<TimeStepDO> findTimeStepDOswithEpisodeIds(List<Long> ids);
 
 
-    @Transactional
-    @Modifying
-    @Query(value = "update timestep t set archived = e.archived from episode e where t.episode_id = e.id", nativeQuery = true)
-    void markArchived();
-
 
     @Transactional
     @Modifying
@@ -35,109 +30,17 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     void dropSequence();
 
 
-    @Transactional
-    @Query(value = "SELECT t.episode_id FROM timestep t where t.reward_loss > :minLoss GROUP BY t.episode_id ORDER BY MAX(t.reward_loss) DESC LIMIT :n", nativeQuery = true)
-    List<Long> findNEpisodeIdsWithHighestRewardLoss(int n, double minLoss);
 
 
     @Transactional
-    @Modifying
-    @Query(value = "update TimeStepDO t set t.legalActionLossMax = 0, t.rewardLoss = 0")
-    void deleteRulesLearningResults();
+    @Query(value = "SELECT count(*) FROM  TimeStepDO t where not t.uOkClosed")
+    long numNotClosed();
 
 
-    @Transactional
-    @Modifying
-    @Query(value = """
-            UPDATE TimeStepDO t
-            SET 
-                t.rewardLoss = :rewardLoss,
-                t.legalActionLossMax = :legalActionLoss,
-                t.boxA = :newBox
-            WHERE t.id = :id
-            """)
-    void updateRewardLoss(
-            long id,
-            float rewardLoss,
-            float legalActionLoss,
-            int newBox
-    );
-
-    @Transactional
-    @Query(value = """
-            SELECT 
-                t.episode_id
-            FROM timestep t
-            WHERE t.a_weight_class = :groupClass
-            ORDER BY RANDOM()
-            LIMIT :n
-            """, nativeQuery = true)
-    List<Long> findNRandomEpisodeIdsWeightedA(
-            int groupClass,
-            int n
-    );
-
-    @Transactional
-    @Query(value = """
-            SELECT 
-                t.episode_id
-            FROM timestep t
-            WHERE t.reward_loss > :rewardLossThreshold
-            ORDER BY RANDOM()
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
-    List<Long> findRandomNEpisodeIdsRelevantForRewardLearning(
-            double rewardLossThreshold,
-            int limit,
-            int offset
-    );
-
-    @Transactional
-    @Query(value = """
-            SELECT 
-                t.episode_id
-            FROM timestep t
-            WHERE t.legal_action_loss_max > :legalActionLossMaxThreshold
-            ORDER BY RANDOM()
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
-    List<Long> findRandomNEpisodeIdsRelevantForLegalActionLearning(
-            double legalActionLossMaxThreshold,
-            int limit,
-            int offset
-    );
-
-    @Transactional
-    @Query(value = """
-            SELECT 
-                t.episode_id
-            FROM timestep t
-            WHERE t.boxa = :box
-            ORDER BY RANDOM()
-            LIMIT :n
-            GROUP BY t.episode_id
-            """, nativeQuery = true)
-    List<Long> findRandomNEpisodeIdsFromBox(
-            int n,
-            int box
-    );
 
 
-    @Transactional
-    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxA = 0")
-    long numBoxA0();
-
-    @Transactional
-    @Query(value = "SELECT count(*) FROM  TimeStepDO t where t.boxB = 0")
-    long numBoxB0();
-
-    @Transactional
-    @Query(value = "SELECT max(t.boxA) FROM  timestep t", nativeQuery = true)
-    int maxBoxA();
-
-    @Transactional
-    @Query(value = "SELECT max(t.boxB) FROM  timestep t", nativeQuery = true)
-    int maxBoxB();
+    @Query(value = "SELECT MAX(array_length(t.boxes, 1)) FROM timestep t", nativeQuery = true)
+    int maxBox();
 
     @Query(value = """
             SELECT DISTINCT 
@@ -158,8 +61,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.sClosed = :sClosed,
                 t.uOk = :uOk,
                 t.uOkClosed = :uOkClosed,
-                t.boxA = :boxA,
-                t.boxB = :boxB,
+                t.boxes = :boxes,
                 t.trainable = (t.nextUOk >= t.nextuoktarget)
             WHERE t.id = :id
             """)
@@ -169,8 +71,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
             boolean sClosed,
             long uOk,
             boolean uOkClosed,
-            long boxA,
-            long boxB
+            Integer[] boxes
     );
 
 
@@ -179,74 +80,14 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     @Query(value = "UPDATE timestep SET u_ok = -2, u_ok_closed = false", nativeQuery = true)
     void resetUOk();
 
-    @Query(value = """
-            SELECT 
-                t.episode_id AS episodeId,
-                t.id AS id
-            FROM timestep t
-            WHERE t.boxa IN :boxesRelevant
-            ORDER BY t.episode_id, t.id
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
-    List<IdProjection> getRelevantIdsA3(
-            int limit,
-            int offset,
-            List<Integer> boxesRelevant
-    );
 
-    @Query(value = """
-            SELECT 
-                t.u_ok AS uOk,
-                t.episode_id AS episodeId,
-                t.id AS id
-            FROM timestep t
-            WHERE t.boxa = :box
-            ORDER BY t.u_ok
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
-    List<IdProjection2> getRelevantIds5(
-            int limit,
-            int offset,
-            int box
-    );
-
-    @Query(value = """
-            SELECT 
-                t.episode_id AS episodeId,
-                t.id AS id
-            FROM timestep t
-            WHERE t.boxa != 0
-            ORDER BY RANDOM()
-            LIMIT :n
-            """, nativeQuery = true)
-    List<IdProjection> getRandomIdsNotInBox0(
-            int n
-    );
 
 
     @Query(value = """
             SELECT 
                 t.id AS id,
                 t.episode_id AS episodeId,
-                t.boxa AS box,
-                t.u_ok AS uOk,
-                t.trainable AS trainable,
-                t.t AS t
-            FROM timestep t
-            ORDER BY t.id
-            LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
-    List<IdProjection3> getTimeStepIds3(
-            int limit,
-            int offset);
-
-
-    @Query(value = """
-            SELECT 
-                t.id AS id,
-                t.episode_id AS episodeId,
-                t.boxa AS boxA,
-                t.boxb AS boxB,
+                t.boxes AS boxes, 
                 t.u_ok AS uOk,
                 t.nextuok AS nextUOk,
                 t.nextuoktarget AS nextUOkTarget,
@@ -263,8 +104,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep(
                     ts.id,
                     ts.episode.id,
-                    ts.boxA,
-                    ts.boxB,
+                    ts.boxes,
                     ts.uOk,
                     ts.nextUOk,
                     ts.nextuoktarget,

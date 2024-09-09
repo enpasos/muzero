@@ -39,80 +39,80 @@ public class TestRulesLossFromStart {
 
 
 
-    public void run() {
-         int epoch = networkIOService.getLatestNetworkEpoch();
-
-        log.info("test rules loss for all experienced episodes for epoch {}", epoch);
-        modelService.loadLatestModel(epoch).join();
-
-      //  episodeRepo.markAllNonArchived();
-
-        timestepRepo.deleteRulesLearningResults();
-
-        // the network from epoch
-         int offset = 0;
-         int limit = 50000;
-         boolean existsMore = true;
-         do {
-             existsMore = evaluateBatch( offset, limit );
-             offset += limit;
-         }  while (existsMore  );
-
-    }
-    public void evaluatedBatch(int epoch) {
-        log.info("evaluated batch for epoch {}", epoch);
-
-        // the network from epoch
-        int offset = 0;
-        int limit = 50000;
-        boolean existsMore = true;
-        do {
-            existsMore = evaluateBatch( offset, limit );
-            offset += limit;
-        }  while (existsMore  );
-
-    }
-
-
-
-    private boolean evaluateBatch( int offset, int limit ) {
-        List<Long> episodeIds = episodeRepo.findAllEpisodeIds (limit, offset );
-        return evaluateBatch(episodeIds);
-    }
-
-    private boolean evaluateBatch( List<Long> episodeIds) {
-        if (episodeIds.isEmpty()) return false;
-
-        List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOs(episodeIds);
-
-        List<Game> games = convertEpisodeDOsToGames(episodeDOS, config);
-
-        gameProvider.measureRewardExpectationsFromStart(games);
+//    public void run() {
+//         int epoch = networkIOService.getLatestNetworkEpoch();
+//
+//        log.info("test rules loss for all experienced episodes for epoch {}", epoch);
+//        modelService.loadLatestModel(epoch).join();
+//
+//      //  episodeRepo.markAllNonArchived();
+//
+//        timestepRepo.deleteRulesLearningResults();
+//
+//        // the network from epoch
+//         int offset = 0;
+//         int limit = 50000;
+//         boolean existsMore = true;
+//         do {
+//             existsMore = evaluateBatch( offset, limit );
+//             offset += limit;
+//         }  while (existsMore  );
+//
+//    }
+//    public void evaluatedBatch(int epoch) {
+//        log.info("evaluated batch for epoch {}", epoch);
+//
+//        // the network from epoch
+//        int offset = 0;
+//        int limit = 50000;
+//        boolean existsMore = true;
+//        do {
+//            existsMore = evaluateBatch( offset, limit );
+//            offset += limit;
+//        }  while (existsMore  );
+//
+//    }
 
 
-        double thresholdA = config.getLegalActionLossMaxThreshold();
-        double thresholdR = config.getRewardLossThreshold();
 
-
-        games.stream().forEach(
-                game -> game.getEpisodeDO().getTimeSteps().stream().forEach(
-                        timestep -> {
-                            boolean known = timestep.getRewardLoss() < thresholdR && timestep.getLegalActionLossMax() < thresholdA;
-                            // box 0, ...: box for learning
-                            int box = timestep.getBoxA();
-                            int oldBox = box;
-                            box = known ? box + 1 : 0;
-//                            if (oldBox != box) {
-//                                changeCount[0]++;
-//                            }
-                            timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax(), box);
-                        }
-                )
-        );
-    //    log.info("changeCount: " + changeCount[0] + " for " + episodeIds.size() + " episodes");
-      //  episodeRepo.updateMinBox(  );
-        return true;
-    }
+//    private boolean evaluateBatch( int offset, int limit ) {
+//        List<Long> episodeIds = episodeRepo.findAllEpisodeIds (limit, offset );
+//        return evaluateBatch(episodeIds);
+//    }
+//
+//    private boolean evaluateBatch( List<Long> episodeIds) {
+//        if (episodeIds.isEmpty()) return false;
+//
+//        List<EpisodeDO> episodeDOS = dbService.findEpisodeDOswithTimeStepDOs(episodeIds);
+//
+//        List<Game> games = convertEpisodeDOsToGames(episodeDOS, config);
+//
+//        gameProvider.measureRewardExpectationsFromStart(games);
+//
+//
+//        double thresholdA = config.getLegalActionLossMaxThreshold();
+//        double thresholdR = config.getRewardLossThreshold();
+//
+//
+//        games.stream().forEach(
+//                game -> game.getEpisodeDO().getTimeSteps().stream().forEach(
+//                        timestep -> {
+//                            boolean known = timestep.getRewardLoss() < thresholdR && timestep.getLegalActionLossMax() < thresholdA;
+//                            // box 0, ...: box for learning
+//                            int box = timestep.getBoxA();
+//                            int oldBox = box;
+//                            box = known ? box + 1 : 0;
+////                            if (oldBox != box) {
+////                                changeCount[0]++;
+////                            }
+//                            timestepRepo.updateRewardLoss(timestep.getId(), timestep.getRewardLoss(), timestep.getLegalActionLossMax(), box);
+//                        }
+//                )
+//        );
+//    //    log.info("changeCount: " + changeCount[0] + " for " + episodeIds.size() + " episodes");
+//      //  episodeRepo.updateMinBox(  );
+//        return true;
+//    }
 
 //    public long numBox( int n) {
 //        return timestepRepo.numBox(n);

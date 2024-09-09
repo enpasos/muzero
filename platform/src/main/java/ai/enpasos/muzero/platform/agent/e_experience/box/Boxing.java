@@ -1,8 +1,7 @@
-package ai.enpasos.muzero.platform.agent.d_model;
+package ai.enpasos.muzero.platform.agent.e_experience.box;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Boxing {
 
@@ -18,15 +17,12 @@ public class Boxing {
 
 
     public static List<Integer> boxesRelevant(int epoch, int maxBox) {
-      //  maxBox--;
         List<Integer> boxesRelevant = new ArrayList<>();
         for (int b = 0; b <= maxBox; b++) {
             if(isUsed(b, epoch)) {
                 boxesRelevant.add(b);
             }
         }
-     //   boxesRelevant = boxesRelevant.stream().map(box -> box + 1).collect(Collectors.toList());
-
         return boxesRelevant;
     }
     public static List<Integer> boxesRelevantAndOccupied(List<Integer> occupiedBoxes, int epoch, int maxBox) {
@@ -46,8 +42,5 @@ public class Boxing {
         return boxesRelevant;
     }
 
-//    public static List<Integer> boxesRelevant2(int epoch, int maxBox, int unrollSteps) {
-//        if (unrollSteps == 1) return boxesRelevant(epoch, maxBox);
-//        return List.of(0);
-//    }
+
 }
