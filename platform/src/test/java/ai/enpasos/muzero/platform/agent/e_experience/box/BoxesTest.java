@@ -70,4 +70,18 @@ class BoxesTest {
         Boxes.toUOk(input, -1, false, true);
         assertArrayEquals(new int[]{0, 0, 0, 0, 0}, input);
     }
+
+    @Test
+    void reduce() {
+        int[] input = {2, 1, 1, 1, 0};
+        int[] reduced = Boxes.reduce(input);
+        assertArrayEquals(new int[]{2, 1, 1, 1}, reduced);
+    }
+
+    @Test
+    void reduce2() {
+        int[] input = {0, 0, 0, 0, 0};
+        int[] reduced = Boxes.reduce(input);
+        assertArrayEquals(new int[]{}, reduced);
+    }
 }

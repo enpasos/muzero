@@ -54,24 +54,22 @@ public class TimeStepDO {
     boolean toBeAnalysed;
 
 
-//    @Builder.Default
-//    int boxA = 0;
-//
-//    @Builder.Default
-//    int boxB = 0;
-
-
     @Column(name = "boxes", columnDefinition = "integer[]")
-    int[] boxes;
+    @Builder.Default
+    int[] boxes = {};
 
 
     public boolean changeBoxesBasesOnUOk() {
-        //this.uOk = uok;
         if (boxes == null) {
-            boxes = new int[Math.max(this.uOk, 1)];
-         //   boxes[0] = 0;
+            boxes = new int[Math.max(this.uOk, 0)];
         }
-        return Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
+        boolean changed = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
+        if (changed) {
+            boxes = Boxes.reduce(boxes);
+        }
+
+
+        return changed;
     }
 
     @Builder.Default

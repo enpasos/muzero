@@ -69,4 +69,11 @@ public class Boxes {
         }
         return boxes.length;
     }
+
+    public static int[] reduce(int[] boxes) {
+        int smallestEmptyBox = getSmallestEmptyBox(boxes);
+        int[] result = new int[smallestEmptyBox];
+        System.arraycopy(boxes, 0, result, 0, smallestEmptyBox);
+        return result;
+    }
 }
