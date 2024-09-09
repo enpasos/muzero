@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.domain;
 
+import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.e_experience.Observation;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationOnePlayer;
 import ai.enpasos.muzero.platform.agent.e_experience.ObservationTwoPlayers;
@@ -56,17 +57,17 @@ public class TimeStepDO {
 
     @Column(name = "boxes", columnDefinition = "integer[]")
     @Builder.Default
-    int[] boxes = {};
+    int[] boxes = {0};
 
 
     public boolean changeBoxesBasesOnUOk() {
-        if (boxes == null) {
-            boxes = new int[Math.max(this.uOk, 0)];
-        }
-        boolean changed = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
-        if (changed) {
-            boxes = Boxes.reduce(boxes);
-        }
+
+        Pair<Boolean, int[]> pair = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
+        boolean changed = pair.getKey();
+        boxes = pair.getValue();
+//        if (changed) {
+//            boxes = Boxes.reduce(boxes);
+//        }
 
 
         return changed;

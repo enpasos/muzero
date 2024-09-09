@@ -1,5 +1,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience.box;
 
+import ai.djl.util.Pair;
+
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
@@ -37,26 +39,36 @@ public class Boxes {
     }
 
 
-    public static boolean toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested) {
+    public static Pair<Boolean, int[]> toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested) {
         int targetUOK = Math.max(1, uok + 1);
         int boxIndex = targetUOK - 1;
+        if (uOkClosed) {
+            targetUOK = Math.max(1, uok);
+            boxIndex = targetUOK;
+        }
         boolean changed = false;
-        for(int b = 0; b < boxes.length; b++) {
+        int[] boxesResult = boxes;
+        if (boxes.length != targetUOK) {
+            changed = true;
+            boxesResult = new int[targetUOK];
+            System.arraycopy(boxes, 0, boxesResult, 0, Math.min(boxes.length, boxesResult.length) - 1);
+        }
+        boxes = boxesResult;
 
+        for(int b = 0; b < boxes.length; b++) {
             if (b >= boxIndex && !uOkClosed) {
                 if (boxes[b] != 0) {
                     boxes[b] = 0;
                     changed = true;
                 }
             } else {
-
                 if (uOkTested || boxes[b] <= 0 ) {
                     boxes[b]++;
                     changed = true;
                 }
             }
         }
-        return changed;
+        return new Pair(changed, boxes);
     }
 
 
@@ -70,10 +82,10 @@ public class Boxes {
         return boxes.length;
     }
 
-    public static int[] reduce(int[] boxes) {
-        int smallestEmptyBox = getSmallestEmptyBox(boxes);
-        int[] result = new int[smallestEmptyBox];
-        System.arraycopy(boxes, 0, result, 0, smallestEmptyBox);
-        return result;
-    }
+//    public static int[] reduce(int[] boxes) {
+//        int smallestEmptyBox = getSmallestEmptyBox(boxes);
+//        int[] result = new int[smallestEmptyBox];
+//        System.arraycopy(boxes, 0, result, 0, smallestEmptyBox);
+//        return result;
+//    }
 }

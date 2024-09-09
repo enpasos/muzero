@@ -1,5 +1,6 @@
 package ai.enpasos.muzero.platform.agent.e_experience.box;
 
+import ai.djl.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,51 +38,77 @@ class BoxesTest {
 
     @Test
     void toUOk() {
-        int[] input = {0, 0, 0, 0, 0};
-        Boxes.toUOk(input, 1, false, true);
-        assertArrayEquals(new int[]{1, 0, 0, 0, 0}, input);
+        int[] array = {0, 0, 0, 0, 0};
+        array = Boxes.toUOk(array, 1, false, true).getValue();
+        assertArrayEquals(new int[]{1, 0}, array);
     }
 
     @Test
     void toUOk2() {
-        int[] input = {0, 0, 0, 0, 0};
-        Boxes.toUOk(input, 2, false, true);
-        assertArrayEquals(new int[]{1, 1, 0, 0, 0}, input);
+        int[] array  = {5, 4, 3, 2, 1};
+        array = Boxes.toUOk(array, 2, false, true).getValue();
+        assertArrayEquals(new int[]{6, 5, 0}, array);
     }
 
     @Test
     void toUOk3() {
-        int[] input = {0, 0, 0, 0, 0};
-        Boxes.toUOk(input, 3, false, true);
-        assertArrayEquals(new int[]{1, 1, 1, 0, 0}, input);
+        int[] array = {0, 0, 0, 0, 0};
+        array = Boxes.toUOk(array, 3, false, true).getValue();
+        assertArrayEquals(new int[]{1, 1, 1, 0}, array);
     }
 
     @Test
     void toUOk4() {
-        int[] input = {2, 1, 1, 1, 0};
-        Boxes.toUOk(input, 2, false, true);
-        assertArrayEquals(new int[]{3, 2, 0, 0, 0}, input);
+        int[] array = {2, 1, 1, 1, 0};
+        array = Boxes.toUOk(array, 2, false, true).getValue();
+        assertArrayEquals(new int[]{3, 2, 0}, array);
     }
 
 
     @Test
     void toUOk5() {
-        int[] input = {2, 1, 1, 1, 0};
-        Boxes.toUOk(input, -1, false, true);
-        assertArrayEquals(new int[]{0, 0, 0, 0, 0}, input);
+        int[] array = {2, 1, 1, 1, 0};
+        array = Boxes.toUOk(array, -1, false, true).getValue();
+        assertArrayEquals(new int[]{0}, array);
     }
 
     @Test
-    void reduce() {
-        int[] input = {2, 1, 1, 1, 0};
-        int[] reduced = Boxes.reduce(input);
-        assertArrayEquals(new int[]{2, 1, 1, 1}, reduced);
+    void toUOk6() {
+        int[] array = {0};
+        array = Boxes.toUOk(array, 0, false, true).getValue();
+        assertArrayEquals(new int[]{0}, array);
     }
 
     @Test
-    void reduce2() {
-        int[] input = {0, 0, 0, 0, 0};
-        int[] reduced = Boxes.reduce(input);
-        assertArrayEquals(new int[]{}, reduced);
+    void toUOk7() {
+        int[] array = {5, 4, 3, 2, 1};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, false) ;
+        assertTrue(result.getKey());
+        assertArrayEquals(new int[]{5, 4, 0}, result.getValue());
     }
+
+    @Test
+    void toUOk8() {
+        int[] array = {5, 4, 3, 2, 0};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 4, false, false) ;
+        assertFalse(result.getKey());
+        assertArrayEquals(new int[]{5, 4, 3, 2, 0}, result.getValue());
+    }
+
+    @Test
+    void toUOk9() {
+        int[] array = {5, 4};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, true, false) ;
+        assertFalse(result.getKey());
+        assertArrayEquals(new int[]{5, 4}, result.getValue());
+    }
+
+    @Test
+    void toUOk10() {
+        int[] array = {5, 4};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, true, true) ;
+        assertTrue(result.getKey());
+        assertArrayEquals(new int[]{6, 5}, result.getValue());
+    }
+
 }

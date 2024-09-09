@@ -153,29 +153,26 @@ public class MuZeroLoop {
 
         gameBuffer.clearEpisodeIds();
 
-        testUnrollRulestate.testNewEpisodes( );
+        testUnrollRulestate.testNewEpisodes();
 
         dbService.setNextuoktarget(config.getMaxUnrollSteps());
 
         long numNotClosed = numNotClosed();
 
         while (numNotClosed > 0) {
-                long numNotClosedAndUOkBelowOne  = numNotClosedAndUOkBelowOne();
-                log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
-                if (numNotClosedAndUOkBelowOne < nTrain) {
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
-                }
-                epoch = ruleTrain(durations);
-                numNotClosed = numNotClosed();
-
-
+            long numNotClosedAndUOkBelowOne = numNotClosedAndUOkBelowOne();
+            log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
+            if (numNotClosedAndUOkBelowOne < nTrain) {
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
+            }
+            epoch = ruleTrain(durations);
+            numNotClosed = numNotClosed();
 
             if (numNotClosed == 0) {
                 log.info("numNotClosed == 0");
 
                 testUnrollRulestate.test();
                 numNotClosed = numNotClosed();
-
 
                 if (numNotClosed == 0) {
                     log.info("after testing: numNotClosed == 0  ->  break");
