@@ -453,7 +453,7 @@ public class GameBuffer {
                         .map(result -> ShortTimestep.builder()
                                 .id(result[0] != null ? ((Number) result[0]).longValue() : null)
                                 .episodeId(result[1] != null ? ((Number) result[1]).longValue() : null)
-                                .boxes(result[2] != null ? (Integer[]) result[2] : null)
+                                .boxes(result[2] != null ? convert((Integer[]) result[2]) : null)
                                 .uOk((result[3] != null) ? (Integer) result[3] : null)
                                 .nextUOk(result[4] != null ? (Integer) result[4] : null)
                                 .nextUOkTarget(result[5] != null ? (Integer) result[5] : null)
@@ -466,6 +466,14 @@ public class GameBuffer {
             } while (resultList.size() > 0);
         }
         return shortTimesteps;
+    }
+
+    private static int[] convert(Integer[] input) {
+        int[] result = new int[input.length];
+        for (int i = 0; i < input.length; i++) {
+            result[i] = input[i];
+        }
+        return result;
     }
     public List<ShortTimestep> getIdsRelevantForTrainingBox(int n ) {
 

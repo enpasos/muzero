@@ -14,7 +14,7 @@ public class ShortTimestep {
 
    private Long episodeId;
 
-   private Integer[] boxes;
+   private int[] boxes;
 
    private Integer uOk;
    private Integer nextUOk;

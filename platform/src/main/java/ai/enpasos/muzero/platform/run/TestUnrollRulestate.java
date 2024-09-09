@@ -142,9 +142,7 @@ public class TestUnrollRulestate {
 
     public void identifyRelevantTimestepsAndTestThem(int epoch ) {
 
-
         List<Integer> boxesRelevant = getBoxesRelevant(epoch);
-
 
         Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
         List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
@@ -154,17 +152,7 @@ public class TestUnrollRulestate {
                 .mapToLong(shortTimestep -> shortTimestep.getId())
                 .boxed().toList();
 
-//        List<Long> relevantIdsA = shortTimesteps.stream()
-//                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBox())  )
-//                .mapToLong(shortTimestep -> shortTimestep.getId())
-//                .boxed().toList();
-//
-////        List<Long> relevantIdsB = shortTimesteps.stream()
-////                .filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxB())  )
-////                .mapToLong(shortTimestep -> shortTimestep.getId())
-////                .boxed().toList();
 
-       // List<ShortTimestep> relevantShortTimesteps
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", relevantShortTimesteps.size());
 
 

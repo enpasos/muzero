@@ -33,9 +33,12 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
 
 
     @Transactional
+    @Query(value = "SELECT count(*) FROM  TimeStepDO t where not t.uOkClosed and t.uOk < 1")
+    long numNotClosedAndUOKBelowOne();
+
+    @Transactional
     @Query(value = "SELECT count(*) FROM  TimeStepDO t where not t.uOkClosed")
     long numNotClosed();
-
 
 
 
@@ -71,7 +74,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
             boolean sClosed,
             long uOk,
             boolean uOkClosed,
-            Integer[] boxes
+            int[] boxes
     );
 
 

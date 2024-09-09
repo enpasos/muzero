@@ -62,14 +62,14 @@ public class TimeStepDO {
 
 
     @Column(name = "boxes", columnDefinition = "integer[]")
-    Integer[] boxes;
+    int[] boxes;
 
 
     public boolean changeBoxesBasesOnUOk() {
         //this.uOk = uok;
         if (boxes == null) {
-            boxes = new Integer[Math.max(this.uOk, 1)];
-            boxes[0] = 0;
+            boxes = new int[Math.max(this.uOk, 1)];
+         //   boxes[0] = 0;
         }
         return Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
     }

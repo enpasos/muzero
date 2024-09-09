@@ -160,11 +160,11 @@ public class MuZeroLoop {
         long numNotClosed = numNotClosed();
 
         while (numNotClosed > 0) {
-
-                log.info("numNotClosed: {}", numNotClosed);
-               // if (numBoxA0 < nTrain) {
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch);
-            //    }
+                long numNotClosedAndUOkBelowOne  = numNotClosedAndUOkBelowOne();
+                log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
+                if (numNotClosedAndUOkBelowOne < nTrain) {
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
+                }
                 epoch = ruleTrain(durations);
                 numNotClosed = numNotClosed();
 
@@ -208,9 +208,15 @@ public class MuZeroLoop {
 //    }
 
     private long numNotClosed() {
-        long firstBoxes = timestepRepo.numNotClosed();
-        log.info("num in boxA=0: {}",  firstBoxes);
-        return firstBoxes;
+        long numNotClosed = timestepRepo.numNotClosed();
+        log.info("numNotClosed: {}",  numNotClosed);
+        return numNotClosed;
+    }
+
+    private long numNotClosedAndUOkBelowOne() {
+        long numNotClosed = timestepRepo.numNotClosedAndUOKBelowOne();
+        log.info("numNotClosed: {}",  numNotClosed);
+        return numNotClosed;
     }
 
 

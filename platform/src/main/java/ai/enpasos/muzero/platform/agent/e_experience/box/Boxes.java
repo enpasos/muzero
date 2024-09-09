@@ -27,7 +27,7 @@ public class Boxes {
 //    }
 
 
-    public static boolean hasRelevantBox(List<Integer> boxesRelevant, Integer[] boxes) {
+    public static boolean hasRelevantBox(List<Integer> boxesRelevant, int[] boxes) {
         for (int box : boxes) {
             if (boxesRelevant.contains(box)) {
                 return true;
@@ -37,14 +37,12 @@ public class Boxes {
     }
 
 
-    public static boolean toUOk(Integer[] boxes, int uok, boolean uOkClosed, boolean uOkTested) {
+    public static boolean toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested) {
         int targetUOK = Math.max(1, uok + 1);
         int boxIndex = targetUOK - 1;
         boolean changed = false;
         for(int b = 0; b < boxes.length; b++) {
-            if (boxes[b] == null ) {
-                boxes[b] = 0;
-            }
+
             if (b >= boxIndex && !uOkClosed) {
                 if (boxes[b] != 0) {
                     boxes[b] = 0;
@@ -62,7 +60,7 @@ public class Boxes {
     }
 
 
-    public static int getSmallestEmptyBox(Integer[] boxes) {
+    public static int getSmallestEmptyBox(int[] boxes) {
         if (boxes == null) return 0;
         for (int i = 0; i < boxes.length; i++) {
             if (boxes[i] == 0) {
