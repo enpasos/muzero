@@ -191,7 +191,6 @@ public class MuZeroLoop {
         modelService.trainModelRules(freeze ).get();
 
         epoch = modelState.getEpoch();
-        //  trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
         duration.off();
         durations.add(duration);
         System.out.println("epoch;duration[ms];gpuMem[MiB]");
@@ -199,10 +198,7 @@ public class MuZeroLoop {
         return epoch;
     }
 
-//        gameBuffer.resetRelevantIds();
-//        gameBuffer.clearEpisodeIds();
-//
-//    }
+
 
     private long numNotClosed() {
         long numNotClosed = timestepRepo.numNotClosed();

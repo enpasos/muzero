@@ -3,6 +3,8 @@ package ai.enpasos.muzero.platform.agent.e_experience.box;
 import ai.djl.util.Pair;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoxesTest {
@@ -118,4 +120,11 @@ class BoxesTest {
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{6, 5, 0}, result.getValue());
     }
+
+    @Test
+    void hasRelevantBox() {
+        assertTrue(Boxes.hasRelevantBox(List.of(1,2), new int[]{3, 2, 1, 0}));
+    }
+
+
 }

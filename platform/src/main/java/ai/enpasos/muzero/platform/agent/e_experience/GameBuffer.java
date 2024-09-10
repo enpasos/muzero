@@ -500,8 +500,10 @@ public class GameBuffer {
             final int unrollstepsFinal = unrollsteps;
            List<ShortTimestep> tsBox0 = tsSet.stream()
                    .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1)
-                   .sorted(Comparator.comparing(ShortTimestep::getUOk))
+                  // .sorted(Comparator.comparing(ShortTimestep::getUOk))
                    .collect(Collectors.toList());
+
+           Collections.shuffle(tsBox0);
 
            int nRemaining = n - tsTrainList.size();
 

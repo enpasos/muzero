@@ -357,7 +357,7 @@ public class ModelController implements DisposableBean, Runnable {
         // iterate over unroll numbers and saveHere only for the last one
 
 
-                int c = 0;
+        int c = 0;
         for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollNumber.entrySet()) {
             int unrollsteps = entry.getKey();
             List<ShortTimestep> tsListUnroll = entry.getValue();
