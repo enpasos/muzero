@@ -111,4 +111,11 @@ class BoxesTest {
         assertArrayEquals(new int[]{6, 5}, result.getValue());
     }
 
+    @Test
+    void toUOk11() {
+        int[] array = {5, 4};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, true) ;
+        assertTrue(result.getKey());
+        assertArrayEquals(new int[]{6, 5, 0}, result.getValue());
+    }
 }

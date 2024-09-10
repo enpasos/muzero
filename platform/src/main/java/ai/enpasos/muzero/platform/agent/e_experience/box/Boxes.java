@@ -51,7 +51,7 @@ public class Boxes {
         if (boxes.length != targetUOK) {
             changed = true;
             boxesResult = new int[targetUOK];
-            System.arraycopy(boxes, 0, boxesResult, 0, Math.min(boxes.length, boxesResult.length) - 1);
+            System.arraycopy(boxes, 0, boxesResult, 0, Math.min(boxes.length, boxesResult.length));
         }
         boxes = boxesResult;
 
