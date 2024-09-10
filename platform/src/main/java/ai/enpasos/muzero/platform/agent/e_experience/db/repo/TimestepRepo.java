@@ -55,7 +55,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     List<Integer> uOkList();
 
 
-    @Query(value = "SELECT COUNT(*) FROM time_step_do WHERE boxes[:boxIndex + 1] = 0", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM timestep WHERE boxes[:boxIndex + 1] = 0", nativeQuery = true)
     long countEntriesWhereBoxIsZero(int boxIndex);
 
 
