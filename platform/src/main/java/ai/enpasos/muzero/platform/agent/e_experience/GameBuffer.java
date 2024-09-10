@@ -477,12 +477,26 @@ public class GameBuffer {
     }
     public List<ShortTimestep> getIdsRelevantForTrainingBox(int n ) {
 
+        int maxBox = timestepRepo.maxBox();
+        int startBox = 0;
+        long startBoxCount = 0;
+        for (int b  = 0;  b < maxBox; b++) {
+            long count = timestepRepo.countEntriesWhereBoxIsZero(b);
+            if (count > 0) {
+                startBox = b;
+                startBoxCount = count;
+
+            }
+        }
+        n = Math.min(n,  (int)startBoxCount*2 );
+        log.info("start box {} has {} entries. n = {}", startBox, startBoxCount, n);
+
         Set<ShortTimestep> tsSet = getShortTimestepSet( );
 
         List<ShortTimestep> tsTrainList = new ArrayList<>();
 
 
-       for( int unrollsteps = 1;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
+       for( int unrollsteps = startBox;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
             final int unrollstepsFinal = unrollsteps;
            List<ShortTimestep> tsBox0 = tsSet.stream()
                    .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1)
