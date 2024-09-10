@@ -496,7 +496,7 @@ public class GameBuffer {
         List<ShortTimestep> tsTrainList = new ArrayList<>();
 
 
-       for( int unrollsteps = startBox;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps(); unrollsteps++) {
+       for( int unrollsteps = startBox;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps() && unrollsteps <= startBox+1; unrollsteps++) {
             final int unrollstepsFinal = unrollsteps;
            List<ShortTimestep> tsBox0 = tsSet.stream()
                    .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1)
