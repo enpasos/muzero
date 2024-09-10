@@ -485,7 +485,7 @@ public class GameBuffer {
             if (count > 0) {
                 startBox = b;
                 startBoxCount = count;
-
+                break;
             }
         }
         n = Math.min(n,  (int)startBoxCount*2 );
