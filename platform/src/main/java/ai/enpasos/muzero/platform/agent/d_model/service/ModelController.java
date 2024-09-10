@@ -341,11 +341,11 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-         trainNetworkRules(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment, true);
+         trainNetworkRules(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment);
 
     }
 
-    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, boolean saveHere) {
+    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment) {
         log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
 
 
@@ -354,10 +354,14 @@ public class ModelController implements DisposableBean, Runnable {
 
         Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
 
-        // iterate over unroll numbers
+        // iterate over unroll numbers and saveHere only for the last one
+
+
+                int c = 0;
         for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollNumber.entrySet()) {
             int unrollsteps = entry.getKey();
             List<ShortTimestep> tsListUnroll = entry.getValue();
+            boolean saveHere = (++c == mapByUnrollNumber.entrySet().size());
             trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollsteps, saveHere, tsListUnroll );
         }
 
@@ -368,7 +372,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(tsListUnroll);
 
-        log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size());
+        log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}, saveHere: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size(), saveHere);
 
         // start real code
         // first the buffer loop
