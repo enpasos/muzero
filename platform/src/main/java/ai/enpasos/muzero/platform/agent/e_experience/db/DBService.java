@@ -234,6 +234,9 @@ public class DBService {
                     ids.add(id);
                     timestepRepo.updateNextUOk(id, ts.getUOk(), ts.isUOkClosed());
                 }
+                if (ts.getT() == ts.getEpisode().getLastTime()) { // TODO: optimize in doing one query on the db
+                    timestepRepo.updateNextUOk(ts.getId(), ts.getUOk(), true);
+                }
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
             }
