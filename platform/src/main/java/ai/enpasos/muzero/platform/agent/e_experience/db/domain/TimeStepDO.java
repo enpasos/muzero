@@ -65,11 +65,6 @@ public class TimeStepDO {
         Pair<Boolean, int[]> pair = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
         boolean changed = pair.getKey();
         boxes = pair.getValue();
-//        if (changed) {
-//            boxes = Boxes.reduce(boxes);
-//        }
-
-
         return changed;
     }
 

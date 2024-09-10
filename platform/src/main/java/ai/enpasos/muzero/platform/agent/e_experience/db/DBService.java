@@ -224,12 +224,7 @@ public class DBService {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
-          //  int[] boxesBefore = ts.getBoxes();
-
             boolean boxesChanged = ts.changeBoxesBasesOnUOk();
-
-     //       boolean boxChangedA  = ts.updateBoxA(  );
-     //       boolean boxChangedB  = ts.updateBoxB( config.getMaxUnrollSteps());
 
             if (ts.isSChanged() || ts.isUOkChanged() ||    boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId()) ;
@@ -243,7 +238,6 @@ public class DBService {
                 ts.setUOkChanged(false);
             }
             ts.setUOkTested(false);
-           // ts.setUOkTestedB(false);
 
         });
         return ids;
