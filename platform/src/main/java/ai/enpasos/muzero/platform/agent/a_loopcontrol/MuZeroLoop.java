@@ -155,7 +155,6 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        dbService.setNextuoktarget(config.getMaxUnrollSteps());
 
         long numNotClosed = numNotClosed();
 

@@ -327,11 +327,11 @@ public class ModelController implements DisposableBean, Runnable {
 
     private void trainNetworkRules(boolean[] freeze, boolean background) {
 
-        NumberFormat nf = NumberFormat.getNumberInstance();
-        nf.setMaximumFractionDigits(8);
-        nf.setMinimumFractionDigits(8);
+//        NumberFormat nf = NumberFormat.getNumberInstance();
+//        nf.setMaximumFractionDigits(8);
+//        nf.setMinimumFractionDigits(8);
 
-        int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
+
 
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
@@ -341,15 +341,8 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-         trainNetworkRules(model, muZeroBlock, epochLocal, nTrain, freeze, background, withSymmetryEnrichment);
-
-    }
-
-    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, int sampleNumber, boolean[] freeze, boolean background, boolean withSymmetryEnrichment) {
+        int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
         log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
-
-
-
         List<ShortTimestep> tsList = gameBuffer.getIdsRelevantForTrainingBox( sampleNumber );
 
         Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);

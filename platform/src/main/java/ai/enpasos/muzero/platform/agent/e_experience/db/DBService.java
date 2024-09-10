@@ -232,7 +232,7 @@ public class DBService {
                 if ( ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
-                    timestepRepo.updateNextUOk(id, ts.getUOk());
+                    timestepRepo.updateNextUOk(id, ts.getUOk(), ts.isUOkClosed());
                 }
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
@@ -243,14 +243,14 @@ public class DBService {
         return ids;
     }
 
-    public void setNextuoktarget(int unrollSteps) {
-        // min(unrollSteps – 1, tmax-(t+1))
-
-        episodeRepo.updateTmax();
-        timestepRepo.updateNextUOkTarget(unrollSteps);
-       // timestepRepo.updateTrainable( );
-
-    }
+//    public void setNextuoktarget(int unrollSteps) {
+//        // min(unrollSteps – 1, tmax-(t+1))
+//
+//        episodeRepo.updateTmax();
+//        timestepRepo.updateNextUOkTarget(unrollSteps);
+//       // timestepRepo.updateTrainable( );
+//
+//    }
 
 //    public void updateBox0(int unrollSteps) {
 //        timestepRepo.updateBox0(unrollSteps);

@@ -19,7 +19,6 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
-import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
@@ -31,10 +30,7 @@ import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import jakarta.persistence.Tuple;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -456,7 +452,7 @@ public class GameBuffer {
                                 .boxes(result[2] != null ? convert((Integer[]) result[2]) : null)
                                 .uOk((result[3] != null) ? (Integer) result[3] : null)
                                 .nextUOk(result[4] != null ? (Integer) result[4] : null)
-                                .nextUOkTarget(result[5] != null ? (Integer) result[5] : null)
+                                .nextuokclosed(result[5] != null ? (Boolean) result[5] : null)
                                 .t(result[6] != null ? (Integer) result[6] : null)
                                 .uOkClosed(result[7] != null ? (Boolean) result[7]: false)
                                 .build())
@@ -499,9 +495,14 @@ public class GameBuffer {
        for( int unrollsteps = startBox;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps() && unrollsteps <= startBox+1; unrollsteps++) {
             final int unrollstepsFinal = unrollsteps;
            List<ShortTimestep> tsBox0 = tsSet.stream()
-                   .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1)
+                   .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1
+                        && ts.isTrainable(unrollstepsFinal)
+                   )
                   // .sorted(Comparator.comparing(ShortTimestep::getUOk))
                    .collect(Collectors.toList());
+
+
+        //   List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.isTrainable()).collect(Collectors.toList());
 
            Collections.shuffle(tsBox0);
 

@@ -18,7 +18,8 @@ public class ShortTimestep {
 
    private Integer uOk;
    private Integer nextUOk;
-   private Integer nextUOkTarget;
+   //private Integer nextUOkTarget;
+   private boolean nextuokclosed;
 
 
 
@@ -31,8 +32,8 @@ public class ShortTimestep {
 
 
 
-   public boolean isTrainable() {
-      return (nextUOk >= nextUOkTarget || uOk < 1);
+   public boolean isTrainable(int unrollSteps) {
+      return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
    }
 
    public int getSmallestEmptyBox() {

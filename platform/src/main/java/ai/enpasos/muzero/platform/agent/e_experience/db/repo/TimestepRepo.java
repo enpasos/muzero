@@ -68,8 +68,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.sClosed = :sClosed,
                 t.uOk = :uOk,
                 t.uOkClosed = :uOkClosed,
-                t.boxes = :boxes,
-                t.trainable = (t.nextUOk >= t.nextuoktarget)
+                t.boxes = :boxes
             WHERE t.id = :id
             """)
     void updateAttributeSAndU(
@@ -97,7 +96,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.boxes AS boxes, 
                 t.u_ok AS uOk,
                 t.nextuok AS nextUOk,
-                t.nextuoktarget AS nextUOkTarget,
+                t.nextuokclosed AS nextuokclosed,
                 t.t AS t,
                 t.u_ok_closed AS uOkClosed
             FROM timestep t
@@ -114,7 +113,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                     ts.boxes,
                     ts.uOk,
                     ts.nextUOk,
-                    ts.nextuoktarget,
+                    ts.nextuokclosed,
                     ts.t,
                     ts.uOkClosed
                 )
@@ -131,25 +130,13 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
             UPDATE TimeStepDO t
             SET 
                 t.nextUOk = :nextUOk,
-                t.trainable = (:nextUOk >= t.nextuoktarget OR t.uOk < 1)
+                t.nextuokclosed = :nextuokclosed
             WHERE t.id = :id
             """)
     void updateNextUOk(
             long id,
-            int nextUOk
-    );
-
-    @Transactional
-    @Modifying
-    @Query(value = """
-            UPDATE TimeStepDO t
-            SET t.nextuoktarget = LEAST(
-                :unrollSteps - 1,
-                (SELECT e.tmax FROM EpisodeDO e WHERE e.id = t.episode.id) - t.t - 1
-            )
-            """)
-    void updateNextUOkTarget(
-            int unrollSteps
+            int nextUOk,
+            boolean nextuokclosed
     );
 
 
