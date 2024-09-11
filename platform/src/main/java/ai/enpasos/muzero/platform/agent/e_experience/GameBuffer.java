@@ -479,7 +479,7 @@ public class GameBuffer {
         Set<ShortTimestep> tsSet = getShortTimestepSet( );
         ShortTimestep[] tsArray = (ShortTimestep[])tsSet.stream()
                 .filter(p -> !p.isUOkClosed() && p.isTrainable(p.getSmallestEmptyBox()))
-                .toArray();
+                .toArray(ShortTimestep[]::new);
         n = Math.min(n, tsArray.length);
         long countBox0 = timestepRepo.countEntriesWhereBoxIsZero(0);
         n = Math.min(n, 2 * (int)countBox0);
