@@ -159,11 +159,11 @@ public class MuZeroLoop {
         long numNotClosed = numNotClosed();
 
         while (numNotClosed > 0) {
-            long numNotClosedAndUOkBelowOne = numNotClosedAndUOkBelowOne();
-            log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
-            if (numNotClosedAndUOkBelowOne < nTrain) {
+         //   long numNotClosedAndUOkBelowOne = numNotClosedAndUOkBelowOne();
+          //  log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
+           // if (numNotClosedAndUOkBelowOne < nTrain) {
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
-            }
+           // }
             epoch = ruleTrain(durations);
             numNotClosed = numNotClosed();
 
