@@ -39,4 +39,9 @@ public class ShortTimestep {
    public int getSmallestEmptyBox() {
         return Boxes.getSmallestEmptyBox(boxes);
    }
+
+
+   public int getBox(int unrollSteps) {
+      return Boxes.getBox(boxes, unrollSteps);
+   }
 }

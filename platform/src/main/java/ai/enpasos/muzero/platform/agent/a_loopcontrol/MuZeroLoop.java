@@ -155,39 +155,52 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
+        int unrollSteps = 1;
+        try {
+            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
+        } catch (Exception e) {
+            unrollSteps = config.getMaxUnrollSteps();
+        }
 
-        long numNotClosed = numNotClosed();
 
-        while (numNotClosed > 0) {
-         //   long numNotClosedAndUOkBelowOne = numNotClosedAndUOkBelowOne();
-          //  log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
-           // if (numNotClosedAndUOkBelowOne < nTrain) {
+        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
+            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+            //   long numNotClosedAndUOkBelowOne = numNotClosedAndUOkBelowOne();
+            //  log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
+            // if (numNotClosedAndUOkBelowOne < nTrain) {
+            long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+            while (nOpen > 0) {
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
-           // }
-            epoch = ruleTrain(durations);
-            numNotClosed = numNotClosed();
-
-            if (numNotClosed == 0) {
-                log.info("numNotClosed == 0");
-
-                testUnrollRulestate.test();
-                numNotClosed = numNotClosed();
-
-                if (numNotClosed == 0) {
-                    log.info("after testing: numNotClosed == 0  ->  break");
-                    break;
+                epoch = ruleTrain(durations, unrollSteps);
+                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+                if (nOpen == 0) {
+                    testUnrollRulestate.test();
                 }
+            }
+
+
+            if (unrollSteps < config.getMaxUnrollSteps()) {
+                unrollSteps++;
+                log.info("nOpen: {}", nOpen);
+                log.info("unrollSteps increased to: {}", unrollSteps);
+                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+                log.info("nOpen: {}", nOpen);
+            }
+
+            if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
+                log.info("nOpen == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+                break;
             }
         }
     }
 
 
-    private int ruleTrain(  List<DurAndMem> durations) throws InterruptedException, ExecutionException {
+    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.trainModelRules(freeze ).get();
+        modelService.trainModelRules(freeze, unrollSteps ).get();
 
         epoch = modelState.getEpoch();
         duration.off();
@@ -205,9 +218,9 @@ public class MuZeroLoop {
         return numNotClosed;
     }
 
-    private long numNotClosedAndUOkBelowOne() {
-        long numNotClosed = timestepRepo.numNotClosedAndUOKBelowOne();
-        log.info("numNotClosed: {}",  numNotClosed);
+    private long numNotClosedAndUokBelowUnrollStep(int unrollSteps) {
+        long numNotClosed = timestepRepo.numNotClosedAndUOKBelow(  unrollSteps);
+        log.info("numNotClosedAndUokBelowUnrollSteps: {}, unrollSteps: {}",  numNotClosed, unrollSteps);
         return numNotClosed;
     }
 

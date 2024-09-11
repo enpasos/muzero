@@ -29,7 +29,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     @Query(value = "DROP SEQUENCE IF EXISTS  timestep_seq CASCADE", nativeQuery = true)
     void dropSequence();
 
-
+    @Transactional
+    @Query(value = "SELECT count(*) FROM  TimeStepDO t where not t.uOkClosed and t.uOk < :uok")
+    long numNotClosedAndUOKBelow(int uok);
 
 
     @Transactional
@@ -57,6 +59,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
 
     @Query(value = "SELECT COUNT(*) FROM timestep WHERE boxes[:boxIndex + 1] = 0", nativeQuery = true)
     long countEntriesWhereBoxIsZero(int boxIndex);
+
+ //   @Query(value = "SELECT COUNT(*) FROM timestep WHERE boxes[:boxIndex + 1] = 0", nativeQuery = true)
+ //   long countEntriesInBox(int boxIndex);
 
 
     @Transactional
@@ -87,6 +92,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     void resetUOk();
 
 
+    @Transactional
+    @Query(value = "SELECT min(t.u_ok) FROM  timestep t WHERE not t.u_ok_closed", nativeQuery = true)
+    int minUokNotClosed( );
 
 
     @Query(value = """

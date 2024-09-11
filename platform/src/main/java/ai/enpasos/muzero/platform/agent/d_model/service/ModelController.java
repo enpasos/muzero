@@ -246,7 +246,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground());
+                    trainNetworkRules(task.freeze, task.isBackground(), task.getNumUnrollSteps());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -324,13 +324,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background) {
-
-//        NumberFormat nf = NumberFormat.getNumberInstance();
-//        nf.setMaximumFractionDigits(8);
-//        nf.setMinimumFractionDigits(8);
-
-
+    private void trainNetworkRules(boolean[] freeze, boolean background, int unrollSteps) {
 
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
@@ -342,25 +336,25 @@ public class ModelController implements DisposableBean, Runnable {
 
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
         log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
-         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber );
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber, unrollSteps );
 
-        Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
+      //  Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
 
         // iterate over unroll numbers and saveHere only for the last one
 
 
-        int c = 0;
-        for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollNumber.entrySet()) {
-            int unrollsteps = entry.getKey();
-            List<ShortTimestep> tsListUnroll = entry.getValue();
-            boolean saveHere = (++c == mapByUnrollNumber.entrySet().size());
-            trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollsteps, saveHere, tsListUnroll );
-        }
+//        int c = 0;
+//        for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollNumber.entrySet()) {
+//            int unrollsteps = entry.getKey();
+        //    List<ShortTimestep> tsListUnroll = entry.getValue();
+        //    boolean saveHere = true; //(++c == mapByUnrollNumber.entrySet().size());
+            trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, true, tsList );
+    //    }
 
     }
 
-    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> tsListUnroll ) {
-        List<Long> allRelevantTimestepIds = tsListUnroll.stream().map(ShortTimestep::getId).toList();
+    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, ShortTimestep[] tsListUnroll  ) {
+        List<Long> allRelevantTimestepIds = Arrays.stream(tsListUnroll).map(ShortTimestep::getId).toList();
 
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(tsListUnroll);
 
@@ -378,7 +372,7 @@ public class ModelController implements DisposableBean, Runnable {
             List<Long> relatedEpisodeIds = iterator.next();
             Set<Long> relatedEpisodeIdsSet = new HashSet<>(relatedEpisodeIds);
             log.info("timestep before relatedTimeStepIds filtering");
-            Set<Long> relatedTimeStepIds = tsListUnroll.stream()
+            Set<Long> relatedTimeStepIds = Arrays.stream(tsListUnroll)
                     .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
                     .map(ShortTimestep::getId).collect(Collectors.toSet());
             log.info("timestep after relatedTimeStepIds filtering");
@@ -465,8 +459,8 @@ public class ModelController implements DisposableBean, Runnable {
        }));
     }
 
-    private List<Long> episodeIdsFromIdProjections(  List<ShortTimestep> allIdProjections) {
-        Set<Long> ids =  allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
+    private List<Long> episodeIdsFromIdProjections(   ShortTimestep[] allIdProjections) {
+        Set<Long> ids =  Arrays.stream(allIdProjections).mapToLong(p -> p.getEpisodeId())
                 .boxed().collect(Collectors.toSet());
         return new ArrayList(ids);
     }

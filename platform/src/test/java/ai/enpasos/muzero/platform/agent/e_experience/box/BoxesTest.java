@@ -127,4 +127,8 @@ class BoxesTest {
     }
 
 
+    @Test
+    void getBox() {
+        assertEquals(3, Boxes.getBox(new int[]{3, 0}, 1));
+    }
 }
