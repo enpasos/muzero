@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
+import ai.enpasos.muzero.platform.common.AliasMethod;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -40,6 +41,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -471,56 +473,125 @@ public class GameBuffer {
         }
         return result;
     }
-    public List<ShortTimestep> getIdsRelevantForTrainingBox(int n ) {
+    public  ShortTimestep[] getIdsRelevantForTraining(int n ) {
 
-        int maxBox = timestepRepo.maxBox();
-        int startBox = 0;
-        long startBoxCount = 0;
-        for (int b  = 0;  b < maxBox; b++) {
-            long count = timestepRepo.countEntriesWhereBoxIsZero(b);
-            if (count > 0) {
-                startBox = b;
-                startBoxCount = count;
-                break;
-            }
-        }
-        n = Math.min(n,  (int)startBoxCount*2 );
-        log.info("start box {} has {} entries. n = {}", startBox, startBoxCount, n);
 
         Set<ShortTimestep> tsSet = getShortTimestepSet( );
+        ShortTimestep[] tsArray = (ShortTimestep[])tsSet.stream()
+                .filter(p -> !p.isUOkClosed() && p.isTrainable(p.getSmallestEmptyBox()))
+                .toArray();
+        n = Math.min(n, tsArray.length);
+        long countBox0 = timestepRepo.countEntriesWhereBoxIsZero(0);
+        n = Math.min(n, 2 * (int)countBox0);
 
-        List<ShortTimestep> tsTrainList = new ArrayList<>();
+        double[] g = Arrays.stream(tsArray)
+                .mapToDouble(p -> {
+            int box = p.getSmallestEmptyBox();
+             return   1.0 / Math.pow(2, box);
+        }).toArray();
+        AliasMethod aliasMethod = new AliasMethod(g);
+        int[] samples = aliasMethod.sampleWithoutReplacement(n);
+
+        ShortTimestep[] tsTrainable = IntStream.range(0, samples.length).mapToObj(i -> tsArray[samples[i]]).toArray(ShortTimestep[]::new);
+
+        return tsTrainable;
 
 
-       for( int unrollsteps = startBox;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps() && unrollsteps <= startBox+1; unrollsteps++) {
-            final int unrollstepsFinal = unrollsteps;
-           List<ShortTimestep> tsBox0 = tsSet.stream()
-                   .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1
-                        && ts.isTrainable(unrollstepsFinal)
-                   )
-                  // .sorted(Comparator.comparing(ShortTimestep::getUOk))
-                   .collect(Collectors.toList());
 
 
-        //   List<ShortTimestep> idProjectionsUnknownAndTrainable = idProjectionsUnknown.stream().filter(p ->  p.isTrainable()).collect(Collectors.toList());
 
-           Collections.shuffle(tsBox0);
+        //        double k = 2.0;
+//        int nKnown = Math.min(Math.min(n - tsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*tsUnknownAndTrainable.size()));
+//
+//
+//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxA() - 1)).toArray();
+//        AliasMethod aliasMethod = new AliasMethod(g);
+//
+//
+//        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
+//        // stream of samples
+//        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
 
-           int nRemaining = n - tsTrainList.size();
 
-           if (tsBox0.size() < nRemaining) {
-               tsTrainList.addAll(tsBox0);
-           } else {
-               tsTrainList.addAll(tsBox0.subList(0, nRemaining));
-           }
-       }
-
-        Collections.shuffle(tsTrainList);
-        return tsTrainList;
+//        int maxBox = timestepRepo.maxBox();
+//        int startBox = 0;
+//        long startBoxCount = 0;
+//        for (int b  = 0;  b < maxBox; b++) {
+//            long count = timestepRepo.countEntriesWhereBoxIsZero(b);
+//            if (count > 0) {
+//                startBox = b;
+//                startBoxCount = count;
+//                break;
+//            }
+//        }
+//        n = Math.min(n,  (int)startBoxCount*2 );
+//        log.info("start box {} has {} entries. n = {}", startBox, startBoxCount, n);
+//
+//
+//
+//        List<ShortTimestep> tsTrainList = new ArrayList<>();
+//
+//
+//       for( int unrollsteps = startBox;  tsTrainList.size() < n && unrollsteps <= config.getMaxUnrollSteps() && unrollsteps <= startBox+1; unrollsteps++) {
+//            final int unrollstepsFinal = unrollsteps;
+//           List<ShortTimestep> tsBox0 = tsSet.stream()
+//                   .filter(ts -> !ts.isUOkClosed() && ts.getSmallestEmptyBox() == unrollstepsFinal - 1
+//                        && ts.isTrainable(unrollstepsFinal)
+//                   )
+//                   .collect(Collectors.toList());
+//
+//           Collections.shuffle(tsBox0);
+//
+//           int nRemaining = n - tsTrainList.size();
+//
+//           if (tsBox0.size() < nRemaining) {
+//               tsTrainList.addAll(tsBox0);
+//           } else {
+//               tsTrainList.addAll(tsBox0.subList(0, nRemaining));
+//           }
+//       }
+//
+//        Collections.shuffle(tsTrainList);
+//        return tsTrainList;
 
 
     }
 
 
 
-}
+
+    //        if (tsUnknownAndTrainable.size() >= n) {
+//            Collections.shuffle(tsUnknownAndTrainable);
+//            log.info("nUnknown: {}, nKnown: {}", n, 0);
+//            return tsUnknownAndTrainable.subList(0, n);
+//        }
+//        List<ShortTimestep> idProjectionsKnown = tsSet.stream().filter(idProjection3 -> idProjection3.getBoxA() > 0).collect(Collectors.toList());
+//
+//
+//        double k = 2.0;
+//        int nKnown = Math.min(Math.min(n - tsUnknownAndTrainable.size(), idProjectionsKnown.size()), (int)(k*tsUnknownAndTrainable.size()));
+//
+//
+//        // generate weight array double[] g from idProjectionsKnown as 1/(2^(box-1))
+//        double[] g = idProjectionsKnown.stream().mapToDouble(p -> 1.0 / Math.pow(2, p.getBoxA() - 1)).toArray();
+//        AliasMethod aliasMethod = new AliasMethod(g);
+//
+//
+//        int[] samples = aliasMethod.sampleWithoutReplacement(nKnown);
+//        // stream of samples
+//        List< ShortTimestep> resultKnown = Arrays.stream(samples).mapToObj(idProjectionsKnown::get).collect(Collectors.toList());
+//
+//
+//        List< ShortTimestep> result = new ArrayList<>();
+//        result.addAll(tsUnknownAndTrainable);
+//        result.addAll(resultKnown);
+//        log.info("nUnknown: {}, nKnown: {}", tsUnknownAndTrainable.size(), resultKnown.size());
+//        Collections.shuffle(result);
+//
+//        return result;
+
+
+
+
+    }

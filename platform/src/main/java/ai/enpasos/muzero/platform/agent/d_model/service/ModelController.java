@@ -40,7 +40,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -343,7 +342,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
         log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
-        List<ShortTimestep> tsList = gameBuffer.getIdsRelevantForTrainingBox( sampleNumber );
+         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber );
 
         Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
 
@@ -458,8 +457,8 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private Map<Integer, List<ShortTimestep>> mapByUnrollNumber(List<ShortTimestep> allIdProjections) {
-       return allIdProjections.stream().collect(Collectors.groupingBy(p -> {
+    private Map<Integer, List<ShortTimestep>> mapByUnrollNumber( ShortTimestep[] allIdProjections) {
+       return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
            int uOK = p.getUOk();
            int unrollNumber = Math.max(1, uOK + 1);
            return unrollNumber;
