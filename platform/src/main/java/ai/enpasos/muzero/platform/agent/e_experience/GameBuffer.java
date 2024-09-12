@@ -487,7 +487,6 @@ public class GameBuffer {
 
         // filter timesteps that are trainable on the given unrollSteps
         ShortTimestep[] tsArray = (ShortTimestep[]) tsSet.stream()
-                //  .filter(p -> !p.isUOkClosed() && p.isTrainable(unrollSteps))   // even the closed can be trained
                 .filter(p -> p.isTrainable(unrollSteps))
                 .toArray(ShortTimestep[]::new);
         n = Math.min(n, tsArray.length);
@@ -497,8 +496,7 @@ public class GameBuffer {
 
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
         final Map<Integer, Integer> boxOccupations = Arrays.stream(tsArray)
-                .filter(p -> p.getBoxes().length >= unrollSteps)  // Filter out timesteps with boxes array too short
-                .map(p -> p.getBoxes()[unrollSteps - 1])  // Get the box from the array
+                .map(p -> p.getBox( unrollSteps ))  // Get the box from the array
                 .collect(Collectors.toMap(
                         box -> box,   // Use the box as the key
                         box -> 1,     // Initialize count as 1
@@ -508,7 +506,7 @@ public class GameBuffer {
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
         double[] g = Arrays.stream(tsArray)
                 .mapToDouble(p -> {
-                    int box = p.getBoxes()[unrollSteps-1];
+                    int box = p.getBox( unrollSteps );
                     return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
                 }).toArray();
         AliasMethod aliasMethod = new AliasMethod(g);
