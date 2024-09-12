@@ -495,11 +495,25 @@ public class GameBuffer {
         log.info("max n = {}, effective n = {}, numUnknownsForGivenUnrollSteps = {}, unrollSteps = {}, num of trainable timesteps = {}", nOriginal, n, numUnknownsForGivenUnrollSteps, unrollSteps, tsArray.length);
 
 
+        // Generate int[] boxOccupations with the box as index, counting int box = p.getBoxes()[unrollSteps-1];
+        int[] boxOccupations = Arrays.stream(tsArray)
+                .map(p -> p.getBoxes()[unrollSteps - 1])  // Get the box from the array
+                .collect(Collectors.toMap(
+                        box -> box,  // Use the box as the key
+                        box -> 1,    // Initialize count as 1
+                        Integer::sum // If the box is already present, sum the counts
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())  // Sort by box index
+                .mapToInt(Map.Entry::getValue)       // Extract the counts
+                .toArray();
+
+
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
         double[] g = Arrays.stream(tsArray)
                 .mapToDouble(p -> {
-                    int box = p.getBox(unrollSteps);
-                    return 1.0 / Math.pow(2, box);
+                    int box = p.getBoxes()[unrollSteps-1];
+                    return 1.0 / Math.pow(2, box) / boxOccupations[box];
                 }).toArray();
         AliasMethod aliasMethod = new AliasMethod(g);
         int[] samples = aliasMethod.sampleWithoutReplacement(n);
