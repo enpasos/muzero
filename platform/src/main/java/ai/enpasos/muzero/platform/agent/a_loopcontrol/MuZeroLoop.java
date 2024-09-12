@@ -170,6 +170,7 @@ public class MuZeroLoop {
             // if (numNotClosedAndUOkBelowOne < nTrain) {
             long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
             for (int  us = 1; us <= unrollSteps; us++) {
+                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
                 while (nOpen > 0) {
                     testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
                     epoch = ruleTrain(durations, us);
