@@ -62,7 +62,7 @@ public class Boxes {
                     changed = true;
                 }
             } else {
-                if (uOkTested || boxes[b] <= 0 ) {
+                if (uOkTested) { // || boxes[b] <= 0 ) {
                     boxes[b]++;
                     changed = true;
                 }
