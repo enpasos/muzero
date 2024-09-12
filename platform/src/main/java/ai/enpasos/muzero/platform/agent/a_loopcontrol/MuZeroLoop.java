@@ -175,7 +175,9 @@ public class MuZeroLoop {
                 nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
                 if (nOpen == 0) {  // only move on if goal has been reached
                     testUnrollRulestate.test();
+                    nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
                 }
+
             }
 
 
