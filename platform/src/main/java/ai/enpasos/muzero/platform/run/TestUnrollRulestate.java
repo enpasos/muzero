@@ -194,7 +194,7 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps,  boxesRelevant);
             gameBuffer.refreshCache(idsTsChanged);
         }
 
@@ -252,6 +252,8 @@ public class TestUnrollRulestate {
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("testUnrollRulestate.run(), epoch = {}, unrollSteps = {}, allTimeSteps = {} ", epoch, unrollSteps, allTimeSteps );
 
+        List<Integer> boxesRelevant = getBoxesRelevant(epoch);
+
    //     modelService.loadLatestModel(epoch).join();  // TODO: check if this is necessary
 
         RulesBuffer rulesBuffer = new RulesBuffer();
@@ -288,7 +290,7 @@ public class TestUnrollRulestate {
                     .collect(Collectors.toList());
          //   log.info("step 6");
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, boxesRelevant);
             gameBuffer.refreshCache(idsTsChanged);
          //   log.info("step 7");
 
@@ -304,6 +306,7 @@ public class TestUnrollRulestate {
     public void testOneGame(long episodeId , int unrollSteps ) {
 
         int epoch = networkIOService.getLatestNetworkEpoch();
+        List<Integer> boxesRelevant = getBoxesRelevant(epoch);
         boolean allTimeStepsWhichMeansLocally = true;
 
         timestepRepo.resetUOk();
@@ -323,7 +326,7 @@ public class TestUnrollRulestate {
 
         // db update also in uOK and box
 
-        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps);
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, boxesRelevant);
         gameBuffer.refreshCache(idsTsChanged);
 
     }

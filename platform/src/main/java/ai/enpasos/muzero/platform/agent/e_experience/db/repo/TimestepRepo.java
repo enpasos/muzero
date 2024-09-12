@@ -44,7 +44,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
 
 
 
-    @Query(value = "SELECT MAX(array_length(t.boxes, 1)) FROM timestep t", nativeQuery = true)
+    @Query(value = "SELECT MAX(box) FROM timestep, UNNEST(boxes) AS box", nativeQuery = true)
     int maxBox();
 
     @Query(value = """

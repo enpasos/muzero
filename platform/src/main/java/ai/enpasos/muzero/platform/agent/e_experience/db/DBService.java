@@ -220,11 +220,11 @@ public class DBService {
 
 
 
-    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps  ) {
+    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant  ) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxesChanged = ts.changeBoxesBasesOnUOk();
+            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant);
 
             if (ts.isSChanged() || ts.isUOkChanged() ||    boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId()) ;

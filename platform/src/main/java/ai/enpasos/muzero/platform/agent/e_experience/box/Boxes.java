@@ -39,7 +39,7 @@ public class Boxes {
     }
 
 
-    public static Pair<Boolean, int[]> toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested) {
+    public static Pair<Boolean, int[]> toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant) {
         int targetUOK = Math.max(1, uok + 1);
         int boxIndex = targetUOK - 1;
         if (uOkClosed) {
@@ -62,9 +62,11 @@ public class Boxes {
                     changed = true;
                 }
             } else {
-                if (uOkTested || (b == 0 && boxes[b] == 0) ) {
-                    boxes[b]++;
-                    changed = true;
+                if (uOkTested || (b == 0 && boxes[b] == 0)) {
+                    if ( boxesRelevant.contains(boxes[b])) {
+                        boxes[b]++;
+                        changed = true;
+                    }
                 }
             }
         }

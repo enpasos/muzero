@@ -431,7 +431,7 @@ public class ModelController implements DisposableBean, Runnable {
                             });
 
 
-                            List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps);
+                            List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, List.of(0));
 
                             gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);

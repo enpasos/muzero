@@ -10,7 +10,7 @@ import lombok.*;
 
 import java.util.Arrays;
 import java.util.BitSet;
-
+import java.util.List;
 
 
 @Entity
@@ -60,9 +60,9 @@ public class TimeStepDO {
     int[] boxes = {0};
 
 
-    public boolean changeBoxesBasesOnUOk() {
+    public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant) {
 
-        Pair<Boolean, int[]> pair = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested);
+        Pair<Boolean, int[]> pair = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant);
         boolean changed = pair.getKey();
         boxes = pair.getValue();
         return changed;
