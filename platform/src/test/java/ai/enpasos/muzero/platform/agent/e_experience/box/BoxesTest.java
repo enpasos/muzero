@@ -122,6 +122,15 @@ class BoxesTest {
     }
 
     @Test
+    void toUOk12() {
+        int[] array = {5};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 0, true, true) ;
+        assertTrue(result.getKey());
+        assertArrayEquals(new int[]{6}, result.getValue());
+    }
+
+
+    @Test
     void hasRelevantBox() {
         assertTrue(Boxes.hasRelevantBox(List.of(1,2), new int[]{3, 2, 1, 0}));
     }

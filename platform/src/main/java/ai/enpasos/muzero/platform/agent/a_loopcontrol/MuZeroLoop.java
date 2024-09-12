@@ -173,10 +173,10 @@ public class MuZeroLoop {
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
                 epoch = ruleTrain(durations, unrollSteps);
                 nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
-                if (nOpen == 0) {  // only move on if goal has been reached
-                    testUnrollRulestate.test();
-                    nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
-                }
+//                if (nOpen == 0) {  // only move on if goal has been reached
+//                    testUnrollRulestate.test();
+//                    nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+//                }
 
             }
 
