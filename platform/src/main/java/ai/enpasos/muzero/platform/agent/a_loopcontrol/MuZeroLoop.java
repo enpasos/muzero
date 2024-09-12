@@ -169,25 +169,23 @@ public class MuZeroLoop {
             //  log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
             // if (numNotClosedAndUOkBelowOne < nTrain) {
             long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
-            while (nOpen > 0) {
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
-                epoch = ruleTrain(durations, unrollSteps);
-                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
-//                if (nOpen == 0) {  // only move on if goal has been reached
-//                    testUnrollRulestate.test();
-//                    nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
-//                }
-
+            for (int  us = 1; us <= unrollSteps; us++) {
+                while (nOpen > 0) {
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
+                    epoch = ruleTrain(durations, us);
+                    nOpen = numNotClosedAndUokBelowUnrollStep(us);
+                }
             }
-
 
             if (unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
                 log.info("nOpen: {}", nOpen);
                 log.info("unrollSteps increased to: {}", unrollSteps);
+                testUnrollRulestate.test();
                 nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
                 log.info("nOpen: {}", nOpen);
             }
+
 
             if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 log.info("nOpen == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
