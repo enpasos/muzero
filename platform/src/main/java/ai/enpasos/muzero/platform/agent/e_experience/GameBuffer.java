@@ -497,6 +497,7 @@ public class GameBuffer {
 
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
         final Map<Integer, Integer> boxOccupations = Arrays.stream(tsArray)
+                .filter(p -> p.getBoxes().length >= unrollSteps)  // Filter out timesteps with boxes array too short
                 .map(p -> p.getBoxes()[unrollSteps - 1])  // Get the box from the array
                 .collect(Collectors.toMap(
                         box -> box,   // Use the box as the key
