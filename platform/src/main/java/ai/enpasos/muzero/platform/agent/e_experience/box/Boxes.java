@@ -62,12 +62,10 @@ public class Boxes {
                     changed = true;
                 }
             } else {
-                if (uOkTested || (b == 0 && boxes[b] == 0)) {
-                    if ( boxesRelevant.contains(boxes[b])) {
+                if (uOkTested &&  boxesRelevant.contains(boxes[b])  || boxes[b] == 0) {
                         boxes[b]++;
                         changed = true;
-                    }
-                }
+                                  }
             }
         }
         return new Pair(changed, boxes);

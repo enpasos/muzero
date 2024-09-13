@@ -144,7 +144,20 @@ class BoxesTest {
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{6}, result.getValue());
     }
-
+    @Test
+    void toUOk13() {
+        int[] array = {7,0};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, true, true, List.of(5)) ;
+        assertTrue(result.getKey());
+        assertArrayEquals(new int[]{7,1}, result.getValue());
+    }
+    @Test
+    void toUOk13b() {
+        int[] array = {7,0};
+        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, true, List.of(5)) ;
+        assertTrue(result.getKey());
+        assertArrayEquals(new int[]{7,1, 0}, result.getValue());
+    }
 
     @Test
     void hasRelevantBox() {
