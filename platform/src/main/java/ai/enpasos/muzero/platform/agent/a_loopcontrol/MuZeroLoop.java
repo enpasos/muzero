@@ -170,7 +170,7 @@ public class MuZeroLoop {
             int us = unrollSteps;
                 nOpen = numNotClosedAndUokBelowUnrollStep(us);
                 while (nOpen > 0) {
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, us);
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
                     epoch = ruleTrain(durations, us);
                     nOpen = numNotClosedAndUokBelowUnrollStep(us);
                 }
