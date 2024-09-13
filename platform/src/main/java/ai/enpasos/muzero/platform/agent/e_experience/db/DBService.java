@@ -7,14 +7,8 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.LegalActionsRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
-import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +24,8 @@ public class DBService {
     EpisodeRepo episodeRepo;
 
 
-
-
     @Autowired
     TimestepRepo timestepRepo;
-
-//    @Autowired
-//    MuZeroConfig config;
 
 
     @Autowired
@@ -49,16 +38,14 @@ public class DBService {
         timestepRepo.dropSequence();
         legalActionsRepo.dropTable();
         legalActionsRepo.dropSequence();
-
-
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<EpisodeDO> saveEpisodesAndCommit(List<EpisodeDO> episodes) {
-        List<TimeStepDO> timeStepDOS = episodes.stream().map(EpisodeDO::getTimeSteps).flatMap(list -> list.stream()).collect(Collectors.toList());
-        Set<LegalActionsDO> las = timeStepDOS.stream().map(t -> t.getLegalact()).collect(Collectors.toSet());
+        List<TimeStepDO> timeStepDOS = episodes.stream().map(EpisodeDO::getTimeSteps).flatMap(Collection::stream).collect(Collectors.toList());
+        Set<LegalActionsDO> las = timeStepDOS.stream().map(TimeStepDO::getLegalact).collect(Collectors.toSet());
 
-        List<LegalActionsDO> knownLegalActions = legalActionsRepo.findAllByLegalActions(las.stream().map(la -> la.getLegalActions()).collect(Collectors.toList()));
+        List<LegalActionsDO> knownLegalActions = legalActionsRepo.findAllByLegalActions(las.stream().map(LegalActionsDO::getLegalActions).collect(Collectors.toList()));
 
         List<LegalActionsDO> unknownLegalActions = new ArrayList<>();
         unknownLegalActions.addAll(las);
@@ -73,13 +60,12 @@ public class DBService {
         legalActions.forEach(la -> map.put(la, la));
 
         episodes.stream().filter(EpisodeDO::isHybrid).forEach(episodeDO -> {
-           long t = episodeDO.getTStartNormal();
+            long t = episodeDO.getTStartNormal();
             for (TimeStepDO timeStep : episodeDO.getTimeSteps()) {
                 timeStep.setExploring(timeStep.getT() < t);
             }
         });
         episodes.stream().forEach(episodeDO -> {
-            long t = episodeDO.getTStartNormal();
             for (TimeStepDO timeStep : episodeDO.getTimeSteps()) {
                 LegalActionsDO legalActionsDO = map.get(timeStep.getLegalact());
                 timeStep.setLegalact(legalActionsDO);
@@ -104,13 +90,6 @@ public class DBService {
         return newEpisodeIds;
     }
 
-//    @Transactional
-//    public Pair<List<EpisodeDO>, Integer> findAll(int pageNumber, int pageSize) {
-//        Page<EpisodeDO> result = episodeRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("id")));
-//        int totalPages = result.getTotalPages();
-//        Pair<List<EpisodeDO>, Integer> pair = new ImmutablePair<>(result.stream().map(e -> e.copy()).collect(Collectors.toList()), totalPages );
-//        return pair;
-//    }
 
     @Transactional
     public List<EpisodeDO> findTopNByOrderByIdDescAndConvertToGameDTOList(int n) {
@@ -127,21 +106,17 @@ public class DBService {
     }
 
 
-
-
-
-
     @Transactional
-    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant  ) {
+    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
 
             boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant);
 
-            if (ts.isSChanged() || ts.isUOkChanged() ||    boxesChanged || ts.isUnrollStepsChanged()) {
-                ids.add(ts.getId()) ;
-                timestepRepo.updateAttributeSAndU(ts.getId(), (long) ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes( ) );
-                if ( ts.getT() > 0) {
+            if (ts.isSChanged() || ts.isUOkChanged() || boxesChanged || ts.isUnrollStepsChanged()) {
+                ids.add(ts.getId());
+                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes());
+                if (ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
                     timestepRepo.updateNextUOk(id, ts.getUOk(), ts.isUOkClosed());
