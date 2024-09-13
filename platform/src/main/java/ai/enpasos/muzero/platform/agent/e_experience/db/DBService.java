@@ -125,101 +125,13 @@ public class DBService {
         List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
         return result;
     }
-//
-//    @Transactional
-//    public List<EpisodeDO> findRandomNRelevantForRewardLearningAndConvertToGameDTOList(int n) {
-//        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForRewardLearning(this.config.getRewardLossThreshold(), n, 0);
-//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-//        return result;
-//    }
-//
-//    @Transactional
-//    public List<EpisodeDO> findRandomNRelevantFromBoxAndConvertToGameDTOList(int n, int box) {
-//        List<Long> ids = timestepRepo.findRandomNEpisodeIdsFromBox(n, box);
-//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-//        return result;
-//    }
-//
-//    @Transactional
-//    public List<EpisodeDO> findRandomNRelevantFromBoxZeroOrOneAndConvertToGameDTOList(int n) {
-//        List<Long> ids = episodeRepo.findRandomNEpisodeIdsFromBoxZeroOrOne(n );
-//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-//        return result;
-//    }
-//
-//    @Transactional
-//    public List<EpisodeDO> findRandomNRelevantForLegalActionLearningAndConvertToGameDTOList(int n) {
-//        List<Long> ids = timestepRepo.findRandomNEpisodeIdsRelevantForLegalActionLearning(this.config.getLegalActionLossMaxThreshold(), n, 0);
-//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-//        return result;
-//    }
-//
-//    @Transactional
-//    public List<EpisodeDO> findNRandomEpisodeIdsWeightedAAndConvertToGameDTOList(int n) {
-//        int classN = 5;
-//        List<Long> ids = new ArrayList<>();
-//        for (int i = 1; i <= classN; i++) {
-//            ids.addAll(timestepRepo.findNRandomEpisodeIdsWeightedA(i, n/classN));
-//        }
-//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-//        return result;
-//    }
-//
-//    @Transactional
-//    public List<EpisodeDO> findNEpisodeIdsWithHighestRewardLossAndConvertToGameDTOList(int n) {
-//        double minLoss = 0.001d; // everything else is good enough
-//        List<Long> ids = timestepRepo.findNEpisodeIdsWithHighestRewardLoss(n, minLoss);
-//        List<EpisodeDO> result = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(ids);
-//        return result;
-//    }
 
-
-
-
-    public int getMaxTrainingEpoch() {
-        return episodeRepo.getMaxTrainingEpoch();
-    }
 
 
 
 
 
     @Transactional
-    public List<EpisodeDO> findEpisodeDOswithTimeStepDOs(List<Long> episodeIds) {
-
-        List<TimeStepDO> timeStepDOs = timestepRepo.findTimeStepDOswithEpisodeIds(episodeIds);
-     //   timeStepDOs.stream().forEach(t -> t.getNextTimeStep());
-
-        List<EpisodeDO> episodeDOs = timeStepDOs.stream().map(t -> t.getEpisode()).distinct().collect(Collectors.toList());
-        episodeDOs.forEach(e -> e.setTimeSteps(new ArrayList<>()));
-        timeStepDOs.stream().forEach(t -> t.getEpisode().getTimeSteps().add(t));
-     //   timeStepDOs.stream().forEach(t -> t.getValues().size());
-
-        return episodeDOs;
-    }
-
-
-
-
-
-//    //@Transactional
-//    public void markArchived(int epoch) {
-//        int n = 10000; // todo
-//        int n2 = 10;
-//       // int nCandidate = episodeRepo.countNotArchivedWithValueCount(n2);
-//       // if (nCandidate < n) return;
-//        Double quantile = episodeRepo.findTopQuantileWithHighestVariance(n, n2);
-//        log.info("quantile: {}", quantile);
-//        if (quantile == null) return;
-//        log.info("episodeRepo.markArchived(quantile) ...");
-//        episodeRepo.markArchived(quantile);
-//        log.info("timestepRepo.markArchived() ...");
-//        timestepRepo.markArchived();
-//        log.info("...markArchived.");
-//    }
-
-
-
     public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant  ) {
         List<Long> ids = new ArrayList<>();
         timesteps.stream().forEach(ts -> {
@@ -234,7 +146,7 @@ public class DBService {
                     ids.add(id);
                     timestepRepo.updateNextUOk(id, ts.getUOk(), ts.isUOkClosed());
                 }
-                if (ts.getT() == ts.getEpisode().getLastTime()) { // TODO: optimize in doing one query on the db
+                if (ts.getT() == ts.getEpisode().getLastTime()) {
                     timestepRepo.updateNextUOk(ts.getId(), ts.getUOk(), true);
                 }
                 ts.setSChanged(false);
@@ -246,45 +158,4 @@ public class DBService {
         return ids;
     }
 
-//    public void setNextuoktarget(int unrollSteps) {
-//        // min(unrollSteps – 1, tmax-(t+1))
-//
-//        episodeRepo.updateTmax();
-//        timestepRepo.updateNextUOkTarget(unrollSteps);
-//       // timestepRepo.updateTrainable( );
-//
-//    }
-
-//    public void updateBox0(int unrollSteps) {
-//        timestepRepo.updateBox0(unrollSteps);
-//    }
-
-//    public void updateUnrollStepsOnEpisode(List<EpisodeDO> episodeDOList) {
-//        episodeDOList.stream().forEach(episodeDO -> {
-//            // find minimum of uOK on all timesteps
-//            int minUOK = episodeDO.getTimeSteps().stream().filter(ts -> !ts.isUOkClosed()).mapToInt(ts -> ts.getUOk()).min().orElse(config.getMaxUnrollSteps());
-//            episodeRepo.updateUnrollSteps(episodeDO.getId(), Math.max(1, minUOK + 1));
-//        });
-//    }
-
-
-//    public void updateEpisodes_S(List<EpisodeDO> episodes) {
-//        episodes.stream().forEach(e -> e.getTimeSteps().stream().filter(ts -> ts.getAction() != null).forEach(ts -> {
-//                    if (ts.isSChanged()) {
-//                        timestepRepo.updateAttributeS(ts.getId(), (long) ts.getS(), ts.isSClosed());
-//                        ts.setSChanged(false);
-//                    }
-//                }
-//        ));
-//    }
-//
-//    public void updateEpisodes_uOK(List<EpisodeDO> episodes) {
-//        episodes.stream().forEach(e -> e.getTimeSteps().stream().forEach(ts -> {
-//                    if (ts.isUOkChanged()) {
-//                        timestepRepo.updateAttributeUOk(ts.getId(), (long) ts.getUOk());
-//                        ts.setSChanged(false);
-//                    }
-//                }
-//        ));
-//    }
 }
