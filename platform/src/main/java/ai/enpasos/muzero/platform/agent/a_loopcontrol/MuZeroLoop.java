@@ -28,7 +28,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import ai.enpasos.muzero.platform.config.PlayTypeKey;
-import ai.enpasos.muzero.platform.run.FillRulesLoss;
 import ai.enpasos.muzero.platform.run.TestUnrollRulestate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,12 +164,9 @@ public class MuZeroLoop {
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            //   long numNotClosedAndUOkBelowOne = numNotClosedAndUOkBelowOne();
-            //  log.info("numNotClosedAndUOkBelowOne: {}", numNotClosedAndUOkBelowOne);
-            // if (numNotClosedAndUOkBelowOne < nTrain) {
             long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
             for (int  us = 1; us <= unrollSteps; us++) {
-                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+                nOpen = numNotClosedAndUokBelowUnrollStep(us);
                 while (nOpen > 0) {
                     testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch);
                     epoch = ruleTrain(durations, us);
