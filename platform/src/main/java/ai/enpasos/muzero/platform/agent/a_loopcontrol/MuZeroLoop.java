@@ -165,15 +165,13 @@ public class MuZeroLoop {
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
             long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
-            for (int  us = 1; us <= unrollSteps; us++) {
-                log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
-           // int us = unrollSteps;
-                nOpen = numNotClosedAndUokBelowUnrollStep(us);
-                while (nOpen > 0) {
+            while (nOpen > 0) {
+                for (int us = 1; us <= unrollSteps; us++) {
+                    log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
                     testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, us);
                     epoch = ruleTrain(durations, us);
-                    nOpen = numNotClosedAndUokBelowUnrollStep(us);
                 }
+                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
             }
 
             if (unrollSteps < config.getMaxUnrollSteps()) {
