@@ -24,7 +24,7 @@ public class Boxes {
         // Convert the list to a set for faster lookup
         Set<Integer> relevantBoxesSet = new HashSet<>(boxesRelevant);
 
-        for (int u = 0; u < unrollSteps; u++) {
+        for (int u = 0; u < unrollSteps && u < boxes.length; u++) {
             int box = boxes[u];
             if (relevantBoxesSet.contains(box)) {
                 return true;
