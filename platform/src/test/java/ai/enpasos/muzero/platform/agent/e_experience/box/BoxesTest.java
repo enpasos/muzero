@@ -161,7 +161,7 @@ class BoxesTest {
 
     @Test
     void hasRelevantBox() {
-        assertTrue(Boxes.hasRelevantBox(List.of(1,2), new int[]{3, 2, 1, 0}));
+        assertTrue(Boxes.hasRelevantBox(List.of(1,2), new int[]{3, 2, 1, 0}, 3));
     }
 
 

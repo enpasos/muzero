@@ -140,13 +140,13 @@ public class TestUnrollRulestate {
 //    }
 
 
-    public void identifyRelevantTimestepsAndTestThem(int epoch ) {
+    public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps) {
 
         List<Integer> boxesRelevant = getBoxesRelevant(epoch);
 
         Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
         List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
-                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes()) )
+                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), unrollSteps) )
                 .collect(Collectors.toList());
         List<Long> relevantIds = relevantShortTimesteps.stream()
                 .mapToLong(shortTimestep -> shortTimestep.getId())
@@ -204,22 +204,14 @@ public class TestUnrollRulestate {
     private @NotNull List<Integer> getBoxesRelevant(int epoch) {
         List<Integer> boxesRelevant;
         int maxBox =  timestepRepo.maxBox();
-        boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
-        log.info("boxesRelevant = {}", boxesRelevant.toString());
+        boxesRelevant = Boxing.boxesRelevant(epoch, maxBox, false);
+        log.info("boxesRelevant (not with 0) = {}", boxesRelevant.toString());
 
         if (boxesRelevant.size() == 0) {
             log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
             return boxesRelevant;
         }
 
-        // only boxes about previously knowns are relevant for
-        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
-            boxesRelevant.remove(0);
-        }
-        if (boxesRelevant.size() == 0) {
-            log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
-            return boxesRelevant;
-        }
         log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
         return boxesRelevant;
     }

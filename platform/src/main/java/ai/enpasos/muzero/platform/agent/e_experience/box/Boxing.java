@@ -16,12 +16,13 @@ public class Boxing {
     }
 
 
-    public static List<Integer> boxesRelevant(int epoch, int maxBox) {
+    public static List<Integer> boxesRelevant(int epoch, int maxBox, boolean withZero) {
         List<Integer> boxesRelevant = new ArrayList<>();
         for (int b = 0; b <= maxBox; b++) {
-            if(isUsed(b, epoch)) {
-                boxesRelevant.add(b);
-            }
+            if ((b != 0 || withZero) && isUsed(b, epoch)) {
+                    boxesRelevant.add(b);
+                }
+
         }
         return boxesRelevant;
     }

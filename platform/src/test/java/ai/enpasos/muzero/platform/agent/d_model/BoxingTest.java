@@ -64,10 +64,10 @@ class BoxingTest {
     @Test
     void boxesRelevantTest() {
 
-        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1, 10).toArray());
-        assertArrayEquals(new Integer[]{0,1,2,3 }, Boxing.boxesRelevant(8, 10).toArray());
-
-
+        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1, 10, true).toArray());
+        assertArrayEquals(new Integer[]{0,1,2,3 }, Boxing.boxesRelevant(8, 10, true).toArray());
+        assertArrayEquals(new Integer[]{}, Boxing.boxesRelevant(1, 10, false).toArray());
+        assertArrayEquals(new Integer[]{1,2,3 }, Boxing.boxesRelevant(8, 10, false).toArray());
 
     }
 

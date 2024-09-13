@@ -16,7 +16,7 @@ public class Boxes {
      * @param boxes         an array of box values
      * @return true if any box in 'boxes' is contained in 'boxesRelevant'; false otherwise
      */
-    public static boolean hasRelevantBox(List<Integer> boxesRelevant, int[] boxes) {
+    public static boolean hasRelevantBox(List<Integer> boxesRelevant, int[] boxes, int unrollSteps) {
         if (boxes == null || boxesRelevant == null) {
             return false;
         }
@@ -24,7 +24,8 @@ public class Boxes {
         // Convert the list to a set for faster lookup
         Set<Integer> relevantBoxesSet = new HashSet<>(boxesRelevant);
 
-        for (int box : boxes) {
+        for (int u = 1; u <= unrollSteps; u++) {
+            int box = boxes[u];
             if (relevantBoxesSet.contains(box)) {
                 return true;
             }
