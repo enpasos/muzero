@@ -167,9 +167,11 @@ public class MuZeroLoop {
             long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
             while (nOpen > 0) {
                 for (int us = 1; us <= unrollSteps; us++) {
-                    log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch,unrollSteps);
-                    epoch = ruleTrain(durations, us);
+                    if (numNotClosedAndUokBelowUnrollStep(us) > 0) {
+                        log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
+                        testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
+                        epoch = ruleTrain(durations, us);
+                    }
                 }
                 nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
             }
