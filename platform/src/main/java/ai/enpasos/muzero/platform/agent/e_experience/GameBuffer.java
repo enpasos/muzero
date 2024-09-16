@@ -479,17 +479,17 @@ public class GameBuffer {
         Set<ShortTimestep> tsSet = getShortTimestepSet();
 
         // count number timesteps which are not known for given unrollSteps
-       // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(unrollSteps);
+         long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(unrollSteps);
 
-        int n = nOriginal;
+
 
         // the number of training timesteps is limited by the input n
         // and strategy to train in maximum 2 times the number of timesteps which are not known
-       // int n = Math.min(nOriginal,   (int) numUnknownsForGivenUnrollSteps);
+       int n = Math.min(nOriginal,   2 * (int) numUnknownsForGivenUnrollSteps);
 
         // filter timesteps that are trainable on the given unrollSteps
         ShortTimestep[] tsArray = (ShortTimestep[]) tsSet.stream()
-                .filter(p -> p.isTrainable(unrollSteps) && p.needsTraining(unrollSteps))
+                .filter(p -> p.isTrainable( ))   // && p.needsTraining(unrollSteps))
                 .toArray(ShortTimestep[]::new);
         n = Math.min(n, tsArray.length);
 
@@ -497,33 +497,33 @@ public class GameBuffer {
 
 
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
-//        final Map<Integer, Integer> boxOccupations = Arrays.stream(tsArray)
-//                .map(p -> p.getBox( unrollSteps ))  // Get the box from the array
-//                .collect(Collectors.toMap(
-//                        box -> box,   // Use the box as the key
-//                        box -> 1,     // Initialize count as 1
-//                        Integer::sum  // If the box is already present, sum the counts
-//                ));
+        final Map<Integer, Integer> boxOccupations = Arrays.stream(tsArray)
+                .map(p -> p.getBox( unrollSteps ))  // Get the box from the array
+                .collect(Collectors.toMap(
+                        box -> box,   // Use the box as the key
+                        box -> 1,     // Initialize count as 1
+                        Integer::sum  // If the box is already present, sum the counts
+                ));
 
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
-//        double[] g = Arrays.stream(tsArray)
-//                .mapToDouble(p -> {
-//                    int box = p.getBox( unrollSteps );
-//                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
-//                }).toArray();
-//        AliasMethod aliasMethod = new AliasMethod(g);
-//        int[] samples = aliasMethod.sampleWithoutReplacement(n);
+        double[] g = Arrays.stream(tsArray)
+                .mapToDouble(p -> {
+                    int box = p.getBox( unrollSteps );
+                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
+                }).toArray();
+        AliasMethod aliasMethod = new AliasMethod(g);
+        int[] samples = aliasMethod.sampleWithoutReplacement(n);
 
-      //  ShortTimestep[] tsTrainable = IntStream.range(0, samples.length).mapToObj(i -> tsArray[samples[i]]).toArray(ShortTimestep[]::new);
+        ShortTimestep[] tsTrainable = IntStream.range(0, samples.length).mapToObj(i -> tsArray[samples[i]]).toArray(ShortTimestep[]::new);
 
-        return tsArray;
+        return tsTrainable;
 
 
     }
 
 
     public long numIsTrainableAndNeedsTraining(int unrollSteps) {
-        return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(  unrollSteps) ).count();
+        return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(   ) ).count();
 
     }
 
