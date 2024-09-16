@@ -154,12 +154,14 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        int unrollSteps = 1;
-        try {
-            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
-        } catch (Exception e) {
-            unrollSteps = config.getMaxUnrollSteps();
-        }
+        int unrollSteps = getUnrollSteps();
+
+
+//        try {
+//            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
+//        } catch (Exception e) {
+//            unrollSteps = config.getMaxUnrollSteps();
+//        }
 
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
@@ -175,23 +177,29 @@ public class MuZeroLoop {
                         }
                     }
                 }
+                unrollSteps = getUnrollSteps();
                 nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
+                if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
+                    testUnrollRulestate.test();
+                    nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
+                    log.info("nOpen: {}", nOpen);
+                }
             }
 
-            if (unrollSteps < config.getMaxUnrollSteps()) {
-                unrollSteps++;
-                log.info("nOpen: {}", nOpen);
-                log.info("unrollSteps increased to: {}", unrollSteps);
-                testUnrollRulestate.test();
-                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-                log.info("nOpen: {}", nOpen);
-            }
-
-
-            if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
-                log.info("nOpen == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-                break;
-            }
+//            if (unrollSteps < config.getMaxUnrollSteps()) {
+//                unrollSteps++;
+//                log.info("nOpen: {}", nOpen);
+//                log.info("unrollSteps increased to: {}", unrollSteps);
+//                testUnrollRulestate.test();
+//                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
+//                log.info("nOpen: {}", nOpen);
+//            }
+//
+//
+//            if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
+//                log.info("nOpen == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
+//                break;
+//            }
         }
     }
 
@@ -220,7 +228,17 @@ public class MuZeroLoop {
 //    }
 
 
+private int getUnrollSteps() {
+        int unrollSteps = 1;
 
+    for (int us = 2; us <= config.getMaxUnrollSteps(); us++) {
+        if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
+            unrollSteps = us;
+        }
+    }
+    log.info("unrollSteps: {}", unrollSteps);
+        return unrollSteps;
+}
 
 
 
