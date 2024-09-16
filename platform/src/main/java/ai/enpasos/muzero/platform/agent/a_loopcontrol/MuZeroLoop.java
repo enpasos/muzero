@@ -164,16 +164,16 @@ public class MuZeroLoop {
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            long nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+            long nOpen = numIsTrainableAndNeedsTraining(unrollSteps);
             while (nOpen > 0) {
                 for (int us = 1; us <= unrollSteps; us++) {
-                    if (numNotClosedAndUokBelowUnrollStep(us) > 0) {
+                    if (numIsTrainableAndNeedsTraining(us) > 0) {
                         log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
                         testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
                         epoch = ruleTrain(durations, us);
                     }
                 }
-                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+                nOpen = numIsTrainableAndNeedsTraining(unrollSteps);
             }
 
             if (unrollSteps < config.getMaxUnrollSteps()) {
@@ -181,7 +181,7 @@ public class MuZeroLoop {
                 log.info("nOpen: {}", nOpen);
                 log.info("unrollSteps increased to: {}", unrollSteps);
                 testUnrollRulestate.test();
-                nOpen = numNotClosedAndUokBelowUnrollStep(unrollSteps);
+                nOpen = numIsTrainableAndNeedsTraining(unrollSteps);
                 log.info("nOpen: {}", nOpen);
             }
 
@@ -211,16 +211,15 @@ public class MuZeroLoop {
 
 
 
-    private long numNotClosed() {
-        long numNotClosed = timestepRepo.numNotClosed();
-        log.info("numNotClosed: {}",  numNotClosed);
-        return numNotClosed;
-    }
+//    private long numNotClosed() {
+//        long numNotClosed = timestepRepo.numNotClosed();
+//        log.info("numNotClosed: {}",  numNotClosed);
+//        return numNotClosed;
+//    }
 
-    private long numNotClosedAndUokBelowUnrollStep(int unrollSteps) {
-        long numNotClosed = timestepRepo.numNotClosedAndUOKBelow(  unrollSteps);
-        log.info("numNotClosedAndUokBelowUnrollSteps: {}, unrollSteps: {}",  numNotClosed, unrollSteps);
-        return numNotClosed;
+    private long numIsTrainableAndNeedsTraining(int unrollSteps) {
+        return gameBuffer.getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(  unrollSteps) ).count();
+
     }
 
 
