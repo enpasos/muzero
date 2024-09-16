@@ -40,7 +40,7 @@ public class ShortTimestep {
    }
 
    public boolean isTrainableAndNeedsTraining( ) {
-      return uOk < 1 || (nextuokclosed && !uOkClosed);
+      return (uOk < 1 && !uOkClosed) || (nextuokclosed && !uOkClosed);
    }
 
    public int getUnrollSteps(int maxTime) {
