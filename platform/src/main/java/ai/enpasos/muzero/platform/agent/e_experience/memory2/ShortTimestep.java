@@ -35,7 +35,7 @@ public class ShortTimestep {
    }
 
    public boolean isTrainableAndNeedsTraining(int unrollSteps ) {
-      if (unrollSteps == 1) return uOk < 1;
+      if (unrollSteps == 1) return uOk < 1 && !uOkClosed;
        return  nextuokclosed && !uOkClosed;
    }
 
