@@ -164,16 +164,16 @@ public class MuZeroLoop {
 
         while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            long nOpen = numIsTrainableAndNeedsTraining(unrollSteps);
+            long nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
             while (nOpen > 0) {
                 for (int us = 1; us <= unrollSteps; us++) {
-                    if (numIsTrainableAndNeedsTraining(us) > 0) {
+                    if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
                         log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
-                        testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
                         epoch = ruleTrain(durations, us);
+                        testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
                     }
                 }
-                nOpen = numIsTrainableAndNeedsTraining(unrollSteps);
+                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
             }
 
             if (unrollSteps < config.getMaxUnrollSteps()) {
@@ -181,7 +181,7 @@ public class MuZeroLoop {
                 log.info("nOpen: {}", nOpen);
                 log.info("unrollSteps increased to: {}", unrollSteps);
                 testUnrollRulestate.test();
-                nOpen = numIsTrainableAndNeedsTraining(unrollSteps);
+                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
                 log.info("nOpen: {}", nOpen);
             }
 
@@ -217,10 +217,7 @@ public class MuZeroLoop {
 //        return numNotClosed;
 //    }
 
-    private long numIsTrainableAndNeedsTraining(int unrollSteps) {
-        return gameBuffer.getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(  unrollSteps) ).count();
 
-    }
 
 
 
