@@ -158,14 +158,9 @@ public class MuZeroLoop {
         long nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
 
         while (nOpen > 0) {
-            for (int us = 1; us <= config.getMaxUnrollSteps(); us++) {
-                if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-                    log.info("target unrollSteps: {} ", us);
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, config.getMaxUnrollSteps());
-                    if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-                        epoch = ruleTrain(durations, us);
-                    }
-                }
+            for (int us = 2; us <= config.getMaxUnrollSteps(); us++) {
+                epoch = testAndTrainParticularUnrollSteps(1, epoch, durations);
+                epoch = testAndTrainParticularUnrollSteps(us, epoch, durations);
             }
             //  unrollSteps = getUnrollSteps();
             nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
@@ -176,6 +171,17 @@ public class MuZeroLoop {
             }
         }
 
+    }
+
+    private int testAndTrainParticularUnrollSteps(int us, int epoch, List<DurAndMem> durations) throws InterruptedException, ExecutionException {
+        if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
+            log.info("target unrollSteps: {} ", us);
+            testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, config.getMaxUnrollSteps());
+            if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
+                epoch = ruleTrain(durations, us);
+            }
+        }
+        return epoch;
     }
 
 
