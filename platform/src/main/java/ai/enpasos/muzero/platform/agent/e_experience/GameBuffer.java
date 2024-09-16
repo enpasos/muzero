@@ -503,9 +503,8 @@ public class GameBuffer {
         // filter timesteps that are trainable
         ShortTimestep[] tsArray = (ShortTimestep[]) tsSet.stream()
                 .filter(t -> {
-                    if (t.getUOk() < 1) return true;
                     int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-                    return  t.getUnrollSteps(tmax) == unrollSteps ;
+                    return t.isTrainable(tmax);
                 })
                 .toArray(ShortTimestep[]::new);
         n = Math.min(n, tsArray.length);
@@ -546,8 +545,7 @@ public class GameBuffer {
 
     public long numIsTrainableAndNeedsTraining(int unrollSteps) {
         return  getShortTimestepSet().stream().filter(t ->  {
-            int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-            return t.isTrainableAndNeedsTraining() && t.getUnrollSteps(tmax) == unrollSteps ;
+            return t.isTrainableAndNeedsTraining( unrollSteps );
         }).count();
 
     }

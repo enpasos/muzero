@@ -29,20 +29,22 @@ public class ShortTimestep {
    private boolean uOkClosed;
 
 
+   public boolean isTrainable(int unrollSteps) {
+      if (unrollSteps == 1) return true;
+      return uOkClosed || (nextuokclosed && !uOkClosed);
+   }
 
-
+   public boolean isTrainableAndNeedsTraining(int unrollSteps ) {
+      if (unrollSteps == 1) return uOk < 1;
+       return  nextuokclosed && !uOkClosed;
+   }
 
    public boolean isTrainableAndNeedsTraining( ) {
-    //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-     // return nextuokclosed ||  uOk < 1;
       return uOk < 1 || (nextuokclosed && !uOkClosed);
    }
 
    public int getUnrollSteps(int maxTime) {
-      //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-      // return nextuokclosed ||  uOk < 1;
       if (uOk < 1) return 1;
-
       return maxTime - t;
    }
 
