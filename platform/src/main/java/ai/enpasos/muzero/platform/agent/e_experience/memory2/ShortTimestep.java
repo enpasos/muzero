@@ -29,14 +29,14 @@ public class ShortTimestep {
    private boolean uOkClosed;
 
 
-   public boolean isTrainable(int unrollSteps) {
+   public boolean isTrainable(int unrollSteps, int tmax) {
       if (unrollSteps == 1) return true;
-      return uOkClosed || (nextuokclosed && !uOkClosed);
+      return (unrollSteps == getUnrollSteps(tmax)) && (uOkClosed || (nextuokclosed && !uOkClosed));
    }
 
-   public boolean isTrainableAndNeedsTraining(int unrollSteps ) {
+   public boolean isTrainableAndNeedsTraining(int unrollSteps, int tmax ) {
       if (unrollSteps == 1) return uOk < 1 && !uOkClosed;
-       return  nextuokclosed && !uOkClosed;
+       return nextuokclosed && !uOkClosed && (unrollSteps == getUnrollSteps(tmax))  ;
    }
 
    public boolean isTrainableAndNeedsTraining( ) {
