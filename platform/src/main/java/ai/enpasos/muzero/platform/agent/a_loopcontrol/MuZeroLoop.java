@@ -169,8 +169,10 @@ public class MuZeroLoop {
                 for (int us = 1; us <= unrollSteps; us++) {
                     if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
                         log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
-                        epoch = ruleTrain(durations, us);
                         testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
+                        if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
+                            epoch = ruleTrain(durations, us);
+                        }
                     }
                 }
                 nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
