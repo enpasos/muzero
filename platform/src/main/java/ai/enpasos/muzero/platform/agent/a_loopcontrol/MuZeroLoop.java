@@ -154,53 +154,28 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        int unrollSteps = getUnrollSteps();
 
+        long nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
 
-//        try {
-//            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
-//        } catch (Exception e) {
-//            unrollSteps = config.getMaxUnrollSteps();
-//        }
-
-
-        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            long nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-            while (nOpen > 0) {
-                for (int us = 1; us <= unrollSteps; us++) {
+        while (nOpen > 0) {
+            for (int us = 1; us <= config.getMaxUnrollSteps(); us++) {
+                if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
+                    log.info("target unrollSteps: {} ", us);
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, config.getMaxUnrollSteps());
                     if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-                        log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
-                        testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
-                        if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-                            epoch = ruleTrain(durations, us);
-                        }
+                        epoch = ruleTrain(durations, us);
                     }
                 }
-                unrollSteps = getUnrollSteps();
-                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-                if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
-                    testUnrollRulestate.test();
-                    nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-                    log.info("nOpen: {}", nOpen);
-                }
             }
-
-//            if (unrollSteps < config.getMaxUnrollSteps()) {
-//                unrollSteps++;
-//                log.info("nOpen: {}", nOpen);
-//                log.info("unrollSteps increased to: {}", unrollSteps);
-//                testUnrollRulestate.test();
-//                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-//                log.info("nOpen: {}", nOpen);
-//            }
-//
-//
-//            if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
-//                log.info("nOpen == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-//                break;
-//            }
+            //  unrollSteps = getUnrollSteps();
+            nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
+            if (nOpen == 0) {
+                testUnrollRulestate.test();
+                nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
+                log.info("nOpen: {}", nOpen);
+            }
         }
+
     }
 
 
@@ -228,17 +203,15 @@ public class MuZeroLoop {
 //    }
 
 
-private int getUnrollSteps() {
-        int unrollSteps = 1;
-
-    for (int us = 2; us <= config.getMaxUnrollSteps(); us++) {
-        if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-            unrollSteps = us;
-        }
-    }
-    log.info("unrollSteps: {}", unrollSteps);
-        return unrollSteps;
-}
+//    private int getUnrollSteps() {
+//        int unrollSteps;
+//        try {
+//            unrollSteps = timestepRepo.minUokNotClosed() + 1;
+//        } catch (Exception e) {
+//            unrollSteps = config.getMaxUnrollSteps();
+//        }
+//        return unrollSteps;
+//    }
 
 
 

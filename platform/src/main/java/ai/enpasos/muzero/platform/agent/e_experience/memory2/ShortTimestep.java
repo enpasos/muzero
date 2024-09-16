@@ -32,15 +32,24 @@ public class ShortTimestep {
 
 
 
-   public boolean isTrainable() {
+   public boolean isTrainableAndNeedsTraining( ) {
     //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-      return nextuokclosed ||  uOk < 1;
+     // return nextuokclosed ||  uOk < 1;
+      return uOk < 1 || (nextuokclosed && !uOkClosed);
    }
 
-   public boolean needsTraining(int unrollSteps) {
+   public int getUnrollSteps(int maxTime) {
       //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-      return    uOk < unrollSteps;
+      // return nextuokclosed ||  uOk < 1;
+      if (uOk < 1) return 1;
+
+      return maxTime - t;
    }
+
+//   public boolean needsTraining(int unrollSteps) {
+//      //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
+//      return    uOk < unrollSteps ;
+//   }
 
    public int getSmallestEmptyBox() {
         return Boxes.getSmallestEmptyBox(boxes);
