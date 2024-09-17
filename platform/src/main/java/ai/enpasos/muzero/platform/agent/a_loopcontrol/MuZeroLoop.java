@@ -159,9 +159,9 @@ public class MuZeroLoop {
 
         while (nOpen > 0) {
             for (int us = 2; us <= config.getMaxUnrollSteps(); us++) {
-                while (gameBuffer.numIsTrainableAndNeedsTraining(1) > 0) {
-                    epoch = testAndTrainParticularUnrollSteps(1, epoch, durations);
-                }
+//                while (gameBuffer.numIsTrainableAndNeedsTraining(1) > 0) {
+//                    epoch = testAndTrainParticularUnrollSteps(1, epoch, durations);
+//                }
                 epoch = testAndTrainParticularUnrollSteps(us, epoch, durations);
             }
             //  unrollSteps = getUnrollSteps();
