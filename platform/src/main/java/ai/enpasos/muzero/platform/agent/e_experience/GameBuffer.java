@@ -543,6 +543,16 @@ public class GameBuffer {
 
     }
 
+    public int getSmallestUnrollSteps() {
+        final int maxUnrollSteps = config.getMaxUnrollSteps();
+        return (int)  getShortTimestepSet().stream().mapToInt(t ->  {
+            int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
+            int unrollSteps = t.getUnrollSteps(tmax);
+            if (t.isUOkClosed()) return unrollSteps;
+            return maxUnrollSteps;
+        }).min().orElse(maxUnrollSteps);
+    }
+
 
     public long numIsTrainableAndNeedsTraining() {
         return  getShortTimestepSet().stream().filter(t ->  t.isTrainableAndNeedsTraining() ).count();
