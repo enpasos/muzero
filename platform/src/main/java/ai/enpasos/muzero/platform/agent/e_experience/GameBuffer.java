@@ -499,6 +499,9 @@ public class GameBuffer {
         // the number of training timesteps is limited by the input n
         // and strategy to train in maximum 2 times the number of timesteps which are not known
        int n = Math.min(nOriginal,   2 * (int) numUnknownsForGiven);
+       if (unrollSteps == 1) {
+            n = Math.min(nOriginal,    (int) numUnknownsForGiven);
+       }
 
         // filter timesteps that are trainable
         ShortTimestep[] tsArray = (ShortTimestep[]) tsSet.stream()
