@@ -525,6 +525,9 @@ public class GameBuffer {
         double[] g = Arrays.stream(tsArray)
                 .mapToDouble(p -> {
                     int box = p.getBox( unrollSteps );
+                    if (unrollSteps == 1) {
+                        return box == 0 ? 1.0 : 0.0;
+                    }
                     return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
                 }).toArray();
         AliasMethod aliasMethod = new AliasMethod(g);
