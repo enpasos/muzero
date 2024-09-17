@@ -180,7 +180,7 @@ public class MuZeroLoop {
 
         long numTrainable =  gameBuffer.numIsTrainableAndNeedsTraining(us);
         if ( numTrainable > 0) {
-            log.info("unrollSteps: {} , num trainable: ", us,  numTrainable);
+            log.info("unrollSteps: {} , num trainable: {}", us,  numTrainable);
             testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, config.getMaxUnrollSteps());
             if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
                 epoch = ruleTrain(durations, us);
