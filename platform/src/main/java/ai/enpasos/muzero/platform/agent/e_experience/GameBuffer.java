@@ -548,7 +548,7 @@ public class GameBuffer {
         return (int)  getShortTimestepSet().stream().mapToInt(t ->  {
             int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
             int unrollSteps = t.getUnrollSteps(tmax);
-            if (t.isUOkClosed()) return unrollSteps;
+            if (t.isTrainableAndNeedsTraining()) return unrollSteps;
             return maxUnrollSteps;
         }).min().orElse(maxUnrollSteps);
     }
