@@ -118,7 +118,7 @@ public class Boxes {
         if (unrollSteps < 0) {
             return 0;
         }
-        if (unrollSteps > boxes.length) {
+        if (unrollSteps >= boxes.length) {
             return 0;
         }
         return boxes[unrollSteps];
