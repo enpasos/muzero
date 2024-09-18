@@ -24,7 +24,7 @@ public class Boxes {
         // Convert the list to a set for faster lookup
         Set<Integer> relevantBoxesSet = new HashSet<>(boxesRelevant);
 
-        for (int u = 0; u < unrollSteps && u < boxes.length; u++) {
+        for (int u = 0; u <= unrollSteps && u < boxes.length; u++) {
             int box = boxes[u];
             if (relevantBoxesSet.contains(box)) {
                 return true;
@@ -48,7 +48,7 @@ public class Boxes {
      */
     public static Pair<Boolean, int[]> toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant) {
         // Determine the target length of the boxes array and the index threshold
-        int targetLength = Math.max(1, uOkClosed ? uok : uok + 1);
+        int targetLength = Math.max(1, uOkClosed ? uok+1 : uok + 2);
         int indexThreshold = uOkClosed ? targetLength : targetLength - 1;
 
         boolean changed = false;
@@ -106,8 +106,8 @@ public class Boxes {
      * Retrieves the box value from the boxes array based on the given unroll steps.
      *
      * @param boxes       the array of box values
-     * @param unrollSteps the number of unroll steps (1-based index)
-     * @return the box value at the (unrollSteps - 1) index in the boxes array;
+     * @param unrollSteps the number of unroll steps
+     * @return the box value at the (unrollSteps) index in the boxes array;
      *         returns 0 if the input is invalid or out of bounds.
      * @throws IllegalArgumentException if unrollSteps is negative
      */
@@ -115,13 +115,13 @@ public class Boxes {
         if (boxes == null || boxes.length == 0) {
             return 0;
         }
-        if (unrollSteps <= 0) {
+        if (unrollSteps < 0) {
             return 0;
         }
         if (unrollSteps > boxes.length) {
             return 0;
         }
-        return boxes[unrollSteps - 1];
+        return boxes[unrollSteps];
     }
 
 
