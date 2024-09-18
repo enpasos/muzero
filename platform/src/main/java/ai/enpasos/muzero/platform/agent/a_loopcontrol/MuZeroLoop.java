@@ -159,8 +159,11 @@ public class MuZeroLoop {
         int  unrollSteps = gameBuffer.getSmallestUnrollSteps();
         while (nOpenAll > 0) {
           //  int usMin = gameBuffer.getSmallestUnrollSteps();
-            for (int us = 0; us <= unrollSteps; us++) {
+            for (int us = 0; us < unrollSteps; us++) {
                 epoch = testAndTrainParticularUnrollSteps(us, epoch, durations);
+            }
+            while (gameBuffer.numNeedsTraining(unrollSteps) > 0) {
+                epoch = ruleTrain(durations, unrollSteps);
             }
             //  unrollSteps = getUnrollSteps();
             long nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
