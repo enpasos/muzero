@@ -491,24 +491,17 @@ public class GameBuffer {
         Set<ShortTimestep> tsSet = getShortTimestepSet();
 
         // count number timesteps which are not known for given unrollSteps
-         long numUnknownsForGiven =  numIsTrainableAndNeedsTraining( unrollSteps);
-
+         long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(unrollSteps);
 
 
 
         // the number of training timesteps is limited by the input n
         // and strategy to train in maximum 2 times the number of timesteps which are not known
-       int n = Math.min(nOriginal,   2 * (int) numUnknownsForGiven);
-//       if (unrollSteps == 0) {
-//            n = Math.min(nOriginal,    (int) numUnknownsForGiven);
-//       }
+       int n = Math.min(nOriginal,   2 * (int) numUnknownsForGivenUnrollSteps);
 
-        // filter timesteps that are trainable
+        // filter timesteps that are trainable on the given unrollSteps
         ShortTimestep[] tsArray = (ShortTimestep[]) tsSet.stream()
-                .filter(t -> {
-                    int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-                    return t.needsTraining(unrollSteps, tmax);
-                })
+                .filter(p -> p.isTrainable( ))   // && p.needsTraining(unrollSteps))
                 .toArray(ShortTimestep[]::new);
         n = Math.min(n, tsArray.length);
 
@@ -528,9 +521,9 @@ public class GameBuffer {
         double[] g = Arrays.stream(tsArray)
                 .mapToDouble(p -> {
                     int box = p.getBox( unrollSteps );
-//                    if (unrollSteps == 0) {
-//                        return box == 0 ? 1.0 : 0.0;
-//                    }
+                    if (unrollSteps == 1) {
+                        return box == 0 ? 1.0 : 0.0;
+                    }
                     return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
                 }).toArray();
         AliasMethod aliasMethod = new AliasMethod(g);
@@ -543,34 +536,9 @@ public class GameBuffer {
 
     }
 
-    public int getSmallestUnrollSteps() {
-        final int maxUnrollSteps = config.getMaxUnrollSteps();
-        return (int)  getShortTimestepSet().stream().mapToInt(t ->  {
-            int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-            int unrollSteps = t.getUnrollSteps(tmax);
-            if (t.isTrainableAndNeedsTraining()) return unrollSteps;
-            return maxUnrollSteps;
-        }).min().orElse(maxUnrollSteps);
-    }
-
-
-    public long numIsTrainableAndNeedsTraining() {
-        return  getShortTimestepSet().stream().filter(t ->  t.isTrainableAndNeedsTraining() ).count();
-
-    }
 
     public long numIsTrainableAndNeedsTraining(int unrollSteps) {
-        return  getShortTimestepSet().stream().filter(t ->  {
-            int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-            return t.isTrainableAndNeedsTraining( unrollSteps, tmax );
-        }).count();
-
-    }
-    public long numNeedsTraining(int unrollSteps) {
-        return  getShortTimestepSet().stream().filter(t ->  {
-            int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-            return t.needsTraining( unrollSteps, tmax );
-        }).count();
+        return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(   ) ).count();
 
     }
 

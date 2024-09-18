@@ -29,35 +29,18 @@ public class ShortTimestep {
    private boolean uOkClosed;
 
 
-   public boolean isTrainable(int unrollSteps, int tmax) {
-   //   if (unrollSteps == 0) return true;
-      return (unrollSteps == getUnrollSteps(tmax)) && (uOkClosed || (nextuokclosed && !uOkClosed));
+
+
+
+   public boolean isTrainable() {
+    //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
+      return nextuokclosed ||  uOk < 1;
    }
 
-   public boolean isTrainableAndNeedsTraining(int unrollSteps, int tmax ) {
-     // if (unrollSteps == 0) return uOk < 0 && !uOkClosed;
-       return nextuokclosed && !uOkClosed && (unrollSteps == getUnrollSteps(tmax))  ;
+   public boolean needsTraining(int unrollSteps) {
+      //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
+      return    uOk < unrollSteps;
    }
-
-   public boolean needsTraining(int unrollSteps, int tmax ) {
-      // if (unrollSteps == 0) return uOk < 0 && !uOkClosed;
-      return  !uOkClosed && (unrollSteps == getUnrollSteps(tmax))  ;
-   }
-
-   public boolean isTrainableAndNeedsTraining( ) {
-     // return (uOk < 0 && !uOkClosed) || (nextuokclosed && !uOkClosed);
-      return  (nextuokclosed && !uOkClosed);
-   }
-
-   public int getUnrollSteps(int maxTime) {
-    //  if (uOk < 0) return 0;
-      return maxTime - t;
-   }
-
-//   public boolean needsTraining(int unrollSteps) {
-//      //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-//      return    uOk < unrollSteps ;
-//   }
 
    public int getSmallestEmptyBox() {
         return Boxes.getSmallestEmptyBox(boxes);
