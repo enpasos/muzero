@@ -155,15 +155,15 @@ public class MuZeroLoop {
         testUnrollRulestate.testNewEpisodes();
 
 
-        long nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
+        long nOpenAll = gameBuffer.numIsTrainableAndNeedsTraining();
         int  unrollSteps = gameBuffer.getSmallestUnrollSteps();
-        while (nOpen > 0) {
+        while (nOpenAll > 0) {
           //  int usMin = gameBuffer.getSmallestUnrollSteps();
             for (int us = 0; us <= unrollSteps; us++) {
                 epoch = testAndTrainParticularUnrollSteps(us, epoch, durations);
             }
             //  unrollSteps = getUnrollSteps();
-            nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
+            long nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
             if ( nOpen == 0 && unrollSteps < config.getMaxUnrollSteps()) {
                 unrollSteps++;
             }
@@ -173,6 +173,8 @@ public class MuZeroLoop {
                 nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
                 log.info("nOpen: {}", nOpen);
             }
+
+            nOpenAll = gameBuffer.numIsTrainableAndNeedsTraining();
         }
 
     }
