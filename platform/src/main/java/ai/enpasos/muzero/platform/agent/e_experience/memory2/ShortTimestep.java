@@ -39,6 +39,11 @@ public class ShortTimestep {
        return nextuokclosed && !uOkClosed && (unrollSteps == getUnrollSteps(tmax))  ;
    }
 
+   public boolean needsTraining(int unrollSteps, int tmax ) {
+      // if (unrollSteps == 0) return uOk < 0 && !uOkClosed;
+      return  !uOkClosed && (unrollSteps == getUnrollSteps(tmax))  ;
+   }
+
    public boolean isTrainableAndNeedsTraining( ) {
      // return (uOk < 0 && !uOkClosed) || (nextuokclosed && !uOkClosed);
       return  (nextuokclosed && !uOkClosed);

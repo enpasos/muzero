@@ -156,18 +156,23 @@ public class MuZeroLoop {
 
 
         long nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
-
+        int  unrollSteps = gameBuffer.getSmallestUnrollSteps();
         while (nOpen > 0) {
-            int us = gameBuffer.getSmallestUnrollSteps();
-       //     for (int us = 2; us <= config.getMaxUnrollSteps(); us++) {
+          //  int usMin = gameBuffer.getSmallestUnrollSteps();
+            //for (int us = 2; us <= config.getMaxUnrollSteps(); us++) {
 //                while (gameBuffer.numIsTrainableAndNeedsTraining(1) > 0) {
 //                    epoch = testAndTrainParticularUnrollSteps(1, epoch, durations);
 //                }
-                epoch = testAndTrainParticularUnrollSteps(us, epoch, durations);
-         //   }
+                epoch = testAndTrainParticularUnrollSteps(unrollSteps, epoch, durations);
+
+            //}
             //  unrollSteps = getUnrollSteps();
-            nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
-            if (nOpen == 0) {
+            nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
+            if ( nOpen == 0 && unrollSteps < config.getMaxUnrollSteps()) {
+                unrollSteps++;
+            }
+
+            if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
                 testUnrollRulestate.test();
                 nOpen = gameBuffer.numIsTrainableAndNeedsTraining();
                 log.info("nOpen: {}", nOpen);
@@ -178,11 +183,11 @@ public class MuZeroLoop {
 
     private int testAndTrainParticularUnrollSteps(int us, int epoch, List<DurAndMem> durations) throws InterruptedException, ExecutionException {
 
-        long numTrainable =  gameBuffer.numIsTrainableAndNeedsTraining(us);
-        if ( numTrainable > 0) {
-            log.info("unrollSteps: {} , num trainable: {}", us,  numTrainable);
+        long n =  gameBuffer.numNeedsTraining(us);
+        if ( n  > 0) {
+            log.info("unrollSteps: {} , num needs training: {}", us,  n);
             testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, config.getMaxUnrollSteps());
-            if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
+            if ( gameBuffer.numNeedsTraining(us)  > 0) {
                 epoch = ruleTrain(durations, us);
             }
         }
