@@ -562,7 +562,7 @@ public class GameBuffer {
 
         // filter timesteps that are trainable on the given unrollSteps
         ShortTimestep[] tsArray = (ShortTimestep[]) tsSet.stream()
-                .filter(p -> p.isTrainable( ))   // && p.needsTraining(unrollSteps))
+                .filter(p -> p.isTrainable( unrollSteps ))   // && p.needsTraining(unrollSteps))
                 .toArray(ShortTimestep[]::new);
         n = Math.min(n, tsArray.length);
 
@@ -602,13 +602,13 @@ public class GameBuffer {
     }
 
 
-    public long numIsTrainableAndNeedsTraining(int unrollSteps) {
-        return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(   ) ).count();
-
-    }
+//    public long numIsTrainableAndNeedsTraining(int unrollSteps) {
+//        return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable( unrollSteps  ) ).count();
+//
+//    }
 
     public long numIsTrainableAndNeedsTraining(List<Long> episodeIds, int unrollSteps) {
-        return  episodeIds.stream().mapToLong(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream().filter(t -> t.isTrainable( ) && t.needsTraining(  unrollSteps )).count()).sum();
+        return  episodeIds.stream().mapToLong(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream().filter(t -> t.isTrainable(unrollSteps ) && t.needsTraining(  unrollSteps )).count()).sum();
 
     }
 

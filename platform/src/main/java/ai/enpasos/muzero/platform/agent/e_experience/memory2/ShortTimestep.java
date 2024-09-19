@@ -32,9 +32,9 @@ public class ShortTimestep {
 
 
 
-   public boolean isTrainable() {
-    //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-      return nextuokclosed ||  uOk < 1;
+   public boolean isTrainable(int unrollSteps) {
+      return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
+
    }
 
    public boolean needsTraining(int unrollSteps) {
