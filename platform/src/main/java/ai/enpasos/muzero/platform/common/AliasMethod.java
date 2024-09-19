@@ -81,8 +81,13 @@ public class AliasMethod {
     public int[] sampleWithoutReplacement(int n) {
         int[] result = new int[n];
         TreeSet<Integer> set = new TreeSet<>();
-        while(set.size() < n) {
+        int countSuccesslessDraws = 0;
+        while(set.size() < n && countSuccesslessDraws < 100) {
+            int sizeBefore = set.size();
             set.add(sample());
+            if (sizeBefore == set.size()) {
+                countSuccesslessDraws++;
+            }
         }
         return set.stream().mapToInt(i -> i).toArray();
     }

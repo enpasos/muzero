@@ -569,6 +569,10 @@ public class GameBuffer {
         log.info("max n = {}, effective n = {}, unrollSteps = {}, num of trainable timesteps = {}", nOriginal, n, unrollSteps, tsArray.length);
 
 
+        if (n == tsArray.length) {
+            return tsArray;
+        }
+
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
         final Map<Integer, Integer> boxOccupations = Arrays.stream(tsArray)
                 .map(p -> p.getBox( unrollSteps ))  // Get the box from the array
