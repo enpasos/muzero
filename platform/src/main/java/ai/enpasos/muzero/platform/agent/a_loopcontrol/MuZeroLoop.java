@@ -166,10 +166,10 @@ public class MuZeroLoop {
 
             // iterate over all unrollSteps using unrollStepsToEpisodeCount
             for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
-                log.info("unrollSteps: {}, episodeCount: {]", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
+                log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
                 Map<Integer, Integer> unrollStepsToEpisodeCountRefreshed = gameBuffer.unrollStepsToEpisodeCount();
-                log.info("unrollSteps: {}, episodeCount: {]", unrollSteps, unrollStepsToEpisodeCountRefreshed.get(unrollSteps));
+                log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCountRefreshed.get(unrollSteps));
                 if (unrollStepsToEpisodeCountRefreshed.containsKey(unrollSteps)) {
                     epoch = ruleTrain(durations, unrollSteps);
                 }
