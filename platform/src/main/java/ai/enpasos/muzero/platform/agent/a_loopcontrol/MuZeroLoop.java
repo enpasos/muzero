@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
@@ -154,44 +155,37 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        int unrollSteps = 1;
-        try {
-            unrollSteps = Math.max(1, timestepRepo.minUokNotClosed() + 1);
-        } catch (Exception e) {
-            unrollSteps = config.getMaxUnrollSteps();
-        }
 
+        int nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
+        while (nOpen > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
+            log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
 
-        while (unrollSteps <= config.getMaxUnrollSteps() && trainingStep < config.getNumberOfTrainingSteps()) {
-            log.info("minUnrollSteps: {} <= maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-            long nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-            while (nOpen > 0) {
-                for (int us = 1; us <= unrollSteps; us++) {
-                    if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-                        log.info("target unrollSteps: {}, local unrollSteps: {}", unrollSteps, us);
-                        testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
-                        if (gameBuffer.numIsTrainableAndNeedsTraining(us) > 0) {
-                            epoch = ruleTrain(durations, us);
-                        }
-                    }
+            Map<Integer, Integer> unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
+            // log.info unrollStepsToEpisodeCount
+            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("unrollSteps: {}, episodeCount: {}", k, v));
+
+            // iterate over all unrollSteps using unrollStepsToEpisodeCount
+            for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
+                log.info("unrollSteps: {}, episodeCount: {]", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
+                Map<Integer, Integer> unrollStepsToEpisodeCountRefreshed = gameBuffer.unrollStepsToEpisodeCount();
+                log.info("unrollSteps: {}, episodeCount: {]", unrollSteps, unrollStepsToEpisodeCountRefreshed.get(unrollSteps));
+                if (unrollStepsToEpisodeCountRefreshed.containsKey(unrollSteps)) {
+                    epoch = ruleTrain(durations, unrollSteps);
                 }
-                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
             }
 
-            if (unrollSteps < config.getMaxUnrollSteps()) {
-                unrollSteps++;
-                log.info("nOpen: {}", nOpen);
-                log.info("unrollSteps increased to: {}", unrollSteps);
+
+            nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
+
+            if (nOpen == 0) {
                 testUnrollRulestate.test();
-                nOpen = gameBuffer.numIsTrainableAndNeedsTraining(unrollSteps);
-                log.info("nOpen: {}", nOpen);
+                nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
+                if (nOpen == 0) {
+                    break;
+                }
             }
 
-
-            if (nOpen == 0 && unrollSteps == config.getMaxUnrollSteps()) {
-                log.info("nOpen == 0; unrollSteps: {}; maxUnrollSteps: {}", unrollSteps, config.getMaxUnrollSteps());
-                break;
-            }
         }
     }
 

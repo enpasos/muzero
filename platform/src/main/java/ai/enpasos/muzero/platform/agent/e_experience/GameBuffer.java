@@ -19,12 +19,14 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
+import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.common.AliasMethod;
 import ai.enpasos.muzero.platform.common.DurAndMem;
@@ -429,6 +431,7 @@ public class GameBuffer {
 
     private Set<ShortTimestep> shortTimesteps;
     private Map<Long, Integer> episodeIdToMaxTime;
+    private Map<Long, ShortEpisode> episodeIdToShortEpisodes;
 
     public void refreshCache(List<Long> idsTsChanged) {
         Set<ShortTimestep>  shortTimesteps = getShortTimestepSet();
@@ -466,6 +469,22 @@ public class GameBuffer {
                 offset += limit;
             } while (resultList.size() > 0);
         }
+        // fill episodeIdToShortEpisodes
+        episodeIdToShortEpisodes = new HashMap();
+        for (ShortTimestep shortTimestep : shortTimesteps) {
+            Long episodeId = shortTimestep.getEpisodeId();
+            ShortEpisode shortEpisode = episodeIdToShortEpisodes.get(episodeId);
+            if (shortEpisode == null) {
+                shortEpisode = ShortEpisode.builder().id(episodeId).shortTimesteps(new ArrayList<>()).build();
+                episodeIdToShortEpisodes.put(episodeId, shortEpisode);
+            }
+            shortEpisode.getShortTimesteps().add(shortTimestep);
+        }
+        // sort shortTimesteps in shortEpisodes
+        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            shortEpisode.getShortTimesteps().sort(Comparator.comparing(ShortTimestep::getT));
+        }
+
         // fill episodeIdToMaxTime
         for (ShortTimestep shortTimestep : shortTimesteps) {
             Long episodeId = shortTimestep.getEpisodeId();
@@ -476,6 +495,41 @@ public class GameBuffer {
     }
 
 
+    public Map<Integer, List<Long>> unrollStepsToEpisodeIds() {
+        getShortTimestepSet( );  // fill caches
+        Map<Integer, List<Long>> unrollStepsToEpisodeIds = new HashMap<>();
+        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            int unrollSteps = shortEpisode.getUnrollSteps();
+            List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
+            if (episodeIds == null) {
+                episodeIds = new ArrayList<>();
+                unrollStepsToEpisodeIds.put(unrollSteps, episodeIds);
+            }
+            episodeIds.add(shortEpisode.getId());
+        }
+        return unrollStepsToEpisodeIds;
+    }
+
+    public Map<Integer, Integer> unrollStepsToEpisodeCount() {
+        getShortTimestepSet( );  // fill caches
+        Map<Integer, Integer> unrollStepsToEpisodeCount = new HashMap<>();
+        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            int unrollSteps = shortEpisode.getUnrollSteps();
+            unrollStepsToEpisodeCount.put(unrollSteps, unrollStepsToEpisodeCount.getOrDefault(unrollSteps, 0) + 1);
+        }
+        return unrollStepsToEpisodeCount;
+    }
+
+
+    public  Integer  numClosedEpisodes() {
+        getShortTimestepSet();
+        return (int) episodeIdToShortEpisodes.values().stream().filter(ShortEpisode::isClosed).count();
+    }
+
+    public  Integer  numEpisodes() {
+        getShortTimestepSet();
+        return episodeIdToShortEpisodes.size();
+    }
 
 
     private static int[] convert(Integer[] input) {
@@ -488,10 +542,17 @@ public class GameBuffer {
 
     public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps) {
 
-        Set<ShortTimestep> tsSet = getShortTimestepSet();
+
+
+        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds();
+        List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
+        Set<ShortTimestep> tsSet = new HashSet<>();
+        if (episodeIds != null) {
+            episodeIds.stream().map(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps()).forEach(tsSet::addAll);
+        }
 
         // count number timesteps which are not known for given unrollSteps
-         long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(unrollSteps);
+         long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
 
 
 
@@ -539,6 +600,11 @@ public class GameBuffer {
 
     public long numIsTrainableAndNeedsTraining(int unrollSteps) {
         return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable(   ) ).count();
+
+    }
+
+    public long numIsTrainableAndNeedsTraining(List<Long> episodeIds, int unrollSteps) {
+        return  episodeIds.stream().mapToLong(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream().filter(t -> t.isTrainable( ) && t.needsTraining(  unrollSteps )).count()).sum();
 
     }
 
