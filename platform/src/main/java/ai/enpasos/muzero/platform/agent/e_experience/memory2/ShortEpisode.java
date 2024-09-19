@@ -20,9 +20,9 @@ public class ShortEpisode {
 
     public int getUnrollSteps() {
         // if there is any timestep in shortTimesteps with uok < 1 return 1
-        if (shortTimesteps.stream().anyMatch(shortTimestep -> shortTimestep.getUOk() < 1 && !shortTimestep.isUOkClosed())) {
-            return 1;
-        }
+//        if (shortTimesteps.stream().anyMatch(shortTimestep -> shortTimestep.getUOk() < 1 && !shortTimestep.isUOkClosed())) {
+//            return 1;
+//        }
 
         int t = getMaxT();
         for (;t >= 0; t--) {
