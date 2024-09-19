@@ -140,13 +140,13 @@ public class TestUnrollRulestate {
 //    }
 
 
-    public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps) {
+    public void identifyRelevantTimestepsAndTestThem(int epoch ) {
 
         List<Integer> boxesRelevant = getBoxesRelevant(epoch);
 
         Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
         List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
-                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), unrollSteps) )
+                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), config.getMaxUnrollSteps()) )
                 .collect(Collectors.toList());
         List<Long> relevantIds = relevantShortTimesteps.stream()
                 .mapToLong(shortTimestep -> shortTimestep.getId())
