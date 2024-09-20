@@ -198,6 +198,7 @@ public class MuZeroLoop {
 
 
 
+
             nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
 
             if (nOpen == 0) {
