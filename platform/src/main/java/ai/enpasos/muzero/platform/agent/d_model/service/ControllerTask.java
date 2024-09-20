@@ -20,6 +20,8 @@ public class ControllerTask {
     int epoch = -1;
     private int numUnrollSteps = -1;
 
+    private boolean lowHangingFruits = false;
+
 public ControllerTask(ControllerTaskType taskType) {
     this.taskType = taskType;
 }
@@ -73,5 +75,11 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
     }
 
 
+    public boolean hasLowHangingFruits() {
+        return lowHangingFruits;
+    }
 
+    public void setLowHangingFruits(boolean lowHangingFruits) {
+        this.lowHangingFruits = lowHangingFruits;
+    }
 }

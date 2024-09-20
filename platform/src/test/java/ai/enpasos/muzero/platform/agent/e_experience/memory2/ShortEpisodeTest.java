@@ -74,7 +74,7 @@ class ShortEpisodeTest {
                         ShortTimestep.builder().id(1003L).t(3).uOk(6).build(),
                         ShortTimestep.builder().id(1004L).t(4).uOk(3).build(),
                         ShortTimestep.builder().id(1005L).t(5).uOk(2).build(),
-                        ShortTimestep.builder().id(1006L).t(6).uOk(2).build(),
+                        ShortTimestep.builder().id(1006L).t(6).uOk(-1).build(),
                         ShortTimestep.builder().id(1007L).t(7).uOk(1).uOkClosed(true).build(),
                         ShortTimestep.builder().id(1008L).t(8).uOk(0).uOkClosed(true).build()
                 )).build();

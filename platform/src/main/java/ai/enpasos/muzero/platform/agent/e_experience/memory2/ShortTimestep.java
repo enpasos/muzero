@@ -52,4 +52,8 @@ public class ShortTimestep {
    public int getBox(int unrollSteps) {
       return Boxes.getBox(boxes, unrollSteps);
    }
+
+   public boolean isLowHangingFruit(int unrollSteps, int tmax) {
+      return !uOkClosed && t > tmax - unrollSteps;
+   }
 }

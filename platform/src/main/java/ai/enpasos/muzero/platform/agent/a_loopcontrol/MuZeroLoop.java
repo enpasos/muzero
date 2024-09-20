@@ -18,6 +18,7 @@
 package ai.enpasos.muzero.platform.agent.a_loopcontrol;
 
 
+import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
@@ -162,28 +163,29 @@ public class MuZeroLoop {
         while (nOpen > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
 
-            Map<Integer, Integer> unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
-            // log.info unrollStepsToEpisodeCount
-            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("unrollSteps: {}, episodeCount: {}", k, v));
+
+            if (epoch % 11 == 0) {
+                testUnrollRulestate.test();
+            } else {
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
+            }
+
 
             // iterate over all unrollSteps using unrollStepsToEpisodeCount
           //  for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
 
-            // get the smallest unrollSteps
-            int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
-                log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
-                if (epoch % 11 == 0) {
-                    testUnrollRulestate.test();
-                } else {
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
-                }
 
-                Map<Integer, Integer> unrollStepsToEpisodeCountRefreshed = gameBuffer.unrollStepsToEpisodeCount();
-                log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCountRefreshed.get(unrollSteps));
-                if (unrollStepsToEpisodeCountRefreshed.containsKey(unrollSteps)) {
-                    epoch = ruleTrain(durations, unrollSteps);
-                }
-           // }
+            Pair<Map<Integer, Integer>, Boolean> fruitPair = selectFruits();
+            Map<Integer, Integer>  unrollStepsToEpisodeCount  =  fruitPair.getKey();
+            boolean hasLowHandingFruits = fruitPair.getValue();
+
+            int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
+            log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
+
+
+            if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
+                epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+            }
 
 
             nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
@@ -199,13 +201,25 @@ public class MuZeroLoop {
         }
     }
 
+    private Pair<Map<Integer, Integer>, Boolean> selectFruits() {
+        Map<Integer, Integer>  unrollStepsToEpisodeCount  =  gameBuffer.unrollStepsToEpisodeCountLowHandingFruits();
+        boolean hasLowHandingFruits = unrollStepsToEpisodeCount.size() > 0;
+        if (hasLowHandingFruits) {
+            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("low hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
+        } else {
+            unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
+            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("higher hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
+        }
+        return new Pair<>(unrollStepsToEpisodeCount, hasLowHandingFruits);
+    }
 
-    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps) throws InterruptedException, ExecutionException {
+
+    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps, boolean hasLowHangingFruits) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.trainModelRules(freeze, unrollSteps ).get();
+        modelService.trainModelRules(freeze, unrollSteps, hasLowHangingFruits ).get();
 
         epoch = modelState.getEpoch();
         duration.off();

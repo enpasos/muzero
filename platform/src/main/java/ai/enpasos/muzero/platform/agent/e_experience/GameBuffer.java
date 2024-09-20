@@ -495,17 +495,19 @@ public class GameBuffer {
     }
 
 
-    public Map<Integer, List<Long>> unrollStepsToEpisodeIds() {
+    public Map<Integer, List<Long>> unrollStepsToEpisodeIds(boolean lowHangingFruits) {
         getShortTimestepSet( );  // fill caches
         Map<Integer, List<Long>> unrollStepsToEpisodeIds = new HashMap<>();
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             int unrollSteps = shortEpisode.getUnrollSteps();
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
-            if (episodeIds == null) {
-                episodeIds = new ArrayList<>();
-                unrollStepsToEpisodeIds.put(unrollSteps, episodeIds);
+            if (!lowHangingFruits || shortEpisode.hasLowHangingFruits(unrollSteps)) {
+                if (episodeIds == null) {
+                    episodeIds = new ArrayList<>();
+                    unrollStepsToEpisodeIds.put(unrollSteps, episodeIds);
+                }
+                episodeIds.add(shortEpisode.getId());
             }
-            episodeIds.add(shortEpisode.getId());
         }
         return unrollStepsToEpisodeIds;
     }
@@ -540,19 +542,38 @@ public class GameBuffer {
         return result;
     }
 
-    public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps) {
+    public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps, boolean lowHangingFruits) {
 
 
 
-        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds();
+        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds(lowHangingFruits);
         List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
         Set<ShortTimestep> tsSet = new HashSet<>();
         if (episodeIds != null) {
-            episodeIds.stream().map(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps()).forEach(tsSet::addAll);
+            if (lowHangingFruits) {
+                episodeIds.stream().map(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps()).forEach(tsSet::addAll);
+            } else {
+                episodeIds.stream().forEach(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream().forEach(t -> {
+                    int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
+                    if (t.isLowHangingFruit(unrollSteps, tmax)) {
+                        tsSet.add(t);
+                    }
+                }));
+            }
         }
 
         // count number timesteps which are not known for given unrollSteps
          long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
+
+
+        if (lowHangingFruits) {
+            int n = Math.min(nOriginal,    (int) numUnknownsForGivenUnrollSteps);
+            List<ShortTimestep> result = new ArrayList<>();
+            result.addAll(tsSet);
+            Collections.shuffle(result);
+            return result.stream().limit(n).toArray(ShortTimestep[]::new);
+        }
+
 
 
 
@@ -620,4 +641,15 @@ public class GameBuffer {
 
     }
 
+    public Map<Integer, Integer> unrollStepsToEpisodeCountLowHandingFruits() {
+        getShortTimestepSet( );  // fill caches
+        Map<Integer, Integer> unrollStepsToEpisodeCount = new HashMap<>();
+        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            int unrollSteps = shortEpisode.getUnrollSteps();
+            if (shortEpisode.hasLowHangingFruits( unrollSteps)) {
+                unrollStepsToEpisodeCount.put(unrollSteps, unrollStepsToEpisodeCount.getOrDefault(unrollSteps, 0) + 1);
+            }
+        }
+        return unrollStepsToEpisodeCount;
+    }
 }
