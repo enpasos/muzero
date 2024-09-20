@@ -157,6 +157,7 @@ public class MuZeroLoop {
         testUnrollRulestate.testNewEpisodes();
 
         testUnrollRulestate.test();
+        boolean allTested = true;
 
 
         int nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
@@ -180,18 +181,27 @@ public class MuZeroLoop {
             boolean hasLowHandingFruits = fruitPair.getValue();
 
             if (hasLowHandingFruits) {
+                if (!allTested) {
+                    testUnrollRulestate.test();
+                    allTested = true;
+                }
                 for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
                     log.info("low hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
                     if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
                         epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+                        allTested = false;
                     }
                 }
-                testUnrollRulestate.test();
+                if (!allTested) {
+                    testUnrollRulestate.test();
+                    allTested = true;
+                }
             } else {
                 int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
                 log.info("higher hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
                 if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
                     epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+                    allTested = false;
                 }
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
             }
