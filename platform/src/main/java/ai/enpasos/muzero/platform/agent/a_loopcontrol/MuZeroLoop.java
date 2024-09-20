@@ -164,11 +164,11 @@ public class MuZeroLoop {
             log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
 
 
-            if (epoch % 11 == 0) {
-                testUnrollRulestate.test();
-            } else {
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
-            }
+//            if (epoch % 11 == 0) {
+//                testUnrollRulestate.test();
+//            } else {
+//                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
+//            }
 
 
             // iterate over all unrollSteps using unrollStepsToEpisodeCount
@@ -179,13 +179,23 @@ public class MuZeroLoop {
             Map<Integer, Integer>  unrollStepsToEpisodeCount  =  fruitPair.getKey();
             boolean hasLowHandingFruits = fruitPair.getValue();
 
-            int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
-            log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
-
-
-            if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
-                epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+            if (hasLowHandingFruits) {
+                for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
+                    log.info("low hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
+                    if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
+                        epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+                    }
+                }
+                testUnrollRulestate.test();
+            } else {
+                int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
+                log.info("higher hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
+                if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
+                    epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+                }
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
             }
+
 
 
             nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
