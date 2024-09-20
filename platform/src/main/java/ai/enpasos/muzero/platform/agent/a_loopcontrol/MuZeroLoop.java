@@ -155,6 +155,8 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
+        testUnrollRulestate.test();
+
 
         int nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
         while (nOpen > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
@@ -170,7 +172,12 @@ public class MuZeroLoop {
             // get the smallest unrollSteps
             int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
                 log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
+                if (epoch % 11 == 0) {
+                    testUnrollRulestate.test();
+                } else {
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
+                }
+
                 Map<Integer, Integer> unrollStepsToEpisodeCountRefreshed = gameBuffer.unrollStepsToEpisodeCount();
                 log.info("unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCountRefreshed.get(unrollSteps));
                 if (unrollStepsToEpisodeCountRefreshed.containsKey(unrollSteps)) {
