@@ -46,7 +46,7 @@ public class Boxes {
      * @param boxesRelevant list of relevant box values
      * @return a Pair containing a boolean indicating if the boxes array was changed and the updated boxes array
      */
-    public static Pair<Boolean, int[]> toUOk(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant) {
+    public static Pair<Boolean, int[]> updateBoxes(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant) {
         // Determine the target length of the boxes array and the index threshold
         int targetLength = Math.max(1, uOkClosed ? uok : uok + 1);
         int indexThreshold = uOkClosed ? targetLength : targetLength - 1;

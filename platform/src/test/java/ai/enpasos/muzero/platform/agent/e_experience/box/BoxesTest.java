@@ -39,122 +39,122 @@ class BoxesTest {
 //    }
 
     @Test
-    void toUOk() {
+    void updateBoxes() {
         int[] array = {0, 0, 0, 0, 0};
-        array = Boxes.toUOk(array, 1, false, true, List.of(0)).getValue();
+        array = Boxes.updateBoxes(array, 1, false, true, List.of(0)).getValue();
         assertArrayEquals(new int[]{1, 0}, array);
     }
 
     @Test
-    void toUOk2() {
+    void updateBoxes2() {
         int[] array  = {5, 4, 3, 2, 1};
-        array = Boxes.toUOk(array, 2, false, true, List.of(1,2,3,4,5)).getValue();
+        array = Boxes.updateBoxes(array, 2, false, true, List.of(1,2,3,4,5)).getValue();
         assertArrayEquals(new int[]{6, 5, 0}, array);
     }
 
     @Test
-    void toUOk3() {
+    void updateBoxes3() {
         int[] array = {0, 0, 0, 0, 0};
-        array = Boxes.toUOk(array, 3, false, true, List.of(0)).getValue();
+        array = Boxes.updateBoxes(array, 3, false, true, List.of(0)).getValue();
         assertArrayEquals(new int[]{1, 1, 1, 0}, array);
     }
 
     @Test
-    void toUOk4() {
+    void updateBoxes4() {
         int[] array = {2, 1, 1, 1, 0};
-        array = Boxes.toUOk(array, 2, false, true, List.of(0, 1, 2)).getValue();
+        array = Boxes.updateBoxes(array, 2, false, true, List.of(0, 1, 2)).getValue();
         assertArrayEquals(new int[]{3, 2, 0}, array);
     }
 
 
     @Test
-    void toUOk5() {
+    void updateBoxes5() {
         int[] array = {2, 1, 1, 1, 0};
-        array = Boxes.toUOk(array, -1, false, true, List.of(0, 1,2)).getValue();
+        array = Boxes.updateBoxes(array, -1, false, true, List.of(0, 1,2)).getValue();
         assertArrayEquals(new int[]{0}, array);
     }
 
     @Test
-    void toUOk6() {
+    void updateBoxes6() {
         int[] array = {0};
-        array = Boxes.toUOk(array, 0, false, true, List.of(0)).getValue();
+        array = Boxes.updateBoxes(array, 0, false, true, List.of(0)).getValue();
         assertArrayEquals(new int[]{0}, array);
     }
 
     @Test
-    void toUOk7() {
+    void updateBoxes7() {
         int[] array = {5, 4, 3, 2, 1};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, false, List.of(1,2,3,4,5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, false, List.of(1,2,3,4,5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{5, 4, 0}, result.getValue());
     }
 
     @Test
-    void toUOk8() {
+    void updateBoxes8() {
         int[] array = {5, 4, 3, 2, 0};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 4, false, false, List.of(0,2,3,4,5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 4, false, false, List.of(0,2,3,4,5)) ;
         assertFalse(result.getKey());
         assertArrayEquals(new int[]{5, 4, 3, 2, 0}, result.getValue());
     }
 
     @Test
-    void toUOk9() {
+    void updateBoxes9() {
         int[] array = {5, 4};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, true, false, List.of(4,5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, true, false, List.of(4,5)) ;
         assertFalse(result.getKey());
         assertArrayEquals(new int[]{5, 4}, result.getValue());
     }
 
     @Test
-    void toUOk10() {
+    void updateBoxes10() {
         int[] array = {5, 4};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, true, true, List.of(4,5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, true, true, List.of(4,5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{6, 5}, result.getValue());
     }
 
     @Test
-    void toUOk11() {
+    void updateBoxes11() {
         int[] array = {5, 4};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, true, List.of(4,5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(4,5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{6, 5, 0}, result.getValue());
     }
 
     @Test
-    void toUOk11b() {
+    void updateBoxes11B() {
         int[] array = {5, 4};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, true, List.of(5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{6, 4, 0}, result.getValue());
     }
 
     @Test
-    void toUOk11c() {
+    void updateBoxes11C() {
         int[] array = {5, 4};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, true, List.of(4)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(4)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{5, 5, 0}, result.getValue());
     }
 
     @Test
-    void toUOk12() {
+    void updateBoxes12() {
         int[] array = {5};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 0, true, true, List.of(5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 0, true, true, List.of(5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{6}, result.getValue());
     }
     @Test
-    void toUOk13() {
+    void updateBoxes13() {
         int[] array = {7,0};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, true, true, List.of(5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, true, true, List.of(5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{7,1}, result.getValue());
     }
     @Test
-    void toUOk13b() {
+    void updateBoxes13B() {
         int[] array = {7,0};
-        Pair<Boolean, int[]> result = Boxes.toUOk(array, 2, false, true, List.of(5)) ;
+        Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(5)) ;
         assertTrue(result.getKey());
         assertArrayEquals(new int[]{7,1, 0}, result.getValue());
     }

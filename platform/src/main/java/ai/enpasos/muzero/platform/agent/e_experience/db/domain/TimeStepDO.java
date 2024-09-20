@@ -62,7 +62,7 @@ public class TimeStepDO {
 
     public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant) {
 
-        Pair<Boolean, int[]> pair = Boxes.toUOk(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant);
+        Pair<Boolean, int[]> pair = Boxes.updateBoxes(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant);
         boolean changed = pair.getKey();
         boxes = pair.getValue();
         return changed;
