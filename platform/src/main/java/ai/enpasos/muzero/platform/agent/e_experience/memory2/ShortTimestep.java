@@ -41,7 +41,7 @@ public class ShortTimestep {
 
    public boolean needsTraining(int unrollSteps) {
       //  return nextuokclosed || nextUOk >= unrollSteps - 1 || uOk < 1;
-      return    uOk < unrollSteps;
+      return   !uOkClosed && uOk < unrollSteps;
    }
 
 //   public int getSmallestEmptyBox() {
