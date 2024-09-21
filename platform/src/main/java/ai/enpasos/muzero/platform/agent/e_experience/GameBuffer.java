@@ -438,6 +438,7 @@ public class GameBuffer {
         List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
          shortTimesteps.removeAll(shortTimestepsNew );
          shortTimesteps.addAll(shortTimestepsNew );
+         initShortEpisodes();
     }
 
 
@@ -470,6 +471,18 @@ public class GameBuffer {
             } while (resultList.size() > 0);
         }
         // fill episodeIdToShortEpisodes
+        initShortEpisodes();
+
+        // fill episodeIdToMaxTime
+        for (ShortTimestep shortTimestep : shortTimesteps) {
+            Long episodeId = shortTimestep.getEpisodeId();
+            Integer t = shortTimestep.getT();
+            episodeIdToMaxTime.put(episodeId, Math.max(t, episodeIdToMaxTime.getOrDefault(episodeId, 0)));
+        }
+        return shortTimesteps;
+    }
+
+    private void initShortEpisodes() {
         episodeIdToShortEpisodes = new HashMap();
         for (ShortTimestep shortTimestep : shortTimesteps) {
             Long episodeId = shortTimestep.getEpisodeId();
@@ -484,14 +497,6 @@ public class GameBuffer {
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             shortEpisode.getShortTimesteps().sort(Comparator.comparing(ShortTimestep::getT));
         }
-
-        // fill episodeIdToMaxTime
-        for (ShortTimestep shortTimestep : shortTimesteps) {
-            Long episodeId = shortTimestep.getEpisodeId();
-            Integer t = shortTimestep.getT();
-            episodeIdToMaxTime.put(episodeId, Math.max(t, episodeIdToMaxTime.getOrDefault(episodeId, 0)));
-        }
-        return shortTimesteps;
     }
 
 
@@ -543,8 +548,6 @@ public class GameBuffer {
     }
 
     public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps, boolean lowHangingFruits) {
-
-
 
         Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds(lowHangingFruits);
         List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);

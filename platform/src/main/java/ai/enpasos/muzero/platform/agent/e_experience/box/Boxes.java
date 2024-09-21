@@ -107,8 +107,7 @@ public class Boxes {
      *
      * @param boxes       the array of box values
      * @param unrollSteps the number of unroll steps (1-based index)
-     * @return the box value at the (unrollSteps - 1) index in the boxes array;
-     *         returns 0 if the input is invalid or out of bounds.
+     * @return  the box value at the given unroll steps;
      * @throws IllegalArgumentException if unrollSteps is negative
      */
     public static int getBox(int[] boxes, int unrollSteps) {

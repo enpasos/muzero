@@ -178,9 +178,9 @@ public class MuZeroLoop {
 
             Pair<Map<Integer, Integer>, Boolean> fruitPair = selectFruits();
             Map<Integer, Integer>  unrollStepsToEpisodeCount  =  fruitPair.getKey();
-            boolean hasLowHandingFruits = fruitPair.getValue();
+            boolean hasLowHangingFruits = fruitPair.getValue();
 
-            if (hasLowHandingFruits) {
+            if (hasLowHangingFruits) {
                 if (!allTested) {
                     testUnrollRulestate.test();
                     allTested = true;
@@ -188,7 +188,7 @@ public class MuZeroLoop {
                 for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
                     log.info("low hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
                     if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
-                        epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);  // TODO training without epoch increment???
+                        epoch = ruleTrain(durations, unrollSteps, hasLowHangingFruits);  // TODO training without epoch increment???
                         allTested = false;
                     }
                 }
@@ -202,7 +202,7 @@ public class MuZeroLoop {
             int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
             log.info("higher hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
             if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
-                epoch = ruleTrain(durations, unrollSteps, hasLowHandingFruits);
+                epoch = ruleTrain(durations, unrollSteps, hasLowHangingFruits);
                 allTested = false;
             }
             testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
