@@ -3,6 +3,8 @@ package ai.enpasos.muzero.platform.agent.e_experience.memory2;
 import ai.enpasos.muzero.platform.agent.e_experience.box.Boxes;
 import lombok.*;
 
+import java.util.Map;
+
 @Data
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -29,7 +31,15 @@ public class ShortTimestep {
    private boolean uOkClosed;
 
 
+public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMaxTime ) {
+   int tmax = episodeIdToMaxTime.get( getEpisodeId());
+   return  hasToBeTrained( unrollSteps,  tmax );
 
+   }
+
+   public boolean hasToBeTrained(int unrollSteps, int tmax ) {
+      return  isTrainable( unrollSteps, tmax ) &&  needsTraining(  unrollSteps ) ;
+   }
 
 
    public boolean isTrainable(int unrollSteps, int tMax)  {

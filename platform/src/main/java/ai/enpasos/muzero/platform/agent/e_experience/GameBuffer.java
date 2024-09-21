@@ -633,12 +633,10 @@ public class GameBuffer {
 
     public long numIsTrainableAndNeedsTraining(List<Long> episodeIds, int unrollSteps) {
         return  episodeIds.stream().mapToLong(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream()
-                .filter(t -> {
-                    int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
-                    return t.isTrainable( unrollSteps, tmax ) && t.needsTraining(  unrollSteps ) ;
-                })
+                .filter(t ->
+                      t.hasToBeTrained( unrollSteps, episodeIdToMaxTime )
+                 )
                 .count()).sum();
-
     }
 
     public Map<Integer, Integer> unrollStepsToEpisodeCountLowHandingFruits() {
@@ -651,5 +649,20 @@ public class GameBuffer {
             }
         }
         return unrollStepsToEpisodeCount;
+    }
+
+    public void checkCacheConsistency() {
+        getShortTimestepSet();
+        episodeIdToShortEpisodes.values().forEach(shortEpisode -> {
+             int unrollSteps = shortEpisode.getUnrollSteps();
+             int tmax = shortEpisode.getMaxT();
+             shortEpisode.getShortTimesteps().forEach(ts -> {
+                 boolean hasToBeTrained = ts.hasToBeTrained(unrollSteps, tmax);
+                 int box = ts.getBox(unrollSteps);
+                 if (hasToBeTrained ^ box == 0) {
+                     log.error("inconsistency in cache: episodeId={}, id={}, unrollSteps={}, hasToBeTrained={}, box={}", shortEpisode.getId(), ts.getId(),unrollSteps, hasToBeTrained, box);
+                 }
+             });
+        });
     }
 }

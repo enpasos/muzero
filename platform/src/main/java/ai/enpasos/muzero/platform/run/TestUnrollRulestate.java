@@ -228,6 +228,11 @@ public class TestUnrollRulestate {
 
     public void test( ) {
       test(true, 1, false);
+      checkCacheConsistency();
+    }
+
+    private void checkCacheConsistency() {
+        gameBuffer.checkCacheConsistency();
     }
 
     public void testNewEpisodes( ) {

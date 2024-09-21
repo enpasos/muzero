@@ -228,10 +228,10 @@ public class MuZeroLoop {
         Map<Integer, Integer>  unrollStepsToEpisodeCount  =  gameBuffer.unrollStepsToEpisodeCountLowHandingFruits();
         boolean hasLowHandingFruits = unrollStepsToEpisodeCount.size() > 0;
         if (hasLowHandingFruits) {
-            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("low hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
+            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select low hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
         } else {
             unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
-            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("higher hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
+            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select higher hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
         }
         return new Pair<>(unrollStepsToEpisodeCount, hasLowHandingFruits);
     }
