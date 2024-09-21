@@ -64,6 +64,6 @@ public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMax
    }
 
    public boolean isLowHangingFruit(int unrollSteps, int tmax) {
-      return !uOkClosed && t > tmax - unrollSteps && t > 0;
+      return !uOkClosed && t > tmax - unrollSteps && t > 0 && !(unrollSteps == 1 && uOk < 1);
    }
 }
