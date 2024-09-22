@@ -246,7 +246,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground(), task.getNumUnrollSteps(), task.hasLowHangingFruits());
+                    trainNetworkRules(task.freeze, task.isBackground(), task.getNumUnrollSteps() );
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -324,7 +324,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background, int unrollSteps, boolean lowHangingFruits) {
+    private void trainNetworkRules(boolean[] freeze, boolean background, int unrollSteps ) {
 
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
@@ -336,7 +336,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
         log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
-        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber, unrollSteps, lowHangingFruits );
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber, unrollSteps  );
 
       //  Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
 

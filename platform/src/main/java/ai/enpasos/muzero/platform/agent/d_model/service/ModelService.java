@@ -211,7 +211,7 @@ public class ModelService {
     }
 
     @Async()
-    public CompletableFuture<Void> trainModelRules(boolean[] freeze, int unrollSteps, boolean hasLowHangingFruits ) {
+    public CompletableFuture<Void> trainModelRules(boolean[] freeze, int unrollSteps  ) {
         ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES);
         TrainingDatasetType trainingDatasetType = TrainingDatasetType.RULES_BUFFER;
         boolean background = false;
@@ -220,7 +220,7 @@ public class ModelService {
         task.setTrainingDatasetType(trainingDatasetType);
 
        task.setNumUnrollSteps(unrollSteps);
-       task.setLowHangingFruits( hasLowHangingFruits);
+      // task.setLowHangingFruits( hasLowHangingFruits);
         return handleControllerTask(task);
     }
 

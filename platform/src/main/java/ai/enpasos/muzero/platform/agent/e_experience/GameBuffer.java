@@ -500,19 +500,19 @@ public class GameBuffer {
     }
 
 
-    public Map<Integer, List<Long>> unrollStepsToEpisodeIds(boolean lowHangingFruits) {
+    public Map<Integer, List<Long>> unrollStepsToEpisodeIds( ) {
         getShortTimestepSet( );  // fill caches
         Map<Integer, List<Long>> unrollStepsToEpisodeIds = new HashMap<>();
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             int unrollSteps = shortEpisode.getUnrollSteps();
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
-            if (!lowHangingFruits || shortEpisode.hasLowHangingFruits(unrollSteps)) {
+
                 if (episodeIds == null) {
                     episodeIds = new ArrayList<>();
                     unrollStepsToEpisodeIds.put(unrollSteps, episodeIds);
                 }
                 episodeIds.add(shortEpisode.getId());
-            }
+
         }
         return unrollStepsToEpisodeIds;
     }
@@ -547,41 +547,29 @@ public class GameBuffer {
         return result;
     }
 
-    public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps, boolean lowHangingFruits) {
+    public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps ) {
 
-        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds(lowHangingFruits);
+        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds( );
         List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
         Set<ShortTimestep> tsSet = new HashSet<>();
         if (episodeIds != null) {
-            if (lowHangingFruits) {
-                episodeIds.stream().map(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps()).forEach(tsSet::addAll);
-            } else {
+
                 episodeIds.stream().forEach(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream().forEach(t -> {
                     int tmax = episodeIdToMaxTime.get(t.getEpisodeId());
                     if (t.isLowHangingFruit(unrollSteps, tmax)) {
                         tsSet.add(t);
                     }
                 }));
-            }
+
         }
 
         // count number timesteps which are not known for given unrollSteps
          long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
 
 
-        if (lowHangingFruits) {
-            int n = Math.min(nOriginal,    (int) numUnknownsForGivenUnrollSteps);
-            List<ShortTimestep> result = new ArrayList<>();
-            result.addAll(tsSet);
-            Collections.shuffle(result);
-            return result.stream().limit(n).toArray(ShortTimestep[]::new);
-        }
 
 
 
-
-        // the number of training timesteps is limited by the input n
-        // and strategy to train in maximum 2 times the number of timesteps which are not known
        int n = Math.min(nOriginal,   2 * (int) numUnknownsForGivenUnrollSteps);
 
         // filter timesteps that are trainable on the given unrollSteps
@@ -629,10 +617,6 @@ public class GameBuffer {
     }
 
 
-//    public long numIsTrainableAndNeedsTraining(int unrollSteps) {
-//        return  getShortTimestepSet().stream().filter(t -> t.needsTraining(  unrollSteps) && t.isTrainable( unrollSteps  ) ).count();
-//
-//    }
 
     public long numIsTrainableAndNeedsTraining(List<Long> episodeIds, int unrollSteps) {
         return  episodeIds.stream().mapToLong(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream()
@@ -667,5 +651,9 @@ public class GameBuffer {
                  }
              });
         });
+    }
+
+    public List<Long> filterEpisodeIdsByTestNeed(List<Long> episodeIds) {
+        return episodeIds.stream().filter(episodeId -> episodeIdToShortEpisodes.get(episodeId).isNeedsFullTesting()).collect(Collectors.toList());
     }
 }

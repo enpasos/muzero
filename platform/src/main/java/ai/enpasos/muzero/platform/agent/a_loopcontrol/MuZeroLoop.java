@@ -156,67 +156,27 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        testUnrollRulestate.test();
-        boolean allTested = true;
 
 
-        int nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
-        while (nOpen > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
+        while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
 
-
-//            if (epoch % 11 == 0) {
-//                testUnrollRulestate.test();
-//            } else {
-//                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
-//            }
+            testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
+            testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch ); // test box and epoch triggered testing
 
 
-            // iterate over all unrollSteps using unrollStepsToEpisodeCount
-          //  for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
+            if (getNOpen() > 0) {
+                 Map<Integer, Integer> unrollStepsToEpisodeCount = selectFruits();
 
-
-            Pair<Map<Integer, Integer>, Boolean> fruitPair = selectFruits();
-            Map<Integer, Integer>  unrollStepsToEpisodeCount  =  fruitPair.getKey();
-            boolean hasLowHangingFruits = fruitPair.getValue();
-
-            if (hasLowHangingFruits) {
-                if (!allTested) {
-                    testUnrollRulestate.test();
-                    allTested = true;
-                }
-                for(int unrollSteps : unrollStepsToEpisodeCount.keySet()) {
-                    log.info("low hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
-                    if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
-                        epoch = ruleTrain(durations, unrollSteps, hasLowHangingFruits);  // TODO training without epoch increment???
-                        allTested = false;
-                    }
-                }
-                if (!allTested) {
-                    testUnrollRulestate.test();
-                    allTested = true;
-                }
+                 // TODO no unrollSteps as parameter - iteration should be in modelcontroller
+                 int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
+                epoch = ruleTrain(durations, unrollSteps);
             }
 
-            // high hanging fruits
-            int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
-            log.info("higher hanging fruits ... unrollSteps: {}, episodeCount: {}", unrollSteps, unrollStepsToEpisodeCount.get(unrollSteps));
-            if (unrollStepsToEpisodeCount.containsKey(unrollSteps)) {
-                epoch = ruleTrain(durations, unrollSteps, hasLowHangingFruits);
-                allTested = false;
-            }
-            testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch );
 
-
-
-
-
-            nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
-
-            if (nOpen == 0) {
+            if (getNOpen() == 0) {
                 testUnrollRulestate.test();
-                nOpen = gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
-                if (nOpen == 0) {
+                if (getNOpen() == 0) {
                     break;
                 }
             }
@@ -224,25 +184,29 @@ public class MuZeroLoop {
         }
     }
 
-    private Pair<Map<Integer, Integer>, Boolean> selectFruits() {
+    private int getNOpen() {
+        return gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
+    }
+
+    private Map<Integer, Integer>  selectFruits() {
         Map<Integer, Integer>  unrollStepsToEpisodeCount  =  gameBuffer.unrollStepsToEpisodeCountLowHandingFruits();
-        boolean hasLowHandingFruits = unrollStepsToEpisodeCount.size() > 0;
-        if (hasLowHandingFruits) {
-            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select low hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
-        } else {
+//        boolean hasLowHandingFruits = unrollStepsToEpisodeCount.size() > 0;
+//        if (hasLowHandingFruits) {
+//            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select low hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
+//        } else {
             unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
             unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select higher hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
-        }
-        return new Pair<>(unrollStepsToEpisodeCount, hasLowHandingFruits);
+      //  }
+        return  unrollStepsToEpisodeCount;
     }
 
 
-    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps, boolean hasLowHangingFruits) throws InterruptedException, ExecutionException {
+    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps ) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.trainModelRules(freeze, unrollSteps, hasLowHangingFruits ).get();
+        modelService.trainModelRules(freeze, unrollSteps  ).get();
 
         epoch = modelState.getEpoch();
         duration.off();

@@ -18,19 +18,29 @@ public class ShortEpisode {
     private List<ShortTimestep> shortTimesteps;
 
 
+    private boolean needsFullTesting;
+    private int currentUnrollSteps;
+
     public int getUnrollSteps() {
+        int newUnrollSteps = 1;
         int t = 0;
         for (;t <= getMaxT(); t++) {
             ShortTimestep shortTimestep = shortTimesteps.get(t);
             if(shortTimestep.isUOkClosed()) {
                 if (t == 0) {
-                    return getMaxT();
+                    // newUnrollSteps = getMaxT();
+                    break;
                 }
                 t = t - 1;
                 break;
             }
         }
-        return Math.max(1, getMaxT() - t);
+        newUnrollSteps = Math.max(1, getMaxT() - t);
+        if (newUnrollSteps != currentUnrollSteps) {
+            currentUnrollSteps = newUnrollSteps;
+            needsFullTesting = true;
+        }
+        return newUnrollSteps;
     }
 
     public int getMaxT() {
