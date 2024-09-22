@@ -18,7 +18,6 @@
 package ai.enpasos.muzero.platform.agent.a_loopcontrol;
 
 
-import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
@@ -166,11 +165,11 @@ public class MuZeroLoop {
 
 
             if (getNOpen() > 0) {
-                 Map<Integer, Integer> unrollStepsToEpisodeCount = selectFruits();
+
 
                  // TODO no unrollSteps as parameter - iteration should be in modelcontroller
-                 int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
-                epoch = ruleTrain(durations, unrollSteps);
+             //    int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
+                epoch = ruleTrain(durations );
             }
 
 
@@ -188,25 +187,15 @@ public class MuZeroLoop {
         return gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
     }
 
-    private Map<Integer, Integer>  selectFruits() {
-        Map<Integer, Integer>  unrollStepsToEpisodeCount  =  gameBuffer.unrollStepsToEpisodeCountLowHandingFruits();
-//        boolean hasLowHandingFruits = unrollStepsToEpisodeCount.size() > 0;
-//        if (hasLowHandingFruits) {
-//            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select low hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
-//        } else {
-            unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
-            unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select higher hanging fruits ... unrollSteps: {}, episodeCount: {}", k, v));
-      //  }
-        return  unrollStepsToEpisodeCount;
-    }
 
 
-    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps ) throws InterruptedException, ExecutionException {
+
+    private int ruleTrain(  List<DurAndMem> durations  ) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.trainModelRules(freeze, unrollSteps  ).get();
+        modelService.trainModelRules(freeze   ).get();
 
         epoch = modelState.getEpoch();
         duration.off();
