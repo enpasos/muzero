@@ -23,7 +23,6 @@ import ai.enpasos.muzero.platform.agent.a_loopcontrol.Action;
 import ai.enpasos.muzero.platform.agent.c_planning.GumbelSearch;
 import ai.enpasos.muzero.platform.agent.c_planning.Node;
 import ai.enpasos.muzero.platform.agent.b_episode.Player;
-import ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.common.MuZeroException;
@@ -36,10 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-import static ai.enpasos.muzero.platform.agent.d_model.djl.MyL2Loss.NULL_VALUE;
 import static ai.enpasos.muzero.platform.common.Functions.b2f;
 import static ai.enpasos.muzero.platform.common.ProductPathMax.getProductPathMax;
 

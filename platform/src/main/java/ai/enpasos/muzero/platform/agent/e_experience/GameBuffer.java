@@ -19,13 +19,14 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.djl.Device;
 import ai.djl.ndarray.NDManager;
-import ai.djl.util.Pair;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.ObservationModelInput;
 import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.*;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection3;
+import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.common.AliasMethod;
@@ -578,7 +579,7 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsToTrain = new ArrayList<>();
 
-        int remaining = nOriginal;
+        int remaining = nOriginal/2;
 
         for(int unrollSteps : unrollStepsToEpisodeIds.keySet()) {
             if (remaining == 0) {
@@ -595,6 +596,24 @@ public class GameBuffer {
             timeStepsToTrain.addAll(timeStepsThatNeedTraining);
             remaining -= timeStepsThatNeedTraining.size();
         }
+
+        // also learn from the known ones
+        ShortTimestep[] stArray =
+                this.getShortTimestepSet().stream().filter(st -> st.isUOkClosed()).toArray(ShortTimestep[]::new);
+        // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
+        double[] g = Arrays.stream(stArray)
+                .mapToDouble(st -> {
+                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
+                    int unrollSteps = Math.max(1, tmax - st.getT());
+                    int box = st.getBox(unrollSteps);
+                    return 1.0 / Math.pow(2, box) ;
+                }).toArray();
+        AliasMethod aliasMethod = new AliasMethod(g);
+        int[] samples = aliasMethod.sampleWithoutReplacement(nOriginal/2);
+        List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
+        timeStepsToTrain.addAll(tsKnownOnes);
+
+
 return timeStepsToTrain.toArray(new ShortTimestep[0]);
 //
 //
