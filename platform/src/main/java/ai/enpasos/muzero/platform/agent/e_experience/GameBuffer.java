@@ -509,10 +509,13 @@ public class GameBuffer {
     }
 
 
-    public Map<Integer, List<Long>> unrollStepsToEpisodeIds( ) {
+    public Map<Integer, List<Long>> unrollStepsToEpisodeIds(boolean filterOnNonClosed ) {
         getShortTimestepSet( );  // fill caches
         Map<Integer, List<Long>> unrollStepsToEpisodeIds = new HashMap<>();
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            if (filterOnNonClosed && shortEpisode.isClosed()) {
+                continue;
+            }
             int unrollSteps = shortEpisode.getUnrollSteps();
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
 
@@ -561,7 +564,7 @@ public class GameBuffer {
 
     public ShortTimestep[] getIdsRelevantForTraining(int nOriginal  ) {
 
-        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds( );
+        Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds( true);
 
 
         List<ShortTimestep> timeStepsToTrain = new ArrayList<>();
@@ -693,6 +696,11 @@ return timeStepsToTrain.toArray(new ShortTimestep[0]);
 
     public Map<Integer, Integer> selectUnrollStepsToEpisodeCount(boolean filterOnNonClosed) {
         Map<Integer, Integer>  unrollStepsToEpisodeCount =  unrollStepsToEpisodeCount(filterOnNonClosed);
+        if (filterOnNonClosed) {
+            log.info("num non closed episodes ...");
+        } else {
+            log.info("num all episodes ...");
+        }
         unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select unrollSteps: {}, episodeCount: {}", k, v));
         return  unrollStepsToEpisodeCount;
     }

@@ -159,6 +159,7 @@ public class MuZeroLoop {
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
+
             gameBuffer.selectUnrollStepsToEpisodeCount(true);
 
             testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
