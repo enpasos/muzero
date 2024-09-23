@@ -342,7 +342,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber   );
 
-        Map<Integer, List<ShortTimestep>> mapByUnrollNumber = mapByUnrollNumber(tsList);
+        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = mapByUnrollSteps(tsList);
 
 
 
@@ -350,10 +350,10 @@ public class ModelController implements DisposableBean, Runnable {
 
 
         int c = 0;
-        for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollNumber.entrySet()) {
+        for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollSteps.entrySet()) {
             int unrollSteps = entry.getKey();
             List<ShortTimestep> tsListUnroll = entry.getValue();
-            boolean saveHere = true; //(++c == mapByUnrollNumber.entrySet().size());
+            boolean saveHere = true; //(++c == mapByUnrollSteps.entrySet().size());
             trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, tsListUnroll);
         }
 
@@ -460,11 +460,13 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private Map<Integer, List<ShortTimestep>> mapByUnrollNumber( ShortTimestep[] allIdProjections) {
+    private Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections) {
        return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
-           int uOK = p.getUOk();
-           int unrollNumber = Math.max(1, uOK + 1);
-           return unrollNumber;
+          // int uOK = p.getUOk();
+         //  int tmax = gameBuffer.getTmax(p.getEpisodeId());
+           int unrollSteps = gameBuffer.unrollSteps(p.getEpisodeId());
+           //int unrollNumber = Math.max(1, uOK + 1);
+           return unrollSteps;
        }));
     }
 

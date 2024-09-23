@@ -176,10 +176,6 @@ public class PlayService {
     public List<Game> uOkAnalyseGames(List<Game> games, boolean allTimesteps, int unrollSteps  ) {
         List<Game> gamesReturn = new ArrayList<>();
 
-        // TODO: improve setting this config
-        // boolean hiddenStateRemainOnGpuOld = MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU;
-        //  MuZeroConfig.HIDDEN_STATE_REMAIN_ON_GPU = true;
-
         modelService.startScope();
         giveOneOfTheGamesADebugFlag(games);
         CompletableFuture<Game>[] futures = games.stream().map(g ->

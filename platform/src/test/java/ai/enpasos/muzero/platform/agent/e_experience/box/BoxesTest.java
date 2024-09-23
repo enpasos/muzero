@@ -8,35 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoxesTest {
-//
-//    @Test
-//    void encode() {
-//        int[] boxes = {1, 2, 3};
-//        String encoded = Boxes.encode(boxes);
-//        assertEquals("1,2,3", encoded);
-//    }
-//
-//    @Test
-//    void decode() {
-//        String encoded = "1,2,3";
-//        int[] decoded = Boxes.decode(encoded);
-//        assertArrayEquals(new int[]{1, 2, 3}, decoded);
-//    }
-//
-//    @Test
-//    void decodeEmpty() {
-//        String encoded = "";
-//        int[] decoded = Boxes.decode(encoded);
-//        assertArrayEquals(new int[]{}, decoded);
-//    }
-//
-//    @Test
-//    void encodeDecode() {
-//        int[] boxes = {1, 2, 3};
-//        String encoded = Boxes.encode(boxes);
-//        int[] decoded = Boxes.decode(encoded);
-//        assertArrayEquals(boxes, decoded);
-//    }
+
 
     @Test
     void updateBoxes() {
