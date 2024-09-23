@@ -159,16 +159,13 @@ public class MuZeroLoop {
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
+            gameBuffer.selectUnrollStepsToEpisodeCount();
 
             testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
             testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch ); // test box and epoch triggered testing
 
 
             if (getNOpen() > 0) {
-
-
-                 // TODO no unrollSteps as parameter - iteration should be in modelcontroller
-             //    int unrollSteps = unrollStepsToEpisodeCount.keySet().stream().min(Integer::compareTo).get();
                 epoch = ruleTrain(durations );
             }
 

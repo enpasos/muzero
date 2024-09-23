@@ -687,4 +687,10 @@ return timeStepsToTrain.toArray(new ShortTimestep[0]);
         getShortTimestepSet();
         return episodeIds.stream().filter(episodeId -> episodeIdToShortEpisodes.get(episodeId).isNeedsFullTesting()).collect(Collectors.toList());
     }
+
+    public Map<Integer, Integer> selectUnrollStepsToEpisodeCount() {
+        Map<Integer, Integer>  unrollStepsToEpisodeCount =  unrollStepsToEpisodeCount();
+        unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select unrollSteps: {}, episodeCount: {}", k, v));
+        return  unrollStepsToEpisodeCount;
+    }
 }

@@ -334,7 +334,7 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-        Map<Integer, Integer> unrollStepsToEpisodeCount = selectUnrollStepsToEpisodeCount();
+        Map<Integer, Integer> unrollStepsToEpisodeCount = gameBuffer.selectUnrollStepsToEpisodeCount();
 
 
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
@@ -360,11 +360,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private Map<Integer, Integer> selectUnrollStepsToEpisodeCount() {
-        Map<Integer, Integer>  unrollStepsToEpisodeCount = gameBuffer.unrollStepsToEpisodeCount();
-        unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select unrollSteps: {}, episodeCount: {}", k, v));
-        return  unrollStepsToEpisodeCount;
-    }
+
 
     private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> tsListUnroll  ) {
         List<Long> allRelevantTimestepIds =  tsListUnroll.stream().map(ShortTimestep::getId).toList();
