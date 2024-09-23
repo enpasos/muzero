@@ -263,6 +263,10 @@ public class TestUnrollRulestate {
         List<Long> episodeIds = null;
         if (newEpisodesOnly) {
             episodeIds = dbService.getNewEpisodeIds( );
+            if (episodeIds == null || episodeIds.size() == 0) {
+                log.info("testUnrollRulestate.run(), no new episodes found");
+                return;
+            }
         } else {
             episodeIds =  gameBuffer.getEpisodeIds();
         }
