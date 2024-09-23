@@ -578,26 +578,24 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsToTrain = new ArrayList<>();
 
-      //  int remaining = nOriginal;
+        int remaining = nOriginal;
 
         for(int unrollSteps : unrollStepsToEpisodeIds.keySet()) {
-//            if (remaining == 0) {
-//                break;
-//            }
+            if (remaining == 0) {
+                break;
+            }
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
             // count number timesteps which are not known for given unrollSteps
            // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
             List<ShortTimestep> timeStepsThatNeedTraining = timeStepsThatNeedTraining( episodeIds,  unrollSteps);
-         //   Collections.shuffle(timeStepsThatNeedTraining);
-//            if (timeStepsThatNeedTraining.size() > remaining) {
-//                timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, remaining);
-//            }
+            Collections.shuffle(timeStepsThatNeedTraining);
+            if (timeStepsThatNeedTraining.size() > remaining) {
+                timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, remaining);
+            }
             timeStepsToTrain.addAll(timeStepsThatNeedTraining);
-         //   remaining -= timeStepsThatNeedTraining.size();
+            remaining -= timeStepsThatNeedTraining.size();
         }
-        Collections.shuffle(timeStepsToTrain);
-        return timeStepsToTrain.subList(0,Math.min(timeStepsToTrain.size(), nOriginal)).toArray(new ShortTimestep[0]);
-//return timeStepsToTrain.toArray(new ShortTimestep[0]);
+return timeStepsToTrain.toArray(new ShortTimestep[0]);
 //
 //
 //
