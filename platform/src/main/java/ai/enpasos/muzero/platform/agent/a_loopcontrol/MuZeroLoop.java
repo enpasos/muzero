@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
@@ -158,12 +157,15 @@ public class MuZeroLoop {
 
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
-            log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
-
-            gameBuffer.selectUnrollStepsToEpisodeCount(true);
+            logStateInfo();
 
             testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
+
+            logStateInfo();
+
             testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch ); // test box and epoch triggered testing
+
+            logStateInfo();
 
 
             if (getNOpen() > 0) {
@@ -179,6 +181,11 @@ public class MuZeroLoop {
             }
 
         }
+    }
+
+    private void logStateInfo() {
+        log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
+        gameBuffer.selectUnrollStepsToEpisodeCount(true);
     }
 
     private int getNOpen() {
