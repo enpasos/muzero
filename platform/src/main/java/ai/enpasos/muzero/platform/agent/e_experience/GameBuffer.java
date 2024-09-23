@@ -609,7 +609,7 @@ public class GameBuffer {
                     return 1.0 / Math.pow(2, box) ;
                 }).toArray();
         AliasMethod aliasMethod = new AliasMethod(g);
-        int[] samples = aliasMethod.sampleWithoutReplacement(nOriginal/2);
+        int[] samples = aliasMethod.sampleWithoutReplacement(Math.min(nOriginal/2, g.length));
         List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
         timeStepsToTrain.addAll(tsKnownOnes);
 
