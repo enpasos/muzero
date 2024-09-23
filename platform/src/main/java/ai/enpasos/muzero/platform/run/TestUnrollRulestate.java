@@ -16,6 +16,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -233,7 +234,7 @@ public class TestUnrollRulestate {
 
     public void testEpisodesThatNeedTo() {
         test(true, 1, false, true);
-
+        gameBuffer.initNeedsFullTest(false);
     }
 
     private void checkCacheConsistency() {

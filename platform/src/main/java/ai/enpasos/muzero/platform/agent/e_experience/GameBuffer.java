@@ -496,6 +496,15 @@ public class GameBuffer {
         // sort shortTimesteps in shortEpisodes
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             shortEpisode.getShortTimesteps().sort(Comparator.comparing(ShortTimestep::getT));
+
+        }
+        initNeedsFullTest(true);
+
+    }
+
+    public void initNeedsFullTest(boolean needs) {
+        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            shortEpisode.setNeedsFullTesting(needs);
         }
     }
 
