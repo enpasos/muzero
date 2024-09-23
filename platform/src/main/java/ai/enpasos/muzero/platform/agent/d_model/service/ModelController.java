@@ -462,10 +462,12 @@ public class ModelController implements DisposableBean, Runnable {
 
     private Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections) {
        return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
-          // int uOK = p.getUOk();
+           int uOK = p.getUOk();
            int tmax = gameBuffer.getTmax(p.getEpisodeId());
-         //  int unrollSteps = gameBuffer.unrollSteps(p.getEpisodeId());
-           int unrollSteps = Math.max(1,tmax - p.getT());
+         //  p.
+           int unrollSteps = gameBuffer.unrollSteps(p.getEpisodeId());
+
+             unrollSteps = Math.max(1,Math.min(tmax - p.getT(), unrollSteps));
            //int unrollNumber = Math.max(1, uOK + 1);
            return unrollSteps;
        }));
