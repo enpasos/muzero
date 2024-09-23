@@ -684,6 +684,7 @@ return timeStepsToTrain.toArray(new ShortTimestep[0]);
     }
 
     public List<Long> filterEpisodeIdsByTestNeed(List<Long> episodeIds) {
+        getShortTimestepSet();
         return episodeIds.stream().filter(episodeId -> episodeIdToShortEpisodes.get(episodeId).isNeedsFullTesting()).collect(Collectors.toList());
     }
 }
