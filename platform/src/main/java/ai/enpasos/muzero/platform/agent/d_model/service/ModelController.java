@@ -334,7 +334,7 @@ public class ModelController implements DisposableBean, Runnable {
         int epochLocal = getEpochFromModel(model);
 
 
-        Map<Integer, Integer> unrollStepsToEpisodeCount = gameBuffer.selectUnrollStepsToEpisodeCount();
+      //  Map<Integer, Integer> unrollStepsToEpisodeCount = gameBuffer.selectUnrollStepsToEpisodeCount();
 
 
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();

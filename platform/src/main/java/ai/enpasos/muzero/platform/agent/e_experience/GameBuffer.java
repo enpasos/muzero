@@ -526,10 +526,13 @@ public class GameBuffer {
         return unrollStepsToEpisodeIds;
     }
 
-    public Map<Integer, Integer> unrollStepsToEpisodeCount() {
+    public Map<Integer, Integer> unrollStepsToEpisodeCount(boolean filterOnNonClosed) {
         getShortTimestepSet( );  // fill caches
         Map<Integer, Integer> unrollStepsToEpisodeCount = new HashMap<>();
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
+            if (filterOnNonClosed && shortEpisode.isClosed()) {
+                continue;
+            }
             int unrollSteps = shortEpisode.getUnrollSteps();
             unrollStepsToEpisodeCount.put(unrollSteps, unrollStepsToEpisodeCount.getOrDefault(unrollSteps, 0) + 1);
         }
@@ -688,8 +691,8 @@ return timeStepsToTrain.toArray(new ShortTimestep[0]);
         return episodeIds.stream().filter(episodeId -> episodeIdToShortEpisodes.get(episodeId).isNeedsFullTesting()).collect(Collectors.toList());
     }
 
-    public Map<Integer, Integer> selectUnrollStepsToEpisodeCount() {
-        Map<Integer, Integer>  unrollStepsToEpisodeCount =  unrollStepsToEpisodeCount();
+    public Map<Integer, Integer> selectUnrollStepsToEpisodeCount(boolean filterOnNonClosed) {
+        Map<Integer, Integer>  unrollStepsToEpisodeCount =  unrollStepsToEpisodeCount(filterOnNonClosed);
         unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select unrollSteps: {}, episodeCount: {}", k, v));
         return  unrollStepsToEpisodeCount;
     }
