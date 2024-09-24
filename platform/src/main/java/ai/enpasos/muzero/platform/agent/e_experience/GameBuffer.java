@@ -470,15 +470,16 @@ public class GameBuffer {
 
                 offset += limit;
             } while (resultList.size() > 0);
-        }
-        // fill episodeIdToShortEpisodes
-        initShortEpisodes();
 
-        // fill episodeIdToMaxTime
-        for (ShortTimestep shortTimestep : shortTimesteps) {
-            Long episodeId = shortTimestep.getEpisodeId();
-            Integer t = shortTimestep.getT();
-            episodeIdToMaxTime.put(episodeId, Math.max(t, episodeIdToMaxTime.getOrDefault(episodeId, 0)));
+            // fill episodeIdToShortEpisodes
+            initShortEpisodes();
+
+            // fill episodeIdToMaxTime
+            for (ShortTimestep shortTimestep : shortTimesteps) {
+                Long episodeId = shortTimestep.getEpisodeId();
+                Integer t = shortTimestep.getT();
+                episodeIdToMaxTime.put(episodeId, Math.max(t, episodeIdToMaxTime.getOrDefault(episodeId, 0)));
+            }
         }
         return shortTimesteps;
     }
