@@ -439,7 +439,9 @@ public class GameBuffer {
         List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
          shortTimesteps.removeAll(shortTimestepsNew );
          shortTimesteps.addAll(shortTimestepsNew );
+         List<Long> idsOfEpisodesThatNeedFullTesting =  episodeIdToShortEpisodes.values().stream().filter(e -> e.isNeedsFullTesting()).mapToLong(e -> e.getId()).boxed().collect(Collectors.toList());
          initShortEpisodes();
+        episodeIdToShortEpisodes.values().stream().filter(e -> idsOfEpisodesThatNeedFullTesting.contains(e.getId())).forEach(e -> e.setNeedsFullTesting(true));
     }
 
 
@@ -498,9 +500,8 @@ public class GameBuffer {
         // sort shortTimesteps in shortEpisodes
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             shortEpisode.getShortTimesteps().sort(Comparator.comparing(ShortTimestep::getT));
-
         }
-        initNeedsFullTest(true);
+      //  initNeedsFullTest(false);
 
     }
 
