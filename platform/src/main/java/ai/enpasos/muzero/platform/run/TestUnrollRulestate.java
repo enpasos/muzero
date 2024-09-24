@@ -62,85 +62,6 @@ public class TestUnrollRulestate {
     SelfPlayGame selfPlayGame;
 
 
-//    public void identifyRelevantTimestepsAndTestThemA(int unrollSteps, int epoch ) {
-//
-//
-//        int maxBox = timestepRepo.maxBoxA();
-//        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch, maxBox);
-//        log.info("boxesRelevant = {}", boxesRelevant.toString());
-//
-//        if (boxesRelevant.size() == 0) {
-//            log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
-//            return;
-//        }
-//
-//        if (boxesRelevant.size() > 0 && boxesRelevant.get(0) == 0) {
-//            boxesRelevant.remove(0);
-//        }
-//        if (boxesRelevant.size() == 0) {
-//            log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
-//            return;
-//        }
-//
-//        log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant.toString());
-//       // gameBuffer.resetRelevantIds();
-//      //  List<IdProjection> idProjections = gameBuffer.getIdsFromBoxesRelevantA(boxesRelevant);
-//
-//
-//        Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
-//        List<ShortTimestep> idProjections = shortTimesteps.stream().filter(shortTimestep -> boxesRelevant.contains(shortTimestep.getBoxA())).collect(Collectors.toList());
-//     //   List<ShortTimestep> idProjectionsUnknown = idProjections.stream().filter(idProjection3 -> idProjection3.getBoxA() == 0).collect(Collectors.toList());
-//
-//
-//        log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", idProjections.size());
-//
-//
-//        RulesBuffer rulesBuffer = new RulesBuffer();
-//        rulesBuffer.setWindowSize(1000);
-//        Set<Long> episodeIdsSet = idProjections.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet());
-//        List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
-//        log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
-//        rulesBuffer.setIds(episodeIds);
-//        Set<Long> timeStepIds = new HashSet<>(idProjections.stream().map(ShortTimestep::getId).collect(Collectors.toSet()));
-//        int count = 0;
-//        for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
-//            List<Long> episodeIdsRulesLearningList = iterator.next();
-//            count += episodeIdsRulesLearningList.size();
-//            log.info("identifyRelevantTimestepsAndTestThem count episodes = {} of {}", count, episodeIds.size());
-//            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
-//            List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-//            games.stream().forEach(game -> game.getEpisodeDO().getTimeSteps().stream().forEach(timeStepDO
-//                                    -> timeStepDO.setToBeAnalysed(timeStepIds.contains(timeStepDO.getId())
-//                            )
-//                    )
-//            );
-//
-//            playService.uOkAnalyseGames( games, false, unrollSteps);
-//
-//
-//            boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
-//            ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-//
-//
-//            List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()
-//                            .filter(timeStepDO -> timeStepIds.contains(timeStepDO.getId())))
-//                    .collect(Collectors.toList());
-//
-//
-//            relevantTimeSteps.forEach(timeStepDO -> {
-//                timeStepDO.setUOkTested(true);
-//            });
-//
-//
-//            // db update also in uOK and box
-//            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBoxA(relevantTimeSteps);
-//            gameBuffer.refreshCache(idsTsChanged);
-//        }
-//
-//        log.info("identifyRelevantTimestepsAndTestThem A unrollStepsGlobally = {} ... finished");
-//    }
-
-
     public void identifyRelevantTimestepsAndTestThem(int epoch ) {
 
         List<Integer> boxesRelevant = getBoxesRelevant(epoch);
@@ -218,14 +139,6 @@ public class TestUnrollRulestate {
     }
 
 
-//    public int getMinUnrollSteps() {
-//        return timestepRepo.minUnrollSteps();
-//    }
-
-//    public void testBoxesUntilFail( int unrollStepsGlobally) {
-//        boolean allTimeStepsWhichMeansLocally = false;
-//        test(allTimeStepsWhichMeansLocally, unrollStepsGlobally, false);
-//    }
 
     public void test( ) {
       test(true, 1, false, false);
@@ -253,7 +166,7 @@ public class TestUnrollRulestate {
 
 
         int epoch = networkIOService.getLatestNetworkEpoch();
-        log.info("testUnrollRulestate.run(), epoch = {},   allTimeSteps = {} ", epoch,  allTimeSteps );
+        log.info("testUnrollRulestate.run(), epoch = {}, allTimeSteps = {}, newEpisodesOnly = {}, onlyEpisodesThatNeedTo = {} ", epoch,  allTimeSteps, newEpisodesOnly, onlyEpisodesThatNeedTo );
 
         List<Integer> boxesRelevant = getBoxesRelevant(epoch);
 
