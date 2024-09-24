@@ -63,7 +63,7 @@ public class TestUnrollRulestate {
 
 
     public void identifyRelevantTimestepsAndTestThem(int epoch ) {
-
+        log.info("identifyRelevantTimestepsAndTestThem ... started");
         List<Integer> boxesRelevant = getBoxesRelevant(epoch);
 
         Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
@@ -168,7 +168,7 @@ public class TestUnrollRulestate {
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("testUnrollRulestate.run(), epoch = {}, allTimeSteps = {}, newEpisodesOnly = {}, onlyEpisodesThatNeedTo = {} ", epoch,  allTimeSteps, newEpisodesOnly, onlyEpisodesThatNeedTo );
 
-        List<Integer> boxesRelevant = getBoxesRelevant(epoch);
+       // List<Integer> boxesRelevant = getBoxesRelevant(epoch);
 
 
         RulesBuffer rulesBuffer = new RulesBuffer();
@@ -213,16 +213,16 @@ public class TestUnrollRulestate {
                     .collect(Collectors.toList());
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, boxesRelevant);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0) );
             gameBuffer.refreshCache(idsTsChanged);
 
 
         }
 
-        List<Integer> uOkList = timestepRepo.uOkList();
+     //   List<Integer> uOkList = timestepRepo.uOkList();
 
 
-        log.info("uOkList: {} ", uOkList.toString());
+     //   log.info("uOkList: {} ", uOkList.toString());
     }
 
 
