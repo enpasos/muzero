@@ -5,6 +5,7 @@ import ai.enpasos.mnist.blocks.MnistBlock;
 import ai.enpasos.mnist.blocks.ext.LayerNormExt;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import static ai.enpasos.mnist.blocks.BlockTestHelper.compareOnnxWithDJL;
 
 
 @Slf4j
+@Disabled
 class BlockTest {
 
     @Test

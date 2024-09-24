@@ -26,16 +26,14 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.AbstractBlock;
 import ai.djl.nn.Block;
 import ai.djl.nn.Parameter;
+import ai.djl.nn.norm.Dropout;
 import ai.djl.training.ParameterStore;
 import ai.djl.util.PairList;
 import ai.enpasos.mnist.blocks.OnnxBlock;
 import ai.enpasos.mnist.blocks.OnnxCounter;
 import ai.enpasos.mnist.blocks.OnnxIO;
 import ai.enpasos.mnist.blocks.OnnxTensor;
-import ai.enpasos.mnist.blocks.ext.ActivationExt;
-import ai.enpasos.mnist.blocks.ext.BlocksExt;
-import ai.enpasos.mnist.blocks.ext.LinearExt;
-import ai.enpasos.mnist.blocks.ext.SequentialBlockExt;
+import ai.enpasos.mnist.blocks.ext.*;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.DCLAware;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.ConcatInputsBlock;
 import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.Conv1x1LayerNormRelu;
@@ -98,6 +96,7 @@ private boolean withReward;
         valueHead = new SequentialBlockExt();
         valueHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
+                .add(DropoutExt.builder().optRate(0.3f).build())
                 .add(LinearExt.builder()
                         .setUnits(256) // config.getNumChannels())  // originally 256
                         .build())
@@ -115,6 +114,7 @@ private boolean withReward;
         legalActionsHead = new SequentialBlockExt();
         legalActionsHead.add(Conv1x1LayerNormRelu.builder().channels(2).build())
                 .add(BlocksExt.batchFlattenBlock())
+                .add(DropoutExt.builder().optRate(0.3f).build())
                 .add(LinearExt.builder()
                         .setUnits(actionSpaceSize).build());
 
@@ -125,6 +125,8 @@ private boolean withReward;
         policyHead
                 .add(Conv1x1LayerNormRelu.builder().channels(2).build())
                 .add(BlocksExt.batchFlattenBlock())
+
+                .add(DropoutExt.builder().optRate(0.3f).build())
                 .add(LinearExt.builder()
                         .setUnits(actionSpaceSize)
                         .build());
@@ -136,6 +138,8 @@ private boolean withReward;
 
         rewardHead.add(Conv1x1LayerNormRelu.builder().channels(1).build())
                 .add(BlocksExt.batchFlattenBlock())
+
+                .add(DropoutExt.builder().optRate(0.3f).build())
                 .add(LinearExt.builder()
                         .setUnits(256) // config.getNumChannels())  // originally 256
                         .build())

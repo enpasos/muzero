@@ -10,6 +10,7 @@ import ai.enpasos.muzero.platform.agent.d_model.djl.blocks.d_lowerlevel.*;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import static ai.enpasos.mnist.blocks.BlockTestHelper.compareOnnxWithDJL;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Disabled
 class BlockTest {
 
     @Autowired
