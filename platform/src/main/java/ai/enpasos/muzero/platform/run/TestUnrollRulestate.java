@@ -184,7 +184,9 @@ public class TestUnrollRulestate {
             episodeIds =  gameBuffer.getEpisodeIds();
         }
         if (onlyEpisodesThatNeedTo) {
+            log.info("episodeIds before filter = {}", episodeIds.size());
             episodeIds = gameBuffer.filterEpisodeIdsByTestNeed(episodeIds);
+            log.info("episodeIds after filter = {}", episodeIds.size());
         }
 
 
