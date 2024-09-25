@@ -158,13 +158,13 @@ public class MuZeroLoop {
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             logStateInfo();
-         //   if (getNOpen() < nTrain) {
+            if (getNOpen() < nTrain) {
                 testUnrollRulestate.test();
-         //   } else {
-         //       testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
-         //       logStateInfo();
-          //      testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
-          //  }
+            } else {
+                testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
+                logStateInfo();
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
+            }
             logStateInfo();
 
 

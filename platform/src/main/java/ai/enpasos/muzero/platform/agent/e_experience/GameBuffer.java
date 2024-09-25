@@ -439,9 +439,16 @@ public class GameBuffer {
         List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
          shortTimesteps.removeAll(shortTimestepsNew );
          shortTimesteps.addAll(shortTimestepsNew );
-         List<Long> idsOfEpisodesThatNeedFullTesting =  episodeIdToShortEpisodes.values().stream().filter(e -> e.isNeedsFullTesting()).mapToLong(e -> e.getId()).boxed().collect(Collectors.toList());
+        Map<Long, ShortEpisode>  episodeIdToOldShortEpisodes = episodeIdToShortEpisodes;
+      //   List<Long> idsOfEpisodesThatNeedFullTesting =  episodeIdToShortEpisodes.values().stream().filter(e -> e.isNeedsFullTesting()).mapToLong(e -> e.getId()).boxed().collect(Collectors.toList());
          initShortEpisodes();
-        episodeIdToShortEpisodes.values().stream().filter(e -> idsOfEpisodesThatNeedFullTesting.contains(e.getId())).forEach(e -> e.setNeedsFullTesting(true));
+        episodeIdToShortEpisodes.values().stream().forEach(e -> {
+            if (episodeIdToOldShortEpisodes.containsKey(e.getId())) {
+                ShortEpisode oldShortEpisode = episodeIdToOldShortEpisodes.get(e.getId());
+                e.setNeedsFullTesting(oldShortEpisode.isNeedsFullTesting());
+                e.setCurrentUnrollSteps(oldShortEpisode.getCurrentUnrollSteps());
+            }
+        });
     }
 
 
