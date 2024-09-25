@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 
 import static ai.enpasos.muzero.platform.agent.d_model.Network.getDoubleValue;
@@ -78,7 +79,8 @@ public class LossExtractor {
 
     private void extractLosses(MuZeroBlock block, CSVPrinter csvPrinter, int[] epochs, int startingEpoch) {
 
-        NumberFormat nf = NumberFormat.getNumberInstance();
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.GERMANY);
+
         nf.setMaximumFractionDigits(8);
         nf.setMinimumFractionDigits(8);
 
@@ -93,7 +95,7 @@ public class LossExtractor {
 
                         int trainingSteps = config.getNumberOfTrainingStepsPerEpoch() * epoch;
                         csvPrinter.printRecord(trainingSteps,
-                                NumberFormat.getNumberInstance().format(getDoubleValue(model, "MeanLoss")),
+                                nf.format(getDoubleValue(model, "MeanLoss")),
                                 nf.format(getDoubleValue(model, "MeanLegalActionLoss")),
                                 nf.format(getDoubleValue(model, "MeanRewardLoss")),
                                 nf.format(getDoubleValue(model, "MeanSimilarityLoss")),
