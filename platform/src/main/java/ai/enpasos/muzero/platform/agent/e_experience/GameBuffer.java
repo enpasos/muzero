@@ -599,6 +599,9 @@ public class GameBuffer {
            // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
             List<ShortTimestep> timeStepsThatNeedTraining = timeStepsThatNeedTraining( episodeIds,  unrollSteps);
             Collections.shuffle(timeStepsThatNeedTraining);
+            if (unrollSteps == 1 && timeStepsThatNeedTraining.size() > nOriginal) {
+                return timeStepsThatNeedTraining.subList(0, nOriginal).toArray(new ShortTimestep[0]);
+            }
             if (timeStepsThatNeedTraining.size() > remaining) {
                 timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, remaining);
             }
