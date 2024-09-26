@@ -588,26 +588,37 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsToTrain = new ArrayList<>();
 
-        int remaining = nOriginal/2;
+        int remaining = nOriginal;
 
         for(int unrollSteps : unrollStepsToEpisodeIds.keySet()) {
             if (remaining == 0) {
                 break;
             }
+            if (unrollSteps == 2) {
+                remaining = remaining / 2;  // rest will be filled from known ones
+            }
+
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
             // count number timesteps which are not known for given unrollSteps
            // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
             List<ShortTimestep> timeStepsThatNeedTraining = timeStepsThatNeedTraining( episodeIds,  unrollSteps);
             Collections.shuffle(timeStepsThatNeedTraining);
+
+            // if unrollSteps == 1 and there are more timesteps than needed, take the first nOriginal ones from the shuffled list
             if (unrollSteps == 1 && timeStepsThatNeedTraining.size() > nOriginal) {
                 return timeStepsThatNeedTraining.subList(0, nOriginal).toArray(new ShortTimestep[0]);
             }
+
+
             if (timeStepsThatNeedTraining.size() > remaining) {
                 timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, remaining);
             }
             timeStepsToTrain.addAll(timeStepsThatNeedTraining);
             remaining -= timeStepsThatNeedTraining.size();
         }
+
+        remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
+
 
         // also learn from the known ones
         ShortTimestep[] stArray =
@@ -635,7 +646,7 @@ public class GameBuffer {
                 }).toArray();
 
         AliasMethod aliasMethod = new AliasMethod(g);
-        int[] samples = aliasMethod.sampleWithoutReplacement(Math.min(nOriginal/2, g.length));
+        int[] samples = aliasMethod.sampleWithoutReplacement(Math.min(remaining, g.length));
         List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
         timeStepsToTrain.addAll(tsKnownOnes);
 
