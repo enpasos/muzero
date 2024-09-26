@@ -19,7 +19,9 @@ public class ShortEpisode {
 
 
     private boolean needsFullTesting;
-    private int currentUnrollSteps;
+
+    @Builder.Default
+    private int currentUnrollSteps = 1;
 
     public int getUnrollSteps() {
         int newUnrollSteps = 1;
