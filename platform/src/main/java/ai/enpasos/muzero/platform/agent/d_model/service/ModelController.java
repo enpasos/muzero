@@ -338,9 +338,10 @@ public class ModelController implements DisposableBean, Runnable {
 
 
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
-        log.info("trainNetworkRules ... sampleNumber: {}",  sampleNumber);
 
+        log.info("trainNetworkRules ... ");
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber   );
+        log.info("configured sample n: {}, identified sample timesteps: {}", sampleNumber, tsList.length);
 
         Map<Integer, List<ShortTimestep>> mapByUnrollSteps = mapByUnrollSteps(tsList);
 
