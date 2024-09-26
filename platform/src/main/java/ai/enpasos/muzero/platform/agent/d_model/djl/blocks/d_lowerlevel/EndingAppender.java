@@ -49,7 +49,7 @@ private EndingAppender() {
                         Arrays.asList(
                                 BlocksExt.identityBlock(),
                                 (SequentialBlockExt) new SequentialBlockExt()
-                                        .add(newConv1x1(numCompressedChannels))
+        // .add(newConv1x1(numCompressedChannels))
                                         .add(new RescaleBlockExt()))));
     }
 

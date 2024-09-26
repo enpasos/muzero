@@ -79,17 +79,17 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 8
+      numResiduals: 1
       broadcastEveryN: 14  # out of range here
 
 
-      numChannelsRules: 150
-      numChannelsPolicy: 30
-      numChannelsValue: 30
+      numChannelsRules: 10
+      numChannelsPolicy: 10
+      numChannelsValue: 10
 
-      numCompressedChannelsRules: 50
-      numCompressedChannelsPolicy: 20
-      numCompressedChannelsValue: 20
+      numCompressedChannelsRules: 10
+      numCompressedChannelsPolicy: 10
+      numCompressedChannelsValue: 10
 
 
       valueLossWeight: 1

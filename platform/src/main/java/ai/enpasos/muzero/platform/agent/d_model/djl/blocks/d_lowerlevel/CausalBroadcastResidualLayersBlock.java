@@ -72,11 +72,7 @@ public class CausalBroadcastResidualLayersBlock extends AbstractBlock implements
     @Override
     public Shape[] getOutputShapes(Shape[] inputs) {
         return block.getOutputShapes(inputs);
-//        List<Shape> shapes = new ArrayList<>();
-//        for (Block myblock : block.getChildren().values()) {
-//            shapes.add(myblock.getOutputShapes(inputs)[0]);
-//        }
-//        return shapes.toArray(new Shape[0]);
+
     }
 
     @Override
