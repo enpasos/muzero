@@ -87,9 +87,9 @@ muzero:
       numChannelsPolicy: 10
       numChannelsValue: 10
 
-      numCompressedChannelsRules: 10
-      numCompressedChannelsPolicy: 10
-      numCompressedChannelsValue: 10
+      numCompressedChannelsRules: 1
+      numCompressedChannelsPolicy: 1
+      numCompressedChannelsValue: 1
 
 
       valueLossWeight: 1
