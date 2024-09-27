@@ -43,6 +43,7 @@ public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMax
 
 
    public boolean isTrainable(int unrollSteps, int tMax)  {
+      // TODO rethink last condition
       return (unrollSteps == 1 && uOk < 1) || (t > tMax - unrollSteps - 1  || nextUOk >= unrollSteps - 1);
 
     //  return nextuokclosed || nextUOk >= unrollSteps - 1 || (unrollSteps == 1 && uOk < 1);
