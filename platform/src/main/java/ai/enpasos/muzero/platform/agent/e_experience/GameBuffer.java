@@ -610,9 +610,9 @@ public class GameBuffer {
 //            }
 
 
-            if (timeStepsThatNeedTraining.size() > remaining) {
-                timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, remaining);
-            }
+
+            timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, Math.min(remaining, timeStepsThatNeedTraining.size()));
+
             timeStepsToTrain.addAll(timeStepsThatNeedTraining);
             remaining -= timeStepsThatNeedTraining.size();
         }
