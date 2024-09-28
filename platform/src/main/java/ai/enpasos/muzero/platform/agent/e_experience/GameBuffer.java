@@ -596,22 +596,12 @@ public class GameBuffer {
             if (remaining == 0) {
                 break;
             }
-//            if (unrollSteps == 2) {
-//                remaining = remaining / 2;  // rest will be filled from known ones
-//            }
 
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
             // count number timesteps which are not known for given unrollSteps
            // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
             List<ShortTimestep> timeStepsThatNeedTraining = timeStepsThatNeedTraining( episodeIds,  unrollSteps);
             Collections.shuffle(timeStepsThatNeedTraining);
-
-            // if unrollSteps == 1 and there are more timesteps than needed, take the first nOriginal ones from the shuffled list
-//            if (unrollSteps == 1 && timeStepsThatNeedTraining.size() > nOriginal) {
-//                return timeStepsThatNeedTraining.subList(0, nOriginal).toArray(new ShortTimestep[0]);
-//            }
-
-
 
             timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, Math.min(remaining, timeStepsThatNeedTraining.size()));
 
@@ -638,6 +628,10 @@ public class GameBuffer {
                         box -> 1,     // Initialize count as 1
                         Integer::sum  // If the box is already present, sum the counts
                 ));
+
+
+
+
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
         double[] g = Arrays.stream(stArray)
                 .mapToDouble(st -> {
