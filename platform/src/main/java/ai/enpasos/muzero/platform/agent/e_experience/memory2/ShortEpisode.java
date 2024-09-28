@@ -53,8 +53,8 @@ public class ShortEpisode {
         // if all timesteps are uokclosed, the episode is closed
         return shortTimesteps.stream().allMatch(ShortTimestep::isUOkClosed);
     }
-
-    public boolean hasLowHangingFruits(int unrollSteps) {
-        return shortTimesteps.stream().anyMatch(shortTimestep -> shortTimestep.isLowHangingFruit(unrollSteps, this.getMaxT()));
-    }
+//
+//    public boolean hasLowHangingFruits(int unrollSteps) {
+//        return shortTimesteps.stream().anyMatch(shortTimestep -> shortTimestep.isLowHangingFruit(unrollSteps, this.getMaxT()));
+//    }
 }

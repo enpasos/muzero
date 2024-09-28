@@ -43,8 +43,8 @@ public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMax
 
 
    public boolean isTrainable(int unrollSteps, int tMax)  {
-      // TODO rethink last condition
-      return (unrollSteps == 1 && uOk < 1) || (t > tMax - unrollSteps - 1  || nextUOk >= unrollSteps - 1);
+
+      return (unrollSteps == 1 && uOk < 1) || (t > tMax - unrollSteps - 1  );
 
     //  return nextuokclosed || nextUOk >= unrollSteps - 1 || (unrollSteps == 1 && uOk < 1);
 
@@ -64,7 +64,7 @@ public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMax
       return Boxes.getBox(boxes, unrollSteps);
    }
 
-   public boolean isLowHangingFruit(int unrollSteps, int tmax) {
-      return !uOkClosed && t > tmax - unrollSteps && t > 0 && !(unrollSteps == 1 && uOk < 1);
-   }
+//   public boolean isLowHangingFruit(int unrollSteps, int tmax) {
+//      return !uOkClosed && t > tmax - unrollSteps && t > 0 && !(unrollSteps == 1 && uOk < 1);
+//   }
 }
