@@ -83,13 +83,13 @@ muzero:
       broadcastEveryN: 14  # out of range here
 
 
-      numChannelsRules: 10
-      numChannelsPolicy: 10
-      numChannelsValue: 10
+      numChannelsRules: 30
+      numChannelsPolicy: 30
+      numChannelsValue: 30
 
-      numCompressedChannelsRules: 1
-      numCompressedChannelsPolicy: 1
-      numCompressedChannelsValue: 1
+      numCompressedChannelsRules: 3
+      numCompressedChannelsPolicy: 3
+      numCompressedChannelsValue: 3
 
 
       valueLossWeight: 1
