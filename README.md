@@ -65,7 +65,7 @@ This project is licensed under the [Apache-2.0 License](platform/LICENSE).
 
 ## Database![img.png](img.png)
 
-postgres 16.2
+postgres 17
 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 
 database superuser
@@ -76,8 +76,12 @@ port 5432
 
 #### Local Database Setup
 
+Run as database postgres user:
+
 ```
-Run as database postgres user;
+psql -U postgres
+```
+
 ```
 REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM muzero;
 REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM muzero;
