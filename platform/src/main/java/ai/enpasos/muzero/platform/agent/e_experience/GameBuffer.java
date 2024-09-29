@@ -588,9 +588,9 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsToTrain = new ArrayList<>();
 
-      //  double fractionNew = 0.5;
-        int remaining =nOriginal;
-     //   int remaining = (int) (nOriginal * fractionNew) ;
+        double fractionNew = 0.5;
+    //    int remaining =nOriginal;
+        int remaining = (int) (nOriginal * fractionNew) ;
 
         for(int unrollSteps : unrollStepsToEpisodeIds.keySet()) {
 //            if (remaining == 0) {
@@ -614,17 +614,17 @@ public class GameBuffer {
         // now filter by the unrollSteps per timestep
         Map<Integer, List<ShortTimestep>> mapByUnrollSteps = mapByUnrollSteps(timeStepsToTrain.toArray(new ShortTimestep[0]));
 
-        List<ShortTimestep> timeStepsToTrain2 = new ArrayList<>();
+        timeStepsToTrain = new ArrayList<>();
 
         for(int unrollSteps : mapByUnrollSteps.keySet()) {
             List<ShortTimestep> timeSteps = mapByUnrollSteps.get(unrollSteps);
             Collections.shuffle(timeSteps);
             timeSteps = timeSteps.subList(0, Math.min(remaining, timeSteps.size()));
             remaining -= timeSteps.size();
-                    timeStepsToTrain2.addAll(timeSteps );
+                    timeStepsToTrain.addAll(timeSteps );
 
         }
-        Collections.shuffle(timeStepsToTrain2);
+        Collections.shuffle(timeStepsToTrain);
 
 
 
@@ -633,45 +633,45 @@ public class GameBuffer {
 
 
      //   timeStepsToTrain = timeStepsToTrain.subList(0, Math.min(remaining, timeStepsToTrain.size()));
-        //remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
+        remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
 
 
         // also learn from the known ones
-//        ShortTimestep[] stArray =
-//                this.getShortTimestepSet().stream().filter(st -> st.isUOkClosed()).toArray(ShortTimestep[]::new);
-//        // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
-//        final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
-//                .map(st -> {
-//                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
-//                    int unrollSteps = Math.max(1, tmax - st.getT());
-//                    int box = st.getBox(unrollSteps);
-//                    return box;
-//                })  // Get the box from the array
-//                .collect(Collectors.toMap(
-//                        box -> box,   // Use the box as the key
-//                        box -> 1,     // Initialize count as 1
-//                        Integer::sum  // If the box is already present, sum the counts
-//                ));
+        ShortTimestep[] stArray =
+                this.getShortTimestepSet().stream().filter(st -> st.isUOkClosed()).toArray(ShortTimestep[]::new);
+        // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
+        final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
+                .map(st -> {
+                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
+                    int unrollSteps = Math.max(1, tmax - st.getT());
+                    int box = st.getBox(unrollSteps);
+                    return box;
+                })  // Get the box from the array
+                .collect(Collectors.toMap(
+                        box -> box,   // Use the box as the key
+                        box -> 1,     // Initialize count as 1
+                        Integer::sum  // If the box is already present, sum the counts
+                ));
 
 
 
 
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
-//        double[] g = Arrays.stream(stArray)
-//                .mapToDouble(st -> {
-//                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
-//                    int unrollSteps = Math.max(1, tmax - st.getT());
-//                    int box = st.getBox(unrollSteps);
-//                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
-//                }).toArray();
-//
-//        AliasMethod aliasMethod = new AliasMethod(g);
-//        int[] samples = aliasMethod.sampleWithoutReplacement(Math.min(remaining, g.length));
-//        List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
-//        timeStepsToTrain.addAll(tsKnownOnes);
+        double[] g = Arrays.stream(stArray)
+                .mapToDouble(st -> {
+                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
+                    int unrollSteps = Math.max(1, tmax - st.getT());
+                    int box = st.getBox(unrollSteps);
+                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
+                }).toArray();
+
+        AliasMethod aliasMethod = new AliasMethod(g);
+        int[] samples = aliasMethod.sampleWithoutReplacement(Math.min(remaining, g.length));
+        List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
+        timeStepsToTrain.addAll(tsKnownOnes);
 
 
-    return timeStepsToTrain2.toArray(new ShortTimestep[0]);
+    return timeStepsToTrain.toArray(new ShortTimestep[0]);
 
     }
 
