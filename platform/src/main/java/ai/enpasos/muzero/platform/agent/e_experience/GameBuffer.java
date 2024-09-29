@@ -473,6 +473,7 @@ public class GameBuffer {
                                 .nextuokclosed(result[5] != null ? (Boolean) result[5] : null)
                                 .t(result[6] != null ? (Integer) result[6] : null)
                                 .uOkClosed(result[7] != null ? (Boolean) result[7] : false)
+
                                 .build())
                         .collect(Collectors.toList());
                 this.shortTimesteps.addAll(shortTimesteps);
