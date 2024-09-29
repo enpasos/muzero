@@ -42,7 +42,6 @@ public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMax
 
    public boolean isTrainable(int unrollSteps, int tMax)  {
     return (unrollSteps == 1 && uOk < 1) || (t > tMax - unrollSteps - 1  );
-    //  return  (t > tMax - unrollSteps - 1  );
    }
 
    public boolean needsTraining(int unrollSteps) {

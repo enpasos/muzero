@@ -593,21 +593,25 @@ public class GameBuffer {
         int remaining = (int) (nOriginal * fractionNew) ;
 
         for(int unrollSteps : unrollStepsToEpisodeIds.keySet()) {
-            if (remaining == 0) {
-                break;
-            }
+//            if (remaining == 0) {
+//                break;
+//            }
 
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
             // count number timesteps which are not known for given unrollSteps
            // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
             List<ShortTimestep> timeStepsThatNeedTraining = timeStepsThatNeedTraining( episodeIds,  unrollSteps);
-            Collections.shuffle(timeStepsThatNeedTraining);
+            // Collections.shuffle(timeStepsThatNeedTraining);
 
-            timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, Math.min(remaining, timeStepsThatNeedTraining.size()));
+          //  timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, Math.min(remaining, timeStepsThatNeedTraining.size()));
 
             timeStepsToTrain.addAll(timeStepsThatNeedTraining);
-            remaining -= timeStepsThatNeedTraining.size();
+         //   remaining -= timeStepsThatNeedTraining.size();
         }
+
+        Collections.shuffle(timeStepsToTrain);
+
+        timeStepsToTrain = timeStepsToTrain.subList(0, Math.min(remaining, timeStepsToTrain.size()));
 
         remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
 
@@ -616,18 +620,18 @@ public class GameBuffer {
         ShortTimestep[] stArray =
                 this.getShortTimestepSet().stream().filter(st -> st.isUOkClosed()).toArray(ShortTimestep[]::new);
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
-        final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
-                .map(st -> {
-                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
-                    int unrollSteps = Math.max(1, tmax - st.getT());
-                    int box = st.getBox(unrollSteps);
-                    return box;
-                })  // Get the box from the array
-                .collect(Collectors.toMap(
-                        box -> box,   // Use the box as the key
-                        box -> 1,     // Initialize count as 1
-                        Integer::sum  // If the box is already present, sum the counts
-                ));
+//        final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
+//                .map(st -> {
+//                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
+//                    int unrollSteps = Math.max(1, tmax - st.getT());
+//                    int box = st.getBox(unrollSteps);
+//                    return box;
+//                })  // Get the box from the array
+//                .collect(Collectors.toMap(
+//                        box -> box,   // Use the box as the key
+//                        box -> 1,     // Initialize count as 1
+//                        Integer::sum  // If the box is already present, sum the counts
+//                ));
 
 
 
@@ -638,7 +642,7 @@ public class GameBuffer {
                     int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
                     int unrollSteps = Math.max(1, tmax - st.getT());
                     int box = st.getBox(unrollSteps);
-                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
+                    return 1.0 / Math.pow(2, box) ; /// boxOccupations.get(box);
                 }).toArray();
 
         AliasMethod aliasMethod = new AliasMethod(g);
