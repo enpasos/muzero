@@ -659,9 +659,9 @@ public class GameBuffer {
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
         double[] g = Arrays.stream(stArray)
                 .mapToDouble(st -> {
-                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
-                    int unrollSteps = Math.max(1, tmax - st.getT());
-                    int box = st.getBox(unrollSteps);
+                  //  int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
+                 //  int unrollSteps = Math.max(1, tmax - st.getT());
+                    int box = st.getLastBox() ;
                     return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
                 }).toArray();
 

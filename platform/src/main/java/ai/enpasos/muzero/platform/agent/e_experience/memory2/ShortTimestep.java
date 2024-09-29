@@ -18,6 +18,10 @@ public class ShortTimestep {
 
    private int[] boxes;
 
+   public int getLastBox() {
+      return boxes[boxes.length - 1];
+   }
+
    private Integer uOk;
    private Integer nextUOk;
    private boolean nextuokclosed;
