@@ -27,6 +27,8 @@ public class ShortTimestep {
    private boolean nextuokclosed;
 
 
+   private boolean justTrained;
+
 
    private Integer t;
 

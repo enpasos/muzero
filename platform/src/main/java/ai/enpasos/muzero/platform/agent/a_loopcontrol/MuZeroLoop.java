@@ -161,6 +161,7 @@ public class MuZeroLoop {
             if (getNOpen() < nTrain) {
                 testUnrollRulestate.test();
             } else {
+
                 testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
                 logStateInfo();
                 testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing

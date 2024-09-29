@@ -68,8 +68,12 @@ public class TestUnrollRulestate {
 
         Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
         List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
-                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), config.getMaxUnrollSteps()) )
+                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), config.getMaxUnrollSteps())
+                || shortTimestep.isJustTrained())
                 .collect(Collectors.toList());
+
+        shortTimesteps.stream().forEach(shortTimestep -> shortTimestep.setJustTrained(false));
+
         List<Long> relevantIds = relevantShortTimesteps.stream()
                 .mapToLong(shortTimestep -> shortTimestep.getId())
                 .boxed().toList();
