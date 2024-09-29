@@ -343,7 +343,7 @@ public class ModelController implements DisposableBean, Runnable {
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber   );
         log.info("configured sample n: {}, identified sample timesteps: {}", sampleNumber, tsList.length);
 
-        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = mapByUnrollSteps(tsList);
+        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = gameBuffer.mapByUnrollSteps(tsList);
 
 
 
@@ -461,18 +461,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-    private Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections) {
-       return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
-           int uOK = p.getUOk();
-           int tmax = gameBuffer.getTmax(p.getEpisodeId());
-         //  p.
-           int unrollSteps = gameBuffer.unrollSteps(p.getEpisodeId());
 
-             unrollSteps = Math.max(1,Math.min(tmax - p.getT(), unrollSteps));
-           //int unrollNumber = Math.max(1, uOK + 1);
-           return unrollSteps;
-       }));
-    }
 
     private List<Long> episodeIdsFromIdProjections(   List<ShortTimestep> allIdProjections) {
         Set<Long> ids =   allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
