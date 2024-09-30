@@ -589,7 +589,7 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsToTrainAll = new ArrayList<>();
 
-        double fractionNew = 0.5;
+        double fractionNew = 0.9;
 
         int remaining = (int) (nOriginal * fractionNew) ;
 
