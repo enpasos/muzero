@@ -87,6 +87,16 @@ public class ShortTimestep {
 
 
    public Integer getUnrollSteps(int tmax, int unrollStepsEpisode) {
-      return Math.max(1,Math.max(unrollStepsEpisode - 1, Math.min(tmax - t, unrollStepsEpisode)));
+      // Calculate the difference between tmax and t
+      int timeRemaining = tmax - t;
+
+      // Find the smaller value between timeRemaining and unrollStepsEpisode
+      int unrollSteps = Math.min(timeRemaining, unrollStepsEpisode);
+
+      // Find the larger value between (unrollStepsEpisode - 1) and unrollSteps
+      unrollSteps = Math.max(unrollStepsEpisode - 1, unrollSteps);
+
+      // Ensure the unroll steps are at least 1
+      return Math.max(1, unrollSteps);
    }
 }
