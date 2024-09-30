@@ -662,7 +662,7 @@ public class GameBuffer {
             int uOK = p.getUOk();
             int tmax = getTmax(p.getEpisodeId());
             int unrollSteps = unrollSteps(p.getEpisodeId());
-            unrollSteps = Math.max(1,Math.min(tmax - p.getT(), unrollSteps));
+        //    unrollSteps = Math.max(1,Math.min(tmax - p.getT(), unrollSteps));
             return unrollSteps;
         }));
     }
