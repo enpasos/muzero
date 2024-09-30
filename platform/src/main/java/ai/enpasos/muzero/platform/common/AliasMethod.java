@@ -83,7 +83,7 @@ public class AliasMethod {
         TreeSet<Integer> set = new TreeSet<>();
         List<Integer> list = new ArrayList<>();
         int countSuccesslessDraws = 0;
-        while(set.size() < n && countSuccesslessDraws < 100) {
+        while(set.size() < n && countSuccesslessDraws < 100*n) {
             int sizeBefore = set.size();
             int s = sample();
             set.add(s);
