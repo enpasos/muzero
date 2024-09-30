@@ -659,8 +659,8 @@ public class GameBuffer {
 
     public Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections) {
         return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
-            int uOK = p.getUOk();
-            int tmax = getTmax(p.getEpisodeId());
+       //     int uOK = p.getUOk();
+         //   int tmax = getTmax(p.getEpisodeId());
             int unrollSteps = unrollSteps(p.getEpisodeId());
         //    unrollSteps = Math.max(1,Math.min(tmax - p.getT(), unrollSteps));
             return unrollSteps;
