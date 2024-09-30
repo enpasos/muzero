@@ -587,35 +587,23 @@ public class GameBuffer {
         Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds( true);
 
 
-        List<ShortTimestep> timeStepsToTrain = new ArrayList<>();
+        List<ShortTimestep> timeStepsToTrainAll = new ArrayList<>();
 
         double fractionNew = 0.5;
-    //    int remaining =nOriginal;
+
         int remaining = (int) (nOriginal * fractionNew) ;
 
         for(int unrollSteps : unrollStepsToEpisodeIds.keySet()) {
-//            if (remaining == 0) {
-//                break;
-//            }
-
             List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
-            // count number timesteps which are not known for given unrollSteps
-           // long numUnknownsForGivenUnrollSteps =  numIsTrainableAndNeedsTraining(episodeIds, unrollSteps);
             List<ShortTimestep> timeStepsThatNeedTraining = timeStepsThatNeedTraining( episodeIds,  unrollSteps);
-            // Collections.shuffle(timeStepsThatNeedTraining);
-
-          //  timeStepsThatNeedTraining = timeStepsThatNeedTraining.subList(0, Math.min(remaining, timeStepsThatNeedTraining.size()));
-
-            timeStepsToTrain.addAll(timeStepsThatNeedTraining);
-         //   remaining -= timeStepsThatNeedTraining.size();
+            timeStepsToTrainAll.addAll(timeStepsThatNeedTraining);
         }
 
-       // Collections.shuffle(timeStepsToTrain);
 
         // now filter by the unrollSteps per timestep
-        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = mapByUnrollSteps(timeStepsToTrain.toArray(new ShortTimestep[0]));
+        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = mapByUnrollSteps(timeStepsToTrainAll.toArray(new ShortTimestep[0]));
 
-        timeStepsToTrain = new ArrayList<>();
+        List<ShortTimestep>  timeStepsToTrain = new ArrayList<>();
 
         for(int unrollSteps : mapByUnrollSteps.keySet()) {
             List<ShortTimestep> timeSteps = mapByUnrollSteps.get(unrollSteps);
@@ -628,12 +616,6 @@ public class GameBuffer {
         Collections.shuffle(timeStepsToTrain);
 
 
-
-   //     timeStepsToTrain.stream().sorted(Comparator.comparing(st -> st.)).collect(Collectors.toList());
-
-
-
-     //   timeStepsToTrain = timeStepsToTrain.subList(0, Math.min(remaining, timeStepsToTrain.size()));
         remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
 
 
