@@ -73,8 +73,17 @@ public class ShortTimestep {
    }
 
    public boolean isTrainable(int unrollSteps, int tMax) {
-   //   return uOk < unrollSteps;
-      return (unrollSteps == 1 && uOk < unrollSteps) || (t > tMax - unrollSteps - 1) || (t <= tMax - unrollSteps - 1  && uOk < unrollSteps - 1);
+      // Check if unrollSteps is 1 and uOk is less than unrollSteps
+      boolean condition1 = (unrollSteps == 1 && uOk < unrollSteps);
+
+      // Check if t is greater than tMax - unrollSteps - 1
+      boolean condition2 = (t > tMax - unrollSteps - 1);
+
+      // Check if t is less than or equal to tMax - unrollSteps - 1 and uOk is less than unrollSteps - 1
+      boolean condition3 = (t <= tMax - unrollSteps - 1 && uOk < unrollSteps - 1);
+
+      // Return true if any of the conditions are true
+      return condition1 || condition2 || condition3;
    }
 
    public boolean needsTraining(int unrollSteps) {
