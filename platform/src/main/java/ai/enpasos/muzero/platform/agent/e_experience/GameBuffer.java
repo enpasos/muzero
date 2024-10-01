@@ -625,9 +625,11 @@ public class GameBuffer {
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
         final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
                 .map(st -> {
-                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
-                    int unrollSteps = Math.max(1, tmax - st.getT());
-                    int box = st.getBox(unrollSteps);
+//                    int tmax = episodeIdToMaxTime.get(st.getEpisodeId());
+//                    ShortEpisode se =       episodeIdToShortEpisodes.get(st.getEpisodeId());
+//                    int unRollStepsEpisode = se.getUnrollSteps();
+//                    int unRollStepsTimeStep = st.getUnrollSteps(tmax, unRollStepsEpisode);
+                    int box = st.getLastBox(); //st.getBox( unRollStepsTimeStep);
                     return box;
                 })  // Get the box from the array
                 .collect(Collectors.toMap(
