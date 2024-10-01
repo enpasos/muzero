@@ -109,7 +109,7 @@ public class ShortTimestep {
       // Find the larger value between (unrollStepsEpisode - 1) and unrollSteps
       unrollSteps = Math.max(unrollStepsEpisode - 1, unrollSteps);
 
-      // Ensure the unroll steps are at least 1
+
       return Math.max(1, unrollSteps);
    }
 }

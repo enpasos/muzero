@@ -520,9 +520,9 @@ public class GameBuffer {
     }
 
 
-    public int unrollStepsEpisode(long episodeId) {
-        return episodeIdToShortEpisodes.get(episodeId).getUnrollSteps();
-    }
+//    public int unrollStepsEpisode(long episodeId) {
+//        return episodeIdToShortEpisodes.get(episodeId).getUnrollSteps();
+//    }
 
 
 //    public Map<Integer, List<Long>> unrollStepsToEpisodeIds(boolean filterOnNonClosed ) {
@@ -641,9 +641,9 @@ public class GameBuffer {
     }
 
 
-    public Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections) {
+    public Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections, int unrollSteps) {
         return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
-            return p.getUnrollSteps(getTmax(p.getEpisodeId()), unrollStepsEpisode(p.getEpisodeId()));
+            return p.getUnrollSteps(getTmax(p.getEpisodeId()), unrollSteps);
        //     int uOK = p.getUOk();
          //   int tmax = getTmax(p.getEpisodeId());
 //            int unrollSteps = unrollSteps(p.getEpisodeId());
