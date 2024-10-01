@@ -160,23 +160,35 @@ public class MuZeroLoop {
         int unrollSteps = 1;
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
-            logStateInfo();
-            if (getNOpen() < nTrain) {
-                testUnrollRulestate.test();
-            } else {
+            int numBox0 = numBox0(unrollSteps);
+            while (numBox0 > 0) {
 
-                testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
-                logStateInfo();
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
+                logStateInfo(unrollSteps);
+//                if (getNOpen() < nTrain) {
+//                    testUnrollRulestate.test();
+//                } else {
+                    testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
+                    logStateInfo(unrollSteps);
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
+              //  }
+                logStateInfo(unrollSteps);
+
+                numBox0 = numBox0(unrollSteps);
+                if (numBox0 == 0) {
+                    testUnrollRulestate.test();
+                    numBox0 = numBox0(unrollSteps);
+                    if (numBox0 == 0) {
+                        unrollSteps = unrollSteps + 1;
+                        log.info("unrollSteps increased to {}", unrollSteps);
+                        numBox0 = numBox0(unrollSteps);
+                    }
+                }
             }
-            logStateInfo();
 
 
             if (getNOpen() > 0) {
                 epoch = ruleTrain(durations, unrollSteps );
             }
-
-
 
             if (getNOpen() == 0) {
                 break;
@@ -186,7 +198,8 @@ public class MuZeroLoop {
         }
     }
 
-    private void logStateInfo() {
+    private void logStateInfo(int unrollSteps) {
+        log.info("numBox0({}) = {}",unrollSteps, numBox0(unrollSteps));
         log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
         gameBuffer.selectUnrollStepsToEpisodeCount(true);
     }
@@ -222,7 +235,9 @@ public class MuZeroLoop {
 //    }
 
 
-
+      private int numBox0(int unrollSteps) {
+              return gameBuffer.getShortTimestepSet().stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
+      }
 
 
 
