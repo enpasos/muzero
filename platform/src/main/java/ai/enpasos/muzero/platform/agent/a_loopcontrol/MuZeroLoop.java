@@ -173,6 +173,8 @@ public class MuZeroLoop {
               //  }
                 logStateInfo(unrollSteps);
 
+                epoch = ruleTrain(durations, unrollSteps );
+
                 numBox0 = numBox0(unrollSteps);
                 if (numBox0 == 0) {
                     testUnrollRulestate.test();
@@ -186,9 +188,6 @@ public class MuZeroLoop {
             }
 
 
-            if (getNOpen() > 0) {
-                epoch = ruleTrain(durations, unrollSteps );
-            }
 
             if (getNOpen() == 0) {
                 break;
