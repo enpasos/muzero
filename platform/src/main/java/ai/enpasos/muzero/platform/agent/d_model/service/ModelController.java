@@ -347,7 +347,7 @@ public class ModelController implements DisposableBean, Runnable {
 
         log.info("configured sample n: {}, identified sample timesteps: {}", sampleNumber, tsList.length);
 
-        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = gameBuffer.mapByUnrollSteps(tsList);
+        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = gameBuffer.mapByUnrollSteps(tsList, globalUnrollSteps);
 
 
 
