@@ -79,13 +79,13 @@ muzero:
       cVisit: 20  # 50 in paper
       cScale: 1.0  # 1.0 in paper
 
-      numResiduals: 1
+      numResiduals: 5
       broadcastEveryN: 14  # out of range here
 
 
-      numChannelsRules: 30
-      numChannelsPolicy: 30
-      numChannelsValue: 30
+      numChannelsRules: 50
+      numChannelsPolicy: 50
+      numChannelsValue: 50
 
       numCompressedChannelsRules: 3
       numCompressedChannelsPolicy: 3
@@ -94,7 +94,7 @@ muzero:
 
       valueLossWeight: 1
 
-      withConsistencyLoss: false  # check if not to remove completely
+      withConsistencyLoss: true
       consistencyLossWeight: 2
       # legalActionsLossWeight: 0.1111  # 1/actionSpaceSize
 

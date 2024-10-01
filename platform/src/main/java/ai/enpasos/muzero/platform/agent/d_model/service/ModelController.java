@@ -246,7 +246,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetwork(task.freeze, task.isBackground(), task.getTrainingDatasetType());
                     break;
                 case TRAIN_MODEL_RULES:  // we start of with using the same method for training the rules but freezing the parameters
-                    trainNetworkRules(task.freeze, task.isBackground()  );
+                    trainNetworkRules(task.freeze, task.isBackground() ,  task.getNumUnrollSteps());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -324,7 +324,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background  ) {
+    private void trainNetworkRules(boolean[] freeze, boolean background , int  globalUnrollSteps ) {
 
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
@@ -340,7 +340,7 @@ public class ModelController implements DisposableBean, Runnable {
         int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
         log.info("trainNetworkRules ... ");
-        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber   );
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber,   globalUnrollSteps   );
 
         // set all timesteps trained in this controller loop to justTrained
         Arrays.stream(tsList).forEach(ts -> ts.setJustTrained(true) );

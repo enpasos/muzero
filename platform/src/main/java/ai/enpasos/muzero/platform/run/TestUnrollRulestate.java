@@ -154,9 +154,9 @@ public class TestUnrollRulestate {
         gameBuffer.initNeedsFullTest(false);
     }
 
-    private void checkCacheConsistency() {
-        gameBuffer.checkCacheConsistency();
-    }
+//    private void checkCacheConsistency() {
+//        gameBuffer.checkCacheConsistency();
+//    }
 
     public void testNewEpisodes( ) {
         test(true, 1, true, false);

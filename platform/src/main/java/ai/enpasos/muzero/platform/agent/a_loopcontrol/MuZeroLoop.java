@@ -99,6 +99,9 @@ public class MuZeroLoop {
 
         gameBuffer.loadLatestStateIfExists();
 
+
+
+
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
             DurAndMem duration = new DurAndMem();
@@ -154,7 +157,7 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-
+        int unrollSteps = 1;
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             logStateInfo();
@@ -170,7 +173,7 @@ public class MuZeroLoop {
 
 
             if (getNOpen() > 0) {
-                epoch = ruleTrain(durations );
+                epoch = ruleTrain(durations, unrollSteps );
             }
 
 
@@ -195,12 +198,12 @@ public class MuZeroLoop {
 
 
 
-    private int ruleTrain(  List<DurAndMem> durations  ) throws InterruptedException, ExecutionException {
+    private int ruleTrain(  List<DurAndMem> durations, int unrollSteps  ) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.trainModelRules(freeze   ).get();
+        modelService.trainModelRules(freeze , unrollSteps  ).get();
 
         epoch = modelState.getEpoch();
         duration.off();
