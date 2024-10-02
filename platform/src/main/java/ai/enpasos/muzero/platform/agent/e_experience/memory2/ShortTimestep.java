@@ -94,22 +94,27 @@ public class ShortTimestep {
       return !uOkClosed && uOk < unrollSteps;
    }
 
+   public boolean needsTrainingPrio1(int tmax, int unrollSteps) {
+      int timeRemaining = tmax - t;
+      return timeRemaining < unrollSteps && !uOkClosed && uOk < unrollSteps;
+   }
+
+   public boolean needsTrainingPrio2(int tmax, int unrollSteps) {
+      int timeRemaining = tmax - t;
+      return timeRemaining >= unrollSteps && !uOkClosed && uOk < unrollSteps;
+   }
+
    public int getBox(int unrollSteps) {
       return Boxes.getBox(boxes, unrollSteps);
    }
 
 
    public Integer getUnrollSteps(int tmax, int unrollStepsEpisode) {
-      // Calculate the difference between tmax and t
+
       int timeRemaining = tmax - t;
+      int  unrollSteps = Math.min(timeRemaining, unrollStepsEpisode);
+      unrollSteps = Math.max(1, unrollSteps );
 
-      // Find the smaller value between timeRemaining and unrollStepsEpisode
-      int unrollSteps = Math.min(timeRemaining, unrollStepsEpisode);
-
-      // Find the larger value between (unrollStepsEpisode - 1) and unrollSteps
-      unrollSteps = Math.max(unrollStepsEpisode - 1, unrollSteps);
-
-
-      return Math.max(1, unrollSteps);
+      return unrollSteps;
    }
 }

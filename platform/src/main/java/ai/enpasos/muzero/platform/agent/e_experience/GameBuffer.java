@@ -584,22 +584,21 @@ public class GameBuffer {
 
     public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps  ) {
 
-    //    Map<Integer, List<Long>> unrollStepsToEpisodeIds = unrollStepsToEpisodeIds( true);
-
-
-        List<ShortTimestep> timeStepsToTrainAll = new ArrayList<>();
-
         double fractionNew = 0.5;
 
         int remaining = (int) (nOriginal * fractionNew) ;
 
 
-        List<ShortTimestep> timeStepsThatNeedTraining =  timeStepsThatNeedTraining(   unrollSteps);
-        Collections.shuffle(timeStepsThatNeedTraining);
+        List<ShortTimestep> timeStepsThatNeedTrainingPrio1 = timeStepsThatNeedTrainingPrio1(unrollSteps);
+        Collections.shuffle(timeStepsThatNeedTrainingPrio1);
+        List<ShortTimestep> timeStepsThatNeedTrainingPrio2 = timeStepsThatNeedTrainingPrio1(unrollSteps);
+        Collections.shuffle(timeStepsThatNeedTrainingPrio2);
 
-        List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTraining.subList(0,  Math.min(remaining, timeStepsThatNeedTraining.size()));
 
+        List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  Math.min(remaining, timeStepsThatNeedTrainingPrio1.size()));
+        remaining -= timeStepsToTrain.size();
 
+        timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, Math.min(remaining, timeStepsThatNeedTrainingPrio2.size())));
 
 
         remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
@@ -642,59 +641,30 @@ public class GameBuffer {
 
 
     public Map<Integer, List<ShortTimestep>> mapByUnrollSteps(ShortTimestep[] allIdProjections, int unrollSteps) {
-        return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(p -> {
-            return p.getUnrollSteps(getTmax(p.getEpisodeId()), unrollSteps);
-       //     int uOK = p.getUOk();
-         //   int tmax = getTmax(p.getEpisodeId());
-//            int unrollSteps = unrollSteps(p.getEpisodeId());
-//        //    unrollSteps = Math.max(1,Math.min(tmax - p.getT(), unrollSteps));
-//            return unrollSteps;
+        return Arrays.stream(allIdProjections).collect(Collectors.groupingBy(ts -> {
+            return ts.getUnrollSteps(getTmax(ts.getEpisodeId()), unrollSteps);
         }));
     }
 
-    public List<ShortTimestep> timeStepsThatNeedTraining( int unrollSteps) {
+    public List<ShortTimestep> timeStepsThatNeedTrainingPrio1( int unrollSteps) {
         Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
         return shortTimesteps.stream()
-                .filter(t ->
-                        t.needsTraining( unrollSteps )
+                .filter(ts ->
+                        ts.needsTrainingPrio1(getTmax(ts.getEpisodeId()), unrollSteps)
                 )
                 .collect(Collectors.toList()) ;
     }
 
-//    public long numIsTrainableAndNeedsTraining(List<Long> episodeIds, int unrollSteps) {
-//        return  episodeIds.stream().mapToLong(episodeId -> episodeIdToShortEpisodes.get(episodeId).getShortTimesteps().stream()
-//                .filter(t ->
-//                      t.hasToBeTrained( unrollSteps, episodeIdToMaxTime )
-//                 )
-//                .count()).sum();
-//    }
+    public List<ShortTimestep> timeStepsThatNeedTrainingPrio2( int unrollSteps) {
+        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
+        return shortTimesteps.stream()
+                .filter(ts ->
+                        ts.needsTrainingPrio2(getTmax(ts.getEpisodeId()), unrollSteps)
+                )
+                .collect(Collectors.toList()) ;
+    }
 
-//    public Map<Integer, Integer> unrollStepsToEpisodeCountLowHandingFruits() {
-//        getShortTimestepSet( );  // fill caches
-//        Map<Integer, Integer> unrollStepsToEpisodeCount = new HashMap<>();
-//        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
-//            int unrollSteps = shortEpisode.getUnrollSteps();
-//            if (shortEpisode.hasLowHangingFruits( unrollSteps)) {
-//                unrollStepsToEpisodeCount.put(unrollSteps, unrollStepsToEpisodeCount.getOrDefault(unrollSteps, 0) + 1);
-//            }
-//        }
-//        return unrollStepsToEpisodeCount;
-//    }
 
-//    public void checkCacheConsistency() {
-//        getShortTimestepSet();
-//        episodeIdToShortEpisodes.values().forEach(shortEpisode -> {
-//             int unrollSteps = shortEpisode.getUnrollSteps();
-//             int tmax = shortEpisode.getMaxT();
-//             shortEpisode.getShortTimesteps().forEach(ts -> {
-//                 boolean hasToBeTrained = ts.hasToBeTrained(unrollSteps, tmax);
-//                 int box = ts.getBox(unrollSteps);
-//                 if (hasToBeTrained ^ box == 0) {
-//                     log.error("inconsistency in cache: episodeId={}, id={}, unrollSteps={}, hasToBeTrained={}, box={}", shortEpisode.getId(), ts.getId(),unrollSteps, hasToBeTrained, box);
-//                 }
-//             });
-//        });
-//    }
 
     public List<Long> filterEpisodeIdsByTestNeed(List<Long> episodeIds) {
         getShortTimestepSet();
