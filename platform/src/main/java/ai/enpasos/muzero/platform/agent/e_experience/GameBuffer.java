@@ -591,7 +591,7 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsThatNeedTrainingPrio1 = timeStepsThatNeedTrainingPrio1(unrollSteps);
         Collections.shuffle(timeStepsThatNeedTrainingPrio1);
-        List<ShortTimestep> timeStepsThatNeedTrainingPrio2 = timeStepsThatNeedTrainingPrio1(unrollSteps);
+        List<ShortTimestep> timeStepsThatNeedTrainingPrio2 = timeStepsThatNeedTrainingPrio2(unrollSteps);
         Collections.shuffle(timeStepsThatNeedTrainingPrio2);
 
 
