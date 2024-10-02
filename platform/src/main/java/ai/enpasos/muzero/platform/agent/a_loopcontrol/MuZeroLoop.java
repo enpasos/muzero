@@ -176,10 +176,12 @@ public class MuZeroLoop {
                 epoch = ruleTrain(durations, unrollSteps );
 
                 numBox0 = numBox0(unrollSteps);
-                if (numBox0 == 0) {
+                int numBox0Prio1 = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
+                log.info("numBox0 = {}, numBox0Prio1({}) = {}",numBox0, unrollSteps, numBox0Prio1);
+                if (numBox0Prio1 == 0) {
                     testUnrollRulestate.test();
-                    numBox0 = numBox0(unrollSteps);
-                    if (numBox0 == 0) {
+                    numBox0Prio1 = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
+                    if (numBox0Prio1 == 0) {
                         unrollSteps = unrollSteps + 1;
                         log.info("unrollSteps increased to {}", unrollSteps);
                         numBox0 = numBox0(unrollSteps);

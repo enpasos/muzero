@@ -681,4 +681,12 @@ public class GameBuffer {
         unrollStepsToEpisodeCount.forEach((k, v) -> log.info("select unrollSteps: {}, episodeCount: {}", k, v));
         return  unrollStepsToEpisodeCount;
     }
+
+
+    public int numNeedsTrainingPrio1(int unrollSteps) {
+        return getShortTimestepSet().stream().filter(ts -> {
+            int tmax = getTmax(ts.getEpisodeId());
+            return ts.needsTrainingPrio1(tmax, unrollSteps);
+        }).mapToInt(t -> t.getBoxes().length).sum();
+    }
 }
