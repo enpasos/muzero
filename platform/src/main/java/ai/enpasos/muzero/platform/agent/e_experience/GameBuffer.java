@@ -591,11 +591,12 @@ public class GameBuffer {
 
         List<ShortTimestep> timeStepsThatNeedTrainingPrio1 = timeStepsThatNeedTrainingPrio1(unrollSteps);
         Collections.shuffle(timeStepsThatNeedTrainingPrio1);
+
         List<ShortTimestep> timeStepsThatNeedTrainingPrio2 = timeStepsThatNeedTrainingPrio2(unrollSteps);
         Collections.shuffle(timeStepsThatNeedTrainingPrio2);
 
 
-        List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  Math.min(remaining, timeStepsThatNeedTrainingPrio1.size()));
+        List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  Math.min(remaining/2, timeStepsThatNeedTrainingPrio1.size()));
         remaining -= timeStepsToTrain.size();
 
         timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, Math.min(remaining, timeStepsThatNeedTrainingPrio2.size())));
