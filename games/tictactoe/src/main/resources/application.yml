@@ -94,7 +94,7 @@ muzero:
 
       valueLossWeight: 1
 
-      withConsistencyLoss: true
+      withConsistencyLoss: false
       consistencyLossWeight: 2
       # legalActionsLossWeight: 0.1111  # 1/actionSpaceSize
 
