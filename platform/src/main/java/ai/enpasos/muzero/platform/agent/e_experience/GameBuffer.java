@@ -582,11 +582,9 @@ public class GameBuffer {
         return episodeIdToMaxTime.get(episodeId);
     }
 
-    public ShortTimestep[] getIdsRelevantForTraining(int nOriginal, int unrollSteps  ) {
+    public ShortTimestep[] getIdsRelevantForTraining(int n, int unrollSteps  ) {
 
-        double fractionNew = 0.5;
 
-        int remaining = (int) (nOriginal * fractionNew) ;
 
 
         List<ShortTimestep> timeStepsThatNeedTrainingPrio1 = timeStepsThatNeedTrainingPrio1(unrollSteps);
@@ -595,6 +593,12 @@ public class GameBuffer {
         List<ShortTimestep> timeStepsThatNeedTrainingPrio2 = timeStepsThatNeedTrainingPrio2(unrollSteps);
         Collections.shuffle(timeStepsThatNeedTrainingPrio2);
 
+        double fractionNew = 0.5;
+
+        n = Math.min(n, (int) (2 * timeStepsThatNeedTrainingPrio1.size() / fractionNew )  );
+
+        int remaining = (int) (n * fractionNew) ;
+
 
         List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  Math.min(remaining/2, timeStepsThatNeedTrainingPrio1.size()));
         remaining -= timeStepsToTrain.size();
@@ -602,7 +606,7 @@ public class GameBuffer {
         timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, Math.min(remaining, timeStepsThatNeedTrainingPrio2.size())));
 
 
-        remaining = Math.min(nOriginal - timeStepsToTrain.size(), timeStepsToTrain.size());
+        remaining = Math.min(n - timeStepsToTrain.size(), timeStepsToTrain.size());
 
 
         // also learn from the known ones
