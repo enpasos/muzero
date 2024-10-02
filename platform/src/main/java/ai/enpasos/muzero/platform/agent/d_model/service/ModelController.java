@@ -347,20 +347,22 @@ public class ModelController implements DisposableBean, Runnable {
 
         log.info("configured sample n: {}, identified sample timesteps: {}", sampleNumber, tsList.length);
 
-        Map<Integer, List<ShortTimestep>> mapByUnrollSteps = gameBuffer.mapByUnrollSteps(tsList, globalUnrollSteps);
+     //   Map<Integer, List<ShortTimestep>> mapByUnrollSteps = gameBuffer.mapByUnrollSteps(tsList, globalUnrollSteps);
 
 
 
         // iterate over unroll numbers and saveHere only for the last one
 
+        // convert tsList to List<ShortTimestep> tsListUnroll
+        List<ShortTimestep> tsListUnroll = new ArrayList<>(Arrays.asList(tsList));
 
-        int c = 0;
-        for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollSteps.entrySet()) {
-            int unrollSteps = entry.getKey();
-            List<ShortTimestep> tsListUnroll = entry.getValue();
+   //     int c = 0;
+    //    for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollSteps.entrySet()) {
+            int unrollSteps = globalUnrollSteps;
+           // List<ShortTimestep> tsListUnroll = new ArrayList<>(tsList); //entry.getValue();
             boolean saveHere = true; //(++c == mapByUnrollSteps.entrySet().size());
             trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, tsListUnroll);
-        }
+     //   }
 
     }
 

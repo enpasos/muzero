@@ -157,7 +157,7 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        int unrollSteps = 1;
+        int unrollSteps = gameBuffer.findStartUnrollSteps() ;
 
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
             int numBox0 = numBox0(unrollSteps);

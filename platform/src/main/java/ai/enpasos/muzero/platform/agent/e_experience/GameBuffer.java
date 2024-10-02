@@ -689,4 +689,13 @@ public class GameBuffer {
             return ts.needsTrainingPrio1(tmax, unrollSteps);
         }).mapToInt(t -> t.getBoxes().length).sum();
     }
+
+
+    public int findStartUnrollSteps() {
+        int unrollSteps = 1;
+        while (numNeedsTrainingPrio1(unrollSteps) == 0 && unrollSteps <= config.getMaxUnrollSteps()) {
+            unrollSteps++;
+        }
+        return unrollSteps;
+    }
 }
