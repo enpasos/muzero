@@ -634,7 +634,7 @@ public class GameBuffer {
         List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
         timeStepsToTrain.addAll(tsKnownOnes);
 
-
+Collections.shuffle(timeStepsToTrain);
     return timeStepsToTrain.toArray(new ShortTimestep[0]);
 
     }
