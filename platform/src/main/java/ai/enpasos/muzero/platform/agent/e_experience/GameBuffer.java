@@ -601,9 +601,9 @@ public class GameBuffer {
 
         int n_new = (int) (n * fractionNew);
         int n_new_prio1 = Math.min(n_new / 2, timeStepsThatNeedTrainingPrio1.size());
-        int n_new_prio2 = Math.min(n_new - n_new_prio1 , timeStepsThatNeedTrainingPrio2.size());
+        int n_new_prio2 = Math.min(n_new_prio1 , timeStepsThatNeedTrainingPrio2.size());
         n_new = n_new_prio1 + n_new_prio2;
-        int n_known =  Math.min(stArray.length, (int)(n_new / fractionNew));
+        int n_known =  Math.min(stArray.length, (int)(n_new / fractionNew * (1 - fractionNew)));
 
 log.info("n_new_prio1: {}, n_new_prio2: {}, n_known: {}", n_new_prio1, n_new_prio2, n_known);
 
