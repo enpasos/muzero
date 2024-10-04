@@ -605,7 +605,7 @@ public class GameBuffer {
         n_new = n_new_prio1 + n_new_prio2;
         int n_known =  Math.min(stArray.length, (int)(n_new / fractionNew));
 
-
+log.info("n_new_prio1: {}, n_new_prio2: {}, n_known: {}", n_new_prio1, n_new_prio2, n_known);
 
         List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  n_new_prio1);
 
