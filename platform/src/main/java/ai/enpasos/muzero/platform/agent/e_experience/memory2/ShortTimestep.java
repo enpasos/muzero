@@ -96,12 +96,12 @@ public class ShortTimestep {
 
    public boolean needsTrainingPrio1(int tmax, int unrollSteps) {
       int timeRemaining = tmax - t;
-      return timeRemaining < unrollSteps && !uOkClosed && uOk < unrollSteps;
+      return timeRemaining < unrollSteps && needsTraining(unrollSteps) ;
    }
 
    public boolean needsTrainingPrio2(int tmax, int unrollSteps) {
       int timeRemaining = tmax - t;
-      return timeRemaining >= unrollSteps && !uOkClosed && uOk < unrollSteps;
+      return timeRemaining >= unrollSteps && needsTraining(unrollSteps);
    }
 
    public int getBox(int unrollSteps) {
