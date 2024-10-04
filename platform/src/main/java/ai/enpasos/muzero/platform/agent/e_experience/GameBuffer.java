@@ -458,7 +458,7 @@ public class GameBuffer {
 
             int offset = 0;
             shortTimesteps = new HashSet<>();
-            episodeIdToMaxTime = new HashMap<>();
+
             List<Object[]> resultList;
             do {
                 // comment: no list of proxies for performance reasons
@@ -484,12 +484,7 @@ public class GameBuffer {
             // fill episodeIdToShortEpisodes
             initShortEpisodes();
 
-            // fill episodeIdToMaxTime
-            for (ShortTimestep shortTimestep : shortTimesteps) {
-                Long episodeId = shortTimestep.getEpisodeId();
-                Integer t = shortTimestep.getT();
-                episodeIdToMaxTime.put(episodeId, Math.max(t, episodeIdToMaxTime.getOrDefault(episodeId, 0)));
-            }
+
         }
         return shortTimesteps;
     }
@@ -509,7 +504,13 @@ public class GameBuffer {
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             shortEpisode.getShortTimesteps().sort(Comparator.comparing(ShortTimestep::getT));
         }
-      //  initNeedsFullTest(false);
+        // fill episodeIdToMaxTime
+        episodeIdToMaxTime = new HashMap<>();
+        for (ShortTimestep shortTimestep : shortTimesteps) {
+            Long episodeId = shortTimestep.getEpisodeId();
+            Integer t = shortTimestep.getT();
+            episodeIdToMaxTime.put(episodeId, Math.max(t, episodeIdToMaxTime.getOrDefault(episodeId, 0)));
+        }
 
     }
 
