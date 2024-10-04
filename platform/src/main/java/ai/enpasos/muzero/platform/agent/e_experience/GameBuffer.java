@@ -689,10 +689,10 @@ Collections.shuffle(timeStepsToTrain);
 
 
     public int numNeedsTrainingPrio1(int unrollSteps) {
-        return getShortTimestepSet().stream().filter(ts -> {
+        return (int)getShortTimestepSet().stream().filter(ts -> {
             int tmax = getTmax(ts.getEpisodeId());
             return ts.needsTrainingPrio1(tmax, unrollSteps);
-        }).mapToInt(t -> t.getBoxes().length).sum();
+        }).count();
     }
 
 
