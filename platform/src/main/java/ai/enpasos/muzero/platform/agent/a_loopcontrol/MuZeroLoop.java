@@ -176,12 +176,9 @@ public class MuZeroLoop {
                 epoch = ruleTrain(durations, unrollSteps );
 
                 numBox0 = numBox0(unrollSteps);
-                int numBox0Prio1 = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
-                log.info("numBox0 = {}, numBox0Prio1({}) = {}",numBox0, unrollSteps, numBox0Prio1);
-                if (numBox0Prio1 == 0) {
+                if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
                     testUnrollRulestate.test();
-                    numBox0Prio1 = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
-                    if (numBox0Prio1 == 0) {
+                    if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
                         unrollSteps = unrollSteps + 1;
                         log.info("unrollSteps increased to {}", unrollSteps);
                         numBox0 = numBox0(unrollSteps);
@@ -236,9 +233,12 @@ public class MuZeroLoop {
 //    }
 
 
-      private int numBox0(int unrollSteps) {
-              return gameBuffer.getShortTimestepSet().stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
-      }
+    private int numBox0(int unrollSteps) {
+        int n = gameBuffer.getShortTimestepSet().stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
+        log.info("numBox0 = {}", n);
+        return n;
+    }
+
 
 
 
