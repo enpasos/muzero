@@ -178,11 +178,11 @@ public class MuZeroLoop {
                 numBox0 = numBox0(unrollSteps);
                 if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
                     testUnrollRulestate.test();
-                    if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
+                   // if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
                         unrollSteps = unrollSteps + 1;
                         log.info("unrollSteps increased to {}", unrollSteps);
                         numBox0 = numBox0(unrollSteps);
-                    }
+                 //   }
                 }
             }
 
