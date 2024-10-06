@@ -60,16 +60,22 @@ public class TimeStepDO {
     int[] boxes = {0};
 
 
-    public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant) {
+    public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant, int epoch) {
 
         Pair<Boolean, int[]> pair = Boxes.updateBoxes(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant);
         boolean changed = pair.getKey();
+        if (changed) {
+            this.uOkEpoch = epoch;
+        }
         boxes = pair.getValue();
         return changed;
     }
 
     @Builder.Default
     int uOk = -2; // unroll steps ok, -2 means not determined, -1 means evens for 0 unrollsteps not ok
+
+
+    int uOkEpoch;
 
     @Builder.Default
     int nextUOk = 100000;   // a large number will not hinder

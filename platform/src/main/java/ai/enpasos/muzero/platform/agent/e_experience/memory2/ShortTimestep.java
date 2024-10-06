@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Map;
-
 @Data
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -18,7 +16,7 @@ public class ShortTimestep {
 
    private int[] boxes;
 
-   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed ) {
+   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, int uOkEpoch) {
       this.id = id;
       this.episodeId = episodeId;
       this.boxes = boxes;
@@ -27,9 +25,10 @@ public class ShortTimestep {
       this.nextuokclosed = nextuokclosed;
       this.t = t;
       this.uOkClosed = uOkClosed;
+      this.uOkEpoch = uOkEpoch;
    }
 
-   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained) {
+   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained, int uOkEpoch) {
       this.id = id;
       this.episodeId = episodeId;
       this.boxes = boxes;
@@ -38,10 +37,15 @@ public class ShortTimestep {
       this.nextuokclosed = nextuokclosed;
       this.t = t;
       this.uOkClosed = uOkClosed;
+      this.uOkEpoch = uOkEpoch;
       this.justTrained = justTrained;
    }
 
    public ShortTimestep() {
+   }
+
+   public static ShortTimestepBuilder builder() {
+      return new ShortTimestepBuilder();
    }
 
    public int getLastBox() {
@@ -60,6 +64,9 @@ public class ShortTimestep {
 
 
    private boolean justTrained;
+
+
+   private int uOkEpoch;
 
 
 //   public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMaxTime) {
@@ -96,7 +103,7 @@ public class ShortTimestep {
 
    public boolean needsTrainingPrio1(int tmax, int unrollSteps) {
       int timeRemaining = tmax - t;
-      return timeRemaining <= unrollSteps && needsTraining(unrollSteps) ;
+      return timeRemaining <= unrollSteps && needsTraining(unrollSteps);
    }
 
    public boolean needsTrainingPrio2(int tmax, int unrollSteps) {
@@ -112,9 +119,11 @@ public class ShortTimestep {
    public Integer getUnrollSteps(int tmax, int unrollStepsEpisode) {
 
       int timeRemaining = tmax - t;
-      int  unrollSteps = Math.min(timeRemaining, unrollStepsEpisode);
-      unrollSteps = Math.max(1, unrollSteps );
+      int unrollSteps = Math.min(timeRemaining, unrollStepsEpisode);
+      unrollSteps = Math.max(1, unrollSteps);
 
       return unrollSteps;
    }
+
+
 }

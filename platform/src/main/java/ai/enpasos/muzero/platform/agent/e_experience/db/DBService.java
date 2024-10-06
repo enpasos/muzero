@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db;
 
 
+import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.LegalActionsDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
@@ -105,17 +106,21 @@ public class DBService {
         return result;
     }
 
+    @Autowired
+    private ModelState modelState;
+
 
     @Transactional
     public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant) {
         List<Long> ids = new ArrayList<>();
+        int epoch = modelState.getEpoch();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant);
+            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant, epoch);
 
             if (ts.isSChanged() || ts.isUOkChanged() || boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId());
-                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes());
+                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch());
                 if (ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
