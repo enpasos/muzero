@@ -596,7 +596,10 @@ public class GameBuffer {
         Collections.shuffle(timeStepsThatNeedTrainingPrio2);
 
         ShortTimestep[] stArray =
-                this.getShortTimestepSet().stream().filter(st -> !st.needsTraining(unrollSteps)).toArray(ShortTimestep[]::new);
+                this.getShortTimestepSet().stream().filter(st -> {
+                    int tmax = getTmax(st.getEpisodeId());
+                    return !st.needsTraining(unrollSteps) && st.isPrio1(tmax, unrollSteps);}
+                ).toArray(ShortTimestep[]::new);
 
         double fractionNew = 0.5;
 
@@ -644,7 +647,7 @@ log.info("n_new_prio1: {}, n_new_prio2: {}, n_known: {}", n_new_prio1, n_new_pri
         List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
         timeStepsToTrain.addAll(tsKnownOnes);
 
-Collections.shuffle(timeStepsToTrain);
+    Collections.shuffle(timeStepsToTrain);
     return timeStepsToTrain.toArray(new ShortTimestep[0]);
 
     }

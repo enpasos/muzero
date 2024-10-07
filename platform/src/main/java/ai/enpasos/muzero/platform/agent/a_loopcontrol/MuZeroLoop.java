@@ -159,40 +159,31 @@ public class MuZeroLoop {
 
         int unrollSteps = gameBuffer.findStartUnrollSteps() ;
 
+
         while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
-            int numBox0 = numBox0(unrollSteps);
-            while (numBox0 > 0) {
+
+            int nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
+            while (nPrio1Needs > 0) {
 
                 logStateInfo(unrollSteps);
-//                if (getNOpen() < nTrain) {
-//                    testUnrollRulestate.test();
-//                } else {
+                if (nPrio1Needs < nTrain) {
+                    testUnrollRulestate.test();
+                } else {
                     testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
-                    logStateInfo(unrollSteps);
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
-              //  }
+                }
+                logStateInfo(unrollSteps);
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
                 logStateInfo(unrollSteps);
 
                 epoch = ruleTrain(durations, unrollSteps );
 
-                numBox0 = numBox0(unrollSteps);
+                nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
                 if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
-                    testUnrollRulestate.test();
-                   // if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
-                        unrollSteps = unrollSteps + 1;
-                        log.info("unrollSteps increased to {}", unrollSteps);
-                        numBox0 = numBox0(unrollSteps);
-                 //   }
+                    unrollSteps = unrollSteps + 1;
+                    log.info("unrollSteps increased to {}", unrollSteps);
+                    nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
                 }
             }
-
-
-
-            if (getNOpen() == 0) {
-                break;
-            }
-
-
         }
     }
 
