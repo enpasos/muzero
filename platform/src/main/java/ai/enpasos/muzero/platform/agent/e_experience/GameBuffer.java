@@ -595,57 +595,71 @@ public class GameBuffer {
         List<ShortTimestep> timeStepsThatNeedTrainingPrio2 = timeStepsThatNeedTrainingPrio2(unrollSteps);
         Collections.shuffle(timeStepsThatNeedTrainingPrio2);
 
-        ShortTimestep[] stArray =
+        List<ShortTimestep> stList =
                 this.getShortTimestepSet().stream().filter(st -> {
                     int tmax = getTmax(st.getEpisodeId());
                     return !st.needsTraining(unrollSteps) && st.isPrio1(tmax, unrollSteps);}
-                ).toArray(ShortTimestep[]::new);
+                ).collect(Collectors.toList());
+        Collections.shuffle(stList);
 
-        double fractionNew = 0.5;
+       // double fractionNew = 0.8;
 
-        int n_new = (int) (n * fractionNew);
-        int n_new_prio1 = Math.min(n_new / 2, timeStepsThatNeedTrainingPrio1.size());
-        int n_new_prio2 = Math.min(n_new_prio1 , timeStepsThatNeedTrainingPrio2.size());
-        n_new = n_new_prio1 + n_new_prio2;
-        int n_known =  Math.min(stArray.length, (int)(n_new / fractionNew * (1 - fractionNew)));
+       // int n_new = (int) (n * fractionNew);
+        int n_new_prio1 = (int)(n * 0.8);
+        int n_new_prio2 = n - n_new_prio1;
+      //  int n_new_prio1 = Math.min((int)(n_new * 0.8), timeStepsThatNeedTrainingPrio1.size());
+       // int n_new_prio2 = Math.min(n_new_prio1 , timeStepsThatNeedTrainingPrio2.size());
+       // n_new = n_new_prio1 + n_new_prio2;
+    //    int n_known =  n - n_new; // Math.min(stArray.length, (int)(n_new / fractionNew * (1 - fractionNew)));
 
-log.info("n_new_prio1: {}, n_new_prio2: {}, n_known: {}", n_new_prio1, n_new_prio2, n_known);
+//log.info("n_new_prio1: {}, n_new_prio2: {}, n_known: {}", n_new_prio1, n_new_prio2, n_known);
 
-        List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  n_new_prio1);
+        int maxBox = stList.stream().mapToInt(st -> st.getLastBox()).max().orElse(0);
+        List<ShortTimestep>  timeStepsToTrain = timeStepsThatNeedTrainingPrio1.subList(0,  Math.min(n_new_prio1, timeStepsThatNeedTrainingPrio1.size()));
+        for (int b = 1; b <= maxBox && n_new_prio1 > timeStepsToTrain.size(); b++) {
+            int finalB = b;
+            int finalN_new_prio1 = n_new_prio1;
+            stList.stream().forEach(st -> {
+                if (finalN_new_prio1 > timeStepsToTrain.size() && st.getBox( unrollSteps) == finalB) {
+                    timeStepsToTrain.add(st);
+                }
+            });
+            timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, n_new_prio1 - timeStepsThatNeedTrainingPrio1.size()));
+        }
+        n_new_prio1 = timeStepsToTrain.size();
 
-
-        timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, n_new_prio2));
-
+        timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, Math.min(n_new_prio2, timeStepsThatNeedTrainingPrio2.size())));
+        log.info("n_prio1: {}, n_new_prio2: {}, n_known: {}", n_new_prio1, n_new_prio2);
 
 
         // also learn from the known ones
 
         // Generate Map<Integer, Integer> boxOccupations with the box as key, counting occurrences
-        final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
-                .map(st -> {
-                    int box = st.getLastBox(); //st.getBox( unRollStepsTimeStep);
-                    return box;
-                })  // Get the box from the array
-                .collect(Collectors.toMap(
-                        box -> box,   // Use the box as the key
-                        box -> 1,     // Initialize count as 1
-                        Integer::sum  // If the box is already present, sum the counts
-                ));
+//        final Map<Integer, Integer> boxOccupations = Arrays.stream(stArray)
+//                .map(st -> {
+//                    int box = st.getLastBox(); //st.getBox( unRollStepsTimeStep);
+//                    return box;
+//                })  // Get the box from the array
+//                .collect(Collectors.toMap(
+//                        box -> box,   // Use the box as the key
+//                        box -> 1,     // Initialize count as 1
+//                        Integer::sum  // If the box is already present, sum the counts
+//                ));
 
 
 
 
         // generate weight array double[] g from box(unrollSteps) as 1/(2^(box-1))
-        double[] g = Arrays.stream(stArray)
-                .mapToDouble(st -> {
-                    int box = st.getLastBox() ;
-                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
-                }).toArray();
-
-        AliasMethod aliasMethod = new AliasMethod(g);
-        int[] samples = aliasMethod.sampleWithoutReplacement(n_known);
-        List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
-        timeStepsToTrain.addAll(tsKnownOnes);
+//        double[] g = Arrays.stream(stArray)
+//                .mapToDouble(st -> {
+//                    int box = st.getLastBox() ;
+//                    return 1.0 / Math.pow(2, box) / boxOccupations.get(box);
+//                }).toArray();
+//
+//        AliasMethod aliasMethod = new AliasMethod(g);
+//        int[] samples = aliasMethod.sampleWithoutReplacement(n_known);
+//        List<ShortTimestep> tsKnownOnes = IntStream.range(0, samples.length).mapToObj(i -> stArray[samples[i]]).toList();
+//        timeStepsToTrain.addAll(tsKnownOnes);
 
     Collections.shuffle(timeStepsToTrain);
     return timeStepsToTrain.toArray(new ShortTimestep[0]);
