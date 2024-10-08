@@ -590,8 +590,8 @@ public class GameBuffer {
         List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch,  true);
 
         List<ShortTimestep> timeStepsToTrain = getShortTimestepSet().stream().filter(st ->
-                        (  unrollSteps == 1 || st.isPrio1(getTmax(st.getEpisodeId()), unrollSteps) )
-                &&
+//                        (  unrollSteps == 1 || st.isPrio1(getTmax(st.getEpisodeId()), unrollSteps) )
+//                &&
               relevantBoxes.contains(st.getBox(unrollSteps))
          ).collect(Collectors.toList());
 

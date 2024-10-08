@@ -69,33 +69,6 @@ public class ShortTimestep {
    private int uOkEpoch;
 
 
-//   public boolean hasToBeTrained(int unrollSteps, Map<Long, Integer> episodeIdToMaxTime) {
-//      int tmax = episodeIdToMaxTime.get(getEpisodeId());
-//      return hasToBeTrained(unrollSteps, tmax);
-//
-//   }
-
-//   public boolean hasToBeTrained(int unrollSteps, int tmax) {
-//      return isTrainable(unrollSteps, tmax) && needsTraining(unrollSteps);
-//   }
-
-//   public boolean isTrainable(int unrollSteps ) {
-//
-//      return uOk < unrollSteps;
-//
-//
-//      // Check if unrollSteps is 1 and uOk is less than unrollSteps
-//      boolean condition1 = (unrollSteps == 1 && uOk < unrollSteps);
-//
-//      // Check if t is greater than tMax - unrollSteps - 1
-//      boolean condition2 = (t > tMax - unrollSteps - 1);
-//
-//      // Check if t is less than or equal to tMax - unrollSteps - 1 and uOk is less than unrollSteps - 1
-//      boolean condition3 = (t <= tMax - unrollSteps - 1 && uOk < unrollSteps - 1);
-//
-//      // Return true if any of the conditions are true
-//      return condition1 || condition2 || condition3;
-//   }
 
    public boolean needsTraining(int unrollSteps) {
       return !uOkClosed && uOk < unrollSteps;
