@@ -357,8 +357,10 @@ public class ModelController implements DisposableBean, Runnable {
 
 
 
-    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epochLocal, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> tsListUnroll  ) {
+    private void trainNetworkRules(Model model, MuZeroBlock muZeroBlock, int epoch, boolean[] freeze, boolean background, boolean withSymmetryEnrichment, int unrollSteps, boolean saveHere, List<ShortTimestep> tsListUnroll  ) {
         List<Long> allRelevantTimestepIds =  tsListUnroll.stream().map(ShortTimestep::getId).toList();
+
+        int epochBefore = epoch;
 
         List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(tsListUnroll);
 
@@ -383,7 +385,7 @@ public class ModelController implements DisposableBean, Runnable {
 
 
             boolean save = saveHere & !iterator.hasNext();
-            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
+            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epoch, unrollSteps, w, save);
             List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
             List<Game> games= convertEpisodeDOsToGames(episodeDOList, config);
             Collections.shuffle(games);
@@ -392,7 +394,7 @@ public class ModelController implements DisposableBean, Runnable {
             List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(games, relatedTimeStepIds);
 
 
-            log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epochLocal, unrollSteps, allTimeSteps.size());
+            log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epoch, unrollSteps, allTimeSteps.size());
 
 
             muZeroBlock.setNumUnrollSteps(unrollSteps);
@@ -403,8 +405,8 @@ public class ModelController implements DisposableBean, Runnable {
             try (NDScope nDScope = new NDScope()) {
 
 
-                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, save, background, config.isWithConsistencyLoss(), true, unrollSteps);
-                int finalEpoch = epochLocal;
+                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch, save, background, config.isWithConsistencyLoss(), true, unrollSteps);
+                int finalEpoch = epoch;
                 djlConfig.getTrainingListeners().stream()
                         .filter(MyEpochTrainingListener.class::isInstance)
                         .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
@@ -438,19 +440,25 @@ public class ModelController implements DisposableBean, Runnable {
                           //  List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, List.of(0));
 
                           //  gameBuffer.refreshCache(idsTsChanged);
-                             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
+                             log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epoch, unrollSteps, w, save);
                             trainer.step();
                         }
                     }
                     if (!background) {
-                        handleMetrics(trainer, model, epochLocal);
+                        handleMetrics(trainer, model, epoch);
                     }
                     trainer.notifyListeners(listener -> listener.onEpoch(trainer));
                 }
-                epochLocal = getEpochFromModel(model);
-                modelState.setEpoch(epochLocal);
+                epoch = getEpochFromModel(model);
+                modelState.setEpoch(epoch);
             }
             w++;
+        }
+        if (epochBefore != epoch) {
+            epoch++;
+            model.setProperty("Epoch", String.valueOf(epoch));
+            saveLatestModel();
+            modelState.setEpoch(epoch);
         }
     }
 

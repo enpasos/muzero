@@ -168,11 +168,13 @@ public class MuZeroLoop {
            // do the training with Leithner's selection of samples
            // select from box 0 ... box MAX_BOX-1
            int  epochAfterTraining = ruleTrain(durations, unrollSteps );
+          // boolean hasEpochChanged = (epoch != epochAfterTraining);
            epoch = epochAfterTraining - 1;    // still assuming the same epoch as before training
 
 
            // do the testing with Leithner's selection of samples
-            if (Boxing.isUsed(Boxing.MAX_BOX,  epoch)) {
+            if (Boxing.isUsed(Boxing.MAX_BOX,  epoch)
+            ) {
                 // we simply test everything
                 testUnrollRulestate.test();  // make sure that there is also a propagation
             } else {
