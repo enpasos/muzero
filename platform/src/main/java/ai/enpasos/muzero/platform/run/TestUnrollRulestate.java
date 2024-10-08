@@ -61,7 +61,7 @@ public class TestUnrollRulestate {
 
     public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps ) {
 
-        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch,  true);
+        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch,  false);
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(  unrollSteps, epoch   );
         List<ShortTimestep> relevantShortTimesteps = Arrays.stream(tsList).collect(Collectors.toList());
         List<Long> relevantIds =Arrays.stream(tsList).mapToLong(ShortTimestep::getId).boxed().collect(Collectors.toList());
