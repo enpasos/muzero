@@ -21,7 +21,7 @@ class BoxesTest {
     void updateBoxes2() {
         int[] array  = {5, 4, 3, 2, 1};
         array = Boxes.updateBoxes(array, 2, false, true, List.of(1,2,3,4,5)).getValue();
-        assertArrayEquals(new int[]{6, 5, 0}, array);
+        assertArrayEquals(new int[]{5, 5, 0}, array);
     }
 
     @Test
@@ -82,7 +82,7 @@ class BoxesTest {
         int[] array = {5, 4};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, true, true, List.of(4,5)) ;
         assertTrue(result.getKey());
-        assertArrayEquals(new int[]{6, 5}, result.getValue());
+        assertArrayEquals(new int[]{5, 5}, result.getValue());
     }
 
     @Test
@@ -90,7 +90,7 @@ class BoxesTest {
         int[] array = {5, 4};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(4,5)) ;
         assertTrue(result.getKey());
-        assertArrayEquals(new int[]{6, 5, 0}, result.getValue());
+        assertArrayEquals(new int[]{5, 5, 0}, result.getValue());
     }
 
     @Test
@@ -98,7 +98,7 @@ class BoxesTest {
         int[] array = {5, 4};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(5)) ;
         assertTrue(result.getKey());
-        assertArrayEquals(new int[]{6, 4, 0}, result.getValue());
+        assertArrayEquals(new int[]{5, 4, 0}, result.getValue());
     }
 
     @Test
@@ -114,21 +114,21 @@ class BoxesTest {
         int[] array = {5};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 0, true, true, List.of(5)) ;
         assertTrue(result.getKey());
-        assertArrayEquals(new int[]{6}, result.getValue());
+        assertArrayEquals(new int[]{5}, result.getValue());
     }
     @Test
     void updateBoxes13() {
-        int[] array = {7,0};
+        int[] array = {5,0};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, true, true, List.of(5)) ;
         assertTrue(result.getKey());
-        assertArrayEquals(new int[]{7,1}, result.getValue());
+        assertArrayEquals(new int[]{5,1}, result.getValue());
     }
     @Test
     void updateBoxes13B() {
-        int[] array = {7,0};
+        int[] array = {5,0};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 2, false, true, List.of(5)) ;
         assertTrue(result.getKey());
-        assertArrayEquals(new int[]{7,1, 0}, result.getValue());
+        assertArrayEquals(new int[]{5,1, 0}, result.getValue());
     }
 
     @Test

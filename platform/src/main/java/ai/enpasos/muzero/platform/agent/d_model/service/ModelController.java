@@ -324,45 +324,33 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules(boolean[] freeze, boolean background , int  globalUnrollSteps ) {
+    private void trainNetworkRules(boolean[] freeze, boolean background , int  unrollSteps ) {
 
         boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
 
         Model model = network.getModel();
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
-        int epochLocal = getEpochFromModel(model);
+        int epoch = getEpochFromModel(model);
 
 
-      //  Map<Integer, Integer> unrollStepsToEpisodeCount = gameBuffer.selectUnrollStepsToEpisodeCount();
-
-
-        int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
+       // int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
         log.info("trainNetworkRules ... ");
-        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining( sampleNumber,   globalUnrollSteps   );
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(  unrollSteps, epoch   );
 
         // set all timesteps trained in this controller loop to justTrained
         Arrays.stream(tsList).forEach(ts -> ts.setJustTrained(true) );
 
-        log.info("configured sample n: {}, identified sample timesteps: {}", sampleNumber, tsList.length);
-
-     //   Map<Integer, List<ShortTimestep>> mapByUnrollSteps = gameBuffer.mapByUnrollSteps(tsList, globalUnrollSteps);
+        log.info("identified sample timesteps: {}", tsList.length);
 
 
-
-        // iterate over unroll numbers and saveHere only for the last one
-
-        // convert tsList to List<ShortTimestep> tsListUnroll
         List<ShortTimestep> tsListUnroll = new ArrayList<>(Arrays.asList(tsList));
 
-   //     int c = 0;
-    //    for (Map.Entry<Integer, List<ShortTimestep>> entry : mapByUnrollSteps.entrySet()) {
-            int unrollSteps = globalUnrollSteps;
-           // List<ShortTimestep> tsListUnroll = new ArrayList<>(tsList); //entry.getValue();
-            boolean saveHere = true; //(++c == mapByUnrollSteps.entrySet().size());
-            trainNetworkRules(model, muZeroBlock, epochLocal, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, tsListUnroll);
-     //   }
+
+            boolean saveHere = true;
+            trainNetworkRules(model, muZeroBlock, epoch, freeze, background, withSymmetryEnrichment, unrollSteps, saveHere, tsListUnroll);
+
 
     }
 
@@ -441,15 +429,15 @@ public class ModelController implements DisposableBean, Runnable {
                             MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
 
 
-                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
-                            batchTimeSteps.stream().forEach(timeStepDO -> {
-                                timeStepDO.setUOkTested(false);
-                            });
+//                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
+//                            batchTimeSteps.stream().forEach(timeStepDO -> {
+//                                timeStepDO.setUOkTested(false);
+//                            });
 
 
-                            List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, List.of(0));
+                          //  List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, List.of(0));
 
-                            gameBuffer.refreshCache(idsTsChanged);
+                          //  gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epochLocal, unrollSteps, w, save);
                             trainer.step();
                         }

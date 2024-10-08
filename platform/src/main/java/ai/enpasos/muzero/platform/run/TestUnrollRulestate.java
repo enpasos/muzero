@@ -130,7 +130,7 @@ public class TestUnrollRulestate {
     private @NotNull List<Integer> getBoxesRelevant(int epoch) {
         List<Integer> boxesRelevant;
         int maxBox =  timestepRepo.maxBox();
-        boxesRelevant = Boxing.boxesRelevant(epoch, maxBox, false);
+        boxesRelevant = Boxing.boxesRelevant(epoch, false);
         log.info("boxesRelevant (not with 0) = {}", boxesRelevant.toString());
 
         if (boxesRelevant.size() == 0) {
@@ -217,6 +217,8 @@ public class TestUnrollRulestate {
 
             List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
                     .collect(Collectors.toList());
+
+            relevantTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
 
             // db update also in uOK and box
             List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0) );

@@ -85,8 +85,8 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
         NDArray[] lossComponents = new NDArray[components.size()];
         int[] iMap = new int[components.size()];
-        List<NDArray> rewardMasks = new ArrayList<>();
-        List<NDArray> legalActionMasks = new ArrayList<>();
+//        List<NDArray> rewardMasks = new ArrayList<>();
+//        List<NDArray> legalActionMasks = new ArrayList<>();
         int sCount = 0;
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss)components.get(i)).getLoss();
@@ -94,17 +94,17 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             NDList innerPredictions = ((MyIndexLoss)components.get(i)).getPredictions(predictions);
             if (loss.getName().contains("legal_actions")) {
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartA(innerLabels, innerPredictions);
-                NDArray  mask = lossComponents[i].stopGradient().lte(this.legalActionLossMaxThreshold);
-                NDArray intArray = mask.toType(DataType.INT32, false);
-                 mask = intArray.min(new int[]{1}, true);
-                legalActionMasks.add(mask.toType(DataType.BOOLEAN, false));
-                iMap[i]  =  legalActionMasks.size() - 1;
+//                NDArray  mask = lossComponents[i].stopGradient().lte(this.legalActionLossMaxThreshold);
+//                NDArray intArray = mask.toType(DataType.INT32, false);
+//                 mask = intArray.min(new int[]{1}, true);
+//                legalActionMasks.add(mask.toType(DataType.BOOLEAN, false));
+//                iMap[i]  =  legalActionMasks.size() - 1;
                 lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartA(innerLabels, innerPredictions);
-                NDArray  mask = lossComponents[i].stopGradient().lte(this.rewardLossThreshold);
-                rewardMasks.add(mask);
-                iMap[i]  =  rewardMasks.size() - 1;
+//                NDArray  mask = lossComponents[i].stopGradient().lte(this.rewardLossThreshold);
+//                rewardMasks.add(mask);
+//                iMap[i]  =  rewardMasks.size() - 1;
             }
             else {
                 lossComponents[i] = loss.evaluate(innerLabels, innerPredictions);
@@ -112,24 +112,24 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         }
 
 
-         for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-
-                 NDArray okMask = ( rewardMasks.size() >= tau && tau > 0) ?
-                            legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau - 1))
-                         :
-                            legalActionMasks.get(tau);
-
-
-             // update BOK
-            boolean[] okUpdateInfo = okMask.toBooleanArray();
-            for (int j = 0; j < bOK.length; j++) {
-                int n = bOK[j].length;
-                int tFrom =  from[j] ;
-                int tTo = tFrom + tau;
-                if (tTo >= n) continue;
-                bOK[j][tFrom][tTo] = okUpdateInfo[j];   // not taking the symmetry into account here, a voting mechanism could be implemented
-            }
-         }
+//         for (int tau = 0; tau < legalActionMasks.size(); tau++) {
+//
+//                 NDArray okMask = ( rewardMasks.size() >= tau && tau > 0) ?
+//                            legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau - 1))
+//                         :
+//                            legalActionMasks.get(tau);
+//
+//
+//             // update BOK
+//            boolean[] okUpdateInfo = okMask.toBooleanArray();
+//            for (int j = 0; j < bOK.length; j++) {
+//                int n = bOK[j].length;
+//                int tFrom =  from[j] ;
+//                int tTo = tFrom + tau;
+//                if (tTo >= n) continue;
+//                bOK[j][tFrom][tTo] = okUpdateInfo[j];   // not taking the symmetry into account here, a voting mechanism could be implemented
+//            }
+//         }
 //       float[][][] trainingNeeded = ZipperFunctions.trainingNeededFloat(bOK, 1f, true);
 //
 //        List<NDArray> masks = new ArrayList<>();

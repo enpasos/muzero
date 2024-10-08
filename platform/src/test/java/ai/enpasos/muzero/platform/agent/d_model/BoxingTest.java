@@ -64,17 +64,26 @@ class BoxingTest {
     @Test
     void boxesRelevantTest() {
 
-        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1, 10, true).toArray());
-        assertArrayEquals(new Integer[]{0,1,2,3 }, Boxing.boxesRelevant(8, 10, true).toArray());
-        assertArrayEquals(new Integer[]{}, Boxing.boxesRelevant(1, 10, false).toArray());
-        assertArrayEquals(new Integer[]{1,2,3 }, Boxing.boxesRelevant(8, 10, false).toArray());
+        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1,   true).toArray());
+
+        assertArrayEquals(new Integer[]{0, 1}, Boxing.boxesRelevant(2,   true).toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2}, Boxing.boxesRelevant(4,   true).toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3}, Boxing.boxesRelevant(8,   true).toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4}, Boxing.boxesRelevant(16,   true).toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4}, Boxing.boxesRelevant(32,   true).toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5}, Boxing.boxesRelevant(32,   false).toArray());
+        assertArrayEquals(new Integer[]{0,1,2,3 }, Boxing.boxesRelevant(8,  true).toArray());
+        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1,  false).toArray());
+        assertArrayEquals(new Integer[]{0,1,2,3 }, Boxing.boxesRelevant(8,  false).toArray());
+
+        assertArrayEquals(new Integer[]{0}, Boxing.boxesRelevant(1,  false).toArray());
 
     }
 
 
-    @Test
-    @Disabled
-    void boxesRelevantAndOccupied() {
-        assertArrayEquals(new Integer[]{0,1,2,3}, Boxing.boxesRelevantAndOccupied(List.of(0, 2, 3, 4, 5, 6, 7, 8, 9, 10),1358, 2).toArray());
-    }
+//    @Test
+//    @Disabled
+//    void boxesRelevantAndOccupied() {
+//        assertArrayEquals(new Integer[]{0,1,2,3}, Boxing.boxesRelevantAndOccupied(List.of(0, 2, 3, 4, 5, 6, 7, 8, 9, 10),1358, 2).toArray());
+//    }
 }

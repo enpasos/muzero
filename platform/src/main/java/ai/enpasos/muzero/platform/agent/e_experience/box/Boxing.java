@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Boxing {
 
-
+    public static final int MAX_BOX = 5;
 
     public static int intervall(int box) {
         return (int)Math.pow(2, box);
@@ -16,32 +16,15 @@ public class Boxing {
     }
 
 
-    public static List<Integer> boxesRelevant(int epoch, int maxBox, boolean withZero) {
+    public static List<Integer> boxesRelevant(int epoch,   boolean training) {
         List<Integer> boxesRelevant = new ArrayList<>();
-        for (int b = 0; b <= maxBox; b++) {
-            if ((b != 0 || withZero) && isUsed(b, epoch)) {
+        for (int b = 0; b <= (training ? MAX_BOX-1 : MAX_BOX) ; b++) {
+            if (  isUsed(b, epoch)) {
                     boxesRelevant.add(b);
                 }
 
         }
         return boxesRelevant;
     }
-    public static List<Integer> boxesRelevantAndOccupied(List<Integer> occupiedBoxes, int epoch, int maxBox) {
-        List<Integer> boxesRelevant = new ArrayList<>();
-        if (occupiedBoxes.isEmpty() || occupiedBoxes.getFirst() > maxBox) {
-            return boxesRelevant;
-        }
-        int localEpoch = epoch - 1;
-        while (boxesRelevant.isEmpty()) {
-            localEpoch++;
-            for (int b = 0; b <= maxBox; b++) {
-                if (isUsed(b,  localEpoch) && occupiedBoxes.contains(b)) {
-                    boxesRelevant.add(b);
-                }
-            }
-        }
-        return boxesRelevant;
-    }
-
 
 }

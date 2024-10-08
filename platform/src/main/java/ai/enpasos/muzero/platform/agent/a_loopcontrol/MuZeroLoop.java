@@ -33,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -159,33 +162,55 @@ public class MuZeroLoop {
 
         int unrollSteps = gameBuffer.findStartUnrollSteps() ;
 
+        log.info("unrollSteps: {} ... about to enter the Leithner training loop", unrollSteps);
+        while (!gameBuffer.everthingKnown()  && trainingStep < config.getNumberOfTrainingSteps()) {
 
-        while (getNOpen() > 0 && trainingStep < config.getNumberOfTrainingSteps()) {
+           // do the training with Leithner's selection of samples
+           // select from box 0 ... box MAX_BOX-1
+           int  epochAfterTraining = ruleTrain(durations, unrollSteps );
+           epoch = epochAfterTraining - 1;    // still assuming the same epoch as before training
 
-            int nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
-            while (nPrio1Needs > 0) {
 
-                logStateInfo(unrollSteps);
-                if (nPrio1Needs < nTrain) {
-                    testUnrollRulestate.test();
-                } else {
-                    testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
-                }
-                logStateInfo(unrollSteps);
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
-                logStateInfo(unrollSteps);
-
-                epoch = ruleTrain(durations, unrollSteps );
-
-                nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
-                if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
-                    unrollSteps = unrollSteps + 1;
-                    log.info("unrollSteps increased to {}", unrollSteps);
-                    nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
-                }
+           // do the testing with Leithner's selection of samples
+            if (Boxing.isUsed(Boxing.MAX_BOX,  epoch)) {
+                // we simply test everything
+                testUnrollRulestate.test();  // make sure that there is also a propagation
+            } else {
+                testUnrollRulestate.testEpisodesThatNeedTo();
             }
+
+
+            if (gameBuffer.everthingKnown(unrollSteps)) {
+                unrollSteps = unrollSteps + 1;
+                log.info("unrollSteps increased to {}", unrollSteps);
+            }
+
+//            int nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
+//            while (nPrio1Needs > 0) {
+//
+//                logStateInfo(unrollSteps);
+//                if (nPrio1Needs < nTrain) {
+//                    testUnrollRulestate.test();
+//                } else {
+//                    testUnrollRulestate.testEpisodesThatNeedTo();  // the full testing triggered by change in unrollSteps
+//                }
+//                logStateInfo(unrollSteps);
+//                testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch); // test box and epoch triggered testing
+//                logStateInfo(unrollSteps);
+//
+//                epoch = ruleTrain(durations, unrollSteps );
+//
+//                nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
+//                if (gameBuffer.numNeedsTrainingPrio1( unrollSteps) == 0) {
+//                    unrollSteps = unrollSteps + 1;
+//                    log.info("unrollSteps increased to {}", unrollSteps);
+//                    nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
+//                }
+//            }
         }
     }
+
+
 
     private void logStateInfo(int unrollSteps) {
         log.info("numBox0({}) = {}",unrollSteps, numBox0(unrollSteps));

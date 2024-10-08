@@ -69,7 +69,7 @@ public class Boxes {
                 }
             } else {
                 boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || updatedBoxes[i] == 0;
-                if (shouldIncrement) {
+                if (shouldIncrement && updatedBoxes[i] < Boxing.MAX_BOX) {
                     updatedBoxes[i]++;
                     changed = true;
                 }
