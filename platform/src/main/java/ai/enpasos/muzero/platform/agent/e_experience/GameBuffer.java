@@ -624,7 +624,7 @@ public class GameBuffer {
                     timeStepsToTrain.add(st);
                 }
             });
-            timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, n_new_prio1 - timeStepsThatNeedTrainingPrio1.size()));
+           // timeStepsToTrain.addAll(timeStepsThatNeedTrainingPrio2.subList(0, Math.min(n_new_prio1, timeStepsThatNeedTrainingPrio1.size())));
         }
         n_new_prio1 = timeStepsToTrain.size();
 
