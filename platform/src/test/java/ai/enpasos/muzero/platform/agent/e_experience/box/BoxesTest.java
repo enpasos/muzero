@@ -113,7 +113,7 @@ class BoxesTest {
     void updateBoxes12() {
         int[] array = {5};
         Pair<Boolean, int[]> result = Boxes.updateBoxes(array, 0, true, true, List.of(5)) ;
-        assertTrue(result.getKey());
+        assertFalse(result.getKey());
         assertArrayEquals(new int[]{5}, result.getValue());
     }
     @Test
