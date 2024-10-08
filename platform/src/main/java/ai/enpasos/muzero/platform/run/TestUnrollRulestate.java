@@ -24,10 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
@@ -62,21 +59,24 @@ public class TestUnrollRulestate {
     SelfPlayGame selfPlayGame;
 
 
-    public void identifyRelevantTimestepsAndTestThem(int epoch ) {
-        log.info("identifyRelevantTimestepsAndTestThem ... started");
-        List<Integer> boxesRelevant = getBoxesRelevant(epoch);
+    public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps ) {
 
-        Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
-        List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
-                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), config.getMaxUnrollSteps())
-                || shortTimestep.isJustTrained())
-                .collect(Collectors.toList());
+        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch,  true);
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(  unrollSteps, epoch   );
+        List<ShortTimestep> relevantShortTimesteps = Arrays.stream(tsList).collect(Collectors.toList());
+        List<Long> relevantIds =Arrays.stream(tsList).mapToLong(ShortTimestep::getId).boxed().collect(Collectors.toList());
 
-        shortTimesteps.stream().forEach(shortTimestep -> shortTimestep.setJustTrained(false));
-
-        List<Long> relevantIds = relevantShortTimesteps.stream()
-                .mapToLong(shortTimestep -> shortTimestep.getId())
-                .boxed().toList();
+//        Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
+//        List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
+//                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), config.getMaxUnrollSteps())
+//                || shortTimestep.isJustTrained())
+//                .collect(Collectors.toList());
+//
+//        shortTimesteps.stream().forEach(shortTimestep -> shortTimestep.setJustTrained(false));
+//
+//        List<Long> relevantIds = relevantShortTimesteps.stream()
+//                .mapToLong(shortTimestep -> shortTimestep.getId())
+//                .boxed().toList();
 
 
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", relevantShortTimesteps.size());
@@ -120,7 +120,7 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps,  boxesRelevant);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps,  relevantBoxes);
             gameBuffer.refreshCache(idsTsChanged);
         }
 

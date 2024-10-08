@@ -178,7 +178,8 @@ public class MuZeroLoop {
                 // we simply test everything
                 testUnrollRulestate.test();  // make sure that there is also a propagation
             } else {
-                testUnrollRulestate.testEpisodesThatNeedTo();
+                testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch,  unrollSteps );
+
             }
 
 
