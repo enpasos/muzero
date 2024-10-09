@@ -674,7 +674,7 @@ public class GameBuffer {
 
     public boolean everthingKnown(int unrollSteps) {
         int n =  (int)getShortTimestepSet().stream().filter(ts ->
-                ts.getUOk() == unrollSteps || ts.isUOkClosed()
+                !ts.needsTraining(unrollSteps)
           ).count();
         return n == getShortTimestepSet().size();
     }
