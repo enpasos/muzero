@@ -185,6 +185,10 @@ public class MuZeroLoop {
                 unrollSteps = unrollSteps + 1;
                 log.info("unrollSteps increased to {}", unrollSteps);
             }
+            if (unrollSteps == config.getMaxUnrollSteps() && gameBuffer.everthingKnown()) {
+                testUnrollRulestate.test();
+            }
+
 
 //            int nPrio1Needs = gameBuffer.numNeedsTrainingPrio1( unrollSteps);
 //            while (nPrio1Needs > 0) {
