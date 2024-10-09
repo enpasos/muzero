@@ -454,10 +454,9 @@ public class ModelController implements DisposableBean, Runnable {
             }
             w++;
         }
-        if (epochBefore != epoch) {
+        if (epochBefore == epoch) {
             epoch++;
             model.setProperty("Epoch", String.valueOf(epoch));
-            saveLatestModel();
             modelState.setEpoch(epoch);
         }
     }
