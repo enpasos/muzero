@@ -674,7 +674,7 @@ public class GameBuffer {
 
     public boolean everthingKnown(int unrollSteps) {
         int n =  (int)getShortTimestepSet().stream().filter(ts ->
-           ts.isUOkClosed() && ts.getBox(unrollSteps) == Boxing.MAX_BOX
+                ts.getUOk() == unrollSteps || ts.isUOkClosed()
           ).count();
         return n == getShortTimestepSet().size();
     }
