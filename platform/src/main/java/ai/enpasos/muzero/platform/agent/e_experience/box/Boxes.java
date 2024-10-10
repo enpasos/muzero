@@ -47,13 +47,12 @@ public class Boxes {
      * @param boxesRelevant list of relevant box values
      * @return a Pair containing a boolean indicating if the boxes array was changed and the updated boxes array
      */
-    public static Pair<Boolean, int[]> updateBoxes(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant, int unrollSteps, TimeStepDO timeStepDO, int epoch) {
+    public static Pair<Boolean, int[]> updateBoxes(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant, int unrollSteps, TimeStepDO timeStepDO, int epoch, int stayEpochs) {
         // Determine the target length of the boxes array and the index threshold
         int targetLength = Math.max(1, uOkClosed ? uok : uok + 1);
         int indexThreshold = uOkClosed ? targetLength : targetLength - 1;
 
-        // TODO configurable
-        int STAY_EPOCHS = 10;
+
 
         boolean changed = false;
 
@@ -75,7 +74,7 @@ public class Boxes {
                     changed = true;
                 }
             } else {
-                boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || (updatedBoxes[i] == 0 && epoch - timeStepDO.getEpochEnteredBox0() >= STAY_EPOCHS);
+                boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || (updatedBoxes[i] == 0 && epoch - timeStepDO.getEpochEnteredBox0() >= stayEpochs);
                 if (shouldIncrement && updatedBoxes[i] < Boxing.MAX_BOX ) {
                     updatedBoxes[i]++;
                     changed = true;

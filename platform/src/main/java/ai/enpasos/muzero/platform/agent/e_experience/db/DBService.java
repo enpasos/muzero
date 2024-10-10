@@ -8,6 +8,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.LegalActionsRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
+import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,8 @@ public class DBService {
 
     @Autowired
     LegalActionsRepo legalActionsRepo;
+    @Autowired
+    private MuZeroConfig muZeroConfig;
 
     public void clearDB() {
         episodeRepo.dropTable();
@@ -116,7 +119,7 @@ public class DBService {
         int epoch = modelState.getEpoch();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant, epoch, unrollSteps);
+            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant, epoch, unrollSteps, muZeroConfig.getStayEpochs());
 
             if (ts.isSChanged() || ts.isUOkChanged() || boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId());

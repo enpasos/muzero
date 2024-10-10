@@ -46,47 +46,35 @@ public class TestUnrollRulestate {
     MuZeroConfig config;
 
     @Autowired
-    GameProvider gameProvider;
-
-
-    @Autowired
     PlayService playService;
 
     @Autowired
     GameBuffer gameBuffer;
 
-    @Autowired
-    SelfPlayGame selfPlayGame;
-
-
     public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps ) {
-        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch );
+
 
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTesting(  unrollSteps, epoch    );
         List<ShortTimestep> relevantShortTimesteps = Arrays.stream(tsList).collect(Collectors.toList());
         List<Long> relevantIds =Arrays.stream(tsList).mapToLong(ShortTimestep::getId).boxed().collect(Collectors.toList());
 
-//        Set<ShortTimestep> shortTimesteps = gameBuffer.getShortTimestepSet( );
-//        List<ShortTimestep> relevantShortTimesteps = shortTimesteps.stream()
-//                .filter(shortTimestep -> Boxes.hasRelevantBox( boxesRelevant,  shortTimestep.getBoxes(), config.getMaxUnrollSteps())
-//                || shortTimestep.isJustTrained())
-//                .collect(Collectors.toList());
-//
-//        shortTimesteps.stream().forEach(shortTimestep -> shortTimestep.setJustTrained(false));
-//
-//        List<Long> relevantIds = relevantShortTimesteps.stream()
-//                .mapToLong(shortTimestep -> shortTimestep.getId())
-//                .boxed().toList();
-
-
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", relevantShortTimesteps.size());
 
 
-        RulesBuffer rulesBuffer = new RulesBuffer();
-        rulesBuffer.setWindowSize(1000);
+
         Set<Long> episodeIdsSet = relevantShortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet());
         List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
         log.info("identifyRelevantTimestepsAndTestThem episodeIds = {}", episodeIds.size());
+
+        test(unrollSteps, episodeIds, relevantShortTimesteps,    Boxing.boxesRelevant(epoch ));
+
+        log.info("identifyRelevantTimestepsAndTestThem ... finished");
+    }
+
+    private void test(int unrollSteps, List<Long> episodeIds, List<ShortTimestep> relevantShortTimesteps , List<Integer> relevantBoxes) {
+        List<Long> relevantIds = relevantShortTimesteps.stream().map(ShortTimestep::getId).collect(Collectors.toList());
+        RulesBuffer rulesBuffer = new RulesBuffer();
+        rulesBuffer.setWindowSize(1000);
         rulesBuffer.setIds(episodeIds);
         Set<Long> timeStepIds = new HashSet<>(relevantShortTimesteps.stream().map(ShortTimestep::getId).collect(Collectors.toSet()));
         int count = 0;
@@ -120,11 +108,9 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps,  relevantBoxes, unrollSteps);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, relevantBoxes, unrollSteps);
             gameBuffer.refreshCache(idsTsChanged);
         }
-
-        log.info("identifyRelevantTimestepsAndTestThem ... finished");
     }
 
     private @NotNull List<Integer> getBoxesRelevant(int epoch) {
@@ -173,8 +159,7 @@ public class TestUnrollRulestate {
        // List<Integer> boxesRelevant = getBoxesRelevant(epoch);
 
 
-        RulesBuffer rulesBuffer = new RulesBuffer();
-        rulesBuffer.setWindowSize(1000);
+
         List<Long> episodeIds = null;
         if (newEpisodesOnly) {
             episodeIds = dbService.getNewEpisodeIds( );
@@ -191,7 +176,13 @@ public class TestUnrollRulestate {
             log.info("episodeIds after filter = {}", episodeIds.size());
         }
 
+        test(allTimeSteps, unrollSteps, episodeIds);
 
+    }
+
+    private void test(boolean allTimeSteps, int unrollSteps, List<Long> episodeIds) {
+        RulesBuffer rulesBuffer = new RulesBuffer();
+        rulesBuffer.setWindowSize(1000);
         rulesBuffer.setIds(episodeIds);
         int count = 0;
         for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
@@ -207,7 +198,7 @@ public class TestUnrollRulestate {
                                     -> timeStepDO.setToBeAnalysed(true)
                             )
             );
-            playService.uOkAnalyseGames(games, allTimeSteps, unrollSteps  );
+            playService.uOkAnalyseGames(games, allTimeSteps, unrollSteps);
 
             boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
 
@@ -219,47 +210,21 @@ public class TestUnrollRulestate {
             relevantTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0), unrollSteps );
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0), unrollSteps);
             gameBuffer.refreshCache(idsTsChanged);
-
-
         }
-
-     //   List<Integer> uOkList = timestepRepo.uOkList();
-
-
-     //   log.info("uOkList: {} ", uOkList.toString());
-    }
-
-
-    public void testOneGame(long episodeId , int unrollSteps ) {
-
-        int epoch = networkIOService.getLatestNetworkEpoch();
-        List<Integer> boxesRelevant = getBoxesRelevant(epoch);
-        boolean allTimeStepsWhichMeansLocally = true;
-
-        timestepRepo.resetUOk();
-        modelService.loadLatestModel(epoch).join();
-        EpisodeDO episodeDO = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(List.of(episodeId)).get(0);
-        List<EpisodeDO> episodeDOList = List.of(episodeDO);
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        selfPlayGame.uOkAnalyseGame(games.get(0), allTimeStepsWhichMeansLocally, -1);
-
-        boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
-        ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
-      //  ZipperFunctions.calculateUnrollSteps(episodeDOList);
-
-        List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO2 -> episodeDO2.getTimeSteps().stream())
-                .collect(Collectors.toList());
-
-
-        // db update also in uOK and box
-
-        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, boxesRelevant, unrollSteps);
-        gameBuffer.refreshCache(idsTsChanged);
-
     }
 
 
 
+    public void testForLeavingBox0(int epoch, int unrollSteps) {
+
+      List<ShortTimestep> shortTimesteps =  gameBuffer.getShortTimestepSet().stream().filter(st -> {
+           return st.getBox(unrollSteps) == 0 && config.getStayEpochs() >= epoch -  st.getEpochEnteredBox0();
+        }).toList();
+
+      List<Long> episodeIds = shortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet()).stream().toList();
+        test(unrollSteps, episodeIds, shortTimesteps, Boxing.boxesRelevant(epoch ));
+
+    }
 }

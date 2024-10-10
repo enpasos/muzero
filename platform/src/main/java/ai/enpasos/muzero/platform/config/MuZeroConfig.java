@@ -463,6 +463,11 @@ public class MuZeroConfig {
         return getConf().numParallelInferences;
     }
 
+
+    public int getStayEpochs() {
+        return getConf().stayEpochs;
+    }
+
     public int getNumChannelsHiddenLayerSimilarityProjector() {
         return getConf().numChannelsHiddenLayerSimilarityProjector;
     }
@@ -595,6 +600,9 @@ public class MuZeroConfig {
         protected int numPurePolicyPlays;
         protected int[] valueInterval;
         protected int numParallelInferences = 1;
+
+
+        protected int stayEpochs = 10;
 
         protected boolean offPolicyCorrectionOn;
 
