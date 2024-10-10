@@ -112,7 +112,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.t AS t,
                 t.u_ok_closed AS uOkClosed,
                 t.u_ok_epoch AS uOkEpoch, 
-                t.epoch_entered_box_0 AS epochEnteredBox0
+                t.epoch_entered_box0 AS epochEnteredBox0
             FROM timestep t
             ORDER BY t.id
             LIMIT :limit OFFSET :offset
