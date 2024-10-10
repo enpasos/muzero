@@ -590,7 +590,7 @@ public class GameBuffer {
                st.getBox(unrollSteps) == 0
          ).collect(Collectors.toList());
         Collections.shuffle(timeStepsToTrain);
-        timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
+       // timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
         return timeStepsToTrain.toArray(new ShortTimestep[0]);
     }
 
@@ -610,23 +610,23 @@ public class GameBuffer {
         }));
     }
 
-    public List<ShortTimestep> timeStepsThatNeedTrainingPrio1( int unrollSteps) {
-        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
-        return shortTimesteps.stream()
-                .filter(ts ->
-                        ts.needsTrainingPrio1(getTmax(ts.getEpisodeId()), unrollSteps)
-                )
-                .collect(Collectors.toList()) ;
-    }
-
-    public List<ShortTimestep> timeStepsThatNeedTrainingPrio2( int unrollSteps) {
-        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
-        return shortTimesteps.stream()
-                .filter(ts ->
-                        ts.needsTrainingPrio2(getTmax(ts.getEpisodeId()), unrollSteps)
-                )
-                .collect(Collectors.toList()) ;
-    }
+//    public List<ShortTimestep> timeStepsThatNeedTrainingPrio1( int unrollSteps) {
+//        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
+//        return shortTimesteps.stream()
+//                .filter(ts ->
+//                        ts.needsTrainingPrio1(getTmax(ts.getEpisodeId()), unrollSteps)
+//                )
+//                .collect(Collectors.toList()) ;
+//    }
+//
+//    public List<ShortTimestep> timeStepsThatNeedTrainingPrio2( int unrollSteps) {
+//        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
+//        return shortTimesteps.stream()
+//                .filter(ts ->
+//                        ts.needsTrainingPrio2(getTmax(ts.getEpisodeId()), unrollSteps)
+//                )
+//                .collect(Collectors.toList()) ;
+//    }
 
 
 
@@ -647,14 +647,14 @@ public class GameBuffer {
     }
 
 
-    public int numNeedsTrainingPrio1(int unrollSteps) {
-        int n =  (int)getShortTimestepSet().stream().filter(ts -> {
-            int tmax = getTmax(ts.getEpisodeId());
-            return ts.needsTrainingPrio1(tmax, unrollSteps);
-        }).count();
-        log.info("numBox0Prio1({}) = {}",  unrollSteps, n);
-        return n;
-    }
+//    public int numNeedsTrainingPrio1(int unrollSteps) {
+//        int n =  (int)getShortTimestepSet().stream().filter(ts -> {
+//            int tmax = getTmax(ts.getEpisodeId());
+//            return ts.needsTrainingPrio1(tmax, unrollSteps);
+//        }).count();
+//        log.info("numBox0Prio1({}) = {}",  unrollSteps, n);
+//        return n;
+//    }
     public int numNeedsTraining(int unrollSteps) {
         int n =  (int)getShortTimestepSet().stream().filter(ts -> {
             return ts.needsTraining(unrollSteps);
