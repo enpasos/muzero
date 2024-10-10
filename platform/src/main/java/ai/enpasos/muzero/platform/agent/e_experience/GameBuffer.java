@@ -590,7 +590,7 @@ public class GameBuffer {
                st.getBox(unrollSteps) == 0
          ).collect(Collectors.toList());
         Collections.shuffle(timeStepsToTrain);
-       // timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
+        timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
         return timeStepsToTrain.toArray(new ShortTimestep[0]);
     }
 
