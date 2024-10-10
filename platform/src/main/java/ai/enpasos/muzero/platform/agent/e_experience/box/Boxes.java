@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience.box;
 
 import ai.djl.util.Pair;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 
 import java.util.*;
 
@@ -46,10 +47,13 @@ public class Boxes {
      * @param boxesRelevant list of relevant box values
      * @return a Pair containing a boolean indicating if the boxes array was changed and the updated boxes array
      */
-    public static Pair<Boolean, int[]> updateBoxes(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant) {
+    public static Pair<Boolean, int[]> updateBoxes(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant, int unrollSteps, TimeStepDO timeStepDO, int epoch) {
         // Determine the target length of the boxes array and the index threshold
         int targetLength = Math.max(1, uOkClosed ? uok : uok + 1);
         int indexThreshold = uOkClosed ? targetLength : targetLength - 1;
+
+        // TODO configurable
+        int STAY_EPOCHS = 10;
 
         boolean changed = false;
 
@@ -64,12 +68,15 @@ public class Boxes {
         for (int i = 0; i < updatedBoxes.length; i++) {
             if (!uOkClosed && i >= indexThreshold) {
                 if (updatedBoxes[i] != 0) {
+                    if (i <= unrollSteps - 1) {
+                        timeStepDO.setEpochEnteredBox0(epoch);
+                    }
                     updatedBoxes[i] = 0;
                     changed = true;
                 }
             } else {
-                boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || updatedBoxes[i] == 0;
-                if (shouldIncrement && updatedBoxes[i] < Boxing.MAX_BOX) {
+                boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || (updatedBoxes[i] == 0 && epoch - timeStepDO.getEpochEnteredBox0() >= STAY_EPOCHS);
+                if (shouldIncrement && updatedBoxes[i] < Boxing.MAX_BOX ) {
                     updatedBoxes[i]++;
                     changed = true;
                 }

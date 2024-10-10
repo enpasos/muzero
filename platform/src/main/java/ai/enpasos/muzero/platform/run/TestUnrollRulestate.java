@@ -60,9 +60,9 @@ public class TestUnrollRulestate {
 
 
     public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps ) {
+        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch );
 
-        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch,  false);
-        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(  unrollSteps, epoch   );
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTesting(  unrollSteps, epoch    );
         List<ShortTimestep> relevantShortTimesteps = Arrays.stream(tsList).collect(Collectors.toList());
         List<Long> relevantIds =Arrays.stream(tsList).mapToLong(ShortTimestep::getId).boxed().collect(Collectors.toList());
 
@@ -120,7 +120,7 @@ public class TestUnrollRulestate {
 
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps,  relevantBoxes);
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps,  relevantBoxes, unrollSteps);
             gameBuffer.refreshCache(idsTsChanged);
         }
 
@@ -130,7 +130,7 @@ public class TestUnrollRulestate {
     private @NotNull List<Integer> getBoxesRelevant(int epoch) {
         List<Integer> boxesRelevant;
         int maxBox =  timestepRepo.maxBox();
-        boxesRelevant = Boxing.boxesRelevant(epoch, false);
+        boxesRelevant = Boxing.boxesRelevant(epoch);
         log.info("boxesRelevant (not with 0) = {}", boxesRelevant.toString());
 
         if (boxesRelevant.size() == 0) {
@@ -146,7 +146,7 @@ public class TestUnrollRulestate {
 
     public void test( ) {
       test(true, 1, false, false);
-      //checkCacheConsistency();
+
     }
 
     public void testEpisodesThatNeedTo() {
@@ -154,9 +154,7 @@ public class TestUnrollRulestate {
         gameBuffer.initNeedsFullTest(false);
     }
 
-//    private void checkCacheConsistency() {
-//        gameBuffer.checkCacheConsistency();
-//    }
+
 
     public void testNewEpisodes( ) {
         test(true, 1, true, false);
@@ -221,7 +219,7 @@ public class TestUnrollRulestate {
             relevantTimeSteps.stream().forEach(timeStepDO -> timeStepDO.setUOkTested(true));
 
             // db update also in uOK and box
-            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0) );
+            List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0), unrollSteps );
             gameBuffer.refreshCache(idsTsChanged);
 
 
@@ -257,7 +255,7 @@ public class TestUnrollRulestate {
 
         // db update also in uOK and box
 
-        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, boxesRelevant);
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, boxesRelevant, unrollSteps);
         gameBuffer.refreshCache(idsTsChanged);
 
     }

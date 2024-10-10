@@ -8,7 +8,7 @@ public class Boxing {
     public static final int MAX_BOX = 5;
 
     public static int intervall(int box) {
-        return (int)Math.pow(2, box);
+        return (int)Math.pow(2, box-1);
     }
 
     public static boolean isUsed(int box, int epoch) {
@@ -16,13 +16,12 @@ public class Boxing {
     }
 
 
-    public static List<Integer> boxesRelevant(int epoch,   boolean training) {
+    public static List<Integer> boxesRelevant(int epoch ) {
         List<Integer> boxesRelevant = new ArrayList<>();
-        for (int b = 0; b <= (training ? MAX_BOX-1 : MAX_BOX) ; b++) {
+        for (int b = 1; b <=  MAX_BOX ; b++) {
             if (  isUsed(b, epoch)) {
                     boxesRelevant.add(b);
                 }
-
         }
         return boxesRelevant;
     }

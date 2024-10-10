@@ -60,9 +60,9 @@ public class TimeStepDO {
     int[] boxes = {0};
 
 
-    public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant, int epoch) {
+    public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant, int epoch, int unrollSteps) {
 
-        Pair<Boolean, int[]> pair = Boxes.updateBoxes(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant);
+        Pair<Boolean, int[]> pair = Boxes.updateBoxes(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant, unrollSteps, this, epoch);
         boolean changed = pair.getKey();
         if (changed) {
             this.uOkEpoch = epoch;
@@ -115,6 +115,7 @@ public class TimeStepDO {
     boolean exploring;
 
 
+    int epochEnteredBox0;
 
 
 

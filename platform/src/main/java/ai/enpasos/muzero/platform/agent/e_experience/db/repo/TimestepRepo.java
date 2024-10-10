@@ -74,7 +74,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.uOk = :uOk,
                 t.uOkClosed = :uOkClosed,
                 t.boxes = :boxes,
-                t.uOkEpoch = :uOkEpoch
+                t.uOkEpoch = :uOkEpoch,
+                t.epochEnteredBox0 = :epochEnteredBox0
             WHERE t.id = :id
             """)
     void updateAttributeSAndU(
@@ -84,7 +85,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
             long uOk,
             boolean uOkClosed,
             int[] boxes,
-            int uOkEpoch
+            int uOkEpoch,
+            int epochEnteredBox0
     );
 
 
@@ -109,7 +111,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.nextuokclosed AS nextuokclosed,
                 t.t AS t,
                 t.u_ok_closed AS uOkClosed,
-                t.u_ok_epoch AS uOkEpoch
+                t.u_ok_epoch AS uOkEpoch, 
+                t.epoch_entered_box_0 AS epochEnteredBox0
             FROM timestep t
             ORDER BY t.id
             LIMIT :limit OFFSET :offset
@@ -127,7 +130,8 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                     ts.nextuokclosed,
                     ts.t,
                     ts.uOkClosed,
-                    ts.uOkEpoch
+                    ts.uOkEpoch, 
+                    ts.epochEnteredBox0
                 )
             FROM TimeStepDO ts
             WHERE ts.id IN :ids

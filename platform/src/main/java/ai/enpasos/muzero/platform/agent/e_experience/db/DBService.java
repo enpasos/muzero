@@ -111,16 +111,16 @@ public class DBService {
 
 
     @Transactional
-    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant) {
+    public List<Long> updateTimesteps_SandUOkandBox(List<TimeStepDO> timesteps, List<Integer> boxesRelevant, int unrollSteps) {
         List<Long> ids = new ArrayList<>();
         int epoch = modelState.getEpoch();
         timesteps.stream().forEach(ts -> {
 
-            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant, epoch);
+            boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant, epoch, unrollSteps);
 
             if (ts.isSChanged() || ts.isUOkChanged() || boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId());
-                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch());
+                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch(), ts.getEpochEnteredBox0());
                 if (ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);

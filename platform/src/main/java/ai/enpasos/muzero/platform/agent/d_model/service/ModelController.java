@@ -334,10 +334,10 @@ public class ModelController implements DisposableBean, Runnable {
         int epoch = getEpochFromModel(model);
 
 
-       // int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
+        int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
         log.info("trainNetworkRules ... ");
-        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(  unrollSteps, epoch   );
+        ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(sampleNumber,  unrollSteps, epoch   );
 
         // set all timesteps trained in this controller loop to justTrained
         Arrays.stream(tsList).forEach(ts -> ts.setJustTrained(true) );

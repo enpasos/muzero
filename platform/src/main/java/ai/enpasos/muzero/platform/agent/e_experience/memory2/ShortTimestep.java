@@ -16,7 +16,7 @@ public class ShortTimestep {
 
    private int[] boxes;
 
-   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, int uOkEpoch) {
+   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, int uOkEpoch, int epochEnteredBox0) {
       this.id = id;
       this.episodeId = episodeId;
       this.boxes = boxes;
@@ -26,9 +26,10 @@ public class ShortTimestep {
       this.t = t;
       this.uOkClosed = uOkClosed;
       this.uOkEpoch = uOkEpoch;
+      this.epochEnteredBox0 = epochEnteredBox0;
    }
 
-   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained, int uOkEpoch) {
+   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained, int uOkEpoch, int epochEnteredBox0) {
       this.id = id;
       this.episodeId = episodeId;
       this.boxes = boxes;
@@ -38,6 +39,7 @@ public class ShortTimestep {
       this.t = t;
       this.uOkClosed = uOkClosed;
       this.uOkEpoch = uOkEpoch;
+      this.epochEnteredBox0 = epochEnteredBox0;
       this.justTrained = justTrained;
    }
 
@@ -67,6 +69,8 @@ public class ShortTimestep {
 
 
    private int uOkEpoch;
+
+   private int epochEnteredBox0;
 
 
 
