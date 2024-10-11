@@ -74,7 +74,7 @@ public class Boxes {
                     changed = true;
                 }
             } else {
-                boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || (updatedBoxes[i] == 0 && epoch - timeStepDO.getEpochEnteredBox0() >= stayEpochs);
+                boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || (updatedBoxes[i] == 0 );
                 if (shouldIncrement && updatedBoxes[i] < Boxing.MAX_BOX ) {
                     updatedBoxes[i]++;
                     changed = true;
