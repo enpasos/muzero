@@ -192,7 +192,7 @@ public class MuZeroLoop {
             epoch = ruleTrain(durations, unrollSteps );
 
 
-            testUnrollRulestate.testForLeavingBox0(epoch, unrollSteps);
+         //   testUnrollRulestate.testForLeavingBox0(epoch, unrollSteps);
 
 
         }

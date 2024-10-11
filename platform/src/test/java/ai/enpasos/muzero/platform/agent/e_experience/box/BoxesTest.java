@@ -142,4 +142,9 @@ class BoxesTest {
     void getBox() {
         assertEquals(3, Boxes.getBox(new int[]{3, 0}, 1));
     }
+
+    @Test
+    void getBox2() {
+        assertEquals(0, Boxes.getBox(new int[]{3, 0}, 2));
+    }
 }

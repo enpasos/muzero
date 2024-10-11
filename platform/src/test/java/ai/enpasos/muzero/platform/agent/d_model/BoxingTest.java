@@ -66,7 +66,11 @@ class BoxingTest {
         assertArrayEquals(integerArray(1), Boxing.boxesRelevant(1 ).toArray());
 
         assertArrayEquals(integerArray(2), Boxing.boxesRelevant(2 ).toArray());
+        assertArrayEquals(integerArray(1), Boxing.boxesRelevant(3 ).toArray());
         assertArrayEquals(integerArray(3), Boxing.boxesRelevant(4 ).toArray());
+        assertArrayEquals(integerArray(1), Boxing.boxesRelevant(5 ).toArray());
+        assertArrayEquals(integerArray(2), Boxing.boxesRelevant(6 ).toArray());
+        assertArrayEquals(integerArray(1), Boxing.boxesRelevant(7 ).toArray());
         assertArrayEquals(integerArray(4), Boxing.boxesRelevant(8 ).toArray());
         assertArrayEquals(integerArray(5), Boxing.boxesRelevant(16 ).toArray());
         assertArrayEquals(integerArray(5), Boxing.boxesRelevant(32 ).toArray());

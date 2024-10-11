@@ -586,8 +586,9 @@ public class GameBuffer {
     }
 
     public ShortTimestep[] getIdsRelevantForTraining(int n, int unrollSteps, int epoch   ) {
+
         List<ShortTimestep> timeStepsToTrain = getShortTimestepSet().stream().filter(st ->
-               st.getBox(unrollSteps) == 0
+               st.getBox(unrollSteps) == 0 || st.getBox(unrollSteps) == 1 || st.getBox(unrollSteps) == 2
          ).collect(Collectors.toList());
         Collections.shuffle(timeStepsToTrain);
         timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
