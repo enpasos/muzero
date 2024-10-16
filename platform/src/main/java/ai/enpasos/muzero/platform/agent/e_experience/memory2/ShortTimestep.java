@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@Builder
+
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ShortTimestep {
    @EqualsAndHashCode.Include
@@ -18,6 +18,7 @@ public class ShortTimestep {
    private int[] boxes;
 
    private int[] boxesEpisodeEntered;
+
 
    public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, int uOkEpoch, int[] boxesEpisodeEntered) {
       this.id = id;
@@ -32,6 +33,7 @@ public class ShortTimestep {
       this.boxesEpisodeEntered = boxesEpisodeEntered;
    }
 
+   @Builder
    public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained, int uOkEpoch, int[] boxesEpisodeEntered) {
       this.id = id;
       this.episodeId = episodeId;
@@ -73,7 +75,6 @@ public class ShortTimestep {
 
    private int uOkEpoch;
 
-   private int epochEnteredBox0;
 
 
 

@@ -217,14 +217,14 @@ public class TestUnrollRulestate {
 
 
 
-    public void testForLeavingBox0(int epoch, int unrollSteps) {
-
-      List<ShortTimestep> shortTimesteps =  gameBuffer.getShortTimestepSet().stream().filter(st -> {
-           return st.getBox(unrollSteps) == 0 && config.getStayEpochs() <= epoch - st.getEpochEnteredBox0();
-        }).toList();
-
-      List<Long> episodeIds = shortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet()).stream().toList();
-        test(unrollSteps, episodeIds, shortTimesteps, Boxing.boxesRelevant(epoch ));
-
-    }
+//    public void testForLeavingBox0(int epoch, int unrollSteps) {
+//
+//      List<ShortTimestep> shortTimesteps =  gameBuffer.getShortTimestepSet().stream().filter(st -> {
+//           return st.getBox(unrollSteps) == 0 && config.getStayEpochs() <= epoch - st.getEpochEnteredBox0();
+//        }).toList();
+//
+//      List<Long> episodeIds = shortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet()).stream().toList();
+//        test(unrollSteps, episodeIds, shortTimesteps, Boxing.boxesRelevant(epoch ));
+//
+//    }
 }

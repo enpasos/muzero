@@ -123,7 +123,7 @@ public class DBService {
 
             if (ts.isSChanged() || ts.isUOkChanged() || boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId());
-                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch(), ts.getEpochEnteredBox0());
+                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch(), ts.getBoxesEpisodeEntered());
                 if (ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);

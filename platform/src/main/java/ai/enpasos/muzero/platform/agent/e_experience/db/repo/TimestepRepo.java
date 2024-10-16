@@ -75,7 +75,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.uOkClosed = :uOkClosed,
                 t.boxes = :boxes,
                 t.uOkEpoch = :uOkEpoch,
-                t.epochEnteredBox0 = :epochEnteredBox0
+                t.boxesEpisodeEntered = :boxesEpisodeEntered
             WHERE t.id = :id
             """)
     void updateAttributeSAndU(
@@ -86,7 +86,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
             boolean uOkClosed,
             int[] boxes,
             int uOkEpoch,
-            int epochEnteredBox0
+            int[] boxesEpisodeEntered
     );
 
 
