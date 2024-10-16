@@ -1,6 +1,7 @@
 package ai.enpasos.muzero.platform.agent.e_experience.memory2;
 
 import ai.enpasos.muzero.platform.agent.e_experience.box.Boxes;
+import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,9 @@ public class ShortTimestep {
 
    private int[] boxes;
 
-   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, int uOkEpoch, int epochEnteredBox0) {
+   private int[] boxesEpisodeEntered;
+
+   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, int uOkEpoch, int[] boxesEpisodeEntered) {
       this.id = id;
       this.episodeId = episodeId;
       this.boxes = boxes;
@@ -26,10 +29,10 @@ public class ShortTimestep {
       this.t = t;
       this.uOkClosed = uOkClosed;
       this.uOkEpoch = uOkEpoch;
-      this.epochEnteredBox0 = epochEnteredBox0;
+      this.boxesEpisodeEntered = boxesEpisodeEntered;
    }
 
-   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained, int uOkEpoch, int epochEnteredBox0) {
+   public ShortTimestep(Long id, Long episodeId, int[] boxes, Integer uOk, Integer nextUOk, boolean nextuokclosed, Integer t, boolean uOkClosed, boolean justTrained, int uOkEpoch, int[] boxesEpisodeEntered) {
       this.id = id;
       this.episodeId = episodeId;
       this.boxes = boxes;
@@ -39,7 +42,7 @@ public class ShortTimestep {
       this.t = t;
       this.uOkClosed = uOkClosed;
       this.uOkEpoch = uOkEpoch;
-      this.epochEnteredBox0 = epochEnteredBox0;
+      this.boxesEpisodeEntered = boxesEpisodeEntered;
       this.justTrained = justTrained;
    }
 
@@ -99,6 +102,10 @@ public class ShortTimestep {
       return Boxes.getBox(boxes, unrollSteps);
    }
 
+   public int getEpisodeEnteredBox(int unrollSteps) {
+      return Boxes.getBox(this.boxesEpisodeEntered, unrollSteps);
+   }
+
 
    public Integer getUnrollSteps(int tmax, int unrollStepsEpisode) {
 
@@ -110,4 +117,7 @@ public class ShortTimestep {
    }
 
 
+   public boolean isEpochRelevant(int epoch, int unrollSteps) {
+     return Boxing.isBoxRelevant(epoch,  getEpisodeEnteredBox(unrollSteps), getBox(unrollSteps));
+   }
 }

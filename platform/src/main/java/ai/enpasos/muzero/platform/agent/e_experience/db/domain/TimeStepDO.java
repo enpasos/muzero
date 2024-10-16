@@ -59,15 +59,19 @@ public class TimeStepDO {
     @Builder.Default
     int[] boxes = {0};
 
+    @Column(name = "boxes_episode_entered", columnDefinition = "integer[]")
+    @Builder.Default
+    int[] boxesEpisodeEntered = {0};
+
 
     public boolean changeBoxesBasesOnUOk(List<Integer> boxesRelevant, int epoch, int unrollSteps, int stayEpochs) {
 
-        Pair<Boolean, int[]> pair = Boxes.updateBoxes(boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant, unrollSteps, this, epoch, stayEpochs);
+        Pair<Boolean, int[]> pair = Boxes.updateBoxes(this.boxesEpisodeEntered, boxes, this.uOk, uOkClosed, uOkTested, boxesRelevant, unrollSteps, this, epoch, stayEpochs);
         boolean changed = pair.getKey();
         if (changed) {
             this.uOkEpoch = epoch;
         }
-        boxes = pair.getValue();
+        //boxes = pair.getValue();
         return changed;
     }
 
@@ -115,7 +119,7 @@ public class TimeStepDO {
     boolean exploring;
 
 
-    int epochEnteredBox0;
+   // int epochEnteredBox0;
 
 
 

@@ -475,7 +475,7 @@ public class GameBuffer {
                                 .t(result[6] != null ? (Integer) result[6] : null)
                                 .uOkClosed(result[7] != null ? (Boolean) result[7] : false)
                                 .uOkEpoch(result[8] != null ? (Integer) result[8] : 0)
-                                .epochEnteredBox0(result[9] != null ? (Integer) result[9] : 0)
+                                .boxesEpisodeEntered(result[9] != null ? convert((Integer[]) result[9])  : null)
                                 .build())
                         .collect(Collectors.toList());
                 this.shortTimesteps.addAll(shortTimesteps);
@@ -596,9 +596,9 @@ public class GameBuffer {
     }
 
     public ShortTimestep[] getIdsRelevantForTesting(int unrollSteps, int epoch   ) {
-        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch );
+      //  List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch );
         List<ShortTimestep> timeStepsToTrain = getShortTimestepSet().stream().filter(st ->
-              relevantBoxes.contains(     st.getBox(unrollSteps))
+                st.isEpochRelevant(epoch, unrollSteps)
         ).collect(Collectors.toList());
         Collections.shuffle(timeStepsToTrain);
         return timeStepsToTrain.toArray(new ShortTimestep[0]);

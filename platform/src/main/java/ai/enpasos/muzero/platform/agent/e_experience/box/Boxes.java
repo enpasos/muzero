@@ -47,7 +47,7 @@ public class Boxes {
      * @param boxesRelevant list of relevant box values
      * @return a Pair containing a boolean indicating if the boxes array was changed and the updated boxes array
      */
-    public static Pair<Boolean, int[]> updateBoxes(int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant, int unrollSteps, TimeStepDO timeStepDO, int epoch, int stayEpochs) {
+    public static Pair<Boolean, int[]> updateBoxes(int[] boxesEpisodeEntered, int[] boxes, int uok, boolean uOkClosed, boolean uOkTested, List<Integer> boxesRelevant, int unrollSteps, TimeStepDO timeStepDO, int epoch, int stayEpochs) {
         // Determine the target length of the boxes array and the index threshold
         int targetLength = Math.max(1, uOkClosed ? uok : uok + 1);
         int indexThreshold = uOkClosed ? targetLength : targetLength - 1;
@@ -58,7 +58,9 @@ public class Boxes {
 
         // Create a new array to avoid modifying the input array
         int[] updatedBoxes = new int[targetLength];
+        int[] updatedBoxesEpisodeEntered = new int[targetLength];
         System.arraycopy(boxes, 0, updatedBoxes, 0, Math.min(boxes.length, targetLength));
+        System.arraycopy(boxesEpisodeEntered, 0, updatedBoxesEpisodeEntered, 0, Math.min(boxes.length, targetLength));
         if (boxes.length != targetLength) {
             changed = true;
         }
@@ -67,21 +69,24 @@ public class Boxes {
         for (int i = 0; i < updatedBoxes.length; i++) {
             if (!uOkClosed && i >= indexThreshold) {
                 if (updatedBoxes[i] != 0) {
-                    if (i <= unrollSteps - 1) {
-                        timeStepDO.setEpochEnteredBox0(epoch);
-                    }
+//                    if (i <= unrollSteps - 1) {
+//                        timeStepDO.setEpochEnteredBox0(epoch);
+//                    }
                     updatedBoxes[i] = 0;
+                    updatedBoxesEpisodeEntered[i] = epoch;
                     changed = true;
                 }
             } else {
                 boolean shouldIncrement = (uOkTested && boxesRelevant.contains(updatedBoxes[i])) || (updatedBoxes[i] == 0 );
                 if (shouldIncrement && updatedBoxes[i] < Boxing.MAX_BOX ) {
                     updatedBoxes[i]++;
+                    updatedBoxesEpisodeEntered[i] = epoch;
                     changed = true;
                 }
             }
         }
-
+        timeStepDO.setBoxesEpisodeEntered(updatedBoxesEpisodeEntered);
+        timeStepDO.setBoxes(updatedBoxes);
         return new Pair<>(changed, updatedBoxes);
     }
 
@@ -128,6 +133,8 @@ public class Boxes {
         }
         return boxes[unrollSteps - 1];
     }
+
+
 
 
 

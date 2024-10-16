@@ -26,4 +26,7 @@ public class Boxing {
         return boxesRelevant;
     }
 
+    public static boolean isBoxRelevant(int epoch, int epochEnteredBox, int box) {
+        return isUsed(box, epoch - epochEnteredBox);
+    }
 }
