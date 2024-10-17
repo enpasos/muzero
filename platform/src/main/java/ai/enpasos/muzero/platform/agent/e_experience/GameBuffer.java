@@ -597,7 +597,7 @@ public class GameBuffer {
 
         Collections.shuffle(timeStepsToTrainKnown);
 
-        timeStepsToTrain.addAll(timeStepsToTrainKnown.subList(0, Math.min(timeStepsToTrain.size(), timeStepsToTrainKnown.size())));
+        timeStepsToTrain.addAll(timeStepsToTrainKnown.subList(0, Math.min(2*timeStepsToTrain.size(), timeStepsToTrainKnown.size())));
 
 
         Collections.shuffle(timeStepsToTrain);
