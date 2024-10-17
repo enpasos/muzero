@@ -83,7 +83,7 @@ public class TimeStepDO {
 
     boolean nextuokclosed;
 
-    boolean trainable;
+
 
     @Transient
     boolean unrollStepsChanged;
@@ -105,9 +105,8 @@ public class TimeStepDO {
     byte[] observationPartA;
     byte[] observationPartB;
     float[] playoutPolicy;
-  //  float[] simState;
     float rootValueTarget;
-    float vMix;
+
     float rootEntropyValueTarget;
     float rootEntropyValueFromInitialInference;
     float rootValueFromInitialInference;
@@ -115,11 +114,6 @@ public class TimeStepDO {
     boolean exploring;
 
 
-    int epochEnteredBox0;
-
-
-
-    boolean archived;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -130,12 +124,8 @@ public class TimeStepDO {
 
 
 
-    private double valueMean;
-    private double valueVariance;
-    private long valueCount;
 
 
-    // policyTarget, observationPartSize, observationPartA, observationPartB are assumed to be immutable
     public TimeStepDO copyPolicyTargetAndObservation() {
         return TimeStepDO.builder()
                 .policyTarget(policyTarget)
