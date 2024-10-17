@@ -162,38 +162,38 @@ public class MuZeroLoop {
 
         int unrollSteps = gameBuffer.findStartUnrollSteps() ;
 
+        boolean start = true;
+
         log.info("unrollSteps: {} ... about to enter the Leithner training loop", unrollSteps);
         while (!gameBuffer.everthingKnown()  && trainingStep < config.getNumberOfTrainingSteps()) {
+            if (!start) {
+                start = false;
 
-            // do the testing with Leithner's selection of samples
-            if (Boxing.isUsed(Boxing.MAX_BOX,  epoch)) {
-                // we simply test everything
-                testUnrollRulestate.test();
-            } else {
-                testUnrollRulestate.identifyRelevantTimestepsAndTestThem( epoch,  unrollSteps );
-            }
+                // do the testing with Leithner's selection of samples
+                if (Boxing.isUsed(Boxing.MAX_BOX, epoch)) {
+                    // we simply test everything
+                    testUnrollRulestate.test();
+                } else {
+                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
+                }
 
 
-            if (gameBuffer.everthingKnown(unrollSteps)) {
-                unrollSteps = unrollSteps + 1;
-                log.info("unrollSteps increased to {}", unrollSteps);
-            }
-            if (unrollSteps == config.getMaxUnrollSteps() && gameBuffer.everthingKnown()) {
-                testUnrollRulestate.test();
-                if (gameBuffer.everthingKnown()) {
-                    log.info("everything known");
-                    break;
+                if (gameBuffer.everthingKnown(unrollSteps)) {
+                    unrollSteps = unrollSteps + 1;
+                    log.info("unrollSteps increased to {}", unrollSteps);
+                }
+                if (unrollSteps == config.getMaxUnrollSteps() && gameBuffer.everthingKnown()) {
+                    testUnrollRulestate.test();
+                    if (gameBuffer.everthingKnown()) {
+                        log.info("everything known");
+                        break;
+                    }
                 }
             }
-
 
            // do the training with Leithner's selection of samples
            // select from box 0 ... box MAX_BOX-1
             epoch = ruleTrain(durations, unrollSteps );
-
-
-         //   testUnrollRulestate.testForLeavingBox0(epoch, unrollSteps);
-
 
         }
     }
