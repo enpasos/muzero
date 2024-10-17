@@ -475,7 +475,6 @@ public class GameBuffer {
                                 .t(result[6] != null ? (Integer) result[6] : null)
                                 .uOkClosed(result[7] != null ? (Boolean) result[7] : false)
                                 .uOkEpoch(result[8] != null ? (Integer) result[8] : 0)
-                                .epochEnteredBox0(result[9] != null ? (Integer) result[9] : 0)
                                 .build())
                         .collect(Collectors.toList());
                 this.shortTimesteps.addAll(shortTimesteps);

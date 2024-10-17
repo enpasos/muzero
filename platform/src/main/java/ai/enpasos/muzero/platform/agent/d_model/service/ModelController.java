@@ -339,8 +339,6 @@ public class ModelController implements DisposableBean, Runnable {
         log.info("trainNetworkRules ... ");
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(sampleNumber,  unrollSteps, epoch   );
 
-        // set all timesteps trained in this controller loop to justTrained
-        Arrays.stream(tsList).forEach(ts -> ts.setJustTrained(true) );
 
         log.info("identified sample timesteps: {}", tsList.length);
 

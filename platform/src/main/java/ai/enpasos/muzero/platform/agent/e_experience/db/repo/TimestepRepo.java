@@ -60,9 +60,6 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
     @Query(value = "SELECT COUNT(*) FROM timestep WHERE boxes[:boxIndex + 1] = 0", nativeQuery = true)
     long countEntriesWhereBoxIsZero(int boxIndex);
 
- //   @Query(value = "SELECT COUNT(*) FROM timestep WHERE boxes[:boxIndex + 1] = 0", nativeQuery = true)
- //   long countEntriesInBox(int boxIndex);
-
 
     @Transactional
     @Modifying
@@ -111,8 +108,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.nextuokclosed AS nextuokclosed,
                 t.t AS t,
                 t.u_ok_closed AS uOkClosed,
-                t.u_ok_epoch AS uOkEpoch, 
-                t.epoch_entered_box0 AS epochEnteredBox0
+                t.u_ok_epoch AS uOkEpoch 
             FROM timestep t
             ORDER BY t.id
             LIMIT :limit OFFSET :offset
@@ -130,8 +126,7 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                     ts.nextuokclosed,
                     ts.t,
                     ts.uOkClosed,
-                    ts.uOkEpoch, 
-                    ts.epochEnteredBox0
+                    ts.uOkEpoch 
                 )
             FROM TimeStepDO ts
             WHERE ts.id IN :ids
