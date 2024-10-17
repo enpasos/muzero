@@ -233,7 +233,7 @@ public class PlanAction {
         }
 
         timeStepDO.setRootValueTarget(value);
-        timeStepDO.setVMix(value);
+      //  timeStepDO.setVMix(value);
 
         float[] policyTarget = new float[config.getActionSpaceSize()];
         policyTarget[action.getIndex()] = 1f;

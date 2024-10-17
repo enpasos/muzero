@@ -64,7 +64,7 @@ public class PlayService {
                     timeStepDO -> {
                         timeStepDO.setPolicyTarget(null);
                         timeStepDO.setRootValueTarget(0);
-                        timeStepDO.setVMix(0);
+                     //   timeStepDO.setVMix(0);
                         timeStepDO.setRootEntropyValueTarget(0);
                         timeStepDO.setEntropy(0);
                         timeStepDO.setRootValueFromInitialInference(0);

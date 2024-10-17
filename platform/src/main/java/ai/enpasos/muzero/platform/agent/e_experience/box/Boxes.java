@@ -67,9 +67,9 @@ public class Boxes {
         for (int i = 0; i < updatedBoxes.length; i++) {
             if (!uOkClosed && i >= indexThreshold) {
                 if (updatedBoxes[i] != 0) {
-                    if (i <= unrollSteps - 1) {
-                        timeStepDO.setEpochEnteredBox0(epoch);
-                    }
+//                    if (i <= unrollSteps - 1) {
+//                        timeStepDO.setEpochEnteredBox0(epoch);
+//                    }
                     updatedBoxes[i] = 0;
                     changed = true;
                 }

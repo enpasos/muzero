@@ -309,10 +309,11 @@ public abstract class Game {
                     }
                     break;
                 case V_MIX:
-                    if (bootstrapIndex <= this.getEpisodeDO().getLastTime()) {
-                        value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getVMix() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
-                    }
-                    break;
+//                    if (bootstrapIndex <= this.getEpisodeDO().getLastTime()) {
+//                        value = this.getEpisodeDO().getTimeSteps().get(bootstrapIndex).getVMix() * Math.pow(this.discount, tdSteps) * getPerspective(tdSteps);
+//                    }
+                    throw new MuZeroException("V_MIX not implemented");
+
             }
         } else {
             if (bootstrapIndex <= this.getEpisodeDO().getLastTime() ) {
