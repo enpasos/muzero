@@ -587,17 +587,9 @@ public class GameBuffer {
     public ShortTimestep[] getIdsRelevantForTraining(int n, int unrollSteps, int epoch   ) {
 
         List<ShortTimestep> timeStepsToTrain = getShortTimestepSet().stream().filter(st ->
-               st.getBox(unrollSteps) == 0
+               st.getBox(unrollSteps) == 0 || st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
          ).collect(Collectors.toList());
 
-        List<ShortTimestep> timeStepsToTrainKnown = getShortTimestepSet().stream().filter(st ->
-                 st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
-        ).collect(Collectors.toList());
-
-
-        Collections.shuffle(timeStepsToTrainKnown);
-
-        timeStepsToTrain.addAll(timeStepsToTrainKnown.subList(0, Math.min(2*timeStepsToTrain.size(), timeStepsToTrainKnown.size())));
 
 
         Collections.shuffle(timeStepsToTrain);
