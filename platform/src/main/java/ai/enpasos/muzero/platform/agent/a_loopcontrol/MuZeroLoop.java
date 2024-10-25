@@ -167,7 +167,6 @@ public class MuZeroLoop {
         log.info("unrollSteps: {} ... about to enter the Leithner training loop", unrollSteps);
         while (!gameBuffer.everthingKnown()  && trainingStep < config.getNumberOfTrainingSteps()) {
             if (!start) {
-                start = false;
 
                 // do the testing with Leithner's selection of samples
                 if (Boxing.isUsed(Boxing.MAX_BOX, epoch)) {
@@ -190,6 +189,7 @@ public class MuZeroLoop {
                     }
                 }
             }
+            start = false;
 
            // do the training with Leithner's selection of samples
            // select from box 0 ... box MAX_BOX-1
