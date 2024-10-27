@@ -65,7 +65,6 @@ public class GameBuffer {
 
     private int batchSize;
     private GameBufferDTO planningBuffer;
-  //  private GameBufferDTO rulesBuffer;
     private GameBufferDTO reanalyseBuffer;
     @Autowired
     private MuZeroConfig config;
@@ -205,6 +204,7 @@ public class GameBuffer {
 //
     public void clearEpisodeIds() {
         episodeIds = null;
+        shortEpisodeList = null;
     }
 
 
@@ -489,17 +489,33 @@ public class GameBuffer {
         return shortTimesteps;
     }
 
+    List<ShortEpisode> shortEpisodeList;
+    public List<ShortEpisode> getShortEpisodes(List<Long> episodeIds ) {
+        int limit = 50000;
+        if (shortEpisodeList == null) {
+            int offset = 0;
+            shortEpisodeList = new ArrayList<>();
+            List news;
+            do {
+                news = episodeRepo.getShortEpisodeList(episodeIds, limit, offset);
+                shortEpisodeList.addAll(news);
+                offset += limit;
+            } while (news.size() > 0);
+        }
+        return shortEpisodeList;
+    }
+
     private void initShortEpisodes(int epoch) {
         episodeIdToShortEpisodes = new HashMap();
 
         List<Long> episodeIds = shortTimesteps.stream().map(ShortTimestep::getEpisodeId).distinct().collect(Collectors.toList());
 
-        List<ShortEpisode> shortEpisodeList = episodeRepo.getShortEpisodeList(episodeIds);
-        // fill episodeIdToShortEpisodes
+        List<ShortEpisode> shortEpisodeList = getShortEpisodes(episodeIds);
+
         for (ShortEpisode shortEpisode : shortEpisodeList) {
             episodeIdToShortEpisodes.put(shortEpisode.getId(), shortEpisode);
         }
-        // fill shortTimesteps in shortEpisodes
+
         for (ShortTimestep shortTimestep : shortTimesteps) {
             Long episodeId = shortTimestep.getEpisodeId();
             ShortEpisode shortEpisode = episodeIdToShortEpisodes.get(episodeId);
