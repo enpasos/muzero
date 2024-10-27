@@ -536,6 +536,9 @@ public class GameBuffer {
             if (shortEpisode == null) {
                 throw new MuZeroException("episodeId " + episodeId + " not found in shortEpisodeList");
             }
+            if (shortEpisode.getShortTimesteps() == null) {
+                shortEpisode.setShortTimesteps(new ArrayList<>());
+            }
             shortEpisode.getShortTimesteps().add(shortTimestep);
         }
 
