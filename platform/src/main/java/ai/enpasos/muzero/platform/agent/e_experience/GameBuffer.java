@@ -508,8 +508,8 @@ public class GameBuffer {
     private void initShortEpisodes(int epoch) {
         episodeIdToShortEpisodes = new HashMap();
 
-        List<Long> episodeIds = shortTimesteps.stream().map(ShortTimestep::getEpisodeId).distinct().collect(Collectors.toList());
-
+        Set<Long> episodeIdsSet = shortTimesteps.stream().map(ShortTimestep::getEpisodeId).distinct().collect(Collectors.toSet());
+        List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
         List<ShortEpisode> shortEpisodeList = getShortEpisodes(episodeIds);
 
         for (ShortEpisode shortEpisode : shortEpisodeList) {
