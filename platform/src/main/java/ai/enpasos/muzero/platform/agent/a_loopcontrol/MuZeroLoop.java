@@ -160,12 +160,12 @@ public class MuZeroLoop {
 
         testUnrollRulestate.testNewEpisodes();
 
-        int unrollSteps = gameBuffer.findStartUnrollSteps() ;
+        int unrollSteps = gameBuffer.findStartUnrollSteps(epoch) ;
 
         boolean start = true;
 
         log.info("unrollSteps: {} ... about to enter the Leithner training loop", unrollSteps);
-        while (!gameBuffer.everthingKnown()  && trainingStep < config.getNumberOfTrainingSteps()) {
+        while (!gameBuffer.everthingKnown(epoch)  && trainingStep < config.getNumberOfTrainingSteps()) {
             if (!start) {
 
                 // do the testing with Leithner's selection of samples
@@ -181,9 +181,9 @@ public class MuZeroLoop {
                     unrollSteps = unrollSteps + 1;
                     log.info("unrollSteps increased to {}", unrollSteps);
                 }
-                if (unrollSteps == config.getMaxUnrollSteps() && gameBuffer.everthingKnown()) {
+                if (unrollSteps == config.getMaxUnrollSteps() && gameBuffer.everthingKnown(epoch)) {
                     testUnrollRulestate.test();
-                    if (gameBuffer.everthingKnown()) {
+                    if (gameBuffer.everthingKnown(epoch)) {
                         log.info("everything known");
                         break;
                     }
@@ -200,14 +200,14 @@ public class MuZeroLoop {
 
 
 
-    private void logStateInfo(int unrollSteps) {
-        log.info("numBox0({}) = {}",unrollSteps, numBox0(unrollSteps));
-        log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes());
-        gameBuffer.selectUnrollStepsToEpisodeCount(true);
+    private void logStateInfo(int unrollSteps, int epoch) {
+        log.info("numBox0({}) = {}",unrollSteps, numBox0(unrollSteps, epoch));
+        log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes(epoch));
+        gameBuffer.selectUnrollStepsToEpisodeCount(true, epoch);
     }
 
-    private int getNOpen() {
-        return gameBuffer.numEpisodes() - gameBuffer.numClosedEpisodes();
+    private int getNOpen(int epoch) {
+        return gameBuffer.numEpisodes(epoch) - gameBuffer.numClosedEpisodes(epoch);
     }
 
 
@@ -237,8 +237,8 @@ public class MuZeroLoop {
 //    }
 
 
-    private int numBox0(int unrollSteps) {
-        int n = gameBuffer.getShortTimestepSet().stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
+    private int numBox0(int unrollSteps, int epoch) {
+        int n = gameBuffer.getShortTimestepSet(epoch).stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
         log.info("numBox0 = {}", n);
         return n;
     }

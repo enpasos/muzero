@@ -43,6 +43,8 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     int minuok;
 
     int trainingEpoch;
+    int okEpoch;
+    boolean ok;
     int tdSteps;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -71,6 +73,8 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     public EpisodeDO copy() {
         return EpisodeDO.builder()
                 .id(id)
+                .okEpoch(okEpoch)
+                .ok(ok)
                 .networkName(networkName)
                 .pRandomActionRawSum(pRandomActionRawSum)
                 .pRandomActionRawCount(pRandomActionRawCount)
@@ -172,6 +176,8 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     public EpisodeDO copyWithoutTimeSteps() {
         EpisodeDO copy = new EpisodeDO();
         copy.timeSteps = new ArrayList<>();
+        copy.ok = ok;
+        copy.okEpoch = this.okEpoch;
         copy.networkName = this.networkName;
         copy.count = this.count;
         copy.nextSurpriseCheck = this.nextSurpriseCheck;

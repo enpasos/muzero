@@ -17,6 +17,25 @@ public class ShortEpisode {
 
     private List<ShortTimestep> shortTimesteps;
 
+    private int okEpoch;
+
+    private boolean ok;
+
+    public ShortEpisode(Long id, boolean ok, int okEpoch) {
+        this.id = id;
+        this.ok = ok;
+        this.okEpoch = okEpoch;
+    }
+
+
+    // the higher the score the more likely the episode will be deleted
+    public int getDeletionScore(int epoch) {
+        if (!this.ok) {
+            return  Integer.MIN_VALUE;
+        }
+        return epoch - okEpoch;
+    }
+
 
     private boolean needsFullTesting;
 
@@ -51,6 +70,10 @@ public class ShortEpisode {
 
     public boolean isClosed() {
         // if all timesteps are uokclosed, the episode is closed
+        return shortTimesteps.stream().allMatch(ShortTimestep::isUOkClosed);
+    }
+
+    public boolean checkOkFromTimeSteps() {
         return shortTimesteps.stream().allMatch(ShortTimestep::isUOkClosed);
     }
 //

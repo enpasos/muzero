@@ -53,14 +53,11 @@ public class TestUnrollRulestate {
 
     public void identifyRelevantTimestepsAndTestThem(int epoch, int unrollSteps ) {
 
-
         ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTesting(  unrollSteps, epoch    );
         List<ShortTimestep> relevantShortTimesteps = Arrays.stream(tsList).collect(Collectors.toList());
         List<Long> relevantIds =Arrays.stream(tsList).mapToLong(ShortTimestep::getId).boxed().collect(Collectors.toList());
 
         log.info("identifyRelevantTimestepsAndTestThem timesteps = {}", relevantShortTimesteps.size());
-
-
 
         Set<Long> episodeIdsSet = relevantShortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet());
         List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
@@ -109,7 +106,7 @@ public class TestUnrollRulestate {
 
             // db update also in uOK and box
             List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, relevantBoxes, unrollSteps);
-            gameBuffer.refreshCache(idsTsChanged);
+            gameBuffer.refreshCache(idsTsChanged, 0);
         }
     }
 
@@ -172,7 +169,7 @@ public class TestUnrollRulestate {
         }
         if (onlyEpisodesThatNeedTo) {
             log.info("episodeIds before filter = {}", episodeIds.size());
-            episodeIds = gameBuffer.filterEpisodeIdsByTestNeed(episodeIds);
+            episodeIds = gameBuffer.filterEpisodeIdsByTestNeed(episodeIds, epoch);
             log.info("episodeIds after filter = {}", episodeIds.size());
         }
 
@@ -211,7 +208,7 @@ public class TestUnrollRulestate {
 
             // db update also in uOK and box
             List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0), unrollSteps);
-            gameBuffer.refreshCache(idsTsChanged);
+            gameBuffer.refreshCache(idsTsChanged, 0);
         }
     }
 

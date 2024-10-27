@@ -1,6 +1,8 @@
 package ai.enpasos.muzero.platform.agent.e_experience.db.repo;
 
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
+import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
 import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -78,9 +80,28 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
 
+    @Query(value = """
+            SELECT 
+                new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode(
+                    e.id,
+                    e.ok,
+                    e.okEpoch 
+                )
+            FROM EpisodeDO e
+            WHERE e.id IN :ids
+            """)
+    List<ShortEpisode> getShortEpisodeList(
+            List<Long> ids
+    );
 
-
-
-
-
+    @Transactional
+    @Modifying
+    @Query(value = """
+            UPDATE EpisodeDO e
+            SET 
+                e.ok = :okNow,
+                e.okEpoch = :epoch
+            WHERE e.id = :id
+            """)
+    void updateOk(Long id, boolean okNow, int epoch);
 }
