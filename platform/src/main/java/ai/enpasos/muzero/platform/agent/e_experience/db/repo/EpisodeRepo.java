@@ -81,13 +81,13 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
 
 
     @Query(value = """
-        SELECT 
+        SELECT new ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode(
             e.id,
             e.ok,
-            e.ok_epoch AS okEpoch
-        FROM episode e
-        WHERE e.id IN( :ids)
-        """, nativeQuery = true)
+            e.okEpoch )
+        FROM EpisodeDO e
+        WHERE e.id IN  :ids 
+        """)
     List<ShortEpisode> getShortEpisodeList(
             List<Long> ids
     );
