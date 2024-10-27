@@ -106,7 +106,7 @@ public class TestUnrollRulestate {
 
             // db update also in uOK and box
             List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, relevantBoxes, unrollSteps);
-            gameBuffer.refreshCache(idsTsChanged, 0);
+            gameBuffer.refreshCache(idsTsChanged, networkIOService.getLatestNetworkEpoch());
         }
     }
 
@@ -208,7 +208,7 @@ public class TestUnrollRulestate {
 
             // db update also in uOK and box
             List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, List.of(0), unrollSteps);
-            gameBuffer.refreshCache(idsTsChanged, 0);
+            gameBuffer.refreshCache(idsTsChanged,networkIOService.getLatestNetworkEpoch());
         }
     }
 
