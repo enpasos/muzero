@@ -491,17 +491,31 @@ public class GameBuffer {
 
     List<ShortEpisode> shortEpisodeList;
     public List<ShortEpisode> getShortEpisodes(List<Long> episodeIds ) {
-        int limit = 50000;
+//        int limit = 50000;
+//        if (shortEpisodeList == null) {
+//            int offset = 0;
+//            shortEpisodeList = new ArrayList<>();
+//            List news;
+//            do {
+//                news = episodeRepo.getShortEpisodeList(episodeIds, limit, offset);
+//                shortEpisodeList.addAll(news);
+//                offset += limit;
+//            } while (news.size() > 0);
+//        }
+
         if (shortEpisodeList == null) {
-            int offset = 0;
+            int batchSize = 50000; // Adjust as needed to avoid hitting the parameter limit
             shortEpisodeList = new ArrayList<>();
-            List news;
-            do {
-                news = episodeRepo.getShortEpisodeList(episodeIds, limit, offset);
-                shortEpisodeList.addAll(news);
-                offset += limit;
-            } while (news.size() > 0);
+
+            for (int i = 0; i < episodeIds.size(); i += batchSize) {
+                List<Long> batch = episodeIds.subList(i, Math.min(i + batchSize, episodeIds.size()));
+                shortEpisodeList.addAll(episodeRepo.getShortEpisodeList(batch));
+            }
+
+
         }
+
+
         return shortEpisodeList;
     }
 

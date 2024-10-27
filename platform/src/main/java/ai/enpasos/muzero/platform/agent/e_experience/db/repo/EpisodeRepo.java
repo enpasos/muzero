@@ -86,11 +86,10 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
             e.ok,
             e.ok_epoch AS okEpoch
         FROM episode e
-        WHERE e.id = ANY(:ids)
-        LIMIT :limit OFFSET :offset
+        WHERE e.id IN( :ids)
         """, nativeQuery = true)
     List<ShortEpisode> getShortEpisodeList(
-            List<Long> ids, int limit, int offset
+            List<Long> ids
     );
 
     @Transactional
