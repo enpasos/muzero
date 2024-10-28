@@ -177,7 +177,7 @@ public class MuZeroLoop {
                 }
 
 
-                if (gameBuffer.everthingKnown(unrollSteps)) {
+                if (gameBuffer.everthingKnown(unrollSteps, epoch)) {
                     unrollSteps = unrollSteps + 1;
                     log.info("unrollSteps increased to {}", unrollSteps);
                 }
