@@ -26,7 +26,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection3;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
@@ -200,9 +199,10 @@ public class GameBuffer {
     private List<Long> episodeIds;
 
 //
-    public void clearEpisodeIds() {
+    public void clearShortObjectsCache() {
         episodeIds = null;
         shortEpisodeList = null;
+        shortTimesteps = null;
     }
 
 
@@ -223,28 +223,6 @@ public class GameBuffer {
     }
 
 
-
- //   private List<IdProjection> relevantIdsA;
-
-//    private List<IdProjection2> relevantIds2;
-    private List<IdProjection3> idProjection3List;
-
-    public void resetRelevantIds() {
-    //    relevantIds2 = null;
-  //      relevantIdsA = null;
-        idProjection3List = null;
-    }
-
-
-
-
-
-    public List<Long> getShuffledEpisodeIds() {
-        List<Long> episodeIds = getEpisodeIds( )  ;
-        Collections.shuffle(episodeIds);
-        return episodeIds;
-
-    }
 
 
 
@@ -562,30 +540,6 @@ public class GameBuffer {
     }
 
 
-//    public int unrollStepsEpisode(long episodeId) {
-//        return episodeIdToShortEpisodes.get(episodeId).getUnrollSteps();
-//    }
-
-
-//    public Map<Integer, List<Long>> unrollStepsToEpisodeIds(boolean filterOnNonClosed ) {
-//        getShortTimestepSet( );  // fill caches
-//        Map<Integer, List<Long>> unrollStepsToEpisodeIds = new HashMap<>();
-//        for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
-//            if (filterOnNonClosed && shortEpisode.isClosed()) {
-//                continue;
-//            }
-//            int unrollSteps = shortEpisode.getUnrollSteps();
-//            List<Long> episodeIds = unrollStepsToEpisodeIds.get(unrollSteps);
-//
-//                if (episodeIds == null) {
-//                    episodeIds = new ArrayList<>();
-//                    unrollStepsToEpisodeIds.put(unrollSteps, episodeIds);
-//                }
-//                episodeIds.add(shortEpisode.getId());
-//
-//        }
-//        return unrollStepsToEpisodeIds;
-//    }
 
     public Map<Integer, Integer> unrollStepsToEpisodeCount(boolean filterOnNonClosed, int epoch) {
         getShortTimestepSetFromCacheFillCacheIfEmpty(epoch );  // fill caches
@@ -630,18 +584,6 @@ public class GameBuffer {
                st.getBox(unrollSteps) == 0 || st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
          ).collect(Collectors.toList());
 
-//        List<ShortTimestep> timeStepsToTrain = getShortTimestepSet().stream().filter(st ->
-//                st.getBox(unrollSteps) == 0
-//        ).collect(Collectors.toList());
-//
-//        List<ShortTimestep> timeStepsToTrainKnown = getShortTimestepSet().stream().filter(st ->
-//                st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
-//        ).collect(Collectors.toList());
-//
-//
-//        Collections.shuffle(timeStepsToTrainKnown);
-//
-//        timeStepsToTrain.addAll(timeStepsToTrainKnown.subList(0, Math.min(2 * timeStepsToTrain.size(), timeStepsToTrainKnown.size())));
 
 
         Collections.shuffle(timeStepsToTrain);
@@ -664,24 +606,6 @@ public class GameBuffer {
             return ts.getUnrollSteps(getTmax(ts.getEpisodeId()), unrollSteps);
         }));
     }
-
-//    public List<ShortTimestep> timeStepsThatNeedTrainingPrio1( int unrollSteps) {
-//        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
-//        return shortTimesteps.stream()
-//                .filter(ts ->
-//                        ts.needsTrainingPrio1(getTmax(ts.getEpisodeId()), unrollSteps)
-//                )
-//                .collect(Collectors.toList()) ;
-//    }
-//
-//    public List<ShortTimestep> timeStepsThatNeedTrainingPrio2( int unrollSteps) {
-//        Set<ShortTimestep> shortTimesteps = getShortTimestepSet();
-//        return shortTimesteps.stream()
-//                .filter(ts ->
-//                        ts.needsTrainingPrio2(getTmax(ts.getEpisodeId()), unrollSteps)
-//                )
-//                .collect(Collectors.toList()) ;
-//    }
 
 
 

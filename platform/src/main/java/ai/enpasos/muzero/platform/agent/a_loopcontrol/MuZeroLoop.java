@@ -160,6 +160,9 @@ public class MuZeroLoop {
         int epoch = 0;
         int nTrain = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
 
+        gameBuffer.clearShortObjectsCache();
+
+
         List<DurAndMem> durations = new ArrayList<>();
 
         modelService.loadLatestModelOrCreateIfNotExisting().get();
@@ -176,7 +179,7 @@ public class MuZeroLoop {
             play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
         }
 
-        gameBuffer.clearEpisodeIds();
+        gameBuffer.clearShortObjectsCache();
 
         testUnrollRulestate.testNewEpisodes();
 
