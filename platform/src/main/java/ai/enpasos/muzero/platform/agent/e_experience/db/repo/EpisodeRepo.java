@@ -107,7 +107,7 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
     @Modifying
     @Transactional
     @Query("DELETE FROM EpisodeDO e WHERE EXISTS (" +
-           "SELECT t FROM TimeStepDO t WHERE t MEMBER OF e.timeSteps AND t.ok = -2)")
+           "SELECT t FROM TimeStepDO t WHERE t MEMBER OF e.timeSteps AND t.uOk = -2)")
     void deleteNewEpisodes();
 
 }
