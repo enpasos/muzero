@@ -82,14 +82,17 @@ public class MuZeroLoop {
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
 
-        trainRules();
 
-        trainPolicyAndValue(params);
+        boolean ok = false;
+        while (!ok) {
+            trainRules();
+            ok = trainPolicyAndValue(params);
+        }
 
         log.info("done");
     }
 
-    private void trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
+    private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
         int epoch;
         int trainingStep;
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
@@ -130,6 +133,15 @@ public class MuZeroLoop {
             if (policyValueTraining) {
                 freeze = new boolean[]{true, false, false};
                 modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+
+
+                testUnrollRulestate.testNewEpisodes();
+                gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
+                long nEpisodesNotOK = episodeRepo.countEpisodesWithOkFalse();
+                log.info("nEpisodesNotOK: {}", nEpisodesNotOK);
+                if (nEpisodesNotOK > 0) {
+                    return false;
+                }
             }
 
             epoch = modelState.getEpoch();
@@ -140,6 +152,7 @@ public class MuZeroLoop {
             System.out.println("epoch;duration[ms];gpuMem[MiB]");
             IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
         }
+        return true;
     }
 
     private void trainRules() throws InterruptedException, ExecutionException {
@@ -154,7 +167,7 @@ public class MuZeroLoop {
 
 
         // just for testing
-        episodeRepo.deleteEpisodesNotOk();
+        //episodeRepo.deleteEpisodesNotOk();
 
      //   gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
 
