@@ -185,16 +185,16 @@ public class MuZeroLoop {
 
         int unrollSteps = gameBuffer.findStartUnrollSteps(epoch) ;
 
-        boolean start = true;
+        int loopCounter = 0;
 
         log.info("unrollSteps: {} ... about to enter the Leithner training loop", unrollSteps);
         while (!gameBuffer.everthingKnown(epoch)  && trainingStep < config.getNumberOfTrainingSteps()) {
-            if (!start) {
+            if (loopCounter > 0) {
 
                 gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
 
                 // do the testing with Leithner's selection of samples
-                if (Boxing.isUsed(Boxing.MAX_BOX, epoch)) {
+                if (Boxing.isUsed(Boxing.MAX_BOX, epoch) || loopCounter == 1) {
                     // we simply test everything
                     testUnrollRulestate.test();
                 } else {
@@ -214,11 +214,13 @@ public class MuZeroLoop {
                     }
                 }
             }
-            start = false;
+
 
            // do the training with Leithner's selection of samples
            // select from box 0 ... box MAX_BOX-1
             epoch = ruleTrain(durations, unrollSteps );
+
+            loopCounter++;
 
         }
     }
