@@ -154,9 +154,9 @@ public class MuZeroLoop {
 
 
         // just for testing
-       // episodeRepo.deleteNewEpisodes();
+        episodeRepo.deleteEpisodesNotOk();
 
-        gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
+     //   gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
 
 
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
