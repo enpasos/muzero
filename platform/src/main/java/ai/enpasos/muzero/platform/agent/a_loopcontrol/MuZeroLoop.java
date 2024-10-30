@@ -152,6 +152,13 @@ public class MuZeroLoop {
         modelService.loadLatestModelOrCreateIfNotExisting().get();
         epoch = modelState.getEpoch();
 
+
+        // just for testing
+        episodeRepo.deleteNewEpisodes();
+
+
+
+
         if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
             play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
         }
@@ -167,6 +174,8 @@ public class MuZeroLoop {
         log.info("unrollSteps: {} ... about to enter the Leithner training loop", unrollSteps);
         while (!gameBuffer.everthingKnown(epoch)  && trainingStep < config.getNumberOfTrainingSteps()) {
             if (!start) {
+
+                gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
 
                 // do the testing with Leithner's selection of samples
                 if (Boxing.isUsed(Boxing.MAX_BOX, epoch)) {
@@ -238,7 +247,7 @@ public class MuZeroLoop {
 
 
     private int numBox0(int unrollSteps, int epoch) {
-        int n = gameBuffer.getShortTimestepSet(epoch).stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
+        int n = gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
         log.info("numBox0 = {}", n);
         return n;
     }

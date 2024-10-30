@@ -30,7 +30,6 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.repo.IdProjection3;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
-import ai.enpasos.muzero.platform.common.AliasMethod;
 import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.common.MuZeroException;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
@@ -45,7 +44,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -436,7 +434,7 @@ public class GameBuffer {
     private Map<Long, ShortEpisode> episodeIdToShortEpisodes;
 
     public void refreshCache(List<Long> idsTsChanged, int epoch) {
-        Set<ShortTimestep>  shortTimesteps = getShortTimestepSet(epoch);
+        Set<ShortTimestep>  shortTimesteps = getShortTimestepSetFromCacheFillCacheIfEmpty(epoch);
         List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
         shortTimesteps.removeAll(shortTimestepsNew );
         shortTimesteps.addAll(shortTimestepsNew );
@@ -452,7 +450,7 @@ public class GameBuffer {
     }
 
 
-    public Set<ShortTimestep> getShortTimestepSet(int epoch )  {
+    public Set<ShortTimestep> getShortTimestepSetFromCacheFillCacheIfEmpty(int epoch )  {
         if (shortTimesteps == null || shortTimesteps.isEmpty()) {
             int limit = 50000;
 
@@ -491,17 +489,6 @@ public class GameBuffer {
 
     List<ShortEpisode> shortEpisodeList;
     public List<ShortEpisode> getShortEpisodes(List<Long> episodeIds ) {
-//        int limit = 50000;
-//        if (shortEpisodeList == null) {
-//            int offset = 0;
-//            shortEpisodeList = new ArrayList<>();
-//            List news;
-//            do {
-//                news = episodeRepo.getShortEpisodeList(episodeIds, limit, offset);
-//                shortEpisodeList.addAll(news);
-//                offset += limit;
-//            } while (news.size() > 0);
-//        }
 
         if (shortEpisodeList == null) {
             int batchSize = 50000; // Adjust as needed to avoid hitting the parameter limit
@@ -511,11 +498,7 @@ public class GameBuffer {
                 List<Long> batch = episodeIds.subList(i, Math.min(i + batchSize, episodeIds.size()));
                 shortEpisodeList.addAll(episodeRepo.getShortEpisodeList(batch));
             }
-
-
         }
-
-
         return shortEpisodeList;
     }
 
@@ -555,11 +538,12 @@ public class GameBuffer {
         }
 
 
-        checkEpisodesOk(epoch);
+
 
     }
 
-    private void checkEpisodesOk(int epoch) {
+    public void checkEpisodesOkAndUpdateIfNot(int epoch) {
+        getShortTimestepSetFromCacheFillCacheIfEmpty(epoch );
         episodeIdToShortEpisodes.values().forEach(shortEpisode -> {
             boolean okOld = shortEpisode.isOk();
             boolean okNow = shortEpisode.checkOkFromTimeSteps();
@@ -568,9 +552,6 @@ public class GameBuffer {
                 shortEpisode.setOk(okNow);
                 episodeRepo.updateOk(shortEpisode.getId(), okNow, epoch);
             }
-
-
-
         });
     }
 
@@ -607,7 +588,7 @@ public class GameBuffer {
 //    }
 
     public Map<Integer, Integer> unrollStepsToEpisodeCount(boolean filterOnNonClosed, int epoch) {
-        getShortTimestepSet(epoch );  // fill caches
+        getShortTimestepSetFromCacheFillCacheIfEmpty(epoch );  // fill caches
         Map<Integer, Integer> unrollStepsToEpisodeCount = new HashMap<>();
         for (ShortEpisode shortEpisode : episodeIdToShortEpisodes.values()) {
             if (filterOnNonClosed && shortEpisode.isClosed()) {
@@ -621,12 +602,12 @@ public class GameBuffer {
 
 
     public  Integer  numClosedEpisodes(int epoch) {
-        getShortTimestepSet(epoch);
+        getShortTimestepSetFromCacheFillCacheIfEmpty(epoch);
         return (int) episodeIdToShortEpisodes.values().stream().filter(ShortEpisode::isClosed).count();
     }
 
     public  Integer  numEpisodes(int epoch) {
-        getShortTimestepSet(epoch);
+        getShortTimestepSetFromCacheFillCacheIfEmpty(epoch);
         return episodeIdToShortEpisodes.size();
     }
 
@@ -645,10 +626,22 @@ public class GameBuffer {
 
     public ShortTimestep[] getIdsRelevantForTraining(int n, int unrollSteps, int epoch   ) {
 
-        List<ShortTimestep> timeStepsToTrain = getShortTimestepSet(epoch).stream().filter(st ->
+        List<ShortTimestep> timeStepsToTrain = getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(st ->
                st.getBox(unrollSteps) == 0 || st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
          ).collect(Collectors.toList());
 
+//        List<ShortTimestep> timeStepsToTrain = getShortTimestepSet().stream().filter(st ->
+//                st.getBox(unrollSteps) == 0
+//        ).collect(Collectors.toList());
+//
+//        List<ShortTimestep> timeStepsToTrainKnown = getShortTimestepSet().stream().filter(st ->
+//                st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
+//        ).collect(Collectors.toList());
+//
+//
+//        Collections.shuffle(timeStepsToTrainKnown);
+//
+//        timeStepsToTrain.addAll(timeStepsToTrainKnown.subList(0, Math.min(2 * timeStepsToTrain.size(), timeStepsToTrainKnown.size())));
 
 
         Collections.shuffle(timeStepsToTrain);
@@ -658,7 +651,7 @@ public class GameBuffer {
 
     public ShortTimestep[] getIdsRelevantForTesting(int unrollSteps, int epoch   ) {
         List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch );
-        List<ShortTimestep> timeStepsToTrain = getShortTimestepSet(epoch).stream().filter(st ->
+        List<ShortTimestep> timeStepsToTrain = getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(st ->
               relevantBoxes.contains(     st.getBox(unrollSteps))
         ).collect(Collectors.toList());
         Collections.shuffle(timeStepsToTrain);
@@ -693,7 +686,7 @@ public class GameBuffer {
 
 
     public List<Long> filterEpisodeIdsByTestNeed(List<Long> episodeIds, int epoch) {
-        getShortTimestepSet(epoch);
+        getShortTimestepSetFromCacheFillCacheIfEmpty(epoch);
         return episodeIds.stream().filter(episodeId -> episodeIdToShortEpisodes.get(episodeId).isNeedsFullTesting()).collect(Collectors.toList());
     }
 
@@ -711,7 +704,7 @@ public class GameBuffer {
 
 
     public int numNeedsTraining(int unrollSteps, int epoch) {
-        int n =  (int)getShortTimestepSet(epoch).stream().filter(ts -> {
+        int n =  (int) getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(ts -> {
             return ts.needsTraining(unrollSteps);
         }).count();
         log.info("numBox0({}) = {}",  unrollSteps, n);
@@ -732,10 +725,10 @@ public class GameBuffer {
     }
 
     public boolean everthingKnown(int unrollSteps, int epoch) {
-        int n =  (int)getShortTimestepSet(epoch).stream().filter(ts ->
+        int n =  (int) getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(ts ->
                 !ts.needsTraining(unrollSteps)
           ).count();
-        return n == getShortTimestepSet(epoch).size();
+        return n == getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).size();
     }
 
 

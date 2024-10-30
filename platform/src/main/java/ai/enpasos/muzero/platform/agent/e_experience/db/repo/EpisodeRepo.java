@@ -102,4 +102,14 @@ public interface EpisodeRepo extends JpaRepository<EpisodeDO,Long> {
             WHERE e.id = :id
             """)
     void updateOk(Long id, boolean okNow, int epoch);
+
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM episode_do e WHERE EXISTS (" +
+                   "SELECT 1 FROM time_step_do t WHERE t.episode_id = e.id AND t.u_ok = -2)",
+            nativeQuery = true)
+    void deleteNewEpisodes();
+
 }
