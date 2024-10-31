@@ -43,10 +43,10 @@ public class SelfPlayGame {
         log.trace("uOkAnalyseGame");
         int tMax = game.getEpisodeDO().getLastTime();
         for (int tFrom = 0; tFrom <= tMax; tFrom++) {
-            if ( game.getEpisodeDO().getTimeStep(tFrom).isToBeAnalysed()) {
+           // if ( game.getEpisodeDO().getTimeStep(tFrom).isToBeAnalysed()) {
                 int uOk = analyseFromOneTime(game, tFrom, allTimesteps, unrollSteps);
                 updateUOk(game.getEpisodeDO(), tFrom, uOk);
-            }
+           // }
         }
     }
 
