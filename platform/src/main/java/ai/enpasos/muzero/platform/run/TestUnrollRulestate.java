@@ -52,12 +52,12 @@ public class TestUnrollRulestate {
 
 
         // one option is to test only the episodes that have relevant timesteps
-        // Set<Long> episodeIdsSet = relevantShortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet());
-        // List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
+         Set<Long> episodeIdsSet = relevantShortTimesteps.stream().map(ShortTimestep::getEpisodeId).collect(Collectors.toSet());
+         List<Long> episodeIds = new ArrayList<>(episodeIdsSet);
 
 
-        // we are now going to test all episodes
-        List<Long> episodeIds = gameBuffer.getEpisodeIds();
+        // another option would be to test all episodes
+       // List<Long> episodeIds = gameBuffer.getEpisodeIds();
 
         log.info("testing episodes {}, relevant timesteps {}, epoch {}, unrollSteps {}", episodeIds.size(), relevantShortTimesteps.size(), epoch, unrollSteps);
 
@@ -65,9 +65,9 @@ public class TestUnrollRulestate {
 
     }
 
-    private void test(boolean allTimeSteps, int unrollSteps, boolean newEpisodesOnly, boolean onlyEpisodesThatNeedTo) {
+    private void test(boolean allTimeStepsFlag, int unrollSteps, boolean newEpisodesOnly, boolean onlyEpisodesThatNeedTo) {
         int epoch = networkIOService.getLatestNetworkEpoch();
-        log.info("testUnrollRulestate.run(), epoch = {}, allTimeSteps = {}, newEpisodesOnly = {}, onlyEpisodesThatNeedTo = {} ", epoch, allTimeSteps, newEpisodesOnly, onlyEpisodesThatNeedTo);
+        log.info("testUnrollRulestate.run(), epoch = {}, allTimeStepsFlag = {}, newEpisodesOnly = {}, onlyEpisodesThatNeedTo = {} ", epoch, allTimeStepsFlag, newEpisodesOnly, onlyEpisodesThatNeedTo);
 
         List<Long> episodeIds;
         if (newEpisodesOnly) {
@@ -85,10 +85,10 @@ public class TestUnrollRulestate {
             log.info("episodeIds after filter = {}", episodeIds.size());
         }
 
-        testEpisodesWithRulesBuffer(unrollSteps, episodeIds, null, List.of(0), allTimeSteps);
+        testEpisodesWithRulesBuffer(unrollSteps, episodeIds, null, List.of(0), allTimeStepsFlag);
     }
 
-    private void testEpisodesWithRulesBuffer(int unrollSteps, List<Long> episodeIds, List<ShortTimestep> relevantShortTimesteps, List<Integer> relevantBoxes, boolean allTimeSteps) {
+    private void testEpisodesWithRulesBuffer(int unrollSteps, List<Long> episodeIds, List<ShortTimestep> relevantShortTimesteps, List<Integer> relevantBoxes, boolean allTimeStepsFlag) {
         RulesBuffer rulesBuffer = new RulesBuffer();
         rulesBuffer.setWindowSize(1000);
         rulesBuffer.setIds(episodeIds);
@@ -98,7 +98,7 @@ public class TestUnrollRulestate {
             List<Long> episodeIdsRulesLearningList = iterator.next();
             count += episodeIdsRulesLearningList.size();
             log.info("Processing episodes = {} of {}", count, rulesBuffer.getIds().size());
-            processEpisodes(episodeIdsRulesLearningList, unrollSteps, timeStepIds, relevantBoxes, allTimeSteps);
+            processEpisodes(episodeIdsRulesLearningList, unrollSteps, timeStepIds, relevantBoxes, allTimeStepsFlag);
         }
     }
 
@@ -106,7 +106,11 @@ public class TestUnrollRulestate {
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
-        playService.uOkAnalyseGames(games, allTimeStepsFlag, unrollSteps);
+        games.forEach(game -> game.getEpisodeDO().getTimeSteps().forEach(timeStepDO ->
+                timeStepDO.setToBeAnalysed(timeStepIds == null ? true : timeStepIds.contains(timeStepDO.getId()))
+        ));
+
+        playService.uOkAnalyseGames(games,   allTimeStepsFlag, unrollSteps);
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
