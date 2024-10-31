@@ -198,7 +198,7 @@ public class MuZeroLoop {
                     // we simply test everything
                     testUnrollRulestate.test();
                 } else {
-                    testUnrollRulestate.identifyRelevantTimestepsAndTestThem(epoch, unrollSteps);
+                    testUnrollRulestate.testAllButBoxPropagationOnlyForRelevantTimesteps(epoch, unrollSteps);
                 }
 
 
