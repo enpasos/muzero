@@ -102,31 +102,25 @@ public class TestUnrollRulestate {
         }
     }
 
-    private void processEpisodes(List<Long> episodeIdsRulesLearningList, int unrollSteps, Set<Long> timeStepIds, List<Integer> relevantBoxes, boolean allTimeSteps) {
+    private void processEpisodes(List<Long> episodeIdsRulesLearningList, int unrollSteps, Set<Long> timeStepIds, List<Integer> relevantBoxes, boolean allTimeStepsFlag) {
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(episodeIdsRulesLearningList);
         List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
 
-        if (timeStepIds != null) {
-            games.forEach(game -> game.getEpisodeDO().getTimeSteps().forEach(timeStepDO -> timeStepDO.setToBeAnalysed(timeStepIds.contains(timeStepDO.getId()))));
-        } else {
-            games.forEach(game -> game.getEpisodeDO().getTimeSteps().forEach(timeStepDO -> timeStepDO.setToBeAnalysed(true)));
-        }
-
-        List<TimeStepDO> relevantTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()
-                        .filter(timeStepDO -> timeStepIds == null || timeStepIds.contains(timeStepDO.getId())))
-                .collect(Collectors.toList());
-
-        playService.uOkAnalyseGames(games, allTimeSteps, unrollSteps);
+        playService.uOkAnalyseGames(games, allTimeStepsFlag, unrollSteps);
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);
 
+        List<TimeStepDO> allTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
+                .collect(Collectors.toList());
 
 
-        relevantTimeSteps.forEach(timeStepDO -> timeStepDO.setUOkTested(true));
+        episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream()
+                        .filter(timeStepDO -> timeStepIds == null || timeStepIds.contains(timeStepDO.getId())))
+                .forEach(timeStepDO -> timeStepDO.setUOkTested(true));
 
         // db update also in uOK and box
-        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(relevantTimeSteps, relevantBoxes, unrollSteps);
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(allTimeSteps, relevantBoxes, unrollSteps);
         gameBuffer.refreshCache(idsTsChanged, networkIOService.getLatestNetworkEpoch());
     }
 
@@ -134,10 +128,7 @@ public class TestUnrollRulestate {
         test(true, 1, false, false);
     }
 
-//    public void testEpisodesThatNeedTo() {
-//        test(true, 1, false, true);
-//        gameBuffer.initNeedsFullTest(false);
-//    }
+
 
     public void testNewEpisodes() {
         test(true, 1, true, false);
@@ -147,15 +138,5 @@ public class TestUnrollRulestate {
         test(false, unrollSteps, false, false);
     }
 
-//    private @NotNull List<Integer> getBoxesRelevant(int epoch) {
-//        List<Integer> boxesRelevant = Boxing.boxesRelevant(epoch);
-//        log.info("boxesRelevant (not with 0) = {}", boxesRelevant);
-//
-//        if (boxesRelevant.isEmpty()) {
-//            log.info("identifyRelevantTimestepsAndTestThem ... boxesRelevant.size() == 0 ... finished");
-//        } else {
-//            log.info("identifyRelevantTimestepsAndTestThem boxesRelevant = {}", boxesRelevant);
-//        }
-//        return boxesRelevant;
-//    }
+
 }

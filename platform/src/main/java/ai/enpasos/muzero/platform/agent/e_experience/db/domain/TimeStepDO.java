@@ -51,8 +51,8 @@ public class TimeStepDO {
     boolean sChanged;
 
 
-    @Transient
-    boolean toBeAnalysed;
+  //  @Transient
+  //  boolean toBeAnalysed;
 
 
     @Column(name = "boxes", columnDefinition = "integer[]")
