@@ -581,13 +581,13 @@ public class GameBuffer {
     public ShortTimestep[] getIdsRelevantForTraining(int n, int unrollSteps, int epoch   ) {
 
         List<ShortTimestep> timeStepsToTrain = getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(st ->
-               st.getBox(unrollSteps) == 0 || st.getBox(unrollSteps) == 1   || st.getBox(unrollSteps) == 2
+               st.getBox(unrollSteps) == 0 || st.getBox(unrollSteps) == 1
          ).collect(Collectors.toList());
 
 
 
         Collections.shuffle(timeStepsToTrain);
-   //     timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
+        timeStepsToTrain = timeStepsToTrain.stream().limit(n).collect(Collectors.toList());
         return timeStepsToTrain.toArray(new ShortTimestep[0]);
     }
 
