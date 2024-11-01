@@ -28,13 +28,6 @@ public class ShortEpisode {
     }
 
 
-    // the higher the score the more likely the episode will be deleted
-    public int getDeletionScore(int epoch) {
-        if (!this.ok) {
-            return  Integer.MIN_VALUE;
-        }
-        return epoch - okEpoch;
-    }
 
 
     private boolean needsFullTesting;
@@ -76,8 +69,5 @@ public class ShortEpisode {
     public boolean checkOkFromTimeSteps() {
         return shortTimesteps.stream().allMatch(ShortTimestep::isUOkClosed);
     }
-//
-//    public boolean hasLowHangingFruits(int unrollSteps) {
-//        return shortTimesteps.stream().anyMatch(shortTimestep -> shortTimestep.isLowHangingFruit(unrollSteps, this.getMaxT()));
-//    }
+
 }

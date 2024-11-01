@@ -136,7 +136,7 @@ public class MuZeroLoop {
 
 
                 testUnrollRulestate.testNewEpisodes();
-                gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
+                gameBuffer.checkEpisodesOkAndUpdateIfChanged(epoch);
                 long nEpisodesNotOK = episodeRepo.countEpisodesWithOkFalse();
                 log.info("nEpisodesNotOK: {}", nEpisodesNotOK);
                 if (nEpisodesNotOK > 0) {
@@ -191,7 +191,7 @@ public class MuZeroLoop {
         while (!gameBuffer.everthingKnown(epoch)  && trainingStep < config.getNumberOfTrainingSteps()) {
             if (loopCounter > 0) {
 
-                gameBuffer.checkEpisodesOkAndUpdateIfNot(epoch);
+                gameBuffer.checkEpisodesOkAndUpdateIfChanged(epoch);
 
                 // do the testing with Leithner's selection of samples
                 if (Boxing.isUsed(Boxing.MAX_BOX, epoch) || loopCounter == 1) {

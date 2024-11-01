@@ -141,4 +141,8 @@ public class DBService {
         return ids;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateOk(Long id, boolean okNow, int epoch) {
+        episodeRepo.updateOk(id, okNow, epoch);
+    }
 }

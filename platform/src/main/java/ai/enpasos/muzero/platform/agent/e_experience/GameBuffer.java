@@ -520,7 +520,7 @@ public class GameBuffer {
 
     }
 
-    public void checkEpisodesOkAndUpdateIfNot(int epoch) {
+    public void checkEpisodesOkAndUpdateIfChanged(int epoch) {
         getShortTimestepSetFromCacheFillCacheIfEmpty(epoch );
         episodeIdToShortEpisodes.values().forEach(shortEpisode -> {
             boolean okOld = shortEpisode.isOk();
@@ -528,7 +528,7 @@ public class GameBuffer {
             if (okOld != okNow) {
                 shortEpisode.setOkEpoch(epoch);
                 shortEpisode.setOk(okNow);
-                episodeRepo.updateOk(shortEpisode.getId(), okNow, epoch);
+                dbService.updateOk(shortEpisode.getId(), okNow, epoch);
             }
         });
     }
