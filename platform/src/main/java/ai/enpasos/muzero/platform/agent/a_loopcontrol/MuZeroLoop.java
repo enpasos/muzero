@@ -134,8 +134,9 @@ public class MuZeroLoop {
                 freeze = new boolean[]{true, false, false};
                 modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
-
+                gameBuffer.clearShortObjectsCache();
                 testUnrollRulestate.testNewEpisodes();
+
                 gameBuffer.checkEpisodesOkAndUpdateIfChanged(epoch);
                 long nEpisodesNotOK = episodeRepo.countEpisodesWithOkFalse();
                 log.info("nEpisodesNotOK: {}", nEpisodesNotOK);
