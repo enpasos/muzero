@@ -160,6 +160,16 @@ public class MyBCELoss extends Loss {
         }
         return entropy;
     }
+
+    public double maxNormedLoss(double[] label, double[] pred) {
+        double maxNormedLoss = 0d;
+        for(int i = 0; i < label.length; i++) {
+            double loss = lossPerItem(label[i], pred[i]);
+            double normedLoss = loss / threshold;
+            maxNormedLoss = Math.max(maxNormedLoss, normedLoss);
+        }
+        return maxNormedLoss;
+    }
     public boolean isOk(double[] label, double[] pred) {
         for(int i = 0; i < label.length; i++) {
             if (!isOk( label[i], pred[i])) {

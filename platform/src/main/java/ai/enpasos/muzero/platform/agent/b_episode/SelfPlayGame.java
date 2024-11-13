@@ -16,9 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Set;
-
 import static ai.enpasos.muzero.platform.common.Functions.*;
 
 @Component
@@ -45,23 +42,27 @@ public class SelfPlayGame {
         int tMax = game.getEpisodeDO().getLastTime();
         for (int tFrom = 0; tFrom <= tMax; tFrom++) {
             if ( game.getEpisodeDO().getTimeStep(tFrom).isToBeAnalysed()) {
-                int uOk = analyseFromOneTime(game, tFrom, allTimestepsFromAStartingOne, unrollSteps);
+                int uOk = analyseFromOneTime(game, tFrom, allTimestepsFromAStartingOne, unrollSteps).getUOk();
                 updateUOk(game.getEpisodeDO(), tFrom, uOk);
             }
         }
     }
 
     // unrollSteps only relevant if allTimesteps is false
-    private int analyseFromOneTime(Game game,   int tFrom, boolean allTimesteps, int unrollSteps) {
+    private AnalyseResultFromOneTime analyseFromOneTime(Game game,   int tFrom, boolean allTimesteps, int unrollSteps) {
         EpisodeDO episode = game.getEpisodeDO();
+        boolean onlyTestWhileOk = allTimesteps;
 
+        AnalyseResultFromOneTime result = new AnalyseResultFromOneTime();
+        int uOk = -1;
         int tMax =  episode.getLastTime();
         if (!allTimesteps) {
             tMax = Math.min(tMax, tFrom + unrollSteps);
         }
+        int n = tMax - tFrom + 1;
+        double normedSampleError = 0d;
         NDArray[] hiddenState = null;
         NetworkIO networkOutput;
-
 
         for (int t = tFrom; t <= tMax; t++) {
             game.setObservationInputTime(t);
@@ -72,14 +73,19 @@ public class SelfPlayGame {
                 closeHiddenState(hiddenState);
             }
             hiddenState = networkOutput.getHiddenState();
-            boolean currentIsOk = checkOkStatus(episode, networkOutput, t, t != tFrom);
-            if (!currentIsOk) {
+            normedSampleError = Math.max(normedSampleError, calculateNormedSampleError(episode, networkOutput, t, t != tFrom));
+
+            if (normedSampleError > 1d && onlyTestWhileOk) {
                 closeHiddenState(hiddenState);
-                return t-tFrom-1;
+                result.setUOk(t-tFrom-1);
+                result.setNormedSampleError(normedSampleError);
+                return result;
             }
         }
         closeHiddenState(hiddenState);
-        return  tMax-tFrom;
+        result.setUOk(tMax-tFrom);
+        result.setNormedSampleError(normedSampleError);
+        return result;
     }
 
     private void closeHiddenState(NDArray[] hiddenState) {
@@ -90,23 +96,31 @@ public class SelfPlayGame {
 
 
 
-    private boolean checkOkStatus(EpisodeDO episode, NetworkIO networkOutput, int t, boolean withReward) {
+    private double calculateNormedSampleError(EpisodeDO episode, NetworkIO networkOutput, int t, boolean withReward) {
         TimeStepDO timeStep = episode.getTimeStep(t);
+
+       // NormedSampleError normedSampleError = new NormedSampleError();
+      //  double normedSampleError  = 0d;
 
         float[] p = networkOutput.getPLegalValues();
         var pLabel = timeStep.getLegalact().getLegalActions();
         MyBCELoss myBCELoss = new MyBCELoss("MyBCELoss",1f / this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold());
-        boolean ok = myBCELoss.isOk(b2d(pLabel), f2d(p));
+
+        double normedSampleError  =   myBCELoss.maxNormedLoss(b2d(pLabel), f2d(p));
+        //boolean ok = myBCELoss.isOk(b2d(pLabel), f2d(p));
+
+
 
         if (withReward) {
             var rLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
             double r = networkOutput.getReward();
             MyL2Loss myL2Loss = new MyL2Loss("MyL2Loss", config.getValueLossWeight() , config.getRewardLossThreshold());
-            ok = ok && myL2Loss.isOk(rLabel, r);
+            normedSampleError = Math.max(normedSampleError, myL2Loss.maxNormedLoss(rLabel, r));
+           // ok = ok && myL2Loss.isOk(rLabel, r);
         }
 
-        log.trace("t: {}, ok: {}",   t, ok);
-        return ok;
+        log.trace("t: {}, ok: {}",   t, normedSampleError <= 1d);
+        return normedSampleError;
     }
 
 

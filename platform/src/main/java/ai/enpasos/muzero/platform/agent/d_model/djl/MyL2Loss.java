@@ -79,4 +79,11 @@ public class MyL2Loss extends Loss {
         loss = loss * loss * weight;
         return loss <= threshold;
     }
+
+    public double maxNormedLoss(double  label, double  pred) {
+        double loss = label - pred;
+        loss = loss * loss * weight;
+        double normedLoss = loss / threshold;
+        return normedLoss;
+    }
 }
