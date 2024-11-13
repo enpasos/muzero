@@ -75,15 +75,21 @@ public class SelfPlayGame {
             hiddenState = networkOutput.getHiddenState();
             normedSampleError = Math.max(normedSampleError, calculateNormedSampleError(episode, networkOutput, t, t != tFrom));
 
-            if (normedSampleError > 1d && onlyTestWhileOk) {
-                closeHiddenState(hiddenState);
-                result.setUOk(t-tFrom-1);
+            if (normedSampleError > 1d ) {
+                if (result.getUOk() == null) {
+                    result.setUOk(t - tFrom - 1);
+                }
                 result.setNormedSampleError(normedSampleError);
-                return result;
+                if (onlyTestWhileOk) {
+                    closeHiddenState(hiddenState);
+                    return result;
+                }
             }
         }
         closeHiddenState(hiddenState);
-        result.setUOk(tMax-tFrom);
+        if (result.getUOk() == null) {
+            result.setUOk(tMax - tFrom);
+        }
         result.setNormedSampleError(normedSampleError);
         return result;
     }

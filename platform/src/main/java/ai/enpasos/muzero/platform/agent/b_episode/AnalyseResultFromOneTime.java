@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class AnalyseResultFromOneTime {
-    int uOk;
+    Integer uOk;
     double normedSampleError;
 }
