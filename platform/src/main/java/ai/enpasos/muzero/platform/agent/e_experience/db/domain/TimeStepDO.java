@@ -47,7 +47,7 @@ public class TimeStepDO {
 
     boolean sClosed;
 
-    boolean ruleBuffer;
+    // boolean ruleBuffer;
 
     @Transient
     boolean sChanged;
