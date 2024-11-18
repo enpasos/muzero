@@ -56,6 +56,9 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
     private List<TimeStepDO> timeSteps;
 
 
+    boolean ruleBuffer;
+
+
     private double maxValueVariance;
     private int tOfMaxValueVariance;
     private int valueCount;

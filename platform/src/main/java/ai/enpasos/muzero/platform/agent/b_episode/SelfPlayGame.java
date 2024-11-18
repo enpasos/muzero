@@ -42,8 +42,15 @@ public class SelfPlayGame {
         int tMax = game.getEpisodeDO().getLastTime();
         for (int tFrom = 0; tFrom <= tMax; tFrom++) {
             if ( game.getEpisodeDO().getTimeStep(tFrom).isToBeAnalysed()) {
-                int uOk = analyseFromOneTime(game, tFrom, allTimestepsFromAStartingOne, unrollSteps).getUOk();
-                updateUOk(game.getEpisodeDO(), tFrom, uOk);
+                AnalyseResultFromOneTime r = analyseFromOneTime(game, tFrom, allTimestepsFromAStartingOne, unrollSteps);
+                int uOk = r.getUOk();
+               // updateUOk(game.getEpisodeDO(), tFrom, uOk);
+                TimeStepDO ts = game.getEpisodeDO().getTimeStep(tFrom);
+                if (ts.getUOk() != uOk) {
+                    ts.setUOk(uOk);
+                    ts.setUOkChanged(true);
+                }
+                ts.setNormedSampleError((float)r.getNormedSampleError());
             }
         }
     }
@@ -131,13 +138,13 @@ public class SelfPlayGame {
 
 
 
-    private void updateUOk(EpisodeDO episode, int t, int uOK) {
-        TimeStepDO ts = episode.getTimeStep(t);
-        if (ts.getUOk() != uOK) {
-            ts.setUOk(uOK);
-            ts.setUOkChanged(true);
-        }
-    }
+//    private void updateUOk(EpisodeDO episode, int t, int uOK) {
+//        TimeStepDO ts = episode.getTimeStep(t);
+//        if (ts.getUOk() != uOK) {
+//            ts.setUOk(uOK);
+//            ts.setUOkChanged(true);
+//        }
+//    }
 
 
 

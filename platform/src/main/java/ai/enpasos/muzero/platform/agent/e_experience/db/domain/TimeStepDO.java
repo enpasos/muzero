@@ -47,8 +47,13 @@ public class TimeStepDO {
 
     boolean sClosed;
 
+    boolean ruleBuffer;
+
     @Transient
     boolean sChanged;
+
+    @Transient
+    float normedSampleError;
 
 
     @Transient
