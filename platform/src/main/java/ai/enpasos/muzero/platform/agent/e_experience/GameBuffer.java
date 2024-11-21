@@ -254,7 +254,9 @@ public class GameBuffer {
         return gameList;
     }
     public List<Game> getGamesFromRulesBuffer() {
-        List<Game> games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
+        List<Game> games = this.rulesBuffer.getEpisodeMemory().getGameList().stream().filter(Game::isRulesTraining).collect(Collectors.toList());
+
+                //new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
         log.trace("Games from rules buffer: {}",  games.size() );
         return games;
     }

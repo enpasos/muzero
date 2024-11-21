@@ -41,8 +41,10 @@ import org.springframework.stereotype.Component;
 import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.config.TrainingDatasetType.PLANNING_BUFFER;
@@ -114,17 +116,31 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
-        gameBuffer.fillRuleBufferFromDB(1000);
+        gameBuffer.fillRuleBufferFromDB(10000);
      //   ruleBufferService.run();
         int unrollSteps = 5;   // just an example
       //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
-        List<Game> games = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
+        List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
+        Collections.shuffle(bufferGames);
 
-        playService.uOkAnalyseGames(games,  false, unrollSteps, true);
-        games.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormesSampleError));
+
+        List<Game> games = bufferGames.subList(0, 1000);
+        List<Game> nonTrainedGames = bufferGames.subList(1000, bufferGames.size());
+
+        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
+        games.forEach(g -> g.setRulesTraining(true));
+
+        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+        bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
         ruleTrain2(   unrollSteps  );
-        playService.uOkAnalyseGames(games,  false, unrollSteps, true);
+        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+
+        List<Game> needTrainingGames = nonTrainedGames.stream()
+                .filter(game -> game.getEpisodeDO().getTimeSteps().stream()
+                        .anyMatch(ts -> ts.getSampleErrorChange() > 0.0)).collect(Collectors.toList());
+
+
         int i = 42;
     }
 

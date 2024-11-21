@@ -75,6 +75,7 @@ public abstract class Game {
     private boolean debug;
     private boolean actionApplied;
     private boolean reanalyse;
+    private boolean rulesTraining;
 
 
     protected Game(@NotNull MuZeroConfig config) {

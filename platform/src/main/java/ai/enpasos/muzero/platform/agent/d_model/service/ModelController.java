@@ -361,7 +361,6 @@ public class ModelController implements DisposableBean, Runnable {
         }
 
         modelState.setEpoch(getEpochFromModel(model));
-
     }
 
 
