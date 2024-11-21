@@ -11,6 +11,7 @@ public class ControllerTask {
     private final ControllerTaskType taskType;
     private NetworkIO networkOutput;
     private volatile boolean done;
+    private boolean saveModel = true;
 
     boolean[] freeze = new boolean[3];
 
@@ -50,12 +51,21 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
         this.freeze = freeze;
     }
 
+
+    public void setSaveModel(boolean saveModel) {
+        this.saveModel = saveModel;
+    }
+
     public TrainingDatasetType getTrainingDatasetType() {
     return trainingDatasetType;
     }
 
     public void setTrainingDatasetType(TrainingDatasetType trainingDatasetType) {
     this.trainingDatasetType = trainingDatasetType;
+    }
+
+    public boolean isSaveModel() {
+        return saveModel;
     }
 
     public boolean isBackground() {

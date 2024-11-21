@@ -249,7 +249,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetworkRules(task.freeze, task.isBackground() ,  task.getNumUnrollSteps());
                     break;
                 case TRAIN_MODEL_RULES2:
-                    trainNetworkRules2b(task.freeze, task.isBackground() , task.getTrainingDatasetType(),  task.getNumUnrollSteps());
+                    trainNetworkRules2b(task.freeze, task.isBackground() , task.getTrainingDatasetType(),  task.getNumUnrollSteps(), task.isSaveModel());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -325,7 +325,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules2b(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps) {
+    private void trainNetworkRules2b(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps, boolean saveModel) {
         Model model = network.getModel();
 
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
@@ -337,7 +337,7 @@ public class ModelController implements DisposableBean, Runnable {
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
             boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
             epochLocal = getEpochFromModel(model);
-            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, true, background, config.isWithConsistencyLoss(), true, unrollSteps);
+            DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epochLocal, saveModel, background, config.isWithConsistencyLoss(), true, unrollSteps);
             int finalEpoch = epochLocal;
             djlConfig.getTrainingListeners().stream()
                     .filter(MyEpochTrainingListener.class::isInstance)
