@@ -51,7 +51,7 @@ public class PegSolitairValueExtractor {
 
         System.out.println(valueExtractor.listValuesForTrainedNetworks(actionIndexList));
 
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillPlanningBufferFromDB();
 
         List<Pair> pairs = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().stream().map(g -> new Pair(g.getEpisodeDO().getActions(), g.getReward()))
             .sorted(Comparator.comparing((Pair p) -> ((Float) p.getValue())).thenComparing(p -> p.getKey().toString()))

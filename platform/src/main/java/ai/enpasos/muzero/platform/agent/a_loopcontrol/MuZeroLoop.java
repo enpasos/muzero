@@ -22,6 +22,7 @@ import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
+import ai.enpasos.muzero.platform.agent.e_experience.RuleBufferService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
@@ -78,6 +79,9 @@ public class MuZeroLoop {
     @Autowired
     DBService dbService;
 
+    @Autowired
+    RuleBufferService ruleBufferService;
+
 
     @SuppressWarnings("java:S106")
     public void train(TrainParams params) throws InterruptedException, ExecutionException {
@@ -85,14 +89,16 @@ public class MuZeroLoop {
 
         boolean ok = false;
         while (!ok) {
-            trainRules();
+            trainRules2();
+
+          //  trainRules();
             ok = trainPolicyAndValue(params);
         }
 
         log.info("done");
     }
 
-    private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
+    private void trainRules2() throws InterruptedException, ExecutionException  {
         int epoch;
         int trainingStep;
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
@@ -103,17 +109,29 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillRuleBufferFromDB(1000);
+        ruleBufferService.run();
+    }
 
+    private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
+        int epoch;
+        int trainingStep;
+      //  boolean policyValueTraining = true;   // true: policy and value training, false: rules training
+        boolean  rulesTraining = false;
+        List<DurAndMem> durations = new ArrayList<>();
 
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
+        epoch = modelState.getEpoch();
+        trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
+        gameBuffer.fillPlanningBufferFromDB();
 
         while (trainingStep < config.getNumberOfTrainingSteps()) {
 
             DurAndMem duration = new DurAndMem();
             duration.on();
 
-            if (policyValueTraining) {
+        //    if (policyValueTraining) {
                 if (epoch != 0) {
                     PlayTypeKey originalPlayTypeKey = config.getPlayTypeKey();
                     for (PlayTypeKey key : config.getPlayTypeKeysForTraining()) {
@@ -126,12 +144,12 @@ public class MuZeroLoop {
                 log.info("game counter: " + gameBuffer.getPlanningBuffer().getCounter());
                 log.info("window size: " + gameBuffer.getPlanningBuffer().getWindowSize());
                 log.info("gameBuffer size: " + this.gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().size());
-            }
+      //      }
 
-            boolean[] freeze = null;
+      //      boolean[] freeze = null;
 
-            if (policyValueTraining) {
-                freeze = new boolean[]{true, false, false};
+     //       if (policyValueTraining) {
+            boolean[]   freeze = new boolean[]{true, false, false};
                 modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
                 gameBuffer.clearShortObjectsCache();
@@ -143,7 +161,7 @@ public class MuZeroLoop {
                 if (nEpisodesNotOK > 0) {
                     return false;
                 }
-            }
+      //      }
 
             epoch = modelState.getEpoch();
             trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();

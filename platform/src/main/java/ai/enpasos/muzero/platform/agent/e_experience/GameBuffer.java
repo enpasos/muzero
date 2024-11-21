@@ -63,6 +63,7 @@ public class GameBuffer {
     private int batchSize;
     private GameBufferDTO planningBuffer;
     private GameBufferDTO reanalyseBuffer;
+    private GameBufferDTO rulesBuffer;
     @Autowired
     private MuZeroConfig config;
 
@@ -153,6 +154,9 @@ public class GameBuffer {
     public GameBufferDTO getPlanningBuffer() {
             return this.planningBuffer;
     }
+    public GameBufferDTO getRulesBuffer() {
+        return this.rulesBuffer;
+    }
 
     public int getAverageGameLength() {
         return   getPlanningBuffer().getEpisodeMemory().getAverageGameLength() ;
@@ -171,7 +175,7 @@ public class GameBuffer {
     public void init() {
         this.batchSize = config.getBatchSize();
         this.planningBuffer = new GameBufferDTO(config);
-     //   this.rulesBuffer = new GameBufferDTO(config);
+        this.rulesBuffer = new GameBufferDTO(config);
         this.reanalyseBuffer = new GameBufferDTO(config);
     }
 
@@ -266,7 +270,7 @@ public class GameBuffer {
 
 
 
-    public void loadLatestStateIfExists() {
+    public void fillPlanningBufferFromDB() {
         init();
         DurAndMem duration = new DurAndMem();
         duration.on();
@@ -278,7 +282,20 @@ public class GameBuffer {
         episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
         episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getPlanningBuffer()::setCounter);
         this.getPlanningBuffer().rebuildGames(config );
+    }
 
+    public void fillRuleBufferFromDB(int n) {
+        init();
+        DurAndMem duration = new DurAndMem();
+        duration.on();
+        List<EpisodeDO> episodeDOList = this.dbService.findTopNByOrderByIdDescAndConvertToGameDTOList(n);
+
+        duration.off();
+        log.debug("duration loading buffer from db: " + duration.getDur());
+        this.getRulesBuffer().setInitialEpisodeDOList(episodeDOList);
+        episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
+        episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getRulesBuffer()::setCounter);
+        this.getRulesBuffer().rebuildGames(config );
     }
 
 

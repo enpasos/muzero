@@ -55,7 +55,7 @@ public class GameProvider {
 
     @NotNull
     public Optional<Game> getGame() {
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillPlanningBufferFromDB();
         List<Game> gameList = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList();
         return Optional.of( gameList.get( gameList.size() - 1));
 
@@ -63,7 +63,7 @@ public class GameProvider {
 
     @NotNull
     public Optional<Game> getGame(int no) {
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillPlanningBufferFromDB();
         return Optional.of(gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList().get(no));
     }
 
@@ -73,7 +73,7 @@ public class GameProvider {
     }
 
     public Optional<Game> getGameStartingWithActions(List<Integer> actionsList) {
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillPlanningBufferFromDB();
         List<Game> games = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList();
         return games.stream().filter(game ->
             // check if game.getEpisodeDO() starts with actionsList

@@ -84,7 +84,7 @@ public class ValueExtractor {
     public List<Integer> getActionList() {
 
 
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillPlanningBufferFromDB();
         List<Game> gameList = gameBuffer.getPlanningBuffer().getEpisodeMemory().getGameList();
         Game game =  gameList.get( gameList.size() - 1);
         List<Integer> actions = game.getEpisodeDO().getActions();
