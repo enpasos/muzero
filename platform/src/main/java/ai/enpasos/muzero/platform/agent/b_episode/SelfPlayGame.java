@@ -72,8 +72,9 @@ public class SelfPlayGame {
         NetworkIO networkOutput;
 
         for (int t = tFrom; t <= tMax; t++) {
-            game.setObservationInputTime(t);
+
             if (t == tFrom) {
+                game.setObservationInputTime(t);
                 networkOutput = modelService.initialInference(game).join();
             } else {
                 networkOutput = modelService.recurrentInference(hiddenState, episode.getAction(t-1)).join();
