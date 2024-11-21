@@ -330,6 +330,8 @@ public class ModelController implements DisposableBean, Runnable {
 
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
         muZeroBlock.setRulesModel(true);
+        muZeroBlock.setNumUnrollSteps(unrollSteps);
+
         try (NDScope nDScope = new NDScope()) {
             int epochLocal;
             int numberOfTrainingStepsPerEpoch = config.getNumberOfTrainingStepsPerEpoch();
