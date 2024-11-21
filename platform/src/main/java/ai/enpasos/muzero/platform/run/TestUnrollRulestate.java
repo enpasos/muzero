@@ -65,6 +65,15 @@ public class TestUnrollRulestate {
 
     }
 
+    public void testForEpisodeId(int epoch, int unrollSteps, long id) {
+
+        List<Long> episodeIds = List.of(id);
+
+        List<ShortTimestep> shortTimesteps = gameBuffer.episodeIdToShortEpisodes.get(id).getShortTimesteps();
+        testEpisodesWithRulesBuffer(unrollSteps, episodeIds, shortTimesteps, Boxing.boxesRelevant(epoch), true);
+
+    }
+
     private void test(boolean allTimeStepsFlag, int unrollSteps, boolean newEpisodesOnly, boolean onlyEpisodesThatNeedTo) {
         int epoch = networkIOService.getLatestNetworkEpoch();
         log.info("testUnrollRulestate.run(), epoch = {}, allTimeStepsFlag = {}, newEpisodesOnly = {}, onlyEpisodesThatNeedTo = {} ", epoch, allTimeStepsFlag, newEpisodesOnly, onlyEpisodesThatNeedTo);

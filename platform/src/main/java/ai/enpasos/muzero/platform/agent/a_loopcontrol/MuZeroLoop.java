@@ -116,7 +116,7 @@ public class MuZeroLoop {
         gameBuffer.fillRuleBufferFromDB(1000);
         ruleBufferService.run();
         int unrollSteps = 5;   // just an example
-        testUnrollRulestate.testAllButBoxPropagationOnlyForRelevantTimesteps(epoch, unrollSteps);  // just for testing
+        testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
         List<Game> games = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
 
         playService.uOkAnalyseGames(games,  false, unrollSteps, true);

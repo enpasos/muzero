@@ -426,7 +426,7 @@ public class GameBuffer {
 
     private Set<ShortTimestep> shortTimesteps;
     private Map<Long, Integer> episodeIdToMaxTime;
-    private Map<Long, ShortEpisode> episodeIdToShortEpisodes;
+    public Map<Long, ShortEpisode> episodeIdToShortEpisodes;
 
     public void refreshCache(List<Long> idsTsChanged, int epoch) {
         Set<ShortTimestep>  shortTimesteps = getShortTimestepSetFromCacheFillCacheIfEmpty(epoch);
