@@ -50,7 +50,7 @@ int unrollSteps = 3;
 
         MyCompositeLoss myCompositeLoss = (MyCompositeLoss) djlConfig.getLossFunction();
 
-        NDArray result = myCompositeLoss.evaluateWhatToTrain(labels, predictions, bOK, from, new Statistics());
+        NDArray result = myCompositeLoss.evaluateWhatToTrain(labels, predictions);
 
         int i = 42;
 

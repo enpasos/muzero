@@ -349,7 +349,7 @@ public class ModelController implements DisposableBean, Runnable {
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
                         log.debug("trainBatch " + m);
-                        MyEasyTrain.trainBatch(trainer, batch);
+                        MyEasyTrainRules.trainBatch(trainer, batch);
                         trainer.step();
                     }
                 }
@@ -363,117 +363,7 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-//    private void trainNetworkRules2(boolean[] freeze, boolean background, int unrollSteps) {
-//
-//        boolean withSymmetryEnrichment = config.isWithSymmetryEnrichment();
-//
-//        Model model = network.getModel();
-//        MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
-//        muZeroBlock.setRulesModel(true);
-//        int epoch = getEpochFromModel(model);
-//
-//        int sampleNumber = config.getNumberOfTrainingSamplesPerRuleTrainingEpoch();
-//
-//        log.info("trainNetworkRules ... ");
-//    //    ShortTimestep[] tsList = gameBuffer.getIdsRelevantForTraining(sampleNumber, unrollSteps, epoch);
-//
-//     //   log.info("identified sample timesteps: {}", tsList.length);
-//
-//      //  List<ShortTimestep> tsListUnroll = new ArrayList<>(Arrays.asList(tsList));
-//
-//        boolean saveHere = true;
-//   //     List<Long> allRelevantTimestepIds =  tsListUnroll.stream().map(ShortTimestep::getId).toList();
-//
-//        int epochBefore = epoch;
-//
-// //       List<Long> allRelatedEpisodeIds = episodeIdsFromIdProjections(tsListUnroll);
-//
-//    //    log.info("allRelevantTimestepIds size: {}, allRelatedEpisodeIds size: {}, saveHere: {}", allRelevantTimestepIds.size(), allRelatedEpisodeIds.size(), saveHere);
-//
-//        // start real code
-//        // first the buffer loop
-//        RulesBuffer rulesBuffer = new RulesBuffer();
-//        rulesBuffer.setWindowSize(1000);
-//        rulesBuffer.setIds(allRelatedEpisodeIds);
-//        log.info("relatedEpisodeIds size: {}", rulesBuffer.getIds().size());
-//        int w = 0;
-//
-//        for (RulesBuffer.IdWindowIterator iterator = rulesBuffer.new IdWindowIterator(); iterator.hasNext(); ) {
-//            List<Long> relatedEpisodeIds = iterator.next();
-//            Set<Long> relatedEpisodeIdsSet = new HashSet<>(relatedEpisodeIds);
-//            log.info("timestep before relatedTimeStepIds filtering");
-//            Set<Long> relatedTimeStepIds =  tsListUnroll.stream()
-//                    .filter(idProjection -> relatedEpisodeIdsSet.contains(idProjection.getEpisodeId()))
-//                    .map(ShortTimestep::getId).collect(Collectors.toSet());
-//            log.info("timestep after relatedTimeStepIds filtering");
-//
-//
-//            boolean save = saveHere & !iterator.hasNext();
-//            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epoch, unrollSteps, w, save);
-//            List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
-//            List<Game> games= convertEpisodeDOsToGames(episodeDOList, config);
-//            Collections.shuffle(games);
-//
-//
-//            List<TimeStepDO> allTimeSteps = allRelevantTimeStepsShuffled3(games, relatedTimeStepIds);
-//
-//
-//            log.info("epoch: {}, unrollSteps: {},  allTimeSteps.size(): {}", epoch, unrollSteps, allTimeSteps.size());
-//
-//
-//            muZeroBlock.setNumUnrollSteps(unrollSteps);
-//
-//            Shape[] inputShapes = batchFactory.getInputShapesForRules(unrollSteps);
-//
-//
-//            try (NDScope nDScope = new NDScope()) {
-//
-//
-//                DefaultTrainingConfig djlConfig = trainingConfigFactory.setupTrainingConfig(epoch, save, background, config.isWithConsistencyLoss(), true, unrollSteps);
-//                int finalEpoch = epoch;
-//                djlConfig.getTrainingListeners().stream()
-//                        .filter(MyEpochTrainingListener.class::isInstance)
-//                        .forEach(trainingListener -> ((MyEpochTrainingListener) trainingListener).setNumEpochs(finalEpoch));
-//
-//                try (Trainer trainer = model.newTrainer(djlConfig)) {
-//                    trainer.setMetrics(new Metrics());
-//                    trainer.initialize(inputShapes);
-//                    ((DCLAware) model.getBlock()).freezeParameters(freeze);
-//
-//
-//                    for (int ts = 0; ts < allTimeSteps.size(); ts += config.getBatchSize()) {
-//                        List<TimeStepDO> batchTimeSteps = allTimeSteps.subList(ts, Math.min(ts + config.getBatchSize(), allTimeSteps.size()));
-//
-//
-//                        try (Batch batch = batchFactory.getRulesBatchFromBuffer(batchTimeSteps, trainer.getManager(), withSymmetryEnrichment, unrollSteps)) {
-//                            Statistics stats = new Statistics();
-//                            List<EpisodeDO> episodes = batchTimeSteps.stream().map(ts_ -> ts_.getEpisode()).toList();  // TODO simplify
-//
-//                            int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
-//
-//                            boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodes);
-//                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
-//
-//                            log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epoch, unrollSteps, w, save);
-//                            trainer.step();
-//                        }
-//                    }
-//                    if (!background) {
-//                        handleMetrics(trainer, model, epoch);
-//                    }
-//                    trainer.notifyListeners(listener -> listener.onEpoch(trainer));
-//                }
-//                epoch = getEpochFromModel(model);
-//                modelState.setEpoch(epoch);
-//            }
-//            w++;
-//        }
-//        if (epochBefore == epoch) {
-//            epoch++;
-//            model.setProperty("Epoch", String.valueOf(epoch));
-//            modelState.setEpoch(epoch);
-//        }
-//    }
+
 
     private void trainNetworkRules(boolean[] freeze, boolean background, int unrollSteps) {
 
@@ -572,18 +462,8 @@ public class ModelController implements DisposableBean, Runnable {
                             int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
 
                             boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodes);
-                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
+                            MyEasyTrainRules.trainBatch(trainer, batch );
 
-
-//                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
-//                            batchTimeSteps.stream().forEach(timeStepDO -> {
-//                                timeStepDO.setUOkTested(false);
-//                            });
-
-
-                          //  List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, List.of(0));
-
-                          //  gameBuffer.refreshCache(idsTsChanged);
                              log.info("epoch: {}, unrollSteps: {}, w: {}, save: {}", epoch, unrollSteps, w, save);
                             trainer.step();
                         }

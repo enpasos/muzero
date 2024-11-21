@@ -54,7 +54,7 @@ public final class MyEasyTrainRules {
 
                 // During trainBatch, we update the loss and evaluators with the results for the
                 // training batch
-                trainBatch(trainer, batch, null, null, new Statistics());
+                trainBatch(trainer, batch );
 
                 // Now, we update the model parameters based on the results of the latest trainBatch
                 trainer.step();
@@ -82,7 +82,7 @@ public final class MyEasyTrainRules {
      * @param batch   a {@link Batch} that contains data, and its respective labels
      * @throws IllegalArgumentException if the batch engine does not match the trainer engine
      */
-    public static void trainBatch(Trainer trainer, Batch batch, boolean[][][] bOK, int[] from, Statistics statistics ) {
+    public static void trainBatch(Trainer trainer, Batch batch ) {
 
         // TODO from splitting or better simplify
 
@@ -110,7 +110,7 @@ public final class MyEasyTrainRules {
                 for (Batch split : splits) {
                     futures.add(
                             CompletableFuture.supplyAsync(
-                                    () -> trainSplit(trainer, collector, batchData, split, bOK, from, statistics),
+                                    () -> trainSplit(trainer, collector, batchData, split ),
                                     executor));
                 }
 
@@ -129,7 +129,7 @@ public final class MyEasyTrainRules {
             } else {
                 // sequence
                 for (Batch split : splits) {
-                     trainSplit(trainer, collector, batchData, split, bOK,  from, statistics);
+                     trainSplit(trainer, collector, batchData, split);
                  //   loss +=  r0.getValue();
                   //  listBoolean.addAll(r0.getKey());
                 }
@@ -142,7 +142,7 @@ public final class MyEasyTrainRules {
     }
 
     private static boolean trainSplit(
-            Trainer trainer, GradientCollector collector, TrainingListener.BatchData batchData, Batch split, boolean[][][] bOK, int[] from, Statistics statistics) {
+            Trainer trainer, GradientCollector collector, TrainingListener.BatchData batchData, Batch split) {
         NDList data = split.getData();
 
         NDList labels = split.getLabels();
@@ -157,7 +157,7 @@ public final class MyEasyTrainRules {
         MyCompositeLoss loss = (MyCompositeLoss) trainer.getLoss();
 
 
-        NDArray lossValue = loss.evaluateWhatToTrain(labels, preds, bOK, from, statistics);
+        NDArray lossValue = loss.evaluateWhatToTrain(labels, preds );
        // NDArray lossValue = r.getKey();
       //  NDArray okMasks = r.getValue();
       //  int i = 42;
