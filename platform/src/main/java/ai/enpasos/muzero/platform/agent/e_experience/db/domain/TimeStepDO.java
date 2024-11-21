@@ -56,6 +56,15 @@ public class TimeStepDO {
     float normedSampleError;
 
 
+    public void memorizeNormesSampleError() {
+        this.normedSampleErrorBefore = normedSampleError;
+    }
+
+
+    @Transient
+    float normedSampleErrorBefore;
+
+
     @Transient
    boolean toBeAnalysed;
 

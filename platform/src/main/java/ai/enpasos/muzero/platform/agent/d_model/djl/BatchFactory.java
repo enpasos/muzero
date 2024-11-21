@@ -116,9 +116,9 @@ public class BatchFactory {
             case PLANNING_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromPlanningBuffer(numUnrollSteps);
                 break;
-//            case RULES_BUFFER:
-//                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
-//                break;
+            case RULES_BUFFER:
+                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps);
+                break;
             case REANALYSE_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(numUnrollSteps);
                 break;

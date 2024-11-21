@@ -224,6 +224,20 @@ public class ModelService {
         return handleControllerTask(task);
     }
 
+    @Async()
+    public CompletableFuture<Void> trainModelRules2(boolean[] freeze, int unrollSteps   ) {
+        ControllerTask task = new ControllerTask(ControllerTaskType.TRAIN_MODEL_RULES2);
+        TrainingDatasetType trainingDatasetType = TrainingDatasetType.RULES_BUFFER;
+        boolean background = false;
+        task.setFreeze(freeze);
+        task.setBackground(background);
+        task.setTrainingDatasetType(trainingDatasetType);
+
+        task.setNumUnrollSteps(unrollSteps);
+        // task.setLowHangingFruits( hasLowHangingFruits);
+        return handleControllerTask(task);
+    }
+
 
     public void startScope() {
         ControllerTask task = new ControllerTask(ControllerTaskType.START_SCOPE);

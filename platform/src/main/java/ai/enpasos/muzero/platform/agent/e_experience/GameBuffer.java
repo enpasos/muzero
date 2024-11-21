@@ -189,13 +189,13 @@ public class GameBuffer {
                 .collect(Collectors.toList());
         }
     }
-//    public List<Sample> sampleBatchFromRulesBuffer(int s) {
-//        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-//            return  getGamesToLearnRules().stream()
-//                    .map(game -> sampleFromGame(numUnrollSteps, game))
-//                    .collect(Collectors.toList());
-//        }
-//    }
+    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
+            return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
+                    .map(game -> sampleFromGame(numUnrollSteps, game))
+                    .collect(Collectors.toList());
+        }
+    }
 
 
  //Set<Long> episodeIdsRewardLearning;
@@ -253,7 +253,11 @@ public class GameBuffer {
         }
         return gameList;
     }
-
+    public List<Game> getGamesFromRulesBuffer() {
+        List<Game> games = new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
+        log.trace("Games from rules buffer: {}",  games.size() );
+        return games;
+    }
 
     public List<Game> getGamesFromPlanningBuffer() {
         List<Game> games = new ArrayList<>(this.planningBuffer.getEpisodeMemory().getGameList());

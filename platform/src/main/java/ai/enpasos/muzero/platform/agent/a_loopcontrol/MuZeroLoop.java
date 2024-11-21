@@ -26,6 +26,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.RuleBufferService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
@@ -114,11 +115,15 @@ public class MuZeroLoop {
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
         gameBuffer.fillRuleBufferFromDB(1000);
-        ruleBufferService.run();
+     //   ruleBufferService.run();
         int unrollSteps = 5;   // just an example
-        testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
+      //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
         List<Game> games = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
 
+        playService.uOkAnalyseGames(games,  false, unrollSteps, true);
+        games.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormesSampleError));
+
+        ruleTrain2(   unrollSteps  );
         playService.uOkAnalyseGames(games,  false, unrollSteps, true);
         int i = 42;
     }
@@ -281,6 +286,21 @@ public class MuZeroLoop {
         durations.add(duration);
         System.out.println("epoch;duration[ms];gpuMem[MiB]");
         IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+        return epoch;
+    }
+
+    private int ruleTrain2(  int unrollSteps  ) throws InterruptedException, ExecutionException {
+        int epoch;
+        //DurAndMem duration = new DurAndMem();
+     //   duration.on();
+        boolean[] freeze = new boolean[]{false, true, true};
+        modelService.trainModelRules2(freeze , unrollSteps  ).get();
+
+        epoch = modelState.getEpoch();
+       // duration.off();
+      //  durations.add(duration);
+     //   System.out.println("epoch;duration[ms];gpuMem[MiB]");
+      //  IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
         return epoch;
     }
 
