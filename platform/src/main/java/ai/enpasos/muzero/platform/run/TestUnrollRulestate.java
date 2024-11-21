@@ -110,7 +110,7 @@ public class TestUnrollRulestate {
                 timeStepDO.setToBeAnalysed(timeStepIds == null ? true : timeStepIds.contains(timeStepDO.getId()))
         ));
 
-        playService.uOkAnalyseGames(games,  allTimeStepsFlag, unrollSteps);
+        playService.uOkAnalyseGames(games,  allTimeStepsFlag, unrollSteps, false);
 
         boolean[][][] bOK = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodeDOList);
         ZipperFunctions.sandu_in_Episodes_From_b_OK(bOK, episodeDOList);

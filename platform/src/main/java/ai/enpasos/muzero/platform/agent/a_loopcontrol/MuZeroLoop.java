@@ -18,9 +18,11 @@
 package ai.enpasos.muzero.platform.agent.a_loopcontrol;
 
 
+import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
 import ai.enpasos.muzero.platform.agent.b_episode.Play;
 import ai.enpasos.muzero.platform.agent.d_model.ModelState;
 import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
+import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.RuleBufferService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
@@ -72,6 +74,8 @@ public class MuZeroLoop {
     TimestepRepo timestepRepo;
 
 
+    @Autowired
+    PlayService playService;
 
     @Autowired
     TestUnrollRulestate testUnrollRulestate;
@@ -111,6 +115,11 @@ public class MuZeroLoop {
 
         gameBuffer.fillRuleBufferFromDB(1000);
         ruleBufferService.run();
+        int unrollSteps = 1;
+        List<Game> games = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
+
+        playService.uOkAnalyseGames(games,  false, unrollSteps, true);
+        int i = 42;
     }
 
     private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
