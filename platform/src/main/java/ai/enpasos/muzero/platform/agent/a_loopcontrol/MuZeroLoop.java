@@ -123,25 +123,51 @@ public class MuZeroLoop {
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
         Collections.shuffle(bufferGames);
 
+        int dn = 100;
 
-        List<Game> games = bufferGames.subList(0, 1000);
-        List<Game> nonTrainedGames = bufferGames.subList(1000, bufferGames.size());
+        List<Game> gamesToTrain = bufferGames.subList(0, dn);
+        List<Game> nonTrainedGames = bufferGames.subList(dn, bufferGames.size());
 
         nonTrainedGames.forEach(g -> g.setRulesTraining(false));
-        games.forEach(g -> g.setRulesTraining(true));
+        gamesToTrain.forEach(g -> g.setRulesTraining(true));
+
+        for (int i = 0; i < 10; i++) {
+            groupingForRulesTraining(bufferGames, unrollSteps, dn);
+        }
+
+        gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
+        nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
+        int i = 42;
+    }
+
+    private void groupingForRulesTraining(List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
+
+        List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
+        List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
-        ruleTrain2(   unrollSteps  );
+        ruleTrain2(unrollSteps);
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
-        List<Game> needTrainingGames = nonTrainedGames.stream()
-                .filter(game -> game.getEpisodeDO().getTimeSteps().stream()
-                        .anyMatch(ts -> ts.getSampleErrorChange() > 0.0)).collect(Collectors.toList());
+        // set maxSampleErrorChange from all time steps
+        nonTrainedGames.forEach(g -> {
+            double maxSampleErrorChange = g.getEpisodeDO().getTimeSteps().stream().mapToDouble(TimeStepDO::getSampleErrorChange).max().orElse(0.0);
+            g.setMaxSampleErrorChange(maxSampleErrorChange);
+        });
 
 
-        int i = 42;
+        // sort nonTrainedGames by sampleErrorChange
+        nonTrainedGames.sort((g1, g2) -> {
+            return Double.compare(g1.getMaxSampleErrorChange(), g2.getMaxSampleErrorChange());
+        });
+
+        // select the 100 gamesToTrain with the highest sampleErrorChange and add them to gamesToTrain
+        gamesToTrain.addAll(nonTrainedGames.subList(0, dn));
+
+        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
+        gamesToTrain.forEach(g -> g.setRulesTraining(true));
     }
 
     private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {

@@ -77,6 +77,8 @@ public abstract class Game {
     private boolean reanalyse;
     private boolean rulesTraining;
 
+    private double maxSampleErrorChange;
+
 
     protected Game(@NotNull MuZeroConfig config) {
         this.config = config;
