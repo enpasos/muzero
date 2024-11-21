@@ -131,16 +131,17 @@ public class MuZeroLoop {
         nonTrainedGames.forEach(g -> g.setRulesTraining(false));
         gamesToTrain.forEach(g -> g.setRulesTraining(true));
 
-        for (int i = 0; i < 10; i++) {
-            groupingForRulesTraining(bufferGames, unrollSteps, dn);
-        }
+        int nToDo = -1;
+        do {
+            nToDo = groupingForRulesTraining(bufferGames, unrollSteps, dn);
+        } while (nToDo > 0);
 
         gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
         int i = 42;
     }
 
-    private void groupingForRulesTraining(List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
+    private int groupingForRulesTraining(List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
@@ -157,17 +158,24 @@ public class MuZeroLoop {
             g.setMaxSampleErrorChange(maxSampleErrorChange);
         });
 
+        // get nonTrainedGames with maxSampleErrorChange > 0
+        List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0).collect(Collectors.toList());
+        Collections.shuffle(criticalNonTrainedGames);
+        log.info("criticalNonTrainedGames: {}", criticalNonTrainedGames.size());
+        criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
 
-        // sort nonTrainedGames by sampleErrorChange
-        nonTrainedGames.sort((g1, g2) -> {
-            return Double.compare(g1.getMaxSampleErrorChange(), g2.getMaxSampleErrorChange());
-        });
+        return criticalNonTrainedGames.size();
 
-        // select the 100 gamesToTrain with the highest sampleErrorChange and add them to gamesToTrain
-        gamesToTrain.addAll(nonTrainedGames.subList(0, dn));
-
-        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
-        gamesToTrain.forEach(g -> g.setRulesTraining(true));
+//        // sort nonTrainedGames by sampleErrorChange
+//        nonTrainedGames.sort((g1, g2) -> {
+//            return Double.compare(g1.getMaxSampleErrorChange(), g2.getMaxSampleErrorChange());
+//        });
+//
+//        // select the 100 gamesToTrain with the highest sampleErrorChange and add them to gamesToTrain
+//        gamesToTrain.addAll(nonTrainedGames.subList(0, dn));
+//
+//        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
+//        gamesToTrain.forEach(g -> g.setRulesTraining(true));
     }
 
     private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
