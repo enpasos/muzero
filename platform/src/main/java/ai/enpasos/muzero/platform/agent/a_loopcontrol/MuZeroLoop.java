@@ -103,7 +103,7 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
-        gameBuffer.loadLatestStateIfExists();
+        gameBuffer.fillPlanningBufferFromDB();
 
 
 

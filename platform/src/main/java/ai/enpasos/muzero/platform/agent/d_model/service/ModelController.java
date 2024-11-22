@@ -426,14 +426,7 @@ public class ModelController implements DisposableBean, Runnable {
                             int[] from = batchTimeSteps.stream().mapToInt(ts_ -> ts_.getT()).toArray();
 
                             boolean[][][] b_OK_batch = ZipperFunctions.b_OK_From_UOk_in_Episodes(episodes);
-                            MyEasyTrainRules.trainBatch(trainer, batch, b_OK_batch, from, stats);
-
-
-//                            ZipperFunctions.sandu_in_Timesteps_From_b_OK(b_OK_batch, episodes, batchTimeSteps);
-//                            batchTimeSteps.stream().forEach(timeStepDO -> {
-//                                timeStepDO.setUOkTested(false);
-//                            });
-
+                            MyEasyTrainRules.trainBatch(trainer, batch );
 
                           //  List<Long> idsTsChanged =    dbService.updateTimesteps_SandUOkandBox(batchTimeSteps, List.of(0));
 

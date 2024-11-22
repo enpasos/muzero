@@ -72,15 +72,8 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
 
 
 
-    public NDArray  evaluateWhatToTrain(NDList labels, NDList predictions, boolean[][][] bOK, int[] from, Statistics statistics) {
-        int symmetryEnhancementFactor = (int)labels.get(0).getShape().get(0)/bOK.length;  // TODO
-
-
-
-//        SomeSerialization.saveNDList(labels, "labels.dat");
-//        SomeSerialization.saveNDList(predictions, "predictions.dat");
-//        SomeSerialization.saveBooleanArray(bOK, "bOK.dat");
-//        SomeSerialization.saveIntArray(from, "from.dat");
+    public NDArray  evaluateWhatToTrain(NDList labels, NDList predictions) {
+      //  int symmetryEnhancementFactor = (int)labels.get(0).getShape().get(0)/bOK.length;  // TODO
 
 
         NDArray[] lossComponents = new NDArray[components.size()];
@@ -94,17 +87,11 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
             NDList innerPredictions = ((MyIndexLoss)components.get(i)).getPredictions(predictions);
             if (loss.getName().contains("legal_actions")) {
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartA(innerLabels, innerPredictions);
-//                NDArray  mask = lossComponents[i].stopGradient().lte(this.legalActionLossMaxThreshold);
-//                NDArray intArray = mask.toType(DataType.INT32, false);
-//                 mask = intArray.min(new int[]{1}, true);
-//                legalActionMasks.add(mask.toType(DataType.BOOLEAN, false));
-//                iMap[i]  =  legalActionMasks.size() - 1;
+
                 lossComponents[i] = lossComponents[i].sum(new int[]{1}, true);  // this is done again in evaluatePartB (could be optimized)
             } else if (loss.getName().contains("reward")) {
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartA(innerLabels, innerPredictions);
-//                NDArray  mask = lossComponents[i].stopGradient().lte(this.rewardLossThreshold);
-//                rewardMasks.add(mask);
-//                iMap[i]  =  rewardMasks.size() - 1;
+
             }
             else {
                 lossComponents[i] = loss.evaluate(innerLabels, innerPredictions);
@@ -112,63 +99,13 @@ public class MyCompositeLoss extends AbstractCompositeLoss {
         }
 
 
-//         for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-//
-//                 NDArray okMask = ( rewardMasks.size() >= tau && tau > 0) ?
-//                            legalActionMasks.get(tau).logicalAnd(rewardMasks.get(tau - 1))
-//                         :
-//                            legalActionMasks.get(tau);
-//
-//
-//             // update BOK
-//            boolean[] okUpdateInfo = okMask.toBooleanArray();
-//            for (int j = 0; j < bOK.length; j++) {
-//                int n = bOK[j].length;
-//                int tFrom =  from[j] ;
-//                int tTo = tFrom + tau;
-//                if (tTo >= n) continue;
-//                bOK[j][tFrom][tTo] = okUpdateInfo[j];   // not taking the symmetry into account here, a voting mechanism could be implemented
-//            }
-//         }
-//       float[][][] trainingNeeded = ZipperFunctions.trainingNeededFloat(bOK, 1f, true);
-//
-//        List<NDArray> masks = new ArrayList<>();
-//        NDManager ndManager = legalActionMasks.get(0).getManager();
-//        for (int tau = 0; tau < legalActionMasks.size(); tau++) {
-//            float[] trainingNeeded_ = new float[bOK.length * symmetryEnhancementFactor];
-//            for (int j = 0; j < trainingNeeded.length; j++) {
-//                int n = bOK[j].length;
-//                int tFrom =  from[j]  ;
-//                int tTo = tFrom + tau;
-//                if (tTo >= n) continue;
-//                for (int s = 0; s < symmetryEnhancementFactor; s++) {
-//                    trainingNeeded_[s * trainingNeeded.length + j] = trainingNeeded[j][tFrom][tTo];
-//                }
-//            }
-//            NDArray floatMask = ndManager.create(trainingNeeded_);
-//            masks.add(floatMask);
-//
-//        }
-
         // now the actual masking should happen according to the trainingNeeded
         for (int i = 0; i < components.size(); i++) {
             Loss loss = ((MyIndexLoss) components.get(i)).getLoss();
             if (loss.getName().contains("legal_actions")) {
-           //     NDArray intMask = masks.get(iMap[i]) ;
-            //    int c = (int)intMask.sum().toFloatArray()[0];  // TODO check
-
-           //     statistics.setCount(statistics.getCount() + c);
-          //      lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyBCELoss) loss).evaluatePartB(lossComponents[i]);
-            //    float v = lossComponents[i].toFloatArray()[0];
-            //    statistics.setSumLossLegalActions(statistics.getSumLossLegalActions() + v);
             } else if (loss.getName().contains("reward")) {
-             //   NDArray intMask = masks.get(iMap[i]) ;
-             //   lossComponents[i] = lossComponents[i].mul(intMask);
                 lossComponents[i] = ((MyL2Loss) loss).evaluatePartB(lossComponents[i]);
-
-              //  float v = lossComponents[i].sum().toFloatArray()[0];
-             //   statistics.setSumLossReward(statistics.getSumLossReward() + v);
             }
         }
 

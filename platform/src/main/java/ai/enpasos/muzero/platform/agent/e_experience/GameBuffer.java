@@ -266,7 +266,7 @@ public class GameBuffer {
 
 
 
-    public void loadLatestStateIfExists() {
+    public void fillPlanningBufferFromDB() {
         init();
         DurAndMem duration = new DurAndMem();
         duration.on();
