@@ -112,7 +112,7 @@ public class MuZeroLoop {
         boolean  rulesTraining = false;
         List<DurAndMem> durations = new ArrayList<>();
 
-        modelService.loadLatestModelOrCreateIfNotExisting().get();
+
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
@@ -145,6 +145,8 @@ public class MuZeroLoop {
 
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
+
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
 
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
