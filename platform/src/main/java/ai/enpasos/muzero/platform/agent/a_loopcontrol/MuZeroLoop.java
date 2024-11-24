@@ -163,7 +163,7 @@ public class MuZeroLoop {
         // get nonTrainedGames with maxSampleErrorChange > 0
         List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0).collect(Collectors.toList());
         Collections.shuffle(criticalNonTrainedGames);
-        log.info("criticalNonTrainedGames: {}", criticalNonTrainedGames.size());
+        log.info("gamesToTrain: {}, criticalNonTrainedGames: {}", gamesToTrain.size(), criticalNonTrainedGames.size());
         criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
 
         return criticalNonTrainedGames.size();
