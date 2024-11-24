@@ -487,8 +487,6 @@ public class ModelController implements DisposableBean, Runnable {
     }
 
 
-
-
     private List<Long> episodeIdsFromIdProjections(   List<ShortTimestep> allIdProjections) {
         Set<Long> ids =   allIdProjections.stream().mapToLong(p -> p.getEpisodeId())
                 .boxed().collect(Collectors.toSet());
