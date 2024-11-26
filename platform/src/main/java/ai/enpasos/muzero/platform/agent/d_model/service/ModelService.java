@@ -230,12 +230,11 @@ public class ModelService {
         TrainingDatasetType trainingDatasetType = TrainingDatasetType.RULES_BUFFER;
         boolean background = false;
         task.setFreeze(freeze);
-        task.setSaveModel(true);
+        task.setSaveModel(false);
         task.setBackground(background);
         task.setTrainingDatasetType(trainingDatasetType);
 
         task.setNumUnrollSteps(unrollSteps);
-        // task.setLowHangingFruits( hasLowHangingFruits);
         return handleControllerTask(task);
     }
 

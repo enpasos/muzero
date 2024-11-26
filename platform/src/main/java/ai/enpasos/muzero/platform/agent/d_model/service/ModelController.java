@@ -349,7 +349,7 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, unrollSteps, config.getBatchSize(), trainingDatasetType)) {
                         log.debug("trainBatch " + m);
                         MyEasyTrainRules.trainBatch(trainer, batch);
                         trainer.step();

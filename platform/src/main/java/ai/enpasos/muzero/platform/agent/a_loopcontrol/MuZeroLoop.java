@@ -123,7 +123,7 @@ public class MuZeroLoop {
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
         Collections.shuffle(bufferGames);
 
-        int dn = 100;
+        int dn = 1000;
 
         List<Game> gamesToTrain = bufferGames.subList(0, dn);
         List<Game> nonTrainedGames = bufferGames.subList(dn, bufferGames.size());
@@ -133,7 +133,7 @@ public class MuZeroLoop {
 
         int nToDo = -1;
         do {
-            nToDo = groupingForRulesTraining(bufferGames, unrollSteps, dn);
+            nToDo = groupingForRulesTraining(durations, bufferGames, unrollSteps, dn);
         } while (nToDo > 0);
 
         gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
@@ -141,7 +141,7 @@ public class MuZeroLoop {
         int i = 42;
     }
 
-    private int groupingForRulesTraining(List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
+    private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
@@ -151,7 +151,7 @@ public class MuZeroLoop {
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
-        ruleTrain2(unrollSteps);
+        ruleTrain2(durations, unrollSteps);
         //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
         // set maxSampleErrorChange from all time steps
@@ -342,19 +342,19 @@ public class MuZeroLoop {
         return epoch;
     }
 
-    private int ruleTrain2(  int unrollSteps  ) throws InterruptedException, ExecutionException {
+    private int ruleTrain2( List<DurAndMem> durations, int unrollSteps  ) throws InterruptedException, ExecutionException {
         int epoch;
-        //DurAndMem duration = new DurAndMem();
-     //   duration.on();
+        DurAndMem duration = new DurAndMem();
+        duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
         modelService.loadLatestModel().get();
         modelService.trainModelRules2(freeze , unrollSteps  ).get();
 
         epoch = modelState.getEpoch();
-       // duration.off();
-      //  durations.add(duration);
-     //   System.out.println("epoch;duration[ms];gpuMem[MiB]");
-      //  IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+        duration.off();
+        durations.add(duration);
+        System.out.println("epoch;duration[ms];gpuMem[MiB]");
+        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
         return epoch;
     }
 
