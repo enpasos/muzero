@@ -151,7 +151,7 @@ public class MuZeroLoop {
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
-        ruleTrain2(durations, unrollSteps);
+        //ruleTrain2(durations, unrollSteps);
         //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
         // set maxSampleErrorChange from all time steps
@@ -349,7 +349,6 @@ public class MuZeroLoop {
         boolean[] freeze = new boolean[]{false, true, true};
         modelService.loadLatestModel().get();
         modelService.trainModelRules2(freeze , unrollSteps  ).get();
-
         epoch = modelState.getEpoch();
         duration.off();
         durations.add(duration);
