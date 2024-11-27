@@ -111,7 +111,7 @@ public class MuZeroLoop {
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
         boolean  rulesTraining = false;
         List<DurAndMem> durations = new ArrayList<>();
-
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
 
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
@@ -143,10 +143,12 @@ public class MuZeroLoop {
 
     private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 
+
+
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
-        modelService.loadLatestModelOrCreateIfNotExisting().get();
+        // modelService.loadLatestModelOrCreateIfNotExisting().get();
 
         DurAndMem duration = new DurAndMem();
         duration.on();
