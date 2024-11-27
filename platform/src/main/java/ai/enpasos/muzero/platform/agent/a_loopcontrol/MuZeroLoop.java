@@ -360,7 +360,7 @@ public class MuZeroLoop {
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
-        modelService.loadLatestModel().get();
+        // modelService.loadLatestModel().get();
         modelService.trainModelRules2(freeze , unrollSteps  ).get();
         epoch = modelState.getEpoch();
         duration.off();
