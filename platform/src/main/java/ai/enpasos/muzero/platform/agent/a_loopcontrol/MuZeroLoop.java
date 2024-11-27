@@ -106,6 +106,7 @@ public class MuZeroLoop {
     }
 
     private void trainRules2() throws InterruptedException, ExecutionException  {
+        log.debug("trainRules2");
         int epoch;
         int trainingStep;
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
@@ -117,6 +118,7 @@ public class MuZeroLoop {
 //        trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
         gameBuffer.fillRuleBufferFromDB(10000);
+        log.debug("trainRules2 ... gameBuffer filled");
      //   ruleBufferService.run();
         int unrollSteps = 5;   // just an example
       //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
@@ -143,16 +145,18 @@ public class MuZeroLoop {
 
     public int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 
+        log.debug("groupingForRulesTraining");
         modelService.startScope();
 
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
+        log.debug("groupingForRulesTraining ... loadLatestModelOrCreateIfNotExisting");
         modelService.loadLatestModelOrCreateIfNotExisting().get();
 
         DurAndMem duration = new DurAndMem();
         duration.on();
-
+        log.debug("groupingForRulesTraining ... uOkAnalyseGames");
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
         duration.off();
@@ -163,7 +167,7 @@ public class MuZeroLoop {
 
 
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
-
+        log.debug("groupingForRulesTraining ... ruleTrain2");
         ruleTrain2(durations, unrollSteps);
         //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
