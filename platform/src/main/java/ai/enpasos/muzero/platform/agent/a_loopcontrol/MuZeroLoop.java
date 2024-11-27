@@ -199,8 +199,8 @@ public class MuZeroLoop {
         log.info("gamesToTrain: {}, criticalNonTrainedGames: {}", gamesToTrain.size(), criticalNonTrainedGames.size());
         criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
 
-       // return criticalNonTrainedGames.size();
-        return 10;
+        return criticalNonTrainedGames.size();
+   //     return 10;
 
 //        // sort nonTrainedGames by sampleErrorChange
 //        nonTrainedGames.sort((g1, g2) -> {
