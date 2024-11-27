@@ -146,7 +146,7 @@ public class MuZeroLoop {
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
- //       modelService.loadLatestModelOrCreateIfNotExisting().get();
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
 
         DurAndMem duration = new DurAndMem();
         duration.on();
