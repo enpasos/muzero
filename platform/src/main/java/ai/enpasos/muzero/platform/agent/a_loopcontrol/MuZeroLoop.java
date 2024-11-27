@@ -148,10 +148,21 @@ public class MuZeroLoop {
 
  //       modelService.loadLatestModelOrCreateIfNotExisting().get();
 
+        DurAndMem duration = new DurAndMem();
+        duration.on();
+
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+
+        duration.off();
+        durations.add(duration);
+        System.out.println("epoch;duration[ms];gpuMem[MiB]");
+        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
+
+
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
-        //ruleTrain2(durations, unrollSteps);
+        // ruleTrain2(durations, unrollSteps);
         //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
         // set maxSampleErrorChange from all time steps

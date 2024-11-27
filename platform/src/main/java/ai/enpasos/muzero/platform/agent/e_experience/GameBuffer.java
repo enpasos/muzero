@@ -299,8 +299,8 @@ public class GameBuffer {
         duration.off();
         log.debug("duration loading buffer from db: " + duration.getDur());
         this.getRulesBuffer().setInitialEpisodeDOList(episodeDOList);
-        episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
-        episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getRulesBuffer()::setCounter);
+       // episodeDOList.stream().mapToInt(EpisodeDO::getTrainingEpoch).max().ifPresent(this.modelState::setEpoch);
+       // episodeDOList.stream().mapToLong(EpisodeDO::getCount).max().ifPresent(this.getRulesBuffer()::setCounter);
         this.getRulesBuffer().rebuildGames(config );
     }
 
