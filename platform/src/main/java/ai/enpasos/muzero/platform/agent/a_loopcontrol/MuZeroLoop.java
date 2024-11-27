@@ -111,10 +111,10 @@ public class MuZeroLoop {
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
         boolean  rulesTraining = false;
         List<DurAndMem> durations = new ArrayList<>();
-        modelService.loadLatestModelOrCreateIfNotExisting().get();
-
-        epoch = modelState.getEpoch();
-        trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
+//        modelService.loadLatestModelOrCreateIfNotExisting().get();
+//
+//        epoch = modelState.getEpoch();
+//        trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
         gameBuffer.fillRuleBufferFromDB(10000);
      //   ruleBufferService.run();
@@ -141,9 +141,9 @@ public class MuZeroLoop {
         int i = 42;
     }
 
-    private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
+    public int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 
-
+        modelService.startScope();
 
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
@@ -179,6 +179,7 @@ public class MuZeroLoop {
         log.info("gamesToTrain: {}, criticalNonTrainedGames: {}", gamesToTrain.size(), criticalNonTrainedGames.size());
         criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
 
+        modelService.endScope();
        // return criticalNonTrainedGames.size();
         return 10;
 
