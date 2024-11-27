@@ -161,9 +161,8 @@ public class MuZeroLoop {
 
         DurAndMem duration = new DurAndMem();
         duration.on();
-log.debug("uOkAnalyseGames ... ");
+        log.debug("uOkAnalyseGames ... ");
         playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
-
         duration.off();
         durations.add(duration);
         System.out.println("epoch;duration[ms];gpuMem[MiB]");
@@ -176,8 +175,17 @@ log.debug("uOkAnalyseGames ... ");
         log.debug("ruleTrain2 ... ");
         ruleTrain2(durations, unrollSteps);
 
-        //log.debug("uOkAnalyseGames ... ");
-        //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+
+
+        duration = new DurAndMem();
+        duration.on();
+        log.debug("uOkAnalyseGames ... ");
+        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+        duration.off();
+        durations.add(duration);
+        System.out.println("epoch;duration[ms];gpuMem[MiB]");
+        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
+
 
         // set maxSampleErrorChange from all time steps
         nonTrainedGames.forEach(g -> {
