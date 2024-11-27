@@ -176,8 +176,8 @@ log.debug("uOkAnalyseGames ... ");
         log.debug("ruleTrain2 ... ");
         ruleTrain2(durations, unrollSteps);
 
-        log.debug("ruleTrain ... ");
-        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+        //log.debug("uOkAnalyseGames ... ");
+        //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
         // set maxSampleErrorChange from all time steps
         nonTrainedGames.forEach(g -> {
