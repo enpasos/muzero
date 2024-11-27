@@ -116,6 +116,12 @@ public class MuZeroLoop {
         epoch = modelState.getEpoch();
         trainingStep = epoch * config.getNumberOfTrainingStepsPerEpoch();
 
+        if (episodeRepo.count() < config.getInitialRandomEpisodes()) {
+            play.randomEpisodes(config.getInitialRandomEpisodes() - (int) episodeRepo.count());
+        }
+
+        gameBuffer.clearShortObjectsCache();
+
         gameBuffer.fillRuleBufferFromDB(10000);
      //   ruleBufferService.run();
         int unrollSteps = 5;   // just an example
