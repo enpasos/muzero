@@ -148,7 +148,7 @@ public class MuZeroLoop {
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
-        // modelService.loadLatestModelOrCreateIfNotExisting().get();
+        modelService.loadLatestModelOrCreateIfNotExisting().get();
 
         DurAndMem duration = new DurAndMem();
         duration.on();
@@ -165,7 +165,7 @@ public class MuZeroLoop {
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
         ruleTrain2(durations, unrollSteps);
-        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+        //playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
 
         // set maxSampleErrorChange from all time steps
         nonTrainedGames.forEach(g -> {
