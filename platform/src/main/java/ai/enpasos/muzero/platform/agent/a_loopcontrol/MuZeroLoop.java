@@ -173,10 +173,10 @@ public class MuZeroLoop {
             g.setMaxSampleErrorChange(maxSampleErrorChange);
         });
 
-        List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0).collect(Collectors.toList());
+        List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0.001d).collect(Collectors.toList());
         // sort nonTrainedGames by maxSampleErrorChange
         criticalNonTrainedGames.sort((g1, g2) -> {
-            return -Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
+            return Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
         });
         if (!criticalNonTrainedGames.isEmpty()) {
             criticalNonTrainedGames.getFirst().setRulesTraining(true);
