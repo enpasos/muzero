@@ -181,7 +181,7 @@ public class MuZeroLoop {
         if (!criticalNonTrainedGames.isEmpty()) {
             criticalNonTrainedGames.getFirst().setRulesTraining(true);
             gamesToTrain.add(criticalNonTrainedGames.getFirst());
-            log.debug("sample error change: {}", criticalNonTrainedGames.getFirst().getMaxSampleErrorChange());
+            log.info("sample error change: {}", criticalNonTrainedGames.getFirst().getMaxSampleErrorChange());
         }
 
         // get nonTrainedGames with maxSampleErrorChange > 0
