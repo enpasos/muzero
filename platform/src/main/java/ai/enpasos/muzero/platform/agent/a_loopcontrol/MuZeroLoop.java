@@ -150,7 +150,6 @@ public class MuZeroLoop {
     private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 
 
-
         List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
@@ -177,13 +176,12 @@ public class MuZeroLoop {
         List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0).collect(Collectors.toList());
         // sort nonTrainedGames by maxSampleErrorChange
         criticalNonTrainedGames.sort((g1, g2) -> {
-            return - Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
+            return -Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
         });
         if (!criticalNonTrainedGames.isEmpty()) {
-            return 0;
+            criticalNonTrainedGames.getFirst().setRulesTraining(true);
+            gamesToTrain.add(criticalNonTrainedGames.getFirst());
         }
-        criticalNonTrainedGames.getFirst().setRulesTraining(true);
-        gamesToTrain.add(criticalNonTrainedGames.getFirst());
 
         // get nonTrainedGames with maxSampleErrorChange > 0
 //
