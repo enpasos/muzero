@@ -1,8 +1,8 @@
 [versions]
 lombok = "1.18.36"
-djl = "0.31.0"
+djl = "0.30.0"
 pytorch = "2.4.0"
-pytorch-jni = "2.4.0-0.31.0"
+pytorch-jni = "2.4.0-0.30.0"
 slf4j = "2.0.16"
 springboot = "3.4.0"
 protobuf = "4.28.3"
