@@ -279,4 +279,9 @@ public class EpisodeDO { //} implements Iterable<TimeStepDO> {
 //        sortTimeSteps();
 //        return timeSteps.iterator();
 //    }
+
+
+    public String toString() {
+        return "EpisodeDO(id=" + this.getId() + ", networkName=" + this.getNetworkName()  + ", actions: " + this.getActions() + ")";
+    }
 }

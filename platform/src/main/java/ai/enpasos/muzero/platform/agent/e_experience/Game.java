@@ -513,4 +513,9 @@ public abstract class Game {
         addLegalActionFromEnvironment();
         setActionApplied(true);
     }
+
+
+    public String toString() {
+        return this.getEpisodeDO().toString();
+    }
 }
