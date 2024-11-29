@@ -159,33 +159,14 @@ public class MuZeroLoop {
         modelService.loadLatestModel().get();
 
 
-        DurAndMem duration = new DurAndMem();
-        duration.on();
-        log.debug("uOkAnalyseGames ... ");
-        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
-        duration.off();
-        durations.add(duration);
-        System.out.println("epoch;duration[ms];gpuMem[MiB]");
-        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
-
+        uOkAnalyseGames(durations, bufferGames, unrollSteps);
 
         bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
 
         log.debug("ruleTrain2 ... ");
         ruleTrain2(durations, unrollSteps);
 
-
-
-        duration = new DurAndMem();
-        duration.on();
-        log.debug("uOkAnalyseGames ... ");
-        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
-        duration.off();
-        durations.add(duration);
-        System.out.println("epoch;duration[ms];gpuMem[MiB]");
-        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
-
+        uOkAnalyseGames(durations, bufferGames, unrollSteps);
 
         // set maxSampleErrorChange from all time steps
         nonTrainedGames.forEach(g -> {
@@ -193,11 +174,22 @@ public class MuZeroLoop {
             g.setMaxSampleErrorChange(maxSampleErrorChange);
         });
 
-        // get nonTrainedGames with maxSampleErrorChange > 0
         List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0).collect(Collectors.toList());
-        Collections.shuffle(criticalNonTrainedGames);
+        // sort nonTrainedGames by maxSampleErrorChange
+        criticalNonTrainedGames.sort((g1, g2) -> {
+            return - Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
+        });
+        if (!criticalNonTrainedGames.isEmpty()) {
+            return 0;
+        }
+        criticalNonTrainedGames.getFirst().setRulesTraining(true);
+        gamesToTrain.add(criticalNonTrainedGames.getFirst());
+
+        // get nonTrainedGames with maxSampleErrorChange > 0
+//
+//        Collections.shuffle(criticalNonTrainedGames);
         log.info("gamesToTrain: {}, criticalNonTrainedGames: {}", gamesToTrain.size(), criticalNonTrainedGames.size());
-        criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
+//        criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
 
         return criticalNonTrainedGames.size();
    //     return 10;
@@ -212,6 +204,17 @@ public class MuZeroLoop {
 //
 //        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
 //        gamesToTrain.forEach(g -> g.setRulesTraining(true));
+    }
+
+    private void uOkAnalyseGames(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps) {
+        DurAndMem duration = new DurAndMem();
+        duration.on();
+        log.debug("uOkAnalyseGames ... ");
+        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+        duration.off();
+        durations.add(duration);
+        System.out.println("epoch;duration[ms];gpuMem[MiB]");
+        IntStream.range(0, durations.size()).forEach(k -> System.out.println(k + ";" + durations.get(k).getDur() + ";" + durations.get(k).getMem() / 1024 / 1024));
     }
 
     private boolean trainPolicyAndValue(TrainParams params) throws InterruptedException, ExecutionException {
