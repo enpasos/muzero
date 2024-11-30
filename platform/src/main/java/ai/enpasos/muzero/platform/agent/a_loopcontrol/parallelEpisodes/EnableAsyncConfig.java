@@ -25,7 +25,4 @@ public class EnableAsyncConfig {
         return executor;
     }
 
-
-
-
 }

@@ -209,7 +209,14 @@ public class MuZeroLoop {
         DurAndMem duration = new DurAndMem();
         duration.on();
         log.debug("uOkAnalyseGames ... ");
-        playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
+        // batch bufferGames to 1000 batches
+        List<List<Game>> batches = new ArrayList<>();
+        int batchSize = 1000;
+        for (int i = 0; i < bufferGames.size(); i += batchSize) {
+            batches.add(bufferGames.subList(i, Math.min(i + batchSize, bufferGames.size())));
+        }
+        batches.forEach(batch -> playService.uOkAnalyseGames(batch,  false, unrollSteps, true));
+      //  playService.uOkAnalyseGames(bufferGames,  false, unrollSteps, true);
         duration.off();
         durations.add(duration);
         System.out.println("epoch;duration[ms];gpuMem[MiB]");
@@ -253,17 +260,17 @@ public class MuZeroLoop {
 
      //       if (policyValueTraining) {
             boolean[]   freeze = new boolean[]{true, false, false};
-                modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
+            modelService.trainModel(freeze, PLANNING_BUFFER, false).get();
 
-                gameBuffer.clearShortObjectsCache();
-                testUnrollRulestate.testNewEpisodes();
+            gameBuffer.clearShortObjectsCache();
+            testUnrollRulestate.testNewEpisodes();
 
-                gameBuffer.checkEpisodesOkAndUpdateIfChanged(epoch);
-                long nEpisodesNotOK = episodeRepo.countEpisodesWithOkFalse();
-                log.info("nEpisodesNotOK: {}", nEpisodesNotOK);
-                if (nEpisodesNotOK > 0) {
-                    return false;
-                }
+            gameBuffer.checkEpisodesOkAndUpdateIfChanged(epoch);
+            long nEpisodesNotOK = episodeRepo.countEpisodesWithOkFalse();
+            log.info("nEpisodesNotOK: {}", nEpisodesNotOK);
+            if (nEpisodesNotOK > 0) {
+                return false;
+            }
       //      }
 
             epoch = modelState.getEpoch();
@@ -358,9 +365,6 @@ public class MuZeroLoop {
     private int getNOpen(int epoch) {
         return gameBuffer.numEpisodes(epoch) - gameBuffer.numClosedEpisodes(epoch);
     }
-
-
-
 
     private int ruleTrain(  List<DurAndMem> durations, int unrollSteps  ) throws InterruptedException, ExecutionException {
         int epoch;
