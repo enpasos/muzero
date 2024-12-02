@@ -118,7 +118,7 @@ public class SelfPlayGame {
 
         float[] p = networkOutput.getPLegalValues();
         var pLabel = timeStep.getLegalact().getLegalActions();
-        MyBCELoss myBCELoss = new MyBCELoss("MyBCELoss",1f / this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold());
+        MyBCELoss myBCELoss = new MyBCELoss("MyBCELoss",1f / this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold(), 1);
 
         double normedSampleError  =   myBCELoss.maxNormedLoss(b2d(pLabel), f2d(p));
         //boolean ok = myBCELoss.isOk(b2d(pLabel), f2d(p));
@@ -128,7 +128,7 @@ public class SelfPlayGame {
         if (withReward) {
             var rLabel = t > 0 ? episode.getTimeStep(t - 1).getReward() : 0;
             double r = networkOutput.getReward();
-            MyL2Loss myL2Loss = new MyL2Loss("MyL2Loss", config.getValueLossWeight() , config.getRewardLossThreshold());
+            MyL2Loss myL2Loss = new MyL2Loss("MyL2Loss", config.getValueLossWeight() , config.getRewardLossThreshold(), 1);
             normedSampleError = Math.max(normedSampleError, myL2Loss.maxNormedLoss(rLabel, r));
            // ok = ok && myL2Loss.isOk(rLabel, r);
         }

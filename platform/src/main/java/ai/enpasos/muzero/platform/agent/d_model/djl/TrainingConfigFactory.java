@@ -39,11 +39,13 @@ public class TrainingConfigFactory {
  //       float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
         float gradientScale =   1f / numUnrollSteps;
 
+        int dropFactorAtThreshold = 10000;
+
         int k = 0;
 
         //  legal actions
         log.trace("k={}: LegalActions BCELoss", k);
-        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold()), k));
+        loss.addLoss(new MyIndexLoss(new MyBCELoss(LEGAL_ACTIONS_LOSS_VALUE + 0, 1f/this.config.getActionSpaceSize(), 1, config.getLegalActionLossMaxThreshold(), dropFactorAtThreshold), k));
         k++;
 
         if (!isRulesModel) {
@@ -54,7 +56,7 @@ public class TrainingConfigFactory {
 
             // value
             log.trace("k={}: Value L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight(),0.0), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + 0, config.getValueLossWeight(),0.0, 1), k));
             k++;
         }
 
@@ -72,13 +74,13 @@ public class TrainingConfigFactory {
             // legal actions
             log.trace("k={}: LegalActions BCELoss", k);
             loss.addLoss(new MyIndexLoss(new MyBCELoss(
-                    LEGAL_ACTIONS_LOSS_VALUE + i, 1f / this.config.getActionSpaceSize() * gradientScale, 1, config.getLegalActionLossMaxThreshold()
+                    LEGAL_ACTIONS_LOSS_VALUE + i, 1f / this.config.getActionSpaceSize() * gradientScale, 1, config.getLegalActionLossMaxThreshold(), dropFactorAtThreshold
             ), k));
             k++;
 
             // reward
             log.trace("k={}: Reward L2Loss", k);
-            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale , config.getRewardLossThreshold()), k));
+            loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_REWARD + i, config.getValueLossWeight() * gradientScale , config.getRewardLossThreshold(), dropFactorAtThreshold), k));
             k++;
 
             if (!isRulesModel) {
@@ -89,7 +91,7 @@ public class TrainingConfigFactory {
 
                 // value
                 log.trace("k={}: Value L2Loss", k);
-                loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale, 0.0), k));
+                loss.addLoss(new MyIndexLoss(new MyL2Loss(LOSS_VALUE + i, config.getValueLossWeight() * gradientScale, 0.0, 1), k));
                 k++;
             }
 

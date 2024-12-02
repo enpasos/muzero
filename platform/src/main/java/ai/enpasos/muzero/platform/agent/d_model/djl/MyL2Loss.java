@@ -28,6 +28,7 @@ public class MyL2Loss extends Loss {
 
     private final float weight;
     private final double threshold;
+    private final int dropFactorAtThreshold;
 
     /**
      * Calculate L2Loss between the label and prediction, a.k.a. MSE(Mean Square Error).
@@ -42,7 +43,7 @@ public class MyL2Loss extends Loss {
      * @param name the name of the loss
      */
     public MyL2Loss(String name) {
-        this(name, 1.f / 2, 0.01);
+        this(name, 1.f / 2, 0.01, 1);
     }
 
     /**
@@ -51,10 +52,11 @@ public class MyL2Loss extends Loss {
      * @param name   the name of the loss
      * @param weight the weight to apply on loss value, default 1/2
      */
-    public MyL2Loss(String name, float weight, double threshold) {
+    public MyL2Loss(String name, float weight, double threshold, int dropFactorAtThreshold ) {
         super(name);
         this.weight = weight;
         this.threshold = threshold;
+        this.dropFactorAtThreshold = dropFactorAtThreshold;
     }
 
     /**
@@ -68,7 +70,21 @@ public class MyL2Loss extends Loss {
         NDArray pred = prediction.singletonOrThrow();
         NDArray labelReshaped = label.singletonOrThrow().reshape(pred.getShape());
         NDArray mask = labelReshaped.neq(NULL_VALUE);
-        return mask.mul(labelReshaped.sub(pred).square().mul(weight));
+        NDArray loss = mask.mul(labelReshaped.sub(pred).square());
+
+
+        if (this.dropFactorAtThreshold != 1) {
+            // Create a mask for values below the threshold
+            NDArray mask2 = loss.lt(this.threshold);
+
+            // Calculate the adjusted values (original / f)
+            NDArray adjustedValues = loss.div(this.dropFactorAtThreshold);
+
+            // Apply the adjustment where the mask is true
+            loss = mask2.mul(adjustedValues).add(mask2.logicalNot().mul(loss));
+        }
+
+        return loss.mul(weight);
     }
     public NDArray evaluatePartB(NDArray preSumLoss) {
         return preSumLoss.mean();
@@ -76,13 +92,13 @@ public class MyL2Loss extends Loss {
 
     public boolean isOk(double label, double pred) {
         double loss = label - pred;
-        loss = loss * loss * weight;
+     //   loss = loss * loss * weight;
         return loss <= threshold;
     }
 
     public double maxNormedLoss(double  label, double  pred) {
         double loss = label - pred;
-        loss = loss * loss * weight;
+     //   loss = loss * loss * weight;
         double normedLoss = loss / threshold;
         return normedLoss;
     }

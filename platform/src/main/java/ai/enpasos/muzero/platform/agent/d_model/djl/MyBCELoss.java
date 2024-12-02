@@ -36,6 +36,7 @@ public class MyBCELoss extends Loss {
     private final float weight;
     private final int classAxis;
     final double threshold;
+    private final int dropFactorAtThreshold;
 
 
     /**
@@ -51,7 +52,7 @@ public class MyBCELoss extends Loss {
      * @param name the name of the loss
      */
     public MyBCELoss(String name) {
-        this(name, 1, -1, 0.03 );
+        this(name, 1, -1, 0.03, 10000 );
     }
 
     /**
@@ -62,11 +63,12 @@ public class MyBCELoss extends Loss {
      * @param classAxis   the axis that represents the class probabilities, default -1
      */
     public MyBCELoss(
-        String name, float weight, int classAxis, double threshold ) {
+        String name, float weight, int classAxis, double threshold, int dropFactorAtThreshold ) {
         super(name);
         this.weight = weight;
         this.classAxis = classAxis;
         this.threshold = threshold;
+        this.dropFactorAtThreshold = dropFactorAtThreshold;
     }
 
     /**
@@ -90,10 +92,23 @@ public class MyBCELoss extends Loss {
         return lossPreSum;
     }
     public NDArray evaluatePartB(NDArray lossPreSum) {
+        if (this.dropFactorAtThreshold != 1) {
+            // Create a mask for values below the threshold
+            NDArray mask = lossPreSum.lt(this.threshold);
+
+            // Calculate the adjusted values (original / f)
+            NDArray adjustedValues = lossPreSum.div(this.dropFactorAtThreshold);
+
+            // Apply the adjustment where the mask is true
+            lossPreSum = mask.mul(adjustedValues).add(mask.logicalNot().mul(lossPreSum));
+        }
+
         NDArray loss = lossPreSum.sum(new int[]{classAxis}, true);
+
         if (weight != 1) {
             loss = loss.mul(weight);
         }
+
         return loss.mean();
     }
 

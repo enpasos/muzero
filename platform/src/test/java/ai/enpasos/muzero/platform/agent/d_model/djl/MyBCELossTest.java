@@ -45,7 +45,7 @@ class MyBCELossTest {
         float[] label = new float[]{0f, 0f, 1f};
         NDArray predND = ndManager.create(pred);
         NDArray labelND = ndManager.create(label);
-        MyBCELoss loss = new MyBCELoss("MyBCELoss", 1f, 1, 0.03);
+        MyBCELoss loss = new MyBCELoss("MyBCELoss", 1f, 1, 0.03, 1);
         NDArray result = loss.evaluatePartA(new NDList(labelND), new NDList(predND));
         NDArray mask = result.lte(loss.threshold);
         NDArray intArray = mask.toType(DataType.INT32, false);
