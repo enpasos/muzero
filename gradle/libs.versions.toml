@@ -30,8 +30,7 @@ djl-model-zoo = { module = "ai.djl:model-zoo", version.ref = "djl" }
 djl-basicdataset = { module = "ai.djl:basicdataset", version.ref = "djl" }
 djl-pytorch-engine = { module = "ai.djl.pytorch:pytorch-engine", version.ref = "djl" }
 djl-pytorch-model-zoo = { module = "ai.djl.pytorch:pytorch-model-zoo", version.ref = "djl" }
-djl-pytorch-native-cu124 = { module = "ai.djl.pytorch:pytorch-native-cu124", version.ref = "pytorch"  }
-djl-pytorch-jni = { module = "ai.djl.pytorch:pytorch-jni", version.ref = "pytorch-jni" }
+djl-pytorch-native-cu124 = { module = "ai.djl.pytorch:pytorch-native-cu124", version.ref = "pytorch" }
 djl-onnxruntime-engine = { module = "ai.djl.onnxruntime:onnxruntime-engine", version.ref = "djl" }
 commons-math = { module = "org.apache.commons:commons-math3", version.ref = "commons-math" }
 commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "commons-csv" }
@@ -57,7 +56,7 @@ stochasticsimulation = { module = "ca.umontreal.iro.simul:ssj", version.ref = "s
 h2database = { module = "com.h2database:h2", version.ref = "h2database" }
 
 [bundles]
-djl = ["djl-model-zoo", "djl-basicdataset",  "djl-pytorch-model-zoo", "djl-pytorch-jni"]
+djl = ["djl-model-zoo", "djl-basicdataset", "djl-pytorch-engine", "djl-pytorch-model-zoo", "djl-pytorch-native-cu124"]
 commons = ["commons-math", "commons-csv", "commons-cli", "commons-io", "commons-lang", "commons-collections"]
 
 [plugins]

@@ -96,9 +96,9 @@ public class MuZeroLoop {
 
         boolean ok = false;
         while (!ok) {
-            trainRules2();
+           // trainRules2();
 
-          //  trainRules();
+            trainRules();
             ok = trainPolicyAndValue(params);
         }
 

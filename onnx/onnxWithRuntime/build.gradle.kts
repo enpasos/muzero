@@ -19,11 +19,6 @@ dependencies {
     implementation(libs.slf4j.api)
 
     implementation(libs.bundles.djl)
-    runtimeOnly(libs.djl.pytorch.native.cu124) {
-        artifact {
-            classifier = "win-x86_64"
-        }
-    }
 
     implementation(libs.djl.onnxruntime.engine)
 
