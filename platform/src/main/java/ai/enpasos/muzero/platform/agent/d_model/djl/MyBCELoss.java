@@ -52,7 +52,7 @@ public class MyBCELoss extends Loss {
      * @param name the name of the loss
      */
     public MyBCELoss(String name) {
-        this(name, 1, -1, 0.03, 10000 );
+        this(name, 1, -1, 0.03, 1 );
     }
 
     /**

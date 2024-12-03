@@ -39,7 +39,7 @@ public class TrainingConfigFactory {
  //       float gradientScale = isRulesModel ? 1f : 1f / numUnrollSteps;
         float gradientScale =   1f / numUnrollSteps;
 
-        int dropFactorAtThreshold = 10000;
+        int dropFactorAtThreshold = 1;
 
         int k = 0;
 
