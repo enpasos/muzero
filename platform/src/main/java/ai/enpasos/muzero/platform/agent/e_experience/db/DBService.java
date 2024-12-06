@@ -123,7 +123,7 @@ public class DBService {
 
             if (ts.isSChanged() || ts.isUOkChanged() || boxesChanged || ts.isUnrollStepsChanged()) {
                 ids.add(ts.getId());
-                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch() );
+                timestepRepo.updateAttributeSAndU(ts.getId(), ts.getS(), ts.isSClosed(), ts.getUOk(), ts.isUOkClosed(), ts.getBoxes(), ts.getUOkEpoch(), ts.getNormedSampleErrorBefore(), ts.getNormedSampleError() );
                 if (ts.getT() > 0) {
                     long id = ts.getEpisode().getTimeStep((ts.getT() - 1)).getId();
                     ids.add(id);
@@ -134,6 +134,8 @@ public class DBService {
                 }
                 ts.setSChanged(false);
                 ts.setUOkChanged(false);
+            } else {
+                timestepRepo.updateAttributeNormedSampleError(ts.getId(), ts.getNormedSampleErrorBefore(), ts.getNormedSampleError() );
             }
             ts.setUOkTested(false);
 

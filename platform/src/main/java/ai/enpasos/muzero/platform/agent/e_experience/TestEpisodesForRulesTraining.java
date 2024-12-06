@@ -39,7 +39,8 @@ public class TestEpisodesForRulesTraining {
     @Autowired
     PlayService playService;
 
-
+    @Autowired
+    DBService dbService;
 
     RulesBuffer rulesBuffer;
 
@@ -57,7 +58,7 @@ public class TestEpisodesForRulesTraining {
     // test all timesteps in the episodes with rollout of unrollSteps
     // store the result in the db
     // deside which of the tested episodes need to be trained and add them to the episodeBuffer
-    public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag) {
+    public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag, int epoch) {
 
         if (startFlag || rulesBuffer == null) {
             // to iterate over the episodes we use RulesBuffer
@@ -82,16 +83,17 @@ public class TestEpisodesForRulesTraining {
         gamesToAnalyse.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
         uOkAnalyseGames(  gamesToAnalyse,  unrollSteps);
 
+        // db update also in uOK and box
+        List<TimeStepDO> allTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
+                .collect(Collectors.toList());
+        // TODO check and likely remove the relevant boxes here.
+        List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch);
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(allTimeSteps, Boxing.boxesRelevant(epoch), unrollSteps);
+        gameBuffer.refreshCache(idsTsChanged, epoch);
 
-        // list the process steps
-        // 1. test the episodes
-        // 2. store the results in the db
-        // 3. decide which episodes need to be trained and add them to the episodeBuffer
-        // 4. return true if there are more episodes to test
-        // 5. return false if there are no more episodes to test
-        // 6. the next call will start again with step 1
-        // 7. the process will be repeated until all episodes are tested
-        // 8. the process will be repeated until all episodes are trained
+        int i = 42;
+
+
 
 
 

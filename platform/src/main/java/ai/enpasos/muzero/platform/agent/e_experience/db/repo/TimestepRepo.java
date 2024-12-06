@@ -71,7 +71,9 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
                 t.uOk = :uOk,
                 t.uOkClosed = :uOkClosed,
                 t.boxes = :boxes,
-                t.uOkEpoch = :uOkEpoch 
+                t.uOkEpoch = :uOkEpoch,
+                t.normedSampleErrorBefore = :normedSampleErrorBefore,
+                t.normedSampleError = :normedSampleError
             WHERE t.id = :id
             """)
     void updateAttributeSAndU(
@@ -81,7 +83,24 @@ public interface TimestepRepo extends JpaRepository<TimeStepDO, Long> {
             long uOk,
             boolean uOkClosed,
             int[] boxes,
-            int uOkEpoch
+            int uOkEpoch,
+            float normedSampleErrorBefore,
+            float normedSampleError
+    );
+
+    @Transactional
+    @Modifying
+    @Query(value = """
+            UPDATE TimeStepDO t
+            SET 
+                t.normedSampleErrorBefore = :normedSampleErrorBefore,
+                t.normedSampleError = :normedSampleError
+            WHERE t.id = :id
+            """)
+    void updateAttributeNormedSampleError(
+            Long id,
+            float normedSampleErrorBefore,
+            float normedSampleError
     );
 
 

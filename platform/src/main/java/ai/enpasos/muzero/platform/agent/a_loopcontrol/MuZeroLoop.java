@@ -135,10 +135,10 @@ public class MuZeroLoop {
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();
         boolean start = true;
-        while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start)) {
+        while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
         }
-
+        int i = 42;
 
 
         int dn = config.getNumParallelGamesPlayed();  // e.g. 1000
@@ -156,7 +156,7 @@ public class MuZeroLoop {
 
         gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
         nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
-        int i = 42;
+
     }
 
     private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
