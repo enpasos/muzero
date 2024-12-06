@@ -68,7 +68,7 @@ public class TestUnrollRulestate {
     public void testForEpisodeId(int epoch, int unrollSteps, long id) {
 
         List<Long> episodeIds = List.of(id);
-        gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty(epoch );
+        gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty( );
         List<ShortTimestep> shortTimesteps = gameBuffer.episodeIdToShortEpisodes.get(id).getShortTimesteps();
         testEpisodesWithRulesBuffer(unrollSteps, episodeIds, shortTimesteps, Boxing.boxesRelevant(epoch), true);
 
