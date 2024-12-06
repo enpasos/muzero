@@ -52,12 +52,19 @@ public class TimeStepDO {
     @Transient
     boolean sChanged;
 
-    @Transient
-    float normedSampleError;
+    @Builder.Default
+    float normedSampleError = -1;
+    @Builder.Default
+    float normedSampleErrorBefore = -1;
 
 
     public void memorizeNormedSampleError() {
         this.normedSampleErrorBefore = normedSampleError;
+    }
+
+    public void resetNormedSampleErrors() {
+        this.normedSampleError = -1;
+        this.normedSampleErrorBefore = -1;
     }
 
 
@@ -66,8 +73,7 @@ public class TimeStepDO {
     }
 
 
-    @Transient
-    float normedSampleErrorBefore;
+
 
 
     @Transient

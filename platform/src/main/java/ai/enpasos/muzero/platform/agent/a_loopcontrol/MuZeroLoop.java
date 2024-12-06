@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
 import ai.enpasos.muzero.platform.agent.e_experience.Game;
 import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.RuleBufferService;
+import ai.enpasos.muzero.platform.agent.e_experience.TestEpisodesForRulesTraining;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
@@ -84,6 +85,9 @@ public class MuZeroLoop {
     TestUnrollRulestate testUnrollRulestate;
 
     @Autowired
+    TestEpisodesForRulesTraining testEpisodesForRulesTraining;
+
+    @Autowired
     DBService dbService;
 
     @Autowired
@@ -96,9 +100,9 @@ public class MuZeroLoop {
 
         boolean ok = false;
         while (!ok) {
-           // trainRules2();
+            trainRules2();
 
-            trainRules();
+          //  trainRules();
             ok = trainPolicyAndValue(params);
         }
 
@@ -129,7 +133,15 @@ public class MuZeroLoop {
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
         Collections.shuffle(bufferGames);
 
-        int dn = 1000;
+        int numEpisodesToTest = config.getNumParallelGamesPlayed();
+        boolean start = true;
+        while (testEpisodesForRulesTraining..test(unrollSteps, numEpisodesToTest, start)) {
+            start = false;
+        }
+
+
+
+        int dn = config.getNumParallelGamesPlayed();  // e.g. 1000
 
         List<Game> gamesToTrain = bufferGames.subList(0, dn);
         List<Game> nonTrainedGames = bufferGames.subList(dn, bufferGames.size());
@@ -357,7 +369,7 @@ public class MuZeroLoop {
 
 
     private void logStateInfo(int unrollSteps, int epoch) {
-        log.info("numBox0({}) = {}",unrollSteps, numBox0(unrollSteps, epoch));
+        log.info("numBox0({}) = {}",unrollSteps, numBox0(unrollSteps ));
         log.info("num closed episodes: {}", gameBuffer.numClosedEpisodes(epoch));
         gameBuffer.selectUnrollStepsToEpisodeCount(true, epoch);
     }
@@ -405,8 +417,8 @@ public class MuZeroLoop {
 //    }
 
 
-    private int numBox0(int unrollSteps, int epoch) {
-        int n = gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty(epoch).stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
+    private int numBox0(int unrollSteps ) {
+        int n = gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty( ).stream().filter(t -> t.getBox(unrollSteps) == 0).mapToInt(t -> t.getBoxes().length).sum();
         log.info("numBox0 = {}", n);
         return n;
     }
