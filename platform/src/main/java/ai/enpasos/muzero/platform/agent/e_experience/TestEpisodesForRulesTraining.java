@@ -11,6 +11,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
+import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
@@ -34,10 +36,17 @@ public class TestEpisodesForRulesTraining {
     @Autowired
     EpisodeRepo episodeRepo;
 
+    @Autowired
+    PlayService playService;
+
+
+
     RulesBuffer rulesBuffer;
 
 
     RulesBuffer.IdWindowIterator iterator;
+
+
 
 
     // test numEpisodesToTest episodes in a ref list of episodes starting from a cursor
@@ -67,8 +76,11 @@ public class TestEpisodesForRulesTraining {
 
         List<Long> relatedEpisodeIds = iterator.next();
         List<EpisodeDO> episodeDOList = episodeRepo.findEpisodeDOswithTimeStepDOsEpisodeDOIdDesc(relatedEpisodeIds);
-        List<Game> games = convertEpisodeDOsToGames(episodeDOList, config);
-        Collections.shuffle(games);
+        List<Game> gamesToAnalyse = convertEpisodeDOsToGames(episodeDOList, config);
+        Collections.shuffle(gamesToAnalyse);
+
+        gamesToAnalyse.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
+        uOkAnalyseGames(  gamesToAnalyse,  unrollSteps);
 
 
         // list the process steps
@@ -94,6 +106,15 @@ public class TestEpisodesForRulesTraining {
         iterator = null;
     }
 
+    private void uOkAnalyseGames(  List<Game> bufferGames, int unrollSteps) {
 
+        List<List<Game>> batches = new ArrayList<>();
+        int batchSize = config.getNumParallelGamesPlayed();
+        for (int i = 0; i < bufferGames.size(); i += batchSize) {
+            batches.add(bufferGames.subList(i, Math.min(i + batchSize, bufferGames.size())));
+        }
+        batches.forEach(batch -> playService.uOkAnalyseGames(batch,  false, unrollSteps, true));
+
+    }
 
 }

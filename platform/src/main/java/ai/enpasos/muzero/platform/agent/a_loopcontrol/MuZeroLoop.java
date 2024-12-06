@@ -135,7 +135,7 @@ public class MuZeroLoop {
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();
         boolean start = true;
-        while (testEpisodesForRulesTraining..test(unrollSteps, numEpisodesToTest, start)) {
+        while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start)) {
             start = false;
         }
 
