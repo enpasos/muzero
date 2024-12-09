@@ -128,34 +128,38 @@ public class MuZeroLoop {
 
         gameBuffer.fillRuleBufferFromDB(10000);
      //   ruleBufferService.run();
-        int unrollSteps = 5;   // just an example
+        int unrollSteps = 1;   // just an example
       //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
         Collections.shuffle(bufferGames);
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();
         boolean start = true;
+        int c = 0;
         while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
+            log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
+            log.info("ruleTrain2 ... ");
+            ruleTrain2(durations, unrollSteps);
         }
         int i = 42;
 
 
-        int dn = config.getNumParallelGamesPlayed();  // e.g. 1000
-
-        List<Game> gamesToTrain = bufferGames.subList(0, dn);
-        List<Game> nonTrainedGames = bufferGames.subList(dn, bufferGames.size());
-
-        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
-        gamesToTrain.forEach(g -> g.setRulesTraining(true));
-
-        int nToDo = -1;
-        do {
-            nToDo = groupingForRulesTraining(durations, bufferGames, unrollSteps, dn);
-        } while (nToDo > 0);
-
-        gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
-        nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
+//        int dn = config.getNumParallelGamesPlayed();  // e.g. 1000
+//
+//        List<Game> gamesToTrain = bufferGames.subList(0, dn);
+//        List<Game> nonTrainedGames = bufferGames.subList(dn, bufferGames.size());
+//
+//        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
+//        gamesToTrain.forEach(g -> g.setRulesTraining(true));
+//
+//        int nToDo = -1;
+//        do {
+//            nToDo = groupingForRulesTraining(durations, bufferGames, unrollSteps, dn);
+//        } while (nToDo > 0);
+//
+//        gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
+//        nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
 
     }
 
