@@ -154,7 +154,7 @@ public class MuZeroLoop {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
             } else {
-                log.info("not enough timesteps to test ... continue testing");
+                log.info("not enough timesteps to train ... continue testing");
             }
         }
         int i = 42;
