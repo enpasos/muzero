@@ -101,7 +101,7 @@ public class TestEpisodesForRulesTraining {
                         }
                         double normedSampleError = ts.getNormedSampleError();
                         double normedSampleErrorChange = normedSampleError - ts.getNormedSampleErrorBefore();
-                        return normedSampleError > 1 || normedSampleErrorChange > 0.1 ;
+                        return normedSampleError > 1 || normedSampleErrorChange > Math.abs(normedSampleError - 1) / 2 ;
            }
              );
             if (needToTrain) {
