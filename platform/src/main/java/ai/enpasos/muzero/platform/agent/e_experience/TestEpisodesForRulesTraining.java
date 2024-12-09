@@ -88,16 +88,26 @@ public class TestEpisodesForRulesTraining {
                 .collect(Collectors.toList());
         // TODO check and likely remove the relevant boxes here.
         List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch);
-        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(allTimeSteps, Boxing.boxesRelevant(epoch), unrollSteps);
+        List<Long> idsTsChanged = dbService.updateTimesteps_SandUOkandBox(allTimeSteps, relevantBoxes, unrollSteps);
         gameBuffer.refreshCache(idsTsChanged, epoch);
 
-        int i = 42;
 
 
-
-
-
-
+        // deside which of the tested episodes need to be trained and add them to the episodeBuffer
+        gamesToAnalyse.forEach(g -> {
+            boolean needToTrain = g.getEpisodeDO().getTimeSteps().stream().anyMatch(ts -> {
+                        if (ts.getNormedSampleErrorBefore() == -1) {
+                            return false;
+                        }
+                        double normedSampleError = ts.getNormedSampleError();
+                        double normedSampleErrorChange = normedSampleError - ts.getNormedSampleErrorBefore();
+                        return normedSampleError > 1 || normedSampleErrorChange > 0.01;
+           }
+             );
+            if (needToTrain) {
+                gameBuffer.getRulesBuffer().addGame(g);
+            }
+        });
 
         return true;
     }
