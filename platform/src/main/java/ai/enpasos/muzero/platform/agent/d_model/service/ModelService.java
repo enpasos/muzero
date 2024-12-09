@@ -230,7 +230,7 @@ public class ModelService {
         TrainingDatasetType trainingDatasetType = TrainingDatasetType.RULES_BUFFER;
         boolean background = false;
         task.setFreeze(freeze);
-        task.setSaveModel(false);
+        task.setSaveModel(true);
         task.setBackground(background);
         task.setTrainingDatasetType(trainingDatasetType);
 
