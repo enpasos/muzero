@@ -103,7 +103,7 @@ public class MuZeroLoop {
             trainRules2();
 
           //  trainRules();
-            ok = trainPolicyAndValue(params);
+          //  ok = trainPolicyAndValue(params);
         }
 
         log.info("done");
