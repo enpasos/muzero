@@ -139,6 +139,8 @@ public class MuZeroLoop {
         int c = 0;
         while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
+          //  modelService.loadLatestModelOrCreateIfNotExisting().get();
+            epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
             log.info("ruleTrain2 ... ");
             ruleTrain2(durations, unrollSteps);
