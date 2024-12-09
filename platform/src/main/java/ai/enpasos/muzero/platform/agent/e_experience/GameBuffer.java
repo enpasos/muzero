@@ -205,20 +205,24 @@ public class GameBuffer {
                 .collect(Collectors.toList());
         }
     }
-    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+    public List<Sample> sampleBatchFromRulesBuffer2(int numUnrollSteps ) {
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
             return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
                     .map(game -> sampleFromGame(numUnrollSteps, game))
                     .collect(Collectors.toList());
         }
     }
-    public List<Sample> sampleBatchFromRulesBuffer2(int numUnrollSteps ) {
 
-        List<Game> games = getGamesFromRulesBuffer();
-        games.forEach(g -> g.getEpisodeDO().setGame(g));
+    public boolean areThereEnoughTimeStepsToTest() {
+        return  getTimeStepDOsToTest().size() >= this.batchSize;
+    }
 
-        List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
-                .filter(ts -> ts.needsTraining()).collect(Collectors.toList());
+    public boolean areThereTimeStepsNOKinBuffer() {
+        return  getTimeStepDOsToTest().stream().anyMatch(ts -> ts.getNormedSampleError() > 1);
+    }
+    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+
+        List<TimeStepDO> tsList = getTimeStepDOsToTest();
         Collections.shuffle(tsList);
         tsList = tsList.subList(0, Math.min(tsList.size(), this.batchSize));
 
@@ -230,8 +234,17 @@ public class GameBuffer {
         }
     }
 
+    private @NotNull List<TimeStepDO> getTimeStepDOsToTest() {
+        List<Game> games = getGamesFromRulesBuffer();
+        games.forEach(g -> g.getEpisodeDO().setGame(g));
 
- //Set<Long> episodeIdsRewardLearning;
+        List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
+                .filter(ts -> ts.needsTraining()).collect(Collectors.toList());
+        return tsList;
+    }
+
+
+    //Set<Long> episodeIdsRewardLearning;
    // Set<Long> episodeIdsLegalActionLossLearning;
     private List<Long> episodeIds;
 

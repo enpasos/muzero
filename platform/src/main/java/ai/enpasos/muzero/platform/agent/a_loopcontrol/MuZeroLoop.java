@@ -99,9 +99,17 @@ public class MuZeroLoop {
 
 
         boolean ok = false;
+        int unrollSteps = 1;
         while (!ok) {
-            trainRules2();
 
+            trainRules2(unrollSteps);
+            if (!gameBuffer.areThereTimeStepsNOKinBuffer()) {
+                if (config.getMaxUnrollSteps() == unrollSteps) {
+                    log.info("maxUnrollSteps reached ... ");
+                }
+                log.info("all timesteps in buffer are ok ... ");
+                unrollSteps++;
+            }
           //  trainRules();
           //  ok = trainPolicyAndValue(params);
         }
@@ -109,7 +117,7 @@ public class MuZeroLoop {
         log.info("done");
     }
 
-    private void trainRules2() throws InterruptedException, ExecutionException  {
+    private void trainRules2(int unrollSteps) throws InterruptedException, ExecutionException  {
         int epoch;
         int trainingStep;
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
@@ -128,7 +136,7 @@ public class MuZeroLoop {
 
         gameBuffer.fillRuleBufferFromDB(10000);
      //   ruleBufferService.run();
-        int unrollSteps = 1;   // just an example
+      //  int unrollSteps = 1;   // just an example
       //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
         Collections.shuffle(bufferGames);
@@ -142,87 +150,75 @@ public class MuZeroLoop {
           //  modelService.loadLatestModelOrCreateIfNotExisting().get();
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            log.info("ruleTrain2 ... ");
-            ruleTrain2(durations, unrollSteps);
+            if (gameBuffer.areThereEnoughTimeStepsToTest()) {
+                log.info("ruleTrain2 ... ");
+                ruleTrain2(durations, unrollSteps);
+            } else {
+                log.info("not enough timesteps to test ... continue testing");
+            }
         }
         int i = 42;
 
 
-//        int dn = config.getNumParallelGamesPlayed();  // e.g. 1000
-//
-//        List<Game> gamesToTrain = bufferGames.subList(0, dn);
-//        List<Game> nonTrainedGames = bufferGames.subList(dn, bufferGames.size());
-//
-//        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
-//        gamesToTrain.forEach(g -> g.setRulesTraining(true));
-//
-//        int nToDo = -1;
-//        do {
-//            nToDo = groupingForRulesTraining(durations, bufferGames, unrollSteps, dn);
-//        } while (nToDo > 0);
-//
-//        gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
-//        nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
-
     }
 
-    private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
-
-
-        List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
-        List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
-
-        // modelService.loadLatestModelOrCreateIfNotExisting().get();
-        log.debug("load latest model .... ");
-        modelService.loadLatestModel().get();
-
-
-        uOkAnalyseGames(durations, bufferGames, unrollSteps);
-
-        bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
-
-        log.debug("ruleTrain2 ... ");
-        ruleTrain2(durations, unrollSteps);
-
-        uOkAnalyseGames(durations, bufferGames, unrollSteps);
-
-        // set maxSampleErrorChange from all time steps
-        nonTrainedGames.forEach(g -> {
-            double maxSampleErrorChange = g.getEpisodeDO().getTimeSteps().stream().mapToDouble(TimeStepDO::getSampleErrorChange).max().orElse(0.0);
-            g.setMaxSampleErrorChange(maxSampleErrorChange);
-        });
-
-        List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0.001d).collect(Collectors.toList());
-        // sort nonTrainedGames by maxSampleErrorChange
-        criticalNonTrainedGames.sort((g1, g2) -> {
-            return Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
-        });
-        if (!criticalNonTrainedGames.isEmpty()) {
-            criticalNonTrainedGames.getFirst().setRulesTraining(true);
-            gamesToTrain.add(criticalNonTrainedGames.getFirst());
-            log.info("sample error change: {}", criticalNonTrainedGames.getFirst().getMaxSampleErrorChange());
-        }
-
-        // get nonTrainedGames with maxSampleErrorChange > 0
+//    private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
 //
-//        Collections.shuffle(criticalNonTrainedGames);
-        log.info("gamesToTrain: {}, criticalNonTrainedGames: {}", gamesToTrain.size(), criticalNonTrainedGames.size());
-//        criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
-
-        return criticalNonTrainedGames.size();
-   //     return 10;
-
-//        // sort nonTrainedGames by sampleErrorChange
-//        nonTrainedGames.sort((g1, g2) -> {
-//            return Double.compare(g1.getMaxSampleErrorChange(), g2.getMaxSampleErrorChange());
+//
+//        List<Game> gamesToTrain = bufferGames.stream().filter(Game::isRulesTraining).collect(Collectors.toList());
+//        List<Game> nonTrainedGames = bufferGames.stream().filter(g -> !g.isRulesTraining()).collect(Collectors.toList());
+//
+//        // modelService.loadLatestModelOrCreateIfNotExisting().get();
+//        log.debug("load latest model .... ");
+//        modelService.loadLatestModel().get();
+//
+//
+//        uOkAnalyseGames(durations, bufferGames, unrollSteps);
+//
+//        bufferGames.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
+//
+//        log.debug("ruleTrain2 ... ");
+//        ruleTrain2(durations, unrollSteps);
+//
+//        uOkAnalyseGames(durations, bufferGames, unrollSteps);
+//
+//        // set maxSampleErrorChange from all time steps
+//        nonTrainedGames.forEach(g -> {
+//            double maxSampleErrorChange = g.getEpisodeDO().getTimeSteps().stream().mapToDouble(TimeStepDO::getSampleErrorChange).max().orElse(0.0);
+//            g.setMaxSampleErrorChange(maxSampleErrorChange);
 //        });
 //
-//        // select the 100 gamesToTrain with the highest sampleErrorChange and add them to gamesToTrain
-//        gamesToTrain.addAll(nonTrainedGames.subList(0, dn));
+//        List<Game> criticalNonTrainedGames = nonTrainedGames.stream().filter(g -> g.getMaxSampleErrorChange() > 0.001d).collect(Collectors.toList());
+//        // sort nonTrainedGames by maxSampleErrorChange
+//        criticalNonTrainedGames.sort((g1, g2) -> {
+//            return Double.compare(g2.getMaxSampleErrorChange(), g1.getMaxSampleErrorChange());
+//        });
+//        if (!criticalNonTrainedGames.isEmpty()) {
+//            criticalNonTrainedGames.getFirst().setRulesTraining(true);
+//            gamesToTrain.add(criticalNonTrainedGames.getFirst());
+//            log.info("sample error change: {}", criticalNonTrainedGames.getFirst().getMaxSampleErrorChange());
+//        }
 //
-//        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
-//        gamesToTrain.forEach(g -> g.setRulesTraining(true));
-    }
+//        // get nonTrainedGames with maxSampleErrorChange > 0
+////
+////        Collections.shuffle(criticalNonTrainedGames);
+//        log.info("gamesToTrain: {}, criticalNonTrainedGames: {}", gamesToTrain.size(), criticalNonTrainedGames.size());
+////        criticalNonTrainedGames.subList(0, Math.min(dn, criticalNonTrainedGames.size())).forEach(g -> g.setRulesTraining(true));
+//
+//        return criticalNonTrainedGames.size();
+//   //     return 10;
+//
+////        // sort nonTrainedGames by sampleErrorChange
+////        nonTrainedGames.sort((g1, g2) -> {
+////            return Double.compare(g1.getMaxSampleErrorChange(), g2.getMaxSampleErrorChange());
+////        });
+////
+////        // select the 100 gamesToTrain with the highest sampleErrorChange and add them to gamesToTrain
+////        gamesToTrain.addAll(nonTrainedGames.subList(0, dn));
+////
+////        nonTrainedGames.forEach(g -> g.setRulesTraining(false));
+////        gamesToTrain.forEach(g -> g.setRulesTraining(true));
+//    }
 
     private void uOkAnalyseGames(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps) {
         DurAndMem duration = new DurAndMem();
