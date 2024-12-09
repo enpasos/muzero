@@ -206,6 +206,13 @@ public class GameBuffer {
         }
     }
     public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+        try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
+            return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
+                    .map(game -> sampleFromGame(numUnrollSteps, game))
+                    .collect(Collectors.toList());
+        }
+    }
+    public List<Sample> sampleBatchFromRulesBuffer2(int numUnrollSteps ) {
 
         List<Game> games = getGamesFromRulesBuffer();
         games.forEach(g -> g.getEpisodeDO().setGame(g));
