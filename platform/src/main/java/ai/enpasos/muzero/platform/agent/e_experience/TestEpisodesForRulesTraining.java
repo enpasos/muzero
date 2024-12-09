@@ -60,7 +60,10 @@ public class TestEpisodesForRulesTraining {
     // deside which of the tested episodes need to be trained and add them to the episodeBuffer
     public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag, int epoch) {
         log.info("test: epoch={}, startFlag={}, unrollSteps={}, numEpisodesToTest={} ... ", epoch, startFlag, unrollSteps, numEpisodesToTest);
-        if (startFlag || rulesBuffer == null) {
+        if (startFlag) {
+            reset();
+        }
+        if (rulesBuffer == null) {
             // to iterate over the episodes we use RulesBuffer
             rulesBuffer = new RulesBuffer();
             rulesBuffer.setWindowSize(numEpisodesToTest);
