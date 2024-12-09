@@ -103,7 +103,7 @@ public class MuZeroLoop {
         while (!ok) {
 
             trainRules2(unrollSteps);
-            if (!gameBuffer.areThereTimeStepsNOKinBuffer()) {
+            if (!gameBuffer.areThereEnoughTimeStepsToTest() ) {  //!gameBuffer.areThereTimeStepsNOKinBuffer()) {
                 if (config.getMaxUnrollSteps() == unrollSteps) {
                     log.info("maxUnrollSteps reached ... ");
                 }
