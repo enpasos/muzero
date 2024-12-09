@@ -64,8 +64,8 @@ public class TestEpisodesForRulesTraining {
             // to iterate over the episodes we use RulesBuffer
             rulesBuffer = new RulesBuffer();
             rulesBuffer.setWindowSize(numEpisodesToTest);
-            List<Long> episodeIdsToTrain = gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty().stream()
-                    .mapToLong(ShortTimestep::getId).boxed().collect(Collectors.toList());
+            List<Long> episodeIdsToTrain = new ArrayList<>(gameBuffer.getShortTimestepSetFromCacheFillCacheIfEmpty().stream()
+                    .mapToLong(ShortTimestep::getEpisodeId).boxed().collect(Collectors.toSet()));
             rulesBuffer.setIds(episodeIdsToTrain);
         }
         if (iterator == null) {
