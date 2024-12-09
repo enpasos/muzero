@@ -25,6 +25,7 @@ import ai.enpasos.muzero.platform.agent.d_model.Sample;
 import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortEpisode;
@@ -85,6 +86,21 @@ public class GameBuffer {
     private Map<Integer, Double> maxEntropyBestEffortSum = new HashMap<>();
     private Map<Integer, Integer> maxEntropyBestEffortCount = new HashMap<>();
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
+
+
+    public   Sample sampleFromRulesGame(int numUnrollSteps, @NotNull Game game) {
+
+       List<TimeStepDO> tsList = game.getEpisodeDO().getTimeSteps().stream().filter(t -> t.needsTraining()).collect(Collectors.toList());
+        if (tsList.size() == 0) return null;
+        Collections.shuffle(tsList);
+        int gamePos = tsList.get(0).getT();
+
+
+      //  int gamePos  = samplePosition(0, game);
+        Sample sample = sampleFromGame(numUnrollSteps, game, gamePos );
+
+        return sample;
+    }
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
         int gamePos  = samplePosition(0, game);
@@ -190,10 +206,20 @@ public class GameBuffer {
         }
     }
     public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
+
+        List<Game> games = getGamesFromRulesBuffer();
+        games.forEach(g -> g.getEpisodeDO().setGame(g));
+
+        List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
+                .filter(ts -> ts.needsTraining()).collect(Collectors.toList());
+        Collections.shuffle(tsList);
+        tsList = tsList.subList(0, Math.min(tsList.size(), this.batchSize));
+
         try (NDManager ndManager = NDManager.newBaseManager(Device.cpu())) {
-            return sampleGamesFrom( getGamesFromRulesBuffer()).stream()
-                    .map(game -> sampleFromGame(numUnrollSteps, game))
-                    .collect(Collectors.toList());
+            return tsList.stream().map(ts ->
+                sampleFromGame(numUnrollSteps, ts.getEpisode().getGame(), ts.getT() )
+             ).collect(Collectors.toList());
+
         }
     }
 
@@ -255,7 +281,6 @@ public class GameBuffer {
     }
     public List<Game> getGamesFromRulesBuffer() {
         List<Game> games = this.rulesBuffer.getEpisodeMemory().getGameList().stream().collect(Collectors.toList());
-  //     List<Game> games = this.rulesBuffer.getEpisodeMemory().getGameList().stream().filter(Game::isRulesTraining).collect(Collectors.toList());
 
                 //new ArrayList<>(this.rulesBuffer.getEpisodeMemory().getGameList());
         log.trace("Games from rules buffer: {}",  games.size() );

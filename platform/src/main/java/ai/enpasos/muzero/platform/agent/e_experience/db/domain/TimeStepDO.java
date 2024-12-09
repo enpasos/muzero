@@ -58,6 +58,17 @@ public class TimeStepDO {
     float normedSampleErrorBefore = -1;
 
 
+
+    public boolean needsTraining() {
+        if ( getNormedSampleErrorBefore() == -1) {
+            return false;
+        }
+        double normedSampleError =  getNormedSampleError();
+        double normedSampleErrorChange = normedSampleError -  getNormedSampleErrorBefore();
+        return normedSampleError > 1 || normedSampleErrorChange > Math.abs(normedSampleError - 1) / 2 ;
+    }
+
+
     public void memorizeNormedSampleError() {
         this.normedSampleErrorBefore = normedSampleError;
     }
