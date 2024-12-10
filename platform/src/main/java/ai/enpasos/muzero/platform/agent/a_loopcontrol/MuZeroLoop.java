@@ -155,11 +155,11 @@ public class MuZeroLoop {
             start = false;
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            if (gameBuffer.areThereTimeStepsToBeTrainedInRulesBuffer()) {
+            if (gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer()) {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
             } else {
-                log.info("no timesteps to be trained ... continue testing");
+                log.info("no timesteps to be trained and nok ... continue testing");
             }
         }
 
