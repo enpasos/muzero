@@ -213,16 +213,14 @@ public class GameBuffer {
         }
     }
 
-    public boolean areThereEnoughTimeStepsToTest() {
-        return  getTimeStepDOsToTest().size() >= this.batchSize;
-    }
+//    public boolean areThereEnoughTimeStepsToTest() {
+//        return  getTimeStepDOsToTest().size() >= this.batchSize;
+//    }
 
-    public boolean areThereTimeStepsNOKinBuffer() {
-        return  getTimeStepDOsToTest().stream().anyMatch(ts -> ts.getNormedSampleError() > 1);
-    }
+
     public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps ) {
 
-        List<TimeStepDO> tsList = getTimeStepDOsToTest();
+        List<TimeStepDO> tsList = getTimeStepDOsFromRulesBufferToBeTrained();
         Collections.shuffle(tsList);
         tsList = tsList.subList(0, Math.min(tsList.size(), this.batchSize));
 
@@ -234,15 +232,23 @@ public class GameBuffer {
         }
     }
 
-    private @NotNull List<TimeStepDO> getTimeStepDOsToTest() {
+    private @NotNull List<TimeStepDO> getTimeStepDOsFromRulesBufferToBeTrained() {
         List<Game> games = getGamesFromRulesBuffer();
         games.forEach(g -> g.getEpisodeDO().setGame(g));
 
         List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
-                .filter(ts -> ts.needsTraining()).collect(Collectors.toList());
+                .filter(ts -> ts.isToBeTrained()).collect(Collectors.toList());
         return tsList;
     }
 
+    public boolean areThereTimeStepsToBeTrainedAndNokInRulesBuffer() {
+        List<Game> games = getGamesFromRulesBuffer();
+        games.forEach(g -> g.getEpisodeDO().setGame(g));
+
+        List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
+                .filter(ts -> ts.isToBeTrained() && ts.getSampleErrorChange() > 1).collect(Collectors.toList());
+        return tsList.size() > 0;
+    }
 
     //Set<Long> episodeIdsRewardLearning;
    // Set<Long> episodeIdsLegalActionLossLearning;

@@ -95,11 +95,13 @@ public class TestEpisodesForRulesTraining {
         gameBuffer.refreshCache(idsTsChanged, epoch);
 
 
-
+        gamesToAnalyse.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(ts ->   ts.setToBeTrained(false)));
         // deside which of the tested episodes need to be trained and add them to the episodeBuffer
         gamesToAnalyse.forEach(g -> {
             boolean needToTrain = g.getEpisodeDO().getTimeSteps().stream().anyMatch(ts -> {
-                        return ts.needsTraining() ;
+                boolean needsTraining = ts.needsTraining();
+                ts.setToBeTrained(needsTraining);
+                return needsTraining ;
            }
              );
             if (needToTrain) {

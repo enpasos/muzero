@@ -52,10 +52,14 @@ public class TimeStepDO {
     @Transient
     boolean sChanged;
 
+    @Transient
+    boolean toBeTrained;
+
     @Builder.Default
     float normedSampleError = -1;
     @Builder.Default
     float normedSampleErrorBefore = -1;
+
 
 
 

@@ -103,7 +103,7 @@ public class MuZeroLoop {
         while (!ok) {
 
             trainRules2(unrollSteps);
-            if (!gameBuffer.areThereEnoughTimeStepsToTest() ) {  //!gameBuffer.areThereTimeStepsNOKinBuffer()) {
+            if (!gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer() ) {  //!gameBuffer.areThereTimeStepsNOKinBuffer()) {
                 if (config.getMaxUnrollSteps() == unrollSteps) {
                     log.info("maxUnrollSteps reached ... ");
                 }
@@ -147,17 +147,15 @@ public class MuZeroLoop {
         int c = 0;
         while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
-          //  modelService.loadLatestModelOrCreateIfNotExisting().get();
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            if (gameBuffer.areThereEnoughTimeStepsToTest()) {
+            if (gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer()) {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
             } else {
-                log.info("not enough timesteps to train ... continue testing");
+                log.info("no timesteps to be trained and nok ... continue testing");
             }
         }
-        int i = 42;
 
 
     }
