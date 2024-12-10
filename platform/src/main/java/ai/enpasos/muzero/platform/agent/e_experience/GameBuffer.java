@@ -88,19 +88,19 @@ public class GameBuffer {
     private Map<Long, Integer> mapTReanalyseMin2GameCount = new HashMap<>();
 
 
-    public   Sample sampleFromRulesGame(int numUnrollSteps, @NotNull Game game) {
-
-       List<TimeStepDO> tsList = game.getEpisodeDO().getTimeSteps().stream().filter(t -> t.needsTraining()).collect(Collectors.toList());
-        if (tsList.size() == 0) return null;
-        Collections.shuffle(tsList);
-        int gamePos = tsList.get(0).getT();
-
-
-      //  int gamePos  = samplePosition(0, game);
-        Sample sample = sampleFromGame(numUnrollSteps, game, gamePos );
-
-        return sample;
-    }
+//    public   Sample sampleFromRulesGame(int numUnrollSteps, @NotNull Game game ) {
+//
+//       List<TimeStepDO> tsList = game.getEpisodeDO().getTimeSteps().stream().filter(t -> t.needsTraining()).collect(Collectors.toList());
+//        if (tsList.size() == 0) return null;
+//        Collections.shuffle(tsList);
+//        int gamePos = tsList.get(0).getT();
+//
+//
+//      //  int gamePos  = samplePosition(0, game);
+//        Sample sample = sampleFromGame(numUnrollSteps, game, gamePos );
+//
+//        return sample;
+//    }
 
     public   Sample sampleFromGame(int numUnrollSteps, @NotNull Game game) {
         int gamePos  = samplePosition(0, game);

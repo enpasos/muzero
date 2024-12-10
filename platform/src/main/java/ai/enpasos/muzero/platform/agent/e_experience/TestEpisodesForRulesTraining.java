@@ -58,7 +58,7 @@ public class TestEpisodesForRulesTraining {
     // test all timesteps in the episodes with rollout of unrollSteps
     // store the result in the db
     // deside which of the tested episodes need to be trained and add them to the episodeBuffer
-    public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag, int epoch) {
+    public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag, int epoch, boolean historyReliable) {
         log.info("test: epoch={}, startFlag={}, unrollSteps={}, numEpisodesToTest={} ... ", epoch, startFlag, unrollSteps, numEpisodesToTest);
         if (startFlag) {
             reset();
@@ -99,7 +99,7 @@ public class TestEpisodesForRulesTraining {
         // deside which of the tested episodes need to be trained and add them to the episodeBuffer
         gamesToAnalyse.forEach(g -> {
             boolean needToTrain = g.getEpisodeDO().getTimeSteps().stream().anyMatch(ts -> {
-                boolean needsTraining = ts.needsTraining();
+                boolean needsTraining = ts.needsTraining(historyReliable);
                 ts.setToBeTrained(needsTraining);
                 return needsTraining ;
            }
@@ -111,6 +111,9 @@ public class TestEpisodesForRulesTraining {
 
         return true;
     }
+
+
+
 
 
     public void reset() {

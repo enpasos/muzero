@@ -63,11 +63,11 @@ public class TimeStepDO {
 
 
 
-    public boolean needsTraining() {
-        if ( getNormedSampleErrorBefore() == -1) {
-            return false;
-        }
+    public boolean needsTraining(boolean historyReliable) {
         double normedSampleError =  getNormedSampleError();
+        if ( getNormedSampleErrorBefore() == -1 || !historyReliable) {
+            return normedSampleError > 1;
+        }
         double normedSampleErrorChange = normedSampleError -  getNormedSampleErrorBefore();
         return normedSampleError > 1 || normedSampleErrorChange > Math.abs(normedSampleError - 1) / 2 ;
     }
