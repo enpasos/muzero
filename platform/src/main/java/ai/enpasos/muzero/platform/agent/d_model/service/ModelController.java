@@ -249,7 +249,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetworkRules(task.freeze, task.isBackground() ,  task.getNumUnrollSteps());
                     break;
                 case TRAIN_MODEL_RULES2:
-                    trainNetworkRules2b(task.freeze, task.isBackground() , task.getTrainingDatasetType(),  task.getNumUnrollSteps(), task.isSaveModel());
+                    trainNetworkRules2b(task.freeze, task.isBackground() , task.getTrainingDatasetType(),  task.getNumUnrollSteps(), task.isSaveModel(), task.setHistoryReliable());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
@@ -306,7 +306,7 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType, true)) {
                         log.debug("trainBatch " + m);
                         MyEasyTrain.trainBatch(trainer, batch);
                         trainer.step();
@@ -325,7 +325,7 @@ public class ModelController implements DisposableBean, Runnable {
     EpisodeRepo episodeRepo;
 
 
-    private void trainNetworkRules2b(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps, boolean saveModel) {
+    private void trainNetworkRules2b(boolean[] freeze, boolean background, TrainingDatasetType trainingDatasetType, int unrollSteps, boolean saveModel, boolean historyReliable) {
         Model model = network.getModel();
 
         MuZeroBlock muZeroBlock = (MuZeroBlock) model.getBlock();
@@ -349,7 +349,7 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
                 for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
-                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, unrollSteps, config.getBatchSize(), trainingDatasetType)) {
+                    try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, unrollSteps, config.getBatchSize(), trainingDatasetType, historyReliable)) {
                         log.debug("trainBatch " + m);
                         MyEasyTrainRules.trainBatch(trainer, batch);
                         trainer.step();

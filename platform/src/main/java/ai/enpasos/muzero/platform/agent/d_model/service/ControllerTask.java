@@ -84,6 +84,8 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
         return exportFilter;
     }
 
-
-
+private boolean historyReliable = false;
+    public void setHistoryReliable(boolean historyReliable) {
+        this.historyReliable = historyReliable;
+    }
 }
