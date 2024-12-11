@@ -118,7 +118,7 @@ public class BatchFactory {
                 break;
             case RULES_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps, historyReliable);
-                log.info("sampleList.size(): {}", sampleList.size());
+               // log.info("sampleList.size(): {}", sampleList.size());
                 break;
             case REANALYSE_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromReanalyseBuffer(numUnrollSteps);
