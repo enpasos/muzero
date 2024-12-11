@@ -67,6 +67,9 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
     public boolean isSaveModel() {
         return saveModel;
     }
+    public boolean isHistoryReliable() {
+        return historyReliable;
+    }
 
     public boolean isBackground() {
         return background;

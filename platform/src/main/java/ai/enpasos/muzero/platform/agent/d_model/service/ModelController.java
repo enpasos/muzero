@@ -249,7 +249,7 @@ public class ModelController implements DisposableBean, Runnable {
                     trainNetworkRules(task.freeze, task.isBackground() ,  task.getNumUnrollSteps());
                     break;
                 case TRAIN_MODEL_RULES2:
-                    trainNetworkRules2b(task.freeze, task.isBackground() , task.getTrainingDatasetType(),  task.getNumUnrollSteps(), task.isSaveModel(), task.setHistoryReliable());
+                    trainNetworkRules2b(task.freeze, task.isBackground() , task.getTrainingDatasetType(),  task.getNumUnrollSteps(), task.isSaveModel(), task.isHistoryReliable());
                     break;
                 // TODO: only train rules part of the network
 //                case TRAIN_MODEL_RULES:
