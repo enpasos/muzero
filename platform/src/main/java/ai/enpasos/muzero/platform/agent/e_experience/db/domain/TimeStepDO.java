@@ -64,13 +64,13 @@ public class TimeStepDO {
 
 
     public boolean needsTraining(boolean historyReliable, int n) {
-        n = 10;
+        n = 1;
         double normedSampleError =  getNormedSampleError();
         if ( getNormedSampleErrorBefore() == -1 || !historyReliable) {
             return normedSampleError > 1;
         }
         double normedSampleErrorChange = normedSampleError -  getNormedSampleErrorBefore();
-        return normedSampleError > 1 || (normedSampleError <= 1 && normedSampleErrorChange > Math.abs(normedSampleError - 1) / n)  ;
+        return normedSampleError > 1 || (normedSampleError <= 1 && normedSampleErrorChange > Math.abs(1 -normedSampleError) / n)  ;
     }
 
 
