@@ -100,7 +100,7 @@ muzero:
 
       numberOfTrainingSteps: 1000000
 
-      windowSize: 20000
+      windowSize: 10000
       initialRandomEpisodes: 300000
 
       numChannelsHiddenLayerSimilarityProjector: 50
