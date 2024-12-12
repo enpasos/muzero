@@ -64,7 +64,7 @@ public class TimeStepDO {
 
 
     public boolean needsTraining(boolean historyReliable, int n) {
-        n = 3;
+      //  n = 3;
         double normedSampleError =  getNormedSampleError();
         if ( getNormedSampleErrorBefore() == -1 || !historyReliable) {
             return normedSampleError > 1;
