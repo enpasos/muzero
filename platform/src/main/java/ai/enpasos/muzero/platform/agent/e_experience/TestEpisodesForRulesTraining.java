@@ -100,7 +100,7 @@ public class TestEpisodesForRulesTraining {
         // deside which of the tested episodes need to be trained and add them to the episodeBuffer
         gamesToAnalyse.forEach(g -> {
             boolean needToTrain = g.getEpisodeDO().getTimeSteps().stream().anyMatch(ts -> {
-                boolean needsTraining = ts.needsTraining(historyReliable, 10000);
+                boolean needsTraining = ts.needsTraining(historyReliable, 1);
                 ts.setToBeTrained(needsTraining);
                 return needsTraining ;
            }
