@@ -60,17 +60,16 @@ public class TimeStepDO {
     @Builder.Default
     float normedSampleErrorBefore = -1;
 
-
-
-
-    public boolean needsTraining(boolean historyReliable, int n) {
-      //  n = 3;
+    public boolean normedSampleErrorAbove1( ) {
         double normedSampleError =  getNormedSampleError();
-        if ( getNormedSampleErrorBefore() == -1 || !historyReliable) {
             return normedSampleError > 1;
-        }
+    }
+
+    public boolean normedSampleErrorBelowButAbove1InReach( ) {
+        double normedSampleError =  getNormedSampleError();
+            int n = 1;
         double normedSampleErrorChange = normedSampleError -  getNormedSampleErrorBefore();
-        return normedSampleError > 1 || (normedSampleError <= 1 && normedSampleErrorChange > Math.abs(1 -normedSampleError) / n)  ;
+        return  normedSampleError <= 1 && normedSampleErrorChange > (1 -normedSampleError) / n     ;
     }
 
 
