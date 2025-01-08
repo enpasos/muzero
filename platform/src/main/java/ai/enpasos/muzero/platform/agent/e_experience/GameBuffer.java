@@ -256,7 +256,7 @@ public class GameBuffer {
         games.forEach(g -> g.getEpisodeDO().setGame(g));
 
         List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
-                .filter(ts -> ts.isToBeTrained() && ts.getSampleErrorChange() > 1).collect(Collectors.toList());
+                .filter(ts -> ts.isToBeTrained() && (ts.getNormedSampleError() > 1 || ts.getSampleErrorChange() > 0.5    )).collect(Collectors.toList());
         return tsList.size() > 0;
     }
 
