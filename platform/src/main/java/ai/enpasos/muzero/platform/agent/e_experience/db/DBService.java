@@ -118,6 +118,16 @@ public class DBService {
         List<Long> ids = new ArrayList<>();
         int epoch = modelState.getEpoch();
         timesteps.stream().forEach(ts -> {
+            // workaround correct wrong uOKClosed
+            int tmax = ts.getEpisode().getLastTime();
+            boolean oldUOkClosed = ts.isUOkClosed();
+            boolean uOkClosed = tmax - ts.getT() <= ts.getUOk();
+            if (oldUOkClosed != uOkClosed) {
+                ts.setUOkClosed(uOkClosed);
+                ts.setUOkChanged(true);
+            }
+
+
 
             boolean boxesChanged = ts.changeBoxesBasesOnUOk(boxesRelevant, epoch, unrollSteps, muZeroConfig.getStayEpochs());
 
