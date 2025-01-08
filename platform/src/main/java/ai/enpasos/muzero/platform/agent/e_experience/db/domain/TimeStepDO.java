@@ -73,6 +73,11 @@ public class TimeStepDO {
     }
 
 
+    public boolean needsTrainingNow() {
+        return normedSampleErrorAbove1() || normedSampleErrorBelowButAbove1InReach();
+    }
+
+
     public void memorizeNormedSampleError() {
         this.normedSampleErrorBefore = normedSampleError;
     }

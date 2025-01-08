@@ -2,16 +2,12 @@ package ai.enpasos.muzero.platform.agent.e_experience;
 
 import ai.enpasos.muzero.platform.agent.a_loopcontrol.parallelEpisodes.PlayService;
 import ai.enpasos.muzero.platform.agent.d_model.djl.RulesBuffer;
-import ai.enpasos.muzero.platform.agent.d_model.service.ModelService;
-import ai.enpasos.muzero.platform.agent.d_model.service.ZipperFunctions;
 import ai.enpasos.muzero.platform.agent.e_experience.box.Boxing;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.EpisodeDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
-import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.memory2.ShortTimestep;
-import ai.enpasos.muzero.platform.common.DurAndMem;
 import ai.enpasos.muzero.platform.config.MuZeroConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static ai.enpasos.muzero.platform.agent.e_experience.GameBuffer.convertEpisodeDOsToGames;
 
@@ -100,7 +95,7 @@ public class TestEpisodesForRulesTraining {
         // deside which of the tested episodes need to be trained and add them to the episodeBuffer
         gamesToAnalyse.forEach(g -> {
             boolean needToTrain = g.getEpisodeDO().getTimeSteps().stream().anyMatch(ts -> {
-                boolean needsTraining = ts.normedSampleErrorAbove1( ) || ts.normedSampleErrorBelowButAbove1InReach();
+                boolean needsTraining = ts.needsTrainingNow() ;
                 ts.setToBeTrained(needsTraining);
                 return needsTraining ;
            }
