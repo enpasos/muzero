@@ -101,7 +101,7 @@ public class MuZeroLoop {
         boolean historyReliable = false;
         while (!ok) {
 
-            trainRules2(unrollSteps, historyReliable);
+            trainRules2(unrollSteps );
             if (!gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer() ) {  //!gameBuffer.areThereTimeStepsNOKinBuffer()) {
                 if (config.getMaxUnrollSteps() == unrollSteps) {
                     log.info("maxUnrollSteps reached ... ");
@@ -109,9 +109,9 @@ public class MuZeroLoop {
                 }
                 log.info("all timesteps in buffer are ok ... ");
                 unrollSteps++;
-                historyReliable = false;
+               // historyReliable = false;
             } else {
-                historyReliable = true;
+               // historyReliable = true;
             }
           //  trainRules();
           //  ok = trainPolicyAndValue(params);
@@ -120,7 +120,7 @@ public class MuZeroLoop {
         log.info("done");
     }
 
-    private void trainRules2(int unrollSteps, boolean historyReliable) throws InterruptedException, ExecutionException  {
+    private void trainRules2(int unrollSteps ) throws InterruptedException, ExecutionException  {
         int epoch;
         int trainingStep;
         boolean policyValueTraining = true;   // true: policy and value training, false: rules training
@@ -149,13 +149,13 @@ public class MuZeroLoop {
 
         int c = 0;
 
-        while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch, historyReliable)) {
+        while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
             if (gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer()) {
                 log.info("ruleTrain2 ... ");
-                ruleTrain2(durations, unrollSteps, historyReliable);
+                ruleTrain2(durations, unrollSteps);
             } else {
                 log.info("no timesteps to be trained and nok ... continue testing");
             }
@@ -398,13 +398,13 @@ public class MuZeroLoop {
         return epoch;
     }
 
-    private int ruleTrain2( List<DurAndMem> durations, int unrollSteps, boolean historyReliable ) throws InterruptedException, ExecutionException {
+    private int ruleTrain2( List<DurAndMem> durations, int unrollSteps ) throws InterruptedException, ExecutionException {
         int epoch;
         DurAndMem duration = new DurAndMem();
         duration.on();
         boolean[] freeze = new boolean[]{false, true, true};
      //   modelService.loadLatestModel().get();
-        modelService.trainModelRules2(freeze , unrollSteps, historyReliable  ).get();
+        modelService.trainModelRules2(freeze , unrollSteps   ).get();
         epoch = modelState.getEpoch();
         duration.off();
         durations.add(duration);

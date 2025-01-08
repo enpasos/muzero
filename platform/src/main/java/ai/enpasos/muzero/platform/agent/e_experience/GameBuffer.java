@@ -218,9 +218,9 @@ public class GameBuffer {
 //    }
 
 
-    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps, boolean historyReliable ) {
+    public List<Sample> sampleBatchFromRulesBuffer(int numUnrollSteps  ) {
 
-        List<TimeStepDO> tsList = getTimeStepDOsFromRulesBufferToBeTrained(historyReliable);
+        List<TimeStepDO> tsList = getTimeStepDOsFromRulesBufferToBeTrained( );
         Collections.shuffle(tsList);
         tsList = tsList.subList(0, Math.min(tsList.size(), this.batchSize));
 
@@ -232,7 +232,7 @@ public class GameBuffer {
         }
     }
 
-    private @NotNull List<TimeStepDO> getTimeStepDOsFromRulesBufferToBeTrained( boolean historyReliable) {
+    private @NotNull List<TimeStepDO> getTimeStepDOsFromRulesBufferToBeTrained(  ) {
         List<Game> games = getGamesFromRulesBuffer();
         games.forEach(g -> g.getEpisodeDO().setGame(g));
 

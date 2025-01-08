@@ -67,9 +67,7 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
     public boolean isSaveModel() {
         return saveModel;
     }
-    public boolean isHistoryReliable() {
-        return historyReliable;
-    }
+
 
     public boolean isBackground() {
         return background;
@@ -87,8 +85,5 @@ public synchronized void setNumUnrollSteps(int numUnrollSteps) {
         return exportFilter;
     }
 
-private boolean historyReliable = false;
-    public void setHistoryReliable(boolean historyReliable) {
-        this.historyReliable = historyReliable;
-    }
+
 }

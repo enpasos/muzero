@@ -110,14 +110,14 @@ public class BatchFactory {
 
     }
 
-    public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType, boolean historyReliable) {
+    public Batch getBatchFromBuffer(@NotNull NDManager ndManager, boolean withSymmetryEnrichment, int numUnrollSteps, int batchSize, TrainingDatasetType trainingDatasetType ) {
         List<Sample> sampleList = null;
         switch(trainingDatasetType) {
             case PLANNING_BUFFER:
                 sampleList = gameBuffer.sampleBatchFromPlanningBuffer(numUnrollSteps);
                 break;
             case RULES_BUFFER:
-                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps, historyReliable);
+                sampleList = gameBuffer.sampleBatchFromRulesBuffer(numUnrollSteps );
                // log.info("sampleList.size(): {}", sampleList.size());
                 break;
             case REANALYSE_BUFFER:

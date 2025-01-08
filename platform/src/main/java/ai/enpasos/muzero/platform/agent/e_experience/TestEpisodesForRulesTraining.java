@@ -53,7 +53,7 @@ public class TestEpisodesForRulesTraining {
     // test all timesteps in the episodes with rollout of unrollSteps
     // store the result in the db
     // deside which of the tested episodes need to be trained and add them to the episodeBuffer
-    public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag, int epoch, boolean historyReliable) {
+    public boolean test(int unrollSteps, int numEpisodesToTest, boolean startFlag, int epoch) {
         log.info("test: epoch={}, startFlag={}, unrollSteps={}, numEpisodesToTest={} ... ", epoch, startFlag, unrollSteps, numEpisodesToTest);
         if (startFlag) {
             reset();
