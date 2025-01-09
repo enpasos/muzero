@@ -148,8 +148,12 @@ public class TestEpisodesForRulesTraining {
         timesteps.forEach(ts -> log.info("id: {}, normedSampleError: {}, normedSampleErrorBefore: {}, normedSampleErrorChange: {}, uOk: {}, uOkClosed: {}",
                 ts.getId(), ts.getNormedSampleError(), ts.getNormedSampleErrorBefore(), ts.getSampleErrorChange(), ts.getUOk(), ts.isUOkClosed()));
 
-        int numTimestepsToBeTrained = bufferGames.stream().mapToInt(g -> g.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.isToBeTrained() ? 1 : 0).sum()).sum();
-        double avgSampleError = bufferGames.stream().mapToDouble(g -> g.getEpisodeDO().getTimeSteps().stream().filter(TimeStepDO::isToBeTrained).mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0)).average().orElse(0);
+        int numTimestepsToBeTrained = timesteps.size();
+
+                //bufferGames.stream().mapToInt(g -> g.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.isToBeTrained() ? 1 : 0).sum()).sum();
+        double avgSampleError = timesteps.stream().mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0);
+
+                //bufferGames.stream().mapToDouble(g -> g.getEpisodeDO().getTimeSteps().stream().filter(TimeStepDO::isToBeTrained).mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0)).average().orElse(0);
 
 
         log.info("epoch: {}, unrollSteps: {}, numTimestepsToBeTrained: {}, avgSampleError: {}", epoch, unrollSteps, numTimestepsToBeTrained, avgSampleError);
