@@ -236,7 +236,7 @@ public class GameBuffer {
         List<Game> games = getGamesFromRulesBuffer();
         games.forEach(g -> g.getEpisodeDO().setGame(g));
         return games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
-                .filter(TimeStepDO::isToBeTrained)
+               // .filter(TimeStepDO::isToBeTrained)
                 .collect(Collectors.toList());
     }
 
