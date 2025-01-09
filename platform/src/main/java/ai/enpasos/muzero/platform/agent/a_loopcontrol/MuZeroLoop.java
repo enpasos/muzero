@@ -147,13 +147,16 @@ public class MuZeroLoop {
         log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
         testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
         testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
-        testEpisodesForRulesTraining.removeGamesWithNoTimestepsToBeTrained(bufferGames);
-        // this does not remove the games from the buffer
+
+        // first remove from rulesBuffer all games with no timesteps to be trained then from the copied list
         bufferGames.forEach(g -> {
             if (g.getEpisodeDO().getTimeSteps().stream().noneMatch(TimeStepDO::isToBeTrained)) {
                 gameBuffer.getRulesBuffer().getEpisodeMemory().remove(g);
             }
         });
+        testEpisodesForRulesTraining.removeGamesWithNoTimestepsToBeTrained(bufferGames);
+
+
         //Collections.shuffle(bufferGames);
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();
