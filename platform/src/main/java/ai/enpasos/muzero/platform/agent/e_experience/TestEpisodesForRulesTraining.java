@@ -141,7 +141,7 @@ public class TestEpisodesForRulesTraining {
         // count the number of timesteps to be trained
         // calculate the average sample error
         int numTimestepsToBeTrained = bufferGames.stream().mapToInt(g -> g.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.isToBeTrained() ? 1 : 0).sum()).sum();
-        double avgSampleError = bufferGames.stream().mapToDouble(g -> g.getEpisodeDO().getTimeSteps().stream().mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0)).average().orElse(0);
+        double avgSampleError = bufferGames.stream().mapToDouble(g -> g.getEpisodeDO().getTimeSteps().stream().filter(TimeStepDO::isToBeTrained).mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0)).average().orElse(0);
 
 
         log.info("epoch: {}, unrollSteps: {}, numTimestepsToBeTrained: {}, avgSampleError: {}", epoch, unrollSteps, numTimestepsToBeTrained, avgSampleError);
