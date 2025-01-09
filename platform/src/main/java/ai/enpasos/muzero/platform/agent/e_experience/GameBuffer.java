@@ -489,7 +489,18 @@ public class GameBuffer {
 
     public void refreshCache(List<Long> idsTsChanged, int epoch) {
         Set<ShortTimestep>  shortTimesteps = getShortTimestepSetFromCacheFillCacheIfEmpty( );
-        List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
+
+        // split idsTsChanged in batches of 50000 and get the shortTimesteps adding them to the shortTimestepsNew
+        List<ShortTimestep> shortTimestepsNew = new ArrayList<>();
+        for (int i = 0; i < idsTsChanged.size(); i += 50000) {
+            List<Long> batch = idsTsChanged.subList(i, Math.min(i + 50000, idsTsChanged.size()));
+            shortTimestepsNew.addAll(timestepRepo.getShortTimestepList(batch));
+        }
+
+        //List<ShortTimestep> shortTimestepsNew =  timestepRepo.getShortTimestepList(idsTsChanged);
+
+
+
         shortTimesteps.removeAll(shortTimestepsNew );
         shortTimesteps.addAll(shortTimestepsNew );
         Map<Long, ShortEpisode>  episodeIdToOldShortEpisodes = episodeIdToShortEpisodes;
