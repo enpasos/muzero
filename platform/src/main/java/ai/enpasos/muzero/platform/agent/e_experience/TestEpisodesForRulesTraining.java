@@ -79,11 +79,25 @@ public class TestEpisodesForRulesTraining {
         List<Game> gamesToAnalyse = convertEpisodeDOsToGames(episodeDOList, config);
         Collections.shuffle(gamesToAnalyse);
 
+
+        analyseGames(unrollSteps, epoch, gamesToAnalyse);
+
+
+        gamesToAnalyse.forEach(g -> {
+             // if any timestep needs training, add the game to the rulesBuffer
+            if (g.getEpisodeDO().getTimeSteps().stream().anyMatch(TimeStepDO::isToBeTrained))
+                gameBuffer.getRulesBuffer().addGame(g);
+        });
+        return true;
+    }
+
+    public void analyseGames(int unrollSteps, int epoch, List<Game> gamesToAnalyse) {
+
         gamesToAnalyse.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
-        uOkAnalyseGames(  gamesToAnalyse,  unrollSteps);
+        uOkAnalyseGames(gamesToAnalyse, unrollSteps);
 
         // db update also in uOK and box
-        List<TimeStepDO> allTimeSteps = episodeDOList.stream().flatMap(episodeDO -> episodeDO.getTimeSteps().stream())
+        List<TimeStepDO> allTimeSteps = gamesToAnalyse.stream().flatMap(game -> game.getEpisodeDO().getTimeSteps().stream())
                 .collect(Collectors.toList());
         // TODO check and likely remove the relevant boxes here.
         List<Integer> relevantBoxes = Boxing.boxesRelevant(epoch);
@@ -104,12 +118,7 @@ public class TestEpisodesForRulesTraining {
                 gameBuffer.getRulesBuffer().addGame(g);
             }
         });
-
-        return true;
     }
-
-
-
 
 
     public void reset() {
@@ -128,4 +137,14 @@ public class TestEpisodesForRulesTraining {
 
     }
 
+    public void logStatisticalInfoAboutGamesInRulesBuffer(List<Game> bufferGames, int unrollSteps, int epoch) {
+        // count the number of timesteps to be trained
+        // calculate the average sample error
+        int numTimestepsToBeTrained = bufferGames.stream().mapToInt(g -> g.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.isToBeTrained() ? 1 : 0).sum()).sum();
+        double avgSampleError = bufferGames.stream().mapToDouble(g -> g.getEpisodeDO().getTimeSteps().stream().mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0)).average().orElse(0);
+
+
+        log.info("epoch: {}, unrollSteps: {}, numTimestepsToBeTrained: {}, avgSampleError: {}", epoch, unrollSteps, numTimestepsToBeTrained, avgSampleError);
+
+    }
 }

@@ -235,21 +235,12 @@ public class GameBuffer {
     private @NotNull List<TimeStepDO> getTimeStepDOsFromRulesBufferToBeTrained(  ) {
         List<Game> games = getGamesFromRulesBuffer();
         games.forEach(g -> g.getEpisodeDO().setGame(g));
-
-        List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
-              //  .filter(ts -> ts.needsTraining(historyReliable, 10000))
+        return games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
+                .filter(TimeStepDO::isToBeTrained)
                 .collect(Collectors.toList());
-        return tsList;
     }
 
-    public boolean areThereTimeStepsToBeTrainedInRulesBuffer() {
-        List<Game> games = getGamesFromRulesBuffer();
-        games.forEach(g -> g.getEpisodeDO().setGame(g));
 
-        List<TimeStepDO> tsList = games.stream().map(g -> g.getEpisodeDO().getTimeSteps()).flatMap(List::stream)
-                .filter(ts -> ts.isToBeTrained() ).collect(Collectors.toList());
-        return tsList.size() > 0;
-    }
 
     public boolean areThereTimeStepsToBeTrainedAndNokInRulesBuffer() {
         List<Game> games = getGamesFromRulesBuffer();

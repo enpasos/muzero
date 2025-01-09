@@ -98,20 +98,15 @@ public class MuZeroLoop {
 
         boolean ok = false;
         int unrollSteps = 1;
-        boolean historyReliable = false;
         while (!ok) {
-
             trainRules2(unrollSteps );
-            if (!gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer() ) {  //!gameBuffer.areThereTimeStepsNOKinBuffer()) {
+            if (!gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer() ) {
                 if (config.getMaxUnrollSteps() == unrollSteps) {
                     log.info("maxUnrollSteps reached ... ");
                     return;
                 }
                 log.info("all timesteps in buffer are ok ... ");
                 unrollSteps++;
-               // historyReliable = false;
-            } else {
-               // historyReliable = true;
             }
           //  trainRules();
           //  ok = trainPolicyAndValue(params);
@@ -137,11 +132,21 @@ public class MuZeroLoop {
 
         gameBuffer.clearShortObjectsCache();
 
+
+        log.info("fillRuleBufferFromDB ... ");
         gameBuffer.fillRuleBufferFromDB(10000);
+
+
+
      //   ruleBufferService.run();
       //  int unrollSteps = 1;   // just an example
       //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
+
+        log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
+        testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
+        testEpisodesForRulesTraining.logStatisticalInfoAboutGamesInRulesBuffer(bufferGames, unrollSteps, epoch);
+
         Collections.shuffle(bufferGames);
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();
