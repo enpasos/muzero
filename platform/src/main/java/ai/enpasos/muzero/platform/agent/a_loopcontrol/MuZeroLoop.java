@@ -27,6 +27,7 @@ import ai.enpasos.muzero.platform.agent.e_experience.GameBuffer;
 import ai.enpasos.muzero.platform.agent.e_experience.RuleBufferService;
 import ai.enpasos.muzero.platform.agent.e_experience.TestEpisodesForRulesTraining;
 import ai.enpasos.muzero.platform.agent.e_experience.db.DBService;
+import ai.enpasos.muzero.platform.agent.e_experience.db.domain.TimeStepDO;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.EpisodeRepo;
 import ai.enpasos.muzero.platform.agent.e_experience.db.repo.TimestepRepo;
 import ai.enpasos.muzero.platform.common.DurAndMem;
@@ -147,7 +148,13 @@ public class MuZeroLoop {
         testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
         testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
         testEpisodesForRulesTraining.removeGamesWithNoTimestepsToBeTrained(bufferGames);
-        Collections.shuffle(bufferGames);
+        // this does not remove the games from the buffer
+        bufferGames.forEach(g -> {
+            if (g.getEpisodeDO().getTimeSteps().stream().anyMatch(TimeStepDO::isToBeTrained)) {
+                gameBuffer.getRulesBuffer().getEpisodeMemory().remove(g);
+            }
+        });
+        //Collections.shuffle(bufferGames);
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();
         boolean start = true;

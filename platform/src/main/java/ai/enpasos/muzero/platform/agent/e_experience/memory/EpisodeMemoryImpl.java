@@ -31,7 +31,10 @@ public class EpisodeMemoryImpl implements EpisodeMemory {
     }
 
 
-
+    @Override
+    synchronized public void remove(Game game) {
+            gameList.remove(game);
+    }
 
 
     @Override

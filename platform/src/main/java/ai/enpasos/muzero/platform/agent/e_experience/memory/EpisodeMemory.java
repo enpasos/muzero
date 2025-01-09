@@ -11,6 +11,8 @@ public interface EpisodeMemory {
 
     void add(Game game);
 
+    void remove(Game game);
+
     int getNumberOfEpisodes();
 
     void setCapacity(int i);
