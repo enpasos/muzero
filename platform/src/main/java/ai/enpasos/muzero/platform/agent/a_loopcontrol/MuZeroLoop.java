@@ -146,7 +146,7 @@ public class MuZeroLoop {
         log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
         testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
         testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
-
+        testEpisodesForRulesTraining.removeGamesWithNoTimestepsToBeTrained(bufferGames);
         Collections.shuffle(bufferGames);
 
         int numEpisodesToTest = config.getNumParallelGamesPlayed();

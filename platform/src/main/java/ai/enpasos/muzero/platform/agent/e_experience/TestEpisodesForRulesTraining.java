@@ -155,4 +155,8 @@ public class TestEpisodesForRulesTraining {
         log.info("epoch: {}, unrollSteps: {}, numTimestepsToBeTrained: {}, avgSampleError: {}", epoch, unrollSteps, numTimestepsToBeTrained, avgSampleError);
 
     }
+
+    public void removeGamesWithNoTimestepsToBeTrained(List<Game> bufferGames) {
+        bufferGames.removeIf(g -> g.getEpisodeDO().getTimeSteps().stream().noneMatch(TimeStepDO::isToBeTrained));
+    }
 }
