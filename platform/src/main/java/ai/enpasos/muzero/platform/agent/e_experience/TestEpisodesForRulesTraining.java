@@ -152,7 +152,8 @@ public class TestEpisodesForRulesTraining {
         int numTimestepsToBeTrained = timesteps.size();
         double avgSampleError = timesteps.stream().mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0);
 
-        log.info("epoch: {}, unrollSteps: {}, numTimestepsToBeTrained: {}, avgSampleError: {}", epoch, unrollSteps, numTimestepsToBeTrained, avgSampleError);
+        log.info("epoch: {}, unrollSteps: {}, datasource: {}, dataSource episode num: {}, numTimestepsToBeTrained: {}, avgSampleError: {}",
+                epoch, unrollSteps, dataSourceDescription, bufferGames.size(), numTimestepsToBeTrained, avgSampleError);
 
     }
 
