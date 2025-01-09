@@ -145,7 +145,7 @@ public class MuZeroLoop {
 
         log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
         testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
-        testEpisodesForRulesTraining.logStatisticalInfoAboutGamesInRulesBuffer(bufferGames, unrollSteps, epoch);
+        testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
 
         Collections.shuffle(bufferGames);
 
@@ -158,7 +158,7 @@ public class MuZeroLoop {
             start = false;
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            if (gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer()) {
+            if (gameBuffer.getRulesBuffer().isBufferFilled() && gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer()) {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
             } else {

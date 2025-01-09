@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +82,8 @@ public class TestEpisodesForRulesTraining {
 
         analyseGames(unrollSteps, epoch, gamesToAnalyse);
 
+        logStatisticalInfoAboutGames("newly tested data", gamesToAnalyse,   unrollSteps,  epoch);
+
 
         gamesToAnalyse.forEach(g -> {
              // if any timestep needs training, add the game to the rulesBuffer
@@ -138,23 +139,18 @@ public class TestEpisodesForRulesTraining {
 
     }
 
-    public void logStatisticalInfoAboutGamesInRulesBuffer(List<Game> bufferGames, int unrollSteps, int epoch) {
+    public void logStatisticalInfoAboutGames(String dataSourceDescription, List<Game> bufferGames, int unrollSteps, int epoch) {
         // count the number of timesteps to be trained
         // calculate the average sample error
 
         // sortiere isToBeTrained TS nach normedSampleError. Logge dann diese TS mit id, normedSampleError, normedSampleErrorBefore, normedSampleErrorChange, uOk, uOkClosed
         List<TimeStepDO> timesteps = bufferGames.stream().map(g -> g.getEpisodeDO().getTimeSteps().stream().filter(ts -> ts.isToBeTrained()).collect(Collectors.toList())).flatMap(List::stream).collect(Collectors.toList());
         Collections.sort(timesteps, Comparator.comparing(TimeStepDO::getNormedSampleError).reversed());
-        timesteps.forEach(ts -> log.info("id: {}, normedSampleError: {}, normedSampleErrorBefore: {}, normedSampleErrorChange: {}, uOk: {}, uOkClosed: {}",
-                ts.getId(), ts.getNormedSampleError(), ts.getNormedSampleErrorBefore(), ts.getSampleErrorChange(), ts.getUOk(), ts.isUOkClosed()));
+        timesteps.forEach(ts -> log.info("datasource: {}, id: {}, normedSampleError: {}, normedSampleErrorBefore: {}, normedSampleErrorChange: {}, uOk: {}, uOkClosed: {}",
+                dataSourceDescription, ts.getId(), ts.getNormedSampleError(), ts.getNormedSampleErrorBefore(), ts.getSampleErrorChange(), ts.getUOk(), ts.isUOkClosed()));
 
         int numTimestepsToBeTrained = timesteps.size();
-
-                //bufferGames.stream().mapToInt(g -> g.getEpisodeDO().getTimeSteps().stream().mapToInt(ts -> ts.isToBeTrained() ? 1 : 0).sum()).sum();
         double avgSampleError = timesteps.stream().mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0);
-
-                //bufferGames.stream().mapToDouble(g -> g.getEpisodeDO().getTimeSteps().stream().filter(TimeStepDO::isToBeTrained).mapToDouble(TimeStepDO::getNormedSampleError).average().orElse(0)).average().orElse(0);
-
 
         log.info("epoch: {}, unrollSteps: {}, numTimestepsToBeTrained: {}, avgSampleError: {}", epoch, unrollSteps, numTimestepsToBeTrained, avgSampleError);
 
