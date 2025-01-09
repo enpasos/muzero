@@ -142,19 +142,9 @@ public class MuZeroLoop {
      //   ruleBufferService.run();
       //  int unrollSteps = 1;   // just an example
       //  testUnrollRulestate.testForEpisodeId(epoch, unrollSteps,   2082001L);  // just for testing
-        List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
 
-        log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
-        testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
-        testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
-
-        // first remove from rulesBuffer all games with no timesteps to be trained then from the copied list
-        bufferGames.forEach(g -> {
-            if (g.getEpisodeDO().getTimeSteps().stream().noneMatch(TimeStepDO::isToBeTrained)) {
-                gameBuffer.getRulesBuffer().getEpisodeMemory().remove(g);
-            }
-        });
-        testEpisodesForRulesTraining.removeGamesWithNoTimestepsToBeTrained(bufferGames);
+        testRulesBuffer(unrollSteps, epoch);
+        // List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
 
 
         //Collections.shuffle(bufferGames);
@@ -168,15 +158,34 @@ public class MuZeroLoop {
             start = false;
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            if (gameBuffer.getRulesBuffer().isBufferFilled() && gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer()) {
+            if (gameBuffer.getRulesBuffer().isBufferFilled()) {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
-            } else {
-                log.info("no timesteps to be trained and nok ... continue testing");
+                testRulesBuffer(unrollSteps, epoch);
             }
+        }
+        if (!gameBuffer.getRulesBuffer().isBufferFilled()) {
+            throw new RuntimeException("ruleTrain2 ... rulesBuffer not filled ... t.b.d.");
+
+//            ruleTrain2(durations, unrollSteps);
+//            testRulesBuffer(unrollSteps, epoch);
         }
 
 
+    }
+
+    private void testRulesBuffer(int unrollSteps, int epoch ) {
+        List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
+        log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
+        testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
+        testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
+
+        // first remove from rulesBuffer all games with no timesteps to be trained then from the copied list
+        bufferGames.forEach(g -> {
+            if (g.getEpisodeDO().getTimeSteps().stream().noneMatch(TimeStepDO::isToBeTrained)) {
+                gameBuffer.getRulesBuffer().getEpisodeMemory().remove(g);
+            }
+        });
     }
 
 //    private int groupingForRulesTraining(List<DurAndMem> durations, List<Game> bufferGames, int unrollSteps, int dn) throws InterruptedException, ExecutionException {
