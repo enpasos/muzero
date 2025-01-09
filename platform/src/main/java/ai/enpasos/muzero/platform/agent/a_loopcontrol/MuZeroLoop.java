@@ -101,7 +101,9 @@ public class MuZeroLoop {
         int unrollSteps = 1;
         while (!ok) {
             trainRules2(unrollSteps );
-            if (!gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer() ) {
+
+            // for now increase unrollSteps if rulesBuffer is not completely filled
+            if (!gameBuffer.areThereTimeStepsToBeTrainedAndNokInRulesBuffer() || !gameBuffer.getRulesBuffer().isBufferFilled()) {
                 if (config.getMaxUnrollSteps() == unrollSteps) {
                     log.info("maxUnrollSteps reached ... ");
                     return;
@@ -153,7 +155,6 @@ public class MuZeroLoop {
         boolean start = true;
 
         int c = 0;
-
         while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
             epoch = modelState.getEpoch();
@@ -164,12 +165,12 @@ public class MuZeroLoop {
                 testRulesBuffer(unrollSteps, epoch);
             }
         }
-        if (!gameBuffer.getRulesBuffer().isBufferFilled()) {
-            throw new RuntimeException("ruleTrain2 ... rulesBuffer not filled ... t.b.d.");
+  //      if (!gameBuffer.getRulesBuffer().isBufferFilled()) {
+   //         throw new RuntimeException("ruleTrain2 ... rulesBuffer not filled ... t.b.d.");
 
 //            ruleTrain2(durations, unrollSteps);
 //            testRulesBuffer(unrollSteps, epoch);
-        }
+       // }
 
 
     }
