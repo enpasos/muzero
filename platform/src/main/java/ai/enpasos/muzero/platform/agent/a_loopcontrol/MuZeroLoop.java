@@ -150,7 +150,7 @@ public class MuZeroLoop {
         testEpisodesForRulesTraining.removeGamesWithNoTimestepsToBeTrained(bufferGames);
         // this does not remove the games from the buffer
         bufferGames.forEach(g -> {
-            if (g.getEpisodeDO().getTimeSteps().stream().anyMatch(TimeStepDO::isToBeTrained)) {
+            if (g.getEpisodeDO().getTimeSteps().stream().noneMatch(TimeStepDO::isToBeTrained)) {
                 gameBuffer.getRulesBuffer().getEpisodeMemory().remove(g);
             }
         });
