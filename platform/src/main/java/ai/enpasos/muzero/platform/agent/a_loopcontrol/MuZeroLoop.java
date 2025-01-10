@@ -180,7 +180,7 @@ public class MuZeroLoop {
     private void testRulesBuffer(int unrollSteps, int epoch ) {
         List<Game> bufferGames = gameBuffer.getRulesBuffer().getEpisodeMemory().getGameList();
         log.info("testEpisodesForRulesTraining.analyseGames in rulesBuffer ... ");
-        testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames);
+        testEpisodesForRulesTraining.analyseGames(unrollSteps, epoch, bufferGames, true);
         testEpisodesForRulesTraining.logStatisticalInfoAboutGames("ruleBuffer", bufferGames, unrollSteps, epoch);
 
         // first remove from rulesBuffer all games with no timesteps to be trained then from the copied list

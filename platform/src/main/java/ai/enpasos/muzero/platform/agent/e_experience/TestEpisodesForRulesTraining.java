@@ -80,7 +80,7 @@ public class TestEpisodesForRulesTraining {
         Collections.shuffle(gamesToAnalyse);
 
 
-        analyseGames(unrollSteps, epoch, gamesToAnalyse);
+        analyseGames(unrollSteps, epoch, gamesToAnalyse, false);
 
         gamesToAnalyse.forEach(g -> {
              // if any timestep needs training, add the game to the rulesBuffer
@@ -94,7 +94,7 @@ public class TestEpisodesForRulesTraining {
         return true;
     }
 
-    public void analyseGames(int unrollSteps, int epoch, List<Game> gamesToAnalyse) {
+    public void analyseGames(int unrollSteps, int epoch, List<Game> gamesToAnalyse, boolean includeInReachErrors) {
 
         gamesToAnalyse.forEach(g -> g.getEpisodeDO().getTimeSteps().forEach(TimeStepDO::memorizeNormedSampleError));
         uOkAnalyseGames(gamesToAnalyse, unrollSteps);
@@ -112,7 +112,7 @@ public class TestEpisodesForRulesTraining {
         // deside which of the tested episodes need to be trained and add them to the episodeBuffer
         gamesToAnalyse.forEach(g -> {
             boolean needToTrain = g.getEpisodeDO().getTimeSteps().stream().anyMatch(ts -> {
-                boolean needsTraining = ts.needsTrainingNow() ;
+                boolean needsTraining = ts.normedSampleErrorAbove1() || ( includeInReachErrors && ts.normedSampleErrorBelowButAbove1InReach());
                 ts.setToBeTrained(needsTraining);
                 return needsTraining ;
            }
