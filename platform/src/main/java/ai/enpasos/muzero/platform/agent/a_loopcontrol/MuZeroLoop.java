@@ -155,15 +155,17 @@ public class MuZeroLoop {
         boolean start = true;
 
         int c = 0;
+        int numEpisodesInRulesBuffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
         while (testEpisodesForRulesTraining.test(unrollSteps, numEpisodesToTest, start, epoch)) {
             start = false;
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            if (gameBuffer.getRulesBuffer().isBufferFilled()) {
+            if (gameBuffer.getRulesBuffer().isBufferFilled() || numEpisodesInRulesBuffer == gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes()) {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
                 testRulesBuffer(unrollSteps, epoch);
             }
+            numEpisodesInRulesBuffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
         }
   //      if (!gameBuffer.getRulesBuffer().isBufferFilled()) {
    //         throw new RuntimeException("ruleTrain2 ... rulesBuffer not filled ... t.b.d.");

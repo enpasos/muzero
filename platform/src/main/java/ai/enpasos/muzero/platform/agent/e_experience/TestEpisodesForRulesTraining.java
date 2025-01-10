@@ -82,14 +82,15 @@ public class TestEpisodesForRulesTraining {
 
         analyseGames(unrollSteps, epoch, gamesToAnalyse);
 
-        logStatisticalInfoAboutGames("newly tested data", gamesToAnalyse,   unrollSteps,  epoch);
-
-
         gamesToAnalyse.forEach(g -> {
              // if any timestep needs training, add the game to the rulesBuffer
             if (g.getEpisodeDO().getTimeSteps().stream().anyMatch(TimeStepDO::isToBeTrained))
                 gameBuffer.getRulesBuffer().addGame(g);
         });
+
+        logStatisticalInfoAboutGames("newly tested data that need training", gamesToAnalyse,   unrollSteps,  epoch);
+        log.info("rulesBuffer, num of episodes: {}", gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes());
+        log.info("is rulesBuffer filled: {}", gameBuffer.getRulesBuffer().isBufferFilled());
         return true;
     }
 
