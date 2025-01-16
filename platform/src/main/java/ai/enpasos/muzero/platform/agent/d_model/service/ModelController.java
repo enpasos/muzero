@@ -354,7 +354,7 @@ public class ModelController implements DisposableBean, Runnable {
 
                 int n_episodes_in_Buffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
                 int n_buffer_max = config.getWindowSize();
-                int n = numberOfTrainingStepsPerEpoch / n_buffer_max * n_episodes_in_Buffer;
+                int n = (int)(numberOfTrainingStepsPerEpoch * n_episodes_in_Buffer  * 1d/ n_buffer_max) ;
 
                 log.info("n_episodes_in_Buffer: {}, n_buffer_max: {}, n: {}", n_episodes_in_Buffer, n_buffer_max, n);
 
