@@ -166,7 +166,7 @@ public class MuZeroLoop {
            if (gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes() > 0) {
                     log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
-                testRulesBuffer(unrollSteps, epoch);
+              //  testRulesBuffer(unrollSteps, epoch);
              }
             numEpisodesInRulesBuffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
         }
