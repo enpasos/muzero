@@ -162,10 +162,12 @@ public class MuZeroLoop {
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
             //if (c % 10 == 0 || gameBuffer.getRulesBuffer().isBufferFilled() || numEpisodesInRulesBuffer == gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes()) {
            // if (gameBuffer.getRulesBuffer().isBufferFilled() || numEpisodesInRulesBuffer == gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes()) {
+
+           if (gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes()> 0) {
                     log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
                 testRulesBuffer(unrollSteps, epoch);
-          //  }
+             }
             numEpisodesInRulesBuffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
         }
   //      if (!gameBuffer.getRulesBuffer().isBufferFilled()) {
