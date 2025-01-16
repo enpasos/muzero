@@ -160,7 +160,7 @@ public class MuZeroLoop {
             start = false;
             epoch = modelState.getEpoch();
             log.info("testEpisodesForRulesTraining.test() ... , count = {}", c++);
-            if (gameBuffer.getRulesBuffer().isBufferFilled() || numEpisodesInRulesBuffer == gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes()) {
+            if (c % 10 == 0 || gameBuffer.getRulesBuffer().isBufferFilled() || numEpisodesInRulesBuffer == gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes()) {
                 log.info("ruleTrain2 ... ");
                 ruleTrain2(durations, unrollSteps);
                 testRulesBuffer(unrollSteps, epoch);
