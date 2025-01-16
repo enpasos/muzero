@@ -307,13 +307,8 @@ public class ModelController implements DisposableBean, Runnable {
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
 
 
-                int n_episodes_in_Buffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
-                int n_buffer_max = config.getWindowSize();
-                int n = numberOfTrainingStepsPerEpoch / n_buffer_max * n_episodes_in_Buffer;
 
-                log.info("n_episodes_in_Buffer: {}, n_buffer_max: {}, n: {}", n_episodes_in_Buffer, n_buffer_max, n);
-
-                for (int m = 0; m < n; m++) {
+                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
                     try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, config.getNumUnrollSteps(), config.getBatchSize(), trainingDatasetType)) {
                         log.debug("trainBatch " + m);
                         MyEasyTrain.trainBatch(trainer, batch);
@@ -356,7 +351,14 @@ public class ModelController implements DisposableBean, Runnable {
                 trainer.initialize(inputShapes);
                 trainer.setMetrics(new Metrics());
                 ((DCLAware) model.getBlock()).freezeParameters(freeze);
-                for (int m = 0; m < numberOfTrainingStepsPerEpoch; m++) {
+
+                int n_episodes_in_Buffer = gameBuffer.getRulesBuffer().getEpisodeMemory().getNumberOfEpisodes();
+                int n_buffer_max = config.getWindowSize();
+                int n = numberOfTrainingStepsPerEpoch / n_buffer_max * n_episodes_in_Buffer;
+
+                log.info("n_episodes_in_Buffer: {}, n_buffer_max: {}, n: {}", n_episodes_in_Buffer, n_buffer_max, n);
+
+                for (int m = 0; m < n; m++) {
                     try (Batch batch = batchFactory.getBatchFromBuffer(trainer.getManager(), withSymmetryEnrichment, unrollSteps, config.getBatchSize(), trainingDatasetType )) {
                         log.debug("trainBatch " + m);
                         MyEasyTrainRules.trainBatch(trainer, batch);
